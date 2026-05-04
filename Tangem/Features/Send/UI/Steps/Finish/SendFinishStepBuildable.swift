@@ -48,16 +48,13 @@ enum SendFinishStepBuilder {
 
     struct Types {
         let title: String
-        let secondaryButtonTitle: String?
         let tokenItem: TokenItem
 
         init(
             title: String = Localization.sentTransactionSentTitle,
-            secondaryButtonTitle: String? = nil,
             tokenItem: TokenItem
         ) {
             self.title = title
-            self.secondaryButtonTitle = secondaryButtonTitle
             self.tokenItem = tokenItem
         }
     }
@@ -83,7 +80,7 @@ enum SendFinishStepBuilder {
     ) -> ReturnValue {
         let settings = SendFinishViewModel.Settings(
             title: types.title,
-            secondaryButtonTitle: types.secondaryButtonTitle,
+            isSwapAwareFlow: sendAmountFinishViewModel?.isSwapAwareFlow ?? false,
             possibleToShowExploreButtons: !types.tokenItem.blockchain.isTransactionAsync
         )
 
