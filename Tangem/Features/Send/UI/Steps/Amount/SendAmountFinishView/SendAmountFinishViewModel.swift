@@ -191,7 +191,7 @@ private extension SendAmountFinishViewModel {
             }
 
             let amountText: String = if let formattedAmount, useSwapInProgressV2, isApproximateAmount {
-                "\(AppConstants.tildeSign) \(formattedAmount)"
+                "\(AppConstants.tildeSign)\(formattedAmount)"
             } else {
                 formattedAmount ?? ""
             }
