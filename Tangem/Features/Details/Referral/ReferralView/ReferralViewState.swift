@@ -10,11 +10,6 @@ import TangemAccounts
 import TangemUI
 
 extension ReferralViewModel {
-    enum WorkMode {
-        case plainUserTokensManager(UserTokensManager)
-        case accounts(AccountModelsManager)
-    }
-
     enum ViewState {
         case loading
         case loaded(LoadedState)
