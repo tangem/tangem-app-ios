@@ -39,12 +39,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .detentBottomSheet(
-                item: $coordinator.tokenNetworkSelectorCoordinator,
-                detents: [.large],
-            ) {
-                MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
-            }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
@@ -71,7 +65,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                         }
                 }
             }
-            .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
+            .fullScreenCover(item: $coordinator.tokenDetailsCoordinator) { item in
                 NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
@@ -80,7 +74,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                             }
                         }
                 }
-            })
+            }
     }
 
     private var backButton: some View {

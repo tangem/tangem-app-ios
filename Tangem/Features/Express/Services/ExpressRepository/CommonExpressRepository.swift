@@ -35,8 +35,11 @@ extension CommonExpressRepository: ExpressRepository {
         return providers
     }
 
-    func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws -> [ExpressProvider.Id] {
-        try await expressPairsRepository.getAvailableProviders(for: pair, rateType: rateType)
+    func getAvailableProvidersIds(
+        for pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType?
+    ) async -> [ExpressProvider.Id] {
+        await expressPairsRepository.getAvailableProvidersIds(for: pair, rateType: rateType)
     }
 }
 

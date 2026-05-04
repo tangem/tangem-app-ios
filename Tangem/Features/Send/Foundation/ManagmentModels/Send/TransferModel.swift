@@ -405,10 +405,6 @@ extension TransferModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension TransferModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {
-        // No-op: swap functionality not supported
-    }
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         _isSending.eraseToAnyPublisher()
     }
@@ -473,16 +469,13 @@ extension TransferModel: NotificationTapDelegate {
              .retryKaspaTokenTransaction,
              .stake,
              .openLink,
+             .openDeeplink,
              .swap,
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
              .support,
              .openCurrency,
-             .seedSupportYes,
-             .seedSupportNo,
-             .seedSupport2Yes,
-             .seedSupport2No,
              .unlock,
              .addTokenTrustline,
              .openMobileFinishActivation,
@@ -491,7 +484,8 @@ extension TransferModel: NotificationTapDelegate {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .openCloreMigration:
+             .openCloreMigration,
+             .openManageTokensAfterWalletSuccessImport:
             assertionFailure("Notification tap not handled")
         }
     }

@@ -138,7 +138,7 @@ private extension CommonTokenQuotesRepository {
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 let userWallets = repository.userWalletRepository.models
-                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWallets)
+                let walletModels = AccountWalletModelsAggregator.walletModels(from: userWallets)
                 let userCurrencyIds = walletModels.compactMap(\.tokenItem.currencyId).unique()
                 return repository.loadQuotes(currencyIds: userCurrencyIds)
             }
@@ -151,7 +151,7 @@ private extension CommonTokenQuotesRepository {
 
         let currencyCode = AppSettings.shared.selectedCurrencyCode
 
-        let fields: [QuotesDTO.Request.Fields] = [.price, .priceChange24h, .lastUpdatedAt, .priceChange7d, .priceChange30d]
+        let fields: [QuotesDTO.Request.Fields] = [.price, .priceUsd, .priceChange24h, .lastUpdatedAt, .priceChange7d, .priceChange30d]
 
         // We get here currencyIds. But on in the API model we named it like coinIds
         let request = QuotesDTO.Request(
@@ -181,6 +181,7 @@ private extension CommonTokenQuotesRepository {
         TokenQuote(
             currencyId: quote.id,
             price: quote.price,
+            priceUsd: quote.priceUsd,
             priceChange24h: quote.priceChange,
             priceChange7d: quote.priceChange7d,
             priceChange30d: quote.priceChange30d,

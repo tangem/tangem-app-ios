@@ -1,5 +1,5 @@
 {
-  "originHash" : "0bc027f2ffd96db9d2a91326060fe93eda90b9f923668da6c198c7354c2844ea",
+  "originHash" : "6f993d1382a4547adb578182c2e40320404df5717ce7aaca222ee0434afa5a06",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -89,6 +89,15 @@
       "state" : {
         "revision" : "7f723a2e55f1c76e7c79263aebf89dbfcd58e77d",
         "version" : "0.10.2"
+      }
+    },
+    {
+      "identity" : "bdk-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitcoindevkit/bdk-swift",
+      "state" : {
+        "revision" : "c38d7caa06ec26289cb40b1ea42531aea631c47e",
+        "version" : "2.3.1"
       }
     },
     {
@@ -276,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "dc605c8e3d1120d6418ae8adda7f658b24174e68",
-        "version" : "1.41.1"
+        "revision" : "6f2cbea2363aba3553843c3715ad66e6f61a2b63",
+        "version" : "1.42.0"
       }
     },
     {
@@ -411,8 +420,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "3846c2c20d8fc423981b86186cde92229fea3e1f",
-        "version" : "2.2.4"
+        "revision" : "35bad6889201a4028096f40a978a427e6cef0b24",
+        "version" : "2.2.8"
       }
     },
     {
@@ -447,8 +456,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/Solana.Swift.git",
       "state" : {
-        "revision" : "9ebd28be65dd60322b91a114b2645f1f4171d9d2",
-        "version" : "1.2.0-tangem18"
+        "revision" : "493281fedf15f6a70a221c9e46803b17dfb8f8c6",
+        "version" : "1.2.0-tangem19"
       }
     },
     {
@@ -476,6 +485,15 @@
       "state" : {
         "revision" : "0d9dcc32538bb47fadeaf5c907fa8cfd154a87e9",
         "version" : "3.1.0-tangem1"
+      }
+    },
+    {
+      "identity" : "surveysparrow-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/surveysparrow/surveysparrow-ios-sdk.git",
+      "state" : {
+        "revision" : "cdb2cddc2c35b53ad3fa71ccfaf4620b630e1ee2",
+        "version" : "1.2.7"
       }
     },
     {
@@ -780,8 +798,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "69c399a96a596e36dba36fec589f376d0a43ac33",
-        "version" : "0.10.46"
+        "revision" : "c670309e6593875ba8211b9722d465b92d7ea2cf",
+        "version" : "0.10.50"
       }
     },
     {
