@@ -1,0 +1,281 @@
+{
+  "font": {
+    "display": {
+      "size": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_SIZE"
+            ]
+          },
+          "$type": "fontSizes",
+          "$value": "44"
+        }
+      },
+      "lineHeight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LINE_HEIGHT"
+            ]
+          },
+          "$type": "lineHeights",
+          "$value": "52"
+        }
+      },
+      "weight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_WEIGHT"
+            ]
+          },
+          "$type": "fontWeights",
+          "$value": "{font.weight.semibold}"
+        }
+      },
+      "spacing": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LETTER_SPACING"
+            ]
+          },
+          "$type": "letterSpacing",
+          "$value": "-0.92"
+        }
+      }
+    },
+    "heading": {
+      "size": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_SIZE"
+            ]
+          },
+          "$type": "fontSizes",
+          "$value": "28"
+        },
+        "small": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_SIZE"
+            ]
+          },
+          "$type": "fontSizes",
+          "$value": "20"
+        }
+      },
+      "lineHeight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LINE_HEIGHT"
+            ]
+          },
+          "$type": "lineHeights",
+          "$value": "33"
+        },
+        "small": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LINE_HEIGHT"
+            ]
+          },
+          "$type": "lineHeights",
+          "$value": "24"
+        }
+      },
+      "weight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_WEIGHT"
+            ]
+          },
+          "$type": "fontWeights",
+          "$value": "{font.weight.semibold}"
+        },
+        "small": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_WEIGHT"
+            ]
+          },
+          "$type": "fontWeights",
+          "$value": "{font.weight.semibold}"
+        }
+      },
+      "spacing": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LETTER_SPACING"
+            ]
+          },
+          "$type": "letterSpacing",
+          "$value": "-0.37"
+        },
+        "small": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LETTER_SPACING"
+            ]
+          },
+          "$type": "letterSpacing",
+          "$value": "-0.12"
+        }
+      }
+    },
+    "body": {
+      "size": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_SIZE"
+            ]
+          },
+          "$type": "fontSizes",
+          "$value": "16"
+        }
+      },
+      "lineHeight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LINE_HEIGHT"
+            ]
+          },
+          "$type": "lineHeights",
+          "$value": "20"
+        }
+      },
+      "weight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_WEIGHT"
+            ]
+          },
+          "$type": "fontWeights",
+          "$value": "{font.weight.medium}"
+        }
+      },
+      "spacing": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LETTER_SPACING"
+            ]
+          },
+          "$type": "letterSpacing",
+          "$value": "0.02"
+        }
+      }
+    },
+    "subheading": {
+      "size": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_SIZE"
+            ]
+          },
+          "$type": "fontSizes",
+          "$value": "14"
+        }
+      },
+      "lineHeight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LINE_HEIGHT"
+            ]
+          },
+          "$type": "lineHeights",
+          "$value": "17"
+        }
+      },
+      "weight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_WEIGHT"
+            ]
+          },
+          "$type": "fontWeights",
+          "$value": "{font.weight.medium}"
+        }
+      },
+      "spacing": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LETTER_SPACING"
+            ]
+          },
+          "$type": "letterSpacing",
+          "$value": "0.07"
+        }
+      }
+    },
+    "caption": {
+      "size": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_SIZE"
+            ]
+          },
+          "$type": "fontSizes",
+          "$value": "12"
+        }
+      },
+      "lineHeight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LINE_HEIGHT"
+            ]
+          },
+          "$type": "lineHeights",
+          "$value": "16"
+        }
+      },
+      "weight": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "FONT_WEIGHT"
+            ]
+          },
+          "$type": "fontWeights",
+          "$value": "{font.weight.medium}"
+        }
+      },
+      "spacing": {
+        "medium": {
+          "$extensions": {
+            "com.figma.scopes": [
+              "LETTER_SPACING"
+            ]
+          },
+          "$type": "letterSpacing",
+          "$value": "0.18"
+        }
+      }
+    },
+    "family": {
+      "base": {
+        "$extensions": {
+          "com.figma.scopes": [
+            "FONT_FAMILY"
+          ]
+        },
+        "$type": "fontFamilies",
+        "$value": "{font.family.android}"
+      }
+    }
+  }
+}
