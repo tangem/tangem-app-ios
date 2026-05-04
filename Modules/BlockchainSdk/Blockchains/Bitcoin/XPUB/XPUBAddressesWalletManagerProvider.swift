@@ -9,6 +9,8 @@
 import Foundation
 
 public protocol XPUBAddressesWalletManagerProvider {
+    var hasPendingUnspentOutputs: Bool { get }
+
     func compoundTransactionIfNeeded() -> (amount: Amount, destination: String)?
     func updateToXpubKey(xpubKey: Wallet.PublicKey.XPUBKey) throws
     func updateToPlainKey() throws
