@@ -53,11 +53,11 @@ struct SolanaCommonALTLookupTableDispatcher: SolanaALTLookupTableDispatcher {
     // MARK: - Implementation
 
     func dispatchLookupTableAccount(staticKeys: [PublicKey], altKeys: [PublicKey]) async throws -> AddressLookupTableAccount? {
-        let altKeyСhunks: [[PublicKey]] = stride(from: 0, to: altKeys.count, by: Constants.maxKeysPerALTLookupTable).map {
+        let altKeyChunks: [[PublicKey]] = stride(from: 0, to: altKeys.count, by: Constants.maxKeysPerALTLookupTable).map {
             Array(altKeys[$0 ..< min($0 + Constants.maxKeysPerALTLookupTable, altKeys.count)])
         }
 
-        guard let toCreateTableAccountKeys = altKeyСhunks.first else {
+        guard let toCreateTableAccountKeys = altKeyChunks.first else {
             throw BlockchainSdkError.failedToFindTxInputs
         }
 
@@ -71,7 +71,7 @@ struct SolanaCommonALTLookupTableDispatcher: SolanaALTLookupTableDispatcher {
 
         // 7. Extend the lookup table with additional keys if needed
         try await extendedLookupTableAccountIfNeeded(
-            with: altKeyСhunks,
+            with: altKeyChunks,
             to: createLookupTableAccountAddress,
             existedKeys: createdLookupTableAccount.state.addresses
         )

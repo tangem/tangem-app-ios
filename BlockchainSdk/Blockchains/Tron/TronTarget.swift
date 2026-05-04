@@ -13,6 +13,7 @@ struct TronTarget: TargetType {
     enum TronTargetType {
         case getChainParameters
         case getAccount(address: String)
+        case getAccountInfoByAddress(address: String)
         case getAccountResource(address: String)
         case getNowBlock
         case broadcastHex(data: Data)
@@ -40,6 +41,8 @@ struct TronTarget: TargetType {
             return "/wallet/getchainparameters"
         case .getAccount:
             return "/wallet/getaccount"
+        case .getAccountInfoByAddress(let address):
+            return "/v1/accounts/\(address)"
         case .getAccountResource:
             return "/wallet/getaccountresource"
         case .getNowBlock:
@@ -54,12 +57,19 @@ struct TronTarget: TargetType {
     }
 
     var method: Moya.Method {
-        .post
+        switch type {
+        case .getAccountInfoByAddress:
+            return .get
+        default:
+            return .post
+        }
     }
 
     var task: Task {
         switch type {
         case .getChainParameters:
+            return .requestPlain
+        case .getAccountInfoByAddress:
             return .requestPlain
         case .getAccount(let address), .getAccountResource(let address):
             let request = TronGetAccountRequest(address: address, visible: true)

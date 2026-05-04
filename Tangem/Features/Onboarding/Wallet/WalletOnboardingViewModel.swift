@@ -976,9 +976,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
 extension WalletOnboardingViewModel {
     func openReadMoreAboutSeedPhraseScreen() {
-        let baseUrl = AppEnvironment.current.tangemComBaseUrl
-        let url = baseUrl.appendingPathComponent("seed-phrase-\(Locale.webLanguageCode()).html")
-        coordinator?.openWebView(with: url)
+        let url = TangemBlogUrlBuilder().url(post: .seedPhraseFaq)
+        coordinator?.openBrowser(at: url, onSuccess: { _ in })
         logAnalytics(.onboardingSeedButtonReadMore)
     }
 

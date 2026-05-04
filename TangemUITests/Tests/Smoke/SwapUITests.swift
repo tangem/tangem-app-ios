@@ -31,7 +31,7 @@ final class SwapUITests: BaseTestCase {
     func testChangeCommissionType_receivedAmountChanged() {
         setAllureId(3547)
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

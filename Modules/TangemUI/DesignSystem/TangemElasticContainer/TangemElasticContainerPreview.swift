@@ -58,19 +58,19 @@ struct TangemElasticContainerPreview: View {
     private var elasticContent: some View {
         HStack(spacing: 24) {
             TangemButton(
-                content: .icon(Assets.arrowDownMini),
+                content: .icon(Assets.DesignSystem.arrowDown),
                 action: {}
             )
             .setStyleType(.primary)
 
             TangemButton(
-                content: .icon(Assets.swappingIcon),
+                content: .icon(Assets.DesignSystem.exchange),
                 action: {}
             )
             .setStyleType(.primary)
 
             TangemButton(
-                content: .icon(Assets.dollarMini),
+                content: .icon(Assets.DesignSystem.dollar),
                 action: {}
             )
             .setStyleType(.primary)

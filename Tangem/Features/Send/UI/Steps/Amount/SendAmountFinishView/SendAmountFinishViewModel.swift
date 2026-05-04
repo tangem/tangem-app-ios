@@ -17,15 +17,14 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
 
     @Published private var tokenHeader: SendTokenHeader?
     @Published private var tokenIconInfo: TokenIconInfo?
-    @Published private var amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel?
-    @Published private var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
+    @Published private var amountText: String?
     @Published private var alternativeAmount: String?
 
     @Published private var receiveSmallAmountViewModel: SendAmountFinishSmallAmountViewModel?
     @Published private var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
 
-    private let prefixSuffixOptionsFactory = SendDecimalNumberTextField.PrefixSuffixOptionsFactory()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let balanceFormatter = BalanceFormatter()
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -54,8 +53,7 @@ private extension SendAmountFinishViewModel {
         guard
             let tokenHeader,
             let tokenIconInfo,
-            let amountDecimalNumberTextFieldViewModel,
-            let amountFieldOptions
+            let amountText
         else {
             return nil
         }
@@ -65,8 +63,7 @@ private extension SendAmountFinishViewModel {
                 .init(
                     tokenHeader: tokenHeader,
                     tokenIconInfo: tokenIconInfo,
-                    amountDecimalNumberTextFieldViewModel: amountDecimalNumberTextFieldViewModel,
-                    amountFieldOptions: amountFieldOptions,
+                    amountText: amountText,
                     alternativeAmount: alternativeAmount
                 )
             )
@@ -76,8 +73,7 @@ private extension SendAmountFinishViewModel {
             source: .init(
                 tokenHeader: tokenHeader,
                 tokenIconInfo: tokenIconInfo,
-                amountDecimalNumberTextFieldViewModel: amountDecimalNumberTextFieldViewModel,
-                amountFieldOptions: amountFieldOptions,
+                amountText: amountText,
                 alternativeAmount: alternativeAmount
             ),
             destination: receiveSmallAmountViewModel,
@@ -132,7 +128,6 @@ private extension SendAmountFinishViewModel {
     private func updateView(sourceToken: SendSourceToken, flowActionType: SendFlowActionType, sourceAmount: LoadingResult<SendAmount, any Error>) {
         tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
         tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
-        amountDecimalNumberTextFieldViewModel = .init(maximumFractionDigits: sourceToken.tokenItem.decimalCount)
         alternativeAmount = sourceAmount.value?.formatAlternative(
             currencySymbol: sourceToken.tokenItem.currencySymbol,
             decimalCount: sourceToken.tokenItem.decimalCount
@@ -140,15 +135,17 @@ private extension SendAmountFinishViewModel {
 
         switch sourceAmount.value?.type {
         case .typical(let crypto, _):
-            amountFieldOptions = prefixSuffixOptionsFactory.makeCryptoOptions(
-                cryptoCurrencyCode: sourceToken.tokenItem.currencySymbol
-            )
-            amountDecimalNumberTextFieldViewModel?.update(value: crypto)
+            amountText = crypto.map {
+                SendCryptoValueFormatter(
+                    decimals: sourceToken.tokenItem.decimalCount,
+                    currencySymbol: sourceToken.tokenItem.currencySymbol,
+                    trimFractions: false
+                ).string(from: $0)
+            }
         case .alternative(let fiat, _):
-            amountFieldOptions = prefixSuffixOptionsFactory.makeFiatOptions(
-                fiatCurrencyCode: AppSettings.shared.selectedCurrencyCode
-            )
-            amountDecimalNumberTextFieldViewModel?.update(value: fiat)
+            amountText = fiat.map {
+                balanceFormatter.formatFiatBalance($0)
+            }
         case nil:
             break
         }
@@ -159,9 +156,6 @@ private extension SendAmountFinishViewModel {
         case (.none, _):
             receiveSmallAmountViewModel = nil
         case (.some(let token), .success(let receiveAmount)):
-            let textField = DecimalNumberTextFieldViewModel(maximumFractionDigits: token.tokenItem.decimalCount)
-            textField.update(value: receiveAmount.crypto)
-
             let header: SendTokenHeader = if let token = token as? SendSourceToken {
                 token.header.asSendTokenHeader(actionType: flowActionType, isSource: false)
             } else {
@@ -169,13 +163,18 @@ private extension SendAmountFinishViewModel {
             }
 
             let tokenIconInfo = tokenIconInfoBuilder.build(from: token.tokenItem, isCustom: token.isCustom)
+            let amountText = receiveAmount.crypto.map {
+                SendCryptoValueFormatter(
+                    decimals: token.tokenItem.decimalCount,
+                    currencySymbol: token.tokenItem.currencySymbol,
+                    trimFractions: false
+                ).string(from: $0)
+            }
+
             receiveSmallAmountViewModel = .init(
                 tokenHeader: header,
                 tokenIconInfo: tokenIconInfo,
-                amountDecimalNumberTextFieldViewModel: textField,
-                amountFieldOptions: prefixSuffixOptionsFactory.makeCryptoOptions(
-                    cryptoCurrencyCode: token.tokenItem.currencySymbol
-                ),
+                amountText: amountText ?? "",
                 alternativeAmount: receiveAmount.formatAlternative(
                     currencySymbol: token.tokenItem.currencySymbol,
                     decimalCount: token.tokenItem.decimalCount

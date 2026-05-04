@@ -19,12 +19,18 @@ struct SendAmountInputView<FocusField: Hashable>: View {
     let cryptoFocusValue: FocusField
     let fiatFocusValue: FocusField
     var accessibilityConfiguration: SendAmountInputAccessibilityConfiguration?
+    var rateBadge: RateBadgeConfig?
     var onWillToggle: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .center, spacing: .zero) {
             textField
             bottomView
+
+            if let rateBadge {
+                rateBadgeButton(rateBadge)
+                    .padding(.top, 12)
+            }
         }
         .animation(SendAmountInputConstants.animation, value: field.amountType)
     }
@@ -35,6 +41,26 @@ struct SendAmountInputView<FocusField: Hashable>: View {
 private extension SendAmountInputView {
     var useFiatCalculation: Bool {
         field.amountType == .fiat
+    }
+
+    func rateBadgeButton(_ badge: RateBadgeConfig) -> some View {
+        Button(action: badge.action) {
+            HStack(spacing: 4) {
+                badge.icon.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 10, height: 10)
+                    .foregroundColor(Colors.Icon.informative)
+
+                Text(badge.title)
+                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+            }
+            .padding(4)
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Colors.Stroke.primary, lineWidth: 1)
+            )
+        }
     }
 
     @ViewBuilder
@@ -151,6 +177,14 @@ struct SendAmountInputAccessibilityConfiguration {
             }
         )
     }
+}
+
+// MARK: - RateBadgeConfig
+
+struct RateBadgeConfig {
+    let title: String
+    let icon: ImageType
+    let action: () -> Void
 }
 
 // MARK: - Constants

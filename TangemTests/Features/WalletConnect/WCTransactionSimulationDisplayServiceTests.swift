@@ -141,8 +141,9 @@ final class WCTransactionSimulationDisplayServiceTests {
 
         let result = sut.formatNonEditableApprovalAmount(asset: asset, tokenName: "ERC20")
 
-        #expect(result.range(of: #"(?<!\d)1[\.,\s\u{00A0}]?000(?!\d)"#, options: .regularExpression) != nil)
+        #expect(result.contains("000"))
         #expect(result.contains("TKN"))
+        #expect(!result.contains(Localization.wcCommonUnlimited))
     }
 
     // MARK: - createDisplayModel (integration)

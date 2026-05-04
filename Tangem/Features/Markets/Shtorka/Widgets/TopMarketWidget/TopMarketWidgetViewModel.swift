@@ -22,8 +22,9 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     let widgetType: MarketsWidgetType
-    private weak var coordinator: TopMarketWidgetRoutable?
+    let promotionNotificationsViewModel: PromotionNotificationsViewModel
 
+    private weak var coordinator: TopMarketWidgetRoutable?
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     private let analyticsService: TopMarketWidgetAnalyticsProvider
@@ -40,12 +41,14 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
     init(
         widgetType: MarketsWidgetType,
+        promotionNotificationsViewModel: PromotionNotificationsViewModel,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         analyticsService: TopMarketWidgetAnalyticsProvider,
         coordinator: TopMarketWidgetRoutable?
     ) {
         self.widgetType = widgetType
+        self.promotionNotificationsViewModel = promotionNotificationsViewModel
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.analyticsService = analyticsService
@@ -83,6 +86,8 @@ final class TopMarketWidgetViewModel: ObservableObject {
             viewModel.coordinator?.openSeeAllTopMarketWidget()
         }
     }
+
+    var itemsOnListWidget: Int { Constants.itemsOnListWidget }
 }
 
 // MARK: - Private Implementation
