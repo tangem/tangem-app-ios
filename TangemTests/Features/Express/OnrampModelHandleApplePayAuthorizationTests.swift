@@ -90,6 +90,52 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect((outcome.lastErrors.first as NSError?)?.domain == "Swift.CancellationError")
     }
 
+    @Test("KYC required → result.fail(error) once and KYC sheet opened on router")
+    func kycRequiredOpensSheet() async {
+        let kycError = StubFixtures.makeKYCRequiredError()
+        let manager = StubOnrampManager(mode: .throwsError(kycError))
+        let router = StubOnrampModelRoutable()
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+
+        let outcome = await runHandleAndAwaitResult(on: model, awaitRouterCall: router)
+
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .failure)
+        // PassKit bridges Error → NSError, so the Swift type of `ExpressAPIError`
+        // is not directly recoverable; presence of one error + router invocation
+        // proves the KYC catch matched.
+        #expect(outcome.lastErrors.count == 1)
+        #expect(router.openKYCCallCount == 1)
+        #expect(router.lastKYCURL == nil)
+    }
+
+    @Test("userDidAuthorizeNativePayment KYC required → resultHandler.fail(error) and KYC sheet opened")
+    func userDidAuthorizeNativePaymentKYCRequiredOpensSheet() async {
+        let kycError = StubFixtures.makeKYCRequiredError()
+        let manager = StubOnrampManager(mode: .throwsError(kycError))
+        let router = StubOnrampModelRoutable()
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+
+        let recorder = ResultHandlerRecorder(eventLog: eventLog)
+        await withCheckedContinuation { continuation in
+            router.onOpenKYC = { continuation.resume() }
+            model.userDidAuthorizeNativePayment(
+                provider: OnrampTestFixtures.makeProvider(),
+                applePayResult: StubFixtures.makeApplePayResult(),
+                resultHandler: { recorder.record($0) }
+            )
+        }
+
+        let outcome = recorder.snapshot
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .failure)
+        #expect(outcome.lastErrors.count == 1)
+        #expect(router.openKYCCallCount == 1)
+        #expect(router.lastKYCURL == nil)
+    }
+
     // MARK: - Helpers
 
     private func makeModel(onrampManager: OnrampManager) -> OnrampModel {
@@ -117,6 +163,27 @@ final class OnrampModelHandleApplePayAuthorizationTests {
 
         await withCheckedContinuation { continuation in
             recorder.onFirstCall = { continuation.resume() }
+            model.handleApplePayAuthorization(result)
+        }
+
+        return recorder.snapshot
+    }
+
+    private func runHandleAndAwaitResult(
+        on model: OnrampModel,
+        awaitRouterCall router: StubOnrampModelRoutable
+    ) async -> ResultOutcome {
+        let recorder = ResultHandlerRecorder(eventLog: eventLog)
+        let result = ApplePayAuthorizationResult(
+            provider: OnrampTestFixtures.makeProvider(),
+            applePayResult: StubFixtures.makeApplePayResult(),
+            resultHandler: { recorder.record($0) }
+        )
+
+        // Router is invoked AFTER result.fail in the catch branch, so awaiting
+        // router invocation guarantees the recorder has already fired.
+        await withCheckedContinuation { continuation in
+            router.onOpenKYC = { continuation.resume() }
             model.handleApplePayAuthorization(result)
         }
 
@@ -274,6 +341,38 @@ private final class StubOnrampPendingTransactionRepository: OnrampPendingTransac
     func hideSwapTransaction(with id: String) {}
 }
 
+private final class StubOnrampModelRoutable: OnrampModelRoutable, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _openKYCCallCount = 0
+    private var _lastKYCURL: URL?
+    var onOpenKYC: (() -> Void)?
+
+    var openKYCCallCount: Int {
+        lock.lock(); defer { lock.unlock() }
+        return _openKYCCallCount
+    }
+
+    var lastKYCURL: URL? {
+        lock.lock(); defer { lock.unlock() }
+        return _lastKYCURL
+    }
+
+    func openOnrampCountryBottomSheet(country: OnrampCountry) {}
+    func openOnrampCountrySelectorView() {}
+    func openOnrampRedirecting() {}
+    func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
+    func openFinishStep() {}
+
+    func openOnrampKYCVerification(provider: OnrampProvider, kycURL: URL?) {
+        lock.lock()
+        _openKYCCallCount += 1
+        _lastKYCURL = kycURL
+        let callback = onOpenKYC
+        lock.unlock()
+        callback?()
+    }
+}
+
 private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     // SendBaseViewAnalyticsLogger
     func logSendBaseViewOpened() {}
@@ -341,5 +440,12 @@ private enum StubFixtures {
                 billingAddress: nil
             )
         )
+    }
+
+    static func makeKYCRequiredError() -> ExpressAPIError {
+        // ExpressAPIError has no public memberwise init; decode from JSON instead.
+        let json = #"{"code": 2600, "description": "kyc required"}"#
+        let data = Data(json.utf8)
+        return try! JSONDecoder().decode(ExpressAPIError.self, from: data)
     }
 }
