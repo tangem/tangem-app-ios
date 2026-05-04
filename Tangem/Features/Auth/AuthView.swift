@@ -20,7 +20,7 @@ struct AuthView: View {
             .allowsHitTesting(viewModel.allowsHitTesting)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .background(Colors.Background.secondary.ignoresSafeArea())
-            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .onFirstDidAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
     }

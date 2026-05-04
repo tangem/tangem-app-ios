@@ -10,8 +10,11 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemNFT
+import SurveySparrowSdk
 
-class EnvironmentSetupCoordinator: CoordinatorObject {
+final class EnvironmentSetupCoordinator: CoordinatorObject {
+    @Injected(\.keysManager) private var keysManager: any KeysManager
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -86,5 +89,29 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
         )
 
         designSystemDemoCoordinator?.start(with: ())
+    }
+
+    func openSparrowSurveyClassicDemo(withToken token: String) {
+        openSparrowSurveyDemo(withToken: token, surveyType: .CLASSIC)
+    }
+
+    func openSparrowSurveyChatDemo(withToken token: String) {
+        openSparrowSurveyDemo(withToken: token, surveyType: .CHAT)
+    }
+
+    func openSparrowSurveyNPSDemo(withToken token: String) {
+        openSparrowSurveyDemo(withToken: token, surveyType: .NPS)
+    }
+
+    private func openSparrowSurveyDemo(
+        withToken token: String,
+        surveyType: SurveySparrow.SurveyType
+    ) {
+        let surveyViewController = SsSurveyViewController()
+        surveyViewController.domain = keysManager.surveySparrow.domain
+        surveyViewController.token = token
+        surveyViewController.surveyType = surveyType
+
+        AppPresenter.shared.show(surveyViewController)
     }
 }

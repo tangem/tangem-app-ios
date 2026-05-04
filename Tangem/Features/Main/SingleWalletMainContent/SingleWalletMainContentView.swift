@@ -17,10 +17,6 @@ struct SingleWalletMainContentView: View {
         VStack(spacing: 14) {
             ScrollableButtonsView(itemsHorizontalOffset: 16, buttonsInfo: viewModel.actionButtons)
 
-            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
-                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
-            }
-
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -28,6 +24,12 @@ struct SingleWalletMainContentView: View {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
             }
+
+            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
+                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
+            }
+
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
             MarketPriceView(
                 currencySymbol: viewModel.currencySymbol,
@@ -61,24 +63,35 @@ struct SingleWalletMainContentView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct SingleWalletContentView_Preview: PreviewProvider {
     static let viewModel: SingleWalletMainContentViewModel = {
-        let mainCoordinator = MainCoordinator()
         let userWalletModel = FakeUserWalletModel.xrpNote
-        let walletModel = userWalletModel.walletModelsManager.walletModels.first!
+
+        let accountModel = userWalletModel
+            .accountModelsManager
+            .cryptoAccountModels[0]
+
+        let walletModel = accountModel
+            .walletModelsManager
+            .walletModels[0]
+
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
 
         return SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
-            walletModel: userWalletModel.walletModelsManager.walletModels.first!,
+            walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
             delegate: nil,
             coordinator: nil,
-            accountModel: nil
+            accountModel: accountModel
         )
     }()
 
@@ -87,3 +100,4 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             .background(Colors.Background.secondary)
     }
 }
+#endif // DEBUG

@@ -61,27 +61,17 @@ struct MarketsCommonWidgetHeaderView: View {
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
     }
 
-    @ViewBuilder
     private var buttonViewLabel: some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            HStack(spacing: 0) {
-                Text(buttonTitle ?? "")
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                Assets.chevron.image
-                    .frame(size: .init(bothDimensions: 24))
-            }
-        } else {
-            HStack(alignment: .center, spacing: Layout.ButtonView.contentSpacing) {
-                Text(buttonTitle ?? "")
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-            }
-            .defaultRoundedBackground(
-                with: Colors.Button.secondary,
-                verticalPadding: Layout.ButtonView.verticalPadding,
-                horizontalPadding: Layout.ButtonView.horizontalPadding,
-                cornerRadius: Layout.ButtonView.cornerRadius,
-            )
+        HStack(alignment: .center, spacing: Layout.ButtonView.contentSpacing) {
+            Text(buttonTitle ?? "")
+                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
         }
+        .defaultRoundedBackground(
+            with: Colors.Button.secondary,
+            verticalPadding: Layout.ButtonView.verticalPadding,
+            horizontalPadding: Layout.ButtonView.horizontalPadding,
+            cornerRadius: Layout.ButtonView.cornerRadius,
+        )
     }
 }
 
