@@ -11,7 +11,7 @@ import WalletCore
 import BlockchainSdk
 
 extension Curve {
-    /// Сonstructor that maps the sdk blockchain curve into the TrustWallet Curve.
+    /// Constructor that maps the sdk blockchain curve into the TrustWallet Curve.
     /// - Warning: Not for production use, use only for unit tests.
     init(blockchain: BlockchainSdk.Blockchain) throws {
         switch blockchain {

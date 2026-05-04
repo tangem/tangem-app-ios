@@ -46,6 +46,21 @@ struct TronGetAccountResponse: Decodable {
     let address: String
 }
 
+struct TronGetAccountInfoByAddressResponse: Decodable {
+    let data: [Account]
+
+    struct Account: Decodable {
+        let address: String?
+        let balance: UInt64?
+        let trc20: [[String: String]]?
+    }
+}
+
+struct TronAccountInfoByAddress {
+    let balance: Decimal
+    let tokenBalances: [String: Decimal]
+}
+
 struct TronGetAccountResourceResponse: Decodable {
     let freeNetUsed: Int?
     let freeNetLimit: Int

@@ -67,12 +67,6 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - User token list management
 
-    @available(iOS, deprecated: 100000.0, message: "Superseded by 'getUserAccounts(userWalletId:)', will be removed in the future ([REDACTED_INFO])")
-    func loadTokens(for key: String) -> AnyPublisher<UserTokenList?, TangemAPIError>
-
-    @available(iOS, deprecated: 100000.0, message: "Superseded by the async version of 'saveTokens(list:for:)', will be removed in the future ([REDACTED_INFO])")
-    func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError>
-
     func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws
 
     // MARK: - Action Buttons
@@ -83,7 +77,7 @@ protocol TangemApiService: AnyObject {
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError>
 
-    // MARK: - Promotions and awards
+    // MARK: - Awards
 
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo
     func participateInReferralProgram(
@@ -100,12 +94,10 @@ protocol TangemApiService: AnyObject {
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response
 
-    // MARK: - Seed Notify
+    // MARK: - Promotions
 
-    func getSeedNotifyStatus(userWalletId: String) async throws -> SeedNotifyDTO
-    func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws
-    func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO
-    func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws
+    func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response
+    func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response
 
     // MARK: - Configs
 

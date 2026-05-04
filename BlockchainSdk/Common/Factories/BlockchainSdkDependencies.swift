@@ -11,12 +11,15 @@ import Foundation
 public struct BlockchainSdkDependencies {
     let accountCreator: any AccountCreator
     let dataStorage: any BlockchainDataStorage
+    let isSolanaScaledUIEnabled: Bool
 
     public init(
         accountCreator: any AccountCreator,
-        dataStorage: any BlockchainDataStorage
+        dataStorage: any BlockchainDataStorage,
+        isSolanaScaledUIEnabled: Bool = true
     ) {
         self.accountCreator = accountCreator
         self.dataStorage = dataStorage
+        self.isSolanaScaledUIEnabled = isSolanaScaledUIEnabled
     }
 }
