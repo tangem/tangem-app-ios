@@ -94,7 +94,7 @@ struct SendFinishView: View {
             )
             .accessibilityIdentifier(SendAccessibilityIdentifiers.finishExploreButton)
             MainButton(
-                title: Localization.commonShare,
+                title: viewModel.secondaryButtonTitle,
                 icon: .leading(Assets.share),
                 style: .secondary,
                 action: { viewModel.share(url: url) }
