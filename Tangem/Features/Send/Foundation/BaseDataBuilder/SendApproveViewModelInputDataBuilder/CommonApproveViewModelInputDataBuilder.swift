@@ -47,8 +47,10 @@ private extension CommonApproveViewModelInputDataBuilder {
 
         let approveTransactionDispatcher = flowInput.sourceToken.transactionDispatcherProvider.makeApproveTransactionDispatcher()
 
+        let approveInteractorState = flowInput.makeApproveInteractorState()
+
         let interactor = ApproveInteractor(
-            approveData: flowInput.approveData,
+            approveInteractorState: approveInteractorState,
             initialPolicy: flowInput.selectedPolicy,
             approveAmount: flowInput.approveAmount,
             allowanceService: allowanceService,
@@ -59,6 +61,7 @@ private extension CommonApproveViewModelInputDataBuilder {
         )
 
         let settings = ApproveViewModel.Settings(
+            title: flowInput.localization.title,
             subtitle: flowInput.localization.subtitle,
             feeFooterText: flowInput.localization.feeFooterText,
             tokenItem: flowInput.sourceToken.tokenItem,
@@ -67,18 +70,11 @@ private extension CommonApproveViewModelInputDataBuilder {
         )
 
         let feeFormatter = CommonFeeFormatter()
-
-        let supportsFeeSelection = if FeatureProvider.isAvailable(.gaslessDexAndApprove) {
-            flowInput.tokenFeeProvidersManager.supportFeeSelection
-        } else {
-            false
-        }
-
         return ApproveViewModel.Input(
             settings: settings,
             feeFormatter: feeFormatter,
             interactor: interactor,
-            supportFeeSelection: supportsFeeSelection
+            supportFeeSelection: flowInput.tokenFeeProvidersManager.supportFeeSelection
         )
     }
 }
