@@ -17,7 +17,7 @@ struct FeeAnalyticsParameterBuilder {
 
     func analyticsParameter(selectedFee: FeeOption?) -> Analytics.ParameterValue {
         if isFixedFee {
-            return .transactionFeeFixed
+            return .fixed
         }
 
         guard let selectedFee else {

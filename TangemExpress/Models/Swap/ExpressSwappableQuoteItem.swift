@@ -13,17 +13,20 @@ public struct ExpressSwappableQuoteItem {
     public let source: ExpressWalletCurrency
     public let destination: ExpressWalletCurrency
     public let amountType: ExpressAmountType
+    public let rateType: ExpressProviderRateType
     public let providerInfo: ProviderInfo
 
     public init(
         source: ExpressWalletCurrency,
         destination: ExpressWalletCurrency,
         amountType: ExpressAmountType,
+        rateType: ExpressProviderRateType,
         providerInfo: ProviderInfo
     ) {
         self.source = source
         self.destination = destination
         self.amountType = amountType
+        self.rateType = rateType
         self.providerInfo = providerInfo
     }
 

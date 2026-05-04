@@ -62,6 +62,11 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private var isViewVisible: Bool = false
     private var isBottomSheetExpanded: Bool = false
 
+    private lazy var promotionNotificationsViewModel: PromotionNotificationsViewModel = {
+        let manager = NewsPromotionNotificationsManager()
+        return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
+    }()
+
     private lazy var headerDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
@@ -261,6 +266,7 @@ private extension MarketsMainViewModel {
         case .market:
             let viewModel = TopMarketWidgetViewModel(
                 widgetType: widgetModel.type,
+                promotionNotificationsViewModel: promotionNotificationsViewModel,
                 widgetsUpdateHandler: widgetsUpdateHandler,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
                 analyticsService: widgetAnalyticsService,

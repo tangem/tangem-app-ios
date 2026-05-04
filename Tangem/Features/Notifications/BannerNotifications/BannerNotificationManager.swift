@@ -104,8 +104,8 @@ class BannerNotificationManager {
             return Just([]).eraseToAnyPublisher()
         }
 
-        return AccountsFeatureAwareWalletModelsResolver
-            .walletModelsPublisher(for: userWalletModel)
+        return AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .map { $0.filter { $0.tokenItem.blockchain == .clore } }
             .map { walletModels -> AnyPublisher<[TokenBalanceType], Never> in
                 guard !walletModels.isEmpty else {

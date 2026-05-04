@@ -11,7 +11,6 @@ enum WalletConnectDAppConnectionRequestViewEvent {
     case verifiedDomainIconTapped
 
     case connectionRequestSectionHeaderTapped
-    case walletRowTapped
     case accountRowTapped
     case networksRowTapped
 

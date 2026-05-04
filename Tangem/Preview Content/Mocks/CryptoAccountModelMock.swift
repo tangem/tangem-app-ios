@@ -27,9 +27,9 @@ final class CryptoAccountModelMock {
         }
     }
 
-    private(set) var icon = AccountModel.Icon(
-        name: .cryptoAccountIcons.randomElement()!,
-        color: .cryptoAccountColors.randomElement()!
+    private(set) var icon: AccountModel.CompositeIcon = .init(
+        name: .allCases.randomElement()!,
+        color: .allCases.randomElement()!
     ) {
         didSet {
             if oldValue != icon {
@@ -146,7 +146,7 @@ private extension CryptoAccountModelMock {
             cryptoAccountModel.name = name
         }
 
-        func setIcon(_ icon: AccountModel.Icon) {
+        func setIcon(_ icon: AccountModel.CompositeIcon) {
             cryptoAccountModel.icon = icon
         }
     }

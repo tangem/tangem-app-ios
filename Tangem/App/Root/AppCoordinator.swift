@@ -71,8 +71,7 @@ class AppCoordinator: CoordinatorObject {
         let startupOption = startupProcessor.getStartupOption()
 
         switch startupOption {
-        case .welcome where options == .locked,
-             .auth where options == .locked:
+        case .auth where options == .locked:
             setupLock()
 
             runTask(in: self) { coordinator in
@@ -107,8 +106,6 @@ class AppCoordinator: CoordinatorObject {
                 setupAuth(unlockOnAppear: false)
             case .openMain(let model):
                 openMain(with: model)
-            case .openWelcome:
-                setupWelcome()
             }
         }
     }

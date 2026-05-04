@@ -27,19 +27,8 @@ extension OSLog {
 }
 
 extension OSLog {
-    private static let queue = DispatchQueue(label: subsystem)
-    private static let subsystem = "com.tangem.os.logger"
-    private static var loggers: [Category: OSLog] = [:]
-
+    /// Returns the pre-built `os.Logger` stored on the category.
     static func logger(for category: Category) -> OSLog {
-        queue.sync {
-            if let logger = loggers[category] {
-                return logger
-            }
-
-            let logger = OSLog(subsystem: subsystem, category: category.name.capitalized)
-            loggers[category] = logger
-            return logger
-        }
+        category.osLogger
     }
 }

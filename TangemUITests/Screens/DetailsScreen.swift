@@ -92,7 +92,7 @@ enum DetailsScreenElement: UIElement {
         case .walletConnectButton:
             return WalletConnectAccessibilityIdentifiers.detailsButton
         case .addNewWallet:
-            return "Add new wallet"
+            return "Add Wallet"
         case .contactSupport:
             return "Contact support"
         case .appSettings:

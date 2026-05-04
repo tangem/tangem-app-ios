@@ -51,6 +51,10 @@ final class CommonWalletTokenAutoSyncProgressService: WalletTokenAutoSyncProgres
         await store.eventPublisher(for: userWalletId)
     }
 
+    func removeProgress(for userWalletId: UserWalletId) async {
+        await store.remove(userWalletId: userWalletId)
+    }
+
     // MARK: - Init
 
     nonisolated init() {}
