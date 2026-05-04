@@ -1,0 +1,10 @@
+{
+  "gradient": {
+    "border": {
+      "template": {
+        "$type": "color",
+        "$value": "linear-gradient(135deg, {color.border.contrast.secondary} 0%, rgba({palette.base.white}, 0) 50%)"
+      }
+    }
+  }
+}
