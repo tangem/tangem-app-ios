@@ -34,13 +34,14 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
 
     init(
         flowActionType: SendFlowActionType,
+        isSwapAwareFlow: Bool = false,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
-        isSwapAwareFlow = swapProvidersInput != nil
+        self.isSwapAwareFlow = isSwapAwareFlow
         bind(
             flowActionType: flowActionType,
             sourceTokenInput: sourceTokenInput,
@@ -117,12 +118,13 @@ private extension SendAmountFinishViewModel {
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { viewModel, tuple in
+        .sink { viewModel, args in
+            let (receiveToken, receiveAmount, currentRateType) = args
             viewModel.updateView(
-                receiveToken: tuple.0.value,
+                receiveToken: receiveToken.value,
                 flowActionType: flowActionType,
-                receiveAmount: tuple.1,
-                isApproximateAmount: tuple.2 == .float
+                receiveAmount: receiveAmount,
+                isApproximateAmount: currentRateType == .float
             )
         }
         .store(in: &bag)

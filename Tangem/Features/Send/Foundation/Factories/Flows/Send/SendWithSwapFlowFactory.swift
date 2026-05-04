@@ -255,7 +255,7 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
     }
 
     var amountTypes: SendAmountStepBuilder.Types {
-        .init(initialSourceToken: sourceToken, flowActionType: .send)
+        .init(initialSourceToken: sourceToken, flowActionType: .send, isSwapAwareFlow: true)
     }
 
     var amountDependencies: SendAmountStepBuilder.Dependencies {
