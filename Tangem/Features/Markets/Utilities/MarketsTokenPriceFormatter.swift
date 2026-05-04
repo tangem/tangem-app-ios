@@ -82,6 +82,30 @@ final class MarketsTokenPriceFormatter {
         return formatPrice(value, formattingOptions: formattingOptions)
     }
 
+    func formatPrice(_ price: String) -> AttributedString {
+        let locale = Locale.current
+        let currencyCode = AppSettings.shared.selectedCurrencyCode
+        let numberFormatter = numberFormatter(
+            locale: locale,
+            currencyCode: currencyCode,
+            formattingOptions: defaultFormattingOptions
+        )
+
+        let formattingOptions = TotalBalanceFormattingOptions(
+            integerPartFont: .Tangem.Custom.titleRegular40,
+            fractionalPartFont: .Tangem.Custom.titleRegular40,
+            integerPartColor: .Tangem.Text.Neutral.primary,
+            fractionalPartColor: .Tangem.Text.Neutral.tertiary,
+            fractionalPartIncludesDecimalSeparator: true
+        )
+
+        return balanceFormatter.formatAttributedTotalBalance(
+            fiatBalance: price,
+            formattingOptions: formattingOptions,
+            formatter: numberFormatter
+        )
+    }
+
     private func makeFormattingOptions(forScale scale: Int) -> BalanceFormattingOptions {
         var formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions
         formattingOptions.maxFractionDigits = scale
@@ -93,20 +117,11 @@ final class MarketsTokenPriceFormatter {
     private func formatPrice(_ value: Decimal?, formattingOptions: BalanceFormattingOptions) -> String {
         let locale = Locale.current
         let currencyCode = AppSettings.shared.selectedCurrencyCode
-        let cacheKey = CacheKey(localeIdentifier: locale.identifier, currencyCode: currencyCode, formattingOptions: formattingOptions)
-        let numberFormatter: NumberFormatter
-
-        if let cachedNumberFormatter = Self.cachedNumberFormatters.value(forKey: cacheKey) {
-            numberFormatter = cachedNumberFormatter
-        } else {
-            numberFormatter = balanceFormatter.makeDefaultFiatFormatter(
-                forCurrencyCode: currencyCode,
-                locale: locale,
-                formattingOptions: formattingOptions
-            )
-
-            Self.cachedNumberFormatters.setValue(numberFormatter, forKey: cacheKey)
-        }
+        let numberFormatter = numberFormatter(
+            locale: locale,
+            currencyCode: currencyCode,
+            formattingOptions: formattingOptions
+        )
 
         return balanceFormatter.formatFiatBalance(
             value,
@@ -114,6 +129,27 @@ final class MarketsTokenPriceFormatter {
             formattingOptions: formattingOptions,
             formatter: numberFormatter
         )
+    }
+
+    private func numberFormatter(
+        locale: Locale,
+        currencyCode: String,
+        formattingOptions: BalanceFormattingOptions
+    ) -> NumberFormatter {
+        let cacheKey = CacheKey(localeIdentifier: locale.identifier, currencyCode: currencyCode, formattingOptions: formattingOptions)
+
+        if let cachedNumberFormatter = Self.cachedNumberFormatters.value(forKey: cacheKey) {
+            return cachedNumberFormatter
+        } else {
+            let numberFormatter = balanceFormatter.makeDefaultFiatFormatter(
+                forCurrencyCode: currencyCode,
+                locale: locale,
+                formattingOptions: formattingOptions
+            )
+
+            Self.cachedNumberFormatters.setValue(numberFormatter, forKey: cacheKey)
+            return numberFormatter
+        }
     }
 }
 

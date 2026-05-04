@@ -11,7 +11,7 @@ import WalletCore
 import BlockchainSdk
 
 extension PublicKeyType {
-    /// Сonstructor that maps the sdk blockchain type into the TrustWallet public key type
+    /// Constructor that maps the sdk blockchain type into the TrustWallet public key type
     /// - Warning: Not for production use, use only for unit tests.
     init(_ blockchain: BlockchainSdk.Blockchain) throws {
         switch blockchain {

@@ -548,12 +548,6 @@ private protocol NotificationEventProviding {
     var notificationEvent: (any NotificationEvent)? { get }
 }
 
-extension CommonUserTokensManager.Error: DynamicValidationError {
-    var preventsFromAdding: Bool {
-        true
-    }
-}
-
 private extension AddCustomTokenViewModel {
     enum TokenCreationErrors: DynamicValidationError, LocalizedError {
         case blockchainNotSelected

@@ -7,10 +7,14 @@
 //
 
 import Foundation
+import OSLog
 
 public struct OSLogCategory {
     public let name: String
     public let prefix: ((_ level: Logger.Level, _ option: Logger.PrefixOption) -> String)?
+
+    /// Pre-built `os.Logger` for this category.
+    let osLogger: os.Logger
 
     public init(
         name: String,
@@ -20,6 +24,7 @@ public struct OSLogCategory {
     ) {
         self.name = name
         self.prefix = prefix
+        osLogger = os.Logger(subsystem: OSLogConstants.subsystem, category: name.capitalized)
     }
 }
 

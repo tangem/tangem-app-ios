@@ -25,7 +25,7 @@ import SwiftUI
 /// is about half the size of the grey box.](AsyncImage-1)
 ///
 /// You can specify a custom placeholder using
-/// ``init(url:urlCache:scale:content:placeholder:)``. With this initializer, you can
+/// ``init(url:scale:content:placeholder:)``. With this initializer, you can
 /// also use the `content` parameter to manipulate the loaded image.
 /// For example, you can add a modifier to make the loaded image resizable:
 ///
@@ -48,7 +48,7 @@ import SwiftUI
 /// closure gets when defining the view's appearance.
 ///
 /// To gain more control over the loading process, use the
-/// ``init(url:urlCache:scale:transaction:content:)`` initializer, which takes a
+/// ``init(url:scale:transaction:content:)`` initializer, which takes a
 /// `content` closure that receives an ``AsyncImagePhase`` to indicate
 /// the state of the loading operation. Return a view that's appropriate
 /// for the current phase:
@@ -67,8 +67,6 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     @State private var phase: AsyncImagePhase
 
     private let urlRequest: URLRequest?
-
-    private let urlSession: URLSession
 
     private let scale: CGFloat
 
@@ -98,14 +96,13 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameters:
     ///   - url: The URL of the image to display.
-    ///   - urlCache: The URL cache for providing cached responses to requests within the session.
     ///   - scale: The scale to use for the image. The default is `1`. Set a
     ///     different value when loading images designed for higher resolution
     ///     displays. For example, set a value of `2` for an image that you
     ///     would name with the `@2x` suffix if stored in a file on disk.
-    public init(url: URL?, urlCache: URLCache = .shared, scale: CGFloat = 1) where Content == Image {
+    public init(url: URL?, scale: CGFloat = 1) where Content == Image {
         let urlRequest = url == nil ? nil : URLRequest(url: url!)
-        self.init(urlRequest: urlRequest, urlCache: urlCache, scale: scale)
+        self.init(urlRequest: urlRequest, scale: scale)
     }
 
     /// Loads and displays an image from the specified URL.
@@ -125,13 +122,12 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameters:
     ///   - urlRequest: The URL request of the image to display.
-    ///   - urlCache: The URL cache for providing cached responses to requests within the session.
     ///   - scale: The scale to use for the image. The default is `1`. Set a
     ///     different value when loading images designed for higher resolution
     ///     displays. For example, set a value of `2` for an image that you
     ///     would name with the `@2x` suffix if stored in a file on disk.
-    public init(urlRequest: URLRequest?, urlCache: URLCache = .shared, scale: CGFloat = 1) where Content == Image {
-        self.init(urlRequest: urlRequest, urlCache: urlCache, scale: scale) { phase in
+    public init(urlRequest: URLRequest?, scale: CGFloat = 1) where Content == Image {
+        self.init(urlRequest: urlRequest, scale: scale) { phase in
             phase.image ?? Image(uiImage: .init())
         }
     }
@@ -157,7 +153,6 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameters:
     ///   - url: The URL of the image to display.
-    ///   - urlCache: The URL cache for providing cached responses to requests within the session.
     ///   - scale: The scale to use for the image. The default is `1`. Set a
     ///     different value when loading images designed for higher resolution
     ///     displays. For example, set a value of `2` for an image that you
@@ -167,9 +162,9 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///     modify it as needed before returning it.
     ///   - placeholder: A closure that returns the view to show until the
     ///     load operation completes successfully.
-    public init<I, P>(url: URL?, urlCache: URLCache = .shared, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == _ConditionalContent<I, P>, I: View, P: View {
+    public init<I, P>(url: URL?, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == _ConditionalContent<I, P>, I: View, P: View {
         let urlRequest = url == nil ? nil : URLRequest(url: url!)
-        self.init(urlRequest: urlRequest, urlCache: urlCache, scale: scale, content: content, placeholder: placeholder)
+        self.init(urlRequest: urlRequest, scale: scale, content: content, placeholder: placeholder)
     }
 
     /// Loads and displays a modifiable image from the specified URL using
@@ -193,7 +188,6 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameters:
     ///   - urlRequest: The URL request of the image to display.
-    ///   - urlCache: The URL cache for providing cached responses to requests within the session.
     ///   - scale: The scale to use for the image. The default is `1`. Set a
     ///     different value when loading images designed for higher resolution
     ///     displays. For example, set a value of `2` for an image that you
@@ -203,8 +197,8 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///     modify it as needed before returning it.
     ///   - placeholder: A closure that returns the view to show until the
     ///     load operation completes successfully.
-    public init<I, P>(urlRequest: URLRequest?, urlCache: URLCache = .shared, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == _ConditionalContent<I, P>, I: View, P: View {
-        self.init(urlRequest: urlRequest, urlCache: urlCache, scale: scale) { phase in
+    public init<I, P>(urlRequest: URLRequest?, scale: CGFloat = 1, @ViewBuilder content: @escaping (Image) -> I, @ViewBuilder placeholder: @escaping () -> P) where Content == _ConditionalContent<I, P>, I: View, P: View {
+        self.init(urlRequest: urlRequest, scale: scale) { phase in
             if let image = phase.image {
                 content(image)
             } else {
@@ -240,7 +234,6 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameters:
     ///   - url: The URL of the image to display.
-    ///   - urlCache: The URL cache for providing cached responses to requests within the session.
     ///   - scale: The scale to use for the image. The default is `1`. Set a
     ///     different value when loading images designed for higher resolution
     ///     displays. For example, set a value of `2` for an image that you
@@ -248,9 +241,9 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///   - transaction: The transaction to use when the phase changes.
     ///   - content: A closure that takes the load phase as an input, and
     ///     returns the view to display for the specified phase.
-    public init(url: URL?, urlCache: URLCache = .shared, scale: CGFloat = 1, transaction: Transaction = Transaction(), @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
+    public init(url: URL?, scale: CGFloat = 1, transaction: Transaction = Transaction(), @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
         let urlRequest = url == nil ? nil : URLRequest(url: url!)
-        self.init(urlRequest: urlRequest, urlCache: urlCache, scale: scale, transaction: transaction, content: content)
+        self.init(urlRequest: urlRequest, scale: scale, transaction: transaction, content: content)
     }
 
     /// Loads and displays a modifiable image from the specified URL in phases.
@@ -280,7 +273,6 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///
     /// - Parameters:
     ///   - urlRequest: The URL request of the image to display.
-    ///   - urlCache: The URL cache for providing cached responses to requests within the session.
     ///   - scale: The scale to use for the image. The default is `1`. Set a
     ///     different value when loading images designed for higher resolution
     ///     displays. For example, set a value of `2` for an image that you
@@ -288,18 +280,15 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     ///   - transaction: The transaction to use when the phase changes.
     ///   - content: A closure that takes the load phase as an input, and
     ///     returns the view to display for the specified phase.
-    public init(urlRequest: URLRequest?, urlCache: URLCache = .shared, scale: CGFloat = 1, transaction: Transaction = Transaction(), @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
-        let configuration = URLSessionConfiguration.default
-        configuration.urlCache = urlCache
+    public init(urlRequest: URLRequest?, scale: CGFloat = 1, transaction: Transaction = Transaction(), @ViewBuilder content: @escaping (AsyncImagePhase) -> Content) {
         self.urlRequest = urlRequest
-        urlSession = URLSession(configuration: configuration)
         self.scale = scale
         self.transaction = transaction
         self.content = content
 
         _phase = State(wrappedValue: .empty)
         do {
-            if let urlRequest = urlRequest, let image = try cachedImage(from: urlRequest, cache: urlCache) {
+            if let urlRequest = urlRequest, let image = try cachedImage(from: urlRequest) {
                 _phase = State(wrappedValue: .success(image))
             }
         } catch {
@@ -310,7 +299,7 @@ public struct CachedAsyncImage<Content>: View where Content: View {
     private func load() async {
         do {
             if let urlRequest = urlRequest {
-                let (image, metrics) = try await remoteImage(from: urlRequest, session: urlSession)
+                let (image, metrics) = try await remoteImage(from: urlRequest, session: .shared)
                 if metrics.transactionMetrics.last?.resourceFetchType == .localCache {
                     // WARNING: This does not behave well when the url is changed with another
                     phase = .success(image)
@@ -352,8 +341,8 @@ private extension CachedAsyncImage {
         return (try image(from: data), metrics)
     }
 
-    private func cachedImage(from request: URLRequest, cache: URLCache) throws -> Image? {
-        guard let cachedResponse = cache.cachedResponse(for: request) else { return nil }
+    private func cachedImage(from request: URLRequest) throws -> Image? {
+        guard let cachedResponse = URLCache.shared.cachedResponse(for: request) else { return nil }
         return try image(from: cachedResponse.data)
     }
 

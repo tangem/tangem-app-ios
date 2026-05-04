@@ -46,12 +46,14 @@ struct XrpAccountData: Codable {
     let balance: String?
     let sequence: Int?
     let transferRate: Int?
+    let ownerCount: Int?
 
     enum CodingKeys: String, CodingKey {
         case account = "Account"
         case balance = "Balance"
         case sequence = "Sequence"
         case transferRate = "TransferRate"
+        case ownerCount = "OwnerCount"
     }
 }
 
@@ -81,7 +83,16 @@ struct XRPTrustLine: Codable, Hashable {
     let account: String
     let balance: String
     let currency: String
+    let freezePeer: Bool?
     let no_ripple: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case account
+        case balance
+        case currency
+        case freezePeer = "freeze_peer"
+        case no_ripple
+    }
 
     func matches(currency: String, issuer: String) -> Bool {
         self.currency == currency && account == issuer

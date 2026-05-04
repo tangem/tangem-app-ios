@@ -98,6 +98,7 @@ class CommonWalletModel {
     }
 
     deinit {
+        assetRequirementsTaskCancellable?.cancel()
         AppLogger.debug(self)
     }
 
@@ -256,11 +257,9 @@ extension CommonWalletModel: WalletModel {
 
     var wallet: Wallet { walletManager.wallet }
 
-    var addresses: [Address] { wallet.addresses }
+    var addresses: [String] { wallet.addresses.map { $0.value } }
 
-    var defaultAddress: any Address { wallet.defaultAddress }
-
-    var addressNames: [String] { wallet.addresses.map { $0.localizedName } }
+    var defaultAddressString: String { wallet.defaultAddress.value }
 
     var isMainToken: Bool {
         switch amountType {
@@ -379,7 +378,7 @@ extension CommonWalletModel: WalletModelUpdater {
                 async let staking: ()? = _stakingManager?.updateState(loadActions: true)
 
                 _ = await (update, quotes, staking)
-                await _receiveAddressService.update(with: addresses)
+                await _receiveAddressService.update(with: wallet.addresses)
 
                 await walletManagerDidUpdate()
                 logger.debug(self, "Update method finished with state '\(walletManager.state)'")
@@ -553,7 +552,7 @@ extension CommonWalletModel: WalletModelHelpers {
         )
 
         return CommonYieldModuleManager(
-            walletAddress: wallet.defaultAddress.value,
+            walletAddress: defaultAddressString,
             userWalletId: userWalletId.stringValue,
             token: token,
             blockchain: wallet.blockchain,
@@ -878,6 +877,10 @@ extension CommonWalletModel: FeeResourceInfoProvider {
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] {
+        _receiveAddressService.addressTypes
+    }
+
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         statePublisher
             .withWeakCaptureOf(self)

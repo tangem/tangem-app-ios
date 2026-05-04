@@ -93,6 +93,7 @@ extension SendManagementModelAnalyticsLogger {
 // MARK: - SendApproveAnalyticsLogger
 
 protocol SendApproveAnalyticsLogger {
+    func logPermissionScreenOpened(isRevoke: Bool)
     func logSwapButtonPermissionApprove(policy: BSDKApprovePolicy)
     func logApproveTransactionSent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String)
 }
@@ -133,6 +134,20 @@ protocol SendAmountAnalyticsLogger {
 
     func logAmountStepOpened()
     func logAmountStepReopened()
+
+    func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue)
+    func logSwapErrorMinAmount(screen: Analytics.ParameterValue)
+    func logSwapErrorMaxAmount(screen: Analytics.ParameterValue)
+    func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String)
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?)
+}
+
+extension SendAmountAnalyticsLogger {
+    func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue) {}
+    func logSwapErrorMinAmount(screen: Analytics.ParameterValue) {}
+    func logSwapErrorMaxAmount(screen: Analytics.ParameterValue) {}
+    func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String) {}
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?) {}
 }
 
 protocol SendReceiveTokensListAnalyticsLogger {

@@ -24,7 +24,9 @@ struct SolanaWalletAssembly: WalletManagerAssembly {
         return try SolanaWalletManager(wallet: input.wallet)
             .then {
                 let networkService: SolanaNetworkService = try serviceFactory.makeServiceWithType(for: input.wallet.blockchain)
+                networkService.isSolanaScaledUIEnabled = input.blockchainSdkDependencies.isSolanaScaledUIEnabled
                 $0.networkService = networkService
+                $0.isSolanaScaledUIEnabled = input.blockchainSdkDependencies.isSolanaScaledUIEnabled
             }
     }
 }

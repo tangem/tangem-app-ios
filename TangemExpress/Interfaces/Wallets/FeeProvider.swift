@@ -16,8 +16,9 @@ public protocol FeeProvider {
 
     func estimatedFee(amount: Decimal) async throws -> BSDKFee
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
-    func transactionFee(txData: Data, toContractAddress: String) async throws -> BSDKFee
+    func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee
+    func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee
 }
 
 public extension FeeProvider {
@@ -27,5 +28,17 @@ public extension FeeProvider {
 
     func feeCurrencyHasPositiveBalance() throws -> Bool {
         try feeCurrencyBalance() > .zero
+    }
+}
+
+public struct RevokeAndApproveFee {
+    /// Single revoke tx fee estimate (1x)
+    public let unit: BSDKFee
+    /// Total fee for the entire flow: revoke + approve (3x)
+    public let total: BSDKFee
+
+    public init(unit: BSDKFee, total: BSDKFee) {
+        self.unit = unit
+        self.total = total
     }
 }

@@ -23,7 +23,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     /// Using a static set ensures the event is only logged once per app session per token.
     private static var loggedNewsCarouselScrolledTokenIds: Set<String> = []
 
-    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
+    @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationChange = .neutral
     @Published private(set) var isLoading = true
     @Published private(set) var state: ViewState = .loading
     @Published var selectedPriceChangeIntervalType: MarketsPriceIntervalType
@@ -45,7 +45,6 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
-    @Published private(set) var accountsAwarePortfolioViewModel: MarketsAccountsAwarePortfolioContainerViewModel?
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -76,11 +75,17 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var price: String? { priceInfo?.price }
 
+    var attributedPrice: AttributedString? {
+        price.map { priceHelper.makeAttributedPrice(price: $0) }
+    }
+
     var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
     var descriptionCanBeShowed: Bool { !ukGeoDefiner.isUK }
+
+    var isRedesignEnabled: Bool { FeatureProvider.isAvailable(.redesign) }
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -106,6 +111,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     var tokenName: String
+    var tokenSymbol: String
 
     var iconURL: URL {
         let iconBuilder = IconURLBuilder()
@@ -168,6 +174,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
         tokenName = tokenInfo.name
         selectedPriceChangeIntervalType = .day
+        tokenSymbol = tokenInfo.symbol
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
         super.init(overlayContentProgressInitialValue: 1.0)
@@ -361,6 +368,7 @@ private extension MarketsTokenDetailsViewModel {
 
         if tokenName.isEmpty {
             tokenName = model.name
+            tokenSymbol = model.symbol
         }
 
         state = .loaded(model: model)
@@ -401,7 +409,7 @@ private extension MarketsTokenDetailsViewModel {
             }
             .map(\.1)
             .withPrevious()
-            .map(ForegroundBlinkAnimationModifier.Change.calculateChange(from:to:))
+            .map(ForegroundBlinkAnimationChange.calculateChange(from:to:))
             .assign(to: \.priceChangeAnimation, on: self, ownership: .weak)
             .store(in: &bag)
 
@@ -557,40 +565,23 @@ private extension MarketsTokenDetailsViewModel {
             return
         }
 
-        if FeatureProvider.isAvailable(.accounts) {
-            accountsAwarePortfolioViewModel = MarketsAccountsAwarePortfolioContainerViewModel(
-                inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
-                walletDataProvider: walletDataProvider,
-                coordinator: coordinator,
-                addTokenTapAction: { [weak self] in
-                    guard let self, let info = loadedInfo else {
-                        return
-                    }
-
-                    Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
-
-                    Task { @MainActor [weak self] in
-                        guard let self else { return }
-                        coordinator?.openAccountsSelector(with: info, walletDataProvider: walletDataProvider)
-                    }
+        portfolioViewModel = MarketsPortfolioContainerViewModel(
+            inputData: .init(coinId: tokenInfo.id, coinName: tokenInfo.name, coinSymbol: tokenInfo.symbol),
+            walletDataProvider: walletDataProvider,
+            coordinator: coordinator,
+            addTokenTapAction: { [weak self] in
+                guard let self, let info = loadedInfo else {
+                    return
                 }
-            )
-        } else {
-            portfolioViewModel = .init(
-                inputData: .init(coinId: tokenInfo.id),
-                walletDataProvider: walletDataProvider,
-                coordinator: coordinator,
-                addTokenTapAction: { [weak self] in
-                    guard let self, let info = loadedInfo else {
-                        return
-                    }
 
-                    Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
+                Analytics.log(event: .marketsChartButtonAddToPortfolio, params: [.token: info.symbol.uppercased()])
 
-                    coordinator?.openTokenSelector(with: info, walletDataProvider: walletDataProvider)
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    coordinator?.openAccountsSelector(with: info, walletDataProvider: walletDataProvider)
                 }
-            )
-        }
+            }
+        )
     }
 
     func sendBlocksAnalyticsErrors(_ error: Error) {
@@ -623,7 +614,6 @@ private extension MarketsTokenDetailsViewModel {
 
     private func updatePortfolio(networks: [NetworkModel]) {
         portfolioViewModel?.update(networks: networks)
-        accountsAwarePortfolioViewModel?.update(networks: networks)
     }
 }
 

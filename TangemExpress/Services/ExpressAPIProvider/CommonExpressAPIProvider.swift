@@ -64,7 +64,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toAmount = item.destinationAmountWEI()
         }
 
-        let rateType: ExpressDTO.Swap.Provider.RateType = switch item.amountType.rateType {
+        let rateType: ExpressDTO.Swap.Provider.RateType = switch item.rateType {
         case .float: .float
         case .fixed: .fixed
         }
@@ -109,7 +109,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toAmount = item.destinationAmountWEI()
         }
 
-        let rateType: ExpressDTO.Swap.Provider.RateType = switch item.amountType.rateType {
+        let rateType: ExpressDTO.Swap.Provider.RateType = switch item.rateType {
         case .float: .float
         case .fixed: .fixed
         }

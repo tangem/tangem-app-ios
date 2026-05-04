@@ -16,6 +16,8 @@ struct SendAmountInputSectionView<ExpandedContent: View>: View {
     let isLocked: Bool
     let expandedTokenData: SendAmountTokenViewData?
     let compactTokenData: SendAmountTokenViewData?
+    var useCompactTokenRow: Bool = false
+    var expandedContentVerticalPadding: CGFloat = 45
     let onTapCompact: () -> Void
     @ViewBuilder let expandedContent: () -> ExpandedContent
 
@@ -23,12 +25,12 @@ struct SendAmountInputSectionView<ExpandedContent: View>: View {
         VStack(alignment: .center, spacing: .zero) {
             if isExpanded {
                 expandedContent()
-                    .padding(.vertical, 45)
+                    .padding(.vertical, expandedContentVerticalPadding)
 
                 Separator(color: Colors.Stroke.primary)
             }
 
-            if let tokenData = isExpanded ? expandedTokenData : compactTokenData {
+            if let tokenData = (isExpanded && !useCompactTokenRow) ? expandedTokenData : compactTokenData {
                 SendAmountTokenView(data: tokenData)
                     .contentShape(Rectangle())
                     .onTapGesture {

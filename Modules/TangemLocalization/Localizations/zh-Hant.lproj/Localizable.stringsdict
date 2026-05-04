@@ -2,22 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>auth_wallet_hardware_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li card</string>
-        <key>other</key>
-        <string>%li cards</string>
-      </dict>
-    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -30,22 +14,6 @@
         <string>li</string>
         <key>other</key>
         <string>%li 卡片</string>
-      </dict>
-    </dict>
-    <key>card_label_token_count</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li token</string>
-        <key>other</key>
-        <string>%li tokens</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -62,6 +30,54 @@
         <string>day</string>
         <key>other</key>
         <string>days</string>
+      </dict>
+    </dict>
+    <key>common_days_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li day ago</string>
+        <key>other</key>
+        <string>%li days ago</string>
+      </dict>
+    </dict>
+    <key>common_hours_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%lih ago</string>
+        <key>other</key>
+        <string>%lih ago</string>
+      </dict>
+    </dict>
+    <key>common_minutes_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li minute ago</string>
+        <key>other</key>
+        <string>%li minutes ago</string>
       </dict>
     </dict>
     <key>common_networks_count</key>
@@ -215,6 +231,22 @@
         <string>%li NFT</string>
         <key>other</key>
         <string>%li NFTs</string>
+      </dict>
+    </dict>
+    <key>onboarding_address_sync_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <key>other</key>
+        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>

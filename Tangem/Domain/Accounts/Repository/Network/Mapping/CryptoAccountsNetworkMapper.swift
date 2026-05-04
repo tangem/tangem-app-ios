@@ -154,8 +154,8 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapGroupType(
-        groupingOption: StoredUserTokenList.Grouping?
-    ) -> AccountsDTO.Request.GroupType {
+        groupingOption: StoredCryptoAccount.Grouping?
+    ) -> AccountsDTO.GroupType {
         guard let groupingOption else {
             AccountsLogger.warning("Mapping absent grouping option to a default 'none' group type")
             return .none
@@ -170,8 +170,8 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortType(
-        sortingOption: StoredUserTokenList.Sorting?
-    ) -> AccountsDTO.Request.SortType {
+        sortingOption: StoredCryptoAccount.Sorting?
+    ) -> AccountsDTO.SortType {
         guard let sortingOption else {
             AccountsLogger.warning("Mapping absent sorting option to a default 'manual' sort type")
             return .manual
@@ -308,8 +308,8 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapGroupingOption(
-        groupType: UserTokenList.GroupType?
-    ) -> StoredUserTokenList.Grouping {
+        groupType: AccountsDTO.GroupType?
+    ) -> StoredCryptoAccount.Grouping {
         guard let groupType else {
             // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
             return CryptoAccountPersistentConfig.TokenListAppearance.default.grouping
@@ -324,8 +324,8 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortingOption(
-        sortType: UserTokenList.SortType?
-    ) -> StoredUserTokenList.Sorting {
+        sortType: AccountsDTO.SortType?
+    ) -> StoredCryptoAccount.Sorting {
         guard let sortType else {
             // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
             return CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
@@ -347,7 +347,7 @@ final class CryptoAccountsNetworkMapper {
             let rawName = archivedAccountDTO.icon
             let rawColor = archivedAccountDTO.iconColor
 
-            guard let icon = AccountModel.Icon(rawName: rawName, rawColor: rawColor) else {
+            guard let icon = AccountModel.CompositeIcon(rawName: rawName, rawColor: rawColor) else {
                 AccountsLogger.warning(
                     String(
                         format: "Unable to map icon: '%@', '%@' for archived account with identifier: '%@'",

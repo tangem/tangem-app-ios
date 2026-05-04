@@ -27,23 +27,6 @@ enum BlockchairEndpoint {
         case .dash: return "dash"
         }
     }
-
-    var blockchain: Blockchain {
-        switch self {
-        case .bitcoin(let testnet):
-            return .bitcoin(testnet: testnet)
-        case .bitcoinCash:
-            return .bitcoinCash
-        case .litecoin:
-            return .litecoin
-        case .ethereum(let testnet):
-            return .ethereum(testnet: testnet)
-        case .dogecoin:
-            return .dogecoin
-        case .dash:
-            return .dash(testnet: false)
-        }
-    }
 }
 
 struct BlockchairTarget: TargetType {

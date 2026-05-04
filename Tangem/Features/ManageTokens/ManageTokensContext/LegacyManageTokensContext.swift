@@ -8,7 +8,7 @@
 
 import BlockchainSdk
 
-/// Provider for legacy architecture where UserTokensManager lives in UserWalletModel
+/// Context for legacy wallets (Single, NODL, 4.12) that have only one account to which all tokens are added.
 final class LegacyManageTokensContext: ManageTokensContext {
     let userTokensManager: UserTokensManager
     let walletModelsManager: WalletModelsManager

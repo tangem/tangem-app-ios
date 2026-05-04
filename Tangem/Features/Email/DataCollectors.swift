@@ -31,12 +31,15 @@ private extension EmailDataCollector {
     func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
         var dataToFormat: [EmailCollectedData] = []
 
-        if walletModel.addressNames.count > 1 {
+        // Drop `.domain(...)` entries: their offsets don't map to `wallet.addresses`,
+        // and `displayAddress(for:)`/`exploreURL(for:)` would crash on out-of-bounds index.
+        let receiveAddressTypes = walletModel.receiveAddressTypes.filter { $0.key == .address }
+        if receiveAddressTypes.count > 1 {
             var explorerLinks = "Multiple explorers links: "
             var addresses = "Multiple addresses: "
             let suffix = " ; \n"
-            walletModel.addressNames.enumerated().forEach {
-                let namePrefix = $0.element + " - "
+            receiveAddressTypes.enumerated().forEach {
+                let namePrefix = $0.element.info.localizedName + " - "
                 addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
                 explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
             }
@@ -45,7 +48,7 @@ private extension EmailDataCollector {
 
             dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
             dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
-        } else if walletModel.addressNames.count == 1 {
+        } else if receiveAddressTypes.count == 1 {
             dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
             dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
         }

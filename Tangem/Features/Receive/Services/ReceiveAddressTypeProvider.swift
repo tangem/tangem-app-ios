@@ -12,5 +12,6 @@ import Combine
 // MARK: - Receive Addresses
 
 protocol ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] { get }
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> { get }
 }

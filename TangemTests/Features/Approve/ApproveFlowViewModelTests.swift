@@ -142,15 +142,42 @@ struct ApproveFlowViewModelTests {
         #expect(env.feeManager.updateFeesCalls == 1)
     }
 
+    // MARK: - Analytics: logPermissionScreenOpened
+
+    @Test("logPermissionScreenOpened fires once on init with isRevoke false for .approve state")
+    func init_logsPermissionScreenOpened_withApproveState() {
+        let (_, env) = makeSUT()
+
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.count == 1)
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.first == false)
+    }
+
+    @Test("logPermissionScreenOpened fires once on init with isRevoke true for .revokeAndApprove state")
+    func init_logsPermissionScreenOpened_withRevokeAndApproveState() {
+        let feeUnit = Fee(Amount(with: .ethereum(testnet: false), value: 0.001))
+        let revokeData = ApproveTransactionData(txData: Data([0x00]), spender: "0xSpender", toContractAddress: "0xContract")
+        let approveData = ApproveTransactionData(txData: Data([0x01]), spender: "0xSpender", toContractAddress: "0xContract")
+        let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit)
+
+        let (_, env) = makeSUT(interactorState: state)
+
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.count == 1)
+        #expect(env.analyticsLogger.logPermissionScreenOpenedCalls.first == true)
+    }
+
     // MARK: - Helpers
 
     private struct FlowEnv {
         let router: ApproveCoordinatingMock
         let interactor: ApproveInteractor
         let feeManager: TokenFeeProvidersManagerMock
+        let analyticsLogger: SendApproveAnalyticsLoggerMock
     }
 
-    private func makeSUT(includeFeeSelectorViewModel: Bool = false) -> (ApproveFlowViewModel, FlowEnv) {
+    private func makeSUT(
+        includeFeeSelectorViewModel: Bool = false,
+        interactorState: ApproveInteractor.ApproveInteractorState? = nil
+    ) -> (ApproveFlowViewModel, FlowEnv) {
         let router = ApproveCoordinatingMock()
         let tokenItem = TokenItem.blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
         let fee = Fee(Amount(with: .ethereum(testnet: false), value: 0.001))
@@ -163,14 +190,14 @@ struct ApproveFlowViewModelTests {
         let dispatcher = TransactionDispatcherMock()
         let analyticsLogger = SendApproveAnalyticsLoggerMock()
 
-        let approveData = ApproveTransactionData(
+        let defaultApproveData = ApproveTransactionData(
             txData: Data([0x01]),
             spender: "0xSpender",
             toContractAddress: "0xContract"
         )
 
         let interactor = ApproveInteractor(
-            approveData: approveData,
+            approveInteractorState: interactorState ?? .approve(data: defaultApproveData),
             initialPolicy: ApprovePolicy.specified,
             approveAmount: 100,
             allowanceService: allowanceService,
@@ -181,6 +208,7 @@ struct ApproveFlowViewModelTests {
         )
 
         let settings = ApproveViewModel.Settings(
+            title: "Test title",
             subtitle: "Test subtitle",
             feeFooterText: "Test footer",
             tokenItem: tokenItem,
@@ -209,7 +237,7 @@ struct ApproveFlowViewModelTests {
             confirmTransactionPolicy: ConfirmTransactionPolicyStub()
         )
 
-        let env = FlowEnv(router: router, interactor: interactor, feeManager: feeManager)
+        let env = FlowEnv(router: router, interactor: interactor, feeManager: feeManager, analyticsLogger: analyticsLogger)
 
         return (viewModel, env)
     }

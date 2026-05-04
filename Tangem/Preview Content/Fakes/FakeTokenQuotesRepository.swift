@@ -14,6 +14,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         await TokenQuote(
             currencyId: currencyId,
             price: 1,
+            priceUsd: nil,
             priceChange24h: 3.3,
             priceChange7d: 43.3,
             priceChange30d: 93.3,
@@ -44,6 +45,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
             let quote = TokenQuote(
                 currencyId: id,
                 price: Decimal(floatLiteral: Double.random(in: 1 ... 50000)),
+                priceUsd: nil,
                 priceChange24h: Decimal(floatLiteral: Double.random(in: -10 ... 10)),
                 priceChange7d: Decimal(floatLiteral: Double.random(in: -100 ... 100)),
                 priceChange30d: Decimal(floatLiteral: Double.random(in: -1000 ... 1000)),
@@ -60,6 +62,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         TokenQuote(
             currencyId: item.currencyId!,
             price: 1,
+            priceUsd: nil,
             priceChange24h: 3.3,
             priceChange7d: 43.3,
             priceChange30d: 93.3,
@@ -71,6 +74,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
         await TokenQuote(
             currencyId: currencyId,
             price: 1,
+            priceUsd: nil,
             priceChange24h: 3.3,
             priceChange7d: 43.3,
             priceChange30d: 93.3,
@@ -101,6 +105,7 @@ class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpd
             TokenQuote(
                 currencyId: quote.id,
                 price: quote.price,
+                priceUsd: quote.priceUsd,
                 priceChange24h: quote.priceChange,
                 priceChange7d: quote.priceChange7d,
                 priceChange30d: quote.priceChange30d,

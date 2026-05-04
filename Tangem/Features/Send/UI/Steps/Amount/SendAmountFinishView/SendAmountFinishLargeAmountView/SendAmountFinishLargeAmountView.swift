@@ -28,11 +28,10 @@ struct SendAmountFinishLargeAmountView: View {
             )
 
             VStack(alignment: .center, spacing: 4) {
-                SendDecimalNumberTextField(viewModel: viewModel.amountDecimalNumberTextFieldViewModel)
-                    .alignment(.center)
-                    .prefixSuffixOptions(viewModel.amountFieldOptions)
-                    .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                    .allowsHitTesting(false) // This text field is read-only
+                Text(viewModel.amountText)
+                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .lineLimit(1)
+                    .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
 
                 // Keep empty text so that the view maintains its place in the layout
                 Text(viewModel.alternativeAmount ?? " ")

@@ -24,7 +24,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - State
 
     @Published private(set) var accountName: String = ""
-    @Published private(set) var accountIcon = AccountModelUtils.UI.newAccountIcon()
+    @Published private(set) var accountIcon: AccountModel.Icon = .composite(AccountModelUtils.UI.newAccountIcon())
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
@@ -64,7 +64,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - View data
 
     var accountIconViewData: AccountIconView.ViewData {
-        AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name)
+        AccountModelUtils.UI.iconViewData(icon: accountIcon, accountName: accountName)
     }
 
     var canBeEdited: Bool {
@@ -149,7 +149,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
     private func applySnapshot() {
         accountName = account.name
-        accountIcon = account.icon
+        accountIcon = account.icon.erased
     }
 
     private func getAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {

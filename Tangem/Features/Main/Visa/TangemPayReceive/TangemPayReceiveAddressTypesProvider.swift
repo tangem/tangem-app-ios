@@ -26,8 +26,14 @@ struct TangemPayReceiveAddressTypesProvider {
     }
 }
 
+// MARK: ReceiveAddressTypesProvider
+
 extension TangemPayReceiveAddressTypesProvider: ReceiveAddressTypesProvider {
+    var receiveAddressTypes: [ReceiveAddressType] {
+        [.address(receiveAddressInfo)]
+    }
+
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
-        .just(output: [.address(receiveAddressInfo)])
+        .just(output: receiveAddressTypes)
     }
 }

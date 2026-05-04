@@ -90,25 +90,27 @@ private extension DEXExpressProviderManager {
 
                 return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: data)
             } catch {
-                return proceed(error: error, quote: quote)
+                return proceed(error: error, quote: quote, amountType: request.amountType)
             }
         } catch {
-            return proceed(error: error, quote: .none)
+            return proceed(error: error, quote: .none, amountType: request.amountType)
         }
     }
 
-    func proceed(error: Error, quote: ExpressQuote?) -> ExpressProviderManagerState {
+    func proceed(error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
         switch error {
         case let error as ExpressAPIError:
             guard let amount = error.value?.amount else {
                 return .error(error, quote: quote)
             }
 
+            let currencySymbol = swappingPair.currencySymbol(for: amountType)
+
             switch error.errorCode {
             case .exchangeTooSmallAmountError:
-                return .restriction(.tooSmallAmount(amount), quote: quote)
+                return .restriction(.tooSmallAmount(amount, currencySymbol: currencySymbol), quote: quote)
             case .exchangeTooBigAmountError:
-                return .restriction(.tooBigAmount(amount), quote: quote)
+                return .restriction(.tooBigAmount(amount, currencySymbol: currencySymbol), quote: quote)
             default:
                 return .error(error, quote: quote)
             }
@@ -155,9 +157,15 @@ private extension DEXExpressProviderManager {
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let data):
-                    let fee = try await expressFeeProvider.transactionFee(txData: data.txData, toContractAddress: data.toContractAddress)
+                    let fee = try await expressFeeProvider.transactionFee(approveData: data)
                     return .permissionRequired(
-                        .init(provider: provider, policy: request.approvePolicy, data: data, fee: fee, quote: quote)
+                        .init(provider: provider, policy: request.approvePolicy, data: data, approvalFlow: .approve, fee: fee, quote: quote)
+                    )
+                case .revokeAndPermissionRequired(let revoke, let approve):
+                    ExpressLogger.debug("Revoke+approve allowance state for provider: \(provider.id)")
+                    let revokeAndApproveFee = try await expressFeeProvider.revokeAndApproveTransactionFee(revokeData: revoke)
+                    return .revokeAndPermissionRequired(
+                        .init(provider: provider, policy: request.approvePolicy, data: approve, approvalFlow: .revokeAndApprove(revokeData: revoke, feeUnit: revokeAndApproveFee.unit), fee: revokeAndApproveFee.total, quote: quote)
                     )
                 case .approveTransactionInProgress:
                     return .restriction(.approveTransactionInProgress(spender: spender), quote: quote)

@@ -51,7 +51,7 @@ extension RskAddressService: AddressProvider {
             throw Error.failedToGetChecksumAddress
         }
 
-        return PlainAddress(value: checksumAddress, publicKey: publicKey, type: addressType)
+        return PlainAddress(value: checksumAddress, type: addressType)
     }
 }
 

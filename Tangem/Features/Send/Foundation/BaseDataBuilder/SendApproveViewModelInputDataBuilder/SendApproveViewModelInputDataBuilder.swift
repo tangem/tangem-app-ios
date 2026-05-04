@@ -10,6 +10,7 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 import BlockchainSdk
+import TangemLocalization
 
 protocol SendApproveViewModelInputDataBuilder {
     func makeApproveFlowFactory() throws -> ApproveFlowFactory
@@ -40,14 +41,48 @@ struct ApproveFlowInput {
     let approveAmount: Decimal
     let selectedPolicy: BSDKApprovePolicy
     let approveData: ApproveTransactionData
+    let approvalFlow: ExpressProviderManagerState.ApprovalFlow
     let sourceToken: any SendSourceToken
     let tokenFeeProvidersManager: any TokenFeeProvidersManager
     let localization: ApproveLocalization
 }
 
+extension ApproveFlowInput {
+    func makeApproveInteractorState() -> ApproveInteractor.ApproveInteractorState {
+        switch approvalFlow {
+        case .approve:
+            return .approve(data: approveData)
+        case .revokeAndApprove(let revokeData, let feeUnit):
+            return .revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit)
+        }
+    }
+}
+
 // MARK: - ApproveLocalization
 
 struct ApproveLocalization {
+    let title: String
     let subtitle: String
     let feeFooterText: String
+}
+
+// MARK: - ApprovalFlow + Localization
+
+extension ExpressProviderManagerState.ApprovalFlow {
+    func makeLocalization(providerName: String, currencySymbol: String) -> ApproveLocalization {
+        switch self {
+        case .revokeAndApprove:
+            return ApproveLocalization(
+                title: Localization.updateApprovalPermissionTitle,
+                subtitle: Localization.updateApprovalPermissionSubtitle,
+                feeFooterText: Localization.updateApprovalPermissionFeeNote
+            )
+        case .approve:
+            return ApproveLocalization(
+                title: Localization.swappingPermissionHeader,
+                subtitle: Localization.givePermissionSwapSubtitle(providerName, currencySymbol),
+                feeFooterText: Localization.swapGivePermissionFeeFooter
+            )
+        }
+    }
 }

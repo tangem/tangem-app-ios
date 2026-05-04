@@ -10,7 +10,7 @@ import Combine
 
 protocol WalletConnectAccountsWalletModelProvider {
     /// This info is based on information from WC and they didn't know anything about derivation
-    /// So we need to compare blockchain and address to simulate comparision of derivation path
+    /// So we need to compare blockchain and address to simulate comparison of derivation path
     /// Information about address is encoded in request params and info about blockchain - request chainId
     func getModel(
         with address: String,
