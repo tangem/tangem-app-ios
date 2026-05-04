@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SolanaSwift
 import TangemFoundation
 
 final class SolanaTransactionHistoryMapper {
@@ -292,27 +293,44 @@ private extension SolanaTransactionHistoryMapper {
                 return
             }
 
-            let amount = tokenAmount(balance.uiTokenAmount)
+            let isToken2022 = balance.programId == PublicKey.token2022ProgramId.base58EncodedString
+            guard let amount = tokenAmount(balance.uiTokenAmount, useUiAmount: isToken2022) else {
+                return
+            }
+
             partialResult[mint, default: 0] += amount
         }
     }
 
-    func tokenAmount(_ tokenAmount: SolanaTransactionHistoryDTO.TransactionDetails.Meta.TokenAmount?) -> Decimal {
+    func tokenAmount(
+        _ tokenAmount: SolanaTransactionHistoryDTO.TransactionDetails.Meta.TokenAmount?,
+        useUiAmount: Bool
+    ) -> Decimal? {
         guard let tokenAmount else {
-            return 0
+            return nil
         }
 
-        if let uiAmountString = tokenAmount.uiAmountString, let value = Decimal(stringValue: uiAmountString) {
-            return value
+        if useUiAmount {
+            // For Token-2022 (e.g. scaled UI amount), use node-provided UI amount.
+            if let uiAmountString = tokenAmount.uiAmountString,
+               let value = Decimal(stringValue: uiAmountString) {
+                return value.rounded(scale: tokenAmount.decimals ?? 0)
+            }
+
+            if let uiAmount = tokenAmount.uiAmount {
+                return uiAmount.rounded(scale: tokenAmount.decimals ?? 0)
+            }
+
+            return nil
         }
 
-        if let amountString = tokenAmount.amount,
-           let amount = Decimal(stringValue: amountString) {
-            let decimals = tokenAmount.decimals ?? 0
-            return amount / pow(10, decimals)
+        guard let amountString = tokenAmount.amount,
+              let amount = Decimal(stringValue: amountString) else {
+            return nil
         }
 
-        return tokenAmount.uiAmount ?? 0
+        let decimals = tokenAmount.decimals ?? 0
+        return (amount / pow(10, decimals)).rounded(scale: decimals)
     }
 
     func fallbackCounterpartyAddress(
