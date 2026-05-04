@@ -25,6 +25,7 @@ final class TokenSelectorViewModelsMapper {
     private let availabilityProvider: any TokenSelectorItemAvailabilityProvider
     private let collapsibleAccounts: Bool
     private let tokenSelectorStateStorage: (any TokenSelectorStateStorage)?
+    private let initiallyExpandedAccount: TokenSelectorViewModel.InitiallyExpandedAccount?
 
     // MARK: - Internal
 
@@ -47,12 +48,14 @@ final class TokenSelectorViewModelsMapper {
         walletsProvider: any TokenSelectorWalletsProvider,
         availabilityProvider: any TokenSelectorItemAvailabilityProvider,
         collapsibleAccounts: Bool = false,
-        tokenSelectorStateStorage: (any TokenSelectorStateStorage)? = nil
+        tokenSelectorStateStorage: (any TokenSelectorStateStorage)? = nil,
+        initiallyExpandedAccount: TokenSelectorViewModel.InitiallyExpandedAccount? = nil
     ) {
         self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
         self.collapsibleAccounts = collapsibleAccounts
         self.tokenSelectorStateStorage = tokenSelectorStateStorage
+        self.initiallyExpandedAccount = initiallyExpandedAccount
 
         itemViewModelBuilder = .init(availabilityProvider: availabilityProvider)
     }
@@ -79,6 +82,12 @@ final class TokenSelectorViewModelsMapper {
 // MARK: - Private
 
 private extension TokenSelectorViewModelsMapper {
+    func accountIsInitiallyExpanded(_ account: TokenSelectorAccount, walletId: UserWalletId) -> Bool {
+        guard let initiallyExpandedAccount, initiallyExpandedAccount.walletId == walletId else { return false }
+
+        return initiallyExpandedAccount.cryptoAccount === account.account
+    }
+
     func itemsPublisher(provider: TokenSelectorAccountModelItemsProvider) -> AnyPublisher<[TokenSelectorItem], Never> {
         provider
             .itemsPublisher
@@ -159,10 +168,14 @@ private extension TokenSelectorViewModelsMapper {
                 }
                 .eraseToAnyPublisher()
 
+            let isInitiallyExpanded = accountIsInitiallyExpanded(account, walletId: walletId)
+                || accountStateStorage.isExpanded(account.account)
+
             expandableViewModel = TokenSelectorExpandableAccountItemViewModel(
                 account: account.account,
                 rateProvider: account.rateProvider,
                 stateStorage: accountStateStorage,
+                initiallyExpanded: isInitiallyExpanded,
                 itemsCountPublisher: rawItemsPublisher.map(\.count).eraseToAnyPublisher(),
                 searchTextPublisher: searchText.eraseToAnyPublisher(),
                 filteredBalancePublisher: filteredBalancePublisher
