@@ -23,6 +23,15 @@ public struct TransactionRecord: Hashable {
     public let tokenTransfers: [TokenTransfer]?
     public let isFromYieldContract: Bool
 
+    public func hasDestination(address: String) -> Bool {
+        switch destination {
+        case .single(let destination):
+            return destination.address.string.caseInsensitiveCompare(address) == .orderedSame
+        case .multiple(let destinations):
+            return destinations.contains { $0.address.string.caseInsensitiveCompare(address) == .orderedSame }
+        }
+    }
+
     public init(
         hash: String,
         index: Int,
