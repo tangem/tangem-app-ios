@@ -104,14 +104,20 @@ private extension SendAmountFinishViewModel {
             return
         }
 
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
-            receiveTokenAmountInput.receiveAmountPublisher
+            receiveTokenAmountInput.receiveAmountPublisher,
+            swapProvidersInput.currentRateTypePublisher
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { viewModel, tuple in
-            viewModel.updateView(receiveToken: tuple.0.value, flowActionType: flowActionType, receiveAmount: tuple.1)
+            viewModel.updateView(
+                receiveToken: tuple.0.value,
+                flowActionType: flowActionType,
+                receiveAmount: tuple.1,
+                isApproximateAmount: tuple.2 == .float
+            )
         }
         .store(in: &bag)
 
@@ -126,7 +132,10 @@ private extension SendAmountFinishViewModel {
     }
 
     private func updateView(sourceToken: SendSourceToken, flowActionType: SendFlowActionType, sourceAmount: LoadingResult<SendAmount, any Error>) {
-        tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
+        tokenHeader = sourceToken.header.asSendTokenHeader(
+            actionType: flowActionType,
+            useExtendedSwapTitles: FeatureProvider.isAvailable(.swapInProgressV2)
+        )
         tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
         alternativeAmount = sourceAmount.value?.formatAlternative(
             currencySymbol: sourceToken.tokenItem.currencySymbol,
@@ -151,19 +160,28 @@ private extension SendAmountFinishViewModel {
         }
     }
 
-    private func updateView(receiveToken: SendReceiveToken?, flowActionType: SendFlowActionType, receiveAmount: LoadingResult<SendAmount, any Error>) {
+    private func updateView(
+        receiveToken: SendReceiveToken?,
+        flowActionType: SendFlowActionType,
+        receiveAmount: LoadingResult<SendAmount, any Error>,
+        isApproximateAmount: Bool
+    ) {
         switch (receiveToken, receiveAmount) {
         case (.none, _):
             receiveSmallAmountViewModel = nil
         case (.some(let token), .success(let receiveAmount)):
             let header: SendTokenHeader = if let token = token as? SendSourceToken {
-                token.header.asSendTokenHeader(actionType: flowActionType, isSource: false)
+                token.header.asSendTokenHeader(
+                    actionType: flowActionType,
+                    isSource: false,
+                    useExtendedSwapTitles: FeatureProvider.isAvailable(.swapInProgressV2)
+                )
             } else {
                 .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle)
             }
 
             let tokenIconInfo = tokenIconInfoBuilder.build(from: token.tokenItem, isCustom: token.isCustom)
-            let amountText = receiveAmount.crypto.map {
+            let formattedAmount = receiveAmount.crypto.map {
                 SendCryptoValueFormatter(
                     decimals: token.tokenItem.decimalCount,
                     currencySymbol: token.tokenItem.currencySymbol,
@@ -171,10 +189,17 @@ private extension SendAmountFinishViewModel {
                 ).string(from: $0)
             }
 
+            let showTilde = isApproximateAmount && FeatureProvider.isAvailable(.swapInProgressV2)
+            let amountText: String = if let formattedAmount, showTilde {
+                "\(AppConstants.tildeSign) \(formattedAmount)"
+            } else {
+                formattedAmount ?? ""
+            }
+
             receiveSmallAmountViewModel = .init(
                 tokenHeader: header,
                 tokenIconInfo: tokenIconInfo,
-                amountText: amountText ?? "",
+                amountText: amountText,
                 alternativeAmount: receiveAmount.formatAlternative(
                     currencySymbol: token.tokenItem.currencySymbol,
                     decimalCount: token.tokenItem.decimalCount
