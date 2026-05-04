@@ -29,6 +29,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapPipelineV2
     case sendBalanceSendSplitRows
     case swapStoriesV2
+    case swapInProgressV2
 
     var name: String {
         switch self {
@@ -52,6 +53,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .swapStoriesV2: return "Swap Stories V2"
+        case .swapInProgressV2: return "Swap In Progress V2"
         }
     }
 
@@ -77,6 +79,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPipelineV2: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
         case .swapStoriesV2: return .unspecified
+        case .swapInProgressV2: return .unspecified
         }
     }
 }

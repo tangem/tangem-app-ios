@@ -9,11 +9,16 @@
 import Foundation
 import SwiftUI
 import Combine
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
         settings.title
+    }
+
+    var secondaryButtonTitle: String {
+        settings.secondaryButtonTitle ?? Localization.commonShare
     }
 
     @Published private(set) var showHeader = false
@@ -109,6 +114,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
 extension SendFinishViewModel {
     struct Settings {
         let title: String
+        let secondaryButtonTitle: String?
         let possibleToShowExploreButtons: Bool
     }
 }
