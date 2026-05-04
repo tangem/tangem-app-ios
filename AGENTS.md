@@ -25,7 +25,7 @@ Open `TangemApp.xcodeproj` in Xcode. There are three main schemes:
 - **Tangem Beta** - Beta testing
 - **Tangem Alpha** - Internal testing
 
-Always fetch installed iOS simulators (using appropriate command line tools like `simctl`) and select the one with the most recent iOS version to build and run the project
+Always prefer Xcode MCP for building and testing. If Xcode MCP is not available or not working - build the project using appropriate cli tools like `xcodebuild`. In this case, always fetch installed iOS simulators first (using appropriate cli tools like `simctl`) and select the one with the most recent iOS version to build and run the project
 
 ### Testing
 ```bash
@@ -93,11 +93,12 @@ protocol CoordinatorObject: ObservableObject, Identifiable {
 
 ### Dependency Injection
 
-Uses a property wrapper based DI system:
+Uses a property wrapper based DI system for singletons:
 ```swift
 @Injected(\.someService) private var someService
 ```
-Dependencies are registered via `InjectionKey` protocol in extensions of `InjectedValues`.
+Singleton dependencies are registered via `InjectionKey` protocol in extensions of `InjectedValues`.
+Normal dependencies are injected using plain Swift constructors.
 
 ### Feature Organization
 
@@ -236,3 +237,4 @@ This project has Xcode MCP integration available. **Prefer Xcode MCP tools over 
 - DO NOT read, access or modify files at paths specified in the @.cursorignore file
 - When adding new Swift or Objective-C files to the project itself (not to SPM modules, `./Modules/*`), always modify the project file (`TangemApp.xcodeproj/project.pbxproj`) accordingly. Always prefer to use tools from Xcode MCP for modifying the project file.
 - Call `./bootstrap.sh` once in the beginning of current working session. It's absolutely required before starting you work on the project to install all dependencies, to perform codegen, etc
+- All commits in this repository must always have a valid GPG signature
