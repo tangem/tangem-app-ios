@@ -7,6 +7,7 @@
 //
 
 import struct TangemUI.TokenIconInfo
+import TangemLocalization
 
 class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     var transferableToken: SendTransferableToken { sourceToken }
@@ -367,7 +368,12 @@ extension SendWithSwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
+        let isV2 = FeatureProvider.isAvailable(.swapInProgressV2)
+        return SendFinishStepBuilder.Types(
+            title: isV2 ? Localization.swapInProgress : Localization.sentTransactionSentTitle,
+            secondaryButtonTitle: isV2 ? Localization.expressProvider : nil,
+            tokenItem: tokenItem
+        )
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
