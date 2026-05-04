@@ -910,6 +910,8 @@
 "onramp_kyc_verification_choose_another" = "Choose another method";
 "onramp_kyc_verification_subtitle" = "To comply with local regulatory requirements %@ requires identity verification.";
 "onramp_kyc_verification_title" = "Identity verification required by payment provider";
+"onramp_kyc_verification_verify_button" = "Verify";
+"onramp_kyc_verification_whats_important" = "What's important";
 "onramp_legal_text" = "Der Service wird von einem externen Anbieter bereitgestellt. \n Tangem übernimmt keine Verantwortung.";
 "onramp_legal" = "Durch die Nutzung der Onramp-Funktionalität stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "onramp_max_amount_restriction" = "Der Kaufbetrag sollte nicht höher sein als %@";
@@ -966,6 +968,8 @@
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
 "quick_action_swap_description" = "Between your portfolios";
+"quick_top_up_chip_other" = "Other";
+"quick_top_up_title" = "Quick top up";
 "receive_bottom_sheet_no_memo_required_message" = "Kein Memo erforderlich";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ im %2$@ Netzwerk";
 "receive_bottom_sheet_warning_message_description" = "Das Senden einer anderen Währung führt zu deren irreversiblem Verlust.";
