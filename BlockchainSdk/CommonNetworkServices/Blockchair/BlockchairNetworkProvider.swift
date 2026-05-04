@@ -38,6 +38,10 @@ class BlockchairNetworkProvider {
 // MARK: - UTXONetworkProvider
 
 extension BlockchairNetworkProvider: UTXONetworkProvider {
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
+        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
+    }
+
     var host: String {
         let baseUrl = "https://api.blockchair.com/"
         let endpoint = endpoint.path
