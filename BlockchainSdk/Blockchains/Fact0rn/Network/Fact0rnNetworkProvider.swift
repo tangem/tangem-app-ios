@@ -29,6 +29,10 @@ final class Fact0rnNetworkProvider {
 extension Fact0rnNetworkProvider: UTXONetworkProvider {
     var host: String { provider.host }
 
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
+        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
+    }
+
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         Future.async {
             let scriptHash = try self.converter.prepareScriptHash(address: address)

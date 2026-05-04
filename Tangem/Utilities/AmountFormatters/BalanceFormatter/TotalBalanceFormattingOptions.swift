@@ -14,13 +14,15 @@ struct TotalBalanceFormattingOptions {
     let fractionalPartFont: Font
     let integerPartColor: Color
     let fractionalPartColor: Color
+    let fractionalPartIncludesDecimalSeparator: Bool
 
     static var defaultOptions: TotalBalanceFormattingOptions {
         .init(
             integerPartFont: Fonts.Regular.title1,
             fractionalPartFont: Fonts.Bold.title3,
             integerPartColor: Colors.Text.primary1,
-            fractionalPartColor: Colors.Text.primary1
+            fractionalPartColor: Colors.Text.primary1,
+            fractionalPartIncludesDecimalSeparator: false
         )
     }
 }

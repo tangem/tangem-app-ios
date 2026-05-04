@@ -23,6 +23,13 @@ enum StakingNotificationEvent {
     case unlock(periodFormatted: String)
     case validationErrorEvent(ValidationErrorEvent)
     case networkUnreachable
+    case insufficientFundsForFee(
+        transactionAmountTypeName: String,
+        networkName: String,
+        feeAmountTypeName: String,
+        feeAmountTypeCurrencySymbol: String
+    )
+    case insufficientFundsForFeeReduceAmount(feeAmountTypeName: String)
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case stakesWillMoveToNewValidator(blockchain: String)
     case lowStakedBalance
@@ -48,6 +55,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .unlock: "unlock".hashValue
         case .validationErrorEvent(let validationErrorEvent): validationErrorEvent.id
         case .networkUnreachable: "networkUnreachable".hashValue
+        case .insufficientFundsForFee: "insufficientFundsForFee".hashValue
+        case .insufficientFundsForFeeReduceAmount: "insufficientFundsForFeeReduceAmount".hashValue
         case .stakesWillMoveToNewValidator: "stakesWillMoveToNewValidator".hashValue
         case .lowStakedBalance: "lowStakedBalance".hashValue
         case .maxAmountStaking: "maxAmountStaking".hashValue
@@ -73,6 +82,10 @@ extension StakingNotificationEvent: NotificationEvent {
         case .unlock: .string(Localization.stakingUnlockedLocked)
         case .validationErrorEvent(let event): event.title
         case .networkUnreachable: .string(Localization.sendFeeUnreachableErrorTitle)
+        case .insufficientFundsForFee(_, _, let feeAmountTypeName, _):
+            .string(Localization.warningSendBlockedFundsForFeeTitle(feeAmountTypeName))
+        case .insufficientFundsForFeeReduceAmount(let feeAmountTypeName):
+            .string(Localization.warningSendBlockedFundsForFeeTitle(feeAmountTypeName))
         case .stakesWillMoveToNewValidator: .string(Localization.stakingRevote)
         case .lowStakedBalance: .string(Localization.stakingNotificationLowStakedBalanceTitle)
         case .maxAmountStaking: .string(Localization.commonNetworkFeeTitle)
@@ -110,6 +123,16 @@ extension StakingNotificationEvent: NotificationEvent {
             event.description
         case .networkUnreachable:
             Localization.sendFeeUnreachableErrorText
+        case .insufficientFundsForFee(let transactionAmountTypeName, let networkName, let feeAmountTypeName, let feeAmountTypeCurrencySymbol):
+            Localization.warningSendBlockedFundsForFeeMessage(
+                transactionAmountTypeName,
+                networkName,
+                transactionAmountTypeName,
+                feeAmountTypeName,
+                feeAmountTypeCurrencySymbol
+            )
+        case .insufficientFundsForFeeReduceAmount:
+            Localization.stakingNotificationStakeEntireBalanceText
         case .stakesWillMoveToNewValidator(let blockchain):
             Localization.stakingNotificationNewValidatorFundsTransfer(blockchain)
         case .lowStakedBalance:
@@ -136,7 +159,8 @@ extension StakingNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .approveTransactionInProgress, .feeWillBeSubtractFromSendingAmount,
-             .stakesWillMoveToNewValidator, .lowStakedBalance, .amountRequirementError:
+             .stakesWillMoveToNewValidator, .lowStakedBalance, .amountRequirementError,
+             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount:
             .secondary
         case .unstake, .networkUnreachable, .withdraw, .claimRewards,
              .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking,
@@ -148,7 +172,8 @@ extension StakingNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .networkUnreachable, .feeWillBeSubtractFromSendingAmount, .lowStakedBalance:
+        case .networkUnreachable, .feeWillBeSubtractFromSendingAmount, .lowStakedBalance,
+             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount:
             .init(iconType: .image(Assets.attention))
         case .approveTransactionInProgress:
             .init(iconType: .progressView)
@@ -166,7 +191,8 @@ extension StakingNotificationEvent: NotificationEvent {
 
     var severity: NotificationView.Severity {
         switch self {
-        case .networkUnreachable, .amountRequirementError:
+        case .networkUnreachable, .amountRequirementError,
+             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount:
             return .critical
         case .approveTransactionInProgress,
              .unstake,
@@ -210,7 +236,9 @@ extension StakingNotificationEvent: NotificationEvent {
              .amountRequirementError,
              .tonExtraReserveInfo,
              .tonUnstaking,
-             .stakesWillMoveToNewValidator:
+             .stakesWillMoveToNewValidator,
+             .insufficientFundsForFee,
+             .insufficientFundsForFeeReduceAmount:
             return nil
         case .tonAccountInitialization:
             return .init(.activate)

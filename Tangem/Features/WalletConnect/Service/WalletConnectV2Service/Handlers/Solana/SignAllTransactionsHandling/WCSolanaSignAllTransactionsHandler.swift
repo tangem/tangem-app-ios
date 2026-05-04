@@ -22,34 +22,6 @@ final class WCSolanaSignAllTransactionsHandler {
         request: AnyCodable,
         blockchainId: String,
         signer: WalletConnectSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws(WalletConnectTransactionRequestProcessingError) {
-        do {
-            let parameters = try request.get(WCSolanaSignAllTransactionsDTO.Response.self)
-
-            guard let walletModel = walletModelProvider.getModel(with: blockchainId) else {
-                throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
-            }
-
-            self.walletModel = walletModel
-            hashesToSign = parameters.transactions
-        } catch let error as WalletConnectTransactionRequestProcessingError {
-            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
-            throw error
-        } catch {
-            let stringRepresentation = request.stringRepresentation
-            WCLogger.info("[WC 2.0] Failed to create sign handler. Raised error: \(error)")
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
-        }
-
-        self.signer = signer
-        self.request = request
-    }
-
-    init(
-        request: AnyCodable,
-        blockchainId: String,
-        signer: WalletConnectSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws(WalletConnectTransactionRequestProcessingError) {

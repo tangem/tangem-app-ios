@@ -33,35 +33,6 @@ struct WalletConnectV2PersonalSignHandler {
         request: AnyCodable,
         blockchainId: String,
         signer: WalletConnectSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        let castedParams: [String]
-        do {
-            castedParams = try request.get([String].self)
-            if castedParams.count < 2 {
-                throw WalletConnectTransactionRequestProcessingError.invalidPayload(request.description)
-            }
-
-            let targetAddress = castedParams[1]
-            walletModel = try walletModelProvider.getModel(with: targetAddress, blockchainId: blockchainId)
-            self.request = request
-        } catch let error as WalletConnectTransactionRequestProcessingError {
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw error
-        } catch {
-            let stringRepresentation = request.stringRepresentation
-            WCLogger.error("Failed to create sign handler", error: error)
-            throw WalletConnectTransactionRequestProcessingError.invalidPayload(stringRepresentation)
-        }
-
-        message = castedParams[0]
-        self.signer = signer
-    }
-
-    init(
-        request: AnyCodable,
-        blockchainId: String,
-        signer: WalletConnectSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {

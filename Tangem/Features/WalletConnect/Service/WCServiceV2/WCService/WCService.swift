@@ -21,6 +21,7 @@ protocol WCService {
     func rejectSessionProposal(with proposalID: String, reason: RejectionReason) async throws
     func disconnectSession(withTopic topic: String) async throws
     func updateSession(withTopic topic: String, namespaces: [String: SessionNamespace]) async throws
+    func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain)
 
     func disconnectAllSessionsForUserWallet(with userWalletId: String)
     func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain)

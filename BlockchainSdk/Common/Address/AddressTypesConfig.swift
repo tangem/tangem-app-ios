@@ -9,6 +9,10 @@
 import Foundation
 
 struct AddressTypesConfig {
+    func hasLegacy(for blockchain: Blockchain) -> Bool {
+        types(for: blockchain).contains { $0 == .legacy }
+    }
+
     func types(for blockchain: Blockchain) -> [AddressType] {
         switch blockchain {
         case .bitcoin:

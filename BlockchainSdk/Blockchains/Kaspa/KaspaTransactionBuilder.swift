@@ -71,9 +71,9 @@ extension KaspaTransactionBuilder {
             switch feeType {
             case .exactly(let fee):
                 let fee = fee.amount.asSmallest().value.intValue()
-                return try await unspentOutputManager.preImage(amount: amount, fee: fee, destination: destination)
+                return try await unspentOutputManager.preImage(amount: amount, fee: fee, destination: destination, opReturn: nil)
             case .calculation(let feeRate):
-                return try await unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination)
+                return try await unspentOutputManager.preImage(amount: amount, feeRate: feeRate, destination: destination, opReturn: nil)
             }
         }()
 
@@ -171,10 +171,10 @@ extension KaspaTransactionBuilder {
 
                 let targetOutputAmount = dust + feeParams.revealFee.asSmallest().value.intValue()
                 let fee = feeParams.commitFee.asSmallest().value.intValue()
-                let preImage = try await unspentOutputManager.preImage(amount: targetOutputAmount, fee: fee, destination: destination)
+                let preImage = try await unspentOutputManager.preImage(amount: targetOutputAmount, fee: fee, destination: destination, opReturn: nil)
                 return (preImage: preImage, targetOutputAmount: targetOutputAmount)
             case .calculation(let feeRate):
-                let preImage = try await unspentOutputManager.preImage(amount: dust, feeRate: feeRate, destination: destination)
+                let preImage = try await unspentOutputManager.preImage(amount: dust, feeRate: feeRate, destination: destination, opReturn: nil)
                 return (preImage: preImage, targetOutputAmount: dust)
             }
         }

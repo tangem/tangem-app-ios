@@ -11,8 +11,6 @@ import Combine
 import TangemFoundation
 
 final class MultiWalletNotificationManager {
-    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
-
     private let userWalletId: UserWalletId
     private let analyticsService: NotificationsAnalyticsService
     private let totalBalanceProvider: TotalBalanceProvider
@@ -25,7 +23,6 @@ final class MultiWalletNotificationManager {
         self.totalBalanceProvider = totalBalanceProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
-        bindTokenSyncProgress()
     }
 
     private func bind() {
@@ -45,23 +42,6 @@ final class MultiWalletNotificationManager {
                 manager.setup(state: state)
             }
             .store(in: &bag)
-    }
-
-    private func bindTokenSyncProgress() {
-        Task { @MainActor [userWalletId, weak self] in
-            guard let self else { return }
-
-            await walletTokenSyncProgressProvider
-                .eventPublisher(for: userWalletId)
-                .removeDuplicates()
-                .filter { $0 == .completed }
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .sink { manager, _ in
-                    manager.show(event: .initialWalletTokenSyncCompleted)
-                }
-                .store(in: &bag)
-        }
     }
 
     private func setup(state: TotalBalanceState) {

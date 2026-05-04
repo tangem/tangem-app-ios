@@ -29,6 +29,13 @@ public extension MoyaError {
         }
     }
 
+    var isTooManyRequests: Bool {
+        if case .statusCode(let response) = self {
+            return response.statusCode == 429
+        }
+        return false
+    }
+
     var isMappingError: Bool {
         switch self {
         case .objectMapping,

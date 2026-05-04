@@ -72,7 +72,7 @@ public struct NotificationBanner: View, Setupable {
                 .fill(Color.Tangem.Graphic.Neutral.secondary)
                 .frame(size: .init(bothDimensions: SizeUnit.x5.value))
                 .overlay {
-                    Assets.cross16.image
+                    Assets.DesignSystem.closeSmall.image
                         .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
