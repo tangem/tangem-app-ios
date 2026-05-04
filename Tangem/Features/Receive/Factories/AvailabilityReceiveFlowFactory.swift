@@ -13,22 +13,17 @@ struct AvailabilityReceiveFlowFactory {
     private let flow: ReceiveFlow
     private let tokenItem: TokenItem
     private let addressTypesProvider: ReceiveAddressTypesProvider
-    // [REDACTED_TODO_COMMENT]
-    private let isYieldModuleActive: Bool
 
     // MARK: - Init
 
     init(
         flow: ReceiveFlow,
         tokenItem: TokenItem,
-        addressTypesProvider: ReceiveAddressTypesProvider,
-        // [REDACTED_TODO_COMMENT]
-        isYieldModuleActive: Bool = false
+        addressTypesProvider: ReceiveAddressTypesProvider
     ) {
         self.flow = flow
         self.tokenItem = tokenItem
         self.addressTypesProvider = addressTypesProvider
-        self.isYieldModuleActive = isYieldModuleActive
     }
 
     // MARK: Implementation
@@ -37,9 +32,7 @@ struct AvailabilityReceiveFlowFactory {
         let options = ReceiveMainViewModel.Options(
             tokenItem: tokenItem,
             flow: flow,
-            addressTypesProvider: addressTypesProvider,
-            // [REDACTED_TODO_COMMENT]
-            isYieldModuleActive: isYieldModuleActive
+            addressTypesProvider: addressTypesProvider
         )
 
         let receiveMainViewModel = ReceiveMainViewModel(options: options)
@@ -55,8 +48,7 @@ struct AvailabilityReceiveFlowFactory {
         ReceiveDependenciesBuilder(
             flow: flow,
             tokenItem: tokenItem,
-            addressTypesProvider: addressTypesProvider,
-            isYieldModuleActive: isYieldModuleActive
+            addressTypesProvider: addressTypesProvider
         )
     }
 }
