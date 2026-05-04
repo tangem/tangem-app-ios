@@ -53,11 +53,12 @@ final class QuickTopUpBannerViewModel: ObservableObject {
                     return nil
                 }
 
-                let currencyCode = (preference.currency ?? country.currency).identity.code
-                guard let sign = Locale.current.localizedCurrencySymbol(forCurrencyCode: currencyCode) else {
-                    return nil
+                let code = (preference.currency ?? country.currency).identity.code.uppercased()
+                switch code {
+                case "USD": return CurrencyInfo(sign: "$")
+                case "EUR": return CurrencyInfo(sign: "€")
+                default: return nil
                 }
-                return CurrencyInfo(sign: sign)
             }
 
         let isZeroBalancePublisher = walletModel.availableBalanceProvider.balanceTypePublisher
