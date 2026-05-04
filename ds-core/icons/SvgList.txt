@@ -1,0 +1,3 @@
+Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
+Sign Equal / 12, 16, 20, 24, 28, 32 / Regular

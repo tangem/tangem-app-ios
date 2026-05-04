@@ -1,0 +1,26 @@
+{
+  "blur": {
+    "size": {
+      "card": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.dimens3.blur.card",
+            "iOS": "DesignSystem.Tokens.Blur.Size.card"
+          }
+        },
+        "$type": "dimension",
+        "$value": "{dimension.600}"
+      },
+      "button": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.dimens3.blur.Button",
+            "iOS": "DesignSystem.Tokens.Blur.Size.button"
+          }
+        },
+        "$type": "dimension",
+        "$value": "{dimension.400}"
+      }
+    }
+  }
+}
