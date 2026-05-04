@@ -15,6 +15,7 @@ public enum ExpressProviderManagerState {
     case restriction(_ restriction: ExpressRestriction, quote: ExpressQuote?)
 
     case permissionRequired(ExpressProviderManagerState.PermissionRequired)
+    case revokeAndPermissionRequired(ExpressProviderManagerState.PermissionRequired)
     case preview(ExpressProviderManagerState.PreviewCEX)
     case ready(ExpressProviderManagerState.Ready)
 
@@ -28,6 +29,8 @@ public enum ExpressProviderManagerState {
             return quote
         case .permissionRequired(let state):
             return state.quote
+        case .revokeAndPermissionRequired(let state):
+            return state.quote
         case .preview(let state):
             return state.quote
         case .ready(let state):
@@ -37,7 +40,7 @@ public enum ExpressProviderManagerState {
 
     public var isError: Bool {
         switch self {
-        case .idle, .permissionRequired, .restriction, .preview, .ready:
+        case .idle, .permissionRequired, .revokeAndPermissionRequired, .restriction, .preview, .ready:
             return false
         case .error:
             return true
@@ -46,7 +49,7 @@ public enum ExpressProviderManagerState {
 
     public var isPermissionRequired: Bool {
         switch self {
-        case .permissionRequired:
+        case .permissionRequired, .revokeAndPermissionRequired:
             return true
         default:
             return false
@@ -59,8 +62,16 @@ public extension ExpressProviderManagerState {
         public let provider: ExpressProvider
         public let policy: ApprovePolicy
         public let data: ApproveTransactionData
+        public let approvalFlow: ApprovalFlow
         public let fee: Fee
         public let quote: ExpressQuote
+    }
+
+    enum ApprovalFlow {
+        /// Single approve tx
+        case approve
+        /// Revoke existing allowance, then approve. Required for tokens like USDT on Ethereum.
+        case revokeAndApprove(revokeData: ApproveTransactionData, feeUnit: Fee)
     }
 
     struct PreviewCEX {
@@ -87,12 +98,14 @@ extension ExpressProviderManagerState: CustomStringConvertible {
             return "error \(error) quote \(String(describing: quote))"
         case .restriction(let restriction, let quote):
             return "restriction \(restriction) quote \(String(describing: quote))"
-        case .permissionRequired(let permissionRequired):
-            return "permissionRequired quote \(permissionRequired.quote)"
+        case .permissionRequired(let state):
+            return "permissionRequired quote \(state.quote)"
+        case .revokeAndPermissionRequired(let state):
+            return "revokeAndPermissionRequired quote \(state.quote)"
         case .preview(let previewCEX):
             return "previewCEX subtractFee: \(previewCEX.subtractFee), quote \(previewCEX.quote)"
         case .ready(let ready):
-            return "quote \(ready.quote)"
+            return "ready quote \(ready.quote)"
         }
     }
 }
