@@ -23,7 +23,7 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
     @Published private var receiveSmallAmountViewModel: SendAmountFinishSmallAmountViewModel?
     @Published private var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
 
-    private let isSwapAwareFlow: Bool
+    let isSwapAwareFlow: Bool
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private let balanceFormatter = BalanceFormatter()
     private var bag: Set<AnyCancellable> = []
