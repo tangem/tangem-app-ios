@@ -1,3 +1,6 @@
 Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Swap Horizontal / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
+Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
 Sign Equal / 12, 16, 20, 24, 28, 32 / Regular
+Sign USD / 12, 16, 20, 24, 28, 32 / Regular
