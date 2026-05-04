@@ -35,6 +35,10 @@ class RavencoinNetworkProvider: HostProvider {
 // MARK: - UTXONetworkProvider
 
 extension RavencoinNetworkProvider: UTXONetworkProvider {
+    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubInfo, any Error> {
+        .anyFail(error: UTXONetworkAddressInfoProviderError.xpubNotSupported)
+    }
+
     func getUnspentOutputs(address: String) -> AnyPublisher<[UnspentOutput], any Error> {
         execute(target: .utxo(address: address), response: [RavencoinDTO.UTXO.Response].self)
             .withWeakCaptureOf(self)

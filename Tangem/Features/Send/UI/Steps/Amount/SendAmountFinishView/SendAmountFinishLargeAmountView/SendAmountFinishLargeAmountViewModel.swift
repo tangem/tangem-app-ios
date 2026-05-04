@@ -11,15 +11,13 @@ import TangemUI
 struct SendAmountFinishLargeAmountViewModel {
     let tokenHeader: SendTokenHeader?
     let tokenIconInfo: TokenIconInfo
-    let amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
-    let amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
+    let amountText: String
     let alternativeAmount: String?
 
     init(
         tokenHeader: SendTokenHeader,
         tokenIconInfo: TokenIconInfo,
-        amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel,
-        amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions,
+        amountText: String,
         alternativeAmount: String?
     ) {
         self.tokenHeader = switch tokenHeader {
@@ -31,8 +29,7 @@ struct SendAmountFinishLargeAmountViewModel {
         }
 
         self.tokenIconInfo = tokenIconInfo
-        self.amountDecimalNumberTextFieldViewModel = amountDecimalNumberTextFieldViewModel
-        self.amountFieldOptions = amountFieldOptions
+        self.amountText = amountText
         self.alternativeAmount = alternativeAmount
     }
 }

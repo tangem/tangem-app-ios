@@ -44,9 +44,6 @@ struct SendCoordinatorView: CoordinatorView {
 
     private var sheets: some View {
         NavHolder()
-            .floatingSheetContent(for: ApproveFlowViewModel.self) {
-                ApproveFlowView(viewModel: $0)
-            }
             .bottomSheet(
                 item: $coordinator.onrampCountryDetectionCoordinator,
                 settings: .init(
@@ -55,18 +52,6 @@ struct SendCoordinatorView: CoordinatorView {
                 )
             ) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
-            }
-            .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
-                SendFeeSelectorView(viewModel: $0)
-            }
-            .floatingSheetContent(for: SendSwapProvidersSelectorViewModel.self) {
-                SendSwapProvidersSelectorView(viewModel: $0)
-            }
-            .floatingSheetContent(for: HighPriceImpactWarningSheetViewModel.self) {
-                HighPriceImpactWarningSheetView(viewModel: $0)
-            }
-            .floatingSheetContent(for: OnrampOffersSelectorViewModel.self) {
-                OnrampOffersSelectorView(viewModel: $0)
             }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
                 QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()
@@ -82,9 +67,6 @@ struct SendCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
                 SwapTokenSelectorView(viewModel: $0)
-            }
-            .floatingSheetContent(for: BlockchainAccountInitializationViewModel.self) {
-                BlockchainAccountInitializationView(viewModel: $0)
             }
     }
 }
