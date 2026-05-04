@@ -116,7 +116,19 @@ private extension StakingModel {
             case .permissionRequired(let approveData):
                 stopTimer()
                 sendSourceToken.tokenFeeProvidersManager.update(input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress))
-                sendSourceToken.tokenFeeProvidersManager.updateFees()
+                await sendSourceToken.tokenFeeProvidersManager.updateFees().value
+
+                switch sendSourceToken.tokenFeeProvidersManager.selectedTokenFee.value {
+                case .failure(let error):
+                    return .networkError(error)
+                case .loading:
+                    StakingLogger.debug("Invalid loading state")
+                case .success(let fee):
+                    if let state = validate(amount: .zero, fee: fee.amount.value) {
+                        return state
+                    }
+                }
+
                 let stakingFee = try await estimateFee(amount: amount, target: target)
                 return .readyToApprove(approveData: approveData, stakingFee: stakingFee)
 
