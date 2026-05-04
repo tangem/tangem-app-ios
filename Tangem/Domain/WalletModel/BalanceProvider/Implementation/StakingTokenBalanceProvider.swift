@@ -90,18 +90,18 @@ extension StakingTokenBalanceProvider {
 
     func mapToTokenBalance(state: StakingManagerState) -> TokenBalanceType {
         switch state {
-        case .loading(.some(let cachedState)):
-            return .loading(mapToCachedBalance(cachedState: cachedState))
+        case .loading(.some(let cached)):
+            return .loading(.init(balance: cached.stakeState.balance, date: cached.date))
         case .loading(.none):
             return .loading(oldCachedBalance())
         case .notEnabled:
             return .empty(.noData)
-        case .loadingError(_, .some(let cachedState)), .temporaryUnavailable(_, .some(let cachedState)):
-            return .failure(mapToCachedBalance(cachedState: cachedState))
+        case .loadingError(_, .some(let cached)), .temporaryUnavailable(_, .some(let cached)):
+            return .failure(.init(balance: cached.stakeState.balance, date: cached.date))
         case .temporaryUnavailable:
             return .empty(.noData)
         case .loadingError(_, .none):
-            return .loading(oldCachedBalance())
+            return .failure(oldCachedBalance())
         case .availableToStake:
             return .loaded(.zero)
         case .staked(let balances):
@@ -117,9 +117,5 @@ extension StakingTokenBalanceProvider {
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
-    }
-
-    func mapToCachedBalance(cachedState: CachedStakingManagerState?) -> TokenBalanceType.Cached? {
-        cachedState.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) }
     }
 }

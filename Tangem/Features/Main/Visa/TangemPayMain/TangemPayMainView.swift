@@ -17,7 +17,9 @@ struct TangemPayMainView: View {
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
-                TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
+                if !viewModel.isDeactivated {
+                    TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
+                }
 
                 if viewModel.freezingState.shouldShowUnfreezeButton {
                     MainButton(
@@ -38,21 +40,27 @@ struct TangemPayMainView: View {
 
                 balance
 
+                if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
+                    NotificationView(input: cardDeactivatedNotificationInput)
+                }
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
-                NotificationView(input: viewModel.contactSupportNotificationInput)
+                if !viewModel.isDeactivated {
+                    NotificationView(input: viewModel.contactSupportNotificationInput)
 
-                TransactionsListView(
-                    state: viewModel.tangemPayTransactionHistoryState,
-                    exploreAction: nil,
-                    exploreConfirmationDialog: nil,
-                    exploreTransactionAction: viewModel.openTransactionDetails,
-                    reloadButtonAction: viewModel.reloadHistory,
-                    isReloadButtonBusy: false,
-                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                )
+                    TransactionsListView(
+                        state: viewModel.tangemPayTransactionHistoryState,
+                        exploreAction: nil,
+                        exploreConfirmationDialog: nil,
+                        exploreTransactionAction: viewModel.openTransactionDetails,
+                        reloadButtonAction: viewModel.reloadHistory,
+                        isReloadButtonBusy: false,
+                        fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                    )
+                }
 
                 Spacer()
             }

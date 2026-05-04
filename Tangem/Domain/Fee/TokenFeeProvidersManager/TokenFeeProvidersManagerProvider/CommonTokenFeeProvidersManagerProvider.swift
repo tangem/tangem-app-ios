@@ -10,9 +10,6 @@ struct CommonTokenFeeProvidersManagerProvider {
     @Injected(\.gaslessTransactionsNetworkManager)
     private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
-
     let walletModel: any WalletModel
     let supportingOptions: TokenFeeProviderSupportingOptions
 
@@ -86,16 +83,7 @@ private extension CommonTokenFeeProvidersManagerProvider {
             return []
         }
 
-        guard let currentUserWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == walletModel.userWalletId }) else {
-            assertionFailure("User wallet not found")
-            return []
-        }
-
-        let currentAccountWalletModels = if FeatureProvider.isAvailable(.accounts) {
-            walletModel.account?.walletModelsManager.walletModels ?? []
-        } else {
-            AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel)
-        }
+        let currentAccountWalletModels = walletModel.account?.walletModelsManager.walletModels ?? []
 
         let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
         let availableTokenAddresses: Set<String?> = Set(availableTokens.map { $0.tokenAddress })

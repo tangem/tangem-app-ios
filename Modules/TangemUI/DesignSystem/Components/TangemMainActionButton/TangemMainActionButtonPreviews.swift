@@ -31,21 +31,21 @@ public struct TangemMainActionButtonShowcase: View {
         HStack(spacing: 24) {
             TangemMainActionButton(
                 title: "Buy",
-                icon: Assets.plusMini,
+                icon: Assets.DesignSystem.plus,
                 buttonState: buyState,
                 action: { print("Buy tapped") }
             )
 
             TangemMainActionButton(
                 title: "Swap",
-                icon: Assets.exchangeMini,
+                icon: Assets.DesignSystem.exchangeMini,
                 buttonState: swapState,
                 action: { print("Swap tapped") }
             )
 
             TangemMainActionButton(
                 title: "Sell",
-                icon: Assets.dollarMini,
+                icon: Assets.DesignSystem.dollar,
                 buttonState: sellState,
                 action: { print("Sell tapped") }
             )
