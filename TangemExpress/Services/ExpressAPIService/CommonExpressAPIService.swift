@@ -120,7 +120,15 @@ private extension CommonExpressAPIService {
         return try decoder.decode(T.self, from: response.data)
     }
 
-    func tryMapError(target: ExpressAPITarget, response: Response) -> ExpressAPIError? {
+    func tryMapError(target _: ExpressAPITarget, response: Response) -> ExpressAPIError? {
+        if let error = tryMapErrorFromBody(response: response) {
+            return error
+        }
+
+        return nil
+    }
+
+    func tryMapErrorFromBody(response: Response) -> ExpressAPIError? {
         do {
             let error = try JSONDecoder().decode(ExpressDTO.APIError.Response.self, from: response.data)
             return error.error

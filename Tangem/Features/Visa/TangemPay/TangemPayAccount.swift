@@ -22,6 +22,11 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
+    var isDeactivated: Bool {
+        let value = customerInfoSubject.value
+        return value.customerInfo.state == .former || value.productInstance.status == .deactivated
+    }
+
     var card: VisaCustomerInfoResponse.Card? {
         customerInfoSubject.value.customerInfo.cardIfActiveOrBlocked
     }
@@ -116,7 +121,8 @@ final class TangemPayAccount {
 
             customerInfoSubject.send((customerInfo, productInstance))
 
-            if productInstance.status == .active {
+            if productInstance.status == .active
+                || productInstance.status == .deactivated {
                 await loadBalance()
             }
         } catch {

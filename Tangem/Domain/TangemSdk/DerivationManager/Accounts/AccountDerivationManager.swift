@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-/// One instance per unique account, a proxy for `AccountsAwareDerivationManager`.
+/// One instance per unique account, a proxy for `CommonDerivationManager`.
 final class AccountDerivationManager {
     private let keysRepository: KeysRepository
     private let userTokensManager: UserTokensManager
@@ -38,6 +38,22 @@ final class AccountDerivationManager {
 // MARK: - DerivationManager protocol conformance
 
 extension AccountDerivationManager: DerivationManager {
+    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
+        innerDerivationManager.shouldDeriveKeys(networksToRemove: networksToRemove, networksToAdd: networksToAdd)
+    }
+
+    var pendingDerivations: [PendingDerivation] {
+        innerDerivationManager.pendingDerivations
+    }
+
+    func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
+        innerDerivationManager.deriveKeys(completion: completion)
+    }
+}
+
+// MARK: - DerivationStatusProvider protocol conformance
+
+extension AccountDerivationManager: DerivationStatusProvider {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
         pendingDerivationsPublisher
             .map { !$0.isEmpty }
@@ -57,17 +73,5 @@ extension AccountDerivationManager: DerivationManager {
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
-    }
-
-    func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
-        innerDerivationManager.shouldDeriveKeys(networksToRemove: networksToRemove, networksToAdd: networksToAdd)
-    }
-
-    var pendingDerivations: [PendingDerivation] {
-        innerDerivationManager.pendingDerivations
-    }
-
-    func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
-        innerDerivationManager.deriveKeys(completion: completion)
     }
 }

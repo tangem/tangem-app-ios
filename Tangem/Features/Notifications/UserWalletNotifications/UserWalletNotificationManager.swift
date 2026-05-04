@@ -20,6 +20,7 @@ protocol NotificationTapDelegate: AnyObject {
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
     @Injected(\.userWalletDismissedNotifications) private var dismissedNotifications: UserWalletDismissedNotifications
+    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
 
     private let analyticsService: NotificationsAnalyticsService
     private let userWalletModel: UserWalletModel
@@ -39,9 +40,11 @@ final class UserWalletNotificationManager {
 
     private var showMobileUpgradeNotification = false
     private var shownMobileUpgradeNotificationId: NotificationViewId?
+    private var shownTokenSyncNotificationId: NotificationViewId?
 
-    private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
+
+    private var tokenSyncProgressTask: Task<Void, Never>?
 
     init(
         userWalletModel: UserWalletModel,
@@ -53,6 +56,18 @@ final class UserWalletNotificationManager {
         mobileUpgradeBannerManager = CommonMobileUpgradeBannerManager(userWalletModel: userWalletModel)
 
         bind()
+        bindTokenSyncProgress()
+    }
+
+    deinit {
+        tokenSyncProgressTask?.cancel()
+
+        // Release bag on main to serialize Combine cancel cascade with main-scheduled upstream emissions.
+        // See [REDACTED_INFO]
+        if !Thread.isMainThread {
+            let cancellables = bag
+            DispatchQueue.main.async { _ = cancellables }
+        }
     }
 
     private func createNotifications() {
@@ -124,23 +139,9 @@ final class UserWalletNotificationManager {
         notificationInputsSubject.send(inputs)
 
         showAppRateNotificationIfNeeded()
-        createIfNeededAndShowSupportSeedNotification()
         showMobileUpgradeNotificationIfNeeded()
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
-    }
-
-    private func createIfNeededAndShowSupportSeedNotification() {
-        guard userWalletModel.hasImportedWallets else {
-            return
-        }
-
-        // demo cards
-        if case .disabled = userWalletModel.config.getFeatureAvailability(.backup) {
-            return
-        }
-
-        supportSeedNotificationInteractor.showSupportSeedNotificationIfNeeded()
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
@@ -218,7 +219,7 @@ final class UserWalletNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
         let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
         let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
@@ -282,6 +283,32 @@ final class UserWalletNotificationManager {
         self.shownMobileUpgradeNotificationId = nil
     }
 
+    private func showTokenSyncCompletedNotification() {
+        guard shownTokenSyncNotificationId == nil else {
+            return
+        }
+
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { _ in }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            self?.delegate?.didTapNotification(with: id, action: action)
+        }
+
+        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+
+        let input = factory.buildNotificationInput(
+            for: GeneralNotificationEvent.initialWalletTokenSyncCompleted,
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+
+        shownTokenSyncNotificationId = input.id
+        addInputIfNeeded(input)
+    }
+
     private func bind() {
         notificationPublisher
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
@@ -342,6 +369,23 @@ final class UserWalletNotificationManager {
             .store(in: &bag)
     }
 
+    private func bindTokenSyncProgress() {
+        tokenSyncProgressTask = Task { @MainActor in
+            let userWalletId = userWalletModel.userWalletId
+
+            await walletTokenSyncProgressProvider
+                .eventPublisher(for: userWalletId)
+                .removeDuplicates()
+                .filter { $0 == .completed }
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { manager, _ in
+                    manager.showTokenSyncCompletedNotification()
+                }
+                .store(in: &bag)
+        }
+    }
+
     private func addMissingDerivationWarningIfNeeded(pendingDerivationsCount: Int) {
         guard numberOfPendingDerivations != pendingDerivationsCount else {
             return
@@ -360,21 +404,13 @@ final class UserWalletNotificationManager {
     }
 
     private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
-        guard FeatureProvider.isAvailable(.accounts) else {
-            // accounts_fixes_needed_none
-            return userWalletModel
-                .userTokensManager
-                .derivationManager?
-                .pendingDerivationsCount
-        }
-
         let crypto = userWalletModel
             .accountModelsManager
             .cryptoAccountModelsPublisher
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
             .flatMapLatest { derivationManagers in
                 return derivationManagers
-                    .compactMap(\.pendingDerivationsCount)
+                    .map(\.pendingDerivationsCount)
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
@@ -395,14 +431,6 @@ final class UserWalletNotificationManager {
         return Publishers.CombineLatest(crypto, tangemPay)
             .map(+)
             .eraseToAnyPublisher()
-    }
-
-    private func makeSupportSeedNotificationsManager() -> SupportSeedNotificationManager {
-        CommonSupportSeedNotificationManager(
-            userWalletId: userWalletModel.userWalletId,
-            displayDelegate: self,
-            notificationTapDelegate: delegate
-        )
     }
 
     private func makePushPermissionNotificationsManager() -> PushPermissionNotificationManager {
@@ -440,20 +468,18 @@ extension UserWalletNotificationManager: NotificationManager {
                 rateAppController.dismissAppRate()
             case .mobileUpgrade:
                 mobileUpgradeBannerManager.shouldClose()
+            case .initialWalletTokenSyncCompleted:
+                shownTokenSyncNotificationId = nil
+
+                Task { [walletId = userWalletModel.userWalletId] in
+                    await walletTokenSyncProgressProvider.removeProgress(for: walletId)
+                }
             default:
                 break
             }
         }
 
         hideNotification(with: id)
-    }
-}
-
-// MARK: - SupportSeedNotificationDelegate
-
-extension UserWalletNotificationManager: SupportSeedNotificationDelegate {
-    func showSupportSeedNotification(input: NotificationViewInput) {
-        addInputIfNeeded(input)
     }
 }
 

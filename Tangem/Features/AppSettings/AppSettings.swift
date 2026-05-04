@@ -90,9 +90,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shownStoryIds)
     var shownStoryIds: [String] = []
 
-    @AppStorageCompat(StorageType.supportSeedNotificationShownDate)
-    var supportSeedNotificationShownDate: Date? = nil
-
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 

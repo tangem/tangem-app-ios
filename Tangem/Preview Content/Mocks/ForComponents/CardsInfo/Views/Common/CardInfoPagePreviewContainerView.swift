@@ -34,14 +34,15 @@ struct CardInfoPagePreviewContainerView: View {
                     data: previewProvider.pages,
                     refreshScrollViewStateObject: hasPullToRefresh ? previewProvider.refreshScrollViewStateObject : nil,
                     selectedIndex: $selectedIndex,
-                    headerFactory: { pageViewModel in
+                    headerViewBuilder: { pageViewModel in
                         MainHeaderView(viewModel: pageViewModel.header)
                             .cornerRadius(14.0)
                     },
-                    contentFactory: { pageViewModel in
+                    contentViewBuilder: { pageViewModel in
                         CardInfoPagePreviewView(viewModel: pageViewModel)
                     },
-                    bottomOverlayFactory: { _, _ in EmptyView() },
+                    bottomOverlayViewBuilder: { _ in EmptyView() },
+                    footerOverlayViewBuilder: { _ in EmptyView() }
                 )
                 .pageSwitchThreshold(0.4)
                 .contentViewVerticalOffset(64.0)

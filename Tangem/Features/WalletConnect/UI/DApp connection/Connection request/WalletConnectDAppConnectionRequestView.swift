@@ -65,8 +65,6 @@ struct WalletConnectDAppConnectionRequestView: View {
         VStack(spacing: .zero) {
             accountSection
                 .padding(.horizontal, 14)
-            walletSection
-                .padding(.horizontal, 14)
 
             Divider()
                 .frame(height: 1)
@@ -87,30 +85,6 @@ struct WalletConnectDAppConnectionRequestView: View {
         }
         .background(Colors.Background.action)
         .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    // MARK: - Wallet section
-
-    @ViewBuilder
-    private var walletSection: some View {
-        if let walletSection = viewModel.state.walletSection {
-            BaseOneLineRowButton(
-                icon: walletSection.iconAsset,
-                title: walletSection.label,
-                shouldShowTrailingIcon: walletSection.selectionIsAvailable,
-                action: { viewModel.handle(viewEvent: .walletRowTapped) },
-                trailingView: { walletSectionTrailingView(walletSection.selectedUserWalletName) }
-            )
-            .verticalPadding(12)
-            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.walletLabel)
-            .allowsHitTesting(walletSection.selectionIsAvailable)
-        }
-    }
-
-    private func walletSectionTrailingView(_ userWalletName: String) -> some View {
-        Text(userWalletName)
-            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-            .padding(.horizontal, 4)
     }
 
     // MARK: - Account Section
@@ -150,7 +124,9 @@ struct WalletConnectDAppConnectionRequestView: View {
                     case .content:
                         switch connectionTargetSection.target {
                         case .wallet:
-                            walletSectionTrailingView(connectionTargetSection.targetName)
+                            Text(connectionTargetSection.targetName)
+                                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                                .padding(.horizontal, 4)
                         case .account(let target):
                             accountTargetTrailingView(icon: target.icon, accountName: connectionTargetSection.targetName)
                         }
