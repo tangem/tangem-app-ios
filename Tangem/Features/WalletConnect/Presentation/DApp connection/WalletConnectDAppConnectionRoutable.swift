@@ -17,8 +17,6 @@ protocol WalletConnectDAppConnectionRoutable: AnyObject {
         connectAnywayAction: @escaping () async -> Void
     )
 
-    func openWalletSelector()
-
     func openAccountSelector()
 
     func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult)

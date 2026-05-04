@@ -38,7 +38,7 @@ final class OnrampUITests: BaseTestCase {
 
     func testGoOnramp_validateProvidersScreen() {
         setAllureId(2570)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let providersAfterSelection = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -112,7 +112,7 @@ final class OnrampUITests: BaseTestCase {
         setAllureId(3479)
         let amountToEnter = "100"
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

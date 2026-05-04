@@ -34,7 +34,7 @@ struct TokenActionAvailabilityProvider {
     /// Check if we have an address to interact with
     private func hasAddressToInteract() -> Bool {
         let addresses = walletModel.addresses
-        let hasAtLeastOneAddress = addresses.contains { !$0.value.isEmpty }
+        let hasAtLeastOneAddress = addresses.contains { !$0.isEmpty }
         return hasAtLeastOneAddress
     }
 
@@ -452,14 +452,15 @@ extension TokenActionAvailabilityProvider {
 
 extension TokenActionAvailabilityProvider {
     var isStakeAvailable: Bool {
+        isStakeFeatureAvailable && isSendAvailable
+    }
+
+    /// Checks whether staking is available for the token without considering `isSendAvailable`.
+    var isStakeFeatureAvailable: Bool {
         let stakingFeatureProvider = StakingFeatureProvider(config: userWalletConfig)
         let canStake = stakingFeatureProvider.isAvailable(for: walletModel.tokenItem)
 
-        if canStake, isSendAvailable {
-            return true
-        }
-
-        return false
+        return canStake
     }
 }
 

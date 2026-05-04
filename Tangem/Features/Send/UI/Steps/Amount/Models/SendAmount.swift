@@ -86,10 +86,11 @@ enum SendAmountError: LocalizedError {
     case noAmount
 }
 
-enum ReceiveAmountRestriction: Equatable {
+enum ExchangeAmountRestriction: Equatable {
     case tooSmallAmount(Decimal)
     case tooBigAmount(Decimal)
     case balanceExceeded
+    case exchangeDataLoadingFailed
 }
 
 enum SendAmountCalculationType {

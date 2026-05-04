@@ -41,9 +41,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
     ) {
         self.optionsProviding = optionsProviding
         self.optionsEditing = optionsEditing
-    }
 
-    func onViewAppear() {
         bind()
     }
 

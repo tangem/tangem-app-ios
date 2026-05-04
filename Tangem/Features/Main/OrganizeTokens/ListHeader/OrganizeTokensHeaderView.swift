@@ -37,7 +37,6 @@ struct OrganizeTokensHeaderView: View {
                     .opacity(0.5)
                     .cornerRadiusContinuous(10.0)
             )
-            .onAppear(perform: viewModel.onViewAppear)
         }
     }
 }

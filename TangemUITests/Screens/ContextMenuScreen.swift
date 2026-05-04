@@ -92,6 +92,17 @@ final class ContextMenuScreen: ScreenBase<ContextMenuScreenElement> {
     }
 
     @discardableResult
+    func tapHideTokenExpectingUnableAlert(tokenName: String) -> MainScreen {
+        XCTContext.runActivity(named: "Tap Hide token and verify Unable to hide alert") { _ in
+            hideTokenButton.waitAndTap()
+            let alert = app.alerts["Unable to hide \(tokenName)"]
+            waitAndAssertTrue(alert, "Unable to hide alert should appear")
+            alert.buttons["OK"].waitAndTap()
+            return MainScreen(app)
+        }
+    }
+
+    @discardableResult
     func waitForAddressCopiedToast() -> Self {
         XCTContext.runActivity(named: "Wait for address copied toast to appear") { _ in
             let toast = app.staticTexts[ActionButtonsAccessibilityIdentifiers.addressCopiedToast]

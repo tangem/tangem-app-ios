@@ -11,16 +11,50 @@ import SwiftUI
 
 public extension View {
     @ViewBuilder
-    func skeletonable(isShown: Bool, size: CGSize, radius: CGFloat = 3, paddings: EdgeInsets = EdgeInsets()) -> some View {
+    func skeletonable(
+        isShown: Bool,
+        size: CGSize,
+        radius: CGFloat = 3,
+        paddings: EdgeInsets = EdgeInsets()
+    ) -> some View {
         modifier(
-            SkeletonModifier(isShown: isShown, modificationType: .size(size: size, paddings: paddings), radius: radius)
+            SkeletonModifier(isShown: isShown, modificationType: .size(size: size, paddings: paddings), cornerStyle: .rounded(radius: radius))
         )
     }
 
     @ViewBuilder
-    func skeletonable(isShown: Bool, width: CGFloat? = nil, height: CGFloat? = nil, radius: CGFloat = 3) -> some View {
+    func skeletonable(
+        isShown: Bool,
+        size: CGSize,
+        cornerStyle: SkeletonModifierCornerStyle,
+        paddings: EdgeInsets = EdgeInsets()
+    ) -> some View {
         modifier(
-            SkeletonModifier(isShown: isShown, modificationType: .overlay(width: width, height: height), radius: radius)
+            SkeletonModifier(isShown: isShown, modificationType: .size(size: size, paddings: paddings), cornerStyle: cornerStyle)
+        )
+    }
+
+    @ViewBuilder
+    func skeletonable(
+        isShown: Bool,
+        width: CGFloat? = nil,
+        height: CGFloat? = nil,
+        radius: CGFloat = 3
+    ) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .overlay(width: width, height: height), cornerStyle: .rounded(radius: radius))
+        )
+    }
+
+    @ViewBuilder
+    func skeletonable(
+        isShown: Bool,
+        width: CGFloat? = nil,
+        height: CGFloat? = nil,
+        cornerStyle: SkeletonModifierCornerStyle
+    ) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .overlay(width: width, height: height), cornerStyle: cornerStyle)
         )
     }
 }
@@ -30,12 +64,16 @@ public extension View {
 struct SkeletonModifier: ViewModifier {
     private let isShown: Bool
     private let modificationType: ModificationType
-    private let radius: CGFloat
+    private let cornerStyle: SkeletonModifierCornerStyle
 
-    init(isShown: Bool, modificationType: ModificationType, radius: CGFloat) {
+    init(
+        isShown: Bool,
+        modificationType: ModificationType,
+        cornerStyle: SkeletonModifierCornerStyle
+    ) {
         self.isShown = isShown
         self.modificationType = modificationType
-        self.radius = radius
+        self.cornerStyle = cornerStyle
     }
 
     func body(content: Content) -> some View {
@@ -50,9 +88,9 @@ struct SkeletonModifier: ViewModifier {
         switch modificationType {
         case .overlay(let width, let height):
             content
+                .hidden(isShown)
                 .overlay(
-                    SkeletonView()
-                        .cornerRadius(radius)
+                    skeletonView()
                         .frame(width: width, height: height)
                         .hidden(!isShown)
                 )
@@ -69,15 +107,29 @@ struct SkeletonModifier: ViewModifier {
                     .hidden(isShown)
                     .layoutPriority(contentLayoutPriority)
 
-                SkeletonView()
+                skeletonView()
                     .frame(size: size)
-                    .cornerRadius(radius)
                     .padding(paddings)
                     .hidden(!isShown)
                     .layoutPriority(skeletonViewLayoutPriority)
             }
         }
     }
+
+    @ViewBuilder
+    private func skeletonView() -> some View {
+        switch cornerStyle {
+        case .rounded(let radius):
+            SkeletonView().cornerRadius(radius)
+        case .capsule:
+            SkeletonView().clipShape(Capsule())
+        }
+    }
+}
+
+public enum SkeletonModifierCornerStyle {
+    case rounded(radius: CGFloat)
+    case capsule
 }
 
 extension SkeletonModifier {

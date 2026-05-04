@@ -9,18 +9,11 @@
 import Foundation
 import TangemMacro
 
-typealias ActionButtonsTokenSelectorViewModel = TokenSelectorViewModel<
-    ActionButtonsTokenSelectorItem,
-    ActionButtonsTokenSelectorItemBuilder
->
-
 final class ActionButtonsSwapCoordinator: CoordinatorObject {
     let dismissAction: Action<FeeCurrencyNavigatingDismissOption?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Injected
-
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Published
 
@@ -28,55 +21,36 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
 
     // MARK: - Private property
 
-    private let expressTokensListAdapter: ExpressTokensListAdapter
-    private let tokenSorter: TokenAvailabilitySorter
     private let userWalletModel: UserWalletModel
-    private let yieldModuleNotificationInteractor: YieldModuleNoticeInteractor
 
     required init(
-        expressTokensListAdapter: some ExpressTokensListAdapter,
         userWalletModel: some UserWalletModel,
         dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
-        tokenSorter: some TokenAvailabilitySorter,
-        yieldModuleNotificationInteractor: YieldModuleNoticeInteractor,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
     ) {
-        self.tokenSorter = tokenSorter
-        self.expressTokensListAdapter = expressTokensListAdapter
         self.userWalletModel = userWalletModel
-        self.yieldModuleNotificationInteractor = yieldModuleNotificationInteractor
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: Options) {
-        switch options {
-        case .default:
-            viewType = .legacy(ActionButtonsSwapViewModel(
-                coordinator: self,
-                userWalletModel: userWalletModel,
-                sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
-            ))
-        case .new(let tokenSelectorViewModel):
-            let marketsTokensViewModel = SwapMarketsTokensViewModel()
+        let marketsTokensViewModel = SwapMarketsTokensViewModel()
 
-            viewType = .new(
-                AccountsAwareActionButtonsSwapViewModel(
-                    tokenSelectorViewModel: tokenSelectorViewModel,
-                    marketsTokensViewModel: marketsTokensViewModel,
-                    coordinator: self
-                )
+        viewType = .tokenSelector(
+            ActionButtonsSwapViewModel(
+                tokenSelectorViewModel: options.tokenSelectorViewModel,
+                marketsTokensViewModel: marketsTokensViewModel,
+                coordinator: self
             )
-        }
+        )
     }
 }
 
 // MARK: - Options
 
 extension ActionButtonsSwapCoordinator {
-    enum Options {
-        case `default`
-        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
+    struct Options {
+        let tokenSelectorViewModel: TokenSelectorViewModel
     }
 }
 
@@ -104,42 +78,12 @@ extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
         ActionButtonsAnalyticsService.trackCloseButtonTap(source: .swap)
         dismiss(with: .none)
     }
-
-    func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?) {
-        guard yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) else {
-            completion.map { $0() }
-            return
-        }
-
-        Task { @MainActor in
-            let vm = YieldNoticeViewModel(tokenItem: walletModel.tokenItem) { [weak self] in
-                self?.floatingSheetPresenter.removeActiveSheet()
-                completion.map { $0() }
-            }
-
-            floatingSheetPresenter.enqueue(sheet: vm)
-        }
-    }
-}
-
-// MARK: - Factory methods
-
-private extension ActionButtonsSwapCoordinator {
-    func makeTokenSelectorViewModel() -> ActionButtonsTokenSelectorViewModel {
-        TokenSelectorViewModel(
-            tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
-            strings: SwapTokenSelectorStrings(),
-            expressTokensListAdapter: expressTokensListAdapter,
-            tokenSorter: tokenSorter
-        )
-    }
 }
 
 extension ActionButtonsSwapCoordinator {
     @RawCaseName
     enum ViewType: Identifiable {
-        case legacy(ActionButtonsSwapViewModel)
-        case new(AccountsAwareActionButtonsSwapViewModel)
+        case tokenSelector(ActionButtonsSwapViewModel)
         case swap(SendCoordinator)
     }
 }

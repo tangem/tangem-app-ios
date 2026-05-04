@@ -21,7 +21,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
-    @Published final var alert: AlertBinder? = nil
+    @Published final var alert: AlertBinder?
     @Published final var transactionHistoryState: TransactionsListView.State = .loading
     @Published final var isReloadingTransactionHistory: Bool = false
     @Published final var isFulfillingAssetRequirements = false
@@ -31,7 +31,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
     @Published private(set) final var miniChartData: LoadingResult<[Double]?, any Error> = .loading
 
-    private(set) final lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+    private(set) final lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: 0.2),
         refreshable: { [weak self] in await self?.onPullToRefresh() }
     )
@@ -47,8 +47,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
-    private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?
@@ -78,7 +76,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: currencySymbol,
-        walletAddresses: walletModel.addresses.map { $0.value },
+        walletAddresses: walletModel.addresses,
         showSign: true,
         isToken: walletModel.tokenItem.isToken
     )
@@ -118,7 +116,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         if addresses.count == 1 {
             openAddressExplorer(at: 0)
         } else {
-            openAddressSelector(addresses) { [weak self] index in
+            openAddressSelector { [weak self] index in
                 self?.openAddressExplorer(at: index)
             }
         }
@@ -144,7 +142,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     @MainActor
-    final func onPullToRefresh() async {
+    func onPullToRefresh() async {
         guard updateTask == nil else {
             return
         }
@@ -592,13 +590,14 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
-    private func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
-        if addresses.isEmpty {
+    private func openAddressSelector(callback: @escaping (Int) -> Void) {
+        let addressTypes = walletModel.receiveAddressTypes
+        if addressTypes.isEmpty {
             return
         }
 
-        let addressButtons = addresses.enumerated().map { index, address in
-            ConfirmationDialogViewModel.Button(title: address.localizedName) {
+        let addressButtons = addressTypes.enumerated().map { index, addressType in
+            ConfirmationDialogViewModel.Button(title: addressType.info.localizedName) {
                 callback(index)
             }
         }
