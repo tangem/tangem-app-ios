@@ -56,19 +56,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var footerViewModel: MainFooterViewModel? {
-        switch self {
-        case .singleWallet:
-            return nil
-        case .multiWallet(_, _, _, let bodyModel):
-            return bodyModel.footerViewModel
-        case .lockedWallet(_, _, _, let bodyModel):
-            return bodyModel.footerViewModel
-        case .visaWallet:
-            return nil
-        }
-    }
-
     private var bottomSheetFooterViewModel: MainBottomSheetFooterViewModel? {
         switch self {
         case .singleWallet(_, _, _, let bodyModel):
@@ -121,21 +108,8 @@ enum MainUserWalletPageBuilder: Identifiable {
         MainHeaderView(viewModel: headerModel)
     }
 
-    func redesignedHeader(totalPages: Int, currentIndex: Int) -> some View {
-        MainUserWalletHeader(model: MainUserWalletHeaderModel(
-            headerViewModel: headerModel,
-            actionButtonsViewModel: actionButtonsViewModel,
-            paginationState: totalPages > 1
-                ? MainUserWalletHeaderModel.PaginationState(
-                    totalPages: totalPages,
-                    currentIndex: currentIndex
-                )
-                : nil
-        ))
-    }
-
     @ViewBuilder
-    var body: some View {
+    var content: some View {
         switch self {
         case .singleWallet(let id, _, _, let bodyModel):
             makeSingleWalletContent(id: id, bodyModel: bodyModel)
@@ -151,6 +125,38 @@ enum MainUserWalletPageBuilder: Identifiable {
             VisaWalletMainContentView(viewModel: bodyModel)
                 .id(id)
         }
+    }
+
+    @ViewBuilder
+    var footerOverlay: some View {
+        switch self {
+        case .multiWallet, .lockedWallet:
+            MarketsHintView()
+        case .singleWallet, .visaWallet:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    var bottomOverlay: some View {
+        if let bottomSheetFooterViewModel {
+            MainBottomSheetFooterView(viewModel: bottomSheetFooterViewModel)
+        } else {
+            EmptyMainFooterView()
+        }
+    }
+
+    func redesignedHeader(totalPages: Int, currentIndex: Int) -> some View {
+        MainUserWalletHeader(model: MainUserWalletHeaderModel(
+            headerViewModel: headerModel,
+            actionButtonsViewModel: actionButtonsViewModel,
+            paginationState: totalPages > 1
+                ? MainUserWalletHeaderModel.PaginationState(
+                    totalPages: totalPages,
+                    currentIndex: currentIndex
+                )
+                : nil
+        ))
     }
 
     @ViewBuilder
@@ -206,27 +212,6 @@ enum MainUserWalletPageBuilder: Identifiable {
     }
 
     @ViewBuilder
-    func makeBottomOverlay(_ overlayParams: CardsInfoPagerBottomOverlayFactoryParams) -> some View {
-        if let viewModel = bottomSheetFooterViewModel {
-            MainBottomSheetFooterView(viewModel: viewModel)
-                .overlay {
-                    MainBottomSheetHintView(
-                        isDraggingHorizontally: overlayParams.isDraggingHorizontally,
-                        didScrollToBottom: overlayParams.didScrollToBottom,
-                        scrollOffset: overlayParams.scrollOffset,
-                        viewportSize: overlayParams.viewportSize,
-                        contentSize: overlayParams.contentSize,
-                        scrollViewBottomContentInset: overlayParams.scrollViewBottomContentInset
-                    )
-                }
-        } else if let viewModel = footerViewModel {
-            MainFooterView(viewModel: viewModel, didScrollToBottom: overlayParams.didScrollToBottom)
-        } else {
-            EmptyMainFooterView()
-        }
-    }
-
-    @ViewBuilder
     func makeRedesignedBottomOverlay(_ overlayParams: FullPagePagerBottomOverlayParams) -> some View {
         if let viewModel = bottomSheetFooterViewModel {
             MainBottomSheetFooterView(viewModel: viewModel)
@@ -236,8 +221,6 @@ enum MainUserWalletPageBuilder: Identifiable {
                         isActive: overlayParams.isActive
                     )
                 }
-        } else if let viewModel = footerViewModel {
-            MainFooterView(viewModel: viewModel, didScrollToBottom: overlayParams.didScrollToBottom)
         } else {
             EmptyMainFooterView()
         }

@@ -70,7 +70,7 @@ extension CommonOnrampManager: OnrampManager {
         providers.updateAttractiveTypes()
         providers.updateProcessingTimeTypes(preferredProviderId: preferredValues.providerId)
 
-        // `suggestProvider` logic will be remove
+        // [REDACTED_USERNAME] `suggestProvider` logic will be remove
         // [REDACTED_TODO_COMMENT]
         let sorted = providers.sortedByFirstItem(sorter: sorter)
         let suggestProvider = try suggestProvider(in: sorted)
@@ -102,11 +102,26 @@ private extension CommonOnrampManager {
             throw OnrampManagerError.providersIsEmpty
         }
 
-        await withTaskGroup(of: Void.self) { group in
-            providers.flatMap { $0.providers }.forEach { provider in
-                _ = group.addTaskUnlessCancelled {
-                    await provider.update(amount: amount)
-                }
+        let allProviders = providers.flatMap { $0.providers }
+        let groupedByProvider = Dictionary(grouping: allProviders, by: { $0.provider.id })
+
+        // Preserve the original providers order by building an ordered list of unique provider IDs
+        var orderedProviderIds: [ExpressProvider.Id] = []
+        orderedProviderIds.reserveCapacity(allProviders.count)
+
+        for provider in allProviders {
+            let id = provider.provider.id
+            if !orderedProviderIds.contains(id) {
+                orderedProviderIds.append(id)
+            }
+        }
+
+        for providerId in orderedProviderIds {
+            guard let providerGroup = groupedByProvider[providerId] else {
+                continue
+            }
+            await TaskGroup.executeKeepingOrder(items: providerGroup) { provider in
+                await provider.update(amount: amount)
             }
         }
     }

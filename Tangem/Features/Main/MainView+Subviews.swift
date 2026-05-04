@@ -83,7 +83,7 @@ extension MainView {
         func body(content: Content) -> some View {
             content
                 .northernLightsBackground(
-                    backgroundColor: .Tangem.Surface.level2,
+                    backgroundColor: .Tangem.Surface.level1,
                     opacity: opacity
                 )
                 .animation(.default, value: opacity)

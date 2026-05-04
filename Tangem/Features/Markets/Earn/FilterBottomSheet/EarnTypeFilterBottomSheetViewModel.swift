@@ -10,8 +10,9 @@ import Foundation
 import Combine
 import CombineExt
 import TangemLocalization
+import protocol TangemUI.FloatingSheetContentViewModel
 
-final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
+final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
     // MARK: - ViewState
 
     @Published var listOptionViewModel: [DefaultSelectableRowViewModel<EarnFilterType>]
@@ -53,6 +54,14 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onCloseTap() {
+        dismiss()
+    }
+
+    func onCancelTap() {
+        dismiss()
+    }
+
     private func bind() {
         subscription = $currentSelection
             .removeDuplicates()
@@ -67,6 +76,10 @@ final class EarnTypeFilterBottomSheetViewModel: ObservableObject, Identifiable {
         currentSelection = type
         analyticsProvider.logBestOpportunitiesFilterTypeApplied(type: type.analyticsTypeValue)
         filterProvider.didSelectFilterType(type)
+        dismiss()
+    }
+
+    private func dismiss() {
         dismissAction?()
     }
 }

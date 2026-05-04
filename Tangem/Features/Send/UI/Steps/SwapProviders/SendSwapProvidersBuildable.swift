@@ -28,6 +28,7 @@ enum SendSwapProvidersBuilder {
         let output: SendSwapProvidersOutput
         let sourceTokenInput: SendSourceTokenInput
         let receiveTokenInput: SendReceiveTokenInput
+        let receiveTokenAmountInput: SendReceiveTokenAmountInput?
     }
 
     struct Types {
@@ -47,6 +48,7 @@ enum SendSwapProvidersBuilder {
             input: io.input,
             output: io.output,
             receiveTokenInput: io.receiveTokenInput,
+            receiveTokenAmountInput: io.receiveTokenAmountInput,
             tokenItem: types.tokenItem,
             expressProviderFormatter: dependencies.expressProviderFormatter,
             priceChangeFormatter: dependencies.priceChangeFormatter,
@@ -57,7 +59,8 @@ enum SendSwapProvidersBuilder {
             expressProviderFormatter: .init(),
             sourceTokenInput: io.sourceTokenInput,
             receiveTokenInput: io.receiveTokenInput,
-            swapProvidersInput: io.input
+            swapProvidersInput: io.input,
+            receiveTokenAmountInput: io.receiveTokenAmountInput
         )
 
         return (selector: providersSelector, compact: swapSummaryProviderViewModel)

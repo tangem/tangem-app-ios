@@ -11,13 +11,11 @@ import Combine
 import BlockchainSdk
 
 struct UserTokensManagerMock: UserTokensManager {
-    var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-
     var userTokens: [TokenItem] { [] }
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
 
-    var derivationManager: DerivationManager? { nil }
+    var derivationManager: (DerivationManager & DerivationStatusProvider)? { nil }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
         completion(.success(()))
