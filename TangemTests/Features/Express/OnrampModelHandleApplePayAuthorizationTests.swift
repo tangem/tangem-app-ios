@@ -91,8 +91,8 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     }
 
     @Test("KYC required → result.fail(error) once and KYC sheet opened on router")
-    func kycRequiredOpensSheet() async {
-        let kycError = StubFixtures.makeKYCRequiredError()
+    func kycRequiredOpensSheet() async throws {
+        let kycError = try StubFixtures.makeKYCRequiredError()
         let manager = StubOnrampManager(mode: .throwsError(kycError))
         let router = StubOnrampModelRoutable()
         let model = makeModel(onrampManager: manager)
@@ -111,8 +111,8 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     }
 
     @Test("userDidAuthorizeNativePayment KYC required → resultHandler.fail(error) and KYC sheet opened")
-    func userDidAuthorizeNativePaymentKYCRequiredOpensSheet() async {
-        let kycError = StubFixtures.makeKYCRequiredError()
+    func userDidAuthorizeNativePaymentKYCRequiredOpensSheet() async throws {
+        let kycError = try StubFixtures.makeKYCRequiredError()
         let manager = StubOnrampManager(mode: .throwsError(kycError))
         let router = StubOnrampModelRoutable()
         let model = makeModel(onrampManager: manager)
@@ -442,10 +442,10 @@ private enum StubFixtures {
         )
     }
 
-    static func makeKYCRequiredError() -> ExpressAPIError {
+    static func makeKYCRequiredError() throws -> ExpressAPIError {
         // ExpressAPIError has no public memberwise init; decode from JSON instead.
         let json = #"{"code": 2600, "description": "kyc required"}"#
         let data = Data(json.utf8)
-        return try! JSONDecoder().decode(ExpressAPIError.self, from: data)
+        return try JSONDecoder().decode(ExpressAPIError.self, from: data)
     }
 }
