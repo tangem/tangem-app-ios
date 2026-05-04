@@ -118,9 +118,9 @@ extension ExpressPendingTransactionRecord {
 
         var supportStatusTracking: Bool {
             switch self {
-            case .cex, .dexBridge, .onramp:
+            case .cex, .dex, .dexBridge, .onramp:
                 return true
-            case .dex, .unknown:
+            case .unknown:
                 return false
             }
         }

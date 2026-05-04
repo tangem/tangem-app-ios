@@ -17,6 +17,10 @@ enum AccountWalletModelsAggregator {
             .flatMap(\.walletModelsManager.walletModels)
     }
 
+    static func walletModels(from userWalletModels: [any UserWalletModel]) -> [any WalletModel] {
+        return userWalletModels.flatMap { walletModels(from: $0.accountModelsManager) }
+    }
+
     static func walletModelsPublisher(from accountModelsManager: AccountModelsManager) -> AnyPublisher<[any WalletModel], Never> {
         return accountModelsManager
             .cryptoAccountModelsPublisher
