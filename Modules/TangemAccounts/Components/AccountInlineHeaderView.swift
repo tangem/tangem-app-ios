@@ -111,19 +111,19 @@ extension AccountInlineHeaderView: Setupable {
 #Preview {
     VStack(alignment: .leading, spacing: 16) {
         AccountInlineHeaderView(
-            iconData: .init(backgroundColor: .blue, nameMode: .letter("A")),
+            iconData: .composite(backgroundColor: .blue, nameMode: .letter("A")),
             name: "Account 1"
         )
 
         AccountInlineHeaderView(
-            iconData: .init(backgroundColor: .green, nameMode: .letter("B")),
+            iconData: .composite(backgroundColor: .green, nameMode: .letter("B")),
             name: "Account 2"
         )
         .iconSettings(.smallSized)
         .font(Fonts.Bold.subheadline)
 
         AccountInlineHeaderView(
-            iconData: .init(backgroundColor: .orange, nameMode: .letter("C")),
+            iconData: .composite(backgroundColor: .orange, nameMode: .letter("C")),
             name: "Account 3"
         )
         .expandsHorizontally(true)

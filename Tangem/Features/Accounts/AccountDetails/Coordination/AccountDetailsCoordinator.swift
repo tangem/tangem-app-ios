@@ -60,18 +60,6 @@ extension AccountDetailsCoordinator {
 // MARK: - BaseAccountDetailsRoutable
 
 extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
-    func editAccount() {
-        guard let options else { return }
-
-        editAccountViewModel = AccountFormViewModel(
-            accountModelsManager: options.accountModelsManager,
-            flowType: .edit(account: options.account),
-            closeAction: { [weak self] _, _ in
-                self?.editAccountViewModel = nil
-            }
-        )
-    }
-
     func close() {
         dismiss()
     }
@@ -80,12 +68,38 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
 // MARK: - CryptoAccountDetailsRoutable
 
 extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
+    func editAccount() {
+        guard let options else { return }
+
+        options.account.resolve(using: EditAccountResolver(coordinator: self, options: options))
+    }
+
     func manageTokens() {
-        guard let options else {
-            return
-        }
+        guard let options else { return }
 
         options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
+    }
+}
+
+// MARK: - EditAccountResolver
+
+private extension AccountDetailsCoordinator {
+    struct EditAccountResolver: AccountModelResolving {
+        let coordinator: AccountDetailsCoordinator
+        let options: Options
+
+        func resolve(accountModel: any CryptoAccountModel) {
+            coordinator.editAccountViewModel = AccountFormViewModel(
+                accountModelsManager: options.accountModelsManager,
+                flowType: .edit(account: accountModel),
+                closeAction: { [weak coordinator] _, _ in
+                    coordinator?.editAccountViewModel = nil
+                }
+            )
+        }
+
+        /// TangemPay does not support editing
+        func resolve(accountModel: any TangemPayAccountModel) {}
     }
 }
 
@@ -104,7 +118,7 @@ private extension AccountDetailsCoordinator {
                 popToRootAction: coordinator.popToRootAction
             )
 
-            let context = AccountsAwareManageTokensContext(
+            let context = CommonManageTokensContext(
                 accountModelsManager: options.accountModelsManager,
                 currentAccount: accountModel
             )

@@ -19,7 +19,7 @@ struct ApproveView: View {
     }
 
     var body: some View {
-        VStack(spacing: 22) {
+        VStack(spacing: 26) {
             GroupedSection(viewModel.menuRowViewModel) {
                 DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedAction, titleFont: Fonts.Regular.body)
             } footer: {
@@ -36,8 +36,8 @@ struct ApproveView: View {
             }
             .backgroundColor(Colors.Background.action)
         }
-        .padding(.top, 10)
-        .padding(.bottom, 6)
+        .padding(.top, 4)
+        .padding(.bottom, 2)
         .padding(.horizontal, 16)
         .background(Colors.Background.tertiary)
     }

@@ -15,7 +15,15 @@ enum TokenFeeProviderInputData: Hashable {
 
     case cex(amount: Decimal)
     case dex(_ type: TokenFeeProviderInputDataDEXType)
-    case approve(txData: Data, toContractAddress: String)
+    /// Fee multiplier applied after estimation (e.g. 3x for revoke+approve flows).
+    case approve(txData: Data, toContractAddress: String, feeMultiplier: FeeMultiplier = .single)
+}
+
+enum FeeMultiplier: Decimal, Hashable {
+    /// Standard single-approve flow (1x fee).
+    case single = 1
+    /// Revoke-then-approve flow (3x fee: 1x revoke + 2x approve).
+    case triple = 3
 }
 
 enum TokenFeeProviderInputDataDEXType: Hashable {

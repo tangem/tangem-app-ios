@@ -45,11 +45,11 @@ extension BitcoinCashAddressService: AddressProvider {
         case .default:
             let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
             let (address, script) = try cashAddrLockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
-            return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: script)
+            return LockingScriptAddress(value: address, type: addressType, lockingScript: script)
         case .legacy:
             let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
             let (address, script) = try base58LockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pkh)
-            return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: script)
+            return LockingScriptAddress(value: address, type: addressType, lockingScript: script)
         }
     }
 }

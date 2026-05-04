@@ -14,7 +14,6 @@ protocol SendBaseInteractor {
 
     func actualizeInformation()
     func action() async throws -> TransactionDispatcherResult
-    func stopSwapProvidersAutoUpdateTimer()
 }
 
 class CommonSendBaseInteractor {
@@ -38,9 +37,5 @@ extension CommonSendBaseInteractor: SendBaseInteractor {
 
     func action() async throws -> TransactionDispatcherResult {
         try await output.performAction()
-    }
-
-    func stopSwapProvidersAutoUpdateTimer() {
-        output.stopSwapProvidersAutoUpdateTimer()
     }
 }

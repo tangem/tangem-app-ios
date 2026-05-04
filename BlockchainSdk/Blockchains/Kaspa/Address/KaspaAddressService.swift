@@ -29,7 +29,7 @@ extension KaspaAddressService: AddressProvider {
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
         let compressedKey = try Secp256k1Key(with: publicKey.blockchainKey).compress()
         let (address, lockingScript) = try lockingScriptBuilder.encode(publicKey: compressedKey, type: .p2pk)
-        return LockingScriptAddress(value: address, publicKey: publicKey, type: addressType, lockingScript: lockingScript)
+        return LockingScriptAddress(value: address, type: addressType, lockingScript: lockingScript)
     }
 }
 

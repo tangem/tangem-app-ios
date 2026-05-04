@@ -30,6 +30,11 @@ struct Fact0rnWalletAssembly: WalletManagerAssembly {
             blockchainName: Blockchain.fact0rn.displayName
         )
 
-        return Fact0rnWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return Fact0rnWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

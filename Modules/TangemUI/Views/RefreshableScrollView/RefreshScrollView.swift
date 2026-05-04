@@ -49,7 +49,7 @@ public struct RefreshScrollView<Content: View>: View {
                 stateObject.scrollViewDelegate.set(scrollView: scrollView)
             }
         )
-        .onAppear {
+        .onDidAppear {
             introspectResponderChainID = .init()
         }
     }

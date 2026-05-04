@@ -27,6 +27,11 @@ public struct CaseFlagableMacro: MemberMacro {
             return []
         }
 
+        // Determine access level modifier from the enum declaration
+        let accessModifier = enumDecl.modifiers.first(where: {
+            $0.name.tokenKind == .keyword(.public) || $0.name.tokenKind == .keyword(.package)
+        }).map { $0.name.text + " " } ?? ""
+
         // Collect all case names from the enum, including multiple cases per line
         let caseNames: [String] = enumDecl.memberBlock.members.flatMap { member -> [String] in
             guard let enumCaseDecl = member.decl.as(EnumCaseDeclSyntax.self) else { return [] }
@@ -37,7 +42,7 @@ public struct CaseFlagableMacro: MemberMacro {
         let properties: [String] = caseNames.map { caseName in
             let capitalized = caseName.prefix(1).uppercased() + caseName.dropFirst()
             return """
-            var is\(capitalized): Bool { if case .\(caseName) = self { true } else { false } }
+            \(accessModifier)var is\(capitalized): Bool { if case .\(caseName) = self { true } else { false } }
             """
         }
 
