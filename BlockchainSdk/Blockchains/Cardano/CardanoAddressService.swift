@@ -88,10 +88,10 @@ extension CardanoAddressService: AddressProvider {
         switch addressType {
         case .default:
             let shelley = try makeShelleyAddress(from: publicKey.blockchainKey)
-            return PlainAddress(value: shelley, publicKey: publicKey, type: addressType)
+            return PlainAddress(value: shelley, type: addressType)
         case .legacy:
             let byron = makeByronAddress(from: publicKey.blockchainKey)
-            return PlainAddress(value: byron, publicKey: publicKey, type: addressType)
+            return PlainAddress(value: byron, type: addressType)
         }
     }
 }
