@@ -13,7 +13,6 @@ import TangemFoundation
 
 protocol OnrampSummaryInteractor: AnyObject {
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> { get }
-    var currencyCode: String? { get }
     var bottomInfoPublisher: AnyPublisher<LoadingResult<Decimal, OnrampSummaryInteractorBottomInfoError>?, Never> { get }
 
     var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> { get }
@@ -60,10 +59,6 @@ class CommonOnrampSummaryInteractor {
 // MARK: - OnrampSummaryInteractor
 
 extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
-    var currencyCode: String? {
-        amountInput?.fiatCurrency?.identity.code
-    }
-
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> {
         guard let amountInput else {
             assertionFailure("OnrampAmountInput not found")
