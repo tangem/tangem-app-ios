@@ -32,7 +32,7 @@ class CommonOnrampSendAnalyticsLogger {
             .token: tokenItem.currencySymbol,
         ]
 
-        if FeatureProvider.isAvailable(.accounts), let accountModelAnalyticsProvider {
+        if let accountModelAnalyticsProvider {
             analyticsParameters.enrich(with: accountModelAnalyticsProvider.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
         }
 
@@ -88,6 +88,7 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         Analytics.log(event: .onrampBuyScreenOpened, params: [
             .source: source.analytics.rawValue,
             .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
         ], analyticsSystems: .all)
     }
 

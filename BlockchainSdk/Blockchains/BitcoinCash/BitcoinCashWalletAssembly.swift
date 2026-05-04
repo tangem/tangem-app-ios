@@ -60,6 +60,11 @@ struct BitcoinCashWalletAssembly: WalletManagerAssembly {
             blockchainName: Blockchain.bitcoinCash.displayName
         )
 
-        return BitcoinWalletManager(wallet: input.wallet, txBuilder: txBuilder, unspentOutputManager: unspentOutputManager, networkService: networkService)
+        return BitcoinWalletManager(
+            wallet: input.wallet,
+            txBuilder: txBuilder,
+            unspentOutputManager: unspentOutputManager,
+            networkService: networkService
+        )
     }
 }

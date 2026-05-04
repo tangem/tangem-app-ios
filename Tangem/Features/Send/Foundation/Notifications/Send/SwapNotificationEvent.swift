@@ -23,11 +23,11 @@ enum SwapNotificationEvent: Hashable {
     )
     case hasPendingTransaction(symbol: String)
     case hasPendingApproveTransaction
-    case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconAsset: ImageType)
+    case notEnoughFeeForTokenTx(mainTokenName: String, mainTokenSymbol: String, blockchainIconAsset: ImageType, analyticsParams: [Analytics.ParameterKey: String])
     case tooSmallAmountToSwap(minimumAmountText: String)
     case tooBigAmountToSwap(maximumAmountText: String)
     case noDestinationTokens(tokenName: String)
-    case unsupportedPair
+    case unsupportedPair(analyticsParams: [Analytics.ParameterKey: String])
     case feeWillBeSubtractFromSendingAmount(cryptoAmountFormatted: String, fiatAmountFormatted: String)
     case notEnoughReceivedAmountForReserve(amountFormatted: String)
 
@@ -45,6 +45,9 @@ enum SwapNotificationEvent: Hashable {
 
     /// If the client's transaction takes longer than the average time by x5 times
     case longTimeAverageDuration
+
+    /// High price impact warning/block banner
+    case highPriceImpactWarning(level: HighPriceImpactCalculator.Level, analyticsParams: [Analytics.ParameterKey: String])
 }
 
 extension SwapNotificationEvent: NotificationEvent {
@@ -58,7 +61,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.warningExpressActiveTransactionTitle)
         case .hasPendingApproveTransaction:
             return .string(Localization.warningExpressApprovalInProgressTitle)
-        case .notEnoughFeeForTokenTx(let mainTokenName, _, _):
+        case .notEnoughFeeForTokenTx(let mainTokenName, _, _, _):
             return .string(Localization.warningExpressNotEnoughFeeForTokenTxTitle(mainTokenName))
         case .tooSmallAmountToSwap(let minimumAmountText):
             return .string(Localization.warningExpressTooMinimalAmountTitle(minimumAmountText))
@@ -86,6 +89,12 @@ extension SwapNotificationEvent: NotificationEvent {
             return .string(Localization.swappingInsufficientFunds)
         case .longTimeAverageDuration:
             return .string(Localization.expressExchangeNotificationLongTransactionTimeTitle)
+        case .highPriceImpactWarning(.negligible, _):
+            return nil // Filtered out in SwapNotificationManager, kept for exhaustiveness
+        case .highPriceImpactWarning(.warningLoss, _):
+            return .string(Localization.swappingHighPriceImpactTitle)
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
+            return .string(Localization.swappingTradeTooLargeTitle)
         }
     }
 
@@ -99,7 +108,7 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.warningExpressActiveTransactionMessage(symbol)
         case .hasPendingApproveTransaction:
             return Localization.warningExpressApprovalInProgressMessage
-        case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _):
+        case .notEnoughFeeForTokenTx(let mainTokenName, let mainTokenSymbol, _, _):
             return Localization.warningExpressNotEnoughFeeForTokenTxDescription(mainTokenName, mainTokenSymbol)
         case .tooSmallAmountToSwap, .tooBigAmountToSwap:
             return Localization.warningExpressWrongAmountDescription
@@ -130,6 +139,12 @@ extension SwapNotificationEvent: NotificationEvent {
             return Localization.swappingInsufficientFundsDescription
         case .longTimeAverageDuration:
             return Localization.expressExchangeNotificationLongTransactionTimeText
+        case .highPriceImpactWarning(.negligible, _):
+            return nil // Filtered out in SwapNotificationManager, kept for exhaustiveness
+        case .highPriceImpactWarning(.warningLoss, _):
+            return Localization.swappingHighPriceImpactText
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
+            return Localization.swappingTradeTooLargeText
         }
     }
 
@@ -142,8 +157,12 @@ extension SwapNotificationEvent: NotificationEvent {
              .noDestinationTokens,
              .unsupportedPair,
              .feeWillBeSubtractFromSendingAmount,
-             .notEnoughBalanceForSwapping:
+             .notEnoughBalanceForSwapping,
+             .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
+             .highPriceImpactWarning(.warningLoss, _):
             return .secondary
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
+            return .action
         case .notEnoughFeeForTokenTx,
              .refreshRequired,
              .verificationRequired,
@@ -169,12 +188,16 @@ extension SwapNotificationEvent: NotificationEvent {
              .unsupportedPair,
              .verificationRequired,
              .feeWillBeSubtractFromSendingAmount,
-             .longTimeAverageDuration:
+             .longTimeAverageDuration,
+             .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
+             .highPriceImpactWarning(.warningLoss, _):
             return .init(iconType: .image(Assets.attention))
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .hasPendingApproveTransaction,
              .hasPendingTransaction:
             return .init(iconType: .progressView)
-        case .notEnoughFeeForTokenTx(_, _, let blockchainIconAsset):
+        case .notEnoughFeeForTokenTx(_, _, let blockchainIconAsset, _):
             return .init(iconType: .image(blockchainIconAsset))
         case .tooSmallAmountToSwap,
              .tooBigAmountToSwap,
@@ -208,8 +231,13 @@ extension SwapNotificationEvent: NotificationEvent {
              .noDestinationTokens,
              .unsupportedPair,
              .notEnoughReceivedAmountForReserve,
-             .notEnoughBalanceForSwapping:
+             .notEnoughBalanceForSwapping,
+             .highPriceImpactWarning(.negligible, _), // Filtered out in SwapNotificationManager, kept for exhaustiveness
+             .highPriceImpactWarning(.warningLoss, _):
             return .warning
+        case .highPriceImpactWarning(.highLossLowAmount, _),
+             .highPriceImpactWarning(.highLossHighAmount, _):
+            return .critical
         case .refreshRequired,
              .cexOperationFailed:
             return .critical
@@ -222,7 +250,7 @@ extension SwapNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _):
+        case .notEnoughFeeForTokenTx(_, let mainTokenSymbol, _, _):
             return .init(.openFeeCurrency(currencySymbol: mainTokenSymbol))
         case .refreshRequired:
             return .init(.refresh, withLoader: true)
@@ -255,7 +283,8 @@ extension SwapNotificationEvent: NotificationEvent {
              .notEnoughReceivedAmountForReserve,
              .notEnoughBalanceForSwapping,
              .withdrawalNotificationEvent,
-             .validationErrorEvent:
+             .validationErrorEvent,
+             .highPriceImpactWarning:
             return true
         }
     }
@@ -274,6 +303,14 @@ extension SwapNotificationEvent {
             .swapNoticeExpressError
         case .permissionNeeded:
             .swapNoticePermissionNeeded
+        case .highPriceImpactWarning(.warningLoss, _):
+            .swapNoticeHighPriceImpact
+        case .highPriceImpactWarning(.highLossLowAmount, _), .highPriceImpactWarning(.highLossHighAmount, _):
+            .swapNoticeTradeTooLarge
+        case .notEnoughFeeForTokenTx:
+            .swapNoticeNotEnoughFee
+        case .unsupportedPair:
+            .swapNoticeUnavailableToSwapPair
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -287,6 +324,12 @@ extension SwapNotificationEvent {
         case .refreshRequired(_, _, _, .some(let params)):
             params
         case .permissionNeeded(_, _, let params):
+            params
+        case .highPriceImpactWarning(_, let params):
+            params
+        case .unsupportedPair(let params):
+            params
+        case .notEnoughFeeForTokenTx(_, _, _, let params):
             params
         default:
             [:]

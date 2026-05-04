@@ -32,12 +32,20 @@ final class MainViewModel: ObservableObject {
     let headerHeightRatioPublisher: AnyPublisher<CGFloat, Never>
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
-    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
-        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+    private(set) lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
+        settings: .init(
+            stopRefreshingDelay: 1,
+            refreshTaskTimeout: 120, // 2 minutes
+            shouldForceRefreshing: isRedesignEnabled
+        ),
         refreshable: { [weak self] in
             await self?.onPullToRefresh()
         }
     )
+
+    var isRedesignEnabled: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
 
     // MARK: - Dependencies
 
@@ -273,7 +281,7 @@ final class MainViewModel: ObservableObject {
             .map { userWalletRepository.models[$0] }
 
         let walletModelsPublishers = userWalletsWithMissingBodyModel
-            .map(AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for:))
+            .map { AccountWalletModelsAggregator.walletModelsPublisher(from: $0.accountModelsManager) }
             .combineLatest()
 
         let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
@@ -428,7 +436,7 @@ final class MainViewModel: ObservableObject {
 
         let userWalletModel = userWalletRepository.selectedModel
 
-        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+        if let userWalletModel {
             mainScreenOpenedAnalyticsSubscription = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
@@ -460,12 +468,7 @@ final class MainViewModel: ObservableObject {
         if let userWalletModel {
             let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
             params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
-
-            let userWalletConfig = userWalletModel.config
-            let walletHasBackup = userWalletConfig.productType == .mobileWallet
-                ? !userWalletConfig.hasFeature(.mnemonicBackup)
-                : !userWalletConfig.hasFeature(.backup)
-            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: walletHasBackup).rawValue
+            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue
         }
 
         if let accountModels {

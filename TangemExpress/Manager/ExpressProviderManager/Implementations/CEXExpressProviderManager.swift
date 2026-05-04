@@ -83,11 +83,13 @@ private extension CEXExpressProviderManager {
                 return .error(error, quote: .none)
             }
 
+            let currencySymbol = swappingPair.currencySymbol(for: request.amountType)
+
             switch error.errorCode {
             case .exchangeTooSmallAmountError:
-                return .restriction(.tooSmallAmount(amount), quote: .none)
+                return .restriction(.tooSmallAmount(amount, currencySymbol: currencySymbol), quote: .none)
             case .exchangeTooBigAmountError:
-                return .restriction(.tooBigAmount(amount), quote: .none)
+                return .restriction(.tooBigAmount(amount, currencySymbol: currencySymbol), quote: .none)
             default:
                 return .error(error, quote: .none)
             }
@@ -189,6 +191,7 @@ private extension CEXExpressProviderManager {
 
         return ExpressManagerSwappingPairRequest(
             amountType: .from(reducedAmount),
+            rateType: request.rateType,
             feeOption: request.feeOption,
             approvePolicy: request.approvePolicy,
             operationType: request.operationType
