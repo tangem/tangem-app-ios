@@ -280,7 +280,6 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
         // This effectively switches back to "simple send" mode
         resetFlow(newReceiveToken: .none, reset: { [weak self] in
             self?.swapModel.userDidRequestClearSelection()
-            self?.analyticsLogger.logAmountStepOpened()
         })
     }
 
@@ -297,10 +296,8 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 
         resetFlow(newReceiveToken: receiveToken, reset: { [weak self] in
             self?.swapModel.update(receive: receiveToken)
-            self?.analyticsLogger.logAmountStepOpened()
             selected(true)
-        }, cancel: { [weak self] in
-            self?.analyticsLogger.logAmountStepOpened()
+        }, cancel: {
             selected(false)
         })
     }
@@ -381,6 +378,15 @@ extension SendWithSwapModel: SendSwapProvidersInput {
     var currentRateType: ExpressProviderRateType? {
         isSwapMode ? swapModel.currentRateType : nil
     }
+
+    var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.currentRateTypePublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
 }
 
 // MARK: - SendSwapProvidersOutput
@@ -417,6 +423,10 @@ extension SendWithSwapModel: SendFeeInput {
                 isSwap ? model.swapModel.selectedFeePublisher : model.transferModel.selectedFeePublisher
             }
             .eraseToAnyPublisher()
+    }
+
+    var supportFeeSelection: Bool {
+        isSwapMode ? swapModel.supportFeeSelection : transferModel.supportFeeSelection
     }
 
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
@@ -496,13 +506,6 @@ extension SendWithSwapModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {
-        if !isSwapMode {
-            transferModel.stopSwapProvidersAutoUpdateTimer()
-        }
-        // SwapModel handles this internally via autoupdatingTimer
-    }
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -528,7 +531,7 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
                 let viewModel = HighPriceImpactWarningSheetViewModel(
                     highPriceImpact: highPriceImpact,
-                    tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)
+                    tangemIconProvider: source.tangemIconProvider
                 )
                 router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 

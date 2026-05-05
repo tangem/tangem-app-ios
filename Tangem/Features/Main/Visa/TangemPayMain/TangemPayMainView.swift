@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
@@ -20,8 +21,6 @@ struct TangemPayMainView: View {
         headerTopPadding: Constants.headerTopPadding
     )
 
-    private let coordinateSpaceName = UUID()
-
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
             VStack(spacing: 14) {
@@ -29,32 +28,42 @@ struct TangemPayMainView: View {
 
                 balanceCard
 
+                if viewModel.shouldDisplayReplacingCardBanner {
+                    TangemPayReplacingCardBanner()
+                }
+
                 if viewModel.shouldDisplayAddToApplePayGuide {
                     Button(action: viewModel.openAddToApplePayGuide) {
                         TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
                     }
                 }
 
+                if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
+                    NotificationView(input: cardDeactivatedNotificationInput)
+                }
+
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
-                TransactionsListView(
-                    state: viewModel.tangemPayTransactionHistoryState,
-                    exploreAction: nil,
-                    exploreConfirmationDialog: nil,
-                    exploreTransactionAction: viewModel.openTransactionDetails,
-                    reloadButtonAction: viewModel.reloadHistory,
-                    isReloadButtonBusy: false,
-                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                )
+                if !viewModel.isDeactivated {
+                    TransactionsListView(
+                        state: viewModel.tangemPayTransactionHistoryState,
+                        exploreAction: nil,
+                        exploreConfirmationDialog: nil,
+                        exploreTransactionAction: viewModel.openTransactionDetails,
+                        reloadButtonAction: viewModel.reloadHistory,
+                        isReloadButtonBusy: false,
+                        fetchMore: viewModel.fetchNextTransactionHistoryPage()
+                    )
+                }
 
                 Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
             .readContentOffset(
-                inCoordinateSpace: .named(coordinateSpaceName),
+                inCoordinateSpace: .named(Constants.coordinateSpaceName),
                 bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
             )
         }
@@ -63,7 +72,7 @@ struct TangemPayMainView: View {
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .coordinateSpace(name: coordinateSpaceName)
+        .coordinateSpace(name: Constants.coordinateSpaceName)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(Localization.tangempayPaymentAccount)
@@ -138,7 +147,8 @@ struct TangemPayMainView: View {
             LoadableBalanceView(
                 state: viewModel.balance,
                 style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6)
+                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.paymentAccountBalance
             )
 
             cardIconRow
@@ -174,6 +184,7 @@ struct TangemPayMainView: View {
             Button(action: viewModel.openCardManagement) {
                 TangemPaySmallCardView(cardNumberEnd: viewModel.cardNumberEnd)
             }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
 
             Button(action: viewModel.openFakedoorSheet) {
                 Image(systemName: "plus")
@@ -192,5 +203,6 @@ private extension TangemPayMainView {
     enum Constants {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
+        static let coordinateSpaceName = "TangemPayMainView.coordinateSpaceName"
     }
 }

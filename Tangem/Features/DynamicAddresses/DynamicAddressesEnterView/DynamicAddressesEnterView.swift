@@ -27,6 +27,7 @@ struct DynamicAddressesEnterView: View {
             .interContentPadding(16)
             .overlay(alignment: .bottom) { overlayButtonView }
             .navigationBarTitleDisplayMode(.inline)
+            .alert(item: $viewModel.alert) { $0.alert }
             .toolbar {
                 NavigationToolbarButton
                     .close(placement: .topBarTrailing, action: viewModel.close)
@@ -109,6 +110,7 @@ struct DynamicAddressesEnterView: View {
     private var overlayButtonView: some View {
         MainButton(
             title: Localization.dynamicAddressesEnterMainButtonTitle,
+            icon: viewModel.mainButtonIcon,
             isLoading: viewModel.mainButtonIsLoading,
             action: viewModel.userDidTapEnableAction
         )

@@ -22,7 +22,7 @@ struct EarnBestOpportunitiesListView: View {
     let clearFilterAction: (() -> Void)?
 
     private var backgroundColor: Color {
-        isRedesignEnabled ? .Tangem.Surface.level3 : .Tangem.Surface.level4
+        isRedesignEnabled ? .Tangem.Surface.level3 : Colors.Background.action
     }
 
     private var isRedesignEnabled: Bool {
@@ -65,7 +65,7 @@ struct EarnBestOpportunitiesListView: View {
     private var loadingSkeletonsRedesign: some View {
         VStack(spacing: .zero) {
             ForEach(0 ..< 8) { _ in
-                MarketTokenRowSkeletonView()
+                TangemTwoLineRowSkeletonView()
             }
         }
     }

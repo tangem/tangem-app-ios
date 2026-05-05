@@ -1,0 +1,120 @@
+{
+  "dimension": {
+    "0": {
+      "$type": "dimension",
+      "$value": "0px"
+    },
+    "100": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}"
+    },
+    "125": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*1.25"
+    },
+    "150": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*1.5"
+    },
+    "200": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*2"
+    },
+    "250": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*2.5"
+    },
+    "300": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*3"
+    },
+    "350": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*3.5"
+    },
+    "400": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*4"
+    },
+    "450": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*4.5"
+    },
+    "500": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*5"
+    },
+    "550": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*5.5"
+    },
+    "600": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*6"
+    },
+    "700": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*7"
+    },
+    "800": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*8"
+    },
+    "1000": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*10"
+    },
+    "1100": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*11"
+    },
+    "1200": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*12"
+    },
+    "1600": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*16"
+    },
+    "2400": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*24"
+    },
+    "3200": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*32"
+    },
+    "4800": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*48"
+    },
+    "6400": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*64"
+    },
+    "9600": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*96"
+    },
+    "0125": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*0.125"
+    },
+    "025": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*0.25"
+    },
+    "050": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*0.5"
+    },
+    "075": {
+      "$type": "dimension",
+      "$value": "{dimension.size-math}*0.75"
+    },
+    "size-math": {
+      "$type": "dimension",
+      "$value": "8px"
+    }
+  }
+}

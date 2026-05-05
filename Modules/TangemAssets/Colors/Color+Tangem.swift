@@ -137,7 +137,7 @@ public extension Color.Tangem.Border {
 // MARK: - Field
 
 public extension Color.Tangem.Field {
-    static let backgroundDefault: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
+    static let backgroundDefault: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundFocused: Color = .dynamic(light: Primitives.Lights.light2, dark: Primitives.Darks.dark4)
     static let textPlaceholder: Color = .dynamic(light: Primitives.Darks.dark2, dark: Primitives.Lights.light5)
     static let textDefault: Color = .dynamic(light: Primitives.Darks.dark6, dark: Primitives.Base.white)
@@ -207,6 +207,11 @@ public extension Color.Tangem.Markers {
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
     static let backgroundTintedGreen: Color = .dynamic(light: Primitives.Green.eucalyptus.opacity(0.1), dark: Primitives.Green.emerald.opacity(0.1))
+    static let textYellow: Color = Primitives.Yellow.tangerine
+    static let iconYellow: Color = Primitives.Yellow.tangerine
+    static let backgroundSolidYellow: Color = Primitives.Yellow.tangerine
+    static let backgroundTintedYellow: Color = Primitives.Yellow.tangerine.opacity(0.2)
+    static let borderTintedYellow: Color = Primitives.Yellow.tangerine.opacity(0.2)
 }
 
 // MARK: - Visa

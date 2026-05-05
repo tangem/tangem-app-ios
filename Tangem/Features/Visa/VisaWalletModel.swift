@@ -133,17 +133,7 @@ extension VisaWalletModel: FiatTokenBalanceProviderInput {
 }
 
 extension VisaWalletModel: WalletModelHelpers {
-    func displayAddress(for index: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        return ""
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        return ""
-    }
-
-    func exploreURL(for index: Int, token: Token?) -> URL? {
+    func exploreURL(for address: String, token: Token?) -> URL? {
         // [REDACTED_TODO_COMMENT]
         return nil
     }
@@ -243,11 +233,11 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
-    var addresses: [String] { [defaultAddressString] }
+    var addresses: [Address] { [] }
 
-    var defaultAddressString: String {
+    var defaultAddress: Address {
         // [REDACTED_TODO_COMMENT]
-        ""
+        PlainAddress(value: "", type: .default)
     }
 
     var isMainToken: Bool {
@@ -273,10 +263,6 @@ extension VisaWalletModel: WalletModel {
 
     var publicKey: Wallet.PublicKey {
         Wallet.PublicKey(seedKey: Data(), derivationType: .none)
-    }
-
-    var shouldShowFeeSelector: Bool {
-        false
     }
 
     var isCustom: Bool {
@@ -317,10 +303,6 @@ extension VisaWalletModel: WalletModel {
 
     var account: (any CryptoAccountModel)? {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
-    }
-
-    var receiveAddressTypes: [ReceiveAddressType] {
-        []
     }
 
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {

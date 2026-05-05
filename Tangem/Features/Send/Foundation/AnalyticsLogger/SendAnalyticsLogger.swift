@@ -135,13 +135,19 @@ protocol SendAmountAnalyticsLogger {
     func logAmountStepOpened()
     func logAmountStepReopened()
 
-    func logSendWithSwapError(screen: Analytics.ParameterValue, errorDescription: String)
-    func logSendWithSwapAmountScreenOpened()
+    func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue)
+    func logSwapErrorMinAmount(screen: Analytics.ParameterValue)
+    func logSwapErrorMaxAmount(screen: Analytics.ParameterValue)
+    func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String)
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?)
 }
 
 extension SendAmountAnalyticsLogger {
-    func logSendWithSwapError(screen: Analytics.ParameterValue, errorDescription: String) {}
-    func logSendWithSwapAmountScreenOpened() {}
+    func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue) {}
+    func logSwapErrorMinAmount(screen: Analytics.ParameterValue) {}
+    func logSwapErrorMaxAmount(screen: Analytics.ParameterValue) {}
+    func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String) {}
+    func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?) {}
 }
 
 protocol SendReceiveTokensListAnalyticsLogger {

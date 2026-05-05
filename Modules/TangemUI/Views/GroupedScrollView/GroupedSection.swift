@@ -31,34 +31,63 @@ public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, H
     private let footer: () -> Footer
     private let emptyContent: () -> EmptyContent
 
+    /// When `true`, the section uses `LazyVStack` to defer rendering of off-screen items.
+    /// Use this for sections with a large or unbounded number of items (e.g. token lists, currency selectors)
+    /// to avoid creating all child views upfront and reduce initial render time.
+    /// Defaults to `false` because most `GroupedSection` usages contain a small, fixed number of items
+    /// where the overhead of lazy layout is unnecessary.
+    private let isLazy: Bool
+
     private var settings: Settings = .init()
 
     private var isEmptyContentRequired: Bool {
         EmptyContent.self != EmptyView.self
     }
 
+    /// - Parameters:
+    ///   - models: The array of identifiable models to display.
+    ///   - isLazy: When `true`, uses `LazyVStack` for deferred rendering of off-screen items.
+    ///     Pass `true` for sections with a large or unbounded number of items (e.g. token lists, currency selectors).
+    ///     Defaults to `false`.
+    ///   - content: A view builder that creates the view for each model.
+    ///   - header: A view builder for the section header.
+    ///   - footer: A view builder for the section footer.
+    ///   - emptyContent: A view builder for content shown when `models` is empty.
     public init(
         _ models: [Model],
+        isLazy: Bool = false,
         @ViewBuilder content: @escaping (Model) -> Content,
         @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() },
         @ViewBuilder emptyContent: @escaping () -> EmptyContent = { EmptyView() }
     ) {
         self.models = models
+        self.isLazy = isLazy
         self.content = content
         self.header = header
         self.footer = footer
         self.emptyContent = emptyContent
     }
 
+    /// - Parameters:
+    ///   - model: An optional identifiable model to display. When `nil`, the section is empty.
+    ///   - isLazy: When `true`, uses `LazyVStack` for deferred rendering of off-screen items.
+    ///     Pass `true` for sections with a large or unbounded number of items (e.g. token lists, currency selectors).
+    ///     Defaults to `false`.
+    ///   - content: A view builder that creates the view for each model.
+    ///   - header: A view builder for the section header.
+    ///   - footer: A view builder for the section footer.
+    ///   - emptyContent: A view builder for content shown when `model` is `nil`.
     public init(
         _ model: Model?,
+        isLazy: Bool = false,
         @ViewBuilder content: @escaping (Model) -> Content,
         @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() },
         @ViewBuilder emptyContent: @escaping () -> EmptyContent = { EmptyView() }
     ) {
         models = model.map { [$0] } ?? []
+        self.isLazy = isLazy
         self.content = content
         self.header = header
         self.footer = footer
@@ -73,7 +102,7 @@ public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, H
 
     private var groupedContent: some View {
         VStack(alignment: .leading, spacing: GroupedSectionConstants.footerSpacing) {
-            VStack(alignment: settings.contentAlignment, spacing: settings.interItemSpacing) {
+            contentStack {
                 header()
                     .padding(.horizontal, settings.horizontalPadding)
 
@@ -88,6 +117,15 @@ public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, H
 
             footer()
                 .padding(.horizontal, settings.horizontalPadding)
+        }
+    }
+
+    @ViewBuilder
+    private func contentStack<C: View>(@ViewBuilder content: @escaping () -> C) -> some View {
+        if isLazy {
+            LazyVStack(alignment: settings.contentAlignment, spacing: settings.interItemSpacing, content: content)
+        } else {
+            VStack(alignment: settings.contentAlignment, spacing: settings.interItemSpacing, content: content)
         }
     }
 

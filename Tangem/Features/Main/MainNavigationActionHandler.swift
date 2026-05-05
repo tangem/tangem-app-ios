@@ -35,13 +35,23 @@ extension MainCoordinator {
         // MARK: - Private Implementation
 
         private func routeIncomingAction(_ action: IncomingAction) -> Bool {
-            guard coordinator != nil,
-                  case .navigation(let navigationAction) = action,
-                  !userWalletRepository.isLocked
-            else {
+            guard coordinator != nil, !userWalletRepository.isLocked else {
                 return false
             }
 
+            switch action {
+            case .tangemPayPush(let payload):
+                return routeTangemPayPushAction(payload: payload)
+
+            case .navigation(let navigationAction):
+                return routeNavigationAction(navigationAction)
+
+            case .walletConnect, .start, .dismissSafari, .referralProgram:
+                return false
+            }
+        }
+
+        private func routeNavigationAction(_ navigationAction: DeeplinkNavigationAction) -> Bool {
             switch navigationAction.destination {
             case .referral:
                 return routeReferralAction(userWalletId: navigationAction.params.userWalletId)
@@ -58,11 +68,17 @@ extension MainCoordinator {
             case .staking:
                 return routeStakingAction(params: navigationAction.params)
 
+            case .yield:
+                return routeYieldAction(params: navigationAction.params)
+
             case .markets:
-                return routeMarketAction()
+                return routeMarketAction(params: navigationAction.params)
 
             case .tokenChart:
                 return routeTokenChartAction(params: navigationAction.params)
+
+            case .tokenExchanges:
+                return routeTokenExchangesAction(params: navigationAction.params)
 
             case .link:
                 return routeLinkAction(params: navigationAction.params)
@@ -80,11 +96,19 @@ extension MainCoordinator {
                 return routePromoAction(params: navigationAction.params)
 
             case .news:
-                return routeNewsAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+                return routeNewsDeeplinkAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+
+            case .newsArticle:
+                return routeNewsArticleAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
+
+            case .earn:
+                return routeEarnAction(params: navigationAction.params)
             }
         }
 
-        private func routeNewsAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+        /// Universal-link deeplink to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
+        /// Article id is guaranteed to be present and numeric by the validator.
+        private func routeNewsArticleAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
             guard let coordinator,
                   let idString = params.id,
                   let newsId = Int(idString)
@@ -95,6 +119,31 @@ extension MainCoordinator {
 
             newsDeeplinkValidationService.setDeeplinkURL(deeplinkString)
             coordinator.openDeepLink(.newsDetails(newsId: newsId))
+            return true
+        }
+
+        /// Custom-scheme deeplink: `tangem://news[?id=…|?category_id=…]`.
+        /// Routes to article details if `id` is provided, otherwise to the news list
+        /// (optionally pre-selecting a category).
+        private func routeNewsDeeplinkAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            if let idString = params.id?.nilIfEmpty {
+                guard let newsId = Int(idString) else {
+                    incomingActionManager.discardIncomingAction()
+                    return false
+                }
+
+                coordinator.openDeepLink(.newsDetails(newsId: newsId))
+                return true
+            }
+
+            let initialCategoryId = params.categoryId?.nilIfEmpty.flatMap(Int.init)
+            coordinator.openDeepLink(.newsList(initialCategoryId: initialCategoryId))
+
             return true
         }
 
@@ -141,8 +190,39 @@ extension MainCoordinator {
             return true
         }
 
-        private func routeMarketAction() -> Bool {
-            coordinator?.openDeepLink(.market)
+        private func routeTokenExchangesAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let tokenId = params.tokenId
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.tokenExchanges(tokenId: tokenId))
+            return true
+        }
+
+        private func routeMarketAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            // `order` and `interval` fall back independently: an invalid or missing value
+            // for one parameter must not influence the other. The case where only
+            // `interval` is provided naturally resolves to `order = .rating` because
+            // the factory substitutes the default when the raw order is missing.
+            let filter = MarketsDeeplinkFilterFactory().make(
+                orderRawValue: params.order,
+                intervalRawValue: params.interval
+            )
+            coordinator?.openDeepLink(.markets(filter: filter))
+            return true
+        }
+
+        private func routeEarnAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let earnType = params.earnType.flatMap { EarnFilterType(rawValue: $0) }
+            coordinator.openDeepLink(.earn(earnType: earnType, networkId: params.networkId))
             return true
         }
 
@@ -271,7 +351,7 @@ extension MainCoordinator {
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeAvailable,
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeFeatureAvailable,
                 let stakingManager = walletModel.stakingManager
             else {
                 incomingActionManager.discardIncomingAction()
@@ -281,6 +361,27 @@ extension MainCoordinator {
             let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             let options = StakingDetailsCoordinator.Options(sendInput: input, manager: stakingManager)
             coordinator.openDeepLink(.staking(options: options))
+            return true
+        }
+
+        private func routeYieldAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard
+                let coordinator,
+                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
+                let tokenId = params.tokenId,
+                let networkId = params.networkId,
+                let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
+                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable(),
+                walletModel.yieldModuleManager != nil,
+                walletModel.multipleTransactionsSender != nil
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(
+                .yield(walletModel: walletModel, userWalletModel: userWalletModel)
+            )
             return true
         }
 
@@ -298,6 +399,21 @@ extension MainCoordinator {
                     deeplinkString: deeplinkString
                 )
             )
+            return true
+        }
+
+        private func routeTangemPayPushAction(payload: TangemPayPushPayload) -> Bool {
+            guard let coordinator else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            switch payload.body {
+            case .cardReady:
+                coordinator.openDeepLink(.tangemPayMain(customerWalletId: payload.customerWalletId))
+            case .transactionSpend, .declinedTopUp, .collateralWithdraw, .collateralDeposit:
+                coordinator.openDeepLink(.tangemPayTransactionDetails(payload: payload))
+            }
             return true
         }
     }
