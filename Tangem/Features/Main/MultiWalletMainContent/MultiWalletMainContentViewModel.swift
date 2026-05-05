@@ -347,15 +347,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-        // [REDACTED_TODO_COMMENT]
-        userWalletModel
-            .walletModelsManager
-            .walletModelsPublisher
-            .sink { wms in
-                print("Non-account wallet models: \(wms.count)s")
-                wms.forEach { print("account for WM '\($0.name) is none") }
-            }
-            .store(in: &bag)
     }
 
     private func setupTangemPayIfNeeded() {
