@@ -336,7 +336,7 @@
 "common_unreachable" = "Недоступно";
 "common_unstake" = "Завершить стейкинг";
 "common_value_copied" = "Значение скопировано";
-"common_voting" = "common_voting";
+"common_voting" = "Voting";
 "common_wallets" = "Кошельки";
 "common_warning" = "Предупреждение";
 "common_with" = "с";
@@ -559,6 +559,8 @@
 "hw_backup_hardware_title" = "Аппаратный кошелёк";
 "hw_backup_hardware_upgrade_description" = "Перенесите свой текущий кошелек в холодный кошелек Tangem.";
 "hw_backup_hardware_upgrade_title" = "Улучшить текущий кошелёк";
+"hw_backup_icloud_alert_message" = "We’re working on iCloud backup to make wallet recovery even easier.";
+"hw_backup_icloud_alert_title" = "iCloud backup is coming soon";
 "hw_backup_icloud_description" = "Восстановить текущий кошелек через iCloud";
 "hw_backup_icloud_title" = "iCloud восстановление";
 "hw_backup_need_action" = "Перейти к бэкапу";
@@ -1595,7 +1597,7 @@
 "transaction_history_rewards_restaked" = "Rewards restaked";
 "transaction_history_rewards_restaking" = "Rewards restaking";
 "transaction_history_staking_reward" = "Staking reward";
-"transaction_history_to_inline_address" = "to: %%image%% %1$@";
+"transaction_history_to_inline_address" = "to: %%image%% %@";
 "transaction_history_transaction_for_address" = "для: %@";
 "transaction_history_transaction_from_address" = "от: %@";
 "transaction_history_transaction_to_address" = "на: %@";
