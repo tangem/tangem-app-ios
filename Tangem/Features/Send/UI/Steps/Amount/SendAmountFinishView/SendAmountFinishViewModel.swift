@@ -186,14 +186,8 @@ private extension SendAmountFinishViewModel {
                 ).string(from: $0)
             }
 
-            let showTilde = isApproximateAmount
-                && flowActionType.isSwapFlow
-                && FeatureProvider.isAvailable(.swapInProgressV2)
-            let amountText: String = if let formattedAmount, showTilde {
-                "\(AppConstants.tildeSign)\(formattedAmount)"
-            } else {
-                formattedAmount ?? ""
-            }
+            let showTilde = isApproximateAmount && flowActionType.isSwapFlow && FeatureProvider.isAvailable(.swapInProgressV2)
+            let amountText = formattedAmount.map { formatted in showTilde ? "\(AppConstants.tildeSign)\(formatted)" : formatted } ?? ""
 
             receiveSmallAmountViewModel = .init(
                 tokenHeader: header,
