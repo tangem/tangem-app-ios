@@ -336,7 +336,7 @@
 "common_unreachable" = "Unreachable";
 "common_unstake" = "Unstake";
 "common_value_copied" = "Value copied";
-"common_voting" = "common_voting";
+"common_voting" = "Voting";
 "common_wallets" = "Wallets";
 "common_warning" = "Avviso";
 "common_with" = "with";
@@ -1597,7 +1597,7 @@
 "transaction_history_rewards_restaked" = "Rewards restaked";
 "transaction_history_rewards_restaking" = "Rewards restaking";
 "transaction_history_staking_reward" = "Staking reward";
-"transaction_history_to_inline_address" = "to: %%image%% %1$@";
+"transaction_history_to_inline_address" = "to: %%image%% %@";
 "transaction_history_transaction_for_address" = "for: %@";
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_to_address" = "to: %@";
