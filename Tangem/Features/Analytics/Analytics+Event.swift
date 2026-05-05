@@ -223,6 +223,7 @@ extension Analytics {
         case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
         case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
         case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsButtonICloudBackup = "[Settings / Wallet Settings] Button - Cloud Backup"
         case walletSettingsButtonRecoveryPhrase = "[Settings / Wallet Settings] Button - Recovery phrase"
         case walletSettingsButtonHardwareUpdate = "[Settings / Wallet Settings] Button - Hardware Update"
         case walletSettingsButtonCreateNewWallet = "[Settings / Wallet Settings] Button - Create New Wallet"
