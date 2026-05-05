@@ -11,6 +11,7 @@ import Moya
 import Combine
 import TangemFoundation
 import TangemNetworkUtils
+import AnyCodable
 
 class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     var host: String {
@@ -189,6 +190,28 @@ class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
             }
             .eraseToAnyPublisher()
             .eraseError()
+    }
+
+    func getAccountTransactions(
+        account: String,
+        limit: Int,
+        marker: [String: AnyCodable]?
+    ) -> AnyPublisher<(transactions: [XRPTransactionInfo], marker: [String: AnyCodable]?), Error> {
+        request(
+            .accountTransactions(
+                account: account,
+                limit: limit,
+                marker: marker
+            )
+        )
+        .tryMap { response in
+            guard let result = response.result else {
+                throw BlockchainSdkError.failedToParseNetworkResponse()
+            }
+
+            return (result.transactions ?? [], result.marker)
+        }
+        .eraseToAnyPublisher()
     }
 
     private func request(_ target: XRPTarget.XRPTargetType) -> AnyPublisher<XrpResponse, MoyaError> {
