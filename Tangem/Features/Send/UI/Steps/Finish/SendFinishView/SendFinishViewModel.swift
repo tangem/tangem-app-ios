@@ -14,15 +14,19 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        useSwapInProgressV2 ? Localization.swapInProgress : settings.title
+        guard sendAmountFinishViewModel?.flowActionType.isSwapFlow == true,
+              FeatureProvider.isAvailable(.swapInProgressV2) else {
+            return settings.title
+        }
+        return Localization.swapInProgress
     }
 
     var secondaryButtonTitle: String {
-        useSwapInProgressV2 ? Localization.expressProvider : Localization.commonShare
-    }
-
-    private var useSwapInProgressV2: Bool {
-        settings.isSwapAwareFlow && FeatureProvider.isAvailable(.swapInProgressV2)
+        guard sendAmountFinishViewModel?.flowActionType.isSwapFlow == true,
+              FeatureProvider.isAvailable(.swapInProgressV2) else {
+            return Localization.commonShare
+        }
+        return Localization.expressProvider
     }
 
     @Published private(set) var showHeader = false
@@ -118,7 +122,6 @@ class SendFinishViewModel: ObservableObject, Identifiable {
 extension SendFinishViewModel {
     struct Settings {
         let title: String
-        let isSwapAwareFlow: Bool
         let possibleToShowExploreButtons: Bool
     }
 }

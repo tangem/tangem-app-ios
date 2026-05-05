@@ -88,7 +88,6 @@ enum SwapAmountStepBuilder {
 
         let finish = SendAmountFinishViewModel(
             flowActionType: .swap,
-            isSwapAwareFlow: true,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,
