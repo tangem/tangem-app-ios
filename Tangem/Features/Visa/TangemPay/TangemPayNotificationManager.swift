@@ -41,10 +41,10 @@ final class TangemPayNotificationManager {
                     accountModel.statePublisher
                         .withWeakCaptureOf(manager)
                         .map { manager, state in
-                            if let event = state.asNotificationEvent() {
-                                [manager.makeNotificationViewInput(event: event)]
+                            if let event = state.errorNotificationEvent(icon: manager.mainButtonIcon) {
+                                return [manager.makeNotificationViewInput(event: event)]
                             } else {
-                                []
+                                return []
                             }
                         }
                         .eraseToAnyPublisher()
