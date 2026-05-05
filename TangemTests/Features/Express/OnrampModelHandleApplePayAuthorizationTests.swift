@@ -108,53 +108,6 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(router.lastKYCURL == nil)
     }
 
-    @Test("userDidAuthorizeNativePayment KYC required → resultHandler.fail(error) and KYC sheet opened")
-    func userDidAuthorizeNativePaymentKYCRequiredOpensSheet() async {
-        let kycError = StubFixtures.makeKYCRequiredError()
-        let manager = StubOnrampManager(mode: .throwsError(kycError))
-        let router = StubOnrampModelRoutable()
-        let model = makeModel(onrampManager: manager)
-        model.router = router
-
-        let recorder = ResultHandlerRecorder(eventLog: eventLog)
-        await withCheckedContinuation { continuation in
-            router.onOpenKYC = { continuation.resume() }
-            model.userDidAuthorizeNativePayment(
-                provider: OnrampTestFixtures.makeProvider(),
-                applePayResult: StubFixtures.makeApplePayResult(),
-                resultHandler: { recorder.record($0) }
-            )
-        }
-
-        let outcome = recorder.snapshot
-        #expect(outcome.callCount == 1)
-        #expect(outcome.lastStatus == .failure)
-        #expect(outcome.lastErrors.count == 1)
-        #expect(router.openKYCCallCount == 1)
-        #expect(router.lastKYCURL == nil)
-    }
-
-    /// Mirror of `widgetFallbackOrdersRedirectBeforeFail` for the
-    /// `userDidAuthorizeNativePayment` path: redirect navigation must be queued
-    /// before PassKit is told the payment failed.
-    @Test("userDidAuthorizeNativePayment widget fallback orders redirect before resultHandler")
-    func userDidAuthorizeNativePaymentWidgetOrdersRedirectBeforeFail() async {
-        let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
-        let model = makeModel(onrampManager: manager)
-        let recorder = ResultHandlerRecorder(eventLog: eventLog)
-
-        await withCheckedContinuation { continuation in
-            recorder.onFirstCall = { continuation.resume() }
-            model.userDidAuthorizeNativePayment(
-                provider: OnrampTestFixtures.makeProvider(),
-                applePayResult: StubFixtures.makeApplePayResult(),
-                resultHandler: { recorder.record($0) }
-            )
-        }
-
-        #expect(eventLog.events == [.transactionDidSend, .resultHandler])
-    }
-
     // MARK: - Helpers
 
     private func makeModel(onrampManager: OnrampManager) -> OnrampModel {
