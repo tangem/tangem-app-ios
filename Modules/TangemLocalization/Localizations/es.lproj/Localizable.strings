@@ -336,7 +336,7 @@
 "common_unreachable" = "Inaccesible";
 "common_unstake" = "Termine el staking";
 "common_value_copied" = "Valor copiado";
-"common_voting" = "common_voting";
+"common_voting" = "Voting";
 "common_wallets" = "Billeteras";
 "common_warning" = "Alerta";
 "common_with" = "con";
@@ -559,6 +559,8 @@
 "hw_backup_hardware_title" = "Billetera de hardware";
 "hw_backup_hardware_upgrade_description" = "Mueva su billetera actual a Tangem.";
 "hw_backup_hardware_upgrade_title" = "Actualizar la billetera actual";
+"hw_backup_icloud_alert_message" = "We’re working on iCloud backup to make wallet recovery even easier.";
+"hw_backup_icloud_alert_title" = "iCloud backup is coming soon";
 "hw_backup_icloud_description" = "Recuperar la billetera existente a través de una copia de seguridad de iCloud";
 "hw_backup_icloud_title" = "Copia de seguridad de iCloud";
 "hw_backup_need_action" = "Ir a copia de seguridad";
@@ -1595,7 +1597,7 @@
 "transaction_history_rewards_restaked" = "Rewards restaked";
 "transaction_history_rewards_restaking" = "Rewards restaking";
 "transaction_history_staking_reward" = "Staking reward";
-"transaction_history_to_inline_address" = "to: %%image%% %1$@";
+"transaction_history_to_inline_address" = "to: %%image%% %@";
 "transaction_history_transaction_for_address" = "para: %@";
 "transaction_history_transaction_from_address" = "desde: %@";
 "transaction_history_transaction_to_address" = "a: %@";
