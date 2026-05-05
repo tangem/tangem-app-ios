@@ -35,11 +35,11 @@ extension BitcoinCashBlockBookUTXOProvider: UTXONetworkProvider {
         blockBookUTXOProvider.host
     }
 
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
+    func getInfo(xpub: UTXOXpubScriptType) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
         blockBookUTXOProvider.getInfo(xpub: xpub)
     }
 
-    func getUnspentOutputs(xpub: String) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
+    func getUnspentOutputs(xpub: UTXOXpubScriptType) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
         blockBookUTXOProvider.getUnspentOutputs(xpub: xpub)
     }
 

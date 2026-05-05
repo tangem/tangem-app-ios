@@ -65,6 +65,42 @@ struct XPUBUtilsTests {
         #expect(xpub == "xpub6FAqNyRZorqRKQyQCJqsCd264fh1Wiv4d42Myic4Tu5HfgGyhn4CH1MxjTZUQFoUv5UKAAkRdrWHGZWyaYDrjjycN1jxsycC7J7cBe7G2tx")
     }
 
+    // MARK: - scriptTypes
+
+    @Test("scriptTypes for Bitcoin returns [.p2wpkh, .p2pkh]")
+    func scriptTypesForBitcoin() throws {
+        let scriptTypes = try XPUBUtils.scriptTypes(blockchain: .bitcoin(testnet: false), xpub: "X")
+
+        #expect(scriptTypes == [.p2wpkh(xpub: "X"), .p2pkh(xpub: "X")])
+    }
+
+    @Test("scriptTypes for Litecoin returns [.p2wpkh, .p2pkh]")
+    func scriptTypesForLitecoin() throws {
+        let scriptTypes = try XPUBUtils.scriptTypes(blockchain: .litecoin, xpub: "X")
+
+        #expect(scriptTypes == [.p2wpkh(xpub: "X"), .p2pkh(xpub: "X")])
+    }
+
+    @Test("scriptTypes for Dogecoin returns [.p2pkh] only")
+    func scriptTypesForDogecoin() throws {
+        let scriptTypes = try XPUBUtils.scriptTypes(blockchain: .dogecoin, xpub: "X")
+
+        #expect(scriptTypes == [.p2pkh(xpub: "X")])
+    }
+
+    @Test("scriptTypes for non-UTXO blockchain throws xpubNotSupported")
+    func scriptTypesForNonUTXOThrows() throws {
+        #expect(throws: XPUBUtils.Error.xpubNotSupported) {
+            try XPUBUtils.scriptTypes(blockchain: .ethereum(testnet: false), xpub: "X")
+        }
+    }
+
+    @Test("UTXOXpubScriptType.wrapped produces correct descriptor")
+    func wrappedProducesDescriptor() {
+        #expect(UTXOXpubScriptType.p2wpkh(xpub: "X").wrapped() == "wpkh(X)")
+        #expect(UTXOXpubScriptType.p2pkh(xpub: "X").wrapped() == "pkh(X)")
+    }
+
     // MARK: - xpubDerivationPaths
 
     @Test("BIP-84 path m/84'/0'/0'/0/0 returns correct child and parent")

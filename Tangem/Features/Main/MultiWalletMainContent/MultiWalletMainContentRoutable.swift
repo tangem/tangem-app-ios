@@ -13,6 +13,7 @@ import TangemPay
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel)
     func openOrganizeTokens(for userWalletModel: UserWalletModel)
+    func openAddAndManageTokens(userWalletModel: UserWalletModel)
     func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel)
     func openOnboardingModal(with options: OnboardingCoordinator.Options)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
@@ -26,6 +27,10 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
-    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount)
+    func openTangemPayMainView(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        userWalletModel: UserWalletModel
+    )
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
 }
