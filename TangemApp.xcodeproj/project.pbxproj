@@ -233,6 +233,8 @@
 		C2A96BFE2F7EE114001D0602 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Intents.strings; sourceTree = "<group>"; };
 		C2A96BFF2F7EE114001D0602 /* uk-UA */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "uk-UA"; path = "uk-UA.lproj/Intents.strings"; sourceTree = "<group>"; };
 		C2A96C002F7EE114001D0602 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Intents.strings"; sourceTree = "<group>"; };
+		DC17CE472FAA5FD300DFB221 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Intents.strings"; sourceTree = "<group>"; };
+		DC17CE482FAA5FF000DFB221 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Intents.strings"; sourceTree = "<group>"; };
 		DC2756442F8E70FC00BCE38E /* GoogleService-Info-Internal.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Internal.plist"; sourceTree = "<group>"; };
 		EF9E29932B4F0C8800418559 /* TangemExpress.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TangemExpress.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF9E299C2B4F0C8D00418559 /* TangemExpressTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemExpressTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -899,8 +901,8 @@
 				ja,
 				"uk-UA",
 				es,
-				"zh-Hans",
 				"pt-BR",
+				"zh-Hans",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			packageReferences = (
@@ -1204,6 +1206,8 @@
 				C2A96BFE2F7EE114001D0602 /* ru */,
 				C2A96BFF2F7EE114001D0602 /* uk-UA */,
 				C2A96C002F7EE114001D0602 /* zh-Hant */,
+				DC17CE472FAA5FD300DFB221 /* pt-BR */,
+				DC17CE482FAA5FF000DFB221 /* zh-Hans */,
 			);
 			name = Intents.strings;
 			sourceTree = "<group>";
