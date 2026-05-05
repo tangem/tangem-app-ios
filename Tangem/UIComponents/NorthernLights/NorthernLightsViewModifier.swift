@@ -5,11 +5,13 @@ struct NorthernLightsBackgroundModifier: ViewModifier {
     let opacity: Double
 
     func body(content: Content) -> some View {
-        content.background(
-            NorthernLightsView(backgroundColor: backgroundColor)
-                .ignoresSafeArea()
-                .opacity(opacity)
-        )
+        content
+            .background(
+                NorthernLightsView(backgroundColor: backgroundColor)
+                    .ignoresSafeArea()
+                    .opacity(opacity)
+            )
+            .background(backgroundColor.ignoresSafeArea())
     }
 }
 
