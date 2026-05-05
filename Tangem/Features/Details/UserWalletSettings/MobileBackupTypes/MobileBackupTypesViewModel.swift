@@ -145,13 +145,13 @@ private extension MobileBackupTypesViewModel {
     }
 
     func makeICloudItem() -> SectionItem {
-        let badge = BadgeView.Item(title: Localization.commonComingSoon, style: .secondary)
+        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onICloudTap)
         return SectionItem(
             title: Localization.hwBackupIcloudTitle,
             description: Localization.hwBackupIcloudDescription,
-            badge: badge,
-            isEnabled: false,
-            action: {}
+            badge: nil,
+            isEnabled: true,
+            action: action
         )
     }
 
@@ -185,6 +185,13 @@ private extension MobileBackupTypesViewModel {
         logUpgradeTapAnalytics()
         runTask(in: self) { viewModel in
             await viewModel.openUpgrade()
+        }
+    }
+
+    func onICloudTap() {
+        logICloudTapAnalytics()
+        runTask(in: self) { viewModel in
+            await viewModel.showICloudFakedoorAlert()
         }
     }
 }
@@ -239,6 +246,16 @@ private extension MobileBackupTypesViewModel {
         logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
+
+    func showICloudFakedoorAlert() {
+        let iCloudAlert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.hwBackupIcloudAlertTitle,
+            message: Localization.hwBackupIcloudAlertMessage,
+            buttonText: Localization.commonOk,
+            buttonAction: {}
+        )
+        alert = iCloudAlert
+    }
 }
 
 // MARK: - Analytics
@@ -268,6 +285,10 @@ private extension MobileBackupTypesViewModel {
             params: [.source: Analytics.BuyWalletSource.backup.parameterValue],
             contextParams: analyticsContextParams
         )
+    }
+
+    func logICloudTapAnalytics() {
+        Analytics.log(.walletSettingsButtonICloudBackup, contextParams: analyticsContextParams)
     }
 }
 
