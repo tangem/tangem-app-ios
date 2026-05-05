@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
@@ -18,6 +19,8 @@ struct OrganizeTokensView: View {
     // MARK: - Model
 
     @ObservedObject private var viewModel: OrganizeTokensViewModel
+
+    private let onCloseTap: (() -> Void)?
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -71,13 +74,21 @@ struct OrganizeTokensView: View {
         )
     }
 
+    // MARK: - Layout
+
+    @State private var tokenListWidth: CGFloat = .zero
+
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            tokenList
+            if FeatureProvider.isAvailable(.manageTokensImprovements) {
+                tokenList
+            } else {
+                legacyTokenList
+            }
 
-            tokenListHeader
+            topContent
 
             tokenListFooter
         }
@@ -98,6 +109,40 @@ struct OrganizeTokensView: View {
     // MARK: - Subviews
 
     private var tokenList: some View {
+        ScrollViewReader { scrollProxy in
+            tokenListScrollView(scrollProxy: scrollProxy)
+        }
+        .overlay(tokenListDraggableOverlay, alignment: .top)
+        .onGeometryChange(for: CGFloat.self, of: \.size.width) { tokenListWidth in
+            self.tokenListWidth = tokenListWidth
+        }
+        .coordinateSpace(name: CoordinateSpaceName.ScrollView.frame)
+        .onReceive(scrollState.contentOffsetSubject) { newValue in
+            dragAndDropController.contentOffsetSubject.send(newValue)
+            updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
+        }
+        .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
+            guard let oldValue = oldValue, let newValue = newValue else { return }
+
+            dragAndDropController.onItemsMove()
+            viewModel.move(from: oldValue, to: newValue)
+        }
+        .onChange(of: hasActiveDrag) { newValue in
+            if newValue {
+                scrollState.onDragStart()
+            } else {
+                scrollState.onDragEnd()
+                dragAndDropController.stopAutoScrolling()
+                dragAndDropDestinationIndexPath = nil
+                dragAndDropSourceItemFrame = nil
+            }
+        }
+        .onChange(of: dragGestureTranslation) { newValue in
+            updateDragAndDropDestinationIndexPath(using: newValue)
+        }
+    }
+
+    private var legacyTokenList: some View {
         GeometryReader { geometryProxy in
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
@@ -263,6 +308,29 @@ struct OrganizeTokensView: View {
         }
     }
 
+    private var topContent: some View {
+        VStack(spacing: 0) {
+            tokenListTitle
+            tokenListHeader
+        }
+        .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
+        .padding(.bottom, Constants.headerAdditionalBottomInset)
+        .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
+        .infinityFrame(alignment: .top)
+    }
+
+    @ViewBuilder
+    private var tokenListTitle: some View {
+        if let onCloseTap {
+            BottomSheetHeaderView(
+                title: Localization.organizeTokensTitle,
+                trailing: { NavigationBarButton.close(action: onCloseTap) }
+            )
+            .padding(.top, 4)
+            .padding(.horizontal, Constants.contentHorizontalInset)
+        }
+    }
+
     @ViewBuilder
     private var tokenListHeader: some View {
         if let headerViewModel = viewModel.headerViewModel {
@@ -271,10 +339,6 @@ struct OrganizeTokensView: View {
                 horizontalInset: Constants.contentHorizontalInset,
                 bottomInset: Constants.headerBottomInset
             )
-            .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
-            .padding(.bottom, Constants.headerAdditionalBottomInset)
-            .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
-            .infinityFrame(alignment: .top)
         }
     }
 
@@ -299,9 +363,11 @@ struct OrganizeTokensView: View {
     }
 
     init(
-        viewModel: OrganizeTokensViewModel
+        viewModel: OrganizeTokensViewModel,
+        onCloseTap: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
+        self.onCloseTap = onCloseTap
         _dragAndDropController = .init(
             wrappedValue: OrganizeTokensDragAndDropController(
                 autoScrollFrequency: Constants.autoScrollFrequency,
@@ -684,5 +750,66 @@ private extension OrganizeTokensView {
             static let content = prefix + "content"
             static let frame = prefix + "frame"
         }
+    }
+}
+
+// MARK: - Token list subviews
+
+private extension OrganizeTokensView {
+    var tokenListScrollContent: some View {
+        VStack(spacing: 0.0) {
+            LazyVStack(spacing: 0.0) {
+                Spacer(minLength: scrollViewTopContentInset)
+                    .fixedSize()
+                    .id(Identifiers.ScrollView.topContentInsetSpacer)
+
+                tokenListContent
+            }
+            .animation(.spring(), value: viewModel.sections)
+            .padding(.horizontal, Constants.contentHorizontalInset)
+            .coordinateSpace(name: CoordinateSpaceName.ScrollView.content)
+            .readGeometry(
+                \.frame.maxY,
+                inCoordinateSpace: .global,
+                bindTo: scrollState.tokenListContentFrameMaxYSubject.asWriteOnlyBinding(.zero)
+            )
+            .readContentOffset(
+                inCoordinateSpace: .named(CoordinateSpaceName.ScrollView.frame),
+                bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
+            )
+            .overlay(makeDragAndDropGestureOverlayView())
+
+            Spacer(minLength: scrollViewBottomContentInset)
+                .fixedSize()
+                .id(Identifiers.ScrollView.bottomContentInsetSpacer)
+        }
+    }
+
+    func tokenListScrollView(scrollProxy: ScrollViewProxy) -> some View {
+        ScrollView(showsIndicators: false) {
+            tokenListScrollContent
+        }
+        .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokensList)
+        .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
+            dragAndDropController.viewportSizeSubject.send(newValue.size)
+            visibleViewportFrame = newValue
+                .divided(atDistance: scrollViewTopContentInset, from: .minYEdge)
+                .remainder
+                .divided(atDistance: scrollViewBottomContentInset, from: .maxYEdge)
+                .remainder
+        }
+        .onChange(of: draggedItemFrame) { newValue in
+            changeAutoScrollStatusIfNeeded(draggedItemFrame: newValue)
+        }
+        .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
+            withAnimation(.linear(duration: Constants.autoScrollFrequency)) {
+                scrollProxy.scrollTo(newValue, anchor: scrollAnchor())
+            }
+        }
+    }
+
+    var tokenListDraggableOverlay: some View {
+        makeDraggableComponent(width: max(0, tokenListWidth - Constants.contentHorizontalInset * 2.0))
+            .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag)
     }
 }
