@@ -25,21 +25,24 @@ struct SendTokenHeaderBuilder {
              (.wallet(_, hasOnlyOneWallet: true), .sendViaSwap) where isSource:
             return .action(name: Localization.swappingFromTitleV2)
 
-        case (.wallet(_, hasOnlyOneWallet: true), .swap):
+        case (.wallet(_, hasOnlyOneWallet: true), .swap),
+             (.wallet(_, hasOnlyOneWallet: true), .sendViaSwap):
             return .action(name: Localization.swappingToTitle)
 
         case (.wallet(let name, hasOnlyOneWallet: false), .swap) where isSource,
              (.wallet(let name, hasOnlyOneWallet: false), .sendViaSwap) where isSource:
             return .wallet(name: Localization.commonFromWalletName(name))
 
-        case (.wallet(let name, hasOnlyOneWallet: false), .swap):
+        case (.wallet(let name, hasOnlyOneWallet: false), .swap),
+             (.wallet(let name, hasOnlyOneWallet: false), .sendViaSwap):
             return .wallet(name: Localization.commonToWalletName(name))
 
         case (.account(let name, let icon), .swap) where isSource,
              (.account(let name, let icon), .sendViaSwap) where isSource:
             return .account(prefix: Localization.swappingFromAccountTitle, name: name, icon: icon)
 
-        case (.account(let name, let icon), .swap):
+        case (.account(let name, let icon), .swap),
+             (.account(let name, let icon), .sendViaSwap):
             return .account(prefix: Localization.swappingToAccountTitle, name: name, icon: icon)
 
         case (.wallet(let name, _), _):
