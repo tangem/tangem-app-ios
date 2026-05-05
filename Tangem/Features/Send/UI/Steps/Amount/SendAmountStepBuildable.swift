@@ -48,17 +48,6 @@ enum SendAmountStepBuilder {
     struct Types {
         let initialSourceToken: SendSourceToken
         let flowActionType: SendFlowActionType
-        let isSwapAwareFlow: Bool
-
-        init(
-            initialSourceToken: SendSourceToken,
-            flowActionType: SendFlowActionType,
-            isSwapAwareFlow: Bool = false
-        ) {
-            self.initialSourceToken = initialSourceToken
-            self.flowActionType = flowActionType
-            self.isSwapAwareFlow = isSwapAwareFlow
-        }
     }
 
     struct Dependencies {
@@ -139,7 +128,6 @@ enum SendAmountStepBuilder {
         let amountUpdater = SendAmountExternalUpdater(viewModel: viewModel, interactor: interactor)
         let finish = SendAmountFinishViewModel(
             flowActionType: types.flowActionType,
-            isSwapAwareFlow: types.isSwapAwareFlow,
             sourceTokenInput: io.sourceIO.input,
             sourceTokenAmountInput: io.sourceAmountIO.input,
             receiveTokenInput: io.receiveIO?.input,

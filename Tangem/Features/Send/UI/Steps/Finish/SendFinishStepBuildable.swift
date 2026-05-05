@@ -80,7 +80,6 @@ enum SendFinishStepBuilder {
     ) -> ReturnValue {
         let settings = SendFinishViewModel.Settings(
             title: types.title,
-            isSwapAwareFlow: sendAmountFinishViewModel?.isSwapAwareFlow ?? false,
             possibleToShowExploreButtons: !types.tokenItem.blockchain.isTransactionAsync
         )
 

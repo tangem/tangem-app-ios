@@ -23,25 +23,21 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
     @Published private var receiveSmallAmountViewModel: SendAmountFinishSmallAmountViewModel?
     @Published private var sendSwapProviderFinishViewModel: SendSwapProviderFinishViewModel?
 
-    let isSwapAwareFlow: Bool
+    let flowActionType: SendFlowActionType
+
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
     private let balanceFormatter = BalanceFormatter()
     private var bag: Set<AnyCancellable> = []
 
-    private var useSwapInProgressV2: Bool {
-        isSwapAwareFlow && FeatureProvider.isAvailable(.swapInProgressV2)
-    }
-
     init(
         flowActionType: SendFlowActionType,
-        isSwapAwareFlow: Bool = false,
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
     ) {
-        self.isSwapAwareFlow = isSwapAwareFlow
+        self.flowActionType = flowActionType
         bind(
             flowActionType: flowActionType,
             sourceTokenInput: sourceTokenInput,
@@ -140,7 +136,7 @@ private extension SendAmountFinishViewModel {
     }
 
     private func updateView(sourceToken: SendSourceToken, flowActionType: SendFlowActionType, sourceAmount: LoadingResult<SendAmount, any Error>) {
-        tokenHeader = makeSendTokenHeader(from: sourceToken.header, flowActionType: flowActionType, isSource: true)
+        tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
         tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
         alternativeAmount = sourceAmount.value?.formatAlternative(
             currencySymbol: sourceToken.tokenItem.currencySymbol,
@@ -176,7 +172,7 @@ private extension SendAmountFinishViewModel {
             receiveSmallAmountViewModel = nil
         case (.some(let token), .success(let receiveAmount)):
             let header: SendTokenHeader = if let token = token as? SendSourceToken {
-                makeSendTokenHeader(from: token.header, flowActionType: flowActionType, isSource: false)
+                token.header.asSendTokenHeader(actionType: flowActionType, isSource: false)
             } else {
                 .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle)
             }
@@ -190,7 +186,10 @@ private extension SendAmountFinishViewModel {
                 ).string(from: $0)
             }
 
-            let amountText: String = if let formattedAmount, useSwapInProgressV2, isApproximateAmount {
+            let showTilde = isApproximateAmount
+                && flowActionType.isSwapFlow
+                && FeatureProvider.isAvailable(.swapInProgressV2)
+            let amountText: String = if let formattedAmount, showTilde {
                 "\(AppConstants.tildeSign)\(formattedAmount)"
             } else {
                 formattedAmount ?? ""
@@ -208,25 +207,6 @@ private extension SendAmountFinishViewModel {
         case (.some, .failure), (.some, .loading):
             // Do nothing to avoid incorrect view state
             break
-        }
-    }
-
-    private func makeSendTokenHeader(from tokenHeader: TokenHeader, flowActionType: SendFlowActionType, isSource: Bool) -> SendTokenHeader {
-        guard useSwapInProgressV2 else {
-            return tokenHeader.asSendTokenHeader(actionType: flowActionType, isSource: isSource)
-        }
-
-        switch tokenHeader {
-        case .account(let name, let icon):
-            return .account(
-                prefix: isSource ? Localization.swappingFromAccountTitle : Localization.swappingToAccountTitle,
-                name: name,
-                icon: icon
-            )
-        case .wallet(_, hasOnlyOneWallet: true):
-            return .action(name: isSource ? Localization.swappingFromTitleV2 : Localization.swappingToTitle)
-        case .wallet(let name, hasOnlyOneWallet: false):
-            return .wallet(name: isSource ? Localization.commonFromWalletName(name) : Localization.commonToWalletName(name))
         }
     }
 
