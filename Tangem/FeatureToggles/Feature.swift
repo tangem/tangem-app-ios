@@ -27,9 +27,12 @@ enum Feature: String, Hashable, CaseIterable {
     case usdtRevokeGaslessFee
     case newPromotionBanners
     case swapPipelineV2
+    case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
     case swapInProgressV2
+    case dexApproveNotificationV2
+    case manageTokensImprovements
 
     var name: String {
         switch self {
@@ -52,8 +55,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .newPromotionBanners: return "New Promotion Banners"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
+        case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
         case .swapInProgressV2: return "Swap In Progress V2"
+        case .dexApproveNotificationV2: return "DEX Approve Notification V2"
+        case .manageTokensImprovements: return "Manage Tokens Improvements"
         }
     }
 
@@ -77,9 +83,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .usdtRevokeGaslessFee: return .unspecified
         case .newPromotionBanners: return .version("5.37")
         case .swapPipelineV2: return .unspecified
+        case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
         case .swapStoriesV2: return .unspecified
         case .swapInProgressV2: return .unspecified
+        case .dexApproveNotificationV2: return .unspecified
+        case .manageTokensImprovements: return .unspecified
         }
     }
 }

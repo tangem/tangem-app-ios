@@ -1,0 +1,126 @@
+{
+  "material": {
+    "border": {
+      "material-gradient": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "linear-gradient(135deg, {material.border.start} 0%, {material.border.mid} 50%, {material.border.end} 100%)"
+      },
+      "start": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.border.start}"
+      },
+      "mid": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.border.mid}"
+      },
+      "end": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.border.start}"
+      }
+    },
+    "color": {
+      "tint": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.tint.blur}"
+      },
+      "fill": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.fill.blur}"
+      },
+      "lighten": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.lighten.blur}"
+      },
+      "soft-light": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "color",
+        "$value": "{color.material.soft-light.blur}"
+      }
+    },
+    "shadow": {
+      "$type": "boxShadow",
+      "$value": "{shadow.button}"
+    },
+    "blur": {
+      "$extensions": {
+        "com.figma.hiddenFromPublishing": true
+      },
+      "$type": "dimension",
+      "$value": "{blur.size.button}"
+    },
+    "glass": {
+      "angle": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "intensity": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "refraction": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "depth": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "dispersion": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "frost": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      },
+      "splay": {
+        "$extensions": {
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
+      }
+    }
+  }
+}
