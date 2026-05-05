@@ -23,6 +23,7 @@ extension SolanaTransactionHistoryTarget {
     }
 
     enum Request {
+        case getTokenAccountsByOwner(owner: String, mint: String)
         case getSignaturesForAddress(address: String, limit: Int, before: String?)
         case getTransaction(signature: String)
 
@@ -30,6 +31,8 @@ extension SolanaTransactionHistoryTarget {
 
         var method: String {
             switch self {
+            case .getTokenAccountsByOwner:
+                return "getTokenAccountsByOwner"
             case .getSignaturesForAddress:
                 return "getSignaturesForAddress"
             case .getTransaction:
@@ -39,6 +42,12 @@ extension SolanaTransactionHistoryTarget {
 
         var params: (any Encodable)? {
             switch self {
+            case .getTokenAccountsByOwner(let owner, let mint):
+                return [
+                    AnyEncodable(owner),
+                    AnyEncodable(GetTokenAccountsFilter(mint: mint)),
+                    AnyEncodable(JsonParsedEncodingConfig()),
+                ]
             case .getSignaturesForAddress(let address, let limit, let before):
                 return [
                     AnyEncodable(address),
@@ -84,7 +93,16 @@ extension SolanaTransactionHistoryTarget: TargetType {
 }
 
 extension SolanaTransactionHistoryTarget {
+    private struct GetTokenAccountsFilter: Encodable {
+        let mint: String
+    }
+
+    private struct JsonParsedEncodingConfig: Encodable {
+        let encoding: String = "jsonParsed"
+    }
+
     private struct GetSignaturesConfig: Encodable {
+        let commitment: String = "finalized"
         let limit: Int
         let before: String?
     }
