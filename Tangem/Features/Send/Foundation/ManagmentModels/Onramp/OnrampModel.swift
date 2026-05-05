@@ -45,6 +45,7 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
+    private var applePayTask: Task<Void, Never>?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -353,6 +354,24 @@ private extension OnrampModel {
         }
     }
 
+    /// Runs work on a dedicated task ivar so timer-driven `mainTask` cancellations
+    /// cannot abort an in-flight Apple Pay authorization. PassKit must always hear
+    /// back from the resultHandler — call sites still take responsibility for that.
+    func applePayTask(code: @escaping (OnrampModel) async throws -> Void) {
+        applePayTask?.cancel()
+        applePayTask = runTask(in: self) { model in
+            do {
+                try await code(model)
+            } catch _ as CancellationError {
+                // Do nothing
+            } catch {
+                await runOnMain {
+                    model.alertPresenter?.showAlert(error.alertBinder)
+                }
+            }
+        }
+    }
+
     func autoupdate() {
         mainTask {
             $0.log("Call autoupdate")
@@ -558,10 +577,10 @@ extension OnrampModel: OnrampSummaryOutput {
     ) {
         _selectedOnrampProvider.send(.success(provider))
 
-        mainTask { model in
+        applePayTask { model in
             do {
                 let appLanguageCode = Locale.appLanguageCode
-                var redirectURL = URL(string: "\(IncomingActionConstants.tangemDomain)/onramp")!
+                var redirectURL = URL(string: IncomingActionConstants.onrampRedirectURL)!
                 redirectURL.appendPathComponent(provider.provider.id)
 
                 let redirectSettings = OnrampRedirectSettings(
@@ -581,8 +600,10 @@ extension OnrampModel: OnrampSummaryOutput {
                     resultHandler(.init(status: .success, errors: nil))
                     model.nativePaymentDataDidLoad(data: data)
                 case .widget(let data):
-                    resultHandler(.init(status: .failure, errors: []))
+                    // Schedule redirect navigation before telling PassKit; mirrors the
+                    // ordering enforced by `widgetFallbackOrdersRedirectBeforeFail`.
                     model.redirectDataDidLoad(data: data)
+                    resultHandler(.init(status: .failure, errors: []))
                 }
             } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
                 resultHandler(.init(status: .failure, errors: [error]))
@@ -590,7 +611,7 @@ extension OnrampModel: OnrampSummaryOutput {
                     model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
             } catch {
-                // PassKit must always hear back; surface the failure before letting `mainTask`
+                // PassKit must always hear back; surface the failure before letting `applePayTask`
                 // handle alert presentation / CancellationError swallowing.
                 resultHandler(.init(status: .failure, errors: [error]))
                 throw error
@@ -606,7 +627,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         let provider = result.provider
         _selectedOnrampProvider.send(.success(provider))
 
-        mainTask { model in
+        applePayTask { model in
             do {
                 let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
 
@@ -632,7 +653,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                     model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
             } catch {
-                // PassKit must always hear back; surface the failure before letting `mainTask`
+                // PassKit must always hear back; surface the failure before letting `applePayTask`
                 // handle alert presentation / CancellationError swallowing.
                 result.fail(error)
                 throw error
