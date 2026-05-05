@@ -65,6 +65,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
         switch phase {
         case .willAuthorize:
             onWillBuy()
+            authorizationHandler?.applePaySheetWillPresent()
 
         case .didAuthorize(let payment, let resultHandler):
             let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
@@ -80,7 +81,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
             authorizationHandler.handleApplePayAuthorization(authorization)
 
         case .didFinish:
-            break
+            authorizationHandler?.applePaySheetDidFinish()
 
         @unknown default:
             break
