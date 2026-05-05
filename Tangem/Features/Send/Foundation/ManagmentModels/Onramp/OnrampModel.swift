@@ -546,6 +546,14 @@ extension OnrampModel: OnrampSummaryOutput {
 // MARK: - ApplePayButtonPaymentAuthorizationHandler
 
 extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
+    func applePaySheetWillPresent() {
+        autoupdatingTimer.pauseTimer()
+    }
+
+    func applePaySheetDidFinish() {
+        autoupdatingTimer.resumeTimer()
+    }
+
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
         let provider = result.provider
         _selectedOnrampProvider.send(.success(provider))
