@@ -12,6 +12,7 @@ enum Feature: String, Hashable, CaseIterable {
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
     case redesign
+    case redesignTokenDetails
     case exchangeOnlyWithinSingleAddress
     case experimentService
     case walletConnectBitcoin
@@ -34,6 +35,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
         case .redesign: return "Redesign"
+        case .redesignTokenDetails: return "Redesign token details"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
@@ -58,6 +60,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
         case .redesign: return .unspecified
+        case .redesignTokenDetails: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .walletConnectBitcoin: return .unspecified
