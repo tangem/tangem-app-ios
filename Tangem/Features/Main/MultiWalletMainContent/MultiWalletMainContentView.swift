@@ -60,7 +60,7 @@ struct MultiWalletMainContentView: View {
 
             if viewModel.isOrganizeTokensVisible {
                 FixedSizeButtonWithLeadingIcon(
-                    title: Localization.organizeTokensTitle,
+                    title: viewModel.organizeTokensButtonTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
                     style: .default,
                     action: viewModel.onOpenOrganizeTokensButtonTap
