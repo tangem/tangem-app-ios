@@ -215,6 +215,10 @@ final class TangemPayManager: TangemPayAccountModel {
                 customerInfo: customerInfo,
                 productInstance: productInstance
             )
+            customerInfoCacheStorage.saveCachedCustomerInfo(
+                customerInfo,
+                customerWalletId: customerWalletId
+            )
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
