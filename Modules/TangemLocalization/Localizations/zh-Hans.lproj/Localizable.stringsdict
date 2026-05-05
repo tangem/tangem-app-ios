@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li device</string>
         <key>other</key>
-        <string>%li devices</string>
+        <string>%li设备</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -28,10 +26,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>day</string>
         <key>other</key>
-        <string>days</string>
+        <string>天</string>
       </dict>
     </dict>
     <key>common_days_time_ago</key>
@@ -44,10 +40,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li day ago</string>
         <key>other</key>
-        <string>%li days ago</string>
+        <string>%li天之前</string>
       </dict>
     </dict>
     <key>common_hours</key>
@@ -76,10 +70,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%lih ago</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>小时之前</string>
       </dict>
     </dict>
     <key>common_minutes_time_ago</key>
@@ -92,10 +84,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li minute ago</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>分钟之前</string>
       </dict>
     </dict>
     <key>common_networks_count</key>
@@ -108,10 +98,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li network</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li网络</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -124,26 +112,22 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li gettone</string>
         <key>other</key>
-        <string>%li gettoni</string>
+        <string>%li代币</string>
       </dict>
     </dict>
     <key>manage_tokens_number_of_wallets_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%li of %#@total_wallets@</string>
+      <string>%li 的 %#@total_wallets@</string>
       <key>total_wallets</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li wallet</string>
         <key>other</key>
-        <string>%li wallets</string>
+        <string>钱包</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -156,10 +140,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li exchange</string>
         <key>other</key>
-        <string>%li exchanges</string>
+        <string>交易所</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -172,10 +154,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Based on %li rating</string>
         <key>other</key>
-        <string>Based on %li ratings</string>
+        <string>基于%li排名</string>
       </dict>
     </dict>
     <key>news_published_hours_ago</key>
@@ -188,10 +168,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%lih ago</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>小时之前</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -204,10 +182,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li minute ago</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>分钟之前</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -220,26 +196,22 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li item</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li条目</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@nfts_count@ in %#@collections_count@</string>
+      <string>%#@nfts_count@ 在 %#@collections_count@</string>
       <key>collections_count</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li collection</string>
         <key>other</key>
-        <string>%li collections</string>
+        <string>%li收藏集</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -247,10 +219,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li NFT</string>
         <key>other</key>
-        <string>%li NFTs</string>
+        <string>%liNFT</string>
       </dict>
     </dict>
     <key>onboarding_address_sync_description</key>
@@ -263,10 +233,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>您的钱包包含%li种代币，要继续，请同步您的地址。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -279,10 +247,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string></string>
         <key>other</key>
-        <string>Write these %li words down in the order given below and store them in a safe and secret place.</string>
+        <string>空</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -295,10 +261,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string></string>
         <key>other</key>
-        <string>%li words</string>
+        <string>空</string>
       </dict>
     </dict>
     <key>onramp_providers_count</key>
@@ -311,10 +275,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li provider</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>提供者</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -327,10 +289,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>up to %li day</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>至多%li天</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -343,10 +303,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>for %li wallet</string>
         <key>other</key>
-        <string>for %li wallets</string>
+        <string>为%li个钱包</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -359,10 +317,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li wallet</string>
         <key>other</key>
-        <string>%li wallets</string>
+        <string>%li钱包</string>
       </dict>
     </dict>
     <key>send_network_selection_hidden_tokens</key>
@@ -375,10 +331,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li token isn't compatible with this address</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>此地址与代币不兼容</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -391,10 +345,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>available for %li day</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>可用%li天</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -407,10 +359,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Use your card or ring to get an address for %li network</string>
         <key>other</key>
-        <string>Use your card or ring to get an addresses for %li networks</string>
+        <string>使用您的卡片或指环获取%li网络地址</string>
       </dict>
     </dict>
   </dict>
