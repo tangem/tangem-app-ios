@@ -71,7 +71,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
-    private let tokenRouter: SingleTokenRoutable
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -94,7 +93,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
-        self.tokenRouter = tokenRouter
 
         super.init(
             userWalletInfo: userWalletInfo,
@@ -394,8 +392,7 @@ private extension TokenDetailsViewModel {
                     quickTopUpBannerViewModel = QuickTopUpBannerViewModel(
                         walletModel: walletModel,
                         onOpenOnramp: { [weak self] parameters in
-                            guard let self else { return }
-                            tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+                            self?.openOnramp(parameters: parameters)
                         }
                     )
                 } else if !availabilityProvider.isBuyAvailable {

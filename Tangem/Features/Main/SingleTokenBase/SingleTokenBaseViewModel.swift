@@ -555,6 +555,10 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openOnramp(walletModel: walletModel)
     }
 
+    final func openOnramp(parameters: PredefinedOnrampParameters) {
+        tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+    }
+
     private func openSend() {
         if let sendUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.sendAvailability) {
             alert = sendUnavailableAlert
