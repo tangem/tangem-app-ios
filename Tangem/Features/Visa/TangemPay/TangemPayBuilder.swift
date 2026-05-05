@@ -84,6 +84,7 @@ final class TangemPayBuilder {
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
+            customerInfoCacheStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
