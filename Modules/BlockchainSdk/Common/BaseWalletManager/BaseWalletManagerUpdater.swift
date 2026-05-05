@@ -45,7 +45,21 @@ public protocol MultiAddressesWalletManagerUpdater: AnyObject {
 // MARK: - XPUBWalletManagerUpdater
 
 public protocol XPUBWalletManagerUpdater {
-    func updateWalletManager(xpub: String) async throws
+    func updateWalletManager(xpub: UTXOXpubScriptType) async throws
+}
+
+// MARK: - XPUBWalletManagerUpdater + MultipleXPUBWalletManagerUpdater
+
+public extension XPUBWalletManagerUpdater where Self: MultipleXPUBWalletManagerUpdater {
+    func updateWalletManager(xpub: UTXOXpubScriptType) async throws {
+        try await updateWalletManager(xpubs: [xpub])
+    }
+}
+
+// MARK: - MultipleXPUBWalletManagerUpdater
+
+public protocol MultipleXPUBWalletManagerUpdater: AnyObject {
+    func updateWalletManager(xpubs: [UTXOXpubScriptType]) async throws
 }
 
 public enum WalletManagerUpdaterError: LocalizedError {
