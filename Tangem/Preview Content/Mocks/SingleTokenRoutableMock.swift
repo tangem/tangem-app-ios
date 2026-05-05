@@ -33,8 +33,6 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
 
     func openInSafari(url: URL) {}
 
-    func openOnramp(walletModel: any WalletModel) {}
-
     func openOnramp(walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {}
 
     func openPendingExpressTransactionDetails(pendingTransaction: PendingTransaction, tokenItem: TokenItem, pendingTransactionsManager: any PendingExpressTransactionsManager) {}

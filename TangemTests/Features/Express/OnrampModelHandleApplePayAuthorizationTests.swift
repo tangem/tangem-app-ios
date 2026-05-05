@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import PassKit
 import Testing
+import TangemFoundation
 @testable import Tangem
 @testable import TangemExpress
 @testable import BlockchainSdk
@@ -91,8 +92,8 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     }
 
     @Test("KYC required → result.fail(error) once and KYC sheet opened on router")
-    func kycRequiredOpensSheet() async throws {
-        let kycError = try StubFixtures.makeKYCRequiredError()
+    func kycRequiredOpensSheet() async {
+        let kycError = StubFixtures.makeKYCRequiredError()
         let manager = StubOnrampManager(mode: .throwsError(kycError))
         let router = StubOnrampModelRoutable()
         let model = makeModel(onrampManager: manager)
@@ -102,17 +103,14 @@ final class OnrampModelHandleApplePayAuthorizationTests {
 
         #expect(outcome.callCount == 1)
         #expect(outcome.lastStatus == .failure)
-        // PassKit bridges Error → NSError, so the Swift type of `ExpressAPIError`
-        // is not directly recoverable; presence of one error + router invocation
-        // proves the KYC catch matched.
         #expect(outcome.lastErrors.count == 1)
         #expect(router.openKYCCallCount == 1)
         #expect(router.lastKYCURL == nil)
     }
 
     @Test("userDidAuthorizeNativePayment KYC required → resultHandler.fail(error) and KYC sheet opened")
-    func userDidAuthorizeNativePaymentKYCRequiredOpensSheet() async throws {
-        let kycError = try StubFixtures.makeKYCRequiredError()
+    func userDidAuthorizeNativePaymentKYCRequiredOpensSheet() async {
+        let kycError = StubFixtures.makeKYCRequiredError()
         let manager = StubOnrampManager(mode: .throwsError(kycError))
         let router = StubOnrampModelRoutable()
         let model = makeModel(onrampManager: manager)
@@ -134,6 +132,27 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(outcome.lastErrors.count == 1)
         #expect(router.openKYCCallCount == 1)
         #expect(router.lastKYCURL == nil)
+    }
+
+    /// Mirror of `widgetFallbackOrdersRedirectBeforeFail` for the
+    /// `userDidAuthorizeNativePayment` path: redirect navigation must be queued
+    /// before PassKit is told the payment failed.
+    @Test("userDidAuthorizeNativePayment widget fallback orders redirect before resultHandler")
+    func userDidAuthorizeNativePaymentWidgetOrdersRedirectBeforeFail() async {
+        let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
+        let model = makeModel(onrampManager: manager)
+        let recorder = ResultHandlerRecorder(eventLog: eventLog)
+
+        await withCheckedContinuation { continuation in
+            recorder.onFirstCall = { continuation.resume() }
+            model.userDidAuthorizeNativePayment(
+                provider: OnrampTestFixtures.makeProvider(),
+                applePayResult: StubFixtures.makeApplePayResult(),
+                resultHandler: { recorder.record($0) }
+            )
+        }
+
+        #expect(eventLog.events == [.transactionDidSend, .resultHandler])
     }
 
     // MARK: - Helpers
@@ -198,64 +217,66 @@ private enum RecordedEvent: Equatable {
     case resultHandler
 }
 
-private final class EventLog: @unchecked Sendable {
-    private let lock = NSLock()
-    private var _events: [RecordedEvent] = []
+private final class EventLog: Sendable {
+    private let state = OSAllocatedUnfairLock<[RecordedEvent]>(initialState: [])
 
     func append(_ event: RecordedEvent) {
-        lock.lock()
-        _events.append(event)
-        lock.unlock()
+        state.withLock { $0.append(event) }
     }
 
     var events: [RecordedEvent] {
-        lock.lock()
-        defer { lock.unlock() }
-        return _events
+        state.withLock { $0 }
     }
 }
 
 // MARK: - ResultHandlerRecorder
 
-private final class ResultHandlerRecorder: @unchecked Sendable {
-    private let lock = NSLock()
+private struct ResultOutcome {
+    let callCount: Int
+    let lastStatus: PKPaymentAuthorizationStatus?
+    let lastErrors: [Error]
+}
+
+private final class ResultHandlerRecorder: Sendable {
+    private struct State {
+        var callCount: Int = 0
+        var lastStatus: PKPaymentAuthorizationStatus?
+        var lastErrors: [Error] = []
+        var onFirstCall: (() -> Void)?
+    }
+
+    private let state = OSAllocatedUnfairLock<State>(initialState: State())
     private let eventLog: EventLog
-    private var _callCount: Int = 0
-    private var _lastStatus: PKPaymentAuthorizationStatus?
-    private var _lastErrors: [Error] = []
-    var onFirstCall: (() -> Void)?
 
     init(eventLog: EventLog) {
         self.eventLog = eventLog
     }
 
+    var onFirstCall: (() -> Void)? {
+        get { state.withLock { $0.onFirstCall } }
+        set { state.withLock { $0.onFirstCall = newValue } }
+    }
+
     func record(_ result: PKPaymentAuthorizationResult) {
         eventLog.append(.resultHandler)
-        lock.lock()
-        _callCount += 1
-        _lastStatus = result.status
-        _lastErrors = result.errors
-        let isFirst = _callCount == 1
-        let onFirst = onFirstCall
-        lock.unlock()
-        if isFirst { onFirst?() }
+        let onFirst: (() -> Void)? = state.withLock { state in
+            state.callCount += 1
+            state.lastStatus = result.status
+            state.lastErrors = result.errors
+            return state.callCount == 1 ? state.onFirstCall : nil
+        }
+        onFirst?()
     }
 
     var snapshot: ResultOutcome {
-        lock.lock()
-        defer { lock.unlock() }
-        return ResultOutcome(
-            callCount: _callCount,
-            lastStatus: _lastStatus,
-            lastErrors: _lastErrors
-        )
+        state.withLock { state in
+            ResultOutcome(
+                callCount: state.callCount,
+                lastStatus: state.lastStatus,
+                lastErrors: state.lastErrors
+            )
+        }
     }
-}
-
-private struct ResultOutcome {
-    let callCount: Int
-    let lastStatus: PKPaymentAuthorizationStatus?
-    let lastErrors: [Error]
 }
 
 // MARK: - StubOnrampManager
@@ -341,20 +362,21 @@ private final class StubOnrampPendingTransactionRepository: OnrampPendingTransac
     func hideSwapTransaction(with id: String) {}
 }
 
-private final class StubOnrampModelRoutable: OnrampModelRoutable, @unchecked Sendable {
-    private let lock = NSLock()
-    private var _openKYCCallCount = 0
-    private var _lastKYCURL: URL?
-    var onOpenKYC: (() -> Void)?
-
-    var openKYCCallCount: Int {
-        lock.lock(); defer { lock.unlock() }
-        return _openKYCCallCount
+private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
+    private struct State {
+        var openKYCCallCount: Int = 0
+        var lastKYCURL: URL?
+        var onOpenKYC: (() -> Void)?
     }
 
-    var lastKYCURL: URL? {
-        lock.lock(); defer { lock.unlock() }
-        return _lastKYCURL
+    private let state = OSAllocatedUnfairLock<State>(initialState: State())
+
+    var openKYCCallCount: Int { state.withLock { $0.openKYCCallCount } }
+    var lastKYCURL: URL? { state.withLock { $0.lastKYCURL } }
+
+    var onOpenKYC: (() -> Void)? {
+        get { state.withLock { $0.onOpenKYC } }
+        set { state.withLock { $0.onOpenKYC = newValue } }
     }
 
     func openOnrampCountryBottomSheet(country: OnrampCountry) {}
@@ -364,11 +386,11 @@ private final class StubOnrampModelRoutable: OnrampModelRoutable, @unchecked Sen
     func openFinishStep() {}
 
     func openOnrampKYCVerification(provider: OnrampProvider, kycURL: URL?) {
-        lock.lock()
-        _openKYCCallCount += 1
-        _lastKYCURL = kycURL
-        let callback = onOpenKYC
-        lock.unlock()
+        let callback: (() -> Void)? = state.withLock { state in
+            state.openKYCCallCount += 1
+            state.lastKYCURL = kycURL
+            return state.onOpenKYC
+        }
         callback?()
     }
 }
@@ -442,10 +464,11 @@ private enum StubFixtures {
         )
     }
 
-    static func makeKYCRequiredError() throws -> ExpressAPIError {
-        // ExpressAPIError has no public memberwise init; decode from JSON instead.
-        let json = #"{"code": 2600, "description": "kyc required"}"#
-        let data = Data(json.utf8)
-        return try JSONDecoder().decode(ExpressAPIError.self, from: data)
+    static func makeKYCRequiredError() -> ExpressAPIError {
+        ExpressAPIError(
+            code: ExpressAPIError.Code.onrampKYCRequired.rawValue,
+            description: "kyc required",
+            value: nil
+        )
     }
 }

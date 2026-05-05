@@ -21,7 +21,6 @@ protocol SingleTokenRoutable {
     func openExplorer(at url: URL, for walletModel: any WalletModel)
     func openMarketsTokenDetails(for tokenItem: TokenItem)
     func openInSafari(url: URL)
-    func openOnramp(walletModel: any WalletModel)
     func openOnramp(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
@@ -29,6 +28,12 @@ protocol SingleTokenRoutable {
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
     func openYieldModule(walletModel: any WalletModel)
+}
+
+extension SingleTokenRoutable {
+    func openOnramp(walletModel: any WalletModel) {
+        openOnramp(walletModel: walletModel, parameters: .none)
+    }
 }
 
 final class SingleTokenRouter: SingleTokenRoutable {
@@ -48,11 +53,6 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openReceive(walletModel: any WalletModel) {
         coordinator?.openReceiveScreen(walletModel: walletModel)
-    }
-
-    func openOnramp(walletModel: any WalletModel) {
-        let input = makeSendInput(for: walletModel)
-        coordinator?.openOnramp(input: input, parameters: .none)
     }
 
     func openOnramp(walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
