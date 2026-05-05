@@ -44,6 +44,22 @@
         <string>%li日前</string>
       </dict>
     </dict>
+    <key>common_hours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li hour</string>
+        <key>other</key>
+        <string>%li hours</string>
+      </dict>
+    </dict>
     <key>common_hours_time_ago</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
