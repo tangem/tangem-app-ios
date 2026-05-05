@@ -109,7 +109,7 @@ final class DetailsViewModel: ObservableObject {
 
 private extension DetailsViewModel {
     func selectSupport() {
-        Analytics.log(.requestSupport, params: [.source: .settings])
+        Analytics.log(.requestSupport, params: [.source: .settings], analyticsSystems: .all)
         var visaUserWalletModels = [UserWalletModel]()
         var tangemUserWalletModels = [UserWalletModel]()
         userWalletRepository.models.forEach {
@@ -161,7 +161,7 @@ private extension DetailsViewModel {
         let data = models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
-                walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
+                walletModels: AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
             )
         }
 
@@ -190,8 +190,9 @@ private extension DetailsViewModel {
         coordinator?.openShop()
     }
 
-    func openGetTangemPay() {
-        coordinator?.openGetTangemPay()
+    func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
+        coordinator?.openGetTangemPay(availableSelection: availableSelection)
+        Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
     }
 
     func openSupportChat() {
@@ -204,7 +205,7 @@ private extension DetailsViewModel {
         let data = userWalletRepository.models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
-                walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0)
+                walletModels: AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager)
             )
         }
 
@@ -276,12 +277,13 @@ private extension DetailsViewModel {
             }
             .store(in: &bag)
 
-        tangemPayAvailabilityRepository.isGetTangemPayFeatureAvailable
+        tangemPayAvailabilityRepository
+            .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, isAvailable in
+            .sink { viewModel, availableSelection in
                 viewModel.setupGetSectionViewModels(
-                    shouldShowGetTangemPay: isAvailable
+                    availableSelection: availableSelection
                 )
             }
             .store(in: &bag)
@@ -291,11 +293,13 @@ private extension DetailsViewModel {
 
     func bindWalletRowsReorder() {
         $userWalletRows
-            .removeDuplicates { $0.map(\.id) == $1.map(\.id) }
-            .dropFirst()
+            .map { $0.map(\.userWalletId) }
+            .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in Set(previous) == Set(current) }
+            .map(\.1)
             .withWeakCaptureOf(self)
-            .sink { viewModel, newRows in
-                let orderedIds = newRows.map(\.userWalletId)
+            .sink { viewModel, orderedIds in
                 viewModel.userWalletRepository.reorder(orderedUserWalletIds: orderedIds)
                 Analytics.log(.settingsLongtapWalletsOrder)
             }
@@ -355,7 +359,7 @@ private extension DetailsViewModel {
         return AddListItemButton.ViewData(text: title, state: state)
     }
 
-    func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
+    func setupGetSectionViewModels(availableSelection: TangemPayWalletSelectionType? = nil) {
         var models = [
             DefaultRowViewModel(
                 title: Localization.detailsBuyWallet,
@@ -363,11 +367,13 @@ private extension DetailsViewModel {
             ),
         ]
 
-        if shouldShowGetTangemPay {
+        if let availableSelection {
             models.append(
                 DefaultRowViewModel(
                     title: Localization.tangempayGetTangemPay,
-                    action: weakify(self, forFunction: DetailsViewModel.openGetTangemPay)
+                    action: { [weak self] in
+                        self?.openGetTangemPay(availableSelection: availableSelection)
+                    }
                 )
             )
         }

@@ -25,7 +25,7 @@ final class MainQRScanViewModel: ObservableObject {
 
     init(coordinator: MainQRScanRoutable) {
         self.coordinator = coordinator
-        hintText = "Scan QR code to send funds or connect to an app"
+        hintText = Localization.mainQrScanHint
     }
 
     // MARK: - Actions
@@ -34,8 +34,15 @@ final class MainQRScanViewModel: ObservableObject {
         checkCameraAccess()
     }
 
+    func resetForNextScan() {
+        didProduceResult = false
+    }
+
     func onQRCodeScanned(_ code: String) {
-        guard !didProduceResult else { return }
+        guard !didProduceResult else {
+            return
+        }
+
         didProduceResult = true
         coordinator?.didScanQRCode(code)
     }
@@ -51,30 +58,26 @@ final class MainQRScanViewModel: ObservableObject {
         coordinator?.didScanQRCode(string)
     }
 
+    func onScannerFailure() {
+        MainQRScanLogger.warning(MainQRScanLoggerStrings.scannerSessionFailed)
+        turnOffFlashIfNeeded()
+        presentAccessDeniedAlert()
+    }
+
     func onCloseTapped() {
         coordinator?.closeQRScanner()
     }
 
     func toggleFlash() {
-        guard
-            let camera = AVCaptureDevice.default(for: .video),
-            camera.hasTorch
-        else {
+        setFlashState(isActive: !isFlashActive)
+    }
+
+    func turnOffFlashIfNeeded() {
+        guard isFlashActive else {
             return
         }
 
-        do {
-            try camera.lockForConfiguration()
-
-            withAnimation(nil) {
-                isFlashActive = !camera.isTorchActive
-            }
-
-            camera.torchMode = camera.isTorchActive ? .off : .on
-            camera.unlockForConfiguration()
-        } catch {
-            AppLogger.error("Failed to toggle the flash", error: error)
-        }
+        setFlashState(isActive: false)
     }
 
     func openGallery() {
@@ -82,15 +85,14 @@ final class MainQRScanViewModel: ObservableObject {
     }
 
     func didSelectImage(_ image: UIImage?) {
-        guard
-            let image,
-            let code = scanQRCode(from: image)
-        else {
-            return
-        }
+        guard let image else { return }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.onQRCodeScanned(code)
+        Task.detached(priority: .userInitiated) { [weak self] in
+            guard let code = self?.scanQRCode(from: image), let self else { return }
+
+            await MainActor.run {
+                self.onQRCodeScanned(code)
+            }
         }
     }
 
@@ -136,7 +138,7 @@ final class MainQRScanViewModel: ObservableObject {
         )
     }
 
-    private func scanQRCode(from image: UIImage) -> String? {
+    private nonisolated func scanQRCode(from image: UIImage) -> String? {
         let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
         guard
             let ciImage = CIImage(image: image),
@@ -151,6 +153,35 @@ final class MainQRScanViewModel: ObservableObject {
             .compactMap { $0 as? CIQRCodeFeature }
             .first?
             .messageString
+    }
+
+    private func setFlashState(isActive: Bool) {
+        guard
+            let camera = AVCaptureDevice.default(for: .video),
+            camera.hasTorch
+        else {
+            withAnimation(nil) {
+                isFlashActive = false
+            }
+
+            return
+        }
+
+        do {
+            try camera.lockForConfiguration()
+            defer { camera.unlockForConfiguration() }
+
+            camera.torchMode = isActive ? .on : .off
+
+            withAnimation(nil) {
+                isFlashActive = camera.isTorchActive
+            }
+        } catch {
+            withAnimation(nil) {
+                isFlashActive = false
+            }
+            assertionFailure("Failed to configure camera torch: \(error)")
+        }
     }
 }
 

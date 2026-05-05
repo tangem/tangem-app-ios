@@ -19,7 +19,6 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
     private var selectedAccount: (any CryptoAccountModel)?
 
     private let connectionRequestViewModel: WalletConnectDAppConnectionRequestViewModel
-    private lazy var walletSelectorViewModel: WalletConnectWalletSelectorViewModel = makeWalletSelectorViewModel()
     private lazy var networksSelectorViewModel: WalletConnectNetworksSelectorViewModel = makeNetworksSelectorViewModel()
     private lazy var accountSelectorViewModel: AccountSelectorViewModel = makeAccountSelectorViewModel()
 
@@ -81,11 +80,7 @@ final class WalletConnectDAppConnectionViewModel: ObservableObject {
 
 extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRoutable {
     func openConnectionRequest() {
-        if FeatureProvider.isAvailable(.accounts) {
-            connectionRequestViewModel.updateSelectedAccount(selectedAccount, selectedUserWallet: selectedUserWallet)
-        } else {
-            connectionRequestViewModel.updateSelectedUserWallet(selectedUserWallet)
-        }
+        connectionRequestViewModel.updateSelectedAccount(selectedAccount, selectedUserWallet: selectedUserWallet)
 
         state = .connectionRequest(connectionRequestViewModel)
     }
@@ -125,11 +120,6 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
             .store(in: &bag)
 
         state = .verifiedDomain(viewModel)
-    }
-
-    func openWalletSelector() {
-        walletSelectorViewModel.updateSelectedUserWallet(selectedUserWallet)
-        state = .walletSelector(walletSelectorViewModel)
     }
 
     func openNetworksSelector(_ blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult) {
@@ -191,33 +181,13 @@ extension WalletConnectDAppConnectionViewModel: WalletConnectDAppConnectionRouta
 // MARK: - Factory methods
 
 extension WalletConnectDAppConnectionViewModel {
-    private func makeWalletSelectorViewModel() -> WalletConnectWalletSelectorViewModel {
-        WalletConnectWalletSelectorViewModel(
-            userWallets: userWallets,
-            selectedUserWallet: selectedUserWallet,
-            hapticFeedbackGenerator: hapticFeedbackGenerator,
-            backAction: { [weak self] in
-                self?.openConnectionRequest()
-            },
-            userWalletSelectedAction: { [weak self] selectedUserWallet in
-                guard case .walletSelector = self?.state else { return }
-                self?.selectedUserWallet = selectedUserWallet
-                self?.openConnectionRequest()
-            }
-        )
-    }
-
     private func makeNetworksSelectorViewModel() -> WalletConnectNetworksSelectorViewModel {
         let viewModel = WalletConnectNetworksSelectorViewModel(
             backAction: { [weak self] in
                 self?.openConnectionRequest()
             },
             doneAction: { [weak self] selectedBlockchains in
-                if FeatureProvider.isAvailable(.accounts) {
-                    self?.connectionRequestViewModel.updateSelectedBlockchainsForAccount(selectedBlockchains)
-                } else {
-                    self?.connectionRequestViewModel.updateSelectedBlockchainsForWallet(selectedBlockchains)
-                }
+                self?.connectionRequestViewModel.updateSelectedBlockchainsForAccount(selectedBlockchains)
                 self?.openConnectionRequest()
             }
         )
@@ -252,7 +222,10 @@ extension WalletConnectDAppConnectionViewModel {
 
                     selectedUserWallet = userWallets.first {
                         $0.accountModelsManager.accountModels.contains {
-                            WCAccountFinder.firstAvailableCryptoAccountModel(from: $0).id == accountModel.domainModel.id
+                            guard let cryptoAccount = WCAccountFinder.firstAvailableCryptoAccountModel(from: $0) else {
+                                return false
+                            }
+                            return cryptoAccount.id == accountModel.domainModel.id
                         }
                     } ?? selectedUserWallet
                 }

@@ -12,7 +12,7 @@ class TransferSellFlowFactory: SendFlowBaseDependenciesFactory {
     let transferableToken: SendTransferableToken
     let sellParameters: PredefinedSellParameters
 
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .sell)
     lazy var sendModel = makeTransferModel(
         analyticsLogger: analyticsLogger,
         predefinedValues: mapToPredefinedValues(sellParameters: sellParameters)
@@ -154,7 +154,7 @@ extension TransferSellFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: transferableToken.tangemIconProvider
         )
     }
 }

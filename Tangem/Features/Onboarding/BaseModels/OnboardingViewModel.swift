@@ -233,7 +233,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
         var params = walletCreationType.params
         params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-        logAnalytics(event: .walletCreatedSuccessfully, params: params)
+        logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
 
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
@@ -384,12 +384,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         OnboardingUtils().processSaveUserWalletRequestResult(agreed: agreed)
     }
 
-    func logAnalytics(_ event: Analytics.Event, params: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]) {
-        Analytics.log(event, params: params, contextParams: getContextParams())
+    func logAnalytics(
+        _ event: Analytics.Event,
+        params: [Analytics.ParameterKey: Analytics.ParameterValue] = [:],
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems
+    ) {
+        Analytics.log(event, params: params, analyticsSystems: analyticsSystems, contextParams: getContextParams())
     }
 
-    func logAnalytics(event: Analytics.Event, params: [Analytics.ParameterKey: String] = [:]) {
-        Analytics.log(event: event, params: params, contextParams: getContextParams())
+    func logAnalytics(
+        event: Analytics.Event,
+        params: [Analytics.ParameterKey: String] = [:],
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems
+    ) {
+        Analytics.log(event: event, params: params, analyticsSystems: analyticsSystems, contextParams: getContextParams())
     }
 
     func getContextParams() -> Analytics.ContextParams {
@@ -442,7 +450,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                     case .seedPhraseUserValidation:
                         logAnalytics(.onboardingSeedCheckingScreenOpened)
                     case .seedPhraseImport:
-                        logAnalytics(.onboardingSeedImportScreenOpened)
+                        logAnalytics(.onboardingSeedImportScreenOpened, analyticsSystems: .all)
                     default:
                         break
                     }
@@ -468,31 +476,14 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
-        if FeatureProvider.isAvailable(.accounts) {
-            makeAccountsAwareContext(for: userWalletModel)
-        } else {
-            makeLegacyContext(for: userWalletModel)
-        }
-    }
-
-    private func makeAccountsAwareContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
         guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
             return nil
         }
 
         // Working with accounts in onboarding is equivalent of working with main account
-        return AccountsAwareManageTokensContext(
+        return CommonManageTokensContext(
             accountModelsManager: userWalletModel.accountModelsManager,
             currentAccount: mainAccount
-        )
-    }
-
-    @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
-    private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
-        LegacyManageTokensContext(
-            // accounts_fixes_needed_none
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager
         )
     }
 }
@@ -522,7 +513,7 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
@@ -544,7 +535,7 @@ extension OnboardingViewModel {
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
-        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
         let dataCollector = DetailsFeedbackDataCollector(
             data: [

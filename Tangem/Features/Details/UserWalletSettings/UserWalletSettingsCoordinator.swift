@@ -47,11 +47,10 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    @Published private var pendingManageTokensContext: ManageTokensNavigationContext?
 
-    var noActiveCreateOrArchiveAccountFlows: Bool {
-        archivedAccountsCoordinator == nil && accountFormViewModel == nil && pendingManageTokensContext == nil
-    }
+    private let isPresentedSubject = CurrentValueSubject<Bool, Never>(false)
+    private var accountPendingNavigationSteps: [AccountPendingNavigationStep] = []
+    private var accountPendingNavigationStepsProcessingSubscription: AnyCancellable?
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -61,8 +60,39 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
+    deinit {
+        assert(
+            accountPendingNavigationSteps.isEmpty,
+            "There are pending navigation steps that were not processed. Update/fix the pending steps display mechanism"
+        )
+    }
+
     func start(with userWalletModel: InputOptions) {
         rootViewModel = UserWalletSettingsViewModel(userWalletModel: userWalletModel, coordinator: self)
+        bind()
+    }
+
+    func onViewAppear() {
+        isPresentedSubject.send(true)
+    }
+
+    func onViewDisappear() {
+        isPresentedSubject.send(false)
+    }
+
+    /// Unfortunately, we can't just observe `accountFormViewModel` to process pending navigation steps when
+    /// account form is dismissed, because it becomes `nil` earlier than actual dismissal happens.
+    /// Therefore this method should be called on every account form dismissal.
+    func onAccountFormDismiss() {
+        processAccountPendingNavigationSteps(isPresented: isPresentedSubject.value)
+    }
+
+    private func bind() {
+        accountPendingNavigationStepsProcessingSubscription = isPresentedSubject
+            .withWeakCaptureOf(self)
+            .sink { coordinator, isPresented in
+                coordinator.processAccountPendingNavigationSteps(isPresented: isPresented)
+            }
     }
 }
 
@@ -79,11 +109,7 @@ extension UserWalletSettingsCoordinator {
 
 // MARK: - UserWalletSettingsRoutable
 
-extension UserWalletSettingsCoordinator:
-    UserWalletSettingsRoutable,
-    TransactionNotificationsModalRoutable {
-    // MARK: UserWalletSettingsRoutable
-
+extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
         openOnboardingModal(options: options)
     }
@@ -108,6 +134,7 @@ extension UserWalletSettingsCoordinator:
         referralCoordinator = coordinator
     }
 
+    /// Implementation for `UserWalletSettingsRoutable` interface.
     func openManageTokens(
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
@@ -124,14 +151,6 @@ extension UserWalletSettingsCoordinator:
             analyticsSourceRawValue: Analytics.ParameterValue.walletSettings.rawValue
         ) { [weak self] _ in
             self?.manageTokensCoordinator = nil
-        }
-    }
-
-    func openTransactionNotifications() {
-        let transactionNotificationsModalViewModel = TransactionNotificationsModalViewModel(coordinator: self)
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: transactionNotificationsModalViewModel)
         }
     }
 
@@ -181,10 +200,6 @@ extension UserWalletSettingsCoordinator:
         hardwareBackupTypesCoordinator = coordinator
     }
 
-    func openMobileOnboarding(input: MobileOnboardingInput) {
-        openOnboardingModal(options: .mobileInput(input))
-    }
-
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel) {
         let viewModel = MobileRemoveWalletNotificationViewModel(userWalletModel: userWalletModel, coordinator: self)
 
@@ -195,10 +210,6 @@ extension UserWalletSettingsCoordinator:
 
     func openAppSettings() {
         UIApplication.openSystemSettings()
-    }
-
-    func openMain(userWalletModel: UserWalletModel) {
-        dismiss(with: .main(userWalletModel: userWalletModel))
     }
 
     @MainActor
@@ -217,16 +228,39 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    // MARK: TransactionNotificationsModalRoutable
+    /// Unfortunately, we can't just observe `rootViewModel.alert` to process pending navigation steps when alert is dismissed,
+    /// because it becomes `nil` earlier than actual alert dismissal happens. Therefore this method should be called on
+    /// every alert dismissal in the root view model.
+    func onAlertDismiss() {
+        processAccountPendingNavigationSteps(isPresented: isPresentedSubject.value)
+    }
+}
 
+// MARK: - TransactionNotificationsRowToggleRoutable
+
+extension UserWalletSettingsCoordinator: TransactionNotificationsRowToggleRoutable {
+    func openTransactionNotifications() {
+        let transactionNotificationsModalViewModel = TransactionNotificationsModalViewModel(coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: transactionNotificationsModalViewModel)
+        }
+    }
+}
+
+// MARK: - TransactionNotificationsModalRoutable
+
+extension UserWalletSettingsCoordinator: TransactionNotificationsModalRoutable {
     func dismissTransactionNotifications() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+}
 
-    // MARK: UserSettingsAccountsRoutable
+// MARK: - UserSettingsAccountsRoutable
 
+extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
     func addNewAccount(accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
         accountFormViewModel = AccountFormViewModel(
             accountModelsManager: accountModelsManager,
@@ -234,38 +268,30 @@ extension UserWalletSettingsCoordinator:
             // will vary
             flowType: .create(.crypto),
             closeAction: { [weak self] result, createdAccount in
-                self?.accountFormViewModel = nil
-                self?.rootViewModel?.handleAccountOperationResult(result)
-
-                if let createdAccount {
-                    self?.pendingManageTokensContext = ManageTokensNavigationContext(
-                        account: createdAccount,
-                        accountModelsManager: accountModelsManager,
-                        userWalletConfig: userWalletConfig
-                    )
+                guard let self else {
+                    return
                 }
+
+                rootViewModel?.accountsViewModel?.handleAccountOperationResult(result)
+                rootViewModel?.accountsViewModel?.handleCreatedAccount(createdAccount)
+                accountFormViewModel = nil
             }
         )
     }
 
-    func handleAccountFormDismissed() {
-        guard let pendingManageTokensContext else {
-            return
-        }
-
-        let manageTokensContext = AccountsAwareManageTokensContext(
-            accountModelsManager: pendingManageTokensContext.accountModelsManager,
-            currentAccount: pendingManageTokensContext.account
+    /// Implementation for `UserSettingsAccountsRoutable` interface.
+    func openManageTokens(
+        accountModelsManager: any AccountModelsManager,
+        cryptoAccountModel: any CryptoAccountModel,
+        userWalletConfig: UserWalletConfig
+    ) {
+        accountPendingNavigationSteps.append(
+            .manageTokens(
+                accountModelsManager: accountModelsManager,
+                cryptoAccountModel: cryptoAccountModel,
+                userWalletConfig: userWalletConfig
+            )
         )
-
-        openManageTokens(
-            context: manageTokensContext,
-            userWalletConfig: pendingManageTokensContext.userWalletConfig,
-            analyticsSourceRawValue: Analytics.ParameterValue.accountSourceNew.rawValue
-        ) { [weak self] _ in
-            self?.manageTokensCoordinator = nil
-            self?.pendingManageTokensContext = nil
-        }
     }
 
     func openAccountDetails(account: any BaseAccountModel, accountModelsManager: any AccountModelsManager, userWalletConfig: UserWalletConfig) {
@@ -290,8 +316,8 @@ extension UserWalletSettingsCoordinator:
     func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
         let coordinator = ArchivedAccountsCoordinator(
             dismissAction: { [weak self] result in
+                self?.rootViewModel?.accountsViewModel?.handleAccountOperationResult(result)
                 self?.archivedAccountsCoordinator = nil
-                self?.rootViewModel?.handleAccountOperationResult(result)
             },
             popToRootAction: popToRootAction
         )
@@ -303,6 +329,12 @@ extension UserWalletSettingsCoordinator:
 
     func handleAccountsLimitReached() {
         rootViewModel?.handleAccountsLimitReached()
+    }
+
+    func handleAccountsRedistribution(sourceAccountName: String, targetAccountName: String) {
+        accountPendingNavigationSteps.append(
+            .tokensRedistribution(sourceAccountName: sourceAccountName, targetAccountName: targetAccountName)
+        )
     }
 }
 
@@ -345,15 +377,54 @@ extension UserWalletSettingsCoordinator: MobileRemoveWalletDelegate {
     }
 }
 
-// MARK: - Pending Navigation
+// MARK: - Navigation helpers and convenience methods
 
 private extension UserWalletSettingsCoordinator {
-    struct ManageTokensNavigationContext {
-        let account: any CryptoAccountModel
-        let accountModelsManager: any AccountModelsManager
-        let userWalletConfig: UserWalletConfig
+    func processAccountPendingNavigationSteps(isPresented: Bool) {
+        func canProcessPendingStep() -> Bool {
+            // Any presented alert and/or accounts-related modal sheets (`accountFormViewModel`) or pushed screens
+            // (`archivedAccountsCoordinator`) might interfere with the pending navigation step handling
+            isPresented
+                && rootViewModel?.alert == nil
+                && accountFormViewModel == nil
+                && archivedAccountsCoordinator == nil
+        }
+
+        guard
+            accountPendingNavigationSteps.isNotEmpty,
+            canProcessPendingStep()
+        else {
+            return
+        }
+
+        defer {
+            accountPendingNavigationSteps.removeFirst()
+        }
+
+        let step = accountPendingNavigationSteps[0]
+
+        switch step {
+        case .tokensRedistribution(let sourceAccountName, let targetAccountName):
+            rootViewModel?.handleAccountsRedistribution(
+                sourceAccountName: sourceAccountName,
+                targetAccountName: targetAccountName
+            )
+        case .manageTokens(let accountModelsManager, let cryptoAccountModel, let userWalletConfig):
+            let manageTokensContext = CommonManageTokensContext(
+                accountModelsManager: accountModelsManager,
+                currentAccount: cryptoAccountModel
+            )
+            openManageTokens(
+                context: manageTokensContext,
+                userWalletConfig: userWalletConfig,
+                analyticsSourceRawValue: Analytics.ParameterValue.accountSourceNew.rawValue
+            ) { [weak self] _ in
+                self?.manageTokensCoordinator = nil
+            }
+        }
     }
 
+    /// Helper method for both legacy and accounts-aware environments.
     func openManageTokens(
         context: ManageTokensContext,
         userWalletConfig: UserWalletConfig,
@@ -375,11 +446,7 @@ private extension UserWalletSettingsCoordinator {
 
         manageTokensCoordinator = coordinator
     }
-}
 
-// MARK: - Navigation
-
-private extension UserWalletSettingsCoordinator {
     func openOnboardingModal(options: OnboardingCoordinator.Options, onSuccess: (() -> Void)? = nil) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.modalOnboardingCoordinator = nil
@@ -391,5 +458,27 @@ private extension UserWalletSettingsCoordinator {
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
+    }
+
+    func openMain(userWalletModel: UserWalletModel) {
+        dismiss(with: .main(userWalletModel: userWalletModel))
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension UserWalletSettingsCoordinator {
+    /// Represents optional navigation steps that could be performed after account creation/unarchiving.
+    enum AccountPendingNavigationStep {
+        case tokensRedistribution(
+            sourceAccountName: String,
+            targetAccountName: String
+        )
+
+        case manageTokens(
+            accountModelsManager: any AccountModelsManager,
+            cryptoAccountModel: any CryptoAccountModel,
+            userWalletConfig: UserWalletConfig
+        )
     }
 }

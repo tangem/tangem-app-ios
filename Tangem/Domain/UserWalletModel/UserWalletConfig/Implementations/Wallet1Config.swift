@@ -12,10 +12,12 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct Wallet1Config {
     let card: CardDTO
-    private let isDemo: Bool
+    let isDemo: Bool
 
     init(card: CardDTO, isDemo: Bool) {
         self.card = card
@@ -169,6 +171,26 @@ extension Wallet1Config: UserWalletConfig {
         }
     }
 
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        typealias CC = Color.Tangem.CardCollection
+
+        switch card.batchId {
+        // Shiba
+        case "AF02", "AF03":
+            switch cardsCount {
+            case 2: return .twoCards(.init(card: CC.shiba, secondCard: CC.shiba))
+            case 3: return .threeCards(.init(card: CC.shiba, secondCard: CC.shiba, thirdCard: CC.shiba))
+            default: return .card(.init(card: CC.shiba))
+            }
+        default:
+            switch cardsCount {
+            case 2: return .tLetterTwoCards(.init(card: CC.wallet1, secondCard: CC.wallet1, tLetter: CC.tLogo))
+            case 3: return .tLetterThreeCards(.init(card: CC.wallet1, secondCard: CC.wallet1, thirdCard: CC.wallet1, tLetter: CC.tLogo))
+            default: return .tLetterCard(.init(card: CC.wallet1, tLetter: CC.tLogo))
+            }
+        }
+    }
+
     var contextBuilder: WalletCreationContextBuilder {
         ["type": "card"]
     }
@@ -273,18 +295,12 @@ extension Wallet1Config: UserWalletConfig {
             return .available
         case .tangemPay:
             return card.settings.isHDWalletAllowed ? .available : .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        if isDemo {
-            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
-        }
-
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         if hasFeature(.hdWallets) {
             return GenericWalletManagerFactory()
         } else {

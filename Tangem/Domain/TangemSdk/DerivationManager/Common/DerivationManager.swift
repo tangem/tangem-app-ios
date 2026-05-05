@@ -10,8 +10,7 @@ import Foundation
 import Combine
 
 protocol DerivationManager: AnyObject {
-    var hasPendingDerivations: AnyPublisher<Bool, Never> { get }
-    var pendingDerivationsCount: AnyPublisher<Int, Never> { get }
+    var pendingDerivations: [PendingDerivation] { get }
 
     func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool
     func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void)

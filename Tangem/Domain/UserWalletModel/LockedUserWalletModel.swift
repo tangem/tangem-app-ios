@@ -23,9 +23,6 @@ final class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
-    var userTokensManager: UserTokensManager { _userTokensManager }
-    private let _userTokensManager = LockedUserTokensManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
     var config: UserWalletConfig
@@ -77,10 +74,6 @@ final class LockedUserWalletModel: UserWalletModel {
         userWallet.walletInfo.analyticsContextData
     }
 
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -88,10 +81,8 @@ final class LockedUserWalletModel: UserWalletModel {
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            remoteStatusSyncing: _userTokensManager,
-            derivationManager: nil
+            accountModelsManager: accountModelsManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
         )
     }
 
@@ -104,11 +95,7 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 
     var keysRepository: KeysRepository {
-        CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: .init(userWalletIdSeed: Data()),
-            keys: .cardWallet(keys: [])
-        )
+        CommonKeysRepository(keys: .cardWallet(keys: []))
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -160,15 +147,12 @@ final class LockedUserWalletModel: UserWalletModel {
             config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
             userWalletRepository.savePublicData()
             updatePrivateDataAfterIncompletedBackup(cardInfo: cardInfo)
-        case .newName:
-            break
-        case .accessCodeDidSet:
-            break
-        case .accessCodeDidSkip:
-            break
-        case .iCloudBackupCompleted:
-            break
-        case .mnemonicBackupCompleted:
+        case .updateSensitiveInfo,
+             .newName,
+             .accessCodeDidSet,
+             .accessCodeDidSkip,
+             .iCloudBackupCompleted,
+             .mnemonicBackupCompleted:
             break
         }
     }
@@ -275,7 +259,6 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
 
 extension LockedUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }
@@ -341,9 +324,10 @@ private extension LockedUserWalletModel {
 
         func authorize(
             customerWalletId: String,
-            authorizationService: TangemPay.TangemPayAuthorizationService
-        ) async throws -> TangemPayAuthorizingResponse {
-            throw "Locked wallet does not support Tangem Pay authorization using '\(#function)'"
+            authorizationService: TangemPay.TangemPayAuthorizationService,
+            pendingDerivations: [Data: [DerivationPath]]
+        ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
+            throw TangemPayAuthorizationError(underlyingError: "Locked wallet does not support Tangem Pay authorization", derivationResult: [:])
         }
     }
 }

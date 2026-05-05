@@ -18,7 +18,9 @@ enum LegacyStoredEntryConverter {
                 symbol: entry.symbol,
                 decimalCount: entry.decimalCount,
                 // By definition, all legacy tokens currently stored are known
-                blockchainNetwork: .known(blockchainNetwork: entry.blockchainNetwork),
+                blockchainNetwork: .known(
+                    blockchainNetwork: StoredEntryConverter.convertToStoredBlockchainNetwork(entry.blockchainNetwork)
+                ),
                 contractAddress: entry.contractAddress
             )
         }
@@ -28,8 +30,26 @@ enum LegacyStoredEntryConverter {
         legacyStoredTokenListToAppearance legacyStoredTokenList: StoredUserTokenList
     ) -> CryptoAccountPersistentConfig.TokenListAppearance {
         return CryptoAccountPersistentConfig.TokenListAppearance(
-            grouping: legacyStoredTokenList.grouping,
-            sorting: legacyStoredTokenList.sorting
+            grouping: convert(grouping: legacyStoredTokenList.grouping),
+            sorting: convert(sorting: legacyStoredTokenList.sorting)
         )
+    }
+
+    private static func convert(grouping: StoredUserTokenList.Grouping) -> StoredCryptoAccount.Grouping {
+        switch grouping {
+        case .none:
+            return .none
+        case .byBlockchainNetwork:
+            return .byBlockchainNetwork
+        }
+    }
+
+    private static func convert(sorting: StoredUserTokenList.Sorting) -> StoredCryptoAccount.Sorting {
+        switch sorting {
+        case .manual:
+            return .manual
+        case .byBalance:
+            return .byBalance
+        }
     }
 }

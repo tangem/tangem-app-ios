@@ -12,6 +12,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct VisaConfig: CardContainer {
     let card: CardDTO
@@ -80,6 +82,10 @@ extension VisaConfig: UserWalletConfig {
 
     var cardHeaderImage: ImageType? {
         Assets.Cards.visa
+    }
+
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .card(.init(card: Color.Tangem.CardCollection.visa))
     }
 
     var hasDefaultToken: Bool {
@@ -151,14 +157,12 @@ extension VisaConfig: UserWalletConfig {
             return .available
         case .tangemPay:
             return .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         return VisaWalletManagerFactory()
     }
 }

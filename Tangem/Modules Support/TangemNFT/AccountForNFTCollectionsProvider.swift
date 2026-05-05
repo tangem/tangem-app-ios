@@ -11,7 +11,6 @@ import Combine
 
 final class AccountForNFTCollectionsProvider {
     private let userWalletModel: UserWalletModel
-    // [REDACTED_TODO_COMMENT]
     private var cryptoAccounts: CryptoAccounts?
 
     /// Cached mapping:  address -> crypto account
@@ -47,8 +46,8 @@ final class AccountForNFTCollectionsProvider {
             let walletModels = account.walletModelsManager.walletModels
 
             for walletModel in walletModels {
-                for address in walletModel.addresses {
-                    map[address.value] = account
+                for address in walletModel.addressesString {
+                    map[address] = account
                 }
             }
         }
@@ -114,13 +113,8 @@ extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
     func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
         switch cryptoAccounts {
         case .none:
-            // Legacy mode w/o accounts support, wallets only
-            let navigationContext = NFTNavigationInput(
-                userWalletModel: userWalletModel,
-                name: userWalletModel.name,
-                walletModelsManager: userWalletModel.walletModelsManager
-            )
-            return .singleAccount(navigationContext)
+            assertionFailure("Accounts with collections requested before `cryptoAccounts` was set")
+            return .multipleAccounts([])
 
         case .single(let account):
             let navigationContext = NFTNavigationInput(
@@ -132,18 +126,8 @@ extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
 
         case .multiple(let accounts):
             // Build address lookup map if needed
-            if addressToAccountMap == nil {
-                addressToAccountMap = buildAddressToAccountMap(for: accounts)
-            }
-
-            guard let addressMap = addressToAccountMap else {
-                let navigationContext = NFTNavigationInput(
-                    userWalletModel: userWalletModel,
-                    name: userWalletModel.name,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-                return .singleAccount(navigationContext)
-            }
+            let addressMap = addressToAccountMap ?? buildAddressToAccountMap(for: accounts)
+            addressToAccountMap = addressMap
 
             // Group collections by their owner accounts
             let accountToCollections = groupCollectionsByAccount(

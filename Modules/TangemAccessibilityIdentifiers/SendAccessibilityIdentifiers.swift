@@ -81,4 +81,37 @@ public enum SendAccessibilityIdentifiers {
     public static let reduceFeeButton = "sendReduceFeeButton"
     public static let leaveAmountButton = "sendLeaveAmountButton"
     public static let fromWalletButton = "sendFromWalletButton"
+
+    /// Send via Swap
+    public static let convertToAnotherTokenButton = "sendConvertToAnotherTokenButton"
+    public static let receiveTokenBlock = "sendReceiveTokenBlock"
+    public static let receiveDecimalNumberTextField = "sendReceiveDecimalNumberTextField"
+    public static let removeConvertButton = "sendRemoveConvertButton"
+    public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
+    public static let networkSelectorErrorSubtitle = "sendNetworkSelectorErrorSubtitle"
+    public static let networkSelectorGotItButton = "sendNetworkSelectorGotItButton"
+
+    public static func receiveTokenListItem(name: String) -> String {
+        "sendReceiveTokenListItem_\(name)"
+    }
+
+    /// Swap Provider (compact view on summary)
+    public static let swapProviderBlock = "sendSwapProviderBlock"
+    public static let swapProviderName = "sendSwapProviderName"
+
+    /// Swap Provider Selector
+    public static let swapProviderBestRateBadge = "sendSwapProviderBestRateBadge"
+
+    public static func swapProviderSelectorRow(name: String) -> String {
+        "sendSwapProviderSelectorRow_\(name)"
+    }
+
+    /// Token search in receive token list
+    public static let receiveTokenSearchBar = "sendReceiveTokenSearchBar"
+
+    /// Send Finish Screen
+    public static let finishHeader = "sendFinishHeader"
+    public static let finishTransactionTime = "sendFinishTransactionTime"
+    public static let finishExploreButton = "sendFinishExploreButton"
+    public static let finishShareButton = "sendFinishShareButton"
 }

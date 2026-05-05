@@ -31,8 +31,7 @@ struct ExpressAPIProviderFactory {
         }()
 
         let apiKey = apiKey(expressAPIType: expressAPIType)
-        let publicKey = signVerifierPublicKey(expressAPIType: expressAPIType)
-        let exchangeDataDecoder = CommonExpressExchangeDataDecoder(publicKey: publicKey)
+        let exchangeDataDecoder = exchangeDataDecoder(expressAPIType: expressAPIType)
 
         let credentials = ExpressAPICredential(
             apiKey: apiKey,
@@ -53,7 +52,7 @@ struct ExpressAPIProviderFactory {
 private extension ExpressAPIProviderFactory {
     func apiKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
-        case .develop, .develop2, .develop3, .stage, .stage2, .mock:
+        case .develop, .develop2, .develop3, .stage, .stage2, .stage3, .mock:
             if let apiKey = keysManager.devExpressKeys?.apiKey {
                 return apiKey
             }
@@ -65,9 +64,19 @@ private extension ExpressAPIProviderFactory {
         }
     }
 
+    func exchangeDataDecoder(expressAPIType: ExpressAPIType) -> ExpressExchangeDataDecoder {
+        #if DEBUG
+        if expressAPIType == .mock {
+            return MockExpressExchangeDataDecoder()
+        }
+        #endif
+        let publicKey = signVerifierPublicKey(expressAPIType: expressAPIType)
+        return CommonExpressExchangeDataDecoder(publicKey: publicKey)
+    }
+
     func signVerifierPublicKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
-        case .develop, .develop2, .develop3, .stage, .stage2, .mock:
+        case .develop, .develop2, .develop3, .stage, .stage2, .stage3, .mock:
             if let publicKey = keysManager.devExpressKeys?.signVerifierPublicKey {
                 return publicKey
             }

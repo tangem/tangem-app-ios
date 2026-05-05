@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -22,6 +23,7 @@ struct PendingExpressTransactionView: View {
         } label: {
             content
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.pendingExpressTransaction)
     }
 
     private var content: some View {
@@ -52,7 +54,7 @@ struct PendingExpressTransactionView: View {
                         isWithOverlays: false
                     )
 
-                    Text(info.destinationAmountText)
+                    SensitiveText(info.destinationAmountText)
                         .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
                 }
             }

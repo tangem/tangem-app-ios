@@ -10,22 +10,16 @@ import Foundation
 
 extension AccountsDTO.Response {
     struct Accounts: Decodable {
-        // [REDACTED_TODO_COMMENT]
-        typealias GroupType = UserTokenList.GroupType
-
-        // [REDACTED_TODO_COMMENT]
-        typealias SortType = UserTokenList.SortType
-
         struct Wallet: Decodable {
             /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
             /// and the PUT request `/user-tokens` has not been sent yet.
             let version: Int?
             /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
             /// and the PUT request `/user-tokens` has not been sent yet.
-            let group: GroupType?
+            let group: AccountsDTO.GroupType?
             /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
             /// and the PUT request `/user-tokens` has not been sent yet.
-            let sort: SortType?
+            let sort: AccountsDTO.SortType?
             let totalAccounts: Int
             let totalArchivedAccounts: Int
         }
@@ -38,6 +32,7 @@ extension AccountsDTO.Response {
             let decimals: Int
             let derivationPath: String?
             let contractAddress: String?
+            let dynamicAddressesEnabled: Bool?
         }
 
         struct Account: Decodable {

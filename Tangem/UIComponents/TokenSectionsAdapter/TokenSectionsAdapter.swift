@@ -46,15 +46,6 @@ final class TokenSectionsAdapter {
         print("🔴 deinit \(objectDescription(self)) 🔴")
     }
 
-    func organizedSections(from walletModels: [any WalletModel]) -> [Section] {
-        makeSections(
-            walletModels: walletModels,
-            userTokens: userTokensManager.userTokens,
-            groupingOption: optionsProviding.groupingOption,
-            sortingOption: optionsProviding.sortingOption
-        )
-    }
-
     func organizedSections(
         from walletModels: some Publisher<[any WalletModel], Never>,
         on workingQueue: DispatchQueue

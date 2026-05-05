@@ -48,7 +48,7 @@ struct ExpressCurrencyView<Content: View>: View {
             Spacer()
 
             LoadableBalanceView(
-                state: viewModel.balanceState,
+                state: viewModel.state.balanceState,
                 style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
                 loader: .init(
                     size: CGSize(width: 72, height: 12),
@@ -61,11 +61,10 @@ struct ExpressCurrencyView<Content: View>: View {
 
     @ViewBuilder
     var headerView: some View {
-        switch (viewModel.headerType, viewModel.errorState) {
-        case (_, .none):
-            SendTokenHeaderView(header: viewModel.headerType)
-        case (_, .some(let errorState)):
+        if let errorState = viewModel.state.errorState {
             ExpressCurrencyErrorHeaderView(errorState: errorState)
+        } else {
+            SendTokenHeaderView(header: viewModel.state.headerType)
         }
     }
 
@@ -76,6 +75,16 @@ struct ExpressCurrencyView<Content: View>: View {
 
             Spacer()
 
+            trailingTokenContent
+        }
+    }
+
+    @ViewBuilder
+    private var trailingTokenContent: some View {
+        if viewModel.state.tokenIconState == .tokenSelectionRequired {
+            ChooseTokenPillView(action: didTapChangeCurrency)
+                .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelector)
+        } else {
             Button(action: { didTapChangeCurrency() }) {
                 ZStack(alignment: .trailing) {
                     iconContent
@@ -89,10 +98,10 @@ struct ExpressCurrencyView<Content: View>: View {
                         .foregroundColor(Colors.Icon.informative)
                         .frame(size: chevronIconSize)
                         // View have to keep size of the view same for both cases
-                        .opacity(viewModel.canChangeCurrency ? 1 : 0)
+                        .opacity(viewModel.state.canChangeCurrency ? 1 : 0)
                 }
             }
-            .disabled(!viewModel.canChangeCurrency)
+            .disabled(!viewModel.state.canChangeCurrency)
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.tokenSelector)
         }
     }
@@ -102,7 +111,7 @@ struct ExpressCurrencyView<Content: View>: View {
         HStack(spacing: 0) {
             HStack(spacing: 4) {
                 LoadableTextView(
-                    state: viewModel.fiatAmountState,
+                    state: viewModel.state.fiatAmountState,
                     font: Fonts.Regular.footnote,
                     textColor: Colors.Text.tertiary,
                     loaderSize: CGSize(width: 70, height: 12),
@@ -116,7 +125,7 @@ struct ExpressCurrencyView<Content: View>: View {
             Spacer()
 
             LoadableTextView(
-                state: viewModel.symbolState,
+                state: viewModel.state.symbolState,
                 font: Fonts.Bold.footnote,
                 textColor: Colors.Text.primary1,
                 loaderSize: CGSize(width: 30, height: 14),
@@ -132,19 +141,19 @@ struct ExpressCurrencyView<Content: View>: View {
 
     @ViewBuilder
     private var infoButton: some View {
-        if let priceChangeState = viewModel.priceChangeState, let didTapNetworkFeeInfoButton {
+        if let priceChangeState = viewModel.state.priceChangeState, let didTapNetworkFeeInfoButton {
             Button(action: { didTapNetworkFeeInfoButton(priceChangeState) }) {
                 switch priceChangeState {
                 case .info:
                     infoButtonIcon
                         .foregroundColor(Colors.Icon.informative)
-                case .percent(let percent, _):
+                case .percent(let percent, _, let isHighLoss):
                     HStack(spacing: 2) {
                         Text(percent)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.attention)
+                            .style(Fonts.Regular.footnote, color: isHighLoss ? Colors.Text.warning : Colors.Text.attention)
 
                         infoButtonIcon
-                            .foregroundColor(Colors.Icon.attention)
+                            .foregroundColor(isHighLoss ? Colors.Icon.warning : Colors.Icon.attention)
                     }
                 }
             }
@@ -162,7 +171,7 @@ struct ExpressCurrencyView<Content: View>: View {
 
     @ViewBuilder
     private var iconContent: some View {
-        switch viewModel.tokenIconState {
+        switch viewModel.state.tokenIconState {
         case .loading:
             SkeletonView()
                 .frame(size: imageSize)
@@ -173,8 +182,38 @@ struct ExpressCurrencyView<Content: View>: View {
                 .resizable()
                 .foregroundColor(Colors.Icon.inactive)
                 .frame(size: imageSize)
+        case .tokenSelectionRequired:
+            EmptyView()
         case .icon(let tokenIconInfo):
             TokenIcon(tokenIconInfo: tokenIconInfo, size: imageSize)
+        }
+    }
+}
+
+// MARK: - Choose Token Pill
+
+struct ChooseTokenPillView: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Text(Localization.commonChooseToken)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .lineLimit(1)
+
+                Assets.chevronDown24.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.informative)
+                    .frame(width: 20, height: 20)
+            }
+            .padding(.vertical, 8)
+            .padding(.leading, 16)
+            .padding(.trailing, 12)
+            .background(Colors.Button.secondary)
+            .cornerRadiusContinuous(24)
+            .fixedSize(horizontal: true, vertical: false)
         }
     }
 }
@@ -190,3 +229,13 @@ extension ExpressCurrencyView: Setupable {
         map { $0.didTapNetworkFeeInfoButton = block }
     }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview {
+    ChooseTokenPillView(action: {})
+        .padding()
+        .background(Colors.Background.action)
+}
+#endif // DEBUG

@@ -28,10 +28,13 @@ struct MarketsMainView: View {
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
     @State private var isListContentObscured = false
 
-    private var defaultBackgroundColor: Color { Colors.Background.tertiary }
-
-    private let scrollTopAnchorId = UUID()
-    private let scrollViewFrameCoordinateSpaceName = UUID()
+    private var defaultBackgroundColor: Color {
+        if viewModel.isRedesign {
+            .Tangem.Surface.level2
+        } else {
+            Colors.Background.tertiary
+        }
+    }
 
     private var overlayHeight: CGFloat { showSearchResult ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
     private var showSearchResult: Bool { viewModel.isSearching }
@@ -59,12 +62,16 @@ struct MarketsMainView: View {
             Group {
                 if showSearchResult {
                     searchResultView
+                        .padding(.horizontal, FeatureProvider.isAvailable(.redesign) ? SizeUnit.x4.value : 0)
+                        .transition(.opacity)
                 } else {
                     widgetsListView
+                        .scrollDismissesKeyboard(.immediately)
+                        .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: showSearchResult)
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
-            .scrollDismissesKeyboard(.immediately)
 
             navigationBarBackground
 
@@ -86,26 +93,61 @@ struct MarketsMainView: View {
             backdropViewColor: defaultBackgroundColor,
             overlayContentHidingProgress: viewModel.overlayContentHidingProgress,
             isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
-            isListContentObscured: isListContentObscured
-        ) {
-            Group {
-                if showSearchResult {
-                    MarketsSearchResultListOverlayView(
-                        titleOpacity: $listOverlayTitleOpacity,
-                        totalHeight: $searchResultListOverlayTotalHeight
-                    )
-                } else {
-                    defaultListOverlay
-                }
-            }
-        }
+            isListContentObscured: isListContentObscured,
+            overlay: { navigationBarBackgroundOverlay }
+        )
         .frame(height: headerHeight + overlayHeight)
         .offset(y: listOverlayVerticalOffset)
         .infinityFrame(axis: .vertical, alignment: .top)
     }
 
     @ViewBuilder
+    private var navigationBarBackgroundOverlay: some View {
+        if viewModel.isRedesign {
+            navigationBarBackgroundOverlayRedesign
+        } else {
+            navigationBarBackgroundOverlayLegacy
+        }
+    }
+
+    @ViewBuilder
+    private var navigationBarBackgroundOverlayRedesign: some View {
+        if !showSearchResult {
+            defaultListOverlay
+        }
+    }
+
+    @ViewBuilder
+    private var navigationBarBackgroundOverlayLegacy: some View {
+        if showSearchResult {
+            MarketsSearchResultListOverlayView(
+                titleOpacity: $listOverlayTitleOpacity,
+                totalHeight: $searchResultListOverlayTotalHeight
+            )
+        } else {
+            defaultListOverlay
+        }
+    }
+
+    @ViewBuilder
     private var searchResultView: some View {
+        if viewModel.isRedesign {
+            searchResultViewRedesign
+        } else {
+            searchResultViewLegacy
+                .scrollDismissesKeyboard(.immediately)
+        }
+    }
+
+    private var searchResultViewRedesign: some View {
+        MarketsTokenSearchView(
+            viewModel: viewModel.tokenSearchViewModel,
+            headerHeight: headerHeight
+        )
+    }
+
+    @ViewBuilder
+    private var searchResultViewLegacy: some View {
         switch viewModel.tokenListViewModel.tokenListLoadingState {
         case .noResults:
             noResultsStateView
@@ -114,8 +156,8 @@ struct MarketsMainView: View {
         case .loading, .allDataLoaded, .idle:
             MarketsMainSearchView(
                 headerHeight: headerHeight,
-                scrollTopAnchorId: scrollTopAnchorId,
-                scrollViewFrameCoordinateSpaceName: scrollViewFrameCoordinateSpaceName,
+                scrollTopAnchorId: Identifiers.scrollTopAnchorID,
+                scrollViewFrameCoordinateSpaceName: CoordinateSpaceName.scrollViewFrame,
                 searchResultListOverlayTotalHeight: searchResultListOverlayTotalHeight,
                 mainWindowSize: mainWindowSize,
                 updateListOverlayAppearance: updateListOverlayAppearance(contentOffset:),
@@ -127,14 +169,10 @@ struct MarketsMainView: View {
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(alignment: .center, spacing: .zero) {
-                VStack(alignment: .leading, spacing: .zero) {
-                    Text(viewModel.headerTitle)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                        .opacity(listOverlayTitleOpacity)
-
-                    Text(viewModel.headerDate)
-                        .style(Fonts.Bold.title1, color: Colors.Text.tertiary)
-                        .opacity(listOverlayTitleOpacity)
+                if viewModel.isRedesign {
+                    redesignTitleView
+                } else {
+                    legacyTitleView
                 }
 
                 Spacer()
@@ -146,6 +184,32 @@ struct MarketsMainView: View {
         .padding(.horizontal, Layout.defaultHorizontalInset)
         .padding(.horizontal, Layout.Header.defaultHorizontalInset)
         .readGeometry(\.size.height, bindTo: $defaultListOverlayTotalHeight)
+    }
+
+    private func titleView(titleFont: Font, titleColor: Color, dateFont: Font, dateColor: Color) -> some View {
+        VStack(alignment: .leading, spacing: .zero) {
+            Text(viewModel.headerTitle)
+                .style(titleFont, color: titleColor)
+                .opacity(listOverlayTitleOpacity)
+
+            Text(viewModel.headerDate)
+                .style(dateFont, color: dateColor)
+                .opacity(listOverlayTitleOpacity)
+        }
+    }
+
+    private var legacyTitleView: some View {
+        titleView(
+            titleFont: Fonts.Bold.title1, titleColor: Colors.Text.primary1,
+            dateFont: Fonts.Bold.title1, dateColor: Colors.Text.tertiary
+        )
+    }
+
+    private var redesignTitleView: some View {
+        titleView(
+            titleFont: Font.Tangem.Heading28.regular, titleColor: Color.Tangem.Text.Neutral.primary,
+            dateFont: Font.Tangem.Heading28.regular, dateColor: Color.Tangem.Text.Neutral.tertiary
+        )
     }
 
     // MARK: - Helpers
@@ -190,7 +254,7 @@ struct MarketsMainView: View {
                     VStack(spacing: 0.0) {
                         Color.clear
                             .frame(height: 0)
-                            .id(scrollTopAnchorId)
+                            .id(Identifiers.scrollTopAnchorID)
 
                         // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
                         // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
@@ -208,15 +272,16 @@ struct MarketsMainView: View {
                                     makeContentView(with: item.content)
                                 }
                             }
+                            .padding(.horizontal, viewModel.isRedesign ? SizeUnit.x4.value : 0)
                         }
                     }
                     .padding(.top, Layout.Widgets.topPadding)
                     .readContentOffset(
-                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                        inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame),
                         onChange: updateListOverlayAppearance(contentOffset:)
                     )
                 }
-                .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+                .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
             }
 
             if case .error = viewModel.widgetsViewState {
@@ -229,12 +294,27 @@ struct MarketsMainView: View {
         MarketsNoResultsStateView()
     }
 
+    @ViewBuilder
     private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
-        MarketsListErrorView(tryLoadAgain: tryLoadAgain)
+        if viewModel.isRedesign {
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: tryLoadAgain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            MarketsListErrorView(tryLoadAgain: tryLoadAgain)
+        }
     }
 
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        if viewModel.isRedesign {
+            makeRedesignContentView(with: item)
+        } else {
+            makeLegacyContentView(with: item)
+        }
+    }
+
+    @ViewBuilder
+    private func makeLegacyContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
         switch item {
         case .top(let viewModel):
             TopMarketWidgetView(viewModel: viewModel)
@@ -244,6 +324,20 @@ struct MarketsMainView: View {
             NewsWidgetView(viewModel: viewModel)
         case .earn(let viewModel):
             EarnWidgetView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    private func makeRedesignContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        switch item {
+        case .top(let viewModel):
+            TopMarketWidgetViewRedesign(viewModel: viewModel)
+        case .pulse(let viewModel):
+            PulseMarketWidgetViewRedesign(viewModel: viewModel)
+        case .news(let viewModel):
+            NewsWidgetViewRedesign(viewModel: viewModel)
+        case .earn(let viewModel):
+            EarnWidgetViewRedesign(viewModel: viewModel)
         }
     }
 }
@@ -264,5 +358,17 @@ private extension MarketsMainView {
             static let verticalContentSpacing: CGFloat = 40.0
             static let topPadding: CGFloat = 32.0
         }
+    }
+
+    enum Identifiers {
+        private static let prefix = "MarketsMainView.Identifiers."
+
+        static let scrollTopAnchorID = prefix + "scrollTopAnchorID"
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "MarketsMainView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }

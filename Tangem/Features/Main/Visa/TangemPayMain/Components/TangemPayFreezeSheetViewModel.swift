@@ -8,7 +8,9 @@
 
 import SwiftUI
 import TangemUI
+import TangemFoundation
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 protocol TangemPayFreezeSheetRoutable: AnyObject {
     func closeFreezeSheet()
@@ -36,17 +38,24 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
         )
     }
 
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.freezeSheetConfirmButton
+    }
+
+    let userWalletId: UserWalletId
     weak var coordinator: TangemPayFreezeSheetRoutable?
     let freezeAction: () -> Void
 
     init(
+        userWalletId: UserWalletId,
         coordinator: TangemPayFreezeSheetRoutable,
         freezeAction: @escaping () -> Void
     ) {
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
         self.freezeAction = freezeAction
 
-        Analytics.log(.visaScreenFreezeCardConfirmShown)
+        Analytics.log(.visaScreenFreezeCardConfirmShown, contextParams: .userWallet(userWalletId))
     }
 
     func dismiss() {
@@ -54,7 +63,7 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
     }
 
     func freeze() {
-        Analytics.log(.visaScreenFreezeCardConfirmClicked)
+        Analytics.log(.visaScreenFreezeCardConfirmClicked, contextParams: .userWallet(userWalletId))
         freezeAction()
         dismiss()
     }

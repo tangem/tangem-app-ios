@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import BigInt
+import TangemFoundation
 
 struct GaslessTransactionBuilder {
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
@@ -136,7 +137,7 @@ struct GaslessTransactionBuilder {
             fee: fee,
             nonce: nonce,
             chainId: chainId,
-            verifyingContract: walletModel.defaultAddress.value,
+            verifyingContract: walletModel.defaultAddressString,
         )
 
         return typedData.signHash

@@ -13,10 +13,12 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
     var tokenItem: TokenItem { transferableToken.tokenItem }
 
     let sourceToken: SendWithSwapToken
+    private let predefinedSendParameters: PredefinedSendParameters?
+    private let coordinatorSource: SendCoordinator.Source
     let expressDependenciesFactory: ExpressDependenciesFactory
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .send, coordinatorSource: coordinatorSource)
 
     lazy var sendNotificationManager = makeSendNotificationManager()
     lazy var swapNotificationManager = makeSwapNotificationManager()
@@ -25,26 +27,91 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         sendNotificationManager: sendNotificationManager,
         swapNotificationManager: swapNotificationManager
     )
+    private lazy var predefinedTransferValues = mapToPredefinedValues(parameters: predefinedSendParameters)
+    private lazy var predefinedInitialStep = mapToInitialStep(parameters: predefinedSendParameters)
 
-    lazy var transferModel = makeTransferModel(analyticsLogger: analyticsLogger, predefinedValues: .init())
+    lazy var transferModel = makeTransferModel(
+        analyticsLogger: analyticsLogger,
+        predefinedValues: predefinedTransferValues
+    )
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: .none,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
+        pairUpdateHandler: SendWithSwapPairUpdateHandler(
+            expressManager: expressDependenciesFactory.expressManager
+        ),
         shouldStartInitialLoading: false
     )
     lazy var sendWithSwapModel = makeSendWithSwapModel(
         transferModel: transferModel,
         swapModel: swapModel,
         analyticsLogger: analyticsLogger,
-        predefinedValues: .init(),
+        predefinedValues: predefinedTransferValues,
         autoupdatingTimer: autoupdatingTimer
     )
 
-    init(sourceToken: SendWithSwapToken) {
+    init(sourceToken: SendWithSwapToken, predefinedSendParameters: PredefinedSendParameters? = nil, coordinatorSource: SendCoordinator.Source = .main) {
         self.sourceToken = sourceToken
+        self.predefinedSendParameters = predefinedSendParameters
+        self.coordinatorSource = coordinatorSource
         expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+    }
+
+    private func mapToPredefinedValues(parameters: PredefinedSendParameters?) -> TransferModel.PredefinedValues {
+        guard let parameters else {
+            return .init()
+        }
+
+        let destination = SendDestination(value: .plain(parameters.destination), source: .qrCode)
+
+        let amount = parameters.amount.map { amount in
+            let fiatValue = tokenItem.currencyId.flatMap { currencyId in
+                BalanceConverter().convertToFiat(amount, currencyId: currencyId)
+            }
+
+            return SendAmount(type: .typical(crypto: amount, fiat: fiatValue))
+        }
+
+        let additionalField: SendDestinationAdditionalField = {
+            guard let type = SendDestinationAdditionalFieldType.type(for: tokenItem.blockchain) else {
+                return .notSupported
+            }
+
+            guard let tag = parameters.tag?.nilIfEmpty else {
+                return .empty(type: type)
+            }
+
+            do {
+                let params = try makeTransactionParametersBuilder().transactionParameters(value: tag)
+                return .filled(type: type, value: tag, params: params)
+            } catch {
+                assertionFailure("Failed to build transaction parameters for predefined tag: \(error)")
+                return .empty(type: type)
+            }
+        }()
+
+        return TransferModel.PredefinedValues(
+            destination: destination,
+            tag: additionalField,
+            amount: amount
+        )
+    }
+
+    private func mapToInitialStep(parameters: PredefinedSendParameters?) -> CommonSendStepsManager.InitialStep {
+        guard let parameters else {
+            return .amount
+        }
+
+        switch parameters.initialStep {
+        case .amount:
+            return .amount
+        case .amountThenSummary:
+            return .amountThenSummary
+        case .summary:
+            return .summary
+        }
     }
 }
 
@@ -122,6 +189,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendWithSwapModel),
             confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
+            initialStep: predefinedInitialStep,
             router: router
         )
 
@@ -168,7 +236,7 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: sourceToken.tangemIconProvider
         )
     }
 }
@@ -195,7 +263,9 @@ extension SendWithSwapFlowFactory: SendAmountStepBuildable {
             sendAmountValidator: CommonSendAmountValidator(input: sendWithSwapModel),
             amountModifier: .none,
             notificationService: notificationManager as? SendAmountNotificationService,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            providerRateTypesPublisher: FeatureProvider.isAvailable(.expressFixedRates) ? sendWithSwapModel.providerRateTypesPublisher : nil,
+            currentRateTypePublisher: sendWithSwapModel.currentRateTypePublisher
         )
     }
 }
@@ -207,8 +277,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendWithSwapModel,
             output: sendWithSwapModel,
-            receiveTokenInput: sendWithSwapModel,
-            destinationAccountOutput: sendWithSwapModel
+            receiveTokenInput: sendWithSwapModel
         )
     }
 
@@ -224,7 +293,7 @@ extension SendWithSwapFlowFactory: SendDestinationStepBuildable {
                 sourceToken: sourceToken,
                 receivedToken: sendWithSwapModel.receiveToken.value,
                 analyticsLogger: analyticsLogger,
-                receiveTokenWalletDataProvider: SendReceiveTokenWalletDataProvider()
+                destinationWalletDataProvider: CommonSendDestinationWalletDataProvider(sourceToken: sourceToken)
             )
         )
     }
@@ -246,7 +315,7 @@ extension SendWithSwapFlowFactory: SendFeeStepBuildable {
 
 extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel)
+        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {

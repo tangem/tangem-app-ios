@@ -357,6 +357,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
     }
 
+    private func checkDynamicAddressesCompatibility(for tokenItem: TokenItem) throws {
+        if context.hasDynamicAddressRestriction(for: tokenItem) {
+            throw TokenCreationErrors.dynamicAddressesEnabled
+        }
+    }
+
     private func findToken(contractAddress: String) -> AnyPublisher<[CoinModel], Never> {
         let blockchain = try? enteredBlockchain()
         let contractAddress = convertContractAddressIfPossible(contractAddress, in: blockchain)
@@ -425,9 +431,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         decimalsError = nil
 
         do {
-            let _ = try enteredTokenItem()
+            let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
             try validateEnteredContractAddress()
+            try checkDynamicAddressesCompatibility(for: tokenItem)
         } catch {
             let dynamicValidationError = error as? DynamicValidationError
             addButtonDisabled = dynamicValidationError?.preventsFromAdding ?? false
@@ -548,18 +555,13 @@ private protocol NotificationEventProviding {
     var notificationEvent: (any NotificationEvent)? { get }
 }
 
-extension CommonUserTokensManager.Error: DynamicValidationError {
-    var preventsFromAdding: Bool {
-        true
-    }
-}
-
 private extension AddCustomTokenViewModel {
-    enum TokenCreationErrors: DynamicValidationError, LocalizedError {
+    enum TokenCreationErrors: DynamicValidationError, LocalizedError, NotificationEventProviding {
         case blockchainNotSelected
         case emptyFields
         case invalidDecimals(precision: Int)
         case invalidContractAddress
+        case dynamicAddressesEnabled
 
         enum Field {
             case decimals
@@ -569,7 +571,7 @@ private extension AddCustomTokenViewModel {
             switch self {
             case .invalidDecimals:
                 return .decimals
-            case .blockchainNotSelected, .emptyFields, .invalidContractAddress:
+            case .blockchainNotSelected, .emptyFields, .invalidContractAddress, .dynamicAddressesEnabled:
                 return nil
             }
         }
@@ -584,11 +586,22 @@ private extension AddCustomTokenViewModel {
                 return Localization.customTokenCreationErrorWrongDecimals(precision)
             case .invalidContractAddress:
                 return Localization.customTokenCreationErrorInvalidContractAddress
+            case .dynamicAddressesEnabled:
+                return Localization.customTokenCustomDerivationDynamicAddressesEnabledError
             }
         }
 
         var preventsFromAdding: Bool {
             true
+        }
+
+        var notificationEvent: (any NotificationEvent)? {
+            switch self {
+            case .dynamicAddressesEnabled:
+                return AddCustomTokenNotificationEvent.dynamicAddressesEnabled
+            case .blockchainNotSelected, .emptyFields, .invalidDecimals, .invalidContractAddress:
+                return nil
+            }
         }
     }
 }

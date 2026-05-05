@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import TangemUI
 import TangemAccessibilityIdentifiers
 
 protocol NotificationEvent: Identifiable {
@@ -24,6 +26,10 @@ protocol NotificationEvent: Identifiable {
     var analyticsParams: [Analytics.ParameterKey: String] { get }
     /// Determine if analytics event should be sent only once and tracked by service
     var isOneShotAnalyticsEvent: Bool { get }
+
+    var bannerKind: NotificationBannerKind? { get }
+
+    var descriptionLinkTint: Color? { get }
 }
 
 extension NotificationEvent where Self: Hashable {
@@ -39,10 +45,10 @@ extension NotificationEvent {
             switch generalEvent {
             case .devCard:
                 return MainAccessibilityIdentifiers.developerCardBanner
-            case .seedSupport:
-                return MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner
             case .missingDerivation:
                 return MainAccessibilityIdentifiers.missingDerivationNotification
+            case .walletLocked:
+                return MainAccessibilityIdentifiers.walletLockedNotification
             default:
                 return nil
             }
@@ -94,7 +100,11 @@ extension NotificationEvent {
         return nil
     }
 
+    var bannerKind: NotificationBannerKind? { nil }
+
     var colorTheme: NotificationView.ColorTheme {
         .system
     }
+
+    var descriptionLinkTint: Color? { nil }
 }

@@ -16,7 +16,7 @@ public struct TangemCalloutShowcase: View {
     @State private var dynamicTypeSize: DynamicTypeSize = .medium
 
     @State private var arrowAlignment: TangemCallout.ArrowAlignment = .top
-    @State private var color: TangemCallout.CalloutColor = .green
+    @State private var paletteOption: PaletteOption = .green
     @State private var showIcon = true
 
     public init() {}
@@ -45,9 +45,10 @@ public struct TangemCalloutShowcase: View {
             }
             .pickerStyle(.segmented)
 
-            Picker("Color", selection: $color) {
-                Text("green").tag(TangemCallout.CalloutColor.green)
-                Text("gray").tag(TangemCallout.CalloutColor.gray)
+            Picker("Color", selection: $paletteOption) {
+                Text("green").tag(PaletteOption.green)
+                Text("gray").tag(PaletteOption.gray)
+                Text("blue").tag(PaletteOption.blue)
             }
             .pickerStyle(.segmented)
 
@@ -74,8 +75,26 @@ public struct TangemCalloutShowcase: View {
             arrowAlignment: arrowAlignment,
             action: .init(icon: Assets.star.image, closure: {})
         )
-        .color(color)
+        .colorPalette(paletteOption.palette)
         .icon(showIcon ? Assets.star.image : nil)
+    }
+}
+
+// MARK: - PaletteOption
+
+private extension TangemCalloutShowcase {
+    enum PaletteOption {
+        case green
+        case gray
+        case blue
+
+        var palette: TangemCallout.ColorPalette {
+            switch self {
+            case .green: .green
+            case .gray: .gray
+            case .blue: .blue
+            }
+        }
     }
 }
 
@@ -83,10 +102,38 @@ public struct TangemCalloutShowcase: View {
 
 #if DEBUG
 
-private typealias _Callout = TangemCallout
-
 #Preview("Interactive Demo") {
     TangemCalloutShowcase()
+}
+
+#Preview("All Palettes") {
+    VStack(spacing: 24) {
+        TangemCallout(
+            text: "Green palette",
+            arrowAlignment: .top,
+            action: .init(icon: Assets.star.image, closure: {})
+        )
+        .colorPalette(.green)
+        .icon(Assets.star.image)
+
+        TangemCallout(
+            text: "Gray palette",
+            arrowAlignment: .top,
+            action: .init(icon: Assets.star.image, closure: {})
+        )
+        .colorPalette(.gray)
+        .icon(Assets.star.image)
+
+        TangemCallout(
+            text: "Blue palette",
+            arrowAlignment: .top,
+            action: .init(icon: Assets.star.image, closure: {})
+        )
+        .colorPalette(.blue)
+        .icon(Assets.star.image)
+    }
+    .padding()
+    .background(Color.Tangem.Surface.level1)
 }
 
 #endif // DEBUG

@@ -90,9 +90,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shownStoryIds)
     var shownStoryIds: [String] = []
 
-    @AppStorageCompat(StorageType.supportSeedNotificationShownDate)
-    var supportSeedNotificationShownDate: Date? = nil
-
     @AppStorageCompat(StorageType.userWalletIdsWithNFTEnabled)
     var userWalletIdsWithNFTEnabled: [String] = []
 
@@ -132,11 +129,14 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayIsDisabledForCustomerWalletId)
+    var tangemPayIsDisabledForCustomerWalletId: [String: Bool] = [:]
+
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
 
-    @AppStorageCompat(StorageType.tangemPayIsEligibilityAvailable)
-    var tangemPayIsEligibilityAvailable: Bool = false
+    @AppStorageCompat(StorageType.tangemPayEligibleDistributionChannels)
+    var tangemPayEligibleDistributionChannels: [String] = []
 
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
@@ -144,11 +144,14 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayCachedLocalState)
     var tangemPayCachedLocalState: [String: String] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayCachedTransactionHistory)
+    var tangemPayCachedTransactionHistory: [String: String] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayCachedCustomerInfo)
+    var tangemPayCachedCustomerInfo: [String: String] = [:]
+
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
-
-    @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
-    var showMarketsYieldModeNotification = true
 
     @AppStorageCompat(StorageType.referralRefcode)
     var referralRefcode: String? = nil
@@ -202,6 +205,14 @@ extension AppSettings: TangemPayPaeraCustomerFlagRepository {
         tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = value
     }
 
+    func isTangemPayDisabled(customerWalletId: String) -> Bool {
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId, default: false]
+    }
+
+    func setIsTangemPayDisabled(_ value: Bool, for customerWalletId: String) {
+        tangemPayIsDisabledForCustomerWalletId[customerWalletId] = value
+    }
+
     func setShouldShowGetBanner(_ value: Bool) {
         tangemPayShouldShowGetBanner = value
     }
@@ -226,5 +237,71 @@ extension AppSettings: TangemPayCachedStateStorage {
         }
 
         tangemPayCachedLocalState[customerWalletId] = jsonString
+    }
+}
+
+extension AppSettings: TangemPayCustomerInfoCacheStorage {
+    func cachedCustomerInfo(customerWalletId: String) -> VisaCustomerInfoResponse? {
+        guard let jsonString = tangemPayCachedCustomerInfo[customerWalletId],
+              let data = jsonString.data(using: .utf8)
+        else {
+            return nil
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try? decoder.decode(VisaCustomerInfoResponse.self, from: data)
+    }
+
+    func saveCachedCustomerInfo(_ customerInfo: VisaCustomerInfoResponse, customerWalletId: String) {
+        let sanitized = customerInfo.sanitizedForDiskCache()
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+
+        guard let data = try? encoder.encode(sanitized),
+              let jsonString = String(data: data, encoding: .utf8)
+        else {
+            return
+        }
+
+        tangemPayCachedCustomerInfo[customerWalletId] = jsonString
+    }
+
+    func clearCachedCustomerInfo(customerWalletId: String) {
+        tangemPayCachedCustomerInfo[customerWalletId] = nil
+    }
+}
+
+extension AppSettings: TangemPayTransactionHistoryCacheStorage {
+    private enum TangemPayTransactionHistoryCacheConstants {
+        /// Limits per-customer transaction cache to last N records to keep UserDefaults small.
+        static let maxRecords = 50
+    }
+
+    func cachedTransactions(customerWalletId: String) -> [TangemPayTransactionRecord]? {
+        guard let jsonString = tangemPayCachedTransactionHistory[customerWalletId],
+              let data = jsonString.data(using: .utf8)
+        else {
+            return nil
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try? decoder.decode([TangemPayTransactionRecord].self, from: data)
+    }
+
+    func saveCachedTransactions(_ transactions: [TangemPayTransactionRecord], customerWalletId: String) {
+        let trimmed = Array(transactions.prefix(TangemPayTransactionHistoryCacheConstants.maxRecords))
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+
+        guard let data = try? encoder.encode(trimmed),
+              let jsonString = String(data: data, encoding: .utf8)
+        else {
+            return
+        }
+
+        tangemPayCachedTransactionHistory[customerWalletId] = jsonString
     }
 }

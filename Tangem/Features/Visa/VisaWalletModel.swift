@@ -133,17 +133,7 @@ extension VisaWalletModel: FiatTokenBalanceProviderInput {
 }
 
 extension VisaWalletModel: WalletModelHelpers {
-    func displayAddress(for index: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        return ""
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        // [REDACTED_TODO_COMMENT]
-        return ""
-    }
-
-    func exploreURL(for index: Int, token: Token?) -> URL? {
+    func exploreURL(for address: String, token: Token?) -> URL? {
         // [REDACTED_TODO_COMMENT]
         return nil
     }
@@ -243,18 +233,11 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
-    var addresses: [any Address] {
-        // [REDACTED_TODO_COMMENT]
-        []
-    }
+    var addresses: [Address] { [] }
 
-    var defaultAddress: any Address {
+    var defaultAddress: Address {
         // [REDACTED_TODO_COMMENT]
-        PlainAddress(value: "", publicKey: publicKey, type: .default)
-    }
-
-    var addressNames: [String] {
-        []
+        PlainAddress(value: "", type: .default)
     }
 
     var isMainToken: Bool {
@@ -279,11 +262,7 @@ extension VisaWalletModel: WalletModel {
     }
 
     var publicKey: Wallet.PublicKey {
-        .init(seedKey: Data(), derivationType: nil)
-    }
-
-    var shouldShowFeeSelector: Bool {
-        false
+        Wallet.PublicKey(seedKey: Data(), derivationType: .none)
     }
 
     var isCustom: Bool {
@@ -306,6 +285,8 @@ extension VisaWalletModel: WalletModel {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
+    var features: [WalletModelFeature] { [] }
+
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         .just(output: [])
     }
@@ -326,9 +307,7 @@ extension VisaWalletModel: WalletModel {
 
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         // [REDACTED_TODO_COMMENT]
-        let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
-        let types = addressInfos.map { ReceiveAddressType.address($0) }
-        return .just(output: types)
+        .just(output: [])
     }
 
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {

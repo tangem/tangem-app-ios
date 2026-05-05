@@ -27,9 +27,19 @@ enum TokenNotificationEvent: Hashable {
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
     case cloreMigration
+    case dynamicAddressesFundsFound(currencySymbol: String, blockchainName: String)
 }
 
 extension TokenNotificationEvent: NotificationEvent {
+    var bannerKind: NotificationBannerKind? {
+        switch self {
+        case .noAccount:
+            return .warning
+        default:
+            return nil
+        }
+    }
+
     var title: NotificationView.Title? {
         switch self {
         case .networkUnreachable:
@@ -60,6 +70,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningMaticMigrationTitle)
         case .cloreMigration:
             return .string(Localization.warningCloreMigrationTitle)
+        case .dynamicAddressesFundsFound:
+            return .string(Localization.dynamicAddressesNotificationFundsFoundTitle)
         }
     }
 
@@ -112,6 +124,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.warningMaticMigrationMessage
         case .cloreMigration:
             return Localization.warningCloreMigrationDescription
+        case .dynamicAddressesFundsFound:
+            return Localization.dynamicAddressesNotificationFundsFoundDescription
         }
     }
 
@@ -132,7 +146,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _),
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
              .staking,
-             .cloreMigration:
+             .cloreMigration,
+             .dynamicAddressesFundsFound:
             return .primary
         }
     }
@@ -140,22 +155,23 @@ extension TokenNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkNotUpdated:
-            return .init(iconType: .image(Assets.failedCloud.image), color: Colors.Icon.attention)
+            return .init(iconType: .image(Assets.failedCloud), color: Colors.Icon.attention)
         case .networkUnreachable,
              .bnbBeaconChainRetirement,
              .maticMigration,
-             .cloreMigration:
-            return .init(iconType: .image(Assets.attention.image))
+             .cloreMigration,
+             .dynamicAddressesFundsFound:
+            return .init(iconType: .image(Assets.attention))
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         case .notEnoughFeeForTransaction(let configuration):
             return .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _):
-            return .init(iconType: .image(Tokens.hederaFill.image))
+            return .init(iconType: .image(Tokens.hederaFill))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _):
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo), _):
-            return .init(iconType: .image(trustlineInfo.icon.image))
+            return .init(iconType: .image(trustlineInfo.icon))
         case .staking(let tokenIconInfo, _):
             return .init(iconType: .icon(tokenIconInfo))
         }
@@ -177,7 +193,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _),
-             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _):
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
+             .dynamicAddressesFundsFound:
             return .warning
         }
     }
@@ -198,7 +215,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .staking,
              .manaLevel,
              .maticMigration,
-             .cloreMigration:
+             .cloreMigration,
+             .dynamicAddressesFundsFound:
             return false
         }
     }
@@ -235,6 +253,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.stake)
         case .cloreMigration:
             return .init(.openCloreMigration)
+        case .dynamicAddressesFundsFound:
+            return .init(.openDynamicAddressesEnter)
         }
     }
 }
@@ -309,6 +329,7 @@ extension TokenNotificationEvent {
         case .manaLevel: return nil
         case .maticMigration: return nil
         case .cloreMigration: return nil
+        case .dynamicAddressesFundsFound: return .dynamicAddressesNoticeFundsFound
         }
     }
 
@@ -323,6 +344,8 @@ extension TokenNotificationEvent {
             ]
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction), _):
             return [.token: revealTransaction.currencySymbol, .blockchain: revealTransaction.blockchainName]
+        case .dynamicAddressesFundsFound(let currencySymbol, let blockchainName):
+            return [.token: currencySymbol, .blockchain: blockchainName]
         case .rentFee,
              .noAccount,
              .existentialDepositWarning,

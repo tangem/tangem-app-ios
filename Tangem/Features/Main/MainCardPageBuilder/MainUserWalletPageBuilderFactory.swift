@@ -34,7 +34,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         VisaWalletRoutable &
         RateAppRoutable &
         ActionButtonsRoutable &
-        NFTEntrypointRoutable
+        NFTEntrypointRoutable &
+        TokensManagementFlowRoutable
+
+    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
 
     weak var coordinator: MainContentRoutable?
 
@@ -57,11 +60,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
         let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
 
-        let headerModel = MainHeaderViewModel(
+        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
             isUserWalletLocked: model.isUserWalletLocked,
+            totalBalanceProvider: model
+        )
+        let navigationModel = MainNavigationViewModel(balanceProvider: navigationBalanceProvider)
+
+        let headerModel = MainHeaderViewModel(
+            userWalletId: model.userWalletId,
+            isUserWalletLocked: model.isUserWalletLocked,
+            walletThumbnailType: model.config.walletThumbnailType,
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
+            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
             updatePublisher: model.updatePublisher
         )
 
@@ -79,6 +91,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         if model.isUserWalletLocked {
             return .lockedWallet(
                 id: id,
+                navigationModel: navigationModel,
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: model,
@@ -89,12 +102,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
-
         let tokenRouter = SingleTokenRouter(
             userWalletInfo: model.userWalletInfo,
-            coordinator: coordinator,
-            yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
+            coordinator: coordinator
         )
 
         if isMultiWalletPage {
@@ -104,7 +114,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let bannerNotificationManager: BannerNotificationManager? = {
-                guard model.config.hasFeature(.multiCurrency) else {
+                guard !FeatureProvider.isAvailable(.newPromotionBanners),
+                      model.config.hasFeature(.multiCurrency) else {
                     return nil
                 }
 
@@ -115,6 +126,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 )
             }()
 
+            let promotionNotificationsManager = CommonPromotionNotificationsManager(
+                userWalletId: model.userWalletId,
+                placement: .main
+            )
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
@@ -131,6 +146,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
@@ -144,13 +160,19 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
             return .multiWallet(
                 id: id,
+                navigationModel: navigationModel,
                 headerModel: headerModel,
                 bodyModel: viewModel
             )
         }
 
         guard let dependencies = makeSingleWalletDependencies(userWalletModel: model) else {
-            return .singleWallet(id: id, headerModel: headerModel, bodyModel: nil)
+            return .singleWallet(
+                id: id,
+                navigationModel: navigationModel,
+                headerModel: headerModel,
+                bodyModel: nil
+            )
         }
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
@@ -158,6 +180,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: dependencies.walletModel,
             walletModelsManager: dependencies.walletModelsManager,
             tangemIconProvider: CommonTangemIconProvider(config: model.config)
+        )
+
+        let promotionNotificationsManager = CommonPromotionNotificationsManager(
+            userWalletId: model.userWalletId,
+            placement: .main
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
@@ -168,21 +195,31 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
+        let accountModel: (any CryptoAccountModel)? = {
+            let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
+            guard cryptoAccounts.hasMultipleAccounts else { return nil }
+            return model.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount)
+        }()
+
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
+            promotionNotificationsManager: promotionNotificationsManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
-            delegate: singleWalletContentDelegate
+            delegate: singleWalletContentDelegate,
+            coordinator: coordinator,
+            accountModel: accountModel
         )
         userWalletNotificationManager.setupManager(with: viewModel)
         singleWalletNotificationManager.setupManager(with: viewModel)
 
         return .singleWallet(
             id: id,
+            navigationModel: navigationModel,
             headerModel: headerModel,
             bodyModel: viewModel
         )
@@ -211,11 +248,21 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let isUserWalletLocked = visaUserWalletModel.isUserWalletLocked
 
         let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
-        let headerModel = MainHeaderViewModel(
+
+        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
+            totalBalanceProvider: visaUserWalletModel
+        )
+        let navigationModel = MainNavigationViewModel(balanceProvider: navigationBalanceProvider)
+
+        let headerModel = MainHeaderViewModel(
+            userWalletId: visaUserWalletModel.userWalletId,
+            isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
+            walletThumbnailType: visaUserWalletModel.config.walletThumbnailType,
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
+            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
             updatePublisher: visaUserWalletModel.updatePublisher
         )
 
@@ -227,6 +274,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         if isUserWalletLocked {
             return .lockedWallet(
                 id: id,
+                navigationModel: navigationModel,
                 headerModel: headerModel,
                 bodyModel: .init(
                     userWalletModel: visaUserWalletModel,
@@ -239,6 +287,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         return .visaWallet(
             id: visaUserWalletModel.userWalletId,
+            navigationModel: navigationModel,
             headerModel: headerModel,
             bodyModel: viewModel
         )
@@ -247,48 +296,21 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
     private func makeMultiWalletMainContentViewSectionsProvider(
         userWalletModel: UserWalletModel
     ) -> any MultiWalletMainContentViewSectionsProvider {
-        if FeatureProvider.isAvailable(.accounts) {
-            return AccountsAwareMultiWalletMainContentViewSectionsProvider(
-                userWalletModel: userWalletModel,
-                manageTokensActionFactory: { [weak coordinator] account in
-                    { coordinator?.openManageTokens(for: account, in: userWalletModel) }
-                }
-            )
-        }
-
-        // accounts_fixes_needed_none
-        let optionsManager = OrganizeTokensOptionsManager(
-            userTokensReorderer: userWalletModel.userTokensManager
-        )
-
-        // accounts_fixes_needed_none
-        let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
-        )
-
-        return LegacyMultiWalletMainContentViewSectionsProvider(
+        return CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
-            optionsEditing: optionsManager,
-            tokenSectionsAdapter: tokenSectionsAdapter
+            manageTokensActionFactory: { [weak coordinator] account in
+                { coordinator?.openManageTokens(for: account, in: userWalletModel) }
+            }
         )
     }
 
     private func makeSingleWalletDependencies(
         userWalletModel: UserWalletModel
     ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
-        let walletModelsManager: WalletModelsManager
-
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
-                return nil
-            }
-            walletModelsManager = mainAccount.walletModelsManager
-        } else {
-            // accounts_fixes_needed_none
-            walletModelsManager = userWalletModel.walletModelsManager
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+            return nil
         }
+        let walletModelsManager: WalletModelsManager = mainAccount.walletModelsManager
 
         guard let walletModel = walletModelsManager.walletModels.first else {
             return nil

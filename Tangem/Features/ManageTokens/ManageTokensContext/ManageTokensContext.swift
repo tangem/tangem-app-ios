@@ -15,8 +15,6 @@ import TangemSdk
 enum TokenAccountDestination {
     case currentAccount(isMainAccount: Bool)
     case differentAccount(accountName: String, isMainAccount: Bool)
-    @available(iOS, deprecated: 100000.0, message: "Will be removed in the future ([REDACTED_INFO])")
-    case noAccount
 
     var isMainAccount: Bool {
         switch self {
@@ -24,8 +22,6 @@ enum TokenAccountDestination {
             return isMainAccount
         case .differentAccount(_, let isMainAccount):
             return isMainAccount
-        case .noAccount:
-            return true
         }
     }
 }
@@ -43,4 +39,15 @@ protocol ManageTokensContext {
     func accountDestination(for tokenItem: TokenItem) -> TokenAccountDestination
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool
     func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool
+    func hasDynamicAddressRestriction(for tokenItem: TokenItem) -> Bool
+}
+
+extension ManageTokensContext {
+    func hasDynamicAddressRestriction(for tokenItem: TokenItem) -> Bool {
+        let destinationTokensManager = findUserTokensManager(for: tokenItem) ?? userTokensManager
+        return !DynamicAddressesCustomDerivationChecker.canAddCustomToken(
+            tokenItem: tokenItem,
+            existingTokens: destinationTokensManager.userTokens
+        )
+    }
 }

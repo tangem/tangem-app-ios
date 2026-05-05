@@ -60,6 +60,53 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         accountRows.count > 1
     }
 
+    func handleAccountOperationResult(_ result: AccountOperationResult) {
+        switch result {
+        case .none:
+            return
+
+        case .redistributionHappened(let pairs):
+            // Find first actual redistribution between accounts and extract source account name
+            // Skip external sources (legacy tokens from server) - they're initial placements, not redistributions
+            // .lazy is used to avoid unnecessary iterations
+            // Source - https://stackoverflow.com/a/77408784
+            // `.first { _ in true }` is a workaround for a long-standing Swift bug with lazy + compactMap
+            // See: https://github.com/swiftlang/swift/issues/48324
+            let namesPair = pairs.lazy.compactMap { pair -> ((fromName: String, toName: String))? in
+                guard
+                    case .account(let accountName) = pair.source,
+                    let toName = pair.toAccountName
+                else {
+                    return nil
+                }
+
+                // If fromName is nil, this means Main account has the default name
+                return (accountName ?? Localization.accountMainAccountTitle, toName)
+            }.first { _ in true }
+
+            guard let namesPair else {
+                return
+            }
+
+            coordinator?.handleAccountsRedistribution(
+                sourceAccountName: namesPair.fromName,
+                targetAccountName: namesPair.toName
+            )
+        }
+    }
+
+    func handleCreatedAccount(_ account: (any CryptoAccountModel)?) {
+        guard let account else {
+            return
+        }
+
+        coordinator?.openManageTokens(
+            accountModelsManager: accountModelsManager,
+            cryptoAccountModel: account,
+            userWalletConfig: userWalletConfig
+        )
+    }
+
     // MARK: - Binding
 
     private func bind() {

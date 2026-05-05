@@ -28,6 +28,13 @@ final class WCServiceV2 {
 
     private let walletKitClient: ReownWalletKit.WalletKitClient
     private let wcHandlersService: WCHandlersService
+
+    private var walletConnectEventsService: WalletConnectEventsService?
+
+    private var lastConnectedDAppsSnapshot: [WalletConnectConnectedDApp] = []
+    private var balancesCancellables: [String: AnyCancellable] = [:]
+    private var balancesWalletModelIds: [String: WalletModelId] = [:]
+
     private lazy var savedSessionToAccountsMigrationService = WalletConnectAccountMigrationService(
         userWalletRepository: userWalletRepository,
         connectedDAppRepository: connectedDAppRepository,
@@ -38,7 +45,10 @@ final class WCServiceV2 {
         transactionRequestSubject.eraseToAnyPublisher()
     }
 
-    init(walletKitClient: WalletKitClient, wcHandlersService: WCHandlersService) {
+    init(
+        walletKitClient: WalletKitClient,
+        wcHandlersService: WCHandlersService
+    ) {
         self.walletKitClient = walletKitClient
         self.wcHandlersService = wcHandlersService
 
@@ -54,6 +64,123 @@ private extension WCServiceV2 {
         setupMessagesSubscriptions()
         subscribeToUserWalletEvents()
         subscribeToWalletModelsIfNeeded()
+        subscribeToBalancesChange()
+        observeConnectedDAppsRepository()
+    }
+
+    func observeConnectedDAppsRepository() {
+        let task = Task { [weak self, connectedDAppRepository] in
+            guard let self else { return }
+
+            let stream = await connectedDAppRepository.makeDAppsStream()
+
+            for await dApps in stream {
+                guard !Task.isCancelled else { return }
+                handleConnectedDAppsRepositoryYield(dApps)
+            }
+        }
+
+        AnyCancellable { task.cancel() }.store(in: &bag)
+    }
+
+    func handleConnectedDAppsRepositoryYield(_ dApps: [WalletConnectConnectedDApp]) {
+        lastConnectedDAppsSnapshot = dApps
+        walletConnectEventsService?.handle(event: .dappConnected(dApps))
+        subscribeToBalancesChange()
+    }
+
+    func subscribeToBalancesChange() {
+        let targets = balanceSubscriptionTargets
+
+        // Cancel subscriptions for entries no longer in any active session.
+        let requiredKeys = Set(targets.map(\.key))
+        let obsoleteKeys = Set(balancesCancellables.keys).subtracting(requiredKeys)
+        for key in obsoleteKeys {
+            balancesCancellables[key]?.cancel()
+            balancesCancellables[key] = nil
+            balancesWalletModelIds[key] = nil
+        }
+
+        for target in targets {
+            guard
+                let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == target.walletId }),
+                !userWalletModel.isUserWalletLocked,
+                let accountId = target.accountId
+            else {
+                balancesCancellables[target.key]?.cancel()
+                balancesCancellables[target.key] = nil
+                balancesWalletModelIds[target.key] = nil
+                assert(target.accountId != nil, "Balance subscription target has nil accountId. This should not happen for v2 sessions. Target: \(target)")
+                continue
+            }
+
+            let walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
+                with: target.blockchain.networkId,
+                accountId: accountId
+            )
+
+            guard let walletModel else {
+                balancesCancellables[target.key]?.cancel()
+                balancesCancellables[target.key] = nil
+                balancesWalletModelIds[target.key] = nil
+                continue
+            }
+
+            // Keep subscriber alive regardless of connected dApps.
+            // Recreate only when the underlying wallet model changes (e.g. wallet unlocked/switched).
+            guard balancesWalletModelIds[target.key] != walletModel.id else {
+                continue
+            }
+
+            balancesWalletModelIds[target.key] = walletModel.id
+            balancesCancellables[target.key]?.cancel()
+
+            let walletId = target.walletId
+            let blockchain = target.blockchain
+
+            balancesCancellables[target.key] = walletModel
+                .availableBalanceProvider
+                .balanceTypePublisher
+                .map(\.value)
+                .removeDuplicates()
+                .sink { [weak self] _ in
+                    guard let self else { return }
+                    let dAppsForWallet = lastConnectedDAppsSnapshot.filter { $0.userWalletID == walletId }
+                    walletConnectEventsService?.handle(event: .balanceChanged(dAppsForWallet, blockchain, userWalletId: walletId))
+                }
+        }
+    }
+
+    func cancelBalanceSubscriptions(for userWalletId: UserWalletId) {
+        let prefix = userWalletId.stringValue + ":"
+        let keysToRemove = balancesCancellables.keys.filter { $0.hasPrefix(prefix) }
+        for key in keysToRemove {
+            balancesCancellables[key]?.cancel()
+            balancesCancellables[key] = nil
+            balancesWalletModelIds[key] = nil
+        }
+    }
+
+    /// Computes unique subscription targets from the current dApp snapshot.
+    private var balanceSubscriptionTargets: [BalanceSubscriptionTarget] {
+        var seen = Set<String>()
+        var targets: [BalanceSubscriptionTarget] = []
+
+        for dApp in lastConnectedDAppsSnapshot {
+            let accountId = dApp.accountId
+            for dAppBlockchain in dApp.dAppBlockchains {
+                let target = BalanceSubscriptionTarget(
+                    walletId: dApp.userWalletID,
+                    accountId: accountId,
+                    blockchain: dAppBlockchain.blockchain
+                )
+                if seen.insert(target.key).inserted {
+                    targets.append(target)
+                }
+            }
+        }
+
+        return targets
     }
 
     func subscribeToUserWalletEvents() {
@@ -67,16 +194,20 @@ private extension WCServiceV2 {
                         wcService.walletModelsSnapshots[$0.stringValue] = nil
                         wcService.disconnectAllSessionsForUserWallet(with: $0.stringValue)
                         wcService.cancelModelSubscriptions(for: $0)
+                        wcService.cancelBalanceSubscriptions(for: $0)
                     }
 
                 case .selected(let userWalletId), .unlockedWallet(let userWalletId):
                     wcService.subscribeToWalletModels(for: userWalletId)
+                    wcService.subscribeToBalancesChange()
 
                 case .inserted(let userWalletId):
                     wcService.subscribeToWalletModels(for: userWalletId)
+                    wcService.subscribeToBalancesChange()
 
                 case .unlocked:
                     wcService.subscribeToWalletModelsIfNeeded()
+                    wcService.subscribeToBalancesChange()
 
                 case .locked, .reordered:
                     break
@@ -139,14 +270,14 @@ private extension WCServiceV2 {
                 WCLogger.info("Receive message request: \(request) with verify context: \(String(describing: context))")
 
                 Task {
-                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
-                        WCLogger.warning("Skipping duplicate request: \(request)")
-                        return
-                    }
-
                     if Self.checkIfShouldIgnore(transactionRequest: request) {
                         WCLogger.info("Received a transaction with \(request.method) method. Rejecting and ignoring further handling.")
                         await self.reject(transactionRequest: request)
+                        return
+                    }
+
+                    guard await self.duplicateRequestFilter.isProcessingAllowed(for: request) else {
+                        WCLogger.warning("Skipping duplicate request: \(request)")
                         return
                     }
 
@@ -173,7 +304,10 @@ private extension WCServiceV2 {
                         let handleTransactionData = WCHandleTransactionData(
                             from: transactionDTO,
                             validatedRequest: validatedRequest,
-                            respond: walletKitClient.respond
+                            respond: walletKitClient.respond,
+                            clearDuplicateFilter: { [weak self] in
+                                await self?.duplicateRequestFilter.removeFootprint(for: request)
+                            }
                         )
 
                         self.transactionRequestSubject.send(.success(handleTransactionData))
@@ -408,8 +542,8 @@ private extension WCServiceV2 {
             return
         }
 
-        walletModelsCancellables[userWalletId] = AccountsFeatureAwareWalletModelsResolver
-            .walletModelsPublisher(for: userWalletModel)
+        walletModelsCancellables[userWalletId] = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .map { walletModels in
                 WalletModelsUpdate(
                     blockchains: walletModels.compactMap { walletModel -> Blockchain? in
@@ -439,6 +573,8 @@ private extension WCServiceV2 {
         let newSnapshot = Set(blockchains)
         defer { walletModelsSnapshots[userWalletId] = newSnapshot }
 
+        subscribeToBalancesChange()
+
         guard let selectedUserWallet = userWalletRepository.selectedModel,
               selectedUserWallet.userWalletId.stringValue == userWalletId,
               let oldSnapshot = walletModelsSnapshots[userWalletId]
@@ -454,7 +590,7 @@ private extension WCServiceV2 {
     }
 
     func maybeTriggerAccountsMigration(hasWalletModels: Bool) {
-        guard FeatureProvider.isAvailable(.accounts), hasWalletModels else {
+        guard hasWalletModels else {
             return
         }
 
@@ -507,6 +643,52 @@ private extension WCServiceV2 {
     private struct WalletModelsUpdate {
         let blockchains: [Blockchain]
         let hasWalletModels: Bool
+    }
+}
+
+// MARK: - Events
+
+extension WCServiceV2 {
+    func setWalletConnectEventsService(_ walletConnectEventsService: WalletConnectEventsService) {
+        self.walletConnectEventsService = walletConnectEventsService
+    }
+
+    func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain) {
+        runTask { [weak self, walletKitClient] in
+            guard let self else { return }
+
+            guard let chainId = WalletConnectBlockchainMapper.mapFromDomain(blockchain) else {
+                WCLogger.error(error: "Failed to emit WC event. Unsupported blockchain: \(blockchain)")
+                return
+            }
+
+            let allDApps = (try? await connectedDAppRepository.getAllDApps()) ?? []
+
+            let topics = Set(
+                allDApps
+                    .filter { dApp in
+                        dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId })
+                    }
+                    .map(\.session.topic)
+            )
+
+            guard topics.isNotEmpty else {
+                WCLogger.info("No WC sessions found for blockchain: \(blockchain)")
+                return
+            }
+
+            await withTaskGroup(of: Void.self) { taskGroup in
+                for topic in topics {
+                    taskGroup.addTask {
+                        do {
+                            try await walletKitClient.emit(topic: topic, event: event, chainId: chainId)
+                        } catch {
+                            WCLogger.error("Failed to emit WC event for topic: \(topic)", error: error)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -673,6 +855,24 @@ extension WCServiceV2 {
     }
 }
 
+// MARK: - BalanceSubscriptionTarget
+
+extension WCServiceV2 {
+    /// Identifies a single balance subscription entry.
+    struct BalanceSubscriptionTarget {
+        let walletId: String
+        let accountId: String?
+        let blockchain: Blockchain
+
+        var key: String {
+            if let accountId {
+                return "\(walletId):\(accountId):\(blockchain.networkId)"
+            }
+            return "\(walletId):\(blockchain.networkId)"
+        }
+    }
+}
+
 // MARK: - Session.Proposal continuations storage
 
 extension WCServiceV2 {
@@ -682,6 +882,10 @@ extension WCServiceV2 {
         private var pairingTopicToSessionProposalContinuation = [String: CheckedContinuation<ProposalWithContext, any Error>?]()
 
         func store(continuation: CheckedContinuation<ProposalWithContext, any Error>, for topic: String) {
+            // Resume any previously stored continuation before overwriting it — otherwise its
+            // last reference (the dictionary slot) is dropped without resume and the runtime
+            // logs SWIFT TASK CONTINUATION MISUSE.
+            pairingTopicToSessionProposalContinuation[topic]??.resume(throwing: CancellationError())
             pairingTopicToSessionProposalContinuation[topic] = continuation
         }
 

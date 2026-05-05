@@ -18,13 +18,6 @@ final class TangemPayBuilder {
         userWalletId.stringValue
     }
 
-    private var tokens: TangemPayAuthorizationTokens? {
-        TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: customerWalletId,
-            keysRepository: keysRepository
-        )?.tokens
-    }
-
     private lazy var availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private lazy var authorizationService = TangemPayAuthorizationServiceBuilder().build(customerWalletId: customerWalletId)
@@ -91,6 +84,7 @@ final class TangemPayBuilder {
             orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
+            customerInfoCacheStorage: AppSettings.shared,
             tangemPayAccountBuilder: self
         )
     }
@@ -103,6 +97,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
         account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
+            userWalletId: userWalletId,
             customerInfo: customerInfo,
             productInstance: productInstance,
             customerService: customerService,

@@ -12,17 +12,26 @@ public enum AppEnvironment: String {
     case beta = "Beta"
     case production = "Production"
     case alpha = "Alpha"
+    case `internal` = "Internal"
 }
 
 public extension AppEnvironment {
     static var current: AppEnvironment {
         guard let environmentName: String = InfoDictionaryUtils.environmentName.value() else {
-            assertionFailure("ENVIRONMENT_NAME not found")
+            // There is no info.plist SPM modules, so when running unit tests in SPM modules ENVIRONMENT_NAME can't be fetched
+            if !isUnitTestInSPMModules {
+                assertionFailure("ENVIRONMENT_NAME not found")
+            }
+
             return .production
         }
 
         guard let environment = AppEnvironment(rawValue: environmentName) else {
-            assertionFailure("ENVIRONMENT_NAME not correct")
+            // There is no info.plist SPM modules, so when running unit tests in SPM modules ENVIRONMENT_NAME can't be fetched
+            if !isUnitTestInSPMModules {
+                assertionFailure("ENVIRONMENT_NAME not correct")
+            }
+
             return .production
         }
 
@@ -39,17 +48,27 @@ public extension AppEnvironment {
 
     var isUITest: Bool {
         #if DEBUG
+        // Maestro passes launch arguments via UserDefaults, not ProcessInfo environment
         return ProcessInfo.processInfo.environment["UITEST"] == "1"
+            || UserDefaults.standard.string(forKey: "UITEST") == "1"
         #else
         return false
         #endif
     }
 
-    var isAlphaOrBetaOrDebug: Bool {
+    var isInternalOrDebug: Bool {
         isDebug || !isProduction
     }
 
     var isProduction: Bool {
         self == .production
+    }
+}
+
+// MARK: - Private implementation
+
+private extension AppEnvironment {
+    static var isUnitTestInSPMModules: Bool {
+        ProcessInfo.processInfo.environment["XCODE_TEST_PLAN_NAME"]?.hasPrefix("TangemModules") == true
     }
 }
