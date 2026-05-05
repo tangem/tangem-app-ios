@@ -27,6 +27,10 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
-    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount)
+    func openTangemPayMainView(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        userWalletModel: UserWalletModel
+    )
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
 }
