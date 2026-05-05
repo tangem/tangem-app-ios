@@ -42,8 +42,6 @@ struct MarketsTokenDetailsView: View {
         isDarkColorScheme ? defaultBackgroundColor.forcedDark : UIColor.backgroundPlain.forcedLight
     }
 
-    private let scrollViewFrameCoordinateSpaceName = UUID()
-
     var body: some View {
         rootViewWithTitle
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -61,25 +59,15 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var rootViewWithTitle: some View {
-        if !viewModel.isMarketsSheetStyle {
+        if viewModel.isMarketsSheetStyle {
             rootView
-                .toolbar(content: {
-                    ToolbarItem(placement: .principal) {
-                        navigationBarTitle
-                    }
-
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: viewModel.shareTokenDetails) {
-                            Assets.Glyphs.moreVertical.image
-                        }
-                    }
-                })
+        } else if viewModel.isRedesignEnabled {
+            redesignedToolbar
         } else {
-            rootView
+            legacyToolbar
         }
     }
 
-    @ViewBuilder
     private var rootView: some View {
         ZStack {
             scrollView
@@ -91,7 +79,67 @@ struct MarketsTokenDetailsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    @ViewBuilder
     private var navigationBar: some View {
+        if viewModel.isRedesignEnabled {
+            redesignedNavigationBar
+        } else {
+            legacyNavigationBar
+        }
+    }
+
+    // MARK: - Redesigned navigation
+
+    private var redesignedToolbar: some View {
+        rootView.navigationToolbar(
+            leadingContent: { redesignedBackButton },
+            principalContent: { EmptyView() },
+            trailingContent: { redesignedShareButton }
+        )
+    }
+
+    private var redesignedNavigationBar: some View {
+        NavigationHeader(
+            leadingContent: { redesignedBackButton },
+            principalContent: { EmptyView() },
+            trailingContent: { redesignedShareButton }
+        )
+        .readGeometry(\.size.height, bindTo: $headerHeight)
+        .infinityFrame(axis: .vertical, alignment: .top)
+    }
+
+    private var redesignedBackButton: some View {
+        circleIconButton(icon: Assets.DesignSystem.chevronSmallLeft, action: viewModel.onBackButtonTap)
+    }
+
+    private var redesignedShareButton: some View {
+        circleIconButton(icon: Assets.DesignSystem.share, action: viewModel.shareTokenDetails)
+    }
+
+    private func circleIconButton(icon: ImageType, action: @escaping () -> Void) -> some View {
+        TangemButton(content: .icon(icon), action: action)
+            .setCornerStyle(.rounded)
+            .setStyleType(.secondary)
+            .setSize(.x11)
+    }
+
+    // MARK: - Legacy navigation
+
+    private var legacyToolbar: some View {
+        rootView.toolbar {
+            ToolbarItem(placement: .principal) {
+                navigationBarTitle
+            }
+
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: viewModel.shareTokenDetails) {
+                    Assets.Glyphs.moreVertical.image
+                }
+            }
+        }
+    }
+
+    private var legacyNavigationBar: some View {
         MarketsNavigationBar(
             titleView: { navigationBarTitle },
             onBackButtonAction: viewModel.onBackButtonTap,
@@ -127,7 +175,6 @@ struct MarketsTokenDetailsView: View {
         )
     }
 
-    @ViewBuilder
     private var scrollView: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .center, spacing: Constants.scrollViewVerticalPadding) {
@@ -148,12 +195,9 @@ struct MarketsTokenDetailsView: View {
                 chart
                     .hidden(viewModel.allDataLoadFailed)
                     .overlay(content: {
-                        UnableToLoadDataView(
-                            isButtonBusy: viewModel.isLoading,
-                            retryButtonAction: viewModel.loadDetailedInfo
-                        )
-                        .infinityFrame(axis: .horizontal)
-                        .hidden(!viewModel.allDataLoadFailed)
+                        chartLoadFailedOverlay
+                            .infinityFrame(axis: .horizontal)
+                            .hidden(!viewModel.allDataLoadFailed)
                     })
 
                 content
@@ -161,7 +205,7 @@ struct MarketsTokenDetailsView: View {
                     .transition(.opacity)
             }
             .padding(.top, Constants.scrollViewContentTopInset)
-            .readContentOffset(inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName)) { contentOffset in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
                 if viewModel.isMarketsSheetStyle {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
@@ -169,7 +213,7 @@ struct MarketsTokenDetailsView: View {
             }
         }
         .opacity(viewModel.overlayContentHidingProgress)
-        .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
         .bindAlert($viewModel.alert)
         .if(!viewModel.isRedesignEnabled) { view in
             view
@@ -255,7 +299,6 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
-    @ViewBuilder
     private var picker: some View {
         MarketsPickerView(
             marketPriceIntervalType: $viewModel.selectedPriceChangeIntervalType,
@@ -275,6 +318,21 @@ struct MarketsTokenDetailsView: View {
             } else {
                 MarketsHistoryChartView(viewModel: viewModel)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var chartLoadFailedOverlay: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(
+                isButtonBusy: viewModel.isLoading,
+                retryButtonAction: viewModel.loadDetailedInfo
+            )
+        } else {
+            UnableToLoadDataView(
+                isButtonBusy: viewModel.isLoading,
+                retryButtonAction: viewModel.loadDetailedInfo
+            )
         }
     }
 
@@ -309,6 +367,12 @@ private extension MarketsTokenDetailsView {
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "MarketsTokenDetailsView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
 

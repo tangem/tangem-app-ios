@@ -30,6 +30,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case onrampPairs(request: ExpressDTO.Onramp.Pairs.Request)
         case onrampQuote(request: ExpressDTO.Onramp.Quote.Request)
         case onrampData(request: ExpressDTO.Onramp.Data.Request)
+        case onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request)
         case onrampStatus(request: ExpressDTO.Onramp.Status.Request)
     }
 
@@ -70,6 +71,8 @@ struct ExpressAPITarget: Moya.TargetType {
         case .onrampPairs: "onramp-pairs"
         case .onrampQuote: "onramp-quote"
         case .onrampData: "onramp-data"
+        // Same endpoint as .onrampData but uses POST method with JSON body for native payment flow
+        case .onrampNativePaymentData: "onramp-data"
         case .onrampStatus: "onramp-status"
         }
     }
@@ -79,7 +82,8 @@ struct ExpressAPITarget: Moya.TargetType {
         case .assets,
              .pairs,
              .exchangeSent,
-             .onrampPairs:
+             .onrampPairs,
+             .onrampNativePaymentData:
             return .post
         case .providers,
              .exchangeQuote,
@@ -112,6 +116,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .onrampPairs(let request): .requestJSONEncodable(request)
         case .onrampQuote(let request): .requestParameters(request)
         case .onrampData(let request):.requestParameters(request)
+        case .onrampNativePaymentData(let request): .requestJSONEncodable(request)
         case .onrampStatus(let request):.requestParameters(request)
         }
     }
