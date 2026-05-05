@@ -20,6 +20,7 @@ struct MainUserWalletHeader: View {
         headerViewModel = model.headerViewModel
     }
 
+    @ScaledMetric private var height: CGFloat = 84
     @ScaledSize private var loaderSize: CGSize = .init(width: 222, height: 36)
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
@@ -73,7 +74,7 @@ struct MainUserWalletHeader: View {
         )
         .lineLimit(1)
         .minimumScaleFactor(0.7)
-        .frame(height: loaderSize.height)
+        .frame(height: height)
     }
 }
 

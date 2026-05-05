@@ -1,0 +1,27 @@
+{
+  "tokenSetOrder": [
+    "core/dimension",
+    "core/font",
+    "core/palette",
+    "semantic/size/opacity",
+    "semantic/size/blur",
+    "semantic/size/border",
+    "semantic/size/size",
+    "semantic/size/spacing",
+    "semantic/font/sizes/ios",
+    "semantic/font/sizes/android",
+    "semantic/font/styles",
+    "semantic/theme/dark",
+    "semantic/theme/light",
+    "semantic/theme/shadows",
+    "semantic/theme/gradient",
+    "semantic/theme/materials/glass",
+    "semantic/theme/materials/blur",
+    "semantic/theme/materials/solid",
+    "semantic/theme/materials/light",
+    "semantic/theme/materials/dark",
+    "dimension",
+    "font",
+    "palette"
+  ]
+}
