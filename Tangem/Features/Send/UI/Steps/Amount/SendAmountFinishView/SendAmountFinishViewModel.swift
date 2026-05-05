@@ -36,6 +36,7 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
         swapProvidersInput: SendSwapProvidersInput? = nil,
+        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>? = nil
     ) {
         self.flowActionType = flowActionType
         bind(
@@ -44,7 +45,8 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
             sourceTokenAmountInput: sourceTokenAmountInput,
             receiveTokenInput: receiveTokenInput,
             receiveTokenAmountInput: receiveTokenAmountInput,
-            swapProvidersInput: swapProvidersInput
+            swapProvidersInput: swapProvidersInput,
+            isReceiveAmountApproximatePublisher: isReceiveAmountApproximatePublisher
         )
     }
 }
@@ -90,7 +92,8 @@ private extension SendAmountFinishViewModel {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput?,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
-        swapProvidersInput: SendSwapProvidersInput?
+        swapProvidersInput: SendSwapProvidersInput?,
+        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>?
     ) {
         Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
@@ -103,24 +106,27 @@ private extension SendAmountFinishViewModel {
         }
         .store(in: &bag)
 
-        guard let receiveTokenInput, let receiveTokenAmountInput, let swapProvidersInput else {
+        guard let receiveTokenInput,
+              let receiveTokenAmountInput,
+              let swapProvidersInput,
+              let isReceiveAmountApproximatePublisher else {
             return
         }
 
         Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
             receiveTokenAmountInput.receiveAmountPublisher,
-            swapProvidersInput.currentRateTypePublisher
+            isReceiveAmountApproximatePublisher
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { viewModel, args in
-            let (receiveToken, receiveAmount, currentRateType) = args
+            let (receiveToken, receiveAmount, isApproximateAmount) = args
             viewModel.updateView(
                 receiveToken: receiveToken.value,
                 flowActionType: flowActionType,
                 receiveAmount: receiveAmount,
-                isApproximateAmount: currentRateType == .float
+                isApproximateAmount: isApproximateAmount
             )
         }
         .store(in: &bag)
@@ -136,7 +142,7 @@ private extension SendAmountFinishViewModel {
     }
 
     private func updateView(sourceToken: SendSourceToken, flowActionType: SendFlowActionType, sourceAmount: LoadingResult<SendAmount, any Error>) {
-        tokenHeader = sourceToken.header.asSendTokenHeader(actionType: flowActionType)
+        tokenHeader = makeFinishTokenHeader(from: sourceToken.header, flowActionType: flowActionType)
         tokenIconInfo = tokenIconInfoBuilder.build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom)
         alternativeAmount = sourceAmount.value?.formatAlternative(
             currencySymbol: sourceToken.tokenItem.currencySymbol,
@@ -171,11 +177,12 @@ private extension SendAmountFinishViewModel {
         case (.none, _):
             receiveSmallAmountViewModel = nil
         case (.some(let token), .success(let receiveAmount)):
-            let header: SendTokenHeader = if let token = token as? SendSourceToken {
-                token.header.asSendTokenHeader(actionType: flowActionType, isSource: false)
-            } else {
-                .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle)
-            }
+            let header: SendTokenHeader = {
+                if flowActionType == .swap, let token = token as? SendSourceToken {
+                    return makeFinishTokenHeader(from: token.header, flowActionType: flowActionType, isSource: false)
+                }
+                return .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle)
+            }()
 
             let tokenIconInfo = tokenIconInfoBuilder.build(from: token.tokenItem, isCustom: token.isCustom)
             let formattedAmount = receiveAmount.crypto.map {
@@ -211,6 +218,13 @@ private extension SendAmountFinishViewModel {
         }
 
         sendSwapProviderFinishViewModel = .init(tokenItem: sourceToken.tokenItem, provider: provider)
+    }
+
+    private func makeFinishTokenHeader(from header: TokenHeader, flowActionType: SendFlowActionType, isSource: Bool = true) -> SendTokenHeader {
+        guard FeatureProvider.isAvailable(.swapInProgressV2) else {
+            return header.asSendTokenHeader(actionType: flowActionType, isSource: isSource)
+        }
+        return SendTokenHeaderBuilder(tokenHeader: header, actionType: flowActionType).makeSendTokenHeader(isSource: isSource)
     }
 }
 
