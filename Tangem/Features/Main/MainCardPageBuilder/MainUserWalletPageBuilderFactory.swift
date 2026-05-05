@@ -34,7 +34,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         VisaWalletRoutable &
         RateAppRoutable &
         ActionButtonsRoutable &
-        NFTEntrypointRoutable
+        NFTEntrypointRoutable &
+        TokensManagementFlowRoutable
 
     @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
 

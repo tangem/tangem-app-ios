@@ -69,6 +69,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         return numberOfTokensInPlainSections >= minRequiredNumberOfTokens || maxNumberOfTokensInAccountSections >= minRequiredNumberOfTokens
     }
 
+    var organizeTokensButtonTitle: String {
+        FeatureProvider.isAvailable(.manageTokensImprovements)
+            ? Localization.mainAddAndManageTokens
+            : Localization.organizeTokensTitle
+    }
+
     // MARK: - Dependencies
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
@@ -86,7 +92,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
-    private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
+    private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable & TokensManagementFlowRoutable)?
     private let tokenItemPromoProvider: TokenItemPromoProvider
 
     private var derivator: TokenEntriesDerivator?
@@ -111,7 +117,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
-        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?,
+        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable & TokensManagementFlowRoutable)?,
         tokenItemPromoProvider: TokenItemPromoProvider
     ) {
         self.userWalletModel = userWalletModel
@@ -206,7 +212,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onOpenOrganizeTokensButtonTap() {
-        openOrganizeTokens()
+        guard FeatureProvider.isAvailable(.manageTokensImprovements) else {
+            openOrganizeTokens()
+            return
+        }
+
+        coordinator?.openAddAndManageTokens(userWalletModel: userWalletModel)
     }
 
     func onAddTokensTap() {
