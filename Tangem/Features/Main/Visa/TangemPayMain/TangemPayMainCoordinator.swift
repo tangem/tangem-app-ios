@@ -41,6 +41,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
 
     private var options: Options?
+    private var tokenEntriesDerivator: TokenEntriesDerivator?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -67,6 +68,7 @@ extension TangemPayMainCoordinator {
     struct Options {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
+        let userWalletModel: any UserWalletModel
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -100,6 +102,19 @@ extension TangemPayMainCoordinator {
 // MARK: - TangemPayMainRoutable
 
 extension TangemPayMainCoordinator: TangemPayMainRoutable {
+    func renewTangemPaySession() {
+        guard let userWalletModel = options?.userWalletModel else { return }
+
+        tokenEntriesDerivator = TokenEntriesDerivator(
+            userWalletModel: userWalletModel,
+            onStart: {},
+            onFinish: { [weak self] in
+                self?.tokenEntriesDerivator = nil
+            }
+        )
+        tokenEntriesDerivator?.derive()
+    }
+
     func openCardManagement() {
         guard let options else {
             assertionFailure("TangemPayMainCoordinator.Options not found")
