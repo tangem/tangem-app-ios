@@ -13,6 +13,8 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct NotificationView: View {
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     let settings: Settings
     let style: Style
 
@@ -134,6 +136,11 @@ struct NotificationView: View {
                     Text(LocalizedStringKey(description))
                         .multilineTextAlignment(.leading)
                         .style(Fonts.Regular.footnote, color: settings.event.colorScheme.messageColor)
+                        .tint(settings.event.descriptionLinkTint)
+                        .environment(\.openURL, OpenURLAction { url in
+                            safariManager.openURL(url)
+                            return .handled
+                        })
                         .infinityFrame(axis: .horizontal, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
