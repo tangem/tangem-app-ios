@@ -14,7 +14,7 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        guard sendAmountFinishViewModel?.flowActionType.isSwapFlow == true,
+        guard sendAmountFinishViewModel?.isActualSwapFlow == true,
               FeatureProvider.isAvailable(.swapInProgressV2) else {
             return settings.title
         }
@@ -22,7 +22,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     }
 
     var secondaryButtonTitle: String {
-        guard sendAmountFinishViewModel?.flowActionType.isSwapFlow == true,
+        guard sendAmountFinishViewModel?.isActualSwapFlow == true,
               FeatureProvider.isAvailable(.swapInProgressV2) else {
             return Localization.commonShare
         }
