@@ -103,7 +103,7 @@ class CommonWalletModel {
     }
 
     deinit {
-        print("🔴 deinit \(objectDescription(self)) 🔴")
+        print("🔴 deinit \(objectDescription(self, userInfo: ["name": tokenItem.name, "acc": account]))🔴")
         assetRequirementsTaskCancellable?.cancel()
         AppLogger.debug(self)
     }

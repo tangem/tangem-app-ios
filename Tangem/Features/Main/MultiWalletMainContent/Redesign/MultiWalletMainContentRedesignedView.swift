@@ -131,14 +131,10 @@ struct MultiWalletMainContentRedesignedView: View {
                                 tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
                             }
                         }
-                        .cornerRadius(.unit(.x5))
-                        .backgroundColor(Constants.tokenListBackgroundColor)
                     }
                 } else {
                     EmptyView()
                 }
-                .cornerRadius(.unit(.x5))
-                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
             }
         }
     }
