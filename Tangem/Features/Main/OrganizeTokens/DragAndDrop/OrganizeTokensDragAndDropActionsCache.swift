@@ -61,6 +61,7 @@ final class OrganizeTokensDragAndDropActionsCache {
     }
 
     func reset() {
+        // Resetting both grouped and plain list caches
         reset(isGroupingEnabled: true)
         reset(isGroupingEnabled: false)
     }

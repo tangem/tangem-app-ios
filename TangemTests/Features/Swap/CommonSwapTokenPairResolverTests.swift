@@ -683,6 +683,7 @@ private final class TangemPayAccountModelTestsMock: TangemPayAccountModel {
     var state: TangemPayLocalState? { nil }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { Empty().eraseToAnyPublisher() }
     var customerId: String? { nil }
+    var lastKnownTangemPayAccount: Tangem.TangemPayAccount? = nil
 
     func refreshState() async {}
     func syncTokens(authorizingInteractor: any TangemPayAuthorizing, pendingDerivations: [PendingDerivation], completion: @escaping () -> Void) {}
