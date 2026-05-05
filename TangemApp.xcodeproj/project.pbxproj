@@ -899,6 +899,8 @@
 				ja,
 				"uk-UA",
 				es,
+				"zh-Hans",
+				"pt-BR",
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			packageReferences = (
@@ -7483,7 +7485,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.1.0;
+				version = 4.1.2;
 			};
 		};
 		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {

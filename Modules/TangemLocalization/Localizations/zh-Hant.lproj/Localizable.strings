@@ -336,7 +336,7 @@
 "common_unreachable" = "無法觸達";
 "common_unstake" = "Unstake";
 "common_value_copied" = "Value copied";
-"common_voting" = "common_voting";
+"common_voting" = "Voting";
 "common_wallets" = "Wallets";
 "common_warning" = "警告";
 "common_with" = "with";
@@ -559,6 +559,8 @@
 "hw_backup_hardware_title" = "Hardware wallet";
 "hw_backup_hardware_upgrade_description" = "Convert your current mobile wallet into a Tangem cold wallet.";
 "hw_backup_hardware_upgrade_title" = "Upgrade current wallet";
+"hw_backup_icloud_alert_message" = "We’re working on iCloud backup to make wallet recovery even easier.";
+"hw_backup_icloud_alert_title" = "iCloud backup is coming soon";
 "hw_backup_icloud_description" = "Recover existing wallet via iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
 "hw_backup_need_action" = "Go to backup";
@@ -1595,7 +1597,7 @@
 "transaction_history_rewards_restaked" = "Rewards restaked";
 "transaction_history_rewards_restaking" = "Rewards restaking";
 "transaction_history_staking_reward" = "Staking reward";
-"transaction_history_to_inline_address" = "to: %%image%% %1$@";
+"transaction_history_to_inline_address" = "to: %%image%% %@";
 "transaction_history_transaction_for_address" = "for: %@";
 "transaction_history_transaction_from_address" = "from: %@";
 "transaction_history_transaction_to_address" = "to: %@";
