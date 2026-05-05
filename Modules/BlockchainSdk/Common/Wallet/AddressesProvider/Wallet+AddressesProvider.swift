@@ -16,7 +16,8 @@ public extension Wallet {
 
         mutating func update(address: Address)
 
-        /// Used for dynamic address feature where the user can have a few public keys on different derivations and addresses for them.
-        mutating func update(userDerivations: [DerivationPath])
+        /// Used for the dynamic address feature where the user can have multiple used addresses,
+        /// each associated with its derivation path.
+        mutating func update(usedAddresses: [UTXOUsedAddress])
     }
 }
