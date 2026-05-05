@@ -101,7 +101,7 @@ struct OnrampKYCVerificationSheetView: View {
 
     private func bulletItem(_ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            Text("\u{2022}")
+            Text(AppConstants.dotSign)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
 
             Text(text)

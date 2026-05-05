@@ -20,6 +20,8 @@ final class QuickTopUpBannerViewModel: ObservableObject {
 
     private let walletModel: any WalletModel
     private let onOpenOnramp: (PredefinedOnrampParameters) -> Void
+    private let presetAmounts: [Decimal] = [50, 200, 700]
+    private var presetByChipID: [Chip.ID: PredefinedOnrampParameters] = [:]
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -33,31 +35,23 @@ final class QuickTopUpBannerViewModel: ObservableObject {
     }
 
     func onChipSelected(_ chipId: Chip.ID) {
-        let parameters: PredefinedOnrampParameters
-
-        if chipId == "other" {
-            parameters = .none
-        } else if let amount = Decimal(string: chipId) {
-            parameters = PredefinedOnrampParameters(amount: amount)
-        } else {
-            parameters = .none
-        }
-
+        guard let parameters = presetByChipID[chipId] else { return }
         onOpenOnramp(parameters)
     }
 
     private func bind() {
-        let currencyInfoPublisher = onrampRepository.preferencePublisher
-            .map { preference -> CurrencyInfo? in
+        let currencyCodePublisher = onrampRepository.preferencePublisher
+            .map { preference -> String? in
                 guard let country = preference.country, country.onrampAvailable else {
                     return nil
                 }
 
                 let code = (preference.currency ?? country.currency).identity.code.uppercased()
                 switch code {
-                case "USD": return CurrencyInfo(sign: "$")
-                case "EUR": return CurrencyInfo(sign: "€")
-                default: return nil
+                case AppConstants.usdCurrencyCode, AppConstants.eurCurrencyCode:
+                    return code
+                default:
+                    return nil
                 }
             }
 
@@ -70,35 +64,48 @@ final class QuickTopUpBannerViewModel: ObservableObject {
                 }
             }
 
-        Publishers.CombineLatest(currencyInfoPublisher, isZeroBalancePublisher)
+        Publishers.CombineLatest(currencyCodePublisher, isZeroBalancePublisher)
             .receiveOnMain()
-            .sink { [weak self] currencyInfo, isZeroBalance in
+            .sink { [weak self] currencyCode, isZeroBalance in
                 guard let self else { return }
 
-                if let currencyInfo, isZeroBalance {
-                    chips = Self.makeChips(sign: currencyInfo.sign)
+                if let currencyCode, isZeroBalance {
+                    let result = makeChips(currencyCode: currencyCode)
+                    chips = result.chips
+                    presetByChipID = result.presets
                     isVisible = true
                 } else {
                     isVisible = false
+                    presetByChipID = [:]
                 }
             }
             .store(in: &bag)
     }
 
-    private static func makeChips(sign: String) -> [Chip] {
-        [
-            Chip(id: "50", title: "\(sign)50"),
-            Chip(id: "200", title: "\(sign)200"),
-            Chip(id: "700", title: "\(sign)700"),
-            Chip(id: "other", title: Localization.quickTopUpChipOther),
-        ]
-    }
-}
+    private func makeChips(currencyCode: String) -> (chips: [Chip], presets: [Chip.ID: PredefinedOnrampParameters]) {
+        let formatter = BalanceFormatter()
+        let options = BalanceFormattingOptions(
+            minFractionDigits: 0,
+            maxFractionDigits: 0,
+            formatEpsilonAsLowestRepresentableValue: false,
+            roundingType: .default(roundingMode: .plain, scale: 0)
+        )
 
-// MARK: - Types
+        var chips: [Chip] = []
+        var presets: [Chip.ID: PredefinedOnrampParameters] = [:]
+        chips.reserveCapacity(presetAmounts.count + 1)
 
-private extension QuickTopUpBannerViewModel {
-    struct CurrencyInfo {
-        let sign: String
+        for amount in presetAmounts {
+            let title = formatter.formatFiatBalance(amount, currencyCode: currencyCode, formattingOptions: options)
+            let id = UUID().uuidString
+            chips.append(Chip(id: id, title: title))
+            presets[id] = PredefinedOnrampParameters(amount: amount)
+        }
+
+        let otherID = UUID().uuidString
+        chips.append(Chip(id: otherID, title: Localization.quickTopUpChipOther))
+        presets[otherID] = PredefinedOnrampParameters.none
+
+        return (chips, presets)
     }
 }

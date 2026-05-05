@@ -377,21 +377,32 @@ private extension TokenDetailsViewModel {
     }
 
     private func setupQuickTopUpBanner() {
+        guard FeatureProvider.isAvailable(.onrampNativePayment) else { return }
+
         let availabilityProvider = TokenActionAvailabilityProvider(
             userWalletConfig: userWalletInfo.config,
             walletModel: walletModel
         )
+        let expressAvailabilityProvider: any ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
 
-        guard availabilityProvider.isBuyAvailable,
-              FeatureProvider.isAvailable(.onrampNativePayment) else { return }
-
-        quickTopUpBannerViewModel = QuickTopUpBannerViewModel(
-            walletModel: walletModel,
-            onOpenOnramp: { [weak self] parameters in
+        expressAvailabilityProvider.availabilityDidChangePublisher
+            .receiveOnMain()
+            .sink { [weak self] in
                 guard let self else { return }
-                tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+
+                if availabilityProvider.isBuyAvailable, quickTopUpBannerViewModel == nil {
+                    quickTopUpBannerViewModel = QuickTopUpBannerViewModel(
+                        walletModel: walletModel,
+                        onOpenOnramp: { [weak self] parameters in
+                            guard let self else { return }
+                            tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
+                        }
+                    )
+                } else if !availabilityProvider.isBuyAvailable {
+                    quickTopUpBannerViewModel = nil
+                }
             }
-        )
+            .store(in: &bag)
     }
 
     private func makeDotsMenuItems() -> [DotsMenuItem] {

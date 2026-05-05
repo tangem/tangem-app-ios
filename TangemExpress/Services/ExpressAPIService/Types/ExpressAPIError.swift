@@ -34,7 +34,7 @@ public extension ExpressAPIError {
         let decimals: Int?
         let fromAmount: String?
         let fromAmountProvider: String?
-        // [REDACTED_TODO_COMMENT]
+        // kycUrl ships once backend exposes it; uncomment then.
 //        public let kycUrl: String?
 
         public var roundUpAmount: Decimal? {
@@ -96,7 +96,7 @@ public extension ExpressAPIError {
 
         case exchangeTransactionNotFoundError = 2500
 
-        // [REDACTED_TODO_COMMENT]
+        /// Backend may renumber this case before release.
         case onrampKYCRequired = 2600
 
         public var errorDescription: String? {
