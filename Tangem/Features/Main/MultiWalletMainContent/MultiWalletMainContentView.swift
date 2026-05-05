@@ -23,14 +23,6 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
-            ForEach(viewModel.bannerNotificationInputs) { input in
-                NotificationView(input: input)
-            }
-
-            if let viewModel = viewModel.tangemPayBannerViewModel {
-                GetTangemPayBannerView(viewModel: viewModel)
-            }
-
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.isScannerBusy)
@@ -40,8 +32,14 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            ForEach(viewModel.yieldModuleNotificationInputs) { input in
+            ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
+            }
+
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
+            if let viewModel = viewModel.tangemPayBannerViewModel {
+                GetTangemPayBannerView(viewModel: viewModel)
             }
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in
@@ -62,7 +60,7 @@ struct MultiWalletMainContentView: View {
 
             if viewModel.isOrganizeTokensVisible {
                 FixedSizeButtonWithLeadingIcon(
-                    title: Localization.organizeTokensTitle,
+                    title: viewModel.organizeTokensButtonTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
                     style: .default,
                     action: viewModel.onOpenOrganizeTokensButtonTap
@@ -200,7 +198,7 @@ struct MultiWalletMainContentView: View {
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository()
         InjectedValues[\.tangemApiService] = FakeTangemApiService()
 
-        let sectionsProvider = AccountsAwareMultiWalletMainContentViewSectionsProvider(
+        let sectionsProvider = CommonMultiWalletMainContentViewSectionsProvider(
             userWalletModel: userWalletModel,
             manageTokensActionFactory: { _ in {} }
         )
@@ -217,6 +215,7 @@ struct MultiWalletMainContentView: View {
             sectionsProvider: sectionsProvider,
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
+            promotionNotificationsManager: FakePromotionNotificationsManager(),
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),

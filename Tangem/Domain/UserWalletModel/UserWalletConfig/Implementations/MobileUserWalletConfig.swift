@@ -13,6 +13,8 @@ import TangemAssets
 import TangemMobileWalletSdk
 import TangemFoundation
 import TangemLocalization
+import TangemUI
+import SwiftUI
 
 struct MobileUserWalletConfig {
     let mobileWalletInfo: MobileWalletInfo
@@ -100,6 +102,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
         return nil
     }
 
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .tLetterCard(.init(card: Color.Tangem.CardCollection.tangem, tLetter: Color.Tangem.CardCollection.tLogo))
+    }
+
     var cardSessionFilter: SessionFilter { .cardId("") }
 
     var contextBuilder: WalletCreationContextBuilder {
@@ -158,6 +164,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
                 return .available
             }
             return .hidden
+        case .walletAssetsDiscovery:
+            return .available
         }
     }
 
@@ -169,11 +177,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         fatalError("Implementation not required")
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> any WalletModelsFactory {
-        CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> any AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> any AnyWalletManagerFactory {
         GenericWalletManagerFactory()
     }
 

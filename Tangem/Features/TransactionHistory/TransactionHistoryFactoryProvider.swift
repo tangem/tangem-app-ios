@@ -19,7 +19,9 @@ class TransactionHistoryFactoryProvider {
     lazy var factory: TransactionHistoryProviderFactory = .init(
         keysConfig: keysManager.blockchainSdkKeysConfig,
         tangemProviderConfig: .ephemeralConfiguration,
-        apiList: apiListProvider.apiList
+        apiList: apiListProvider.apiList,
+        isSolanaTransactionHistoryEnabled: FeatureProvider.isAvailable(.solanaTxHistoryEnabled),
+        isXrpTransactionHistoryEnabled: FeatureProvider.isAvailable(.xrplTransactionHistory)
     )
 
     init() {}

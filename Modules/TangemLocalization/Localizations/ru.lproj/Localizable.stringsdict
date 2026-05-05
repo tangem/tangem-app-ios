@@ -2,26 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>auth_wallet_hardware_description</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li карта</string>
-        <key>few</key>
-        <string>%li карты</string>
-        <key>many</key>
-        <string>%li карт</string>
-        <key>other</key>
-        <string>%li карты</string>
-      </dict>
-    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -42,26 +22,6 @@
         <string>%li устройств</string>
       </dict>
     </dict>
-    <key>card_label_token_count</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li токен</string>
-        <key>few</key>
-        <string>%li токена</string>
-        <key>many</key>
-        <string>%li токенов</string>
-        <key>other</key>
-        <string>%li токены</string>
-      </dict>
-    </dict>
     <key>common_days_no_param</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -80,6 +40,86 @@
         <string>дней</string>
         <key>other</key>
         <string>дней</string>
+      </dict>
+    </dict>
+    <key>common_days_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li день назад</string>
+        <key>few</key>
+        <string></string>
+        <key>many</key>
+        <string></string>
+        <key>other</key>
+        <string>%li дней назад</string>
+      </dict>
+    </dict>
+    <key>common_hours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li час</string>
+        <key>few</key>
+        <string>%li часa</string>
+        <key>many</key>
+        <string>%li часов</string>
+        <key>other</key>
+        <string>%li часа</string>
+      </dict>
+    </dict>
+    <key>common_hours_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liч назад</string>
+        <key>few</key>
+        <string>%liч назад</string>
+        <key>many</key>
+        <string>%liч назад</string>
+        <key>other</key>
+        <string>%liч назад</string>
+      </dict>
+    </dict>
+    <key>common_minutes_time_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liмин назад</string>
+        <key>few</key>
+        <string>%liмин назад</string>
+        <key>many</key>
+        <string>%liмин назад</string>
+        <key>other</key>
+        <string>%liмин назад</string>
       </dict>
     </dict>
     <key>common_networks_count</key>
@@ -277,6 +317,22 @@
         <string>%li NFT</string>
       </dict>
     </dict>
+    <key>onboarding_address_sync_description</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <key>other</key>
+        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+      </dict>
+    </dict>
     <key>onboarding_seed_generate_message_words_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -395,6 +451,26 @@
         <string>%li кошельков</string>
         <key>other</key>
         <string>%li кошельков</string>
+      </dict>
+    </dict>
+    <key>send_network_selection_hidden_tokens</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Токен %li не совместим с этим адресом</string>
+        <key>few</key>
+        <string></string>
+        <key>many</key>
+        <string>Токены %li не совместимы с этим адресом</string>
+        <key>other</key>
+        <string>%li tokens aren't compatible with this address</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

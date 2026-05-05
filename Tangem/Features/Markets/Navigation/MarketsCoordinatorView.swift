@@ -43,23 +43,22 @@ struct MarketsCoordinatorView: CoordinatorView {
             ) {
                 MarketsListOrderBottomSheetView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
-            }
-            .fullScreenCover(item: $coordinator.mainTokenDetailsCoordinator, content: { item in
+            .sheet(item: $coordinator.mainTokenDetailsCoordinator) { item in
+                // Token details is presented using `.sheet` instead of `.fullScreenCover` due to
+                // SwiftUI bug on iOS 26+ (see [REDACTED_INFO]
                 NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             NavigationToolbarButton.close(
                                 placement: .topBarLeading,
                                 action: {
-                                    dissmissMainTokenDetails()
+                                    dismissMainTokenDetails()
                                 }
                             )
                         }
                 }
                 .tint(Colors.Text.primary1)
-            })
+            }
     }
 
     private var links: some View {
@@ -82,6 +81,9 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.earnListCoordinator) {
                 EarnDetailCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.portfolioTokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
+            }
     }
 
     private var newsPagerTokenDetailsLink: some View {
@@ -92,7 +94,7 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
     }
 
-    private func dissmissMainTokenDetails() {
+    private func dismissMainTokenDetails() {
         coordinator.mainTokenDetailsCoordinator = nil
     }
 }

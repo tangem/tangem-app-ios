@@ -104,6 +104,18 @@ extension Analytics {
         case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
         case stakingClicked = "[Token] Staking Clicked"
 
+        // MARK: - Dynamic Addresses
+
+        case dynamicAddressesScreenOpened = "[Token] Dynamic Addresses Screen Opened"
+        case buttonEnableDynamicAddresses = "[Token] Button - Enable Dynamic Addresses"
+        case dynamicAddressesEnabled = "[Token] Dynamic Addresses Enabled"
+        case buttonDisableDynamicAddresses = "[Token] Button - Disable Dynamic Addresses"
+        case dynamicAddressesDisabled = "[Token] Dynamic Addresses Disabled"
+        case dynamicAddressesNoticeUnavailable = "[Token] Notice - Dynamic Addresses Unavailable"
+        case dynamicAddressesErrorUnavailable = "[Token] Error - Dynamic Addresses Unavailable"
+        // [REDACTED_TODO_COMMENT]
+        case dynamicAddressesNoticeFundsFound = "[Token] Notice - Additional Addresses Found"
+
         // MARK: - Main screen
 
         case mainScreenOpened = "[Main Screen] Screen opened"
@@ -158,10 +170,26 @@ extension Analytics {
         case sendProviderClicked = "[Token / Send] Provider Clicked"
         case sendProviderChosen = "[Token / Send] Provider Chosen"
         case sendSendWithSwapInProgressScreenOpened = "[Token / Send] Send With Swap In Progress Screen Opened"
+        case sendSendWithSwapConfirmScreenOpened = "[Token / Send] Send With Swap Confirm Screen Opened"
+        case sendNoticeFixedRate = "[Token / Send] Notice - Fixed Rate"
+        case sendNoticeFloatRate = "[Token / Send] Notice - Float Rate"
+        case sendSwapErrorInsufficientBalance = "[Token / Send] Error - Insufficient balance"
+        case sendSwapErrorMinAmount = "[Token / Send] Error - Min amount"
+        case sendSwapErrorMaxAmount = "[Token / Send] Error - Max amount"
+        case sendSwapErrorExpressQuote = "[Token / Send] Error - Express quote"
+        case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
         case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
+        case sendNoticeNoAvailableTokens = "[Token / Send] Notice - No Available Tokens"
+        case sendChooseTokenScreenOpened = "[Token / Send] Choose Token Screen Opened"
+        case sendTokenSelected = "[Token / Send] Token Selected"
+
+        // MARK: - QR Scan
+
+        case mainScreenButtonQRScan = "[Main Screen] Button - QR Scan"
+        case mainScreenNoticeUnrecognizedQR = "[Main Screen] Notice - Unrecognized QR"
 
         case topupScreenOpened = "[Token / Topup] Top Up Screen Opened"
         case p2PScreenOpened = "[Token / Topup] P2P Screen Opened"
@@ -195,6 +223,7 @@ extension Analytics {
         case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
         case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
         case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsButtonICloudBackup = "[Settings / Wallet Settings] Button - Cloud Backup"
         case walletSettingsButtonRecoveryPhrase = "[Settings / Wallet Settings] Button - Recovery phrase"
         case walletSettingsButtonHardwareUpdate = "[Settings / Wallet Settings] Button - Hardware Update"
         case walletSettingsButtonCreateNewWallet = "[Settings / Wallet Settings] Button - Create New Wallet"
@@ -303,6 +332,10 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+        case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
+        case swapNoticeTradeTooLarge = "[Swap] Notice - Trade Too Large"
+        case swapPermissionScreenOpened = "[Swap] Permission Screen Opened"
+        case swapPermissionUpdateScreenOpened = "[Swap] Permission Update Screen Opened"
 
         case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
         case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
@@ -369,12 +402,6 @@ extension Analytics {
         case tokenButtonRevealTryAgain = "[Token] Button - Reveal Try Again"
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
-        case mainNoticeSeedSupport = "[Main Screen] Notice - Seed Phrase Support"
-        case mainNoticeSeedSupportButtonYes = "[Main Screen] Button - Support Yes"
-        case mainNoticeSeedSupportButtonNo = "[Main Screen] Button - Support No"
-        case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
-        case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
-        case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
 
         // MARK: - BlockchainSdk exceptions
@@ -397,6 +424,13 @@ extension Analytics {
         case promotionVisaWaitlist = "[Promotion] Visa Waitlist"
         case promotionButtonJoinNow = "[Promotion] Button - Join Now"
         case promotionButtonClose = "[Promotion] Button - Close"
+
+        // MARK: - Promotion Banner
+
+        case promotionBannerBannerShown = "[Promo Banner] Banner Shown"
+        case promotionBannerCarouselScrolled = "[Promo Banner] Banner Carousel Scrolled"
+        case promotionBannerButtonClicked = "[Promo Banner] Banner Button Clicked"
+        case promotionBannerDismissed = "[Promo Banner] Banner Dismissed"
 
         // MARK: - Errors
 
@@ -452,6 +486,7 @@ extension Analytics {
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
         case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
+        case stakingPermissionScreenOpened = "[Staking] Permission Screen Opened"
 
         // MARK: - Markets
 
@@ -469,9 +504,6 @@ extension Analytics {
         case marketsNewsCarouselTrendingClicked = "[Markets] News Carousel Trending Clicked"
         case marketsNewsListLoadError = "[Markets] News List Load Error"
         case marketsNewsCategoriesSelected = "[Markets] News Categories Selected"
-        case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
-        case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
-        case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
         case marketsEarnLoadError = "[Markets] Earn Load Error"
         case marketsEarnScreenOpened = "[Markets] Earn Screen Opened"
         case marketsTokenSearch = "[Markets] Token Search"
@@ -503,6 +535,7 @@ extension Analytics {
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
+        case marketsChartButtonShare = "[Markets / Chart] Button - Share"
         case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
@@ -592,7 +625,7 @@ extension Analytics {
 
         // MARK: - Stories
 
-        case storiesSwapShown = "[Stories] Swap Stories"
+        case storiesSwapStory = "[Stories] Swap Story"
         case storiesError = "[Stories] Error"
 
         // MARK: - Tangem API Service
@@ -643,6 +676,9 @@ extension Analytics {
         case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
         case visaOnboardingVisaKYCPassedAndOrderCreated = "[Visa Onboarding] Visa KYC Passed And Order Created"
 
+        case visaOnboardingVisaPermanentButtonClicked = "[Visa Onboarding] Visa Permanent Button Clicked"
+        case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
+
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"
         case visaScreenTermsAndLimitsClicked = "[Visa Screen] Button - Terms And Limits"
@@ -671,6 +707,14 @@ extension Analytics {
         case visaScreenButtonVisaAddFunds = "[Visa Screen] Button - Visa Add Funds"
         case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
         case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
+
+        case visaReplaceCardClicked = "[Visa Screen] Visa Replace Card Clicked"
+        case visaReplaceCardConfirmationPopupOpened = "[Visa Screen] Visa Replace Card Confirmation Popup Opened"
+        case visaReplaceCardConfirmed = "[Visa Screen] Visa Replace Card Confirmed"
+
+        case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
+        case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
+        case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
 
         // MARK: - NFT
 
@@ -731,5 +775,12 @@ extension Analytics {
         case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
         case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
         case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
+
+        // MARK: - Initial Token Sync
+
+        case initialTokenSyncStarted = "[Token Sync] Sync Started"
+        case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
+        case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
+        case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
     }
 }

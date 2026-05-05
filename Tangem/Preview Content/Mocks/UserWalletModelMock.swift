@@ -20,11 +20,7 @@ class UserWalletModelMock: UserWalletModel {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
 
     var keysRepository: KeysRepository {
-        CommonKeysRepository(
-            userWalletId: userWalletId,
-            encryptionKey: .init(userWalletIdSeed: Data()),
-            keys: .cardWallet(keys: [])
-        )
+        CommonKeysRepository(keys: .cardWallet(keys: []))
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -40,10 +36,6 @@ class UserWalletModelMock: UserWalletModel {
     var userWalletId: UserWalletId { .init(value: Data()) }
 
     var totalBalance: TotalBalanceState { .empty }
-
-    var walletModelsManager: WalletModelsManager { WalletModelsManagerMock() }
-
-    var userTokensManager: UserTokensManager { UserTokensManagerMock() }
 
     var walletImageProvider: WalletImageProviding {
         CardImageProviderMock()
@@ -83,10 +75,6 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -94,10 +82,8 @@ class UserWalletModelMock: UserWalletModel {
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
-            walletModelsManager: walletModelsManager,
-            userTokensManager: userTokensManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
-            derivationManager: nil
+            accountModelsManager: accountModelsManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
         )
     }
 
@@ -120,7 +106,6 @@ class UserWalletModelMock: UserWalletModel {
     func addAssociatedCard(cardId: String) {}
 
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }

@@ -29,6 +29,13 @@ enum TokenFeeProviderState {
         default: true
         }
     }
+
+    var isUnavailableNoTokenBalance: Bool {
+        switch self {
+        case .unavailable(.noTokenBalance): true
+        default: false
+        }
+    }
 }
 
 extension TokenFeeProviderState: CustomStringConvertible {

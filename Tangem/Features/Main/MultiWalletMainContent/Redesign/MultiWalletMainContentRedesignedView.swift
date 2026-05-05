@@ -7,68 +7,93 @@
 //
 
 import SwiftUI
+import TangemNFT
 import TangemUI
 import TangemAssets
 import TangemUIUtils
 import TangemFoundation
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct MultiWalletMainContentRedesignedView: View {
     @ObservedObject var viewModel: MultiWalletMainContentViewModel
 
     var body: some View {
-        listContent
-            .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
-            .padding(.horizontal, .unit(.x3))
-            .onDidAppear(perform: viewModel.onDidAppear)
-            .onWillDisappear(perform: viewModel.onWillDisappear)
-            .bindAlert($viewModel.error)
+        VStack(spacing: .unit(.x4)) {
+            notificationBanners
+
+            listContent
+                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+
+            if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
+                TangemNFTEntrypointRow(viewModel: nftEntrypointViewModel)
+            }
+
+            if viewModel.isOrganizeTokensVisible {
+                organizeButton
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingTokenList)
+        .padding(.horizontal, .unit(.x3))
+        .onDidAppear(perform: viewModel.onDidAppear)
+        .onWillDisappear(perform: viewModel.onWillDisappear)
+        .bindAlert($viewModel.error)
+    }
+
+    // MARK: - Notification Banners
+
+    private var notificationBanners: some View {
+        NotificationBannerContainer(
+            items: viewModel.notificationBannerItems,
+            stackingType: .carousel
+        )
     }
 
     // MARK: - List Content
 
+    @ViewBuilder
     private var listContent: some View {
         let isLoading = viewModel.isLoadingTokenList
         let hasContent = !viewModel.plainSections.isEmpty || !viewModel.accountSections.isEmpty
 
-        return ZStack(alignment: .top) {
-            // Skeleton placeholders layer
-            skeletonPlaceholders(isLoading: isLoading)
+        if isLoading {
+            skeletonPlaceholders
                 .allowsHitTesting(false)
+                .transition(.opacity)
+        } else if hasContent {
+            VStack(spacing: 0) {
+                accountsList
 
-            // Real content layer
-            if hasContent {
-                VStack(spacing: 0) {
-                    accountsList
-
-                    plainTokensList
-                }
-                .opacity(isLoading ? 0 : 1)
-            } else if !isLoading {
-                emptyList
+                plainTokensList
             }
+            .transition(.opacity)
+        } else {
+            emptyList
+                .transition(.opacity)
         }
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+    }
+
+    private var organizeButton: some View {
+        TangemButton(
+            content: .combined(
+                text: AttributedString(Localization.organizeTokensTitle),
+                icon: Assets.OrganizeTokens.filterIcon,
+                iconPosition: .left
+            ),
+            action: viewModel.onOpenOrganizeTokensButtonTap
+        )
+        .setCornerStyle(.rounded)
+        .setStyleType(.secondary)
+        .setSize(.x9)
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
 
     // MARK: - Skeleton Placeholders
 
-    private func skeletonPlaceholders(isLoading: Bool) -> some View {
-        let accountCount = viewModel.accountSections.count
-
-        return VStack(spacing: .unit(.x2)) {
-            ForEach(0 ..< Constants.placeholderCount, id: \.self) { index in
-                let hasMatchingAccount = index < accountCount
-
-                if hasMatchingAccount {
-                    // Matched: stays in tree, just fades opacity — no slide
-                    RedesignedAccountSkeletonCardView()
-                        .opacity(isLoading ? 1 : 0)
-                } else if isLoading {
-                    // Unmatched: removed from tree when loading ends → slides down
-                    RedesignedAccountSkeletonCardView()
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
+    private var skeletonPlaceholders: some View {
+        VStack(spacing: .unit(.x2)) {
+            ForEach(0 ..< MultiWalletMainContentConstants.placeholderCount, id: \.self) { _ in
+                RedesignedAccountSkeletonCardView()
             }
         }
     }
@@ -76,9 +101,22 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Empty List
 
     private var emptyList: some View {
-        MultiWalletTokenItemsEmptyView()
-            .padding(.top, 96)
-            .cornerRadiusContinuous(Constants.cornerRadius)
+        VStack(spacing: .unit(.x2)) {
+            MultiWalletTokenItemsEmptyView()
+                .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
+                .textColor(Color.Tangem.Text.Neutral.tertiary)
+                .spacing(.unit(.x5))
+
+            TangemButton(
+                content: .text(AttributedString(Localization.commonAddTokens)),
+                action: viewModel.onAddTokensTap
+            )
+            .setCornerStyle(.rounded)
+            .setStyleType(.secondary)
+            .setSize(.x10)
+            .setHorizontalLayout(.intrinsic)
+        }
+        .padding(.top, .unit(.x9))
     }
 
     // MARK: - Accounts List
@@ -99,6 +137,8 @@ struct MultiWalletMainContentRedesignedView: View {
                 } else {
                     EmptyView()
                 }
+                .cornerRadius(.unit(.x5))
+                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
             }
         }
     }
@@ -109,7 +149,11 @@ struct MultiWalletMainContentRedesignedView: View {
         LazyVStack(spacing: 0) {
             tokenRowsContent(sections: viewModel.plainSections)
         }
-        .roundedBackground(with: Constants.tokenListBackgroundColor, padding: 0, radius: Constants.cornerRadius)
+        .roundedBackground(
+            with: MultiWalletMainContentConstants.tokenListBackgroundColor,
+            padding: 0,
+            radius: MultiWalletMainContentConstants.cornerRadius
+        )
     }
 
     // MARK: - Token Rows Content
@@ -121,20 +165,22 @@ struct MultiWalletMainContentRedesignedView: View {
         ForEach(indexed: sections.indexed()) { sectionIndex, section in
             let hasTitle = section.model.title != nil
             let isFirstVisibleSection = hasTitle && sectionIndex == 0
-            let topEdgeCornerRadius = isFirstVisibleSection ? Constants.cornerRadius : nil
+            let topEdgeCornerRadius = isFirstVisibleSection ? MultiWalletMainContentConstants.cornerRadius : nil
 
             LazyVStack(spacing: .zero) {
-                TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
+                TokenSectionView(
+                    title: section.model.title,
+                    topEdgeCornerRadius: topEdgeCornerRadius,
+                    backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
+                )
 
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
                     let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
                     let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
                     let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
 
-                    tokenItemView(
+                    TokenItemContainerView(
                         item: item,
-                        isFirstItem: isFirstItem,
                         roundedBottomCorners: roundBottomCorners && isLastItem,
                         promoBubbleViewModel: promoBubbleViewModel
                     )
@@ -142,51 +188,55 @@ struct MultiWalletMainContentRedesignedView: View {
             }
         }
     }
+}
 
-    // MARK: - Token Item View with Promo Bubble
+// MARK: - TokenItemContainerView
 
-    private func tokenItemView(
-        item: TokenItemViewModel,
-        isFirstItem: Bool,
-        roundedBottomCorners: Bool = false,
-        promoBubbleViewModel: TokenItemPromoBubbleViewModel?
-    ) -> some View {
-        VStack(spacing: 0) {
-            if let promoBubbleViewModel {
-                TokenItemPromoBubbleView(
-                    viewModel: promoBubbleViewModel,
-                    position: isFirstItem ? .top : .normal
-                )
-            }
+private struct TokenItemContainerView: View {
+    let item: TokenItemViewModel
+    let roundedBottomCorners: Bool
+    let promoBubbleViewModel: TokenItemPromoBubbleViewModel?
 
+    var body: some View {
+        VStack(alignment: .twoLineRowLeading, spacing: 0) {
             MainPageTangemTokenRow(viewModel: item)
-                .backgroundColor(Constants.tokenListBackgroundColor)
+                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
                 .if(roundedBottomCorners) { view in
                     view.cornerRadiusContinuous(
-                        bottomLeadingRadius: Constants.cornerRadius,
-                        bottomTrailingRadius: Constants.cornerRadius
+                        bottomLeadingRadius: MultiWalletMainContentConstants.cornerRadius,
+                        bottomTrailingRadius: MultiWalletMainContentConstants.cornerRadius
                     )
                 }
-                .overlay(alignment: .top) {
-                    trianglePointer.opacity(promoBubbleViewModel == nil ? 0 : 1)
-                }
-        }
-    }
 
-    private var trianglePointer: some View {
-        Triangle()
-            .rotation(Angle(degrees: 180))
-            .fill(Colors.Control.unchecked)
-            .frame(width: 12, height: 8)
+            if let promoBubbleViewModel {
+                Button(action: promoBubbleViewModel.onTap) {
+                    TangemCallout(
+                        text: promoBubbleViewModel.message,
+                        arrowAlignment: .top,
+                        action: TangemCallout.Action(
+                            icon: Assets.cross16.image,
+                            closure: {
+                                withAnimation {
+                                    promoBubbleViewModel.onDismiss()
+                                }
+                            }
+                        )
+                    )
+                    .icon(promoBubbleViewModel.leadingImage)
+                    .colorPalette(.green)
+                    .arrowAligned(to: .twoLineRowLeading)
+                }
+                .padding(.bottom, .unit(.x3))
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
     }
 }
 
 // MARK: - Constants
 
-private extension MultiWalletMainContentRedesignedView {
-    enum Constants {
-        static let placeholderCount = 3
-        static let cornerRadius: CGFloat = .unit(.x5)
-        static let tokenListBackgroundColor = Color.Tangem.Surface.level1
-    }
+private enum MultiWalletMainContentConstants {
+    static let placeholderCount = 3
+    static let cornerRadius: CGFloat = .unit(.x5)
+    static let tokenListBackgroundColor = Color.Tangem.Surface.level3
 }

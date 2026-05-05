@@ -9,15 +9,11 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemUI
-import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
-
-    @State private var redesignedHeaderHeightRatio: CGFloat?
 
     var body: some View {
         content
@@ -27,14 +23,13 @@ struct MainView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.keyboard)
-            .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     @ViewBuilder
     private var content: some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesignEnabled {
             fullPagePagerContent
-                .northernLightsBackground(backgroundColor: .Tangem.Surface.level2)
+                .modifier(RedesignedBackgroundModifier(headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher))
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -46,36 +41,44 @@ struct MainView: View {
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
-            headerFactory: { pageBuilder in
-                TangemElasticContainer(
-                    onAddScrollViewObserver: viewModel.refreshScrollViewStateObject.addObserver,
-                    onRemoveScrollViewObserver: viewModel.refreshScrollViewStateObject.removeObserver,
-                    content: makeRedesignedHeader(pageBuilder: pageBuilder)
-                )
-                .onPreferenceChange(TangemElasticContainerHeightRatio.self) { redesignedHeaderHeightRatio = $0 }
-            },
-            bodyFactory: { page in
-                page.body
-            }
+            navigationFactory: makeRedesignedNavigation,
+            headerFactory: makeRedesignedHeader,
+            bodyFactory: makeRedesignedBody,
+            bottomOverlayFactory: makeRedesignedBottomOverlay
         )
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .onHeaderHeightRatioChange(viewModel.onHeaderHeightRatioChange)
         .onPageChange(viewModel.onPageChange(dueTo:))
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            Color.clear.frame(height: overlayCollapsedHeight)
-        }
+    }
+
+    private func makeRedesignedNavigation(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
+        RedesignedNavigationModifier(
+            openDetailsAction: viewModel.openDetails,
+            openQRScanAction: viewModel.openQRScan,
+            headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher,
+            pageBuilder: pageBuilder
+        )
     }
 
     private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        let scale: CGFloat = max(0.5, redesignedHeaderHeightRatio ?? 1.0)
-        let opacity: CGFloat = redesignedHeaderHeightRatio ?? 1.0
-
-        return pageBuilder.redesignedHeader(
+        pageBuilder.redesignedHeader(
             totalPages: viewModel.pages.count,
             currentIndex: viewModel.selectedCardIndex
         )
-        .scaleEffect(scale)
-        .opacity(opacity)
-        .animation(.default, value: redesignedHeaderHeightRatio)
+    }
+
+    private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {
+        pageBuilder.content
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: overlayCollapsedHeight)
+            }
+    }
+
+    private func makeRedesignedBottomOverlay(pageBuilder: MainUserWalletPageBuilder) -> some View {
+        RedesignedBottomOverlay(
+            refreshScrollViewInteractor: viewModel.refreshScrollViewStateObject.scrollViewInteractor,
+            pageBuilder: pageBuilder
+        )
     }
 
     private var cardsInfoPagerContent: some View {
@@ -84,27 +87,31 @@ struct MainView: View {
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
             discoveryAnimationTrigger: viewModel.swipeDiscoveryAnimationTrigger,
-            headerFactory: { info in
-                info.header
+            headerViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.header
                     .contextMenu {
-                        if !info.isLockedWallet {
+                        if !userWalletPageBuilder.isLockedWallet {
                             if AppSettings.shared.saveUserWallets {
                                 renameButton
                             }
                         }
                     }
             },
-            contentFactory: { info in
-                info.body
+            contentViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.content
             },
-            bottomOverlayFactory: { info, overlayParams in
-                info.makeBottomOverlay(overlayParams)
+            bottomOverlayViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.bottomOverlay
+            },
+            footerOverlayViewBuilder: { userWalletPageBuilder in
+                userWalletPageBuilder.footerOverlay
             }
         )
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
         .onPageChange(viewModel.onPageChange(dueTo:))
+        .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
 
     private var renameButton: some View {
@@ -124,45 +131,31 @@ private struct MainViewNavigationModifier: ViewModifier {
     let openQRScanAction: () -> Void
 
     func body(content: Content) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
-            content
-                .tangemNavigationHeader(
-                    secondaryTrailingAction: openQRScanAction,
-                    trailingAction: openDetailsAction,
-                    accessibilityIdentifiers: TangemNavigationHeader.AccessibilityIdentifiers(
-                        trailingButton: MainAccessibilityIdentifiers.detailsButton,
-                        trailingButtonLabel: Localization.voiceOverOpenCardDetails,
-                        secondaryTrailingButton: MainAccessibilityIdentifiers.scanQrButton,
-                        secondaryTrailingButtonLabel: Localization.voiceOverOpenNewWalletConnectSession
-                    )
-                )
-        } else {
-            content
-                .tangemLogoNavigationToolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: openQRScanAction) {
-                            Assets.Glyphs.scanQrIcon.image
-                                .renderingMode(.template)
-                                .foregroundColor(Colors.Icon.primary1)
-                        }
-                        .buttonStyle(.plain)
-                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
-                        .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
+        content
+            .tangemLogoNavigationToolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: openQRScanAction) {
+                        Assets.Glyphs.scanQrIcon.image
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Icon.primary1)
                     }
-
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: openDetailsAction) {
-                            NavbarDotsImage()
-                                .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        }
-                        .buttonStyle(.plain)
-                        .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-                        .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
-                        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
-                    }
+                    .buttonStyle(.plain)
+                    .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
                 }
-        }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: openDetailsAction) {
+                        NavbarDotsImage()
+                            .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    }
+                    .buttonStyle(.plain)
+                    .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
+                    .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
+                }
+            }
     }
 }
 

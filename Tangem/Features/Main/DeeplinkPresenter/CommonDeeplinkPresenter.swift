@@ -15,10 +15,7 @@ final class CommonDeeplinkPresenter {
 
     // MARK: - Properties
 
-    @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
-    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
-    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
-
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     private let coordinatorFactory: MainCoordinatorChildFactory
 
     // MARK: - Init
@@ -32,11 +29,6 @@ final class CommonDeeplinkPresenter {
 
 extension CommonDeeplinkPresenter: DeeplinkPresenter {
     public func present(deepLink: DeepLinkDestination) {
-        if case .market = deepLink {
-            expandMarketsBottomSheetIfPossible()
-            return
-        }
-
         guard let viewController = constructViewControllerForDeepLink(deepLink) else {
             return
         }
@@ -119,6 +111,12 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
+        case .tokenExchanges(let tokenId):
+            return constructMarketsExchangesListViewController(tokenId: tokenId)
+
+        case .markets(let filter):
+            return constructMarketsSearchViewController(filter: filter)
+
         case .onboardVisa(let deeplinkString):
             return constructTangemPayOnboardViewController(
                 deeplinkString: deeplinkString,
@@ -130,7 +128,13 @@ private extension CommonDeeplinkPresenter {
         case .newsDetails(let newsId):
             return constructNewsDetailsViewController(newsId: newsId)
 
-        case .externalLink, .market:
+        case .newsList(let initialCategoryId):
+            return constructNewsListViewController(initialCategoryId: initialCategoryId)
+
+        case .earn(let earnType, let networkId):
+            return constructEarnViewController(earnType: earnType, networkId: networkId)
+
+        case .externalLink, .tangemPayMain, .tangemPayTransactionDetails, .yield:
             return nil
         }
     }
@@ -156,37 +160,23 @@ private extension CommonDeeplinkPresenter {
     ) -> UIViewController? {
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { UIApplication.dismissTop() })
 
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account = walletModel.account else {
-                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
-                AppLogger.error(error: message)
-                assertionFailure(message)
-                return nil
-            }
-
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: account.walletModelsManager,
-                    userTokensManager: account.userTokensManager,
-                    walletModel: walletModel,
-                    pendingTransactionDetails: pendingTransactionDetails
-                )
-            )
-        } else {
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
-                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
-                    walletModel: walletModel,
-                    pendingTransactionDetails: pendingTransactionDetails
-                )
-            )
+        guard let account = walletModel.account else {
+            let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+            AppLogger.error(error: message)
+            assertionFailure(message)
+            return nil
         }
+
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: account.walletModelsManager,
+                userTokensManager: account.userTokensManager,
+                walletModel: walletModel,
+                pendingTransactionDetails: pendingTransactionDetails
+            )
+        )
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
@@ -208,13 +198,7 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { UIApplication.dismissTop() })
 
         coordinator.start(
-            with: .default(
-                options: .init(
-                    userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-                    tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-                )
-            )
+            with: .init(userWalletModels: [userWalletModel])
         )
 
         return makeDeeplinkViewController(
@@ -229,7 +213,8 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        coordinator.start(with: .default)
+        let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .sell())
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false
@@ -242,7 +227,8 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        coordinator.start(with: .default)
+        let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .swap())
+        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false
@@ -259,6 +245,13 @@ private extension CommonDeeplinkPresenter {
         return makeDeeplinkViewController(
             view: { StakingDetailsCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: true
+        )
+    }
+
+    private func constructEarnViewController(earnType: EarnFilterType?, networkId: String?) -> UIViewController {
+        return makeDeeplinkViewController(
+            view: { EarnDeeplinkContainerView(earnType: earnType, networkId: networkId) },
+            embedInNavigationStack: false
         )
     }
 
@@ -281,33 +274,26 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
         coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
 
-        // When opening MarketsTokenDetailsView via deeplink (using UIKit via AppPresenter.show method),
-        // the new SwiftUI view hierarchy doesn't inherit the original Environment values.
-        // Since some views inside MarketsTokenDetailsCoordinatorView rely on environment value `.mainWindowSize`
-        // for layout calculations, we manually inject the current window size here.
-        var windowSize: CGSize?
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            windowSize = window.screen.bounds.size
-        }
+        let windowSize = makeFirstWindowSceneSize()
 
         return makeDeeplinkViewController(
             view: {
                 MarketsTokenDetailsCoordinatorView(coordinator: coordinator)
-                    .environment(\.mainWindowSize, windowSize ?? .zero)
+                    .environment(\.mainWindowSize, windowSize)
             },
             embedInNavigationStack: true
         )
     }
 
-    private func constructTangemPayOnboardViewController(
-        deeplinkString: String
-    ) -> UIViewController {
+    private func constructTangemPayOnboardViewController(deeplinkString: String) -> UIViewController? {
+        guard let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection else {
+            return nil
+        }
+
         let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
             UIApplication.dismissTop()
         }
-        coordinator.start(with: .init(source: .deeplink(deeplinkString)))
+        coordinator.start(with: .init(source: .deeplink(deeplinkString), availableSelection: availableSelection))
 
         return makeDeeplinkViewController(
             view: {
@@ -318,33 +304,89 @@ private extension CommonDeeplinkPresenter {
         )
     }
 
+    private func constructMarketsSearchViewController(filter: MarketsDeeplinkFilter) -> UIViewController {
+        let coordinator = coordinatorFactory.makeMarketsSearchCoordinator(dismissAction: { UIApplication.dismissTop() })
+
+        coordinator.start(
+            with: .init(
+                initialOrderType: filter.order,
+                initialIntervalType: filter.interval,
+                quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
+                leadingButton: .close
+            )
+        )
+
+        let windowSize = makeFirstWindowSceneSize()
+
+        return makeDeeplinkViewController(
+            view: {
+                MarketsSearchCoordinatorView(coordinator: coordinator)
+                    .environment(\.mainWindowSize, windowSize)
+            },
+            embedInNavigationStack: true
+        )
+    }
+
+    private func constructMarketsExchangesListViewController(tokenId: String) -> UIViewController {
+        let viewModel = MarketsTokenDetailsExchangesListViewModel(
+            tokenId: tokenId,
+            numberOfExchangesListedOn: DeeplinkMarketsConstants.deeplinkExchangesSkeletonCount,
+            presentationStyle: .defaultNavigationStack,
+            exchangesListLoader: MarketsTokenDetailsDataProvider(),
+            onBackButtonAction: {}
+        )
+
+        return makeDeeplinkViewController(
+            view: { MarketsTokenDetailsExchangesListView(viewModel: viewModel) },
+            embedInNavigationStack: true
+        )
+    }
+
     private func constructNewsDetailsViewController(newsId: Int) -> UIViewController {
+        let windowSize = makeFirstWindowSceneSize()
+
+        return makeDeeplinkViewController(
+            view: {
+                NewsDeeplinkContainerView(newsId: newsId)
+                    .environment(\.mainWindowSize, windowSize)
+            },
+            embedInNavigationStack: true
+        )
+    }
+
+    private func constructNewsListViewController(initialCategoryId: Int?) -> UIViewController {
+        let windowSize = makeFirstWindowSceneSize()
+
+        let coordinator = NewsListCoordinator(
+            dismissAction: { UIApplication.dismissTop() }
+        )
+        coordinator.start(with: .init(initialCategoryId: initialCategoryId, presentSource: .deeplink))
+
+        return makeDeeplinkViewController(
+            view: {
+                NewsListCoordinatorView(coordinator: coordinator)
+                    .environment(\.mainWindowSize, windowSize)
+            },
+            embedInNavigationStack: true
+        )
+    }
+
+    /// When opening MarketsTokenDetailsView via deeplink (using UIKit via AppPresenter.show method),
+    /// the new SwiftUI view hierarchy doesn't inherit the original Environment values.
+    /// Since some views inside MarketsTokenDetailsCoordinatorView rely on environment value `.mainWindowSize`
+    /// for layout calculations, we manually inject the current window size here.
+    private func makeFirstWindowSceneSize() -> CGSize {
         var windowSize: CGSize?
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
             windowSize = window.screen.bounds.size
         }
 
-        return makeDeeplinkViewController(
-            view: {
-                NewsDeeplinkContainerView(newsId: newsId)
-                    .environment(\.mainWindowSize, windowSize ?? .zero)
-            },
-            embedInNavigationStack: true
-        )
+        return windowSize ?? .zero
     }
 }
 
-private extension CommonDeeplinkPresenter {
-    private func expandMarketsBottomSheetIfPossible() {
-        // If the markets bottom sheet is not currently shown,
-        // it means we're not on the Main View and can't expand it.
-        // Therefore, we discard the incoming action.
-        guard mainBottomSheetUIManager.isShown else {
-            incomingActionManager.discardIncomingAction()
-            return
-        }
-
-        bottomSheetStateController.expand()
-    }
+private enum DeeplinkMarketsConstants {
+    /// Skeleton row count while exchanges load; deeplink has no prior `exchangesAmount` from token details API.
+    static let deeplinkExchangesSkeletonCount = 5
 }

@@ -23,10 +23,9 @@ class CommonUserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
-    let walletModelsManager: WalletModelsManager
-    let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
+    let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -53,10 +52,9 @@ class CommonUserWalletModel {
         name: String,
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
+        keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
@@ -65,10 +63,9 @@ class CommonUserWalletModel {
         self.config = config
         self.userWalletId = userWalletId
         self.name = name
-        self.walletModelsManager = walletModelsManager
-        self.userTokensManager = userTokensManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
+        self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
@@ -120,10 +117,6 @@ extension CommonUserWalletModel: TangemSdkFactory {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    var wcWalletModelProvider: WalletConnectWalletModelProvider {
-        CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
-    }
-
     var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
@@ -193,6 +186,36 @@ extension CommonUserWalletModel: UserWalletModel {
             userWalletRepository.savePublicData()
             _updatePublisher.send(.nameDidChange(name: name))
 
+        case .updateSensitiveInfo(let sensitiveInfo):
+            let keyInfosKeyedByPublicKey = sensitiveInfo
+                .asWalletKeys
+                .asKeyInfo
+                .keyedFirst(by: \.publicKey)
+
+            switch walletInfo {
+            case .cardWallet(let existingInfo):
+                var mutableCardInfo = existingInfo
+                for wallet in mutableCardInfo.card.wallets {
+                    if let derivedKeys = keyInfosKeyedByPublicKey[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = derivedKeys
+                    }
+                }
+
+                // Prevents saving the wallet until the onboarding is completed
+                let shouldSave = userWalletRepository.models[userWalletId] != nil
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
+
+            case .mobileWallet(let existingInfo):
+                var mutableMobileWalletInfo = existingInfo
+                for wallet in mutableMobileWalletInfo.keys {
+                    if let derivedKeys = keyInfosKeyedByPublicKey[wallet.publicKey]?.derivedKeys {
+                        mutableMobileWalletInfo.keys[wallet.publicKey]?.derivedKeys = derivedKeys
+                    }
+                }
+
+                updateConfiguration(walletInfo: .mobileWallet(mutableMobileWalletInfo))
+            }
+
         case .backupCompleted(let card, let associatedCardIds):
             var mutableCardInfo = CardInfo(
                 card: CardDTO(card: card),
@@ -208,7 +231,7 @@ extension CommonUserWalletModel: UserWalletModel {
                     }
                 }
 
-                // prevent save until onboarding completed
+                // Prevents saving the wallet until the onboarding is completed
                 let shouldSave = userWalletRepository.models[userWalletId] != nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
@@ -221,7 +244,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 }
 
                 _walletImageProvider = nil
-                updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
                 syncRemoteAfterUpgrade()
@@ -310,16 +333,7 @@ extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     }
 }
 
-extension CommonUserWalletModel: KeysDerivingProvider {
-    var keysDerivingInteractor: KeysDeriving {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            return KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
-        }
-    }
-}
+extension CommonUserWalletModel: KeysDerivingProvider {}
 
 extension CommonUserWalletModel: TangemPayAuthorizingProvider {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
@@ -387,8 +401,8 @@ extension CommonUserWalletModel: UserWalletSerializable {
         switch walletInfo {
         case .cardWallet(let cardInfo):
             return .cardWallet(keys: cardInfo.card.wallets)
-        case .mobileWallet:
-            return .mobileWallet(keys: keysRepository.keys)
+        case .mobileWallet(let mobileWalletInfo):
+            return .mobileWallet(keys: mobileWalletInfo.keys)
         }
     }
 }
@@ -408,7 +422,6 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
 
 extension CommonUserWalletModel: DisposableEntity {
     func dispose() {
-        walletModelsManager.dispose()
         accountModelsManager.dispose()
     }
 }

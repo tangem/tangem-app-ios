@@ -29,14 +29,23 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
 
+    let headerHeightRatioPublisher: AnyPublisher<CGFloat, Never>
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
-    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
-        settings: .init(stopRefreshingDelay: 1, refreshTaskTimeout: 120), // 2 minutes
+    private(set) lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
+        settings: .init(
+            stopRefreshingDelay: 1,
+            refreshTaskTimeout: 120, // 2 minutes
+            shouldForceRefreshing: isRedesignEnabled
+        ),
         refreshable: { [weak self] in
             await self?.onPullToRefresh()
         }
     )
+
+    var isRedesignEnabled: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
 
     // MARK: - Dependencies
 
@@ -47,6 +56,7 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
+    private let headerHeightRatioSubject = PassthroughSubject<CGFloat, Never>()
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
@@ -70,6 +80,7 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
+        headerHeightRatioPublisher = headerHeightRatioSubject.eraseToAnyPublisher()
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -112,6 +123,7 @@ final class MainViewModel: ObservableObject {
     }
 
     func openQRScan() {
+        Analytics.log(.mainScreenButtonQRScan)
         coordinator?.openQRScan()
     }
 
@@ -162,6 +174,10 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    func onHeaderHeightRatioChange(_ ratio: CGFloat) {
+        headerHeightRatioSubject.send(ratio)
+    }
+
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
         guard reason == .byGesture else { return }
 
@@ -178,7 +194,11 @@ final class MainViewModel: ObservableObject {
         Analytics.log(.buttonEditWalletTapped)
 
         if let selectedModel = userWalletRepository.selectedModel,
-           let alert = AlertBuilder.makeWalletRenamingAlert(userWalletModel: selectedModel, userWalletRepository: userWalletRepository) {
+           let alert = AlertBuilder.makeWalletRenamingAlert(
+               userWalletModel: selectedModel,
+               userWalletRepository: userWalletRepository,
+               updateName: nil
+           ) {
             AppPresenter.shared.show(alert)
         }
     }
@@ -261,7 +281,7 @@ final class MainViewModel: ObservableObject {
             .map { userWalletRepository.models[$0] }
 
         let walletModelsPublishers = userWalletsWithMissingBodyModel
-            .map(AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for:))
+            .map { AccountWalletModelsAggregator.walletModelsPublisher(from: $0.accountModelsManager) }
             .combineLatest()
 
         let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
@@ -416,7 +436,7 @@ final class MainViewModel: ObservableObject {
 
         let userWalletModel = userWalletRepository.selectedModel
 
-        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+        if let userWalletModel {
             mainScreenOpenedAnalyticsSubscription = userWalletModel
                 .accountModelsManager
                 .accountModelsPublisher
@@ -448,12 +468,7 @@ final class MainViewModel: ObservableObject {
         if let userWalletModel {
             let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
             params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
-
-            let userWalletConfig = userWalletModel.config
-            let walletHasBackup = userWalletConfig.productType == .mobileWallet
-                ? !userWalletConfig.hasFeature(.mnemonicBackup)
-                : !userWalletConfig.hasFeature(.backup)
-            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: walletHasBackup).rawValue
+            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: userWalletModel.config.walletHasBackup).rawValue
         }
 
         if let accountModels {
@@ -497,13 +512,13 @@ final class MainViewModel: ObservableObject {
         let page = pages[index]
 
         switch page {
-        case .singleWallet(_, _, let viewModel):
+        case .singleWallet(_, _, _, let viewModel):
             await viewModel?.onPullToRefresh()
-        case .multiWallet(_, _, let viewModel):
+        case .multiWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         case .lockedWallet:
             break
-        case .visaWallet(_, _, let viewModel):
+        case .visaWallet(_, _, _, let viewModel):
             await viewModel.onPullToRefresh()
         }
 

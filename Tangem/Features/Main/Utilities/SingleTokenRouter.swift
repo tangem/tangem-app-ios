@@ -14,7 +14,7 @@ import TangemExpress
 protocol SingleTokenRoutable {
     func openReceive(walletModel: any WalletModel)
     func openSend(walletModel: any WalletModel)
-    func openSwap(walletModel: any WalletModel)
+    func openSwap(parameters: PredefinedSwapParameters)
     func openStaking(walletModel: any WalletModel)
     func openSell(for walletModel: any WalletModel)
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel)
@@ -33,20 +33,16 @@ protocol SingleTokenRoutable {
 final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     private let userWalletInfo: UserWalletInfo
     private weak var coordinator: SingleTokenBaseRoutable?
-    private let yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
 
     init(
         userWalletInfo: UserWalletInfo,
-        coordinator: SingleTokenBaseRoutable?,
-        yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
+        coordinator: SingleTokenBaseRoutable?
     ) {
         self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
-        self.yieldModuleNoticeInteractor = yieldModuleNoticeInteractor
     }
 
     func openReceive(walletModel: any WalletModel) {
@@ -60,30 +56,11 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openSend(walletModel: any WalletModel) {
         let input = makeSendInput(for: walletModel)
-
-        let openSendAction = { [weak self] in
-            self?.coordinator?.openSend(input: input)
-        }
-
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { openSendAction() })
-        } else {
-            openSendAction()
-        }
+        coordinator?.openSend(input: input)
     }
 
-    func openSwap(walletModel: any WalletModel) {
-        let input = makeSendInput(for: walletModel)
-
-        let openSwapAction = { [weak self] in
-            self?.coordinator?.openSwap(input: input)
-        }
-
-        if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { openSwapAction() })
-        } else {
-            openSwapAction()
-        }
+    func openSwap(parameters: PredefinedSwapParameters) {
+        coordinator?.openSwap(parameters: parameters)
     }
 
     func openStaking(walletModel: any WalletModel) {
@@ -167,13 +144,6 @@ final class SingleTokenRouter: SingleTokenRoutable {
         }
 
         return Blockchain.ethereum(testnet: false).coinId
-    }
-
-    private func openViaYieldNotice(tokenItem: TokenItem, action: @escaping () -> Void) {
-        let viewModel = YieldNoticeViewModel(tokenItem: tokenItem, action: action)
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 }
 

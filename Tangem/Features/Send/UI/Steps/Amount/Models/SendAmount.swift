@@ -86,6 +86,13 @@ enum SendAmountError: LocalizedError {
     case noAmount
 }
 
+enum ExchangeAmountRestriction: Equatable {
+    case tooSmallAmount(Decimal)
+    case tooBigAmount(Decimal)
+    case balanceExceeded
+    case exchangeDataLoadingFailed
+}
+
 enum SendAmountCalculationType {
     case crypto
     case fiat

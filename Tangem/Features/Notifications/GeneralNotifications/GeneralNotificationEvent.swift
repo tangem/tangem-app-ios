@@ -30,17 +30,39 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case missingBackup
     case supportedOnlySingleCurrencyWallet
     case backupErrors
-    case seedSupport
-    case seedSupport2
     case mobileFinishActivation(hasPositiveBalance: Bool, hasBackup: Bool)
     case mobileUpgrade
     case pushNotificationsPermissionRequest
+    case initialWalletTokenSyncCompleted
 }
 
 /// For Notifications
 extension GeneralNotificationEvent: NotificationEvent {
     var defaultTitle: String {
         Localization.commonWarning
+    }
+
+    var bannerKind: NotificationBannerKind? {
+        switch self {
+        case .failedToVerifyCard, .demoCard, .devCard, .testnetCard:
+            return .status
+
+        case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
+            return .critical
+
+        case .missingDerivation, .walletLocked:
+            return .warning
+
+        case .rateApp:
+            return .survey
+
+        case .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
+            return .informational
+
+        default:
+            return nil
+        }
     }
 
     var title: NotificationView.Title? {
@@ -79,10 +101,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         case .backupErrors:
             return .string(Localization.commonAttention)
-        case .seedSupport:
-            return .string(Localization.warningSeedphraseIssueTitle)
-        case .seedSupport2:
-            return .string(Localization.warningSeedphraseActionRequiredTitle)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let text = Localization.hwActivationNeedTitle
             if hasPositiveBalance {
@@ -97,6 +115,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.hwUpgradeToColdBannerTitle)
         case .pushNotificationsPermissionRequest:
             return .string(Localization.userPushNotificationBannerTitle)
+        case .initialWalletTokenSyncCompleted:
+            return .string(Localization.initialWalletSyncBannerTitle)
         }
     }
 
@@ -136,16 +156,14 @@ extension GeneralNotificationEvent: NotificationEvent {
             return nil
         case .backupErrors:
             return Localization.warningBackupErrorsMessage
-        case .seedSupport:
-            return Localization.warningSeedphraseIssueMessage
-        case .seedSupport2:
-            return Localization.warningSeedphraseContactedSupport
         case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         case .mobileUpgrade:
             return Localization.hwUpgradeToColdBannerDescription
         case .pushNotificationsPermissionRequest:
             return Localization.userPushNotificationBannerSubtitle
+        case .initialWalletTokenSyncCompleted:
+            return Localization.initialWalletSyncBannerDescription
         }
     }
 
@@ -154,12 +172,11 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp,
              .missingDerivation,
              .missingBackup,
-             .seedSupport,
-             .seedSupport2,
              .backupErrors,
              .mobileFinishActivation,
              .mobileUpgrade,
-             .pushNotificationsPermissionRequest:
+             .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return .primary
         default:
             return .secondary
@@ -175,8 +192,8 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .failedToVerifyCard, .devCard, .backupErrors, .seedSupport, .seedSupport2:
-            return .init(iconType: .image(Assets.redCircleWarning.image))
+        case .failedToVerifyCard, .devCard, .backupErrors:
+            return .init(iconType: .image(Assets.redCircleWarning))
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
              .oldDeviceOldCard,
@@ -185,20 +202,22 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationPermanent,
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
-            return .init(iconType: .image(Assets.attention.image))
+            return .init(iconType: .image(Assets.attention))
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         case .rateApp:
-            return .init(iconType: .image(Assets.star.image))
+            return .init(iconType: .image(Assets.star))
         case .walletLocked:
-            return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
+            return .init(iconType: .image(Assets.lock), color: Colors.Icon.primary1)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let imageType = hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
-            return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
+            return .init(iconType: .image(imageType), size: CGSize(width: 16, height: 18))
         case .mobileUpgrade:
-            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner.image), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.MobileWallet.mobileUpgradeBanner), size: CGSize(width: 54, height: 54))
         case .pushNotificationsPermissionRequest:
-            return .init(iconType: .image(Assets.pushNotifyBannerIcon.image), size: CGSize(width: 54, height: 54))
+            return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
+        case .initialWalletTokenSyncCompleted:
+            return .init(iconType: .image(Assets.blueCircleWarning))
         }
     }
 
@@ -207,9 +226,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .walletLocked,
              .failedToVerifyCard,
              .devCard,
-             .backupErrors,
-             .seedSupport,
-             .seedSupport2:
+             .backupErrors:
             return .critical
         case .demoCard,
              .legacyDerivation,
@@ -217,7 +234,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingDerivation,
              .rateApp,
              .mobileUpgrade,
-             .pushNotificationsPermissionRequest:
+             .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -248,15 +266,14 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
-             .seedSupport,
-             .seedSupport2,
              .mobileUpgrade,
              .mobileFinishActivation:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
              .rateApp,
-             .pushNotificationsPermissionRequest:
+             .pushNotificationsPermissionRequest,
+             .initialWalletTokenSyncCompleted:
             return true
         }
     }
@@ -329,6 +346,13 @@ extension GeneralNotificationEvent: NotificationEvent {
                 .init(action: buttonAction, actionType: .closeMobileUpgrade, isWithLoader: false),
                 .init(action: buttonAction, actionType: .openMobileUpgrade, isWithLoader: false),
             ])
+        case .initialWalletTokenSyncCompleted:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .openManageTokensAfterWalletSuccessImport, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -357,11 +381,10 @@ extension GeneralNotificationEvent {
         case .missingBackup: return .mainNoticeBackupYourWallet
         case .supportedOnlySingleCurrencyWallet: return nil
         case .backupErrors: return .mainNoticeBackupErrors
-        case .seedSupport: return .mainNoticeSeedSupport
-        case .seedSupport2: return .mainNoticeSeedSupport2
         case .mobileFinishActivation: return .noticeFinishActivation
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
+        case .initialWalletTokenSyncCompleted: return nil
         }
     }
 

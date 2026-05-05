@@ -20,34 +20,31 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
                 keys: keys,
                 apiList: apiList
             )
-        case .cardano(let extended):
-            if extended {
-                return try CardanoWalletManagerFactory().makeWalletManager(
-                    blockchainNetwork: blockchainNetwork,
-                    tokens: tokens,
-                    keys: keys,
-                    apiList: apiList
-                )
-            } else {
-                return try HDWalletManagerFactory().makeWalletManager(
-                    blockchainNetwork: blockchainNetwork,
-                    tokens: tokens,
-                    keys: keys,
-                    apiList: apiList
-                )
-            }
+        case .cardano(extended: true):
+            return try CardanoWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         case .quai:
             let dataStorage = UserDefaultsBlockchainDataStorage(
                 suiteName: AppEnvironment.current.blockchainDataStorageSuiteName
             )
 
-            return try QuaiWalletManagerFactory(dataStorage: dataStorage)
-                .makeWalletManager(
-                    blockchainNetwork: blockchainNetwork,
-                    tokens: tokens,
-                    keys: keys,
-                    apiList: apiList
-                )
+            return try QuaiWalletManagerFactory(dataStorage: dataStorage).makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
+        case _ where blockchainNetwork.isDynamicAddressesEnabled():
+            return try BitcoinXPUBWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         default:
             return try HDWalletManagerFactory().makeWalletManager(
                 blockchainNetwork: blockchainNetwork,

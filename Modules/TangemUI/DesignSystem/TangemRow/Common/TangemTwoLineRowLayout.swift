@@ -112,6 +112,7 @@ public struct TangemTwoLineRowLayout<
             contentView
         }
         .readGeometry(\.size.width, bindTo: $contentWidth)
+        .contentShape(.rect)
     }
 
     @ViewBuilder
@@ -131,6 +132,7 @@ public struct TangemTwoLineRowLayout<
             // Primary line
             HStack(spacing: innerSpacing) {
                 primaryLeading
+                    .alignmentGuide(.twoLineRowLeading) { $0[.leading] }
                     .layoutPriority(priorities.primaryLeading)
                     .frame(
                         minWidth: contentWidth * Constants.Layout.MinWidthRatio.primaryLeading,
@@ -166,6 +168,7 @@ public struct TangemTwoLineRowLayout<
         return HStack(spacing: innerSpacing) {
             VStack(alignment: .leading, spacing: linesSpacing) {
                 primaryLeading
+                    .alignmentGuide(.twoLineRowLeading) { $0[.leading] }
                     .layoutPriority(priorities.primaryLeading)
 
                 secondaryLeading

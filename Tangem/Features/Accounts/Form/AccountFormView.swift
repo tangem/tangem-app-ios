@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -28,10 +29,6 @@ struct AccountFormView: View {
 
     @State private var shouldShowShadow = false
     @FocusState private var isNameFocused: Bool
-
-    // MARK: Constants
-
-    private let coordinateSpaceName = UUID()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -82,12 +79,12 @@ struct AccountFormView: View {
             .readGeometry(\.size.height) { height in
                 contentHeight = height
             }
-            .readContentOffset(inCoordinateSpace: .named(coordinateSpaceName)) { point in
+            .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollView)) { point in
                 let contentMaxY = contentHeight - point.y
                 shouldShowShadow = contentMaxY > containerHeight
             }
         }
-        .coordinateSpace(name: coordinateSpaceName)
+        .coordinateSpace(name: CoordinateSpaceName.scrollView)
         .scrollDismissesKeyboard(.immediately)
         .scrollBounceBehavior(.basedOnSize)
         .readGeometry(\.size.height) { height in
@@ -101,6 +98,7 @@ struct AccountFormView: View {
             title: viewModel.buttonTitle,
             isLoading: viewModel.isLoading,
             isDisabled: viewModel.mainButtonDisabled,
+            accessibilityIdentifier: AccountsAccessibilityIdentifiers.accountFormMainButton,
             action: viewModel.onMainButtonTap
         )
         .padding(.bottom, 6)
@@ -108,7 +106,7 @@ struct AccountFormView: View {
             ListFooterOverlayShadowView()
                 .hidden(!shouldShowShadow)
         )
-        .readGeometry(\.frame, inCoordinateSpace: .named(coordinateSpaceName)) { frame in
+        .readGeometry(\.frame, inCoordinateSpace: .named(CoordinateSpaceName.scrollView)) { frame in
             buttonHeight = frame.height
             buttonMinY = frame.minY
         }
@@ -188,6 +186,14 @@ struct AccountFormView: View {
                 Circle()
                     .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
             )
+    }
+}
+
+extension AccountFormView {
+    private enum CoordinateSpaceName {
+        private static let prefix = "AccountFormView.CoordinateSpaceName."
+
+        static let scrollView = prefix + "scrollView"
     }
 }
 

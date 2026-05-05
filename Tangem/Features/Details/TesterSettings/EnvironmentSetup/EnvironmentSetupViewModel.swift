@@ -28,6 +28,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// Demo
     @Published var forcedDemoCardId: String = ""
 
+    // [REDACTED_TODO_COMMENT]
+    @Published var surveySparrowToken: String = "ntt-84iF22PDajmervYneMW4kv"
+
     /// FirebaseMessaging
     @Published private(set) var fcmToken: String = ""
 
@@ -86,7 +89,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: TangemAPIType.prod.rawValue,
                     get: { $0.tangemAPIType.rawValue },
                     set: { $0.tangemAPIType = TangemAPIType(rawValue: $1) ?? .prod }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Express API type",
@@ -108,7 +112,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: VisaAPIType.prod.rawValue,
                     get: { $0.visaAPIType.rawValue },
                     set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "StakeKit staking API type",
@@ -118,7 +123,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: StakeKitAPIType.prod.rawValue,
                     get: { $0.stakeKitAPIType.rawValue },
                     set: { $0.stakeKitAPIType = StakeKitAPIType(rawValue: $1) ?? .prod }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "YieldModule API type",
@@ -128,7 +134,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: YieldModuleAPIType.prod.rawValue,
                     get: { $0.yieldModuleAPIType.rawValue },
                     set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Gasless Transactions API type",
@@ -138,7 +145,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: GaslessTransactionsAPIType.prod.rawValue,
                     get: { $0.gaslessTransactionsAPIType.rawValue },
                     set: { $0.gaslessTransactionsAPIType = GaslessTransactionsAPIType(rawValue: $1) ?? .prod }
-                )
+                ),
+                pickerStyle: .menu
             ),
         ]
 
@@ -220,5 +228,18 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     private func updateApplicationUid() {
         applicationUid = AppSettings.shared.applicationUid
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func handleSurveySparrowDemoClassicButtonTapped() {
+        coordinator?.openSparrowSurveyClassicDemo(withToken: surveySparrowToken)
+    }
+
+    func handleSurveySparrowDemoChatButtonTapped() {
+        coordinator?.openSparrowSurveyChatDemo(withToken: surveySparrowToken)
+    }
+
+    func handleSurveySparrowDemoNPSButtonTapped() {
+        coordinator?.openSparrowSurveyNPSDemo(withToken: surveySparrowToken)
     }
 }

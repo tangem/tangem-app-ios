@@ -12,6 +12,8 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemUI
+import SwiftUI
 
 struct TwinConfig: CardContainer {
     let card: CardDTO
@@ -102,6 +104,15 @@ extension TwinConfig: UserWalletConfig {
         Assets.Cards.twins
     }
 
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        .twoCards(
+            .init(
+                card: Color.Tangem.CardCollection.twins,
+                secondCard: Color.Tangem.CardCollection.twins
+            )
+        )
+    }
+
     var cardSessionFilter: SessionFilter {
         if let twinKey {
             let filter = TwinPreflightReadFilter(twinKey: twinKey)
@@ -179,19 +190,13 @@ extension TwinConfig: UserWalletConfig {
             return .available
         case .tangemPay:
             return .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
-        guard let savedPairKey = twinData.pairPublicKey else {
-            throw CommonError.noData
-        }
-
-        return TwinWalletManagerFactory(pairPublicKey: savedPairKey)
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
+        TwinWalletManagerFactory(pairPublicKey: twinData.pairPublicKey)
     }
 
     func makeOnboardingStepsBuilder(

@@ -12,7 +12,7 @@ import TangemExpress
 struct CommonSendSwapableToken: SendSwapableToken {
     let sourceToken: SendSourceToken
     let isExemptFee: Bool
-
+    let swapAvailabilityProvider: any SwapAvailabilityProvider
     let sendingRestrictionsProvider: any SendingRestrictionsProvider
     let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
@@ -30,7 +30,6 @@ struct CommonSendSwapableToken: SendSwapableToken {
     var id: WalletModelId { sourceToken.id }
     var header: TokenHeader { sourceToken.header }
     var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
-    var isFixedFee: Bool { sourceToken.isFixedFee }
     var isCustom: Bool { sourceToken.isCustom }
     var defaultAddressString: String { sourceToken.defaultAddressString }
 
@@ -42,6 +41,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
 
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
+    var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
 
     var tokenItem: TokenItem { sourceToken.tokenItem }
     var fiatItem: FiatItem { sourceToken.fiatItem }

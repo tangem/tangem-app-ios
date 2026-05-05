@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemSdk
 
-class FakeDerivationManager: DerivationManager {
+class FakeDerivationManager: DerivationStatusProvider, DerivationManager {
     var hasPendingDerivations: AnyPublisher<Bool, Never> {
         _pendingDerivationsCount.map { $0 > 0 }
             .eraseToAnyPublisher()
@@ -19,6 +19,8 @@ class FakeDerivationManager: DerivationManager {
     var pendingDerivationsCount: AnyPublisher<Int, Never> {
         _pendingDerivationsCount.eraseToAnyPublisher()
     }
+
+    var pendingDerivations: [PendingDerivation] { [] }
 
     private let _pendingDerivationsCount: CurrentValueSubject<Int, Never> = .init(0)
 

@@ -64,3 +64,17 @@ extension MainQRScanCoordinator: MainQRScanRoutable {
         UIApplication.openSystemSettings()
     }
 }
+
+// MARK: - Scanner lifecycle
+
+extension MainQRScanCoordinator {
+    @MainActor
+    func turnOffFlashIfNeeded() {
+        rootViewModel?.turnOffFlashIfNeeded()
+    }
+
+    @MainActor
+    func rearmForNextScan() {
+        rootViewModel?.resetForNextScan()
+    }
+}

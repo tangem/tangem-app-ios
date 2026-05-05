@@ -70,7 +70,7 @@ extension CommonOnrampManager: OnrampManager {
         providers.updateAttractiveTypes()
         providers.updateProcessingTimeTypes(preferredProviderId: preferredValues.providerId)
 
-        // `suggestProvider` logic will be remove
+        // [REDACTED_USERNAME] `suggestProvider` logic will be remove
         // [REDACTED_TODO_COMMENT]
         let sorted = providers.sortedByFirstItem(sorter: sorter)
         let suggestProvider = try suggestProvider(in: sorted)
@@ -92,6 +92,31 @@ extension CommonOnrampManager: OnrampManager {
             throw error
         }
     }
+
+    public func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult {
+        do {
+            guard let quoteId = provider.quote?.quoteId else {
+                throw OnrampManagerError.quoteIdNotFound
+            }
+
+            let quotesItem = try provider.makeOnrampQuotesRequestItem()
+            let requestItem = OnrampNativePaymentRequestItem(
+                quotesItem: quotesItem,
+                redirectSettings: redirectSettings,
+                paymentToken: applePayResult.paymentToken,
+                quoteId: quoteId,
+                userData: applePayResult.userData
+            )
+            let result = try await apiProvider.onrampNativePaymentData(item: requestItem)
+            return result
+        } catch let error as ExpressAPIError {
+            analyticsLogger.logExpressAPIError(error, provider: provider.provider, paymentMethod: provider.paymentMethod)
+            throw error
+        } catch {
+            analyticsLogger.logAppError(error, provider: provider.provider)
+            throw error
+        }
+    }
 }
 
 // MARK: - Private
@@ -102,11 +127,26 @@ private extension CommonOnrampManager {
             throw OnrampManagerError.providersIsEmpty
         }
 
-        await withTaskGroup(of: Void.self) { group in
-            providers.flatMap { $0.providers }.forEach { provider in
-                _ = group.addTaskUnlessCancelled {
-                    await provider.update(amount: amount)
-                }
+        let allProviders = providers.flatMap { $0.providers }
+        let groupedByProvider = Dictionary(grouping: allProviders, by: { $0.provider.id })
+
+        // Preserve the original providers order by building an ordered list of unique provider IDs
+        var orderedProviderIds: [ExpressProvider.Id] = []
+        orderedProviderIds.reserveCapacity(allProviders.count)
+
+        for provider in allProviders {
+            let id = provider.provider.id
+            if !orderedProviderIds.contains(id) {
+                orderedProviderIds.append(id)
+            }
+        }
+
+        for providerId in orderedProviderIds {
+            guard let providerGroup = groupedByProvider[providerId] else {
+                continue
+            }
+            await TaskGroup.executeKeepingOrder(items: providerGroup) { provider in
+                await provider.update(amount: amount)
             }
         }
     }

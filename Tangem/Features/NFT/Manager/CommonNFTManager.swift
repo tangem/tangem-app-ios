@@ -306,12 +306,12 @@ private extension CommonNFTManager {
         ) async throws -> NFTPartialResult<[NFTCollection]> {
             return try await withThrowingTaskGroup(of: NFTPartialResult<[NFTCollection]>.self) { group in
                 for (walletModel, networkService) in networkServices {
-                    for address in walletModel.addresses {
+                    for address in walletModel.addressesString {
                         group.addTask {
                             try await self.dispatchUpdate(
                                 walletModelId: walletModel.id,
                                 networkService: networkService,
-                                address: address.value,
+                                address: address,
                                 ignoreCache: ignoreCache
                             )
                         }

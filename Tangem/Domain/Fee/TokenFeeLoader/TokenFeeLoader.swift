@@ -9,16 +9,8 @@
 import Foundation
 
 protocol TokenFeeLoader {
-    var allowsFeeSelection: Bool { get }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee]
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee]
-}
-
-extension TokenFeeLoader {
-    var supportingFeeOptions: [FeeOption] {
-        allowsFeeSelection ? [.slow, .market, .fast] : [.market]
-    }
 }
 
 // MARK: - EthereumTokenFeeLoader
@@ -59,6 +51,8 @@ enum TokenFeeLoaderError: LocalizedError {
     case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
+    case gaslessExecutionReverted(gaslessMinTokenAmount: Decimal)
+    case executionReverted
 
     var errorDescription: String? {
         switch self {
@@ -66,6 +60,8 @@ enum TokenFeeLoaderError: LocalizedError {
         case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"
+        case .gaslessExecutionReverted(let gaslessMinTokenAmount): "Gasless fee estimation execution reverted, min token amount: \(gaslessMinTokenAmount)"
+        case .executionReverted: "Execution reverted"
         }
     }
 }

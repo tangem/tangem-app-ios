@@ -21,12 +21,13 @@ class CommonAPIListProvider {
     private let apiListSubject = CurrentValueSubject<APIList?, Never>(nil)
 
     func initialize() {
-        runTask(withTimeout: remoteListRequestTimeout) { [weak self] in
-            await self?.loadRemoteList()
-        } onTimeout: { [weak self] in
-            AppLogger.info(self, "onTimeout while file load")
-            self?.loadLocalFile()
-        }
+        Task.run(
+            withTimeout: .seconds(remoteListRequestTimeout)) { [weak self] in
+                await self?.loadRemoteList()
+            } onTimeout: { [weak self] in
+                AppLogger.info(self, "onTimeout while file load")
+                self?.loadLocalFile()
+            }
     }
 
     private func loadRemoteList() async {
@@ -53,16 +54,20 @@ class CommonAPIListProvider {
             AppLogger.info(self, "Remote API list loading and parsing time: \(remoteFileParseTime - startTime) seconds")
         } catch {
             if error is CancellationError || Task.isCancelled {
-                AppLogger.info(self, "Loading API list from server was cancelled. No action required")
-                return
+                AppLogger.info(self, "Loading API list from server was cancelled. Falling back to local API list.")
+            } else {
+                AppLogger.error(self, "Failed to load API list from server. Attempting to read local API list.", error: error)
             }
 
-            AppLogger.error(self, "Failed to load API list from server. Attempting to read local API list.", error: error)
             loadLocalFile()
         }
     }
 
     private func loadLocalFile() {
+        // Best-effort early check to avoid unnecessary JSON parsing.
+        // The atomic guard is in `setAPIListIfNeeded` on @MainActor.
+        guard apiListSubject.value == nil else { return }
+
         let apiList: APIList
 
         do {
@@ -72,7 +77,19 @@ class CommonAPIListProvider {
             apiList = [:]
         }
 
-        runTask(in: self) { await $0.updateAPIListSubject(with: apiList) }
+        runTask(in: self) { await $0.setAPIListIfNeeded(apiList) }
+    }
+
+    /// Publishes the value only if `apiListSubject` hasn't been set yet.
+    /// Running entirely on `@MainActor` makes the check-and-set atomic.
+    @MainActor
+    private func setAPIListIfNeeded(_ value: APIList) {
+        guard apiListSubject.value == nil else {
+            AppLogger.info(self, "API list already published, skipping local file load")
+            return
+        }
+
+        updateAPIListSubject(with: value)
     }
 
     @MainActor

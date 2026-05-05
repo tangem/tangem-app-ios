@@ -95,6 +95,10 @@ extension CommonExpressAPIService: ExpressAPIService {
         try await _request(target: .onrampData(request: request))
     }
 
+    func onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request) async throws -> ExpressDTO.Onramp.NativePaymentData.Response {
+        try await _request(target: .onrampNativePaymentData(request: request))
+    }
+
     func onrampStatus(request: ExpressDTO.Onramp.Status.Request) async throws -> ExpressDTO.Onramp.Status.Response {
         try await _request(target: .onrampStatus(request: request))
     }
@@ -120,7 +124,15 @@ private extension CommonExpressAPIService {
         return try decoder.decode(T.self, from: response.data)
     }
 
-    func tryMapError(target: ExpressAPITarget, response: Response) -> ExpressAPIError? {
+    func tryMapError(target _: ExpressAPITarget, response: Response) -> ExpressAPIError? {
+        if let error = tryMapErrorFromBody(response: response) {
+            return error
+        }
+
+        return nil
+    }
+
+    func tryMapErrorFromBody(response: Response) -> ExpressAPIError? {
         do {
             let error = try JSONDecoder().decode(ExpressDTO.APIError.Response.self, from: response.data)
             return error.error

@@ -17,9 +17,5 @@ extension InjectedValues {
 // MARK: - Private implementation
 
 private struct MoralisTokenBalanceClientKey: InjectionKey {
-    static var currentValue: MoralisTokenBalanceClient = {
-        let queue = MoralisRateLimitedRequestQueue(maxConcurrentRequests: 3)
-        let commonClient = CommonMoralisTokenBalanceClient()
-        return RateLimitedMoralisTokenBalanceClient(client: commonClient, queue: queue, retryBackoff: .seconds(1))
-    }()
+    static var currentValue: MoralisTokenBalanceClient = CommonMoralisTokenBalanceClient()
 }

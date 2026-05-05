@@ -12,6 +12,7 @@ import TangemAssets
 import TangemSdk
 import BlockchainSdk
 import TangemFoundation
+import TangemUI
 
 protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory, WalletCreationContextBuilderProvider {
     var emailConfig: EmailConfig? { get }
@@ -21,6 +22,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     var cardSetLabel: String { get }
 
     var defaultName: String { get }
+
+    var isDemo: Bool { get }
 
     /// Actual state of current card's curves or main card's curves in case of biometrics
     var existingCurves: [EllipticCurve] { get }
@@ -61,20 +64,24 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
 
     var cardHeaderImage: ImageType? { get }
 
+    var walletThumbnailType: ThumbnailWalletViewType? { get }
+
     var cardSessionFilter: SessionFilter { get }
 
     var hasDefaultToken: Bool { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
 }
 
 extension UserWalletConfig {
+    var isDemo: Bool {
+        false
+    }
+
     var cardSetLabel: String {
         Localization.cardLabelCardCount(cardsCount)
     }
@@ -113,6 +120,12 @@ extension UserWalletConfig {
 
     var hasDefaultToken: Bool {
         defaultBlockchains.first?.isToken ?? false
+    }
+
+    var walletHasBackup: Bool {
+        productType == .mobileWallet
+            ? !hasFeature(.mnemonicBackup)
+            : !hasFeature(.backup)
     }
 }
 

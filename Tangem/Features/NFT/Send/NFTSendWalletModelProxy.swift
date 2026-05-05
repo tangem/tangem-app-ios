@@ -65,10 +65,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.defaultAddress
     }
 
-    var addressNames: [String] {
-        mainTokenWalletModel.addressNames
-    }
-
     var isMainToken: Bool {
         false
     }
@@ -94,10 +90,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var publicKey: Wallet.PublicKey {
         mainTokenWalletModel.publicKey
-    }
-
-    var shouldShowFeeSelector: Bool {
-        mainTokenWalletModel.shouldShowFeeSelector
     }
 
     var isCustom: Bool {
@@ -128,6 +120,8 @@ extension NFTSendWalletModelProxy: WalletModel {
     var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
+
+    var features: [WalletModelFeature] { [] }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         // No additional features for NFT
@@ -210,15 +204,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fiatTotalTokenBalanceProvider
     }
 
-    func displayAddress(for index: Int) -> String {
-        mainTokenWalletModel.displayAddress(for: index)
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        mainTokenWalletModel.shareAddressString(for: index)
-    }
-
-    func exploreURL(for index: Int, token: Token?) -> URL? {
+    func exploreURL(for address: String, token: Token?) -> URL? {
         // NFTs have their own explorer URLs
         NFTExplorerLinkProvider().provide(for: asset.id)
     }
@@ -232,11 +218,19 @@ extension NFTSendWalletModelProxy: WalletModel {
     }
 
     var customFeeProviderBuilder: CustomFeeProviderBuilder {
-        mainTokenWalletModel.customFeeProviderBuilder
+        CustomFeeProviderBuilder(
+            tokenItem: tokenItem,
+            feeTokenItem: mainTokenWalletModel.feeTokenItem,
+            walletManager: mainTokenWalletModel.customFeeProviderBuilder.walletManager
+        )
     }
 
     var tokenFeeLoaderBuilder: TokenFeeLoaderBuilder {
-        mainTokenWalletModel.tokenFeeLoaderBuilder
+        TokenFeeLoaderBuilder(
+            tokenItem: tokenItem,
+            dependenciesProvider: self,
+            isDemo: mainTokenWalletModel.isDemo
+        )
     }
 
     var blockchainDataProvider: BlockchainDataProvider {

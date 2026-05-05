@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
 struct MainHeaderView: View {
     @ObservedObject var viewModel: MainHeaderViewModel
@@ -45,11 +46,15 @@ struct MainHeaderView: View {
 
             Spacer(minLength: 10)
 
-            HStack {
-                subtitleText
-
-                Spacer()
-            }
+            MainHeaderSubtitleView(
+                subtitleViewState: viewModel.subtitleViewState,
+                subtitleInfo: viewModel.subtitleInfo,
+                subtitleContainsSensitiveInfo: viewModel.subtitleContainsSensitiveInfo,
+                isUserWalletLocked: viewModel.isUserWalletLocked,
+                isLoadingSubtitle: viewModel.isLoadingSubtitle,
+                subtitleStubWidthScaled: subtitleStubWidthScaled,
+                subtitleStubHeightScaled: subtitleStubHeightScaled
+            )
         }
         .lineLimit(1)
         .padding(.vertical, 12)
@@ -74,44 +79,6 @@ struct MainHeaderView: View {
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(Size.cornerRadius)
         .previewContentShape(cornerRadius: Size.cornerRadius)
-    }
-
-    private var subtitleText: some View {
-        HStack(spacing: 6) {
-            ForEach(viewModel.subtitleInfo.messages, id: \.self) { message in
-                if viewModel.subtitleContainsSensitiveInfo {
-                    SensitiveText(message)
-                } else {
-                    Text(message)
-                }
-
-                if message != viewModel.subtitleInfo.messages.last {
-                    SubtitleSeparator()
-                }
-            }
-        }
-        .style(
-            viewModel.subtitleInfo.formattingOption.font,
-            color: viewModel.subtitleInfo.formattingOption.textColor
-        )
-        .truncationMode(.middle)
-        .if(!viewModel.isUserWalletLocked) {
-            $0.skeletonable(
-                isShown: viewModel.isLoadingSubtitle,
-                size: CGSize(width: subtitleStubWidthScaled, height: subtitleStubHeightScaled),
-                radius: 3
-            )
-        }
-    }
-}
-
-private extension MainHeaderView {
-    struct SubtitleSeparator: View {
-        var body: some View {
-            Colors.Icon.informative
-                .clipShape(Circle())
-                .frame(size: .init(bothDimensions: 2.5))
-        }
     }
 }
 

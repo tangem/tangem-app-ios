@@ -14,40 +14,32 @@ actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private var providers: [UserWalletId: any ExpressAPIProvider] = [:]
+    private lazy var expressAPIProviderResolver = ExpressAPIProviderResolver(
+        providerFactory: { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
+    )
+
     private var pairs: Set<ExpressPair> = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
-        let walletModels = AccountsFeatureAwareWalletModelsResolver
-            .walletModels(for: userWalletRepository.models)
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletRepository.models)
 
         return walletModels.map { $0.tokenItem.expressCurrency }.toSet()
-    }
-
-    private func provider(userWalletInfo: UserWalletInfo) -> any ExpressAPIProvider {
-        let key = userWalletInfo.id
-
-        if let provider = providers[key] {
-            return provider
-        }
-
-        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userWalletId: userWalletInfo.id,
-            refcode: userWalletInfo.refcode
-        )
-
-        providers[key] = provider
-        return provider
     }
 }
 
 // MARK: - ExpressPairsRepository
 
 extension CommonExpressPairsRepository: ExpressPairsRepository {
-    func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency], userWalletInfo: UserWalletInfo) async throws {
+    func updatePairs(
+        from wallet: ExpressWalletCurrency,
+        to currencies: [ExpressWalletCurrency],
+        userWalletInfo: UserWalletInfo
+    ) async throws {
         guard !currencies.isEmpty else { return }
 
-        let provider = provider(userWalletInfo: userWalletInfo)
+        let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         let pairsTo = try await provider.pairs(from: [wallet], to: currencies.toSet())
         pairs.formUnion(pairsTo.toSet())
     }
@@ -57,7 +49,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
 
         guard !currencies.isEmpty else { return }
 
-        let provider = provider(userWalletInfo: userWalletInfo)
+        let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         async let pairsTo = provider.pairs(from: [wallet], to: currencies)
         async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
 
@@ -65,7 +57,29 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
         try await pairs.formUnion(pairsFrom.toSet())
     }
 
-    func getAvailableProviders(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType) async throws -> [ExpressProvider.Id] {
+    func getAvailableProvidersIds(
+        for pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType?
+    ) async -> [ExpressProvider.Id] {
+        let providers = getAvailableProviders(for: pair, rateType: rateType)
+
+        return providers.map(\.id)
+    }
+
+    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+        pairs.filter { $0.destination == wallet.asCurrency }
+    }
+
+    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+        pairs.filter { $0.source == wallet.asCurrency }
+    }
+}
+
+private extension CommonExpressPairsRepository {
+    func getAvailableProviders(
+        for pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType?
+    ) -> [ExpressPairProvider] {
         let source = pair.source.currency.asCurrency
         let destination = pair.destination.currency.asCurrency
 
@@ -76,16 +90,12 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
             return []
         }
 
-        return availablePair.providers
-            .filter { $0.rates.contains(rateType) }
-            .map { $0.id }
-    }
+        let providers = availablePair.providers
 
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }.asArray
-    }
+        if let rateType {
+            return providers.filter { $0.rates.contains(rateType) }
+        }
 
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }.asArray
+        return providers
     }
 }

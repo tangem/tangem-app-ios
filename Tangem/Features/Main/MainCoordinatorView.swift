@@ -27,13 +27,19 @@ struct MainCoordinatorView: CoordinatorView {
                 if let mainViewModel = coordinator.mainViewModel {
                     MainView(viewModel: mainViewModel)
                         .navigationLinks(links)
+                        .onDidAppear { [weak coordinator] in
+                            coordinator?.showMarketsTooltip()
+                        }
+                        .onWillDisappear { [weak coordinator] in
+                            coordinator?.hideMarketsTooltipTemporarily()
+                        }
                 }
 
                 sheets
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
                 if !state.isCollapsed {
-                    coordinator?.hideMarketsTooltip()
+                    coordinator?.dismissMarketsTooltip()
                 } else {
                     // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
                     // [REDACTED_INFO]
@@ -107,13 +113,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
                 NavigationBarHidingView(shouldWrapInNavigationStack: true) {
-                    AccountsAwareOrganizeTokensView(viewModel: viewModel)
-                        .navigationTitle(Localization.organizeTokensTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-            }
-            .sheet(item: $coordinator.legacyOrganizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
                     OrganizeTokensView(viewModel: viewModel)
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
@@ -143,9 +142,6 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: AccountSelectorViewModel.self) {
                 AccountSelectorView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldNoticeViewModel.self) {
-                YieldNoticeView(viewModel: $0)
-            }
             .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
@@ -158,27 +154,33 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
+                TangemPayTransactionDetailsView(viewModel: $0)
+                    .floatingSheetContent(for: TokensManagementFlowViewModel.self) {
+                        TokensManagementFlowView(viewModel: $0)
+                    }
 
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.pushNotificationsViewModel,
-                backgroundColor: Colors.Background.primary
-            ) {
-                PushNotificationsBottomSheetView(viewModel: $0)
-            }
-            .bottomSheet(
-                item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                PendingExpressTxStatusBottomSheetView(viewModel: $0)
-            }
+                NavHolder()
+                    .bottomSheet(
+                        item: $coordinator.pushNotificationsViewModel,
+                        backgroundColor: Colors.Background.primary
+                    ) {
+                        PushNotificationsBottomSheetView(viewModel: $0)
+                    }
+                    .bottomSheet(
+                        item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
+                        backgroundColor: Colors.Background.tertiary
+                    ) {
+                        PendingExpressTxStatusBottomSheetView(viewModel: $0)
+                    }
 
-        NavHolder()
-            .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
-                guard newValue else { return }
+                NavHolder()
+                    .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
+                        guard newValue else { return }
 
-                coordinator.isAppStoreReviewRequested.toggle()
-                requestReview()
+                        coordinator.isAppStoreReviewRequested.toggle()
+                        requestReview()
+                    }
             }
     }
 
@@ -186,7 +188,7 @@ struct MainCoordinatorView: CoordinatorView {
     private var marketsTooltipView: some View {
         BasicTooltipView(
             isShowBindingValue: $coordinator.isMarketsTooltipVisible,
-            onHideAction: coordinator.hideMarketsTooltip,
+            onHideAction: coordinator.dismissMarketsTooltip,
             title: Localization.marketsTooltipTitle,
             message: Localization.marketsTooltipMessage,
             leadingIcon: Assets.plusMini
@@ -199,7 +201,7 @@ struct MainCoordinatorView: CoordinatorView {
 private extension View {
     @ViewBuilder
     func injectNavigationAssertionDelegate() -> some View {
-        if AppEnvironment.current.isAlphaOrBetaOrDebug {
+        if AppEnvironment.current.isInternalOrDebug {
             modifier(NavigationControllerDelegateViewModifier())
         } else {
             self

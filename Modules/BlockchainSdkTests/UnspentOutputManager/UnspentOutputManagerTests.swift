@@ -1,0 +1,165 @@
+//
+//  UnspentOutputManagerTests.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Testing
+@testable import BlockchainSdk
+
+class UnspentOutputManagerTests {
+    /// https://www.blockchain.com/explorer/transactions/btc/3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b
+    @Test
+    func spendingSomeAmount() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let outputs = [
+            UnspentOutput(blockId: 1, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000),
+            UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
+        ]
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: outputs, for: address)
+
+        // when
+        let preImage = try await manager.preImage(amount: 2000, feeRate: 3, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
+        let preImageExactlyFee = try await manager.preImage(amount: 2000, fee: 429, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
+
+        // then
+        #expect(preImage.inputs.count == 1, "Selected only one input")
+        #expect(preImage.inputs.first?.amount == 3000)
+        #expect(preImage.inputs.first?.txId == "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb")
+
+        #expect(preImage.outputs.count == 2)
+        #expect(preImage.fee == 429)
+
+        let expectedChangeScript = try MultiLockingScriptBuilder.bitcoin(isTestnet: false).lockingScript(for: address.value)
+
+        preImage.outputs.forEach { output in
+            switch output {
+            case .change(let script, let value):
+                #expect(script == expectedChangeScript)
+                #expect(value == 571)
+            case .destination(let script, let value):
+                #expect(script.type == .p2wpkh)
+                #expect(value == 2000)
+            }
+        }
+
+        #expect(preImage == preImageExactlyFee)
+    }
+
+    @Test
+    func changeAddressUsedInOutput() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let sourceAddress = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+        let changeAddress = "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh"
+
+        let outputs = [
+            UnspentOutput(blockId: 1, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000),
+        ]
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: outputs, for: sourceAddress)
+
+        // when — use a different change address than the source
+        let preImage = try await manager.preImage(amount: 2000, fee: 429, destination: sourceAddress.value, changeAddress: changeAddress, opReturn: nil)
+
+        // then — change output script must match the specified changeAddress
+        let expectedChangeScript = try MultiLockingScriptBuilder.bitcoin(isTestnet: false).lockingScript(for: changeAddress)
+        let changeOutput = try #require(preImage.outputs.first(where: { $0.isChange }))
+        #expect(changeOutput.script == expectedChangeScript)
+
+        // destination script must match the source address (not the change address)
+        let expectedDestinationScript = try MultiLockingScriptBuilder.bitcoin(isTestnet: false).lockingScript(for: sourceAddress.value)
+        let destinationOutput = try #require(preImage.outputs.first(where: { $0.isDestination }))
+        #expect(destinationOutput.script == expectedDestinationScript)
+    }
+
+    /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
+    @Test
+    func spendingFullAmountFeeCalculation() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let outputs = [
+            UnspentOutput(blockId: 1, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 577),
+            UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
+        ]
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: outputs, for: address)
+
+        // when
+        let preImage = try await manager.preImage(amount: 1577, feeRate: 2, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
+
+        // then
+        #expect(preImage.inputs.count == 2)
+        #expect(preImage.outputs.count == 1)
+        #expect(preImage.outputs.contains(where: { $0.isDestination }))
+        #expect(preImage.outputs.first?.value == 1577)
+        #expect(preImage.fee == 360)
+    }
+
+    @Test
+    func pendingAndAvailableOutputsPartitionByConfirmation() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let confirmedA = UnspentOutput(blockId: 10, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000)
+        let confirmedB = UnspentOutput(blockId: 11, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000)
+        let pendingA = UnspentOutput(blockId: 0, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 500)
+        let pendingB = UnspentOutput(blockId: 0, txId: "7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246", index: 1, amount: 700)
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: [confirmedA, confirmedB, pendingA, pendingB], for: address)
+
+        // when
+        let available = manager.availableOutputs()
+        let pending = manager.pendingOutputs()
+
+        // then
+        let availableTxIds = Set(available.map(\.txId))
+        let pendingTxIds = Set(pending.map(\.txId))
+
+        #expect(availableTxIds == [confirmedA.txId, confirmedB.txId])
+        #expect(pendingTxIds == [pendingA.txId, pendingB.txId])
+        #expect(availableTxIds.isDisjoint(with: pendingTxIds))
+
+        #expect(manager.confirmedBalance() == confirmedA.amount + confirmedB.amount)
+        #expect(manager.unconfirmedBalance() == pendingA.amount + pendingB.amount)
+    }
+
+    /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
+    @Test
+    func spendingFullAmountWithReducedAmountOnFee() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let outputs = [
+            UnspentOutput(blockId: 1, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 577),
+            UnspentOutput(blockId: 2, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000),
+        ]
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: outputs, for: address)
+
+        // when
+        let preImage = try await manager.preImage(amount: 1221, fee: 356, destination: "bc1qu4tzv3wfylvqx5rvsjj9nlxlralncqtwvwn0jh", changeAddress: address.value, opReturn: nil)
+
+        // then
+        #expect(preImage.inputs.count == 2)
+        #expect(preImage.outputs.count == 1)
+        #expect(preImage.outputs.contains(where: { $0.isDestination }))
+        #expect(preImage.outputs.first?.value == 1221)
+        #expect(preImage.fee == 356)
+    }
+}

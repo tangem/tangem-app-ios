@@ -36,10 +36,13 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     @State private var headerHeight: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
 
+    @State private var elasticContainerModel: TangemElasticContainerModel
+
     // MARK: - Configuration
 
     private let viewportHeight: CGFloat
     private var isScrollDisabled: Bool = false
+    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     // MARK: - Initialization
@@ -49,6 +52,8 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         selectedIndex: Binding<Int>,
         isScrollDisabled: Bool,
         viewportHeight: CGFloat,
+        refreshScrollViewInteractor: RefreshScrollViewInteractor,
+        onHeaderHeightRatioChange: ((CGFloat) -> Void)?,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
@@ -57,6 +62,8 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
+        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -78,11 +85,21 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         .onChange(of: pageWidth) { newPageWidth in
             scrollOffset = CGFloat(selectedIndex) * newPageWidth
         }
+        .onReceive(elasticContainerModel.heightRatioPublisher) {
+            onHeaderHeightRatioChange?($0)
+        }
     }
 
     // MARK: - View Builders
 
     private func headerContainer(pageWidth: CGFloat) -> some View {
+        FullPagePagerHeaderContainer(
+            elasticContainerModel: elasticContainerModel,
+            content: headerScrollView(pageWidth: pageWidth)
+        )
+    }
+
+    private func headerScrollView(pageWidth: CGFloat) -> some View {
         PagingScrollView(
             pageCount: data.count,
             currentPage: $selectedIndex,
@@ -101,7 +118,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
             ForEach(indexed: data.indexed()) { index, element in
                 let pagePosition = CGFloat(index) * pageWidth
                 let distance = abs(scrollOffset - pagePosition)
-                let stationaryOpacity = max(0, 1 - distance / pageWidth)
+                let stationaryOpacity = pageWidth > 0 ? max(0, 1 - distance / pageWidth) : (index == 0 ? 1 : 0)
 
                 headerFactory(element)
                     .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)

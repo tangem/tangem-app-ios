@@ -11,7 +11,7 @@ import TangemUI
 import TangemUIUtils
 
 /// iOS 17+ implementation using native ScrollView paging with `.scrollTargetBehavior(.paging)`.
-/// Provides true lazy loading via LazyHStack inside ScrollView.
+/// Uses `.scrollPosition(id:)` for gesture tracking with phase-guarded initial positioning.
 @available(iOS 17.0, *)
 struct FullPagePagerViewModern<Data, Header, Body>: View
     where Data: RandomAccessCollection,
@@ -34,14 +34,18 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     @State private var scrolledID: Data.Element.ID?
     @State private var scrollOffset: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
+    @State private var elasticContainerModel: TangemElasticContainerModel
+    @State private var scrollPhase: ScrollPhase = .awaitingLayout
 
     // MARK: - Configuration
 
     private let viewportHeight: CGFloat
     private var isScrollDisabled: Bool = false
+    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     private let coordinateSpaceName = "pagerScrollView"
+    private let positioningConvergenceThreshold: CGFloat = 0.25
 
     // MARK: - Initialization
 
@@ -50,6 +54,8 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         selectedIndex: Binding<Int>,
         isScrollDisabled: Bool,
         viewportHeight: CGFloat,
+        refreshScrollViewInteractor: RefreshScrollViewInteractor,
+        onHeaderHeightRatioChange: ((CGFloat) -> Void)?,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
@@ -58,59 +64,131 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
+        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
 
-        let index = selectedIndex.wrappedValue
-        let initialID = data.indices.contains(index) ? data[index].id : data.first?.id
-        _scrolledID = State(initialValue: initialID)
+        // Initialize to first element so .scrollPosition(id:) tracks from the start.
+        // Phase guard prevents cascade during proxy.scrollTo() positioning.
+        _scrolledID = State(initialValue: data.first?.id)
     }
 
     // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
-            headerScrollView(pageWidth: pageWidth)
+            headerContainer(pageWidth: pageWidth)
 
             bodyOffsetView(pageWidth: pageWidth)
                 .frame(minHeight: viewportHeight)
         }
-        .readGeometry(\.size.width) { pageWidth = $0 }
-        .onChange(of: selectedIndex) { _, newIndex in
-            updateScrolledID(from: newIndex)
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.width
+        } action: { newWidth in
+            pageWidth = newWidth
         }
+        .onReceive(elasticContainerModel.heightRatioPublisher) {
+            onHeaderHeightRatioChange?($0)
+        }
+    }
+
+    // MARK: - Header container
+
+    private func headerContainer(pageWidth: CGFloat) -> some View {
+        FullPagePagerHeaderContainer(
+            elasticContainerModel: elasticContainerModel,
+            content: headerScrollView(pageWidth: pageWidth)
+        )
     }
 
     // MARK: - Header ScrollView
 
     private func headerScrollView(pageWidth: CGFloat) -> some View {
+        ScrollViewReader { proxy in
+            headerScrollContent(pageWidth: pageWidth)
+                .coordinateSpace(name: coordinateSpaceName)
+                .scrollTargetBehavior(.paging)
+                .scrollPosition(id: $scrolledID)
+                .scrollDisabled(isScrollDisabled)
+                .fixedSize(horizontal: false, vertical: true)
+                .onChange(of: scrolledID) { _, newID in
+                    if case .positioning = scrollPhase { return }
+                    updateSelectedIndex(from: newID)
+                }
+                .onChange(of: pageWidth) { _, newWidth in
+                    handlePageWidthChange(newWidth, proxy: proxy)
+                }
+                .onChange(of: selectedIndex) { _, newIndex in
+                    guard scrollPhase == .tracking else { return }
+                    updateScrolledID(from: newIndex)
+                }
+        }
+    }
+
+    private func headerScrollContent(pageWidth: CGFloat) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
                 ForEach(indexed: data.indexed()) { index, element in
-                    let pagePosition = CGFloat(index) * pageWidth
-                    let distance = abs(scrollOffset - pagePosition)
-                    let stationaryOpacity = max(0, 1 - distance / pageWidth)
-
-                    headerFactory(element)
-                        .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)
-                        .environment(\.pagerStationaryOpacity, stationaryOpacity)
-                        .frame(width: pageWidth)
-                        .id(element.id)
+                    headerPage(for: element, at: index, pageWidth: pageWidth)
                 }
             }
             .scrollTargetLayout()
-            .readGeometry(\.frame.minX, inCoordinateSpace: .named(coordinateSpaceName)) { offset in
+            .onGeometryChange(for: CGFloat.self) { proxy in
+                proxy.frame(in: .named(coordinateSpaceName)).minX
+            } action: { offset in
                 scrollOffset = -offset
+
+                // Convergence check for initial positioning only
+                if case .positioning(let target, let targetID) = scrollPhase, pageWidth > 0,
+                   abs(-offset - target) < pageWidth * positioningConvergenceThreshold {
+                    scrolledID = targetID
+                    scrollPhase = .tracking
+                }
             }
         }
-        .coordinateSpace(name: coordinateSpaceName)
-        .scrollTargetBehavior(.paging)
-        .scrollPosition(id: $scrolledID)
-        .scrollDisabled(isScrollDisabled)
-        .fixedSize(horizontal: false, vertical: true)
-        .onChange(of: scrolledID) { _, newID in
-            updateSelectedIndex(from: newID)
+    }
+
+    private func headerPage(for element: Data.Element, at index: Int, pageWidth: CGFloat) -> some View {
+        let pagePosition = CGFloat(index) * pageWidth
+        let distance = abs(scrollOffset - pagePosition)
+        let stationaryOpacity = pageWidth > 0 ? max(0, 1 - distance / pageWidth) : (index == 0 ? 1 : 0)
+
+        return headerFactory(element)
+            .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)
+            .environment(\.pagerStationaryOpacity, stationaryOpacity)
+            .frame(width: pageWidth)
+            .id(element.id)
+    }
+
+    private func handlePageWidthChange(_ newWidth: CGFloat, proxy: ScrollViewProxy) {
+        guard newWidth > 0 else { return }
+
+        switch scrollPhase {
+        case .awaitingLayout, .positioning:
+            let clampedIndex = data.isEmpty ? 0 : max(0, min(selectedIndex, data.count - 1))
+            if clampedIndex != selectedIndex {
+                selectedIndex = clampedIndex
+            }
+
+            let target = CGFloat(clampedIndex) * newWidth
+            scrollOffset = target
+
+            if clampedIndex == 0 {
+                scrolledID = elementID(at: 0)
+                scrollPhase = .tracking
+            } else if let targetID = elementID(at: clampedIndex) {
+                scrollPhase = .positioning(targetOffset: target, targetID: targetID)
+                proxy.scrollTo(targetID, anchor: .leading)
+            } else {
+                scrolledID = data.first?.id
+                scrollOffset = 0
+                scrollPhase = .tracking
+            }
+
+        case .tracking:
+            break
         }
     }
 
@@ -158,5 +236,16 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         guard index >= 0, index < data.count else { return nil }
 
         return data[data.index(data.startIndex, offsetBy: index)].id
+    }
+}
+
+// MARK: - ScrollPhase
+
+@available(iOS 17.0, *)
+extension FullPagePagerViewModern {
+    private enum ScrollPhase: Equatable {
+        case awaitingLayout
+        case positioning(targetOffset: CGFloat, targetID: Data.Element.ID)
+        case tracking
     }
 }

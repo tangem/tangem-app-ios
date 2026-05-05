@@ -31,6 +31,7 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
     weak var router: SendAmountCompactRoutable?
 
     private let expressProviderFormatter: ExpressProviderFormatter = .init()
+    private let isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>?
 
     init(
         initialSourceToken: SendSourceToken,
@@ -39,10 +40,12 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
-        swapProvidersInput: SendSwapProvidersInput? = nil
+        swapProvidersInput: SendSwapProvidersInput? = nil,
+        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>? = nil
     ) {
+        self.isReceiveAmountApproximatePublisher = isReceiveAmountApproximatePublisher
         sendAmountCompactViewModel = .init(sourceToken: initialSourceToken, actionType: actionType)
-        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher)
+        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher, isApproximateAmount: false)
         sendAmountCompactViewModel.bind(
             balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
         )
@@ -91,17 +94,19 @@ private extension SendAmountCompactViewModel {
             .receiveOnMain()
             .assign(to: &$sendReceiveTokenCompactViewModel)
 
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             receiveTokenInput.receiveTokenPublisher,
             swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
-            swapProvidersInput.expressProvidersPublisher
+            swapProvidersInput.expressProvidersPublisher,
+            receiveTokenAmountInput.highPriceImpactPublisher
         )
         .withWeakCaptureOf(self)
         .map {
             $0.mapToSendSwapProviderCompactViewData(
                 receiveToken: $1.0.value,
                 availableProvider: $1.1,
-                providers: $1.2
+                providers: $1.2,
+                hasHighPriceImpactWarning: $1.3.map { !$0.level.isNegligible } ?? false
             )
         }
         .receiveOnMain()
@@ -117,7 +122,11 @@ private extension SendAmountCompactViewModel {
             return nil
         case .some(let receiveToken):
             let viewModel = SendAmountCompactTokenViewModel(receiveToken: receiveToken)
-            viewModel.bind(amountPublisher: receiveTokenAmountInput.receiveAmountPublisher)
+            viewModel.bind(
+                amountPublisher: receiveTokenAmountInput.receiveAmountPublisher,
+                isApproximateAmount: true,
+                isApproximateAmountPublisher: isReceiveAmountApproximatePublisher
+            )
             viewModel.bind(highPriceImpactPublisher: receiveTokenAmountInput.highPriceImpactPublisher)
 
             return viewModel
@@ -127,7 +136,8 @@ private extension SendAmountCompactViewModel {
     private func mapToSendSwapProviderCompactViewData(
         receiveToken: SendReceiveToken?,
         availableProvider: ExpressAvailableProvider?,
-        providers: [ExpressAvailableProvider]
+        providers: [ExpressAvailableProvider],
+        hasHighPriceImpactWarning: Bool
     ) -> SendSwapProviderCompactViewData? {
         switch (receiveToken, availableProvider) {
         case (.none, _):
@@ -137,7 +147,7 @@ private extension SendAmountCompactViewModel {
         case (.some, .some(let selectedProvider)):
             let canSelectAnother = providers.count > 1
 
-            let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+            let badge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider, hasHighPriceImpactWarning: hasHighPriceImpactWarning)
             let data = SendSwapProviderCompactViewData.ProviderData(
                 provider: selectedProvider.provider,
                 canSelectAnother: canSelectAnother,

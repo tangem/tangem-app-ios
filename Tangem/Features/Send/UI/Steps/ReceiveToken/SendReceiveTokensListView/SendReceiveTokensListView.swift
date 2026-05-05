@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemUI
 import TangemAssets
 import TangemLocalization
@@ -26,7 +27,8 @@ struct SendReceiveTokensListView: View {
             CustomSearchBar(
                 searchText: $viewModel.searchText,
                 placeholder: Localization.commonSearch,
-                style: .focused
+                style: .focused,
+                accessibilityIdentifier: SendAccessibilityIdentifiers.receiveTokenSearchBar
             )
             .innerPadding(8)
             .onEditingChanged(viewModel.focusChangedInSearchBar)
@@ -41,7 +43,7 @@ struct SendReceiveTokensListView: View {
                         .transition(.notificationTransition.animation(.linear(duration: 0.2)))
                 }
 
-                GroupedSection(viewModel.items) {
+                GroupedSection(viewModel.items, isLazy: true) {
                     SendReceiveTokensListTokenView(viewModel: $0)
                 }
                 .backgroundColor(Colors.Background.action)

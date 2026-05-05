@@ -11,20 +11,40 @@ import SwiftUI
 import TangemFoundation
 
 enum MainUserWalletPageBuilder: Identifiable {
-    case singleWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: SingleWalletMainContentViewModel?)
-    case multiWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: MultiWalletMainContentViewModel)
-    case lockedWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: LockedWalletMainContentViewModel)
-    case visaWallet(id: UserWalletId, headerModel: MainHeaderViewModel, bodyModel: VisaWalletMainContentViewModel)
+    case singleWallet(
+        id: UserWalletId,
+        navigationModel: MainNavigationViewModel,
+        headerModel: MainHeaderViewModel,
+        bodyModel: SingleWalletMainContentViewModel?
+    )
+    case multiWallet(
+        id: UserWalletId,
+        navigationModel: MainNavigationViewModel,
+        headerModel: MainHeaderViewModel,
+        bodyModel: MultiWalletMainContentViewModel
+    )
+    case lockedWallet(
+        id: UserWalletId,
+        navigationModel: MainNavigationViewModel,
+        headerModel: MainHeaderViewModel,
+        bodyModel: LockedWalletMainContentViewModel
+    )
+    case visaWallet(
+        id: UserWalletId,
+        navigationModel: MainNavigationViewModel,
+        headerModel: MainHeaderViewModel,
+        bodyModel: VisaWalletMainContentViewModel
+    )
 
     var id: UserWalletId {
         switch self {
-        case .singleWallet(let id, _, _):
+        case .singleWallet(let id, _, _, _):
             return id
-        case .multiWallet(let id, _, _):
+        case .multiWallet(let id, _, _, _):
             return id
-        case .lockedWallet(let id, _, _):
+        case .lockedWallet(let id, _, _, _):
             return id
-        case .visaWallet(let id, _, _):
+        case .visaWallet(let id, _, _, _):
             return id
         }
     }
@@ -36,26 +56,13 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var footerViewModel: MainFooterViewModel? {
-        switch self {
-        case .singleWallet:
-            return nil
-        case .multiWallet(_, _, let bodyModel):
-            return bodyModel.footerViewModel
-        case .lockedWallet(_, _, let bodyModel):
-            return bodyModel.footerViewModel
-        case .visaWallet:
-            return nil
-        }
-    }
-
     private var bottomSheetFooterViewModel: MainBottomSheetFooterViewModel? {
         switch self {
-        case .singleWallet(_, _, let bodyModel):
+        case .singleWallet(_, _, _, let bodyModel):
             return bodyModel?.bottomSheetFooterViewModel
-        case .multiWallet(_, _, let bodyModel):
+        case .multiWallet(_, _, _, let bodyModel):
             return bodyModel.bottomSheetFooterViewModel
-        case .lockedWallet(_, _, let bodyModel):
+        case .lockedWallet(_, _, _, let bodyModel):
             return bodyModel.bottomSheetFooterViewModel
         case .visaWallet:
             return nil
@@ -64,24 +71,79 @@ enum MainUserWalletPageBuilder: Identifiable {
 
     private var headerModel: MainHeaderViewModel {
         switch self {
-        case .singleWallet(_, let headerModel, _): headerModel
-        case .multiWallet(_, let headerModel, _): headerModel
-        case .lockedWallet(_, let headerModel, _): headerModel
-        case .visaWallet(_, let headerModel, _): headerModel
+        case .singleWallet(_, _, let headerModel, _): headerModel
+        case .multiWallet(_, _, let headerModel, _): headerModel
+        case .lockedWallet(_, _, let headerModel, _): headerModel
+        case .visaWallet(_, _, let headerModel, _): headerModel
         }
     }
 
     private var actionButtonsViewModel: ActionButtonsViewModel? {
         switch self {
-        case .multiWallet(_, _, let bodyModel):
+        case .singleWallet(_, _, _, let bodyModel):
+            return bodyModel?.actionButtonsViewModel
+        case .multiWallet(_, _, _, let bodyModel):
             return bodyModel.actionButtonsViewModel
-        case .singleWallet, .lockedWallet, .visaWallet:
+        case .lockedWallet(_, _, _, let bodyModel):
+            return bodyModel.actionButtonsViewModel
+        case .visaWallet:
             return nil
         }
     }
 
+    private var navigationModel: MainNavigationViewModel {
+        switch self {
+        case .singleWallet(_, let navigationModel, _, _): navigationModel
+        case .multiWallet(_, let navigationModel, _, _): navigationModel
+        case .lockedWallet(_, let navigationModel, _, _): navigationModel
+        case .visaWallet(_, let navigationModel, _, _): navigationModel
+        }
+    }
+
+    var navigation: some View {
+        MainNavigationView(viewModel: navigationModel)
+    }
+
     var header: some View {
         MainHeaderView(viewModel: headerModel)
+    }
+
+    @ViewBuilder
+    var content: some View {
+        switch self {
+        case .singleWallet(let id, _, _, let bodyModel):
+            makeSingleWalletContent(id: id, bodyModel: bodyModel)
+
+        case .multiWallet(let id, _, _, let bodyModel):
+            makeMultiWalletContent(id: id, bodyModel: bodyModel)
+
+        case .lockedWallet(let id, _, _, let bodyModel):
+            makeLockedWalletContent(id: id, bodyModel: bodyModel)
+
+        case .visaWallet(let id, _, _, let bodyModel):
+            // Visa wallet redesign is not yet implemented
+            VisaWalletMainContentView(viewModel: bodyModel)
+                .id(id)
+        }
+    }
+
+    @ViewBuilder
+    var footerOverlay: some View {
+        switch self {
+        case .multiWallet, .lockedWallet:
+            MarketsHintView()
+        case .singleWallet, .visaWallet:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    var bottomOverlay: some View {
+        if let bottomSheetFooterViewModel {
+            MainBottomSheetFooterView(viewModel: bottomSheetFooterViewModel)
+        } else {
+            EmptyMainFooterView()
+        }
     }
 
     func redesignedHeader(totalPages: Int, currentIndex: Int) -> some View {
@@ -98,9 +160,16 @@ enum MainUserWalletPageBuilder: Identifiable {
     }
 
     @ViewBuilder
-    var body: some View {
-        switch self {
-        case .singleWallet(let id, _, let bodyModel):
+    private func makeSingleWalletContent(id: UserWalletId, bodyModel: SingleWalletMainContentViewModel?) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            if let bodyModel {
+                SingleWalletMainContentRedesignedView(viewModel: bodyModel)
+                    .id(id)
+            } else {
+                LoadingSingleWalletMainContentRedesignedView()
+                    .id(id)
+            }
+        } else {
             if let bodyModel {
                 SingleWalletMainContentView(viewModel: bodyModel)
                     .id(id)
@@ -108,26 +177,34 @@ enum MainUserWalletPageBuilder: Identifiable {
                 LoadingSingleWalletMainContentView()
                     .id(id)
             }
-        case .multiWallet(let id, _, let bodyModel):
-            if FeatureProvider.isAvailable(.redesign) {
-                MultiWalletMainContentRedesignedView(viewModel: bodyModel)
-                    .id(id)
-            } else {
-                MultiWalletMainContentView(viewModel: bodyModel)
-                    .id(id)
-            }
-        case .lockedWallet(let id, _, let bodyModel):
-            LockedWalletMainContentView(viewModel: bodyModel)
+        }
+    }
+
+    @ViewBuilder
+    private func makeMultiWalletContent(id: UserWalletId, bodyModel: MultiWalletMainContentViewModel) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            MultiWalletMainContentRedesignedView(viewModel: bodyModel)
                 .id(id)
-        case .visaWallet(let id, _, let bodyModel):
-            VisaWalletMainContentView(viewModel: bodyModel)
+        } else {
+            MultiWalletMainContentView(viewModel: bodyModel)
+                .id(id)
+        }
+    }
+
+    @ViewBuilder
+    private func makeLockedWalletContent(id: UserWalletId, bodyModel: LockedWalletMainContentViewModel) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            LockedWalletMainContentRedesignedView(viewModel: bodyModel)
+                .id(id)
+        } else {
+            LockedWalletMainContentView(viewModel: bodyModel)
                 .id(id)
         }
     }
 
     var missingBodyModel: Bool {
         switch self {
-        case .singleWallet(_, _, let bodyModel):
+        case .singleWallet(_, _, _, let bodyModel):
             return bodyModel == nil
         case .multiWallet, .lockedWallet, .visaWallet:
             return false
@@ -135,21 +212,15 @@ enum MainUserWalletPageBuilder: Identifiable {
     }
 
     @ViewBuilder
-    func makeBottomOverlay(_ overlayParams: CardsInfoPagerBottomOverlayFactoryParams) -> some View {
+    func makeRedesignedBottomOverlay(_ overlayParams: FullPagePagerBottomOverlayParams) -> some View {
         if let viewModel = bottomSheetFooterViewModel {
             MainBottomSheetFooterView(viewModel: viewModel)
                 .overlay {
-                    MainBottomSheetHintView(
-                        isDraggingHorizontally: overlayParams.isDraggingHorizontally,
-                        didScrollToBottom: overlayParams.didScrollToBottom,
-                        scrollOffset: overlayParams.scrollOffset,
-                        viewportSize: overlayParams.viewportSize,
-                        contentSize: overlayParams.contentSize,
-                        scrollViewBottomContentInset: overlayParams.scrollViewBottomContentInset
+                    MainBottomSheetRedesignedHintView(
+                        offset: -overlayParams.contentHeight,
+                        isActive: overlayParams.isActive
                     )
                 }
-        } else if let viewModel = footerViewModel {
-            MainFooterView(viewModel: viewModel, didScrollToBottom: overlayParams.didScrollToBottom)
         } else {
             EmptyMainFooterView()
         }
@@ -161,9 +232,9 @@ enum MainUserWalletPageBuilder: Identifiable {
 extension MainUserWalletPageBuilder: MainViewPage {
     func onPageAppear() {
         switch self {
-        case .singleWallet(_, _, let bodyModel):
+        case .singleWallet(_, _, _, let bodyModel):
             bodyModel?.onPageAppear()
-        case .multiWallet(_, _, let bodyModel):
+        case .multiWallet(_, _, _, let bodyModel):
             bodyModel.onPageAppear()
         case .lockedWallet, .visaWallet:
             break
@@ -172,9 +243,9 @@ extension MainUserWalletPageBuilder: MainViewPage {
 
     func onPageDisappear() {
         switch self {
-        case .singleWallet(_, _, let bodyModel):
+        case .singleWallet(_, _, _, let bodyModel):
             bodyModel?.onPageDisappear()
-        case .multiWallet(_, _, let bodyModel):
+        case .multiWallet(_, _, _, let bodyModel):
             bodyModel.onPageDisappear()
         case .lockedWallet, .visaWallet:
             break

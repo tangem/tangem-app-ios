@@ -26,6 +26,10 @@ public class RefreshScrollViewStateObject: ObservableObject {
         stateSubject.eraseToAnyPublisher()
     }
 
+    public var scrollViewInteractor: RefreshScrollViewInteractor {
+        _scrollViewInteractor
+    }
+
     var draggingStartFromTop: Bool {
         guard let dragging = scrollViewDelegate.dragging else {
             return false
@@ -37,13 +41,16 @@ public class RefreshScrollViewStateObject: ObservableObject {
     }
 
     lazy var scrollViewDelegate = RefreshScrollViewDelegate(
+        interactor: _scrollViewInteractor,
         willEndDraggingAt: { [weak self] targetOffset in
             self?.targetContentOffset(draggingWillEndAt: targetOffset)
         }
     )
 
+    private let _scrollViewInteractor = CommonRefreshScrollViewInteractor()
+
     private let settings: Settings
-    private var refreshable: () async -> Void
+    private let refreshable: () async -> Void
 
     private var state: RefreshState = .idle {
         didSet {
@@ -69,16 +76,20 @@ private extension RefreshScrollViewStateObject {
         FeedbackGenerator.heavy()
         state = .willStartRefreshing
 
-        // Clouser which start refresh
-        let refreshing: () -> Void = { [weak self] in
+        // Closure that starts refresh
+        let work: () -> Void = { [weak self] in
             switch self?.settings.refreshTaskTimeout {
             case .some(let timeout):
-                runTask(
-                    withTimeout: timeout,
-                    code: { await self?.refreshing() },
-                    onTimeout: {
+                Task.run(
+                    withTimeout: .seconds(timeout),
+                    // Capturing `refreshing` directly here since the `self` is mutable and therefore non-sendable
+                    code: { [refreshing = self?.refreshing] in
+                        await refreshing?()
+                    },
+                    // Capturing `stopRefreshing` directly here since the `self` is mutable and therefore non-sendable
+                    onTimeout: { [stopRefreshing = self?.stopRefreshing] in
                         ConsoleLog.error(error: Error.timeout)
-                        Task { @MainActor in self?.stopRefreshing() }
+                        Task { await stopRefreshing?() }
                     }
                 )
 
@@ -87,7 +98,7 @@ private extension RefreshScrollViewStateObject {
             }
         }
 
-        state = .refreshing(refreshing)
+        state = .refreshing(work)
     }
 
     func refreshing() async {
@@ -98,6 +109,12 @@ private extension RefreshScrollViewStateObject {
 
     @MainActor
     func stopRefreshing() {
+        if settings.shouldForceRefreshing {
+            state = .idle
+            unsetRefreshingPadding()
+            return
+        }
+
         // Decide according on the current content offset
         switch contentOffset.y.rounded() {
         // Still dragging. The `refreshingPadding` will be update after dragging is end
@@ -217,33 +234,24 @@ public extension RefreshScrollViewStateObject {
         public let startRefreshingDelay: TimeInterval
         public let stopRefreshingDelay: TimeInterval
         public let refreshTaskTimeout: TimeInterval?
+        public let shouldForceRefreshing: Bool
 
         public init(
             refreshAreaHeight: CGFloat = 75,
             thresholdMultiplier: CGFloat = 2,
             startRefreshingDelay: TimeInterval = 0.1,
             stopRefreshingDelay: TimeInterval = 1,
-            refreshTaskTimeout: TimeInterval? = nil
+            refreshTaskTimeout: TimeInterval? = nil,
+            shouldForceRefreshing: Bool = false
         ) {
             self.refreshAreaHeight = refreshAreaHeight
             self.thresholdMultiplier = thresholdMultiplier
             self.startRefreshingDelay = startRefreshingDelay
             self.stopRefreshingDelay = stopRefreshingDelay
             self.refreshTaskTimeout = refreshTaskTimeout
+            self.shouldForceRefreshing = shouldForceRefreshing
         }
 
         public var threshold: CGFloat { refreshAreaHeight * thresholdMultiplier }
-    }
-}
-
-// MARK: - Observers
-
-public extension RefreshScrollViewStateObject {
-    func addObserver(_ observer: RefreshScrollViewObserver) {
-        scrollViewDelegate.addObserver(observer)
-    }
-
-    func removeObserver(_ observer: RefreshScrollViewObserver) {
-        scrollViewDelegate.removeObserver(observer)
     }
 }

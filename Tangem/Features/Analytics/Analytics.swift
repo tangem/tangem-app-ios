@@ -21,8 +21,6 @@ class Analytics {
         target: .global(qos: .utility)
     )
 
-    private static let defaultAnalyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
-
     // MARK: - Others
 
     static func logTopUpIfNeeded(balance: Decimal, for userWalletId: UserWalletId, contextParams: Analytics.ContextParams = .default) {
@@ -74,7 +72,7 @@ class Analytics {
     static func log(
         _ event: Event,
         params: [ParameterKey: ParameterValue] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -90,7 +88,7 @@ class Analytics {
     static func log(
         event: Event,
         params: [ParameterKey: String],
-        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -165,7 +163,7 @@ class Analytics {
     private static func logEventInternal(
         _ event: Event,
         params: [ParameterKey: String] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
+        analyticsSystems: [Analytics.AnalyticsSystem] = .defaultSystems,
         contextParams: Analytics.ContextParams,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -216,7 +214,8 @@ class Analytics {
         let printableParams: [String: String] = params.reduce(into: [:]) { $0[$1.key] = String(describing: $1.value) }
         if let data = try? JSONSerialization.data(withJSONObject: printableParams, options: .sortedKeys),
            let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ",\"", with: ", \"") {
-            let logMessage = "Analytics event: \(event). Params: \(paramsString)"
+            let systemsString = analyticsSystems.map { $0.logBadge }.joined(separator: ",")
+            let logMessage = "Analytics event: \(event). Systems: \(systemsString). Params: \(paramsString)"
             AnalyticsLogger.info(logMessage)
         }
     }

@@ -11,13 +11,20 @@ import BlockchainSdk
 import TangemLocalization
 
 enum MarketsAddTokenFlowConfigurationFactory {
+    struct InputData {
+        let coinId: String
+        let coinName: String
+        let coinSymbol: String
+        let networks: [NetworkModel]
+    }
+
     static func make(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
-        coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration {
+        inputData: InputData,
+        coordinator: MarketsPortfolioContainerRoutable & AddTokenFlowRoutable
+    ) -> AddTokenFlowConfiguration {
         let analyticsLogger = MarketsAddTokenFlowAnalyticsLogger(coinSymbol: inputData.coinSymbol)
 
-        return AccountsAwareAddTokenFlowConfiguration(
+        return AddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 makeTokenItems(
                     inputData: inputData,
@@ -51,11 +58,11 @@ enum MarketsAddTokenFlowConfigurationFactory {
 private extension MarketsAddTokenFlowConfigurationFactory {
     static func makeGetTokenConfiguration(
         analyticsLogger: GetTokenAnalyticsLogger,
-        coordinator: MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable
-    ) -> AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration {
+        coordinator: MarketsPortfolioContainerRoutable & AddTokenFlowRoutable
+    ) -> AddTokenFlowConfiguration.GetTokenConfiguration {
         let expressAvailabilityProvider: ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
 
-        return AccountsAwareAddTokenFlowConfiguration.GetTokenConfiguration(
+        return AddTokenFlowConfiguration.GetTokenConfiguration(
             isBuyAvailable: { tokenItem, accountSelectorCell in
                 let config = accountSelectorCell.userWalletModel.config
                 guard config.isFeatureVisible(.exchange) else { return false }
@@ -105,7 +112,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
         tokenItem: TokenItem,
         accountSelectorCell: AccountSelectorCellModel,
         analyticsLogger: GetTokenAnalyticsLogger,
-        coordinator: (MarketsPortfolioContainerRoutable & AccountsAwareAddTokenFlowRoutable)?
+        coordinator: (MarketsPortfolioContainerRoutable & AddTokenFlowRoutable)?
     ) {
         guard let coordinator else { return }
 
@@ -131,13 +138,15 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
-                let swapableToken = CommonSendSwapableTokenFactory(
-                    userWalletInfo: userWalletInfo,
-                    walletModel: walletModel,
-                    operationType: .swap
-                ).makeSwapableToken()
+                let helper = SwapPredefinedParametersHelper()
+                guard let parameters = helper.makeParameters(
+                    origin: .markets(.init(walletModel: walletModel)),
+                    userWalletInfo: userWalletInfo
+                ) else {
+                    break
+                }
 
-                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
+                coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
 
             case .receive:
                 analyticsLogger.logReceiveTapped()
@@ -166,8 +175,8 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 
     static func makeAccountFilter(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData
-    ) -> ((AccountsAwareAddTokenFlowConfiguration.AccountContext) -> Bool) {
+        inputData: InputData
+    ) -> ((AddTokenFlowConfiguration.AccountContext) -> Bool) {
         { context in
             let networkIds = inputData.networks.map(\.networkId)
             let cryptoAccount = context.account
@@ -198,7 +207,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
     }
 
     static func makeTokenItems(
-        inputData: MarketsTokensNetworkSelectorViewModel.InputData,
+        inputData: InputData,
         supportedBlockchains: Set<Blockchain>,
         cryptoAccount: any CryptoAccountModel
     ) -> [TokenItem] {

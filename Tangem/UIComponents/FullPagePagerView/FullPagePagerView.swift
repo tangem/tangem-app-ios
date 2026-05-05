@@ -17,21 +17,27 @@ import TangemUIUtils
 /// Optimized for memory efficiency:
 /// - **iOS 17+**: Uses native `ScrollView` with `.scrollTargetBehavior(.paging)` for true lazy loading
 /// - **iOS 16**: Uses UIKit `UIScrollView` with `isPagingEnabled` and windowed rendering
-struct FullPagePagerView<Data, Header, Body>: View
+struct FullPagePagerView<Data, Navigation, Header, Body, BottomOverlay>: View
     where Data: RandomAccessCollection,
     Data.Element: Identifiable,
     Data.Index == Int,
+    Navigation: ViewModifier,
     Header: View,
-    Body: View {
+    Body: View,
+    BottomOverlay: View {
+    typealias NavigationFactory = (Data.Element) -> Navigation
     typealias HeaderFactory = (Data.Element) -> Header
     typealias BodyFactory = (Data.Element) -> Body
+    typealias BottomOverlayFactory = (Data.Element) -> BottomOverlay
 
     // MARK: - Dependencies
 
     private let data: Data
     private let refreshScrollViewStateObject: RefreshScrollViewStateObject
+    private let navigationFactory: NavigationFactory
     private let headerFactory: HeaderFactory
     private let bodyFactory: BodyFactory
+    private let bottomOverlayFactory: BottomOverlayFactory
 
     // MARK: - State
 
@@ -41,6 +47,7 @@ struct FullPagePagerView<Data, Header, Body>: View
     // MARK: - Configuration
 
     private var isScrollDisabled: Bool = false
+    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     // MARK: - Initialization
@@ -49,40 +56,58 @@ struct FullPagePagerView<Data, Header, Body>: View
         data: Data,
         refreshScrollViewStateObject: RefreshScrollViewStateObject,
         selectedIndex: Binding<Int>,
+        navigationFactory: @escaping NavigationFactory,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
-        @ViewBuilder bodyFactory: @escaping BodyFactory
+        @ViewBuilder bodyFactory: @escaping BodyFactory,
+        @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory
     ) {
         self.data = data
         self.refreshScrollViewStateObject = refreshScrollViewStateObject
         _selectedIndex = selectedIndex
+        self.navigationFactory = navigationFactory
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
+        self.bottomOverlayFactory = bottomOverlayFactory
     }
 
     // MARK: - Body
 
     var body: some View {
-        RefreshScrollView(
-            stateObject: refreshScrollViewStateObject,
-            contentSettings: .simpleContent
-        ) {
-            makePageContent(viewportHeight: viewportHeight)
+        ZStack(alignment: .bottom) {
+            makeScrollView()
+            makeBottomOverlay()
         }
+        .ignoresSafeArea(edges: .bottom)
+        .modifier(NavigationModifier(
+            data: data,
+            selectedIndex: selectedIndex,
+            navigationFactory: navigationFactory
+        ))
         .readGeometry(\.size.height) { viewportHeight = $0 }
     }
 }
 
-// MARK: - Subviews
+// MARK: - View makers
 
 private extension FullPagePagerView {
+    func makeScrollView() -> some View {
+        RefreshScrollView(
+            stateObject: refreshScrollViewStateObject,
+            contentSettings: .simpleContent,
+            content: makePageContent,
+        )
+    }
+
     @ViewBuilder
-    func makePageContent(viewportHeight: CGFloat) -> some View {
+    func makePageContent() -> some View {
         if #available(iOS 17.0, *) {
             FullPagePagerViewModern(
                 data: data,
                 selectedIndex: $selectedIndex,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
+                refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
+                onHeaderHeightRatioChange: onHeaderHeightRatioChange,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
@@ -93,10 +118,38 @@ private extension FullPagePagerView {
                 selectedIndex: $selectedIndex,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
+                refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
+                onHeaderHeightRatioChange: onHeaderHeightRatioChange,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
             )
+        }
+    }
+
+    @ViewBuilder
+    func makeBottomOverlay() -> some View {
+        if let element = data[safe: selectedIndex] {
+            bottomOverlayFactory(element)
+        }
+    }
+}
+
+// MARK: - Subviews
+
+private extension FullPagePagerView {
+    struct NavigationModifier: ViewModifier {
+        let data: Data
+        let selectedIndex: Int
+        let navigationFactory: NavigationFactory
+
+        func body(content: Content) -> some View {
+            if let element = data[safe: selectedIndex] {
+                content
+                    .modifier(navigationFactory(element))
+            } else {
+                content
+            }
         }
     }
 }
@@ -106,6 +159,10 @@ private extension FullPagePagerView {
 extension FullPagePagerView: Setupable {
     func horizontalScrollDisabled(_ disabled: Bool) -> Self {
         map { $0.isScrollDisabled = disabled }
+    }
+
+    func onHeaderHeightRatioChange(_ callback: @escaping (CGFloat) -> Void) -> Self {
+        map { $0.onHeaderHeightRatioChange = callback }
     }
 
     func onPageChange(_ callback: @escaping (CardsInfoPageChangeReason) -> Void) -> Self {

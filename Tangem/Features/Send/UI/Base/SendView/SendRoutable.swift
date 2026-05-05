@@ -22,8 +22,9 @@ protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, Se
     func openApproveView(flowFactory: ApproveFlowFactory)
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder)
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?)
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
+    func openRateInfoSheet(rateType: RateInfoSheetViewModel.RateType, onDismiss: @escaping () -> Void)
     func openFeeSelectorLearnMoreURL(_ url: URL)
 }

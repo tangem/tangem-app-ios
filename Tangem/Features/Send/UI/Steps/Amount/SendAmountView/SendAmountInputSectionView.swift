@@ -1,0 +1,48 @@
+//
+//  SendAmountInputSectionView.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemFoundation
+import TangemUI
+import TangemUIUtils
+
+struct SendAmountInputSectionView<ExpandedContent: View>: View {
+    let isExpanded: Bool
+    let isLocked: Bool
+    let expandedTokenData: SendAmountTokenViewData?
+    let compactTokenData: SendAmountTokenViewData?
+    var useCompactTokenRow: Bool = false
+    var expandedContentVerticalPadding: CGFloat = 45
+    var tokenAccessibilityIdentifier: String? = nil
+    let onTapCompact: () -> Void
+    @ViewBuilder let expandedContent: () -> ExpandedContent
+
+    var body: some View {
+        VStack(alignment: .center, spacing: .zero) {
+            if isExpanded {
+                expandedContent()
+                    .padding(.vertical, expandedContentVerticalPadding)
+
+                Separator(color: Colors.Stroke.primary)
+            }
+
+            if let tokenData = (isExpanded && !useCompactTokenRow) ? expandedTokenData : compactTokenData {
+                SendAmountTokenView(data: tokenData)
+                    .contentShape(Rectangle())
+                    .accessibilityIdentifier(tokenAccessibilityIdentifier)
+                    .onTapGesture {
+                        guard !isExpanded, !isLocked, tokenData.action == nil else { return }
+                        FeedbackGenerator.heavy()
+                        onTapCompact()
+                    }
+            }
+        }
+        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
+    }
+}

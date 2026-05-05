@@ -28,14 +28,16 @@ final class SwapSummaryProviderViewModel: ObservableObject, Identifiable {
         expressProviderFormatter: ExpressProviderFormatter,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput,
-        swapProvidersInput: SendSwapProvidersInput
+        swapProvidersInput: SendSwapProvidersInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput?
     ) {
         self.expressProviderFormatter = expressProviderFormatter
 
         bind(
             sourceTokenInput: sourceTokenInput,
             receiveTokenInput: receiveTokenInput,
-            swapProvidersInput: swapProvidersInput
+            swapProvidersInput: swapProvidersInput,
+            receiveTokenAmountInput: receiveTokenAmountInput
         )
     }
 }
@@ -46,23 +48,44 @@ private extension SwapSummaryProviderViewModel {
     func bind(
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput,
-        swapProvidersInput: SendSwapProvidersInput
+        swapProvidersInput: SendSwapProvidersInput,
+        receiveTokenAmountInput: SendReceiveTokenAmountInput?
     ) {
-        Publishers.CombineLatest3(
+        let highPriceImpactPublisher = receiveTokenAmountInput?.highPriceImpactPublisher ?? Just(nil).eraseToAnyPublisher()
+
+        let tokensPublisher = Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
-            receiveTokenInput.receiveTokenPublisher.compactMap { $0.value },
-            swapProvidersInput.selectedExpressProviderPublisher
-        )
-        .withWeakCaptureOf(self)
-        .map { $0.mapToProviderState(sourceToken: $1.0, receiveToken: $1.1, provider: $1.2) }
-        .receiveOnMain()
-        .assign(to: &$providerState)
+            receiveTokenInput.receiveTokenPublisher.compactMap { $0.value }
+        ).map { (source: $0, receive: $1) }
+
+        let providersPublisher = Publishers.CombineLatest(
+            swapProvidersInput.selectedExpressProviderPublisher,
+            swapProvidersInput.expressProvidersPublisher
+        ).map { (selected: $0, all: $1) }
+
+        Publishers.CombineLatest3(tokensPublisher, providersPublisher, highPriceImpactPublisher)
+            .withWeakCaptureOf(self)
+            .map { viewModel, swapInput in
+                let (tokenValues, providerValues, highPriceImpactValue) = swapInput
+                let hasWarning = highPriceImpactValue.map { !$0.level.isNegligible } ?? false
+                return viewModel.mapToProviderState(
+                    sourceToken: tokenValues.source,
+                    receiveToken: tokenValues.receive,
+                    provider: providerValues.selected,
+                    providers: providerValues.all,
+                    hasHighPriceImpactWarning: hasWarning
+                )
+            }
+            .receiveOnMain()
+            .assign(to: &$providerState)
     }
 
     func mapToProviderState(
         sourceToken: SendSourceToken,
         receiveToken: SendReceiveToken,
-        provider: LoadingResult<ExpressAvailableProvider, any Error>?
+        provider: LoadingResult<ExpressAvailableProvider, any Error>?,
+        providers: [ExpressAvailableProvider],
+        hasHighPriceImpactWarning: Bool
     ) -> ProviderState? {
         switch provider {
         case .none:
@@ -72,7 +95,13 @@ private extension SwapSummaryProviderViewModel {
         case .failure:
             return nil
         case .success(let provider):
-            if let data = mapToProviderRowViewModel(sourceToken: sourceToken, receiveToken: receiveToken, provider: provider) {
+            if let data = mapToProviderRowViewModel(
+                sourceToken: sourceToken,
+                receiveToken: receiveToken,
+                selectedProvider: provider,
+                providers: providers,
+                hasHighPriceImpactWarning: hasHighPriceImpactWarning
+            ) {
                 return .loaded(data: data)
             }
 
@@ -83,11 +112,16 @@ private extension SwapSummaryProviderViewModel {
     func mapToProviderRowViewModel(
         sourceToken: SendSourceToken,
         receiveToken: SendReceiveToken,
-        provider selectedProvider: ExpressAvailableProvider
+        selectedProvider: ExpressAvailableProvider,
+        providers: [ExpressAvailableProvider],
+        hasHighPriceImpactWarning: Bool
     ) -> ProviderRowViewModel? {
+        // Has more than one `showableProviders` to selection
+        let hasAnotherProviders = providers.showableProviders().count > 1
         let state = selectedProvider.getState()
-        if state.isError {
-            // Don't show a error provider
+        let selectedProviderNonError = !state.isError
+
+        guard hasAnotherProviders || selectedProviderNonError else {
             return nil
         }
 
@@ -98,7 +132,7 @@ private extension SwapSummaryProviderViewModel {
             option: .exchangeRate
         )
 
-        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider)
+        let providerBadge = expressProviderFormatter.mapToBadge(availableProvider: selectedProvider, hasHighPriceImpactWarning: hasHighPriceImpactWarning)
         let badge: ProviderRowViewModel.Badge? = switch providerBadge {
         case .none: .none
         case .bestRate: .bestRate

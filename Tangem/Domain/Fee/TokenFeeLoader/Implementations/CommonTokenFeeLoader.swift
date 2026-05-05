@@ -6,7 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 struct CommonTokenFeeLoader {
     let tokenItem: TokenItem
@@ -16,8 +18,6 @@ struct CommonTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension CommonTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { transactionFeeProvider.allowsFeeSelection }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let amount = makeAmount(amount: amount)
         let fees = try await transactionFeeProvider.estimatedFee(amount: amount).async()

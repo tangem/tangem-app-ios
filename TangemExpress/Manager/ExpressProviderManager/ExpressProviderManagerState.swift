@@ -15,8 +15,9 @@ public enum ExpressProviderManagerState {
     case restriction(_ restriction: ExpressRestriction, quote: ExpressQuote?)
 
     case permissionRequired(ExpressProviderManagerState.PermissionRequired)
-    case preview(ExpressProviderManagerState.PreviewCEX)
-    case ready(ExpressProviderManagerState.Ready)
+    case revokeAndPermissionRequired(ExpressProviderManagerState.PermissionRequired)
+    case cexPreview(ExpressProviderManagerState.CEXPreview)
+    case dexPreview(ExpressProviderManagerState.DEXPreview)
 
     public var quote: ExpressQuote? {
         switch self {
@@ -28,16 +29,18 @@ public enum ExpressProviderManagerState {
             return quote
         case .permissionRequired(let state):
             return state.quote
-        case .preview(let state):
+        case .revokeAndPermissionRequired(let state):
             return state.quote
-        case .ready(let state):
+        case .cexPreview(let state):
+            return state.quote
+        case .dexPreview(let state):
             return state.quote
         }
     }
 
     public var isError: Bool {
         switch self {
-        case .idle, .permissionRequired, .restriction, .preview, .ready:
+        case .idle, .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview:
             return false
         case .error:
             return true
@@ -46,7 +49,7 @@ public enum ExpressProviderManagerState {
 
     public var isPermissionRequired: Bool {
         switch self {
-        case .permissionRequired:
+        case .permissionRequired, .revokeAndPermissionRequired:
             return true
         default:
             return false
@@ -59,24 +62,53 @@ public extension ExpressProviderManagerState {
         public let provider: ExpressProvider
         public let policy: ApprovePolicy
         public let data: ApproveTransactionData
+        public let approvalFlow: ApprovalFlow
         public let fee: Fee
         public let quote: ExpressQuote
     }
 
-    struct PreviewCEX {
+    enum ApprovalFlow {
+        /// Single approve tx
+        case approve
+        /// Revoke existing allowance, then approve. Required for tokens like USDT on Ethereum.
+        case revokeAndApprove(revokeData: ApproveTransactionData, feeUnit: Fee)
+    }
+
+    struct CEXPreview {
         public let provider: ExpressProvider
         public let subtractFee: Decimal
         public let quote: ExpressQuote
         public let fee: Fee
     }
 
-    struct Ready {
+    struct DEXPreview {
         public let provider: ExpressProvider
         public let data: ExpressTransactionData
         public let fee: Fee
         public let quote: ExpressQuote
     }
 }
+
+// MARK: - Factory
+
+extension ExpressProviderManagerState {
+    static func mapError(_ apiError: ExpressAPIError, quote: ExpressQuote? = nil, currencySymbol: String = "") -> Self {
+        guard let amount = apiError.value?.amount else {
+            return .error(apiError, quote: quote)
+        }
+
+        switch apiError.errorCode {
+        case .exchangeTooSmallAmountError:
+            return .restriction(.tooSmallAmount(amount, currencySymbol: currencySymbol), quote: quote)
+        case .exchangeTooBigAmountError:
+            return .restriction(.tooBigAmount(amount, currencySymbol: currencySymbol), quote: quote)
+        default:
+            return .error(apiError, quote: quote)
+        }
+    }
+}
+
+// MARK: - CustomStringConvertible
 
 extension ExpressProviderManagerState: CustomStringConvertible {
     public var description: String {
@@ -87,12 +119,14 @@ extension ExpressProviderManagerState: CustomStringConvertible {
             return "error \(error) quote \(String(describing: quote))"
         case .restriction(let restriction, let quote):
             return "restriction \(restriction) quote \(String(describing: quote))"
-        case .permissionRequired(let permissionRequired):
-            return "permissionRequired quote \(permissionRequired.quote)"
-        case .preview(let previewCEX):
-            return "previewCEX subtractFee: \(previewCEX.subtractFee), quote \(previewCEX.quote)"
-        case .ready(let ready):
-            return "quote \(ready.quote)"
+        case .permissionRequired(let state):
+            return "permissionRequired quote \(state.quote)"
+        case .revokeAndPermissionRequired(let state):
+            return "revokeAndPermissionRequired quote \(state.quote)"
+        case .cexPreview(let cexPreview):
+            return "cexPreview subtractFee: \(cexPreview.subtractFee), quote \(cexPreview.quote)"
+        case .dexPreview(let dexPreview):
+            return "dexPreview quote \(dexPreview.quote)"
         }
     }
 }

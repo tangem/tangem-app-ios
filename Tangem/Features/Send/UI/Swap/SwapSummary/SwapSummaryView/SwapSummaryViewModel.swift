@@ -64,12 +64,14 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     func bind(sourceTokenInput: SendSourceTokenInput) {
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { CommonTangemIconProvider(config: $0.userWalletInfo.config).getMainButtonIcon() }
+            .map { $0.tangemIconProvider.getMainButtonIcon() }
+            .receiveOnMain()
             .assign(to: &$mainButtonIcon)
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
             .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
     }
 
@@ -89,7 +91,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 // MARK: - SwapAmountCompactRoutable
 
 extension SwapSummaryViewModel: SwapAmountCompactRoutable {
-    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem) {
+    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem?) {
         router?.summaryStepRequestEditSourceToken(tokenItem: tokenItem)
     }
 
@@ -97,7 +99,7 @@ extension SwapSummaryViewModel: SwapAmountCompactRoutable {
         interactor.userDidRequestSwapSourceAndReceiveToken()
     }
 
-    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem) {
+    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem?) {
         router?.summaryStepRequestEditReceiveToken(tokenItem: tokenItem)
     }
 }
