@@ -7,7 +7,6 @@
 //
 
 import Combine
-import PassKit
 import TangemExpress
 import TangemFoundation
 
@@ -20,11 +19,6 @@ protocol OnrampSummaryInteractor: AnyObject {
 
     func userDidChangeFiat(amount: Decimal?)
     func userDidRequestOnramp(provider: OnrampProvider)
-    func userDidAuthorizeNativePayment(
-        provider: OnrampProvider,
-        applePayResult: OnrampApplePayResult,
-        resultHandler: @escaping (PKPaymentAuthorizationResult) -> Void
-    )
 }
 
 enum OnrampSummaryInteractorBottomInfoError: Error {
@@ -141,14 +135,6 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
 
     func userDidRequestOnramp(provider: OnrampProvider) {
         output?.userDidRequestOnramp(provider: provider)
-    }
-
-    func userDidAuthorizeNativePayment(
-        provider: OnrampProvider,
-        applePayResult: OnrampApplePayResult,
-        resultHandler: @escaping (PKPaymentAuthorizationResult) -> Void
-    ) {
-        output?.userDidAuthorizeNativePayment(provider: provider, applePayResult: applePayResult, resultHandler: resultHandler)
     }
 
     func userDidChangeFiat(amount: Decimal?) {

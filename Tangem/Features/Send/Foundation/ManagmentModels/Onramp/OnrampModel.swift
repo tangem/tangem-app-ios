@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import PassKit
 import TangemExpress
 import Combine
 import TangemFoundation
@@ -45,7 +44,6 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
-    private var applePayTask: Task<Void, Never>?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -354,24 +352,6 @@ private extension OnrampModel {
         }
     }
 
-    /// Runs work on a dedicated task ivar so timer-driven `mainTask` cancellations
-    /// cannot abort an in-flight Apple Pay authorization. PassKit must always hear
-    /// back from the resultHandler — call sites still take responsibility for that.
-    func applePayTask(code: @escaping (OnrampModel) async throws -> Void) {
-        applePayTask?.cancel()
-        applePayTask = runTask(in: self) { model in
-            do {
-                try await code(model)
-            } catch _ as CancellationError {
-                // Do nothing
-            } catch {
-                await runOnMain {
-                    model.alertPresenter?.showAlert(error.alertBinder)
-                }
-            }
-        }
-    }
-
     func autoupdate() {
         mainTask {
             $0.log("Call autoupdate")
@@ -401,14 +381,6 @@ private extension OnrampModel {
         // Push the same provider to notify all listeners
         _selectedOnrampProvider.resend()
         _onrampProviders.resend()
-    }
-
-    func nativePaymentDataDidLoad(data: OnrampNativePaymentData) {
-        guard let provider = selectedOnrampProvider else {
-            assertionFailure("selectedOnrampProvider is unexpectedly nil")
-            return
-        }
-        nativePaymentDataDidLoad(data: data, provider: provider)
     }
 
     func nativePaymentDataDidLoad(data: OnrampNativePaymentData, provider: OnrampProvider) {
@@ -569,55 +541,6 @@ extension OnrampModel: OnrampSummaryOutput {
         _selectedOnrampProvider.send(.success(provider))
         router?.openOnrampRedirecting()
     }
-
-    func userDidAuthorizeNativePayment(
-        provider: OnrampProvider,
-        applePayResult: OnrampApplePayResult,
-        resultHandler: @escaping (PKPaymentAuthorizationResult) -> Void
-    ) {
-        _selectedOnrampProvider.send(.success(provider))
-
-        applePayTask { model in
-            do {
-                let appLanguageCode = Locale.appLanguageCode
-                var redirectURL = URL(string: IncomingActionConstants.onrampRedirectURL)!
-                redirectURL.appendPathComponent(provider.provider.id)
-
-                let redirectSettings = OnrampRedirectSettings(
-                    redirectURL: redirectURL.absoluteString,
-                    theme: .light,
-                    language: appLanguageCode
-                )
-
-                let result = try await model.onrampManager.loadNativePaymentData(
-                    provider: provider,
-                    redirectSettings: redirectSettings,
-                    applePayResult: applePayResult
-                )
-
-                switch result {
-                case .nativePayment(let data):
-                    resultHandler(.init(status: .success, errors: nil))
-                    model.nativePaymentDataDidLoad(data: data)
-                case .widget(let data):
-                    // Schedule redirect navigation before telling PassKit; mirrors the
-                    // ordering enforced by `widgetFallbackOrdersRedirectBeforeFail`.
-                    model.redirectDataDidLoad(data: data)
-                    resultHandler(.init(status: .failure, errors: []))
-                }
-            } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
-                resultHandler(.init(status: .failure, errors: [error]))
-                await runOnMain {
-                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
-                }
-            } catch {
-                // PassKit must always hear back; surface the failure before letting `applePayTask`
-                // handle alert presentation / CancellationError swallowing.
-                resultHandler(.init(status: .failure, errors: [error]))
-                throw error
-            }
-        }
-    }
 }
 
 // MARK: - ApplePayButtonPaymentAuthorizationHandler
@@ -627,7 +550,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         let provider = result.provider
         _selectedOnrampProvider.send(.success(provider))
 
-        applePayTask { model in
+        runTask(in: self) { model in
             do {
                 let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
 
@@ -652,11 +575,13 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 await runOnMain {
                     model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
-            } catch {
-                // PassKit must always hear back; surface the failure before letting `applePayTask`
-                // handle alert presentation / CancellationError swallowing.
+            } catch let error as CancellationError {
                 result.fail(error)
-                throw error
+            } catch {
+                result.fail(error)
+                await runOnMain {
+                    model.alertPresenter?.showAlert(error.alertBinder)
+                }
             }
         }
     }
