@@ -62,6 +62,26 @@
         <string>%li дней назад</string>
       </dict>
     </dict>
+    <key>common_hours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li час</string>
+        <key>few</key>
+        <string>%li часa</string>
+        <key>many</key>
+        <string>%li часов</string>
+        <key>other</key>
+        <string>%li часа</string>
+      </dict>
+    </dict>
     <key>common_hours_time_ago</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
