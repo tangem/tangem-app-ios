@@ -10,6 +10,14 @@ import Foundation
 import struct AnyCodable.AnyDecodable
 
 enum SolanaTransactionHistoryDTO {
+    struct TokenAccounts: Decodable {
+        let value: [TokenAccount]
+
+        struct TokenAccount: Decodable {
+            let pubkey: String
+        }
+    }
+
     struct SignatureItem: Decodable {
         let blockTime: Int?
         let confirmationStatus: String?
