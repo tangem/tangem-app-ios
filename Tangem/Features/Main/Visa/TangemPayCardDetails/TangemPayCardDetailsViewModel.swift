@@ -16,21 +16,35 @@ import TangemVisa
 
 final class TangemPayCardDetailsViewModel: ObservableObject {
     let lastFourDigits: String
+    let cardNameDisplayMode: CardNameDisplayMode
 
     @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
     @Published var isFlipped: Bool = false
+    @Published var cardName: String = ""
+
+    var onCardNameTapped: (() -> Void)?
 
     private var expectedState: TangemPayCardDetailsState? = nil
 
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
     private let repository: TangemPayCardDetailsRepository
+    private let userWalletId: UserWalletId
 
     init(
-        repository: TangemPayCardDetailsRepository
+        userWalletId: UserWalletId,
+        repository: TangemPayCardDetailsRepository,
+        cardNameDisplayMode: CardNameDisplayMode = .display
     ) {
+        self.cardNameDisplayMode = cardNameDisplayMode
+        self.userWalletId = userWalletId
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
+
+        repository.cardNamePublisher
+            .receiveOnMain()
+            .assign(to: \.cardName, on: self, ownership: .weak)
+            .store(in: &bag)
 
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .withWeakCaptureOf(self)
@@ -40,18 +54,22 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    func cardNameTapped() {
+        onCardNameTapped?()
+    }
+
     func copyNumber() {
-        Analytics.log(.visaScreenCopyCardNumberClicked)
+        Analytics.log(.visaScreenCopyCardNumberClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.number, toastMessage: "Number copied")
     }
 
     func copyExpirationDate() {
-        Analytics.log(.visaScreenCopyCardExpiryClicked)
+        Analytics.log(.visaScreenCopyCardExpiryClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.expirationDate, toastMessage: "Expiration date copied")
     }
 
     func copyCVC() {
-        Analytics.log(.visaScreenCopyCardCVVClicked)
+        Analytics.log(.visaScreenCopyCardCVVClicked, contextParams: .userWallet(userWalletId))
         copyAction(copiedTextKeyPath: \.cvc, toastMessage: "CVC copied")
     }
 
@@ -60,7 +78,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             cardDetailsExposureTask?.cancel()
             return
         }
-        Analytics.log(.visaScreenViewCardDetailsClicked)
+        Analytics.log(.visaScreenViewCardDetailsClicked, contextParams: .userWallet(userWalletId))
         toggleInteractive()
     }
 
@@ -102,6 +120,14 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 AppLogger.error("Failed to load card details", error: error)
             }
         }
+    }
+}
+
+extension TangemPayCardDetailsViewModel {
+    enum CardNameDisplayMode {
+        case display
+        case interactive
+        case editing
     }
 }
 

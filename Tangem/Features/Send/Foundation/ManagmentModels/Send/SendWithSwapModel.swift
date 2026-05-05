@@ -36,7 +36,7 @@ final class SendWithSwapModel {
     private let initialSourceToken: SendSourceToken
     private let sendAlertBuilder: SendAlertBuilder
     private let analyticsLogger: SendAnalyticsLogger
-    private var bag: Set<AnyCancellable> = []
+    private var receiveTokenUpdatingTask: Task<Void, Error>?
 
     init(
         transferModel: TransferModel,
@@ -128,6 +128,16 @@ private extension SendWithSwapModel {
         }
     }
 
+    func updateReceiveTokenIfNeededWithDebounce() {
+        receiveTokenUpdatingTask?.cancel()
+        receiveTokenUpdatingTask = Task { @MainActor [weak self] in
+            // Use small debounce to avoid recreating providers.
+            try await Task.sleep(for: .seconds(1))
+            try Task.checkCancellation()
+            self?.updateReceiveTokenIfNeeded()
+        }
+    }
+
     func updateReceiveTokenIfNeeded() {
         guard let receiveTokenItem = swapModel.receiveToken.value else {
             return
@@ -180,12 +190,12 @@ extension SendWithSwapModel: SendDestinationInput {
 extension SendWithSwapModel: SendDestinationOutput {
     func destinationDidChanged(_ address: SendDestination?) {
         transferModel.destinationDidChanged(address)
-        updateReceiveTokenIfNeeded()
+        updateReceiveTokenIfNeededWithDebounce()
     }
 
     func destinationAdditionalParametersDidChanged(_ type: SendDestinationAdditionalField) {
         transferModel.destinationAdditionalParametersDidChanged(type)
-        updateReceiveTokenIfNeeded()
+        updateReceiveTokenIfNeededWithDebounce()
     }
 }
 
@@ -270,7 +280,6 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
         // This effectively switches back to "simple send" mode
         resetFlow(newReceiveToken: .none, reset: { [weak self] in
             self?.swapModel.userDidRequestClearSelection()
-            self?.analyticsLogger.logAmountStepOpened()
         })
     }
 
@@ -287,10 +296,8 @@ extension SendWithSwapModel: SendReceiveTokenOutput {
 
         resetFlow(newReceiveToken: receiveToken, reset: { [weak self] in
             self?.swapModel.update(receive: receiveToken)
-            self?.analyticsLogger.logAmountStepOpened()
             selected(true)
-        }, cancel: { [weak self] in
-            self?.analyticsLogger.logAmountStepOpened()
+        }, cancel: {
             selected(false)
         })
     }
@@ -312,6 +319,15 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             .eraseToAnyPublisher()
     }
 
+    var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.exchangeRestrictionPublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
+
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -325,8 +341,8 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
 // MARK: - SendReceiveTokenAmountOutput
 
 extension SendWithSwapModel: SendReceiveTokenAmountOutput {
-    func receiveAmountDidChanged(amount: SendAmount?) {
-        swapModel.receiveAmountDidChanged(amount: amount)
+    func receiveAmountDidChange(amount: SendAmount?) {
+        swapModel.receiveAmountDidChange(amount: amount)
     }
 }
 
@@ -355,6 +371,19 @@ extension SendWithSwapModel: SendSwapProvidersInput {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap in
                 isSwap ? model.swapModel.selectedExpressProviderPublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var currentRateType: ExpressProviderRateType? {
+        isSwapMode ? swapModel.currentRateType : nil
+    }
+
+    var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.currentRateTypePublisher : .just(output: nil)
             }
             .eraseToAnyPublisher()
     }
@@ -394,6 +423,10 @@ extension SendWithSwapModel: SendFeeInput {
                 isSwap ? model.swapModel.selectedFeePublisher : model.transferModel.selectedFeePublisher
             }
             .eraseToAnyPublisher()
+    }
+
+    var supportFeeSelection: Bool {
+        isSwapMode ? swapModel.supportFeeSelection : transferModel.supportFeeSelection
     }
 
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
@@ -441,20 +474,7 @@ extension SendWithSwapModel: SendSummaryInput, SendSummaryOutput {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap -> AnyPublisher<SendSummaryTransactionData?, Never> in
                 if isSwap {
-                    return Publishers
-                        .CombineLatest(
-                            model.transferModel.summaryTransactionDataPublisher,
-                            model.swapModel.summaryTransactionDataPublisher
-                        )
-                        .map { transferData, swapData -> SendSummaryTransactionData? in
-                            guard case .send(let amount, let fee) = transferData,
-                                  case .swap(let provider) = swapData else {
-                                return nil
-                            }
-
-                            return .sendWithSwap(amount: amount, fee: fee, provider: provider)
-                        }
-                        .eraseToAnyPublisher()
+                    return model.swapModel.summaryTransactionDataPublisher
                 } else {
                     return model.transferModel.summaryTransactionDataPublisher
                 }
@@ -486,13 +506,6 @@ extension SendWithSwapModel: SendFinishInput {
 // MARK: - SendBaseInput, SendBaseOutput
 
 extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
-    func stopSwapProvidersAutoUpdateTimer() {
-        if !isSwapMode {
-            transferModel.stopSwapProvidersAutoUpdateTimer()
-        }
-        // SwapModel handles this internally via autoupdatingTimer
-    }
-
     var actionInProcessing: AnyPublisher<Bool, Never> {
         isSwapModePublisher
             .withWeakCaptureOf(self)
@@ -515,10 +528,10 @@ extension SendWithSwapModel: SendBaseInput, SendBaseOutput {
             let highPriceImpactResult = try await swapModel.highPriceImpactPublisher.first().async()
             let source = try swapModel.sourceToken.get()
 
-            if let highPriceImpact = highPriceImpactResult, highPriceImpact.isHighPriceImpact {
+            if let highPriceImpact = highPriceImpactResult, !highPriceImpact.level.isNegligible {
                 let viewModel = HighPriceImpactWarningSheetViewModel(
                     highPriceImpact: highPriceImpact,
-                    tangemIconProvider: CommonTangemIconProvider(signer: source.userWalletInfo.signer)
+                    tangemIconProvider: source.tangemIconProvider
                 )
                 router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 
@@ -605,16 +618,6 @@ extension SendWithSwapModel: ApproveFlowDataProvider, ApproveOutput {
     func approveDidSendTransaction() {
         guard isSwapMode else { return }
         swapModel.approveDidSendTransaction()
-    }
-}
-
-// MARK: - SendDestinationAccountOutput
-
-extension SendWithSwapModel: SendDestinationAccountOutput {
-    func setDestinationAccountInfo(
-        analyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        transferModel.setDestinationAccountInfo(analyticsProvider: analyticsProvider)
     }
 }
 

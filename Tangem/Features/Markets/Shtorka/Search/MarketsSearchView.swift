@@ -7,17 +7,16 @@
 //
 
 import SwiftUI
-import TangemLocalization
-import Combine
-import BlockchainSdk
 import TangemAssets
+import TangemFoundation
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
-import TangemFoundation
 
 struct MarketsSearchView: View {
     @ObservedObject var viewModel: MarketsSearchViewModel
-    let onBackButtonAction: () -> Void
+    let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
+    let onLeadingButtonAction: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.mainWindowSize) private var mainWindowSize
@@ -32,15 +31,11 @@ struct MarketsSearchView: View {
     @State private var searchResultListOverlayTotalHeight: CGFloat = .zero
     @State private var listOverlayVerticalOffset: CGFloat = .zero
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
-    @State private var responderChainIntrospectionTrigger = UUID()
 
     @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.marketTokenDetails(
         initialState: MarketsNavigationBarTitle.State(priceOpacity: nil, titleOffset: 0),
         labelOffset: Constants.scrollViewContentTopInset + Constants.scrollViewVerticalPadding
     )
-
-    private let scrollTopAnchorId = UUID()
-    private let scrollViewFrameCoordinateSpaceName = UUID()
 
     private var isDarkColorScheme: Bool { colorScheme == .dark }
 
@@ -58,9 +53,7 @@ struct MarketsSearchView: View {
         isDarkColorScheme ? defaultBackgroundColor.forcedDark : UIColor.backgroundPlain.forcedLight
     }
 
-    private var overlayHeight: CGFloat { showSearchResult ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
-
-    private var showSearchResult: Bool { viewModel.isSearching }
+    private var overlayHeight: CGFloat { viewModel.isSearching ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
 
     var body: some View {
         rootView
@@ -81,11 +74,10 @@ struct MarketsSearchView: View {
             .onDisappear(perform: viewModel.onViewDisappear)
     }
 
-    @ViewBuilder
     private var rootView: some View {
         ZStack {
             Group {
-                if showSearchResult {
+                if viewModel.isSearching {
                     searchResultView
                 } else {
                     defaultMarketsView
@@ -97,7 +89,7 @@ struct MarketsSearchView: View {
             navigationBarBackground
 
             ZStack {
-                if showSearchResult {
+                if viewModel.isSearching {
                     MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel)
                         .readGeometry(\.size.height, bindTo: $headerHeight)
                         .infinityFrame(axis: .vertical, alignment: .top)
@@ -107,7 +99,7 @@ struct MarketsSearchView: View {
                         .transition(.opacity)
                 }
             }
-            .animation(.easeInOut(duration: 0.1), value: showSearchResult)
+            .animation(.easeInOut(duration: 0.1), value: viewModel.isSearching)
         }
         .navigationBarTitleDisplayMode(.inline)
         // This dummy title won't be shown in the UI, but it's required since without it UIKit may allocate
@@ -118,7 +110,6 @@ struct MarketsSearchView: View {
 
     // MARK: - Navigation Bar implementation
 
-    @ViewBuilder
     private var navigationBarBackground: some View {
         MarketsNavigationBarBackgroundView(
             backdropViewColor: backgroundColor,
@@ -126,15 +117,13 @@ struct MarketsSearchView: View {
             isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
             isListContentObscured: isListContentObscured
         ) {
-            Group {
-                if showSearchResult {
-                    MarketsSearchResultListOverlayView(
-                        titleOpacity: $listOverlayTitleOpacity,
-                        totalHeight: $searchResultListOverlayTotalHeight
-                    )
-                } else {
-                    defaultListOverlay
-                }
+            if viewModel.isSearching {
+                MarketsSearchResultListOverlayView(
+                    titleOpacity: $listOverlayTitleOpacity,
+                    totalHeight: $searchResultListOverlayTotalHeight
+                )
+            } else {
+                defaultListOverlay
             }
         }
         .frame(height: headerHeight + overlayHeight)
@@ -145,7 +134,8 @@ struct MarketsSearchView: View {
     private var navigationBar: some View {
         MarketsSearchNavigationBar(
             title: Localization.marketsCommonTitle,
-            onBackButtonAction: onBackButtonAction,
+            leadingButton: leadingButton,
+            onLeadingButtonAction: onLeadingButtonAction,
             onSearchButtonAction: viewModel.onSearchButtonAction
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)
@@ -154,11 +144,15 @@ struct MarketsSearchView: View {
 
     // MARK: - List Overlay
 
-    @ViewBuilder
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
-                .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
+            if FeatureProvider.isAvailable(.redesign) {
+                MarketsRatingHeaderViewRedesign(viewModel: viewModel.marketsRatingHeaderViewModel)
+                    .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
+            } else {
+                MarketsRatingHeaderView(viewModel: viewModel.marketsRatingHeaderViewModel)
+                    .readGeometry(\.size.height, bindTo: $defaultListOverlayRatingHeaderHeight)
+            }
         }
         .infinityFrame(axis: .horizontal)
         .padding(.top, Constants.listOverlayTopInset)
@@ -178,14 +172,16 @@ struct MarketsSearchView: View {
         }
     }
 
-    @ViewBuilder
     private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return .Tangem.Surface.level2
+        }
+
         let uiColor = overlayContentHidingBackgroundColor.mix(
             with: defaultBackgroundColor,
             by: viewModel.overlayContentHidingProgress
         )
-
-        Color(uiColor: uiColor)
+        return Color(uiColor: uiColor)
     }
 
     @ViewBuilder
@@ -200,7 +196,6 @@ struct MarketsSearchView: View {
         }
     }
 
-    @ViewBuilder
     private var list: some View {
         ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
@@ -209,7 +204,7 @@ struct MarketsSearchView: View {
                 VStack(spacing: 0.0) {
                     Color.clear
                         .frame(height: 0)
-                        .id(scrollTopAnchorId)
+                        .id(Identifiers.scrollTopAnchorID)
 
                     // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
                     // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
@@ -221,41 +216,59 @@ struct MarketsSearchView: View {
                     Color.clear
                         .frame(height: overlayHeight)
 
-                    LazyVStack(spacing: 0) {
-                        if !showSearchResult, viewModel.yieldModeNotificationVisible {
-                            MarketsYieldModeNotificationView(
-                                openAction: { [viewModel] in
-                                    viewModel.openYieldModeFiter()
-                                },
-                                closeAction: { [viewModel] in
-                                    viewModel.closeYieldModeNotification()
-                                }
-                            )
-                        }
-
-                        ForEach(viewModel.tokenListViewModel.tokenViewModels) {
-                            MarketsItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-                        }
-
-                        // Need for display list skeleton view
-                        if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
-                            loadingSkeletons
-                        }
-
-                        if viewModel.tokenListViewModel.shouldDisplayShowTokensUnderCapView {
-                            MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
-                        }
-                    }
-                    .onReceive(viewModel.tokenListViewModel.resetScrollPositionPublisher) { _ in
-                        proxy.scrollTo(scrollTopAnchorId)
+                    if FeatureProvider.isAvailable(.redesign) {
+                        redesignTokenList
+                    } else {
+                        legacyTokenList
                     }
                 }
+                .onReceive(viewModel.tokenListViewModel.resetScrollPositionPublisher) { _ in
+                    proxy.scrollTo(Identifiers.scrollTopAnchorID)
+                }
                 .readContentOffset(
-                    inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                    inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame),
                     onChange: updateListOverlayAppearance(contentOffset:)
                 )
             }
-            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+            .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
+        }
+    }
+
+    private var redesignTokenList: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(viewModel.tokenListViewModel.tokenViewModels) { itemVM in
+                MarketTokenRowView(viewModel: itemVM.tokenItemViewModel)
+                    .onAppear { itemVM.onAppear() }
+                    .onDisappear { itemVM.onDisappear() }
+            }
+
+            if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
+                ForEach(0 ..< 20, id: \.self) { _ in
+                    TangemTwoLineRowSkeletonView()
+                }
+            }
+
+            if viewModel.tokenListViewModel.shouldDisplayShowTokensUnderCapView {
+                MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
+            }
+        }
+        .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
+        .padding(.horizontal, .unit(.x4))
+    }
+
+    private var legacyTokenList: some View {
+        LazyVStack(spacing: 0) {
+            ForEach(viewModel.tokenListViewModel.tokenViewModels) {
+                MarketsItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+            }
+
+            if case .loading = viewModel.tokenListViewModel.tokenListLoadingState {
+                loadingSkeletons
+            }
+
+            if viewModel.tokenListViewModel.shouldDisplayShowTokensUnderCapView {
+                MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
+            }
         }
     }
 
@@ -263,7 +276,7 @@ struct MarketsSearchView: View {
         let maxOffset: CGFloat
         let offSet: CGFloat
 
-        if showSearchResult {
+        if viewModel.isSearching {
             maxOffset = searchResultListOverlayTotalHeight
             offSet = clamp(contentOffset.y, min: .zero, max: maxOffset)
         } else {
@@ -274,8 +287,8 @@ struct MarketsSearchView: View {
             offSet = .zero
         }
 
-        listOverlayTitleOpacity = showSearchResult && !maxOffset.isZero ? 1.0 - offSet / maxOffset : 1.0
-        listOverlayVerticalOffset = showSearchResult ? -offSet : .zero
+        listOverlayTitleOpacity = viewModel.isSearching && !maxOffset.isZero ? 1.0 - offSet / maxOffset : 1.0
+        listOverlayVerticalOffset = viewModel.isSearching ? -offSet : .zero
         isListContentObscured = contentOffset.y >= (maxOffset + Constants.listOverlayBottomInset)
     }
 
@@ -283,8 +296,17 @@ struct MarketsSearchView: View {
         MarketsNoResultsStateView()
     }
 
+    @ViewBuilder
     private var errorStateView: some View {
-        MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: viewModel.tokenListViewModel.onTryLoadList
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+        }
     }
 
     private var loadingSkeletons: some View {
@@ -305,6 +327,18 @@ private extension MarketsSearchView {
         static let scrollViewVerticalPadding = 16.0
         static let blockHorizontalPadding: CGFloat = 16.0
         static let contentVerticalSpacing: CGFloat = 14
+    }
+
+    enum Identifiers {
+        private static let prefix = "MarketsSearchView.Identifiers."
+
+        static let scrollTopAnchorID = prefix + "scrollTopAnchorID"
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "MarketsSearchView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
 

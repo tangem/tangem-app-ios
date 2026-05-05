@@ -71,8 +71,7 @@ class AppCoordinator: CoordinatorObject {
         let startupOption = startupProcessor.getStartupOption()
 
         switch startupOption {
-        case .welcome where options == .locked,
-             .auth where options == .locked:
+        case .auth where options == .locked:
             setupLock()
 
             runTask(in: self) { coordinator in
@@ -107,8 +106,6 @@ class AppCoordinator: CoordinatorObject {
                 setupAuth(unlockOnAppear: false)
             case .openMain(let model):
                 openMain(with: model)
-            case .openWelcome:
-                setupWelcome()
             }
         }
     }
@@ -240,18 +237,16 @@ class AppCoordinator: CoordinatorObject {
             .dropFirst()
             .combineLatest(
                 userWalletRepository.eventProvider,
-                AppSettings.shared.$marketsTooltipWasShown,
                 cardSessionIsActivePublisher
             )
             .combineLatest(mobileUnlockIsActivePublisher)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] params in
-                let ((viewState, walletRepositoryEvent, marketsTooltipWasShown, cardSessionIsActive), mobileUnlockIsActive) = params
+                let ((viewState, walletRepositoryEvent, cardSessionIsActive), mobileUnlockIsActive) = params
                 MainActor.assumeIsolated {
                     self?.updateFloatingSheetPresenterState(
                         viewState: viewState,
                         userWalletRepositoryEvent: walletRepositoryEvent,
-                        marketsTooltipWasShown: marketsTooltipWasShown,
                         cardSessionIsActive: cardSessionIsActive,
                         mobileUnlockIsActive: mobileUnlockIsActive
                     )
@@ -270,11 +265,10 @@ class AppCoordinator: CoordinatorObject {
     private func updateFloatingSheetPresenterState(
         viewState: ViewState?,
         userWalletRepositoryEvent: UserWalletRepositoryEvent,
-        marketsTooltipWasShown: Bool,
         cardSessionIsActive: Bool,
         mobileUnlockIsActive: Bool
     ) {
-        guard !cardSessionIsActive, !mobileUnlockIsActive, marketsTooltipWasShown else {
+        guard !cardSessionIsActive, !mobileUnlockIsActive else {
             floatingSheetPresenter.pauseSheetsDisplaying()
             return
         }

@@ -89,18 +89,6 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     throw UserWalletRepositoryError.duplicateWalletAdded
                 }
 
-                if let userWalletId {
-                    Task.detached {
-                        let walletCreationHelper = WalletCreationHelper(
-                            userWalletId: userWalletId,
-                            userWalletName: nil,
-                            userWalletConfig: userWalletConfig
-                        )
-
-                        try? await walletCreationHelper.createWallet()
-                    }
-                }
-
                 guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
                     walletInfo: .mobileWallet(walletInfo),
                     keys: .mobileWallet(keys: walletInfo.keys),
@@ -137,7 +125,7 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
 private extension MobileOnboardingSeedPhraseImportViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.onboardingSeedImportScreenOpened, contextParams: analyticsContextParams)
+        Analytics.log(.onboardingSeedImportScreenOpened, analyticsSystems: .all, contextParams: analyticsContextParams)
     }
 
     func logImportTapAnalytics() {

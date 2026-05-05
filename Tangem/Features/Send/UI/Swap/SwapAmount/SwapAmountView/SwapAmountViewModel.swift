@@ -13,9 +13,9 @@ import TangemLocalization
 import TangemFoundation
 
 protocol SwapAmountCompactRoutable: AnyObject {
-    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem)
+    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem?)
     func userDidTapSwapSourceAndReceiveTokensButton()
-    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem)
+    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem?)
 }
 
 final class SwapAmountViewModel: ObservableObject, Identifiable {
@@ -59,7 +59,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenInput = receiveTokenInput
-
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
             headerType: .action(name: Localization.swappingFromTitle),
@@ -84,7 +83,16 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     func bind() {
         // Buttons updating
         interactor.receivedTokenPublisher
-            .map { ($0.value as? SendSourceToken) == nil }
+            .map { result in
+                if FeatureProvider.isAvailable(.swapPipelineV2) {
+                    return result.isLoading
+                }
+
+                // below save old logic
+                let hasToken = result.value as? SendSourceToken != nil
+                let isDisabled = result.isLoading || !hasToken
+                return isDisabled
+            }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$isSwapButtonDisabled)
@@ -127,24 +135,37 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .sink { $0.receiveExpressCurrencyViewModel.updateHighPricePercentLabel(highPriceImpact: $1) }
     }
 
-    func textFieldDidTapped() {
+    func textFieldDidTap() {
         Analytics.log(.swapSendTokenBalanceClicked)
     }
 
     func userDidTapChangeSourceTokenButton() {
-        if let receiveToken = receiveTokenInput?.receiveToken.value?.tokenItem {
+        let receiveToken = receiveTokenInput?.receiveToken.value?.tokenItem
+
+        if FeatureProvider.isAvailable(.swapPipelineV2) {
             router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
+            return
         }
+
+        guard receiveToken != nil else { return }
+        router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
+        Analytics.log(.swapButtonSwipe)
         router?.userDidTapSwapSourceAndReceiveTokensButton()
     }
 
     func userDidTapChangeReceiveTokenButton() {
-        if let sourceToken = sourceTokenInput?.sourceToken.value?.tokenItem {
+        let sourceToken = sourceTokenInput?.sourceToken.value?.tokenItem
+
+        if FeatureProvider.isAvailable(.swapPipelineV2) {
             router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
+            return
         }
+
+        guard sourceToken != nil else { return }
+        router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
     }
 
     func userDidTapNetworkFeeInfoButton(_ message: String) {
@@ -184,7 +205,7 @@ private extension SwapAmountViewModel {
     }
 
     func update(amount: Decimal?) -> SendAmount? {
-        try? interactor.update(amount: amount)
+        try? interactor.update(sourceAmount: amount)
     }
 
     func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {

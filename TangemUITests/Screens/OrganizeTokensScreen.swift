@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import XCTest
 import TangemAccessibilityIdentifiers
 @testable import TangemAssets
@@ -21,6 +22,16 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
         XCTContext.runActivity(named: "Sort tokens by balance") { _ in
             sortByBalanceButton.waitAndTap()
             return self
+        }
+    }
+
+    @discardableResult
+    func cancelOrganizeTokens() -> MainScreen {
+        XCTContext.runActivity(named: "Cancel organize tokens (dismiss sheet)") { _ in
+            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400))
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            return MainScreen(app)
         }
     }
 

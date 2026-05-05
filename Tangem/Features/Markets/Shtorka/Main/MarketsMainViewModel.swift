@@ -15,7 +15,7 @@ import TangemLocalization
 import TangemFoundation
 
 final class MarketsMainViewModel: MarketsBaseViewModel {
-    private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
+    typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
     // MARK: - Injected & Published Properties
 
@@ -41,10 +41,16 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         return dateString.capitalized(with: headerDateFormatter.locale)
     }
 
+    var isRedesign: Bool {
+        FeatureProvider.isAvailable(.redesign)
+    }
+
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
     }
+
+    let tokenSearchViewModel: MarketsTokenSearchViewModel
 
     private weak var coordinator: MarketsMainRoutable?
 
@@ -62,6 +68,11 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private var isViewVisible: Bool = false
     private var isBottomSheetExpanded: Bool = false
 
+    private lazy var promotionNotificationsViewModel: PromotionNotificationsViewModel = {
+        let manager = NewsPromotionNotificationsManager()
+        return PromotionNotificationsViewModel(promotionNotificationsManager: manager)
+    }()
+
     private lazy var headerDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
@@ -71,11 +82,15 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Init
 
-    init(quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper, coordinator: MarketsMainRoutable) {
+    init(
+        quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        coordinator: MarketsMainRoutable
+    ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
-        headerViewModel = MainBottomSheetHeaderViewModel()
+        let headerViewModel = MainBottomSheetHeaderViewModel()
+        self.headerViewModel = headerViewModel
 
         tokenListViewModel = MarketsTokenListViewModel(
             listDataProvider: dataProvider,
@@ -86,12 +101,23 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
             coordinator: coordinator
         )
 
+        tokenSearchViewModel = MarketsTokenSearchViewModel(
+            headerViewModel: headerViewModel,
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            coordinator: coordinator
+        )
+
         // Our view is initially presented when the sheet is collapsed, hence the `0.0` initial value.
         super.init(overlayContentProgressInitialValue: 0.0)
 
         headerViewModel.delegate = self
 
-        searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        if isRedesign {
+            bindToTokenSearch()
+        } else {
+            searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        }
+
         bindToSearchFocus()
 
         bindChildViewModels()
@@ -140,7 +166,13 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsMainViewModel {
-    private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
+    func bindToTokenSearch() {
+        tokenSearchViewModel.$state
+            .map { $0 != .idle }
+            .assign(to: &$isSearching)
+    }
+
+    func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
         publisher
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
@@ -261,6 +293,7 @@ private extension MarketsMainViewModel {
         case .market:
             let viewModel = TopMarketWidgetViewModel(
                 widgetType: widgetModel.type,
+                promotionNotificationsViewModel: promotionNotificationsViewModel,
                 widgetsUpdateHandler: widgetsUpdateHandler,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
                 analyticsService: widgetAnalyticsService,

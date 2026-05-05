@@ -8,6 +8,7 @@
 
 import Combine
 import TangemUI
+import TangemFoundation
 import TangemLocalization
 
 final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingSheetContentViewModel {
@@ -26,43 +27,72 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     // MARK: - Dependencies
 
-    private let transaction: TangemPayTransactionRecord
-    private let userWalletId: String
+    private let origin: Origin
+    private let userWalletId: UserWalletId
     private let customerId: String
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
+    struct DisplayData {
+        let date: String
+        let time: String
+        let type: TransactionViewModel.TransactionType
+        let status: TransactionViewModel.Status
+        let isOutgoing: Bool
+        let name: String
+        let categoryName: String
+        let amount: String
+        let localAmount: String?
+        let state: TangemPayTransactionDetailsStateView.TransactionState?
+        let additionalInfo: TangemPayTransactionDetailsView.AdditionalInfo?
+        let mainButtonAction: TangemPayTransactionDetailsViewModel.MainButtonAction
+    }
+
     init(
-        transaction: TangemPayTransactionRecord,
-        userWalletId: String,
+        displayData: DisplayData,
+        origin: Origin,
+        userWalletId: UserWalletId,
         customerId: String,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
-        self.transaction = transaction
+        self.origin = origin
         self.userWalletId = userWalletId
         self.customerId = customerId
         self.coordinator = coordinator
 
-        let mapper = TangemPayTransactionRecordMapper(transaction: transaction)
-
-        title = "\(mapper.date()) \(AppConstants.dotSign) \(mapper.time())"
+        title = "\(displayData.date) \(AppConstants.dotSign) \(displayData.time)"
         iconData = TransactionViewIconViewData(
-            type: mapper.type(),
-            status: mapper.status(),
-            isOutgoing: mapper.isOutgoing()
+            type: displayData.type,
+            status: displayData.status,
+            isOutgoing: displayData.isOutgoing
         )
-        name = mapper.name()
-        category = mapper.categoryName(detailed: true)
+        name = displayData.name
+        category = displayData.categoryName
         amount = TransactionViewAmountViewData(
-            amount: mapper.amount(),
-            type: mapper.type(),
-            status: mapper.status(),
-            isOutgoing: mapper.isOutgoing(),
+            amount: displayData.amount,
+            type: displayData.type,
+            status: displayData.status,
+            isOutgoing: displayData.isOutgoing,
             isFromYieldContract: false
         )
-        localAmount = mapper.localAmount()
-        state = mapper.state()
-        additionalInfo = mapper.additionalInfo()
-        mainButtonAction = mapper.mainButtonAction()
+        localAmount = displayData.localAmount
+        state = displayData.state
+        additionalInfo = displayData.additionalInfo
+        mainButtonAction = displayData.mainButtonAction
+    }
+
+    convenience init(
+        transaction: TangemPayTransactionRecord,
+        userWalletId: UserWalletId,
+        customerId: String,
+        coordinator: TangemPayTransactionDetailsRoutable
+    ) {
+        self.init(
+            displayData: transaction.displayData(using: TangemPayDisplayDataMapper()),
+            origin: .history(transaction),
+            userWalletId: userWalletId,
+            customerId: customerId,
+            coordinator: coordinator
+        )
     }
 
     func userDidTapClose() {
@@ -70,15 +100,22 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     func userDidTapMainButton() {
-        Analytics.log(.visaScreenSupportOnTransactionPopupClicked)
+        Analytics.log(.visaScreenSupportOnTransactionPopupClicked, contextParams: .userWallet(userWalletId))
         let subject: VisaEmailSubject = switch mainButtonAction {
         case .dispute: .dispute
         case .info: .default
         }
 
+        let source: TangemPaySupportDataCollector.Source = switch origin {
+        case .history(let transaction):
+            .transactionDetails(transaction)
+        case .push(let payload):
+            .transactionDetailsPush(payload, mainButtonAction == .dispute ? .transaction : .receiveWithdraw)
+        }
+
         let dataCollector = TangemPaySupportDataCollector(
-            source: .transactionDetails(transaction),
-            userWalletId: userWalletId,
+            source: source,
+            userWalletId: userWalletId.stringValue,
             customerId: customerId
         )
 
@@ -97,5 +134,10 @@ extension TangemPayTransactionDetailsViewModel {
                 Localization.tangemPayGetHelp
             }
         }
+    }
+
+    enum Origin {
+        case history(TangemPayTransactionRecord)
+        case push(TangemPayPushPayload)
     }
 }

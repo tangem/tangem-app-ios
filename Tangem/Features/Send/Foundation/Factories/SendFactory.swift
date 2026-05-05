@@ -15,14 +15,21 @@ protocol SendGenericFlowFactory {
 struct SendFactory {
     func flowFactory(options: SendCoordinator.Options) -> any SendGenericFlowFactory {
         switch options.type {
-        case .send(let sourceToken):
-            return SendWithSwapFlowFactory(sourceToken: sourceToken)
+        case .send(let sourceToken, let parameters):
+            return SendWithSwapFlowFactory(
+                sourceToken: sourceToken,
+                predefinedSendParameters: parameters,
+                coordinatorSource: options.source
+            )
 
         case .swap(.from(let sourceToken, let receiveToken)):
             return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken)
 
         case .swap(.to(let receiveToken)):
             return SwapFlowFactory(receiveToken: receiveToken)
+
+        case .swap(.pair(let source, let destination)):
+            return SwapFlowFactory(sourceToken: source, receiveToken: destination)
 
         case .nft(let transferableToken, let parameters):
             return TransferNFTFlowFactory(

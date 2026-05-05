@@ -27,8 +27,8 @@ struct CommonMainHeaderProviderFactory: MainHeaderProviderFactory {
             )
         }
 
-        let balanceProvider = AccountsFeatureAwareWalletModelsResolver
-            .walletModels(for: userWalletModel)
+        let balanceProvider = AccountWalletModelsAggregator
+            .walletModels(from: userWalletModel.accountModelsManager)
             .first
             .map(\.totalTokenBalanceProvider)
 

@@ -12,11 +12,13 @@ import BlockchainSdk
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
+import TangemUI
+import SwiftUI
 
 struct NoteConfig: CardContainer {
     let card: CardDTO
     private let noteData: WalletData
-    private let isDemo: Bool
+    let isDemo: Bool
 
     init(card: CardDTO, noteData: WalletData, isDemo: Bool) {
         self.card = card
@@ -96,6 +98,20 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
+    var walletThumbnailType: ThumbnailWalletViewType? {
+        typealias CC = Color.Tangem.CardCollection
+
+        switch defaultBlockchain {
+        case .bitcoin: return .card(.init(card: CC.noteBitcoin))
+        case .ethereum: return .card(.init(card: CC.noteEtherium))
+        case .cardano: return .card(.init(card: CC.noteCardano))
+        case .bsc: return .card(.init(card: CC.noteBinance))
+        case .dogecoin: return .card(.init(card: CC.noteDoge))
+        case .xrp: return .card(.init(card: CC.noteXRP))
+        default: return .tLetterCard(.init(card: CC.tangem, tLetter: CC.tLogo))
+        }
+    }
+
     var contextBuilder: WalletCreationContextBuilder {
         ["type": "card"]
     }
@@ -164,18 +180,12 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .tangemPay:
             return .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        if isDemo {
-            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
-        }
-
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         return SimpleWalletManagerFactory()
     }
 }

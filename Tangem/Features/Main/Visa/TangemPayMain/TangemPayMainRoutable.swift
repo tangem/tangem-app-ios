@@ -7,22 +7,23 @@
 //
 
 import Foundation
+import TangemFoundation
 
 protocol TangemPayMainRoutable: AnyObject {
+    func openCardManagement()
+    func openFakedoorSheet()
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input)
     func openTangemPayWithdraw(input: PredefinedSwapParameters)
     func openTangemPayNoDepositAddressSheet()
     func openTangemWithdrawInProgressSheet()
-    func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void)
-    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
-    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount)
     func openTermsAndLimits()
+    func renewTangemPaySession()
 
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
-        userWalletId: String,
+        userWalletId: UserWalletId,
         customerId: String
     )
 

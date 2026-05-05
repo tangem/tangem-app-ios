@@ -27,33 +27,18 @@ struct PersistentStorageAppScanTaskHelper {
         let persistentBlockchains = config.persistentBlockchains
         let allBlockchainNetworks: Set<BlockchainNetwork>
 
-        if FeatureProvider.isAvailable(.accounts) {
-            let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: storageIdentifier)
+        let storage = CommonCryptoAccountsPersistentStorage(storageIdentifier: storageIdentifier)
 
-            let storedBlockchainNetworks = storage
-                .getList()
-                .flatMap(\.tokens)
-                .compactMap(\.blockchainNetwork.knownValue)
+        let storedBlockchainNetworks = storage
+            .getList()
+            .flatMap(\.tokens)
+            .compactMap(\.blockchainNetwork.knownValue)
+            .map(StoredEntryConverter.convertToBlockchainNetwork)
 
-            let persistentBlockchainNetworks = persistentBlockchains
-                .compactMap(\.blockchainNetwork)
+        let persistentBlockchainNetworks = persistentBlockchains
+            .compactMap(\.blockchainNetwork)
 
-            allBlockchainNetworks = Set(storedBlockchainNetworks + persistentBlockchainNetworks)
-        } else {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: storageIdentifier)
-
-            // Force add blockchains for demo cards
-            if config.persistentBlockchains.isNotEmpty {
-                let converter = StorageEntryConverter()
-                tokenItemsRepository.append(converter.convertToStoredUserTokens(tokenItems: persistentBlockchains))
-            }
-
-            allBlockchainNetworks = tokenItemsRepository
-                .getList()
-                .entries
-                .map(\.blockchainNetwork)
-                .toSet()
-        }
+        allBlockchainNetworks = Set(storedBlockchainNetworks + persistentBlockchainNetworks)
 
         let existingCurves = card
             .walletCurves

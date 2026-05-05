@@ -104,6 +104,7 @@ extension SendCoordinator {
         case actionButtons
         case nft
         case onboarding
+        case qrScan
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -114,6 +115,7 @@ extension SendCoordinator {
             case .actionButtons: .main
             case .nft: .nft
             case .onboarding: .onboarding
+            case .qrScan: .qr
             }
         }
     }
@@ -178,11 +180,12 @@ extension SendCoordinator: SendRoutable {
         }
     }
 
-    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {
+    func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
             dismissAction: { [weak self] in
                 self?.sendReceiveTokenCoordinator = nil
+                onDismiss?()
             }, popToRootAction: popToRootAction
         )
 
@@ -191,6 +194,19 @@ extension SendCoordinator: SendRoutable {
     }
 
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {
+        Task { @MainActor in
+            UIApplication.shared.endEditing()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openRateInfoSheet(rateType: RateInfoSheetViewModel.RateType, onDismiss: @escaping () -> Void) {
+        let viewModel = RateInfoSheetViewModel(rateType: rateType, onDismiss: { [floatingSheetPresenter] in
+            Task { @MainActor in
+                floatingSheetPresenter.removeActiveSheet()
+            }
+            onDismiss()
+        })
         Task { @MainActor in
             UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -254,13 +270,7 @@ extension SendCoordinator: SwapRoutable {
 
         self.marketsTokenAdditionCoordinator = marketsTokenAdditionCoordinator
 
-        // Create external search view model if feature toggle is enabled
-        let marketsTokensViewModel: SwapMarketsTokensViewModel?
-        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-            marketsTokensViewModel = SwapMarketsTokensViewModel()
-        } else {
-            marketsTokensViewModel = nil
-        }
+        let marketsTokensViewModel = SwapMarketsTokensViewModel()
 
         swapTokenSelectorViewModel = swapTokenSelectorViewModelBuilder.makeSwapTokenSelectorViewModel(
             direction: direction,

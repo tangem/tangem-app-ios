@@ -24,16 +24,15 @@ struct SendAmountFinishSmallAmountView: View {
                 )
 
                 VStack(alignment: .leading, spacing: 4) {
-                    SendDecimalNumberTextField(viewModel: viewModel.amountDecimalNumberTextFieldViewModel)
-                        .appearance(.init(font: Fonts.Bold.subheadline, textColor: Colors.Text.primary1))
-                        .alignment(.leading)
-                        .prefixSuffixOptions(viewModel.amountFieldOptions)
-                        .minTextScale(SendAmountStep.Constants.amountMinTextScale)
-                        .allowsHitTesting(false) // This text field is read-only
+                    Text(viewModel.amountText)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .lineLimit(1)
+                        .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
 
                     Text(viewModel.alternativeAmount ?? " ")
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                 }
+                .infinityFrame(axis: .horizontal, alignment: .leading)
             }
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14, horizontalPadding: 14)

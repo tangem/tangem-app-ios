@@ -1,0 +1,210 @@
+//
+//  StellarNetworkProvider.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2019 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import stellarsdk
+import Combine
+import TangemFoundation
+import TangemNetworkUtils
+
+@available(iOS 13.0, *)
+class StellarNetworkProvider: HostProvider {
+    let isTestnet: Bool
+    let stellarSdk: StellarSDK
+
+    var host: String {
+        URL(string: stellarSdk.horizonURL)!.hostOrUnknown
+    }
+
+    private var blockchain: Blockchain {
+        Blockchain.stellar(curve: .ed25519_slip0010, testnet: isTestnet)
+    }
+
+    init(isTestnet: Bool, horizonUrl: String) {
+        self.isTestnet = isTestnet
+
+        StellarSDK.networkingUtil = StellarSDKNetworkingUtilImpl()
+        stellarSdk = .init(withHorizonUrl: horizonUrl)
+    }
+
+    func checkTargetAccount(address: String, token: Token?) -> AnyPublisher<StellarTargetAccountResponse, Error> {
+        stellarSdk.accounts.checkTargetAccount(address: address, token: token)
+    }
+
+    func send(transaction: String) -> AnyPublisher<String, Error> {
+        return stellarSdk.transactions.postTransaction(transactionEnvelope: transaction)
+            .tryMap { submitTransactionResponse throws -> String in
+                if submitTransactionResponse.transactionResult.code == .success {
+                    return submitTransactionResponse.transactionHash
+                } else {
+                    throw "Result code: \(submitTransactionResponse.transactionResult.code)"
+                }
+            }
+            .mapError { [weak self] in self?.mapError($0) ?? BlockchainSdkError.empty }
+            .eraseToAnyPublisher()
+    }
+
+    func getInfo(accountId: String, isAsset: Bool) -> AnyPublisher<StellarResponse, Error> {
+        return stellarData(accountId: accountId)
+            .tryMap { [weak self] accountResponse, ledgerResponse throws -> StellarResponse in
+                guard let self = self else {
+                    throw BlockchainSdkError.empty
+                }
+
+                let baseReserveStroops = Decimal(ledgerResponse.baseReserveInStroops)
+                guard let balance = Decimal(
+                    stringValue: accountResponse.balances.first(where: { $0.assetType == AssetTypeAsString.NATIVE })?.balance
+                ) else {
+                    throw BlockchainSdkError.failedToParseNetworkResponse()
+                }
+
+                let assetBalances = try accountResponse.balances
+                    .filter { $0.assetType != AssetTypeAsString.NATIVE }
+                    .map { assetBalance -> StellarAssetResponse in
+                        guard let code = assetBalance.assetCode,
+                              let issuer = assetBalance.assetIssuer,
+                              let balance = Decimal(stringValue: assetBalance.balance) else {
+                            throw BlockchainSdkError.failedToParseNetworkResponse()
+                        }
+
+                        return StellarAssetResponse(code: code, issuer: issuer, balance: balance)
+                    }
+
+                let divider = self.blockchain.decimalValue
+                let baseReserve = baseReserveStroops / divider
+
+                return StellarResponse(
+                    baseReserve: baseReserve,
+                    assetBalances: assetBalances,
+                    balance: balance,
+                )
+            }
+            .mapError { [weak self] in self?.mapError($0, isAsset: isAsset) ?? BlockchainSdkError.empty }
+            .eraseToAnyPublisher()
+    }
+
+    func getSequenceNumber(with accountId: String) -> AnyPublisher<Int64, Error> {
+        stellarSdk.accounts
+            .getAccountDetails(accountId: accountId)
+            .map(\.sequenceNumber)
+            .eraseToAnyPublisher()
+    }
+
+    func getFee() -> AnyPublisher<[Amount], Error> {
+        stellarSdk.feeStats.getFeeStats()
+            .tryMap { [blockchain] feeStats -> [Amount] in
+                guard let feeChargedModeInStroops = Decimal(stringValue: feeStats.feeCharged.mode),
+                      let feeChargedP80InStroops = Decimal(stringValue: feeStats.feeCharged.p80),
+                      let feeChargedP99InStroops = Decimal(stringValue: feeStats.feeCharged.p99)
+                else {
+                    throw BlockchainSdkError.failedToGetFee
+                }
+
+                let divider = blockchain.decimalValue
+
+                let feeChargedMode = feeChargedModeInStroops / divider
+                let feeChargedP80 = feeChargedP80InStroops / divider
+                let feeChargedP99 = feeChargedP99InStroops / divider
+
+                let fees = [
+                    feeChargedMode,
+                    feeChargedP80,
+                    feeChargedP99,
+                ].map {
+                    Amount(with: blockchain, value: $0)
+                }
+
+                return fees
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func stellarData(accountId: String) -> AnyPublisher<(AccountResponse, LedgerResponse), Error> {
+        Publishers.Zip(
+            stellarSdk.accounts.getAccountDetails(accountId: accountId),
+            stellarSdk.ledgers.getLatestLedger()
+        )
+        .eraseToAnyPublisher()
+    }
+
+    private func mapError(_ error: Error, isAsset: Bool? = nil) -> Error {
+        if let horizonError = error as? HorizonRequestError {
+            if case .notFound = horizonError, let isAsset = isAsset {
+                if isAsset {
+                    return BlockchainSdkError.noAccount(
+                        message: StellarError.assetCreateAccount.localizedDescription,
+                        amountToCreate: StellarWalletManager.Constants.minAmountToCreateAssetAccount
+                    )
+                }
+
+                return BlockchainSdkError.noAccount(
+                    message: StellarError.xlmCreateAccount.localizedDescription,
+                    amountToCreate: StellarWalletManager.Constants.minAmountToCreateCoinAccount
+                )
+            } else {
+                return horizonError.parseError()
+            }
+        } else {
+            return error
+        }
+    }
+
+    func checkIsMemoRequired(for address: String) -> AnyPublisher<Bool, Error> {
+        stellarSdk.accounts.checkIsMemoRequired(for: address)
+    }
+}
+
+extension StellarNetworkProvider {
+    func getSignatureCount(accountId: String) -> AnyPublisher<Int, Error> {
+        stellarSdk.operations.getAllOperations(accountId: accountId, recordsLimit: 1)
+            .map { items in
+                items.filter { $0.sourceAccount == accountId }.count
+            }
+            .mapError { [weak self] in self?.mapError($0) ?? BlockchainSdkError.empty }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct StellarResponse {
+    let baseReserve: Decimal
+    let assetBalances: [StellarAssetResponse]
+    let balance: Decimal
+}
+
+struct StellarAssetResponse: Hashable {
+    let code: String
+    let issuer: String
+    let balance: Decimal
+
+    func matches(currency: String, issuer: String) -> Bool {
+        code == currency && self.issuer == issuer
+    }
+}
+
+struct StellarTargetAccountResponse {
+    let accountCreated: Bool
+    let trustlineCreated: Bool
+}
+
+// MARK: - StellarSDKNetworkingUtilImpl
+
+private class StellarSDKNetworkingUtilImpl: StellarSDKNetworkingUtil {
+    private let session: URLSession
+
+    init() {
+        session = TangemTrustEvaluatorUtil.makeSession(configuration: .ephemeralConfiguration)
+    }
+
+    func evaluate(challenge: URLAuthenticationChallenge) -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        return TangemTrustEvaluatorUtil.evaluate(challenge: challenge)
+    }
+
+    public func makeSession() -> URLSession {
+        return session
+    }
+}

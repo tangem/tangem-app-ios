@@ -107,7 +107,9 @@ final class SendFeeUITests: BaseTestCase {
         XCTAssertFalse(maxFeeFiatValue.isEmpty, "Max Fee fiat value should not be empty after entering Satoshi per vbyte")
 
         feeSelectorScreen
-            .tapFeeSelectorDoneToSummary()
+            .tapFeeSelectorDone()
+
+        sendSummaryScreen
             .waitForNetworkFeeAmount(maxFeeFiatValue)
     }
 
@@ -187,7 +189,7 @@ final class SendFeeUITests: BaseTestCase {
 
     private enum Constants {
         enum Network {
-            static let polkadot = "Polkadot"
+            static let polkadot = "Polkadot Asset Hub"
             static let ethereum = "Ethereum"
             static let bitcoin = "Bitcoin"
             static let vethor = "VeThor"

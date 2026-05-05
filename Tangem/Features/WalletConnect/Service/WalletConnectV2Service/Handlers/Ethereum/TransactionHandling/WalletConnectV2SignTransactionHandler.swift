@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
+import TangemFoundation
 
 final class WalletConnectV2SignTransactionHandler {
     private var wcTransaction: WalletConnectEthTransaction
@@ -20,31 +21,6 @@ final class WalletConnectV2SignTransactionHandler {
     private var transaction: Transaction?
     private let request: AnyCodable
     private let encoder = JSONEncoder()
-
-    init(
-        requestParams: AnyCodable,
-        blockchainId: String,
-        transactionBuilder: WCEthTransactionBuilder,
-        signer: TangemSigner,
-        walletModelProvider: WalletConnectWalletModelProvider
-    ) throws {
-        do {
-            let params = try requestParams.get([WalletConnectEthTransaction].self)
-            guard let ethTransaction = params.first else {
-                throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
-            }
-
-            wcTransaction = ethTransaction
-            walletModel = try walletModelProvider.getModel(with: ethTransaction.from, blockchainId: blockchainId)
-        } catch {
-            WCLogger.error(error: error)
-            throw error
-        }
-
-        self.transactionBuilder = transactionBuilder
-        self.signer = signer
-        request = requestParams
-    }
 
     init(
         requestParams: AnyCodable,

@@ -10,14 +10,23 @@ import Combine
 import TangemPay
 import TangemLocalization
 
-protocol TangemPayAccountModel: BaseAccountModel {
+protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.StandaloneIcon {
     var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
+
+    /// Last successfully loaded `TangemPayAccount`. Retained across transient error states
+    /// (`.unavailable`, `.syncNeeded`) so the UI can keep navigating to the Payment Account
+    /// screen and show cached balance/transactions while the backend is unavailable.
+    var lastKnownTangemPayAccount: TangemPayAccount? { get }
 
     var customerId: String? { get }
 
     func refreshState() async
-    func syncTokens(authorizingInteractor: TangemPayAuthorizing, completion: @escaping () -> Void)
+    func syncTokens(
+        authorizingInteractor: TangemPayAuthorizing,
+        pendingDerivations: [PendingDerivation],
+        completion: @escaping () -> Void
+    )
 }
 
 // MARK: - Default implementations
@@ -35,8 +44,8 @@ extension TangemPayAccountModel {
         resolver.resolve(accountModel: self)
     }
 
-    var icon: AccountModel.Icon {
-        AccountModel.Icon(name: .tangemPay, color: .clear)
+    var icon: AccountModel.StandaloneIcon {
+        .tangemPay
     }
 
     var name: String {

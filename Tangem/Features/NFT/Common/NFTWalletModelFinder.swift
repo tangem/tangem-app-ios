@@ -55,7 +55,7 @@ enum NFTWalletModelFinder {
             return false
         }
 
-        return walletModelNFTChain == nftChain && walletModel.addresses.contains { $0.value.caseInsensitiveEquals(to: ownerAddress) }
+        return walletModelNFTChain == nftChain && walletModel.addressesString.contains { $0.caseInsensitiveEquals(to: ownerAddress) }
     }
 }
 

@@ -17,7 +17,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class LogsViewModel: ObservableObject {
     var selectedCategory: String { categories[selectedCategoryIndex] }
 
-    @Published var selectedCategoryIndex: Int = .zero
+    @Published var selectedCategoryIndex: Int = 0
     @Published var logs: LoadingResult<[LogRowViewData], Error> = .loading
     @Published var categories: [String] = ["All"]
     @Published var alert: AlertBinder?
@@ -51,26 +51,31 @@ final class LogsViewModel: ObservableObject {
     }
 
     private func share() {
-        do {
-            let url = try OSLogZipFileBuilder.zipFile()
-            AppPresenter.shared.show(
-                UIActivityViewController(activityItems: [url], applicationActivities: nil)
-            )
-        } catch {
-            alert = error.alertBinder
+        OSLogFileWriter.shared.zipLogFile { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let url):
+                    AppPresenter.shared.show(
+                        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                    )
+                case .failure(let error):
+                    self?.alert = error.alertBinder
+                }
+            }
         }
     }
 
     private func clear() {
         alert = AlertBuilder.makeAlert(
             title: "Clear logs?",
-            message: "Do you want to delete `\(OSLogFileParser.logFile.absoluteString)` file?",
+            message: "Do you want to delete `\(OSLogFileWriter.shared.logFile.absoluteString)` file?",
             with: .withPrimaryCancelButton(secondaryTitle: "Yes", secondaryAction: { [weak self] in
-                try? OSLogFileParser.removeFile()
-                try? OSLogZipFileBuilder.removeFile()
-
-                self?.selectedCategoryIndex = .zero
-                self?.load()
+                OSLogFileWriter.shared.deleteLogFile(completion: {
+                    DispatchQueue.main.async {
+                        self?.selectedCategoryIndex = 0
+                        self?.load()
+                    }
+                })
             })
         )
     }
@@ -114,11 +119,12 @@ final class LogsViewModel: ObservableObject {
     }
 
     private func load() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = Result {
-                try OSLogFileParser.entries().reversed().map { LogRowViewData(log: $0) }
+        OSLogFileWriter.shared.readEntries { [weak self] result in
+            let mappedResult = result.map { entries in
+                entries.reversed().map { LogRowViewData(log: $0) }
             }
-            self.entries.send(.result(result))
+
+            self?.entries.send(.result(mappedResult))
         }
     }
 }

@@ -12,7 +12,6 @@ import TangemLocalization
 enum ReceiveNotificationEvent {
     case irreversibleLossNotification(assetSymbol: String, networkName: String)
     case unsupportedTokenWarning(title: String, description: String, tokenItem: TokenItem)
-    case yieldModuleNotification(tokenSymbol: String, tokenId: String?)
 }
 
 // MARK: - NotificationEvent protocol conformance
@@ -27,9 +26,6 @@ extension ReceiveNotificationEvent: NotificationEvent {
             hasher.combine(networkName)
         case .unsupportedTokenWarning(_, _, let tokenItem):
             hasher.combine(tokenItem)
-        case .yieldModuleNotification(let symbol, let id):
-            hasher.combine(symbol)
-            hasher.combine(id)
         }
 
         return hasher.finalize()
@@ -41,8 +37,6 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return .string(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName))
         case .unsupportedTokenWarning(let title, _, _):
             return .string(title)
-        case .yieldModuleNotification(let symbol, _):
-            return .string(Localization.yieldModuleAlertTitle(symbol))
         }
     }
 
@@ -52,8 +46,6 @@ extension ReceiveNotificationEvent: NotificationEvent {
             return Localization.receiveBottomSheetWarningMessageDescription
         case .unsupportedTokenWarning(_, let description, _):
             return description
-        case .yieldModuleNotification(let symbol, _):
-            return Localization.yieldModuleEarnSheetProviderDescription(symbol, "a\(symbol)")
         }
     }
 
@@ -64,17 +56,15 @@ extension ReceiveNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .irreversibleLossNotification:
-            return .init(iconType: .image(Assets.blueCircleWarning.image))
+            return .init(iconType: .image(Assets.blueCircleWarning))
         case .unsupportedTokenWarning:
-            return .init(iconType: .image(Assets.warningIcon.image))
-        case .yieldModuleNotification(_, let id):
-            return .init(iconType: .yieldModuleIcon(tokenId: id))
+            return .init(iconType: .image(Assets.warningIcon))
         }
     }
 
     var severity: NotificationView.Severity {
         switch self {
-        case .irreversibleLossNotification, .yieldModuleNotification:
+        case .irreversibleLossNotification:
             return .info
         case .unsupportedTokenWarning:
             return .warning

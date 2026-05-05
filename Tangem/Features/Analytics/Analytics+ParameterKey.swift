@@ -14,6 +14,7 @@ extension Analytics {
         case firmware = "Firmware"
         case action = "Action"
         case errorDescription = "Error"
+        case swapErrorDescription = "Error Description"
         case errorCode = "Error Code"
         case errorMessage = "Error Message"
         case errorType = "Error Type"
@@ -24,6 +25,7 @@ extension Analytics {
         case currency = "Currency Type" // fiat
         case success = "Success"
         case token = "Token"
+        case dynamicAddress = "Dynamic Address"
         case tokens = "Tokens"
         case tokensCount = "Tokens Count"
         case tokenFound = "Token Found"
@@ -82,6 +84,7 @@ extension Analytics {
         case tokenChosen = "Token Chosen"
         case availableTokens = "Available tokens"
         case provider = "Provider"
+        case rateType = "Rate Type"
         case commission = "Commission"
         case place = "Place"
         case result = "Result"
@@ -96,6 +99,7 @@ extension Analytics {
         case feeToken = "Fee Token"
         case availableFee = "Available Fee"
 
+        case qrType = "QR Type"
         case fromSummary = "From Summary"
         case valid = "Valid"
         case screen = "Screen"
@@ -117,6 +121,11 @@ extension Analytics {
         case watched = "Watched"
 
         case selectedCategories = "Selected Categories"
+
+        // MARK: - Promotion
+
+        case displayId = "Display Id"
+        case placeholder = "Placeholder"
 
         // MARK: - Earn
 

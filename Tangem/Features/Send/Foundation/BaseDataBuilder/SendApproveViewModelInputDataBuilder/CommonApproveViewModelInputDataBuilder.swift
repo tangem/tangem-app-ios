@@ -33,11 +33,7 @@ extension CommonApproveViewModelInputDataBuilder: SendApproveViewModelInputDataB
     func makeApproveFlowFactory() throws -> ApproveFlowFactory {
         let flowInput = try dataProvider.approveFlowInput()
         let input = try buildApproveViewModelInput(from: flowInput)
-        return ApproveFlowFactory(
-            approveInput: input,
-            tokenFeeProvidersManager: flowInput.tokenFeeProvidersManager,
-            confirmTransactionPolicy: confirmTransactionPolicy
-        )
+        return ApproveFlowFactory(approveInput: input, confirmTransactionPolicy: confirmTransactionPolicy)
     }
 }
 
@@ -49,37 +45,36 @@ private extension CommonApproveViewModelInputDataBuilder {
             throw SendApproveViewModelInputDataBuilderError.notFound("AllowanceService")
         }
 
-        let tokenFeeProvidersManager = flowInput.tokenFeeProvidersManager
-        let supportFeeSelection = tokenFeeProvidersManager.supportFeeSelection
-
         let approveTransactionDispatcher = flowInput.sourceToken.transactionDispatcherProvider.makeApproveTransactionDispatcher()
 
+        let approveInteractorState = flowInput.makeApproveInteractorState()
+
         let interactor = ApproveInteractor(
-            approveData: flowInput.approveData,
+            approveInteractorState: approveInteractorState,
             initialPolicy: flowInput.selectedPolicy,
             approveAmount: flowInput.approveAmount,
             allowanceService: allowanceService,
             approveTransactionDispatcher: approveTransactionDispatcher,
-            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            tokenFeeProvidersManager: flowInput.tokenFeeProvidersManager,
             analyticsLogger: analyticsLogger,
             output: output
         )
 
         let settings = ApproveViewModel.Settings(
+            title: flowInput.localization.title,
             subtitle: flowInput.localization.subtitle,
             feeFooterText: flowInput.localization.feeFooterText,
             tokenItem: flowInput.sourceToken.tokenItem,
             selectedPolicy: flowInput.selectedPolicy,
-            tangemIconProvider: CommonTangemIconProvider(config: flowInput.sourceToken.userWalletInfo.config)
+            tangemIconProvider: flowInput.sourceToken.tangemIconProvider
         )
 
         let feeFormatter = CommonFeeFormatter()
-
         return ApproveViewModel.Input(
             settings: settings,
             feeFormatter: feeFormatter,
             interactor: interactor,
-            supportFeeSelection: supportFeeSelection
+            supportFeeSelection: flowInput.tokenFeeProvidersManager.supportFeeSelection
         )
     }
 }

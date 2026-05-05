@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 
 final class MultiWalletNotificationManager {
+    private let userWalletId: UserWalletId
     private let analyticsService: NotificationsAnalyticsService
     private let totalBalanceProvider: TotalBalanceProvider
 
@@ -18,6 +19,7 @@ final class MultiWalletNotificationManager {
     private var bag: Set<AnyCancellable> = []
 
     init(userWalletId: UserWalletId, totalBalanceProvider: TotalBalanceProvider) {
+        self.userWalletId = userWalletId
         self.totalBalanceProvider = totalBalanceProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
@@ -56,7 +58,14 @@ final class MultiWalletNotificationManager {
     }
 
     private func show(event: MultiWalletNotificationEvent?) {
-        let input = event.map { NotificationsFactory().buildNotificationInput(for: $0) }
+        let dismissAction: NotificationView.NotificationAction? = event?.isDismissable == true
+            ? weakify(self, forFunction: MultiWalletNotificationManager.dismissNotification)
+            : nil
+
+        let input = event.map {
+            NotificationsFactory().buildNotificationInput(for: $0, dismissAction: dismissAction)
+        }
+
         notificationInputsSubject.value = input.map { [$0] } ?? []
     }
 }

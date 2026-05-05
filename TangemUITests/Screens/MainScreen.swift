@@ -22,7 +22,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
     private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
+    private lazy var walletLockedNotification = button(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -44,8 +46,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             default:
                 XCTFail("Provide card verification methods for card type: \(String(describing: cardType))")
             }
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -55,6 +57,39 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let buttonTexts = actionButtonsList.buttons.allElementsBoundByIndex.map { $0.label }
             XCTAssertFalse(buttonTexts.contains("Swap"), "Swap button should not be available on single-currency cards")
             XCTAssertFalse(buttonTexts.contains("Exchange"), "Exchange button should not be available on single-currency cards")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapSendButton() -> SendScreen {
+        XCTContext.runActivity(named: "Tap Send action button on main screen") { _ in
+            waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
+            actionButtonsList.buttons["Send"].waitAndTap()
+            return SendScreen(app)
+        }
+    }
+
+    // MARK: - Organize Tokens Button Visibility
+
+    @discardableResult
+    func verifyOrganizeTokensButtonVisible() -> Self {
+        XCTContext.runActivity(named: "Verify organize tokens button IS visible") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollToElement(organizeTokensButton, attempts: .standard)
+            waitAndAssertTrue(organizeTokensButton, "Organize tokens button should be visible on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyOrganizeTokensButtonNotVisible() -> Self {
+        XCTContext.runActivity(named: "Verify organize tokens button is NOT visible") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            XCTAssertFalse(
+                organizeTokensButton.waitForExistence(timeout: .conditional),
+                "Organize tokens button should NOT be visible on main screen"
+            )
             return self
         }
     }
@@ -91,7 +126,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-            tokenElement(named: label).waitAndTap()
+            tokenElement(named: label).waitAndTapWithScroll()
             return TokenScreen(app)
         }
     }
@@ -137,6 +172,74 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyTokenExists(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' exists on main screen") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            waitAndAssertTrue(token, "Token '\(tokenName)' should exist in the list")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyCustomTokenIndicatorExists(for tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify custom token indicator exists for '\(tokenName)'") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let indicator = tokensList.descendants(matching: .any)
+                .matching(identifier: MainAccessibilityIdentifiers.tokenCustomIndicator(for: tokenName))
+                .firstMatch
+            waitAndAssertTrue(indicator, "Custom token indicator should be displayed for '\(tokenName)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenNotVisible(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' is not visible on main screen") { _ in
+            let token = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", tokenName))
+                .firstMatch
+            XCTAssertFalse(
+                token.waitForExistence(timeout: .conditional),
+                "Token '\(tokenName)' should not be visible"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyTokenVisible(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Verify token '\(tokenName)' is visible on main screen") { _ in
+            let token = app.staticTexts
+                .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+                .matching(NSPredicate(format: "label == %@", tokenName))
+                .firstMatch
+            waitAndAssertTrue(token, "Token '\(tokenName)' should be visible")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyAccountVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
+            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            waitAndAssertTrue(account, "Account '\(accountName)' should be visible on main screen")
+            return self
+        }
+    }
+
+    @discardableResult
+    func expandAccount(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
+            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            waitAndAssertTrue(account, "Account '\(accountName)' should exist on main screen")
+            account.tap()
+            return self
+        }
+    }
+
     func validateTokenNotExists(_ label: String) {
         _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
         XCTContext.runActivity(named: "Validate token with label '\(label)' does not exist") { _ in
@@ -150,8 +253,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait developer card banner exists") { _ in
             let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
             waitAndAssertTrue(bannerElement, "Developer card banner should be displayed")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -159,17 +262,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait developer card banner not exists") { _ in
             let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.developerCardBanner]
             XCTAssertFalse(bannerElement.exists, "Developer card banner should not be displayed")
+            return self
         }
-        return self
-    }
-
-    @discardableResult
-    func validateMandatorySecurityUpdateBannerExists() -> Self {
-        XCTContext.runActivity(named: "Validate mandatory security update banner exists") { _ in
-            let bannerElement = app.otherElements[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
-            waitAndAssertTrue(bannerElement, "Mandatory security update banner should be displayed")
-        }
-        return self
     }
 
     func getTokensOrder() -> TokensOrder {
@@ -236,13 +330,121 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                     "Tokens order for account '\(expected.account)' doesn't match. Actual: \(actualTokens), Expected: \(expected.tokens)"
                 )
             }
+            return self
         }
-        return self
     }
 
     @discardableResult
     func verifyTokensOrder(_ expectedOrder: [String]) -> Self {
         verifyTokensOrder(.mainAccount(expectedOrder))
+    }
+
+    @discardableResult
+    func verifyTokensOrderChanged(from previousOrder: TokensOrder) -> Self {
+        XCTContext.runActivity(named: "Verify token list changed after switching cards") { _ in
+            let currentOrder = getTokensOrder()
+            XCTAssertNotEqual(
+                currentOrder.allTokensFlat,
+                previousOrder.allTokensFlat,
+                "Token list should change after switching cards. Previous: \(previousOrder.allTokensFlat), Current: \(currentOrder.allTokensFlat)"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func swipeWalletLeft() -> Self {
+        XCTContext.runActivity(named: "Swipe wallet card left (next wallet)") { _ in
+            waitForMainScreenReadyForSwipe()
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
+            start.press(forDuration: 0.1, thenDragTo: end)
+            waitAndAssertTrue(headerCardImage, "Header card image should exist after switching wallet")
+            return self
+        }
+    }
+
+    @discardableResult
+    func swipeWalletRight() -> Self {
+        XCTContext.runActivity(named: "Swipe wallet card right (previous wallet)") { _ in
+            waitForMainScreenReadyForSwipe()
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
+            start.press(forDuration: 0.1, thenDragTo: end)
+            waitAndAssertTrue(headerCardImage, "Header card image should exist after switching wallet")
+            return self
+        }
+    }
+
+    // MARK: - Locked Wallet
+
+    @discardableResult
+    func verifyWalletLockedNotificationExists() -> Self {
+        XCTContext.runActivity(named: "Verify wallet locked notification is displayed") { _ in
+            waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyWalletLockedNotificationNotExists() -> Self {
+        XCTContext.runActivity(named: "Verify wallet locked notification is NOT displayed") { _ in
+            XCTAssertFalse(
+                walletLockedNotification.waitForExistence(timeout: .conditional),
+                "Wallet locked notification should NOT be displayed after unlocking"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyWalletLockedNotificationHasMessage() -> Self {
+        XCTContext.runActivity(named: "Verify wallet locked notification has explanatory message") { _ in
+            waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
+            let message = walletLockedNotification.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage].firstMatch
+            waitAndAssertTrue(message, "Wallet locked notification should contain an explanatory message")
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapWalletLockedNotification() -> Self {
+        XCTContext.runActivity(named: "Tap wallet locked notification to initiate unlock") { _ in
+            waitAndAssertTrue(walletLockedNotification, "Wallet locked notification should be displayed")
+            walletLockedNotification.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func selectMockCardFromScannerAlert(name: CardMockAccessibilityIdentifiers) -> Self {
+        XCTContext.runActivity(named: "Select mock card from scanner alert: \(name.rawValue)") { _ in
+            let walletButton = app.buttons[name.rawValue].firstMatch
+            if !walletButton.isHittable {
+                app.swipeUp()
+            }
+            walletButton.waitAndTap()
+            return self
+        }
+    }
+
+    // MARK: - Add Wallet
+
+    @discardableResult
+    func addNewWallet(name: CardMockAccessibilityIdentifiers) -> Self {
+        XCTContext.runActivity(named: "Add new wallet: \(name.rawValue)") { _ in
+            openDetails()
+                .tapAddNewWallet()
+
+            let walletButton = app.buttons[name.rawValue].firstMatch
+            if !walletButton.isHittable {
+                app.swipeUp()
+            }
+            walletButton.waitAndTap()
+
+            waitAndAssertTrue(tokensList, "Tokens list should exist after adding new wallet")
+            return self
+        }
     }
 
     @discardableResult
@@ -254,12 +456,21 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func openTangemPay() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay from main screen") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayMainScreen(app)
+        }
+    }
+
+    @discardableResult
     func longPressWalletHeader() -> Self {
         XCTContext.runActivity(named: "Long press wallet header") { _ in
             waitAndAssertTrue(headerCardImage, "Header card image should exist")
             headerCardImage.press(forDuration: 1.0)
+            return self
         }
-        return self
     }
 
     func longPressToken(_ tokenName: String) -> ContextMenuScreen {
@@ -267,6 +478,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+
+            // Wait for balance to load — context menu captures content at presentation time
+            let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
+            _ = balanceElement.waitForExistence(timeout: .robustUIUpdate)
 
             // Retry long press if context menu doesn't appear (can be flaky on CI)
             let contextMenuIndicator = app.buttons["Buy"].firstMatch
@@ -293,8 +508,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for no rename button exists") { _ in
             let renameButton = app.buttons["Rename"]
             XCTAssertFalse(renameButton.exists, "Rename button should not exist in context menu")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -302,8 +517,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for delete button exists") { _ in
             let deleteButton = app.buttons["Delete"]
             XCTAssertFalse(deleteButton.exists, "Delete button should not exist in context menu")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -311,8 +526,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for delete button exists") { _ in
             let deleteButton = app.buttons["Delete"]
             waitAndAssertTrue(deleteButton, "Delete button should exist in context menu")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -320,8 +535,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for total balance displayed as dash") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             XCTAssertTrue(totalBalance.label.contains("–"), "Total balance should be displayed as dash")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -455,24 +670,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
             let balanceText = totalBalance.label
             XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
+            return self
         }
-        return self
     }
 
     @discardableResult
     func waitForTotalBalanceShimmer() -> Self {
         XCTContext.runActivity(named: "Wait for total balance shimmer effect") { _ in
             waitAndAssertTrue(totalBalanceShimmer, "Total balance shimmer should be displayed")
+            return self
         }
-        return self
     }
 
     @discardableResult
     func waitForTotalBalanceShimmerToDisappear() -> Self {
         XCTContext.runActivity(named: "Wait for total balance shimmer to disappear") { _ in
             XCTAssertTrue(totalBalanceShimmer.waitForNonExistence(timeout: .robustUIUpdate), "Total balance shimmer should disappear")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -484,16 +699,26 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             // Then wait for final content to appear
             waitAndAssertTrue(totalBalance, "Total balance should be displayed")
             XCTAssertFalse(totalBalance.label.isEmpty, "Total balance should have content")
+            return self
         }
-        return self
     }
 
     @discardableResult
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
+            return self
         }
-        return self
+    }
+
+    @discardableResult
+    func verifyMissingDerivationNotificationHasMessage() -> Self {
+        XCTContext.runActivity(named: "Verify missing derivation notification has explanatory message") { _ in
+            waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should be displayed")
+            let message = missingDerivationNotification.staticTexts[CommonUIAccessibilityIdentifiers.notificationMessage].firstMatch
+            waitAndAssertTrue(message, "Missing derivation notification should contain an explanatory message")
+            return self
+        }
     }
 
     @discardableResult
@@ -506,8 +731,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             XCTAssertTrue(buyActionButton.isEnabled, "Buy button should be enabled")
             XCTAssertTrue(swapActionButton.isEnabled, "Exchange button should be enabled")
             XCTAssertTrue(sellActionButton.isEnabled, "Sell button should be enabled")
+            return self
         }
-        return self
     }
 
     @discardableResult
@@ -520,8 +745,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             XCTAssertFalse(buyActionButton.isEnabled, "Buy button should be disabled")
             XCTAssertFalse(swapActionButton.isEnabled, "Exchange button should be disabled")
             XCTAssertFalse(sellActionButton.isEnabled, "Sell button should be disabled")
+            return self
         }
-        return self
     }
 
     // MARK: - Badge Validation Methods
@@ -571,8 +796,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 expectedState,
                 "Expected grouping state on main screen: \(expectedState), but got: \(actualState)"
             )
+            return self
         }
-        return self
     }
 
     private func tokenElement(named label: String) -> XCUIElement {
@@ -580,6 +805,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
+    }
+
+    /// Waits for main screen elements before coordinate-based wallet swipe.
+    private func waitForMainScreenReadyForSwipe() {
+        waitAndAssertTrue(headerCardImage, "Header card image should exist before swiping wallet")
+        waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
     }
 
     /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
@@ -628,6 +859,7 @@ enum MainScreenElement: String, UIElement {
     case totalBalance
     case totalBalanceShimmer
     case missingDerivationNotification
+    case walletLockedNotification
 
     var accessibilityIdentifier: String {
         switch self {
@@ -653,6 +885,8 @@ enum MainScreenElement: String, UIElement {
             "\(MainAccessibilityIdentifiers.totalBalance)Shimmer"
         case .missingDerivationNotification:
             MainAccessibilityIdentifiers.missingDerivationNotification
+        case .walletLockedNotification:
+            MainAccessibilityIdentifiers.walletLockedNotification
         }
     }
 }

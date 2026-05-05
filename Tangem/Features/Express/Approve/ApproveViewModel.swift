@@ -18,6 +18,7 @@ import BlockchainSdk
 final class ApproveViewModel: ObservableObject {
     // MARK: - ViewState
 
+    let title: String
     let subtitle: String
 
     @Published var menuRowViewModel: DefaultMenuRowViewModel<BSDKApprovePolicy>?
@@ -47,6 +48,7 @@ final class ApproveViewModel: ObservableObject {
         tokenItem = input.settings.tokenItem
 
         selectedAction = input.settings.selectedPolicy
+        title = input.settings.title
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
         tangemIconProvider = input.settings.tangemIconProvider
@@ -56,7 +58,13 @@ final class ApproveViewModel: ObservableObject {
             actions: [.unlimited, .specified]
         )
 
-        feeCompactViewModel = FeeCompactViewModel(canEditFee: input.supportFeeSelection, showsLeadingIcon: false, showsRoundedBackground: false, feeFormatter: feeFormatter)
+        feeCompactViewModel = FeeCompactViewModel(
+            canEditFee: input.supportFeeSelection,
+            showsLeadingIcon: false,
+            showsRoundedBackground: false,
+            feeFormatter: feeFormatter
+        )
+
         bind()
     }
 
@@ -192,6 +200,7 @@ extension ApproveViewModel {
     }
 
     struct Settings {
+        let title: String
         let subtitle: String
         let feeFooterText: String
         let tokenItem: TokenItem

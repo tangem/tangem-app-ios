@@ -41,7 +41,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     @discardableResult
     func cancelScan() -> Self {
         XCTContext.runActivity(named: "Close scan alert") { _ in
-            app.buttons["Cancel"].waitAndTap()
+            app.buttons["Cancel"].waitAndTapWithScroll()
             return self
         }
     }
@@ -92,7 +92,7 @@ enum DetailsScreenElement: UIElement {
         case .walletConnectButton:
             return WalletConnectAccessibilityIdentifiers.detailsButton
         case .addNewWallet:
-            return "Add new wallet"
+            return "Add Wallet"
         case .contactSupport:
             return "Contact support"
         case .appSettings:

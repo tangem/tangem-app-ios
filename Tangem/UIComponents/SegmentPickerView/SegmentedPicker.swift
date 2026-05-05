@@ -10,11 +10,12 @@ import SwiftUI
 import TangemAssets
 
 struct SegmentedPicker<Option: Hashable & Identifiable>: View {
+    @Environment(\.isEnabled) private var isEnabled
+
     @Binding var selectedOption: Option
 
     let options: [Option]
     let shouldStretchToFill: Bool
-    let isDisabled: Bool
     let style: Style
     let titleFactory: (Option) -> String
     let segmentAccessibilityIdentifier: ((Option) -> String)?
@@ -23,7 +24,6 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
         selectedOption: Binding<Option>,
         options: [Option],
         shouldStretchToFill: Bool,
-        isDisabled: Bool,
         style: Style,
         titleFactory: @escaping (Option) -> String,
         segmentAccessibilityIdentifier: ((Option) -> String)? = nil
@@ -31,7 +31,6 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
         _selectedOption = selectedOption
         self.options = options
         self.shouldStretchToFill = shouldStretchToFill
-        self.isDisabled = isDisabled
         self.style = style
         self.titleFactory = titleFactory
         self.segmentAccessibilityIdentifier = segmentAccessibilityIdentifier
@@ -42,7 +41,6 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
             selection: $selectedOption,
             options: options,
             shouldStretchToFill: shouldStretchToFill,
-            isDisabled: isDisabled,
             selectionView: selectionView,
             segmentAccessibilityIdentifier: segmentAccessibilityIdentifier,
             segmentContent: { option, _ in
@@ -61,12 +59,12 @@ struct SegmentedPicker<Option: Hashable & Identifiable>: View {
             Text(title)
                 .minimumScaleFactor(0.9)
                 .font(Fonts.Bold.footnote)
-                .foregroundStyle(isDisabled ? Colors.Text.disabled : Colors.Text.primary1)
+                .foregroundStyle(isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
                 .opacity(isSelected ? 1.0 : 0.0)
 
             Text(title)
                 .font(Fonts.Regular.footnote)
-                .foregroundStyle(isDisabled ? Colors.Text.disabled : Colors.Text.primary1)
+                .foregroundStyle(isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
                 .opacity(isSelected ? 0.0 : 1.0)
         }
         .animation(.default, value: isSelected)

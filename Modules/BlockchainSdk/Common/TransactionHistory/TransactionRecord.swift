@@ -1,0 +1,188 @@
+//
+//  TransactionRecord.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+public struct TransactionRecord: Hashable {
+    public let hash: String
+    /// Index of an individual transaction within the parent transaction (if applicable).
+    /// For example, a single EVM transaction may consist of multiple token transactions (with indices 0, 1, 2 and so on)
+    public let index: Int
+    public let source: SourceType
+    public let destination: DestinationType
+    public let fee: Fee
+    public let status: TransactionStatus
+    public let isOutgoing: Bool
+    public let type: TransactionType
+    public let date: Date?
+    public let tokenTransfers: [TokenTransfer]?
+    public let isFromYieldContract: Bool
+
+    public func hasDestination(address: String) -> Bool {
+        switch destination {
+        case .single(let destination):
+            return destination.address.string.caseInsensitiveCompare(address) == .orderedSame
+        case .multiple(let destinations):
+            return destinations.contains { $0.address.string.caseInsensitiveCompare(address) == .orderedSame }
+        }
+    }
+
+    public init(
+        hash: String,
+        index: Int,
+        source: SourceType,
+        destination: DestinationType,
+        fee: Fee,
+        status: TransactionStatus,
+        isOutgoing: Bool,
+        type: TransactionType,
+        date: Date?,
+        tokenTransfers: [TokenTransfer]? = nil,
+        isFromYieldContract: Bool = false
+    ) {
+        self.index = index
+        self.hash = hash
+        self.source = source
+        self.destination = destination
+        self.fee = fee
+        self.status = status
+        self.isOutgoing = isOutgoing
+        self.type = type
+        self.date = date
+        self.tokenTransfers = tokenTransfers
+        self.isFromYieldContract = isFromYieldContract
+    }
+}
+
+// MARK: - TransactionType
+
+public extension TransactionRecord {
+    enum TransactionType: Hashable {
+        case transfer
+        /// Contains contract method id (like `0x357a150b`).
+        case contractMethodIdentifier(id: String)
+        /// Contains human-readable contract method name (like `swap`).
+        case contractMethodName(name: String)
+        case staking(type: StakingTransactionType, target: String?)
+
+        public enum StakingTransactionType {
+            case stake
+            case unstake
+            case vote
+            case withdraw
+            case claimRewards
+            case restake
+        }
+    }
+}
+
+// MARK: - TransactionStatus
+
+public extension TransactionRecord {
+    enum TransactionStatus: Hashable {
+        case unconfirmed
+        case failed
+        case confirmed
+        case undefined
+    }
+}
+
+// MARK: - Source
+
+public extension TransactionRecord {
+    enum SourceType: Hashable {
+        case single(Source)
+        case multiple([Source])
+
+        var sources: [Source] {
+            switch self {
+            case .single(let source): [source]
+            case .multiple(let sources): sources
+            }
+        }
+
+        static func from(_ sources: [Source]) -> Self {
+            if let source = sources.singleElement {
+                return .single(source)
+            }
+            return .multiple(sources)
+        }
+    }
+
+    struct Source: Hashable {
+        public let address: String
+        public let amount: Decimal
+
+        public init(address: String, amount: Decimal) {
+            self.address = address
+            self.amount = amount
+        }
+    }
+}
+
+// MARK: - Destination
+
+public extension TransactionRecord {
+    enum DestinationType: Hashable {
+        case single(Destination)
+        case multiple([Destination])
+
+        var destinations: [Destination] {
+            switch self {
+            case .single(let destination): [destination]
+            case .multiple(let destinations): destinations
+            }
+        }
+
+        static func from(_ destinations: [Destination]) -> Self {
+            if let destination = destinations.singleElement {
+                return .single(destination)
+            }
+            return .multiple(destinations)
+        }
+    }
+
+    struct Destination: Hashable {
+        public let address: Address
+        public let amount: Decimal
+
+        public init(address: TransactionRecord.Destination.Address, amount: Decimal) {
+            self.address = address
+            self.amount = amount
+        }
+
+        public enum Address: Hashable {
+            case user(String)
+            /// Contact address for token-supported blockchains
+            case contract(String)
+
+            public var string: String {
+                switch self {
+                case .user(let address):
+                    return address
+                case .contract(let address):
+                    return address
+                }
+            }
+        }
+    }
+}
+
+// MARK: - TokenTransfer
+
+public extension TransactionRecord {
+    struct TokenTransfer: Hashable {
+        public let source: String
+        public let destination: String
+        public let amount: Decimal
+        public let name: String?
+        public let symbol: String?
+        public let decimals: Int?
+        public let contract: String?
+    }
+}
