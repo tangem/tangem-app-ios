@@ -185,8 +185,13 @@ private extension SendAmountFinishViewModel {
             receiveSmallAmountViewModel = nil
         case (.some(let token), .success(let receiveAmount)):
             let header: SendTokenHeader = {
-                if flowActionType == .swap, let token = token as? SendSourceToken {
-                    return makeFinishTokenHeader(from: token.header, flowActionType: flowActionType, isSource: false)
+                if flowActionType.isSwapFlow && FeatureProvider.isAvailable(.swapInProgressV2) {
+                    if let token = token as? SendSourceToken {
+                        return makeFinishTokenHeader(from: token.header, flowActionType: flowActionType, isSource: false)
+                    }
+                    // sendViaSwap receive token (CommonSendReceiveToken) carries no TokenHeader,
+                    // so fall back to the plain "You receive" title.
+                    return .action(name: Localization.swappingToTitle)
                 }
                 return .action(name: Localization.sendWithSwapRecipientAmountSuccessTitle)
             }()
