@@ -344,11 +344,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 if let accountModel {
                     accountModel.statePublisher
                         .withWeakCaptureOf(viewModel)
-                        .map { viewModel, state in
+                        .map { [weak accountModel] viewModel, state in
                             TangemPayAccountViewModel(
                                 tangemPayLocalState: state,
                                 userWalletId: viewModel.userWalletModel.userWalletId,
                                 cachedStateStorage: AppSettings.shared,
+                                lastKnownTangemPayAccount: accountModel?.lastKnownTangemPayAccount,
                                 router: viewModel
                             )
                         }
@@ -689,6 +690,7 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
+            userWalletModel: userWalletModel
         )
     }
 }
@@ -748,6 +750,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openCloreMigration()
         case .openManageTokensAfterWalletSuccessImport:
             openManageTokens()
+        case .renewTangemPaySession:
+            deriveEntriesWithoutDerivation()
         default:
             break
         }
