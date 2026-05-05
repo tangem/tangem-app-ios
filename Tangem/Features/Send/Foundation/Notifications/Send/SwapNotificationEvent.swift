@@ -54,6 +54,9 @@ extension SwapNotificationEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
         case .permissionNeeded:
+            if FeatureProvider.isAvailable(.dexApproveNotificationV2) {
+                return .string(Localization.expressProviderPermissionNeededV2)
+            }
             return .string(Localization.expressProviderPermissionNeeded)
         case .refreshRequired(let title, _, _, _):
             return .string(title)
@@ -101,6 +104,13 @@ extension SwapNotificationEvent: NotificationEvent {
     var description: String? {
         switch self {
         case .permissionNeeded(let providerName, let currencyCode, _):
+            if FeatureProvider.isAvailable(.dexApproveNotificationV2) {
+                let learnMore = TangemHelpCenterUrlBuilder()
+                    .url(article: .howToSwapCoinsAndTokens)
+                    .map { "[\(Localization.commonLearnMore)](\($0.absoluteString))" }
+                    ?? Localization.commonLearnMore
+                return Localization.givePermissionSwapSubtitleV2(learnMore)
+            }
             return Localization.givePermissionSwapSubtitle(providerName, currencyCode)
         case .refreshRequired(_, let message, _, _):
             return message
@@ -264,6 +274,15 @@ extension SwapNotificationEvent: NotificationEvent {
             return .init(.openCurrency)
         case .permissionNeeded:
             return .init(.givePermission)
+        default:
+            return nil
+        }
+    }
+
+    var descriptionLinkTint: Color? {
+        switch self {
+        case .permissionNeeded where FeatureProvider.isAvailable(.dexApproveNotificationV2):
+            return Colors.Text.accent
         default:
             return nil
         }
