@@ -371,6 +371,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
     }
 
+    func openAddAndManageTokens(userWalletModel: UserWalletModel) {
+        Task { @MainActor in
+            let viewModel = TokensManagementFlowViewModel(userWalletModel: userWalletModel, coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
@@ -736,6 +743,16 @@ extension MainCoordinator: OrganizeTokensRoutable {
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
+    }
+}
+
+// MARK: - TokensManagementFlowRoutable protocol conformance
+
+extension MainCoordinator: TokensManagementFlowRoutable {
+    func closeTokensManagementFlow() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
