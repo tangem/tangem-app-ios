@@ -12,6 +12,7 @@ import TangemUI
 import TangemLocalization
 import TangemVisa
 import TangemPay
+import TangemAccessibilityIdentifiers
 
 struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
@@ -28,6 +29,7 @@ struct TangemPayAccountView: View {
             .opacity(viewModel.state.isFullyVisible ? 1 : 0.6)
             .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         }
+        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.mainScreenTile)
     }
 
     @ViewBuilder
@@ -81,7 +83,7 @@ struct TangemPayAccountView: View {
         case .unavailable(let cached):
             cachedTrailingContent(cached?.trailing)
 
-        case .normal(_, let balance):
+        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
             balanceTrailingContent(balance: balance)
 
         case .skeleton:

@@ -119,14 +119,14 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenTapped: { [weak coordinator, weak userWalletModel] _ in
                 guard let coordinator, let userWalletModel else { return }
                 coordinator.openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-            },
-            yieldApyTapped: nil
+            }
         )
 
         let actionButtonsVM: ActionButtonsViewModel? = coordinator.map {
             ActionButtonsViewModel(
                 coordinator: $0,
-                userWalletModel: userWalletModel
+                userWalletModel: userWalletModel,
+                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
             )
         }
 
@@ -150,11 +150,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenCardVariant = .token(tokenItemViewModel)
         }
 
-        redesignState = RedesignState(
-            actionButtonsViewModel: actionButtonsVM,
-            tokenCardVariant: tokenCardVariant,
-            tokenItemInfoProvider: infoProvider
-        )
+        redesignState = RedesignState(actionButtonsViewModel: actionButtonsVM, tokenCardVariant: tokenCardVariant)
     }
 
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
@@ -164,10 +160,14 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     override func copyDefaultAddress() {
         super.copyDefaultAddress()
-        Analytics.log(event: .buttonCopyAddress, params: [
-            .token: walletModel.tokenItem.currencySymbol,
-            .source: Analytics.ParameterValue.main.rawValue,
-        ])
+        Analytics.log(
+            event: .buttonCopyAddress,
+            params: [
+                .token: walletModel.tokenItem.currencySymbol,
+                .source: Analytics.ParameterValue.main.rawValue,
+            ],
+            analyticsSystems: .all
+        )
         delegate?.displayAddressCopiedToast()
     }
 
@@ -266,10 +266,12 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .receive:
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
-            let parameters = SwapPredefinedParametersHelper().makeFromParameters(
-                walletModel: walletModel,
+            guard let parameters = SwapPredefinedParametersHelper().makeParameters(
+                origin: .tokenDetails(.init(walletModel: walletModel)),
                 userWalletInfo: userWalletInfo
-            )
+            ) else {
+                return
+            }
             contextActionTokenRouter.openSwap(parameters: parameters)
         case .sell:
             contextActionTokenRouter.openSell(for: walletModel)
@@ -293,9 +295,6 @@ extension SingleWalletMainContentViewModel {
     struct RedesignState {
         let actionButtonsViewModel: ActionButtonsViewModel?
         let tokenCardVariant: TokenCardVariant
-
-        /// Retained because `TokenItemViewModel.infoProvider` is weak
-        let tokenItemInfoProvider: DefaultTokenItemInfoProvider
 
         enum TokenCardVariant {
             /// Plain token row (no account header)

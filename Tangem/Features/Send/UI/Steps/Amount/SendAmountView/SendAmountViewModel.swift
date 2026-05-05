@@ -69,14 +69,19 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     private var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
+    @Published private(set) var currentRateType: ExpressProviderRateType?
+
     private var isReceiveAmountApproximate: Bool {
-        providerRateTypes.contains(.float) && lastUpdateSource != .receive
+        currentRateType == .float && lastUpdateSource != .receive
     }
 
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest($lastUpdateSource, $providerRateTypes)
-            .withWeakCaptureOf(self)
-            .map { viewModel, _ in viewModel.isReceiveAmountApproximate }
+        // Use emitted values directly — @Published emits on willSet,
+        // so reading stored properties in the map would return stale values.
+        Publishers.CombineLatest($lastUpdateSource, $currentRateType)
+            .map { lastUpdateSource, currentRateType in
+                currentRateType == .float && lastUpdateSource != .receive
+            }
             .eraseToAnyPublisher()
     }
 
@@ -106,6 +111,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
+    private let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
@@ -130,7 +136,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
+        currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -142,6 +149,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
         self.providerRateTypesPublisher = providerRateTypesPublisher
+        self.currentRateTypePublisher = currentRateTypePublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -154,6 +162,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
+        pendingReverseRecalculation = false
+        lastUpdateSource = .send
 
         let amount = try? interactor.updateToMaxAmount()
         FeedbackGenerator.heavy()
@@ -171,6 +181,10 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         animateActiveFieldChange = true
         animateDestinationRemoval = true
         forceCompactSourceTokenRow = false
+        pendingReverseRecalculation = false
+        // Disconnect before nilling to prevent stale async onValueChanged
+        // callbacks from interfering with the removal cleanup.
+        destinationAmountField?.onValueChanged = nil
         destinationAmountField = nil
         destinationFieldBag = nil
         lastUpdateSource = nil
@@ -226,7 +240,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             // Phase 1: Instantly swap FROM token row to target state (no animation)
             forceCompactSourceTokenRow = tappedField != .send
             if tappedField != .send {
-                compactSourceSubtitle = .balance(state: .loading())
+                compactSourceSubtitle = makeLoadingCompactSourceSubtitle()
             }
 
             // Phase 2: Animate the collapse/expand after SwiftUI commits Phase 1
@@ -392,6 +406,10 @@ private extension SendAmountViewModel {
                 viewModel.handleProviderRateTypesChange(rateTypes)
             }
             .store(in: &bag)
+
+        currentRateTypePublisher?
+            .receiveOnMain()
+            .assign(to: &$currentRateType)
     }
 
     func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
@@ -430,6 +448,7 @@ private extension SendAmountViewModel {
     }
 
     func textFieldValueDidChanged(amount: Decimal?) {
+        pendingReverseRecalculation = false
         lastUpdateSource = .send
         let amount = try? interactor.update(sourceAmount: amount)
         sourceAmountField.updateAlternativeUI(amount: amount)
@@ -620,7 +639,7 @@ extension SendAmountViewModel {
         } else if lastUpdateSource == .receive {
             // Token changed while user was editing TO — trigger reverse
             // calculation with the user's current field value once the
-            // pair-change quote completes
+            // pair-change quote completes.
             pendingReverseRecalculation = true
         }
     }
@@ -642,10 +661,9 @@ extension SendAmountViewModel {
                 pendingReverseRecalculation = false
                 lastUpdateSource = .receive
 
-                // If the field is empty (first selection), populate from the forward quote
-                if field.cryptoTextFieldViewModel.value == nil {
-                    field.updateAmountsUI(amount: sendAmount)
-                }
+                // Populate the field from the forward estimate so the reverse
+                // recalculation below uses the fiat-equivalent value for the new token
+                field.updateAmountsUI(amount: sendAmount)
 
                 let receiveValue = field.cryptoTextFieldViewModel.value
                 _ = interactor.update(receiveAmount: receiveValue)
@@ -695,18 +713,29 @@ extension SendAmountViewModel {
     func updateCompactSourceSubtitle(sourceAmount: LoadingResult<SendAmount, Error>) {
         switch sourceAmount {
         case .loading:
-            compactSourceSubtitle = .balance(state: .loading())
+            compactSourceSubtitle = makeLoadingCompactSourceSubtitle()
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                let sendText = Localization.sendSummaryTitle(formatted)
-                if let balance = sourceCryptoBalance {
-                    compactSourceSubtitle = .balance(state: .loaded(text: .builder(
-                        builder: { "\($0) \(AppConstants.dotSign) \(sendText)" },
-                        sensitive: balance
-                    )))
+                if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+                    compactSourceSubtitle = .balanceAndSend(
+                        balance: .loaded(text: .builder(
+                            builder: { Localization.commonBalance($0) },
+                            sensitive: balance
+                        )),
+                        sendLabel: Localization.commonSendColon,
+                        sendAmount: .loaded(text: formatted)
+                    )
                 } else {
-                    compactSourceSubtitle = .balance(state: .loaded(text: sendText))
+                    let sendText = Localization.sendSummaryTitle(formatted)
+                    if let balance = sourceCryptoBalance {
+                        compactSourceSubtitle = .balance(state: .loaded(text: .builder(
+                            builder: { "\($0) \(AppConstants.dotSign) \(sendText)" },
+                            sensitive: balance
+                        )))
+                    } else {
+                        compactSourceSubtitle = .balance(state: .loaded(text: sendText))
+                    }
                 }
             } else {
                 compactSourceSubtitle = nil
@@ -719,6 +748,20 @@ extension SendAmountViewModel {
         if !sourceAmount.isLoading, isInputFieldSwitchingLocked, lastUpdateSource == .receive {
             isInputFieldSwitchingLocked = false
         }
+    }
+
+    private func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
+        if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+            return .balanceAndSend(
+                balance: .loaded(text: .builder(
+                    builder: { Localization.commonBalance($0) },
+                    sensitive: balance
+                )),
+                sendLabel: Localization.commonSendColon,
+                sendAmount: .loading()
+            )
+        }
+        return .balance(state: .loading())
     }
 
     func mapToSendAmountTokenViewDataSubtitleType(

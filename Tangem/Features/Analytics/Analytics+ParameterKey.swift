@@ -14,6 +14,7 @@ extension Analytics {
         case firmware = "Firmware"
         case action = "Action"
         case errorDescription = "Error"
+        case swapErrorDescription = "Error Description"
         case errorCode = "Error Code"
         case errorMessage = "Error Message"
         case errorType = "Error Type"
@@ -24,6 +25,7 @@ extension Analytics {
         case currency = "Currency Type" // fiat
         case success = "Success"
         case token = "Token"
+        case dynamicAddress = "Dynamic Address"
         case tokens = "Tokens"
         case tokensCount = "Tokens Count"
         case tokenFound = "Token Found"

@@ -22,7 +22,7 @@ class CommonWalletModel {
 
     let id: WalletModelId
     let userWalletId: UserWalletId
-    let tokenItem: TokenItem
+    private(set) var tokenItem: TokenItem
     let isCustom: Bool
     var demoBalance: Decimal?
 
@@ -47,6 +47,10 @@ class CommonWalletModel {
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
+
+    private var dynamicAddressesManager: DynamicAddressesManager? {
+        featureManager.features.dynamicAddressesManager
+    }
 
     private var assetRequirementsTaskCancellable: AnyCancellable?
     private let isAssetRequirementsTaskInProgressSubject: CurrentValueSubject<Bool, Never> = .init(false)
@@ -258,9 +262,9 @@ extension CommonWalletModel: WalletModel {
 
     var wallet: Wallet { walletManager.wallet }
 
-    var addresses: [String] { wallet.addresses.map { $0.value } }
+    var addresses: [Address] { wallet.addresses.filter { !$0.type.isUsed } }
 
-    var defaultAddressString: String { wallet.defaultAddress.value }
+    var defaultAddress: Address { wallet.defaultAddress }
 
     var isMainToken: Bool {
         switch amountType {
@@ -302,8 +306,6 @@ extension CommonWalletModel: WalletModel {
     var isEmpty: Bool { wallet.isEmpty }
 
     var publicKey: Wallet.PublicKey { wallet.publicKey }
-
-    var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
 
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
@@ -477,20 +479,12 @@ extension CommonWalletModel: WalletModelBalancesProvider {
 // MARK: - Helpers
 
 extension CommonWalletModel: WalletModelHelpers {
-    func displayAddress(for index: Int) -> String {
-        wallet.addresses[index].value
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        wallet.getShareString(for: wallet.addresses[index].value)
-    }
-
-    func exploreURL(for index: Int, token: Token? = nil) -> URL? {
+    func exploreURL(for address: String, token: Token? = nil) -> URL? {
         if isDemo {
             return nil
         }
 
-        return wallet.getExploreURL(for: wallet.addresses[index].value, token: token)
+        return wallet.getExploreURL(for: address, token: token)
     }
 
     func exploreTransactionURL(for hash: String) -> URL? {
@@ -785,6 +779,47 @@ extension CommonWalletModel: WalletModelRentProvider {
     }
 }
 
+// MARK: - WalletModelDynamicAddressesProvider
+
+extension CommonWalletModel: WalletModelDynamicAddressesProvider {
+    var dynamicAddressesEnablingRequirements: DynamicAddressesEnablingRequirements? {
+        dynamicAddressesManager?.enablingRequirements
+    }
+
+    var dynamicAddressesDisablingRequirements: DynamicAddressesDisablingRequirements? {
+        dynamicAddressesManager?.disablingRequirements
+    }
+
+    @MainActor
+    func hasDynamicAddressesBalancesFlag() async -> Bool {
+        await dynamicAddressesManager?.hasDynamicAddressesBalancesFlag() ?? false
+    }
+
+    @MainActor
+    func enableDynamicAddresses() async throws {
+        guard let dynamicAddressesManager else {
+            throw DynamicAddressesManagerError.dynamicAddressesNotSupported
+        }
+
+        let updatedBlockchainNetwork = try await dynamicAddressesManager.enableDynamicAddresses()
+        tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
+
+        await update(silent: false, features: .full)
+    }
+
+    @MainActor
+    func disableDynamicAddresses() async throws {
+        guard let dynamicAddressesManager else {
+            throw DynamicAddressesManagerError.dynamicAddressesNotSupported
+        }
+
+        let updatedBlockchainNetwork = try dynamicAddressesManager.disableDynamicAddresses()
+        tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
+
+        await update(silent: false, features: .full)
+    }
+}
+
 // MARK: - ExistentialDepositProvider
 
 extension CommonWalletModel: ExistentialDepositInfoProvider {
@@ -878,10 +913,6 @@ extension CommonWalletModel: FeeResourceInfoProvider {
 // MARK: - WalletModelReceiveAddressProvider
 
 extension CommonWalletModel: ReceiveAddressTypesProvider {
-    var receiveAddressTypes: [ReceiveAddressType] {
-        _receiveAddressService.addressTypes
-    }
-
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {
         statePublisher
             .withWeakCaptureOf(self)

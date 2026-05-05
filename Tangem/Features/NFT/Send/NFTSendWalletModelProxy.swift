@@ -57,12 +57,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         asset.name
     }
 
-    var addresses: [String] {
+    var addresses: [Address] {
         mainTokenWalletModel.addresses
     }
 
-    var defaultAddressString: String {
-        mainTokenWalletModel.defaultAddressString
+    var defaultAddress: Address {
+        mainTokenWalletModel.defaultAddress
     }
 
     var isMainToken: Bool {
@@ -90,10 +90,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var publicKey: Wallet.PublicKey {
         mainTokenWalletModel.publicKey
-    }
-
-    var shouldShowFeeSelector: Bool {
-        mainTokenWalletModel.shouldShowFeeSelector
     }
 
     var isCustom: Bool {
@@ -208,15 +204,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fiatTotalTokenBalanceProvider
     }
 
-    func displayAddress(for index: Int) -> String {
-        mainTokenWalletModel.displayAddress(for: index)
-    }
-
-    func shareAddressString(for index: Int) -> String {
-        mainTokenWalletModel.shareAddressString(for: index)
-    }
-
-    func exploreURL(for index: Int, token: Token?) -> URL? {
+    func exploreURL(for address: String, token: Token?) -> URL? {
         // NFTs have their own explorer URLs
         NFTExplorerLinkProvider().provide(for: asset.id)
     }
@@ -375,10 +363,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     static func == (lhs: NFTSendWalletModelProxy, rhs: NFTSendWalletModelProxy) -> Bool {
         lhs.id == rhs.id
-    }
-
-    var receiveAddressTypes: [ReceiveAddressType] {
-        mainTokenWalletModel.receiveAddressTypes
     }
 
     var receiveAddressTypesPublisher: AnyPublisher<[ReceiveAddressType], Never> {

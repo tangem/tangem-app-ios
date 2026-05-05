@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemExpress
+import TangemFoundation
 
 struct CommonExpressProviderTransactionValidator: ExpressProviderTransactionValidator {
     // MARK: - Private Properties

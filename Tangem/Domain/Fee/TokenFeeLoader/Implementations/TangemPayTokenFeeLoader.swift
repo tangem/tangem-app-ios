@@ -23,8 +23,6 @@ struct TangemPayTokenFeeLoader {
 }
 
 extension TangemPayTokenFeeLoader: TokenFeeLoader {
-    var allowsFeeSelection: Bool { false }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [constantFee] }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { [constantFee] }
 }

@@ -61,6 +61,13 @@ final class UserWalletNotificationManager {
 
     deinit {
         tokenSyncProgressTask?.cancel()
+
+        // Release bag on main to serialize Combine cancel cascade with main-scheduled upstream emissions.
+        // See [REDACTED_INFO]
+        if !Thread.isMainThread {
+            let cancellables = bag
+            DispatchQueue.main.async { _ = cancellables }
+        }
     }
 
     private func createNotifications() {
@@ -276,6 +283,24 @@ final class UserWalletNotificationManager {
         self.shownMobileUpgradeNotificationId = nil
     }
 
+    // MARK: - Initial Wallet Token Sync
+
+    /// Clears persisted token-sync state when the banner with this `id` is dismissed. Safe if the banner row was already removed (e.g. list rebuild).
+    private func clearInitialWalletTokenSyncStateIfCurrentBanner(with id: NotificationViewId) {
+        guard shownTokenSyncNotificationId == id else {
+            return
+        }
+
+        shownTokenSyncNotificationId = nil
+
+        let userWalletId = userWalletModel.userWalletId
+        let progressProvider = walletTokenSyncProgressProvider
+
+        Task {
+            await progressProvider.removeProgress(for: userWalletId)
+        }
+    }
+
     private func showTokenSyncCompletedNotification() {
         guard shownTokenSyncNotificationId == nil else {
             return
@@ -286,10 +311,26 @@ final class UserWalletNotificationManager {
         let action: NotificationView.NotificationAction = { _ in }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            self?.delegate?.didTapNotification(with: id, action: action)
+            guard let self else { return }
+
+            delegate?.didTapNotification(with: id, action: action)
+
+            if case .openManageTokensAfterWalletSuccessImport = action {
+                Analytics.log(.initialTokenSyncManageTokens, contextParams: .userWallet(userWalletModel.userWalletId))
+                clearInitialWalletTokenSyncStateIfCurrentBanner(with: id)
+
+                // Deferred UI removal only; cleanup runs above so delayed work cannot skip progress reset.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.hideNotification(with: id)
+                }
+            }
         }
 
-        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+            guard let self else { return }
+            Analytics.log(.initialTokenSyncButtonClosed, contextParams: .userWallet(userWalletModel.userWalletId))
+            dismissNotification(with: id)
+        }
 
         let input = factory.buildNotificationInput(
             for: GeneralNotificationEvent.initialWalletTokenSyncCompleted,
@@ -301,6 +342,8 @@ final class UserWalletNotificationManager {
         shownTokenSyncNotificationId = input.id
         addInputIfNeeded(input)
     }
+
+    // MARK: - Bindings
 
     private func bind() {
         notificationPublisher
@@ -448,6 +491,7 @@ extension UserWalletNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         guard let notification = notificationInputsSubject.value.first(where: { $0.id == id }) else {
+            clearInitialWalletTokenSyncStateIfCurrentBanner(with: id)
             return
         }
 
@@ -462,11 +506,7 @@ extension UserWalletNotificationManager: NotificationManager {
             case .mobileUpgrade:
                 mobileUpgradeBannerManager.shouldClose()
             case .initialWalletTokenSyncCompleted:
-                shownTokenSyncNotificationId = nil
-
-                Task { [walletId = userWalletModel.userWalletId] in
-                    await walletTokenSyncProgressProvider.removeProgress(for: walletId)
-                }
+                clearInitialWalletTokenSyncStateIfCurrentBanner(with: id)
             default:
                 break
             }
