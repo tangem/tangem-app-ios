@@ -10,7 +10,7 @@ import Foundation
 
 struct TangemBlogUrlBuilder {
     func url(post: Post) -> URL {
-        var urlComponents = URLComponents(string: "https://tangem.com/blog/post/\(post.path)/")!
+        var urlComponents = URLComponents(string: "https://tangem.com/embed/blog/post/\(post.path)/")!
         urlComponents.queryItems = TangemUrlHelper.queryItems(utmCampaign: .articles)
         return urlComponents.url!
     }
