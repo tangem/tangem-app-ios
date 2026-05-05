@@ -15,6 +15,13 @@ import TangemExpress
 class SendAmountFinishViewModel: ObservableObject, Identifiable {
     var viewType: ViewType? { getViewType() }
 
+    /// Returns `true` only when the flow type represents a swap AND we actually have a receive
+    /// token destination (i.e. the user selected a swap pair).  This guards against
+    /// `SendWithSwapFlowFactory` powering a plain send while its flow type is `.sendViaSwap`.
+    var isActualSwapFlow: Bool {
+        flowActionType.isSwapFlow && receiveSmallAmountViewModel != nil
+    }
+
     @Published private var tokenHeader: SendTokenHeader?
     @Published private var tokenIconInfo: TokenIconInfo?
     @Published private var amountText: String?
