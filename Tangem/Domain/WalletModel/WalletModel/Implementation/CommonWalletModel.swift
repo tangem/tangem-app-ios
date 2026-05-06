@@ -527,7 +527,8 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
-        guard case .token(let token, _) = tokenItem,
+        guard !isCustom,
+              case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
               let ethereumNetworkProvider
         else {
