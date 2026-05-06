@@ -204,7 +204,9 @@ extension WalletConnectViewState.ModalDialog {
     struct AlertButton: Hashable {
         let title: String
         let role: AlertButtonRole?
-        @IgnoredEquatable var action: () -> Void
+
+        @IgnoredEquatable
+        private(set) var action: () -> Void
 
         static let cancel = AlertButton(title: Localization.commonCancel, role: .cancel, action: {})
         static let ok = AlertButton(title: Localization.commonOk, role: nil, action: {})

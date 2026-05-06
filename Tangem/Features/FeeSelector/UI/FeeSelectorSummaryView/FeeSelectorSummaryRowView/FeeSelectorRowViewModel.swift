@@ -24,14 +24,14 @@ struct FeeSelectorRowViewModel: Hashable {
     // MARK: - Expansion
 
     @IgnoredEquatable
-    var expandAction: (() -> Void)?
+    private(set) var expandAction: (() -> Void)?
 
     // MARK: - Selection
 
     let isSelected: Bool
 
     @IgnoredEquatable
-    var selectAction: (() -> Void)?
+    private(set) var selectAction: (() -> Void)?
 }
 
 // MARK: - Configurations

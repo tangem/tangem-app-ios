@@ -30,8 +30,9 @@ struct AccountSelectorWalletItem: Identifiable, Equatable {
         struct ActiveWallet: Equatable {
             let id: String
             let tokensCount: String
+
             @IgnoredEquatable
-            var formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
+            private(set) var formattedBalanceTypePublisher: AnyPublisher<LoadableBalanceView.State, Never>
         }
 
         struct LockedWallet: Equatable {
