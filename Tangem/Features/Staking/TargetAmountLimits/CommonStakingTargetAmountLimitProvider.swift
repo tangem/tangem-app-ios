@@ -77,18 +77,23 @@ private extension CommonStakingTargetAmountLimitProvider {
     }
 
     func runFetch() async {
-        do {
-            let response = try await tangemApiService.loadStakingVaultsConfig()
-            let dict = response.vaults.reduce(into: [String: Decimal]()) { result, vault in
-                if let limit = vault.limit {
-                    result[vault.vaultAddress.lowercased()] = limit
-                }
-            }
-            guard !Task.isCancelled else { return }
-            limits = dict
-        } catch {
-            AppLogger.error("Failed to load staking target amount limits", error: error)
-        }
+        // [REDACTED_TODO_COMMENT]
+        // Remove the early return below once the endpoint is live; until then `limits` stays
+        // empty and `P2PMapper` falls back to `capacity - totalAssets`.
+        return
+
+//        do {
+//            let response = try await tangemApiService.loadStakingVaultsConfig()
+//            let dict = response.vaults.reduce(into: [String: Decimal]()) { result, vault in
+//                if let limit = vault.limit {
+//                    result[vault.vaultAddress.lowercased()] = limit
+//                }
+//            }
+//            guard !Task.isCancelled else { return }
+//            limits = dict
+//        } catch {
+//            AppLogger.error("Failed to load staking target amount limits", error: error)
+//        }
     }
 
     func clearCache() {
