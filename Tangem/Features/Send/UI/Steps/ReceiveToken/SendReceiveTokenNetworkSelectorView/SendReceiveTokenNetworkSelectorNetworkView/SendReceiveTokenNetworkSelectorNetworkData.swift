@@ -17,5 +17,5 @@ struct SendReceiveTokenNetworkSelectorNetworkViewData: Identifiable, Equatable {
     let isMainNetwork: Bool
 
     @IgnoredEquatable
-    private(set) var tapAction: () -> Void
+    var tapAction: () -> Void
 }

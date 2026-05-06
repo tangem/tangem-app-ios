@@ -8,7 +8,6 @@
 
 import Foundation
 import TangemMacro
-import TangemFoundation
 
 // MARK: - TokenBalanceType
 
@@ -96,9 +95,7 @@ extension TokenBalanceType {
 
     struct Cached: Hashable, CustomStringConvertible {
         let balance: Decimal
-
-        @IgnoredEquatable
-        private(set) var date: Date
+        let date: Date
 
         var description: String {
             "Cached balance on date: \(date.formatted())"
