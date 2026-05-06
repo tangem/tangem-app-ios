@@ -51,4 +51,12 @@ public enum WalletConnectAccessibilityIdentifiers {
 
     /// Paste button in new connection screen
     public static let pasteButton = "walletConnectPasteButton"
+
+    /// Error toast on the WC QR scan screen
+    public static let errorToast = "walletConnectErrorToast"
+
+    /// DApp connection error view (proposal loading error)
+    public static let errorViewTitle = "walletConnectErrorViewTitle"
+    public static let errorViewSubtitle = "walletConnectErrorViewSubtitle"
+    public static let errorViewGotItButton = "walletConnectErrorViewGotItButton"
 }
