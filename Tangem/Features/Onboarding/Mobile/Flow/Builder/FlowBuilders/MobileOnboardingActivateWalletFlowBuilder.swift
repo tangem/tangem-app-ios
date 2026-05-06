@@ -12,6 +12,9 @@ import TangemLocalization
 
 final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuilder {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
+    @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     private var isBackupNeeded: Bool {
         userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
@@ -19,6 +22,10 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
 
     private var isAccessCodeNeeded: Bool {
         userWalletModel.config.userWalletAccessCodeStatus == .none
+    }
+
+    private var shouldShowApplePayBuy: Bool {
+        userWalletRepository.models.count == 1 && geoEligibilityService.isApplePayAllowed
     }
 
     private var analyticsContextParams: Analytics.ContextParams {
@@ -61,11 +68,16 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
             append(step: pushNotificationsStep)
         }
 
+        let onApplePayBuy: (() -> Void)? = shouldShowApplePayBuy
+            ? weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboardingAndOpenBuy)
+            : nil
+
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
             navigationTitle: Localization.commonDone,
             onAppear: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openConfetti),
-            onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding)
+            onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding),
+            onApplePayBuy: onApplePayBuy
         )
         append(step: doneStep)
     }
@@ -136,6 +148,17 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
     }
 
     func closeOnboarding() {
+        coordinator?.closeOnboarding()
+    }
+
+    func closeOnboardingAndOpenBuy() {
+        var params = DeeplinkNavigationAction.Params.empty
+        params.userWalletId = userWalletModel.userWalletId.stringValue
+
+        let action = IncomingAction.navigation(
+            DeeplinkNavigationAction(destination: .buy, params: params)
+        )
+        incomingActionManager.enqueue(action)
         coordinator?.closeOnboarding()
     }
 }

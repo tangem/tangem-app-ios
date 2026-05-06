@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct MobileOnboardingSuccessView: View {
@@ -21,7 +22,7 @@ struct MobileOnboardingSuccessView: View {
             Spacer()
             infoView(viewModel.infoItem)
             Spacer()
-            actionButton(viewModel.actionItem)
+            actionButtonsStack
         }
         .onFirstAppear(perform: viewModel.onFirstAppear)
         .padding(.horizontal, 16)
@@ -48,11 +49,47 @@ extension MobileOnboardingSuccessView {
         }
     }
 
+    @ViewBuilder
+    var actionButtonsStack: some View {
+        VStack(spacing: 12) {
+            if let applePayAction = viewModel.applePayAction {
+                applePayButton(action: applePayAction)
+            }
+
+            actionButton(viewModel.actionItem)
+        }
+    }
+
     func actionButton(_ item: ViewModel.ActionItem) -> some View {
         MainButton(
             title: item.title,
+            style: viewModel.applePayAction == nil ? .primary : .secondary,
             action: item.action
         )
         .accessibilityIdentifier(viewModel.actionButtonAccessibilityIdentifier)
+    }
+
+    func applePayButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text(Localization.onboardingButtonBuyWith)
+                    .style(Fonts.Bold.callout, color: .white)
+
+                HStack(spacing: 1) {
+                    Image(systemName: "applelogo")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundColor(.white)
+
+                    Text("Pay")
+                        .style(Fonts.Bold.callout, color: .white)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 46, maxHeight: 46)
+            .background(Color.black)
+            .cornerRadiusContinuous(14)
+        }
+        .buttonStyle(BorderlessButtonStyle())
+        .accessibilityLabel("\(Localization.onboardingButtonBuyWith) Apple Pay")
+        .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileOnboardingSuccessApplePayButton)
     }
 }

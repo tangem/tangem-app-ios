@@ -15,13 +15,15 @@ final class MobileOnboardingSuccessStep: MobileOnboardingFlowStep {
         type: MobileOnboardingSuccessViewModel.SuccessType,
         navigationTitle: String,
         onAppear: @escaping () -> Void,
-        onComplete: @escaping () -> Void
+        onComplete: @escaping () -> Void,
+        onApplePayBuy: (() -> Void)? = nil
     ) {
         viewModel = MobileOnboardingSuccessViewModel(
             type: type,
             navigationTitle: navigationTitle,
             onAppear: onAppear,
-            onComplete: onComplete
+            onComplete: onComplete,
+            onApplePayBuy: onApplePayBuy
         )
     }
 

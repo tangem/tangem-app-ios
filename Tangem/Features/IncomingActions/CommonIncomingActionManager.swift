@@ -125,6 +125,11 @@ extension CommonIncomingActionManager: IncomingActionManaging {
         }
     }
 
+    public func enqueue(_ action: IncomingAction) {
+        pendingAction = action
+        tryHandleLastAction()
+    }
+
     public func becomeFirstResponder(_ responder: IncomingActionResponder) {
         if !responders.contains(responder) {
             responders.add(responder)

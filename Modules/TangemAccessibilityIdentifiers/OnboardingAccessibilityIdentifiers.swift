@@ -30,6 +30,9 @@ public enum OnboardingAccessibilityIdentifiers {
     public static let seedImportSuccessContinueButton = "onboardingSeedImportSuccessContinueButton"
     public static let seedImportSuccessFinishButton = "onboardingSeedImportSuccessFinishButton"
 
+    /// Mobile onboarding success
+    public static let mobileOnboardingSuccessApplePayButton = "onboardingMobileSuccessApplePayButton"
+
     /// Access code
     public static let accessCodeSkipButton = "onboardingAccessCodeSkipButton"
     public static let accessCodeInputField = "onboardingAccessCodeInputField"
