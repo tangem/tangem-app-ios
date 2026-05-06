@@ -30,6 +30,7 @@ enum Feature: String, Hashable, CaseIterable {
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
+    case swapPendingTxStateDate
     case dexApproveNotificationV2
     case manageTokensImprovements
 
@@ -56,6 +57,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
+        case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         }
@@ -84,6 +86,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
         case .swapStoriesV2: return .unspecified
+        case .swapPendingTxStateDate: return .unspecified
         case .dexApproveNotificationV2: return .unspecified
         case .manageTokensImprovements: return .unspecified
         }
