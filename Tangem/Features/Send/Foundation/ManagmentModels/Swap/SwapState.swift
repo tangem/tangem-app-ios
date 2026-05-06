@@ -176,21 +176,16 @@ enum SwapLoadingType: Equatable {
 
 // MARK: - SwapPhaseError
 
-struct SwapPhaseError: Equatable {
+struct SwapPhaseError {
     let underlyingError: any Error
     let quote: SwapModel.Quote?
-
-    static func == (lhs: SwapPhaseError, rhs: SwapPhaseError) -> Bool {
-        lhs.underlyingError.localizedDescription == rhs.underlyingError.localizedDescription
-            && lhs.quote == rhs.quote
-    }
 }
 
 // MARK: - SwapLoadedPhase
 
 /// Flattened loaded phase. Replaces LoadedState nested inside ProvidersState.loaded.
 /// Each case carries exactly the data needed for that phase.
-enum SwapLoadedPhase: Equatable {
+enum SwapLoadedPhase {
     case idle
     case requiredRefresh(occurredError: any Error, quote: SwapModel.Quote?)
     case restriction(SwapModel.RestrictionType, quote: SwapModel.Quote?)
@@ -206,25 +201,6 @@ enum SwapLoadedPhase: Equatable {
         case .permissionRequired(let state): state.quote
         case .previewCEX(let state): state.quote
         case .readyToSwap(let state): state.quote
-        }
-    }
-
-    static func == (lhs: SwapLoadedPhase, rhs: SwapLoadedPhase) -> Bool {
-        switch (lhs, rhs) {
-        case (.idle, .idle):
-            return true
-        case (.requiredRefresh(_, let lq), .requiredRefresh(_, let rq)):
-            return lq == rq
-        case (.restriction(let lt, let lq), .restriction(let rt, let rq)):
-            return "\(lt)" == "\(rt)" && lq == rq
-        case (.permissionRequired(let l), .permissionRequired(let r)):
-            return l.quote == r.quote
-        case (.previewCEX(let l), .previewCEX(let r)):
-            return l.quote == r.quote
-        case (.readyToSwap(let l), .readyToSwap(let r)):
-            return l.quote == r.quote
-        default:
-            return false
         }
     }
 }

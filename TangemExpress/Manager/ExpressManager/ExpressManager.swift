@@ -25,43 +25,6 @@ public protocol ExpressManager: Actor {
 
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
-
-    // MARK: - Stateless methods (caller provides state)
-
-    /// Load available providers for a pair. Does not store the pair internally.
-    func loadProviders(for pair: ExpressManagerSwappingPair) async throws -> [ExpressAvailableProvider]
-
-    /// Fetch quotes for all eligible providers. Mutates provider managers' internal state (quotes).
-    func updateQuotes(
-        providers: [ExpressAvailableProvider],
-        amountType: ExpressAmountType,
-        pair: ExpressManagerSwappingPair,
-        feeOption: ExpressFee.Option,
-        approvePolicy: ApprovePolicy
-    ) async throws
-
-    /// Select the best provider from the given list based on quote data.
-    func selectBest(
-        from providers: [ExpressAvailableProvider],
-        amountType: ExpressAmountType?,
-        pair: ExpressManagerSwappingPair,
-        by source: ExpressProviderUpdateSource
-    ) async -> ExpressAvailableProvider?
-
-    /// Fetch CEX transaction data for a specific provider.
-    func fetchTransactionData(
-        provider: ExpressAvailableProvider,
-        amountType: ExpressAmountType,
-        pair: ExpressManagerSwappingPair,
-        feeOption: ExpressFee.Option,
-        approvePolicy: ApprovePolicy
-    ) async throws -> ExpressTransactionData
-
-    /// Compute the effective rate type given an amount type and selected provider.
-    func computeRateType(
-        amountType: ExpressAmountType?,
-        selectedProvider: ExpressAvailableProvider?
-    ) -> ExpressProviderRateType?
 }
 
 public class ExpressManagerUpdatingResult {

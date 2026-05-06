@@ -121,10 +121,6 @@ private extension CommonExpressAPIService {
             throw error
         }
 
-//        if case .exchangeQuote(let request) = target {
-//            response = .init(statusCode: 400, data: Data())
-//        }
-
         return try decoder.decode(T.self, from: response.data)
     }
 
