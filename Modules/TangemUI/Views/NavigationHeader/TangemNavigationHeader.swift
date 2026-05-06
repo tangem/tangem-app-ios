@@ -84,6 +84,7 @@ public extension TangemNavigationHeader {
 
         public var body: some View {
             Assets.tangemIcon.image
+                .renderingMode(.template)
                 .resizable()
                 .frame(size: iconSize)
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
