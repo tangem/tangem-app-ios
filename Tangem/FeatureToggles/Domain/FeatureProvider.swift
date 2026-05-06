@@ -12,6 +12,9 @@ import TangemFoundation
 /// Use this provider to check the availability of your feature
 enum FeatureProvider {
     static func isAvailable(_ feature: Feature) -> Bool {
+        if case .onrampNativePayment = feature {
+            return true
+        }
         if AppEnvironment.current.isProduction {
             return isAvailableForReleaseVersion(feature)
         }
