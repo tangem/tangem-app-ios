@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct TokenQuote: Hashable, Codable {
     let currencyId: String
@@ -16,7 +17,9 @@ struct TokenQuote: Hashable, Codable {
     let priceChange7d: Decimal?
     let priceChange30d: Decimal?
     let currencyCode: String
-    let date: Date
+
+    @IgnoredEquatable
+    private(set) var date: Date
 
     init(
         currencyId: String,

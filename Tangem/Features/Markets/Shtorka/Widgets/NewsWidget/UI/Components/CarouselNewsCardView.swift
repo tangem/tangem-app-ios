@@ -19,7 +19,9 @@ struct CarouselNewsItem: Identifiable, Equatable, NewsReadStatusSortable {
     let timeAgo: String
     let tags: [InfoChipItem]
     let isRead: Bool
-    @IgnoredEquatable var onTap: (String) -> Void
+
+    @IgnoredEquatable
+    private(set) var onTap: (String) -> Void
 
     init(
         id: String = UUID().uuidString,

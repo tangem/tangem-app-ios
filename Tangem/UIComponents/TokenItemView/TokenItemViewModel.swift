@@ -32,11 +32,11 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     @Published private(set) var priceChangeState: PriceChangeView.State = .loading
     @Published private(set) var tokenPrice: LoadableTextView.State = .loading
     @Published private(set) var contextActionSections: [TokenContextActionsSection] = []
+    @Published private(set) var leadingBadge: LeadingBadge?
+    @Published private(set) var trailingBadge: TrailingBadge?
+
     @Published private var missingDerivation: Bool = false
     @Published private var networkUnreachable: Bool = false
-
-    @Published var leadingBadge: LeadingBadge?
-    @Published var trailingBadge: TrailingBadge?
 
     let tokenItem: TokenItem
 
@@ -115,34 +115,40 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func bind() {
         infoProvider
             .balancePublisher
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] type in
-                self?.setupView(type)
-            })
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, type in
+                viewModel.setupView(type)
+            }
             .store(in: &bag)
 
         infoProvider
             .balanceTypePublisher
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] type in
-                self?.setupBalance(type)
-            })
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, type in
+                viewModel.setupBalance(type)
+            }
             .store(in: &bag)
 
         infoProvider
             .fiatBalanceTypePublisher
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] type in
-                self?.setupFiatBalance(type)
-            })
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, type in
+                viewModel.setupFiatBalance(type)
+            }
             .store(in: &bag)
 
         infoProvider
             .quotePublisher
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] type in
-                self?.setupPrice(type)
-            })
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, rate in
+                viewModel.setupPrice(rate)
+            }
             .store(in: &bag)
 
         infoProvider
@@ -150,9 +156,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.global())
             .withWeakCaptureOf(self)
             .map { $0.0.contextActionsProvider?.buildContextActions(for: $0.0) }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] actions in
-                self?.contextActionSections = actions ?? []
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, actions in
+                viewModel.contextActionSections = actions ?? []
             }
             .store(in: &bag)
 

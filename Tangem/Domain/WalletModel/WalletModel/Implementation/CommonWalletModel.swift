@@ -146,6 +146,7 @@ class CommonWalletModel {
         quotesRepository
             .quotesPublisher
             .dropFirst() // we need to drop first value because it's an empty dictionary
+            .removeDuplicates()
             .map { [currencyId = tokenItem.currencyId] quotes in
                 currencyId.flatMap { quotes[$0] }
             }
@@ -156,7 +157,8 @@ class CommonWalletModel {
             .store(in: &bag)
 
         if let _stakingManager {
-            _stakingManager.updateWalletBalancesPublisher
+            _stakingManager
+                .updateWalletBalancesPublisher
                 .dropFirst() // drop initial value
                 .withWeakCaptureOf(self)
                 .asyncMap { walletModel, _ in

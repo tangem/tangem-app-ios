@@ -25,7 +25,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     var isNativePayment: Bool { buyAction.isNativeApplePay }
 
     @IgnoredEquatable
-    var buyAction: BuyAction
+    private(set) var buyAction: BuyAction
 
     init(
         title: Title,
