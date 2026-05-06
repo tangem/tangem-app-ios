@@ -1,5 +1,5 @@
 //
-//  NewsDateFormatterTests.swift
+//  RelativeDateFormatterTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,12 +10,12 @@ import Testing
 @testable import Tangem
 
 @Suite(.tags(.news))
-struct NewsDateFormatterTests {
+struct RelativeDateFormatterTests {
     @Test("Parses ISO8601 dates", arguments: Self.isoDates())
     func parsesIso8601Dates(_ dateString: String) {
-        let formatter = NewsDateFormatter(
+        let formatter = RelativeDateFormatter(
             calendar: Self.makeCalendar(),
-            locale: Locale(identifier: "en_US_POSIX")
+            locale: Locale(identifier: "en_US")
         )
 
         let parsedDate = formatter.parseDate(from: dateString)
@@ -25,9 +25,9 @@ struct NewsDateFormatterTests {
 
     @Test("formatTimeAgo returns relative string for today under 12 hours")
     func formatTimeAgoReturnsRelativeStringForTodayUnder12Hours() {
-        let formatter = NewsDateFormatter(
+        let formatter = RelativeDateFormatter(
             calendar: Self.makeCalendar(),
-            locale: Locale(identifier: "en_US_POSIX")
+            locale: Locale(identifier: "en_US")
         )
 
         let date = Date()
@@ -41,16 +41,16 @@ struct NewsDateFormatterTests {
 
     @Test("formatTimeAgo returns Today format for today after 12 hours")
     func formatTimeAgoReturnsTodayFormatForTodayAfter12Hours() {
-        let formatter = NewsDateFormatter(
+        let formatter = RelativeDateFormatter(
             calendar: Self.makeCalendar(),
-            locale: Locale(identifier: "en_US_POSIX")
+            locale: Locale(identifier: "en_US")
         )
 
         let date = Date()
         let now = date.addingTimeInterval(13 * 3600)
 
         let result = formatter.formatTimeAgo(from: date, relativeTo: now)
-        let expectedTime = Self.formatTime(date, locale: Locale(identifier: "en_US_POSIX"))
+        let expectedTime = Self.formatTime(date, locale: Locale(identifier: "en_US"))
 
         #expect(result.contains(", "))
         #expect(result.hasSuffix(expectedTime))
@@ -59,9 +59,9 @@ struct NewsDateFormatterTests {
 
     @Test("formatTimeAgo returns date and time for previous day")
     func formatTimeAgoReturnsDateAndTimeForPreviousDay() {
-        let formatter = NewsDateFormatter(
+        let formatter = RelativeDateFormatter(
             calendar: Self.makeCalendar(),
-            locale: Locale(identifier: "en_US_POSIX")
+            locale: Locale(identifier: "en_US")
         )
 
         let now = Date()
@@ -75,9 +75,9 @@ struct NewsDateFormatterTests {
 
     @Test("formatRelativeTime returns source string when date is invalid")
     func formatRelativeTimeReturnsSourceStringWhenDateIsInvalid() {
-        let formatter = NewsDateFormatter(
+        let formatter = RelativeDateFormatter(
             calendar: Self.makeCalendar(),
-            locale: Locale(identifier: "en_US_POSIX")
+            locale: Locale(identifier: "en_US")
         )
 
         let invalidDate = "not-a-date"
