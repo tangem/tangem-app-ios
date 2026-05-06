@@ -111,8 +111,16 @@ private extension SolanaTransactionHistoryMapper {
                 accountKeys: transaction.transaction.message.accountKeys,
                 walletAddress: walletAddress
             )
-            sourceAddress = amountDelta < 0 ? (parsedInfo?.source ?? walletAddress) : (parsedInfo?.source ?? counterparty)
-            destinationAddress = amountDelta < 0 ? (parsedInfo?.destination ?? counterparty) : (parsedInfo?.destination ?? walletAddress)
+            let fallbackSourceAddress = amountDelta < 0 ? walletAddress : counterparty
+            let fallbackDestinationAddress = amountDelta < 0 ? counterparty : walletAddress
+            let addresses = resolveTokenTransferAddresses(
+                parsedInfo: parsedInfo,
+                transaction: transaction,
+                fallbackSourceAddress: fallbackSourceAddress,
+                fallbackDestinationAddress: fallbackDestinationAddress
+            )
+            sourceAddress = addresses.source
+            destinationAddress = addresses.destination
         case .feeResource:
             return nil
         }
@@ -359,6 +367,50 @@ private extension SolanaTransactionHistoryMapper {
 
         let decimals = tokenAmount.decimals ?? 0
         return (amount / pow(10, decimals)).rounded(scale: decimals)
+    }
+
+    func resolveTokenTransferAddresses(
+        parsedInfo: SolanaTransactionHistoryDTO.Instruction.Parsed.Info?,
+        transaction: SolanaTransactionHistoryDTO.TransactionDetails,
+        fallbackSourceAddress: String,
+        fallbackDestinationAddress: String
+    ) -> (source: String, destination: String) {
+        let sourceAddress = parsedInfo?.authority?.nilIfEmpty
+            ?? resolveTokenAccountOwnerAddress(tokenAccountAddress: parsedInfo?.source, transaction: transaction)
+            ?? fallbackSourceAddress
+        let destinationAddress = resolveTokenAccountOwnerAddress(
+            tokenAccountAddress: parsedInfo?.destination,
+            transaction: transaction
+        ) ?? fallbackDestinationAddress
+
+        return (source: sourceAddress, destination: destinationAddress)
+    }
+
+    func resolveTokenAccountOwnerAddress(
+        tokenAccountAddress: String?,
+        transaction: SolanaTransactionHistoryDTO.TransactionDetails
+    ) -> String? {
+        guard let tokenAccountAddress = tokenAccountAddress?.nilIfEmpty else {
+            return nil
+        }
+
+        let accountKeys = transaction.transaction.message.accountKeys
+        let allTokenBalances = (transaction.meta?.postTokenBalances ?? []) + (transaction.meta?.preTokenBalances ?? [])
+
+        for balance in allTokenBalances {
+            guard
+                let accountIndex = balance.accountIndex,
+                accountKeys.indices.contains(accountIndex),
+                accountKeys[accountIndex].pubkey.caseInsensitiveCompare(tokenAccountAddress) == .orderedSame,
+                let owner = balance.owner?.nilIfEmpty
+            else {
+                continue
+            }
+
+            return owner
+        }
+
+        return tokenAccountAddress
     }
 
     func fallbackCounterpartyAddress(

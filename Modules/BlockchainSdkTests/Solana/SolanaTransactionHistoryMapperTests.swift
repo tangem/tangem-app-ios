@@ -267,8 +267,8 @@ struct SolanaTransactionHistoryMapperTests {
         #expect(records.count == 1)
         #expect(records[0].type == .transfer)
         #expect(records[0].isOutgoing)
-        #expect(records[0].source == .single(.init(address: tokenSourceAddress, amount: 0.333054)))
-        #expect(records[0].destination == .single(.init(address: .user(tokenDestinationAddress), amount: 0.333054)))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 0.333054)))
+        #expect(records[0].destination == .single(.init(address: .user(destinationAddress), amount: 0.333054)))
     }
 
     @Test
