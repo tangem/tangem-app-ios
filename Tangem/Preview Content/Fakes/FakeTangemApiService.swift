@@ -229,6 +229,10 @@ final class FakeTangemApiService: TangemApiService {
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
         try MockEarnProvider().loadEarnNetworks()
     }
+
+    func loadStakingVaultsConfig() async throws -> StakingVaultsConfigDTO.Response {
+        throw "Not implemented"
+    }
 }
 
 private struct MockEarnProvider {

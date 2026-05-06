@@ -49,6 +49,7 @@ final class CommonServicesManager {
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
+    @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -187,6 +188,7 @@ extension CommonServicesManager: ServicesManager {
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
+        stakingTargetAmountLimitProvider.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

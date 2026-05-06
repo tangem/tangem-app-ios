@@ -7,15 +7,25 @@
 //
 
 import Foundation
+import Combine
 import TangemStaking
 
 private struct StakingYieldInfoProviderKey: InjectionKey {
     static var currentValue: StakingYieldInfoProvider = {
         let factory = StakingDependenciesFactory()
 
+        let lockPublisher = InjectedValues[\.userWalletRepository].eventProvider
+            .compactMap { event -> Void? in
+                if case .locked = event { return () }
+                return nil
+            }
+            .eraseToAnyPublisher()
+
         let provider = CommonStakingYieldInfoProvider(
             stakeKitAPIProvider: factory.makeStakeKitAPIProvider(),
-            p2pAPIProvider: factory.makeP2PAPIProvider()
+            p2pAPIProvider: factory.makeP2PAPIProvider(),
+            targetAmountLimitProvider: factory.targetAmountLimitProvider,
+            cacheInvalidationPublisher: lockPublisher
         )
 
         return provider

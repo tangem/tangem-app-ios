@@ -14,17 +14,20 @@ struct P2PMapper {
     let item: StakingTokenItem = .ethereum
     let rewardType: RewardType = .apy
 
-    func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
+    func mapToYieldInfo(
+        from response: P2PDTO.Vaults.VaultsInfo,
+        targetAmountLimits: [String: Decimal]
+    ) throws -> StakingYieldInfo {
         let vaults = response.vaults
             .filter { !$0.isSmoothingPool && !$0.isPrivate }
-            .map { mapToStakingTargetInfo(from: $0) }
+            .map { mapToStakingTargetInfo(from: $0, targetAmountLimits: targetAmountLimits) }
 
         let rewardRateValues = RewardRateValues(
             aprs: vaults.compactMap(\.rewardRate),
             rewardRate: .zero
         )
 
-        let maximumStakeAmount = vaults.compactMap { $0.maximumStakeAmount }.compactMap { $0 }.min()
+        let maximumStakeAmount = vaults.compactMap(\.maximumStakeAmount).min()
 
         return StakingYieldInfo(
             id: item.network.rawValue,
@@ -134,8 +137,17 @@ struct P2PMapper {
         )
     }
 
-    func mapToStakingTargetInfo(from vault: P2PDTO.Vaults.Vault) -> StakingTargetInfo {
-        StakingTargetInfo(
+    func mapToStakingTargetInfo(
+        from vault: P2PDTO.Vaults.Vault,
+        targetAmountLimits: [String: Decimal]
+    ) -> StakingTargetInfo {
+        let configLimit = targetAmountLimits[vault.vaultAddress.lowercased()]
+        let capacityFallback = vault.totalAssets.flatMap { totalAssets in
+            vault.capacity.flatMap { capacity in
+                capacity - totalAssets
+            }
+        }
+        return StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
             preferred: true,
@@ -144,11 +156,7 @@ struct P2PMapper {
             rewardType: rewardType,
             rewardRate: vault.apy ?? .zero,
             status: .active,
-            maximumStakeAmount: vault.totalAssets.flatMap { totalAssets in
-                vault.capacity.flatMap { capacity in
-                    capacity - totalAssets
-                }
-            }
+            maximumStakeAmount: configLimit ?? capacityFallback
         )
     }
 
