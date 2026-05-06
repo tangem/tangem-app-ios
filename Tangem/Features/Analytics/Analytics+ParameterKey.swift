@@ -168,5 +168,10 @@ extension Analytics {
 
         case referral = "Referral"
         case referralID = "Referral_ID"
+
+        // MARK: - Swap
+
+        case preselectedToken = "Pre-selected Token"
+        case selectedToken = "Selected Token"
     }
 }
