@@ -588,6 +588,18 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
     }
 
+    func logSwapPreselectedTokenChanged(
+        direction: Analytics.ParameterValue,
+        preselectedSymbol: String,
+        selectedSymbol: String
+    ) {
+        Analytics.log(event: .swapPreselectedTokenChanged, params: [
+            .direction: direction.rawValue,
+            .preselectedToken: preselectedSymbol,
+            .selectedToken: selectedSymbol,
+        ])
+    }
+
     func logSwapTransactionSent(result: TransactionDispatcherResult) {
         guard let sourceTokenItem else {
             return
