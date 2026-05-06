@@ -1,5 +1,5 @@
 //
-//  NewsDateFormatter.swift
+//  RelativeDateFormatter.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,47 +9,42 @@
 import Foundation
 import TangemLocalization
 
-final class NewsDateFormatter {
+final class RelativeDateFormatter {
+    static let shared = RelativeDateFormatter(calendar: .autoupdatingCurrent, locale: .autoupdatingCurrent)
+
     private let calendar: Calendar
-    private let locale: Locale
-
-    private lazy var relativeFormatter: RelativeDateTimeFormatter = {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.locale = locale
-        formatter.unitsStyle = .full
-        formatter.dateTimeStyle = .named
-        return formatter
-    }()
-
-    private lazy var timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.dateFormat = "HH:mm"
-        return formatter
-    }()
-
-    private lazy var detailDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
-        return formatter
-    }()
-
-    private lazy var iso8601Formatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return formatter
-    }()
-
-    private lazy var iso8601FormatterNoFraction: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        return formatter
-    }()
+    private let relativeFormatter: RelativeDateTimeFormatter
+    private let timeFormatter: DateFormatter
+    private let detailDateFormatter: DateFormatter
+    private let iso8601Formatter: ISO8601DateFormatter
+    private let iso8601FormatterNoFraction: ISO8601DateFormatter
 
     init(calendar: Calendar = .current, locale: Locale = .current) {
         self.calendar = calendar
-        self.locale = locale
+
+        let relative = RelativeDateTimeFormatter()
+        relative.locale = locale
+        relative.unitsStyle = .full
+        relative.dateTimeStyle = .named
+        relativeFormatter = relative
+
+        let time = DateFormatter()
+        time.locale = locale
+        time.dateFormat = "HH:mm"
+        timeFormatter = time
+
+        let detail = DateFormatter()
+        detail.locale = locale
+        detail.setLocalizedDateFormatFromTemplate("d MMMM")
+        detailDateFormatter = detail
+
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        iso8601Formatter = iso
+
+        let isoNoFrac = ISO8601DateFormatter()
+        isoNoFrac.formatOptions = [.withInternetDateTime]
+        iso8601FormatterNoFraction = isoNoFrac
     }
 
     /// Parses an ISO8601 date string into a Date object.
