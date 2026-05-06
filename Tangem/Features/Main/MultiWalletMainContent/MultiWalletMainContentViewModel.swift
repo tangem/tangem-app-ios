@@ -329,24 +329,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         nftFeatureLifecycleHandler.startObserving()
-        // [REDACTED_TODO_COMMENT]
-        userWalletModel
-            .accountModelsManager
-            .accountModelsPublisher
-            .sink { accountModels in
-                print("Account models updated: \(accountModels)")
-                accountModels.forEach { accountModel in
-                    switch accountModel {
-                    case .standard(.single(let cryptoAccountModel)):
-                        cryptoAccountModel.walletModelsManager.walletModels.forEach { print("account for WM '\($0.name)' is '\($0.account?.name ?? "none")'") }
-                    case .standard(.multiple(let cryptoAccountModels)):
-                        cryptoAccountModels.flatMap(\.walletModelsManager.walletModels).forEach { print("account for WM '\($0.name)' is '\($0.account?.name ?? "none")'") }
-                    case .tangemPay:
-                        break
-                    }
-                }
-            }
-            .store(in: &bag)
     }
 
     private func setupTangemPayIfNeeded() {

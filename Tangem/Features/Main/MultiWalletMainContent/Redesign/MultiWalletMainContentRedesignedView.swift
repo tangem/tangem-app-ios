@@ -125,12 +125,13 @@ struct MultiWalletMainContentRedesignedView: View {
         LazyVStack(spacing: .unit(.x2)) {
             ForEach(viewModel.accountSections) { accountSection in
                 if #available(iOS 17.0, *) {
-                    _View(accountSection.model) { viewModel in
+//                    _View(accountSection.model) { viewModel in
+                    let viewModel = accountSection.model
                         ExpandableAccountItemView(viewModel: viewModel) {
                             LazyVStack(spacing: 0) {
                                 tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
                             }
-                        }
+//                        }
                     }
                 } else {
                     EmptyView()
