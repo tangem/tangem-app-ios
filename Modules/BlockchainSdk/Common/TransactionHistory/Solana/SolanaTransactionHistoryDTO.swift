@@ -111,6 +111,7 @@ enum SolanaTransactionHistoryDTO {
             struct Info: Decodable {
                 let source: String?
                 let destination: String?
+                let authority: String?
                 let lamports: UInt64?
                 let amount: String?
                 let tokenAmount: TransactionDetails.Meta.TokenAmount?
