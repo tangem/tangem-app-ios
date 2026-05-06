@@ -44,3 +44,11 @@ extension IgnoredEquatable: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) { /* no-op */ }
 }
+
+// MARK: - Decodable protocol conformance
+
+extension IgnoredEquatable: Decodable where Value: Decodable {}
+
+// MARK: - Encodable protocol conformance
+
+extension IgnoredEquatable: Encodable where Value: Encodable {}

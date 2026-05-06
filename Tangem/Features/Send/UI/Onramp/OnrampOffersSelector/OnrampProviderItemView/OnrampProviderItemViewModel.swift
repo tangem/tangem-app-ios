@@ -26,7 +26,7 @@ struct OnrampProviderItemViewModel: Hashable, Identifiable {
     }
 
     @IgnoredEquatable
-    var action: () -> Void
+    private(set) var action: () -> Void
 
     init(
         paymentMethod: PaymentMethod,
