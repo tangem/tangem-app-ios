@@ -16,21 +16,25 @@ final class MobileOnboardingSuccessViewModel {
 
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
+    var applePayAction: (() -> Void)? { onApplePayBuy }
 
     private let type: SuccessType
     private let onAppear: () -> Void
     private let onComplete: () -> Void
+    private let onApplePayBuy: (() -> Void)?
 
     init(
         type: SuccessType,
         navigationTitle: String,
         onAppear: @escaping () -> Void,
-        onComplete: @escaping () -> Void
+        onComplete: @escaping () -> Void,
+        onApplePayBuy: (() -> Void)? = nil
     ) {
         self.type = type
         self.navigationTitle = navigationTitle
         self.onAppear = onAppear
         self.onComplete = onComplete
+        self.onApplePayBuy = onApplePayBuy
     }
 }
 

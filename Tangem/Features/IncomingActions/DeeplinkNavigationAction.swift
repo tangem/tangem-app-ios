@@ -13,7 +13,17 @@ public struct DeeplinkNavigationAction: Equatable {
 
     let destination: IncomingActionConstants.DeeplinkDestination
     let params: Params
-    let deeplinkString: String
+    let deeplinkString: String?
+
+    init(
+        destination: IncomingActionConstants.DeeplinkDestination,
+        params: Params,
+        deeplinkString: String? = nil
+    ) {
+        self.destination = destination
+        self.params = params
+        self.deeplinkString = deeplinkString
+    }
 }
 
 // MARK: - Types

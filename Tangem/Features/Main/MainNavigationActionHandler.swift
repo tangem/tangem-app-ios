@@ -108,7 +108,7 @@ extension MainCoordinator {
 
         /// Universal-link deeplink to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
         /// Article id is guaranteed to be present and numeric by the validator.
-        private func routeNewsArticleAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+        private func routeNewsArticleAction(params: DeeplinkNavigationAction.Params, deeplinkString: String?) -> Bool {
             guard let coordinator,
                   let idString = params.id,
                   let newsId = Int(idString)
@@ -125,7 +125,7 @@ extension MainCoordinator {
         /// Custom-scheme deeplink: `tangem://news[?id=…|?category_id=…]`.
         /// Routes to article details if `id` is provided, otherwise to the news list
         /// (optionally pre-selecting a category).
-        private func routeNewsDeeplinkAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+        private func routeNewsDeeplinkAction(params: DeeplinkNavigationAction.Params, deeplinkString: String?) -> Bool {
             guard let coordinator else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -387,9 +387,9 @@ extension MainCoordinator {
 
         private func routeOnboardVisaAction(
             params: DeeplinkNavigationAction.Params,
-            deeplinkString: String
+            deeplinkString: String?
         ) -> Bool {
-            guard let coordinator else {
+            guard let coordinator, let deeplinkString else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }

@@ -847,6 +847,7 @@
 "onboarding_button_add_backup_card" = "Agregar una tarjeta o un anillo de backup";
 "onboarding_button_backup_card" = "Escanee la tarjeta";
 "onboarding_button_backup_now" = "Hacer backup ahora";
+"onboarding_button_buy_with" = "Buy with";
 "onboarding_button_backup_ring" = "Escanee el anillo";
 "onboarding_button_continue_wallet" = "Continuar a mi billetera";
 "onboarding_button_finalize_backup" = "Finalizar el backup";
