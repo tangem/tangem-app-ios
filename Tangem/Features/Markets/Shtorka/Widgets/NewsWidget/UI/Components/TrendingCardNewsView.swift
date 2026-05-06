@@ -20,9 +20,7 @@ struct TrendingCardNewsItem: Identifiable, Equatable {
     let timeAgo: String
     let tags: [InfoChipItem]
     let isRead: Bool
-
-    @IgnoredEquatable
-    private(set) var onTap: (String) -> Void
+    @IgnoredEquatable var onTap: (String) -> Void
 
     init(
         id: String,
