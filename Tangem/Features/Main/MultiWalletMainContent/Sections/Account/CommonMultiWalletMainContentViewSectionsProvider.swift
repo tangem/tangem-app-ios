@@ -91,10 +91,10 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
         if let cachedAdapter = cache.tokenSectionsAdapters[cacheKey] {
-            let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_purge")
+            let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_makeOrGetCachedTokenSectionsAdapter")
             return cachedAdapter
         }
-        let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_purge")
+        let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_makeOrGetCachedTokenSectionsAdapter")
 
         let userTokensManager = cryptoAccountModel.userTokensManager
         let optionsManager = OrganizeTokensOptionsManager(
@@ -119,10 +119,10 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
         if let cachedItemViewModel = cache.accountItemViewModels[cacheKey] {
-            let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_purge")
+            let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_makeOrGetCachedAccountItemViewModel")
             return cachedItemViewModel
         }
-        let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_purge")
+        let _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_makeOrGetCachedAccountItemViewModel")
 
         @Injected(\.expandableAccountItemStateStorageProvider)
         var expandableAccountItemStateStorageProvider: ExpandableAccountItemStateStorageProvider
@@ -155,20 +155,27 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
 
         return sections.enumerated().map { index, section in
             let sectionViewModel = sectionItemsFactory.makeSectionViewModel(from: section.model, atIndex: index)
-            let itemViewModels = section.items.map { item in
+            let itemViewModels = section.items.map { item -> TokenItemViewModel in
                 switch item {
                 case .default(let walletModel):
                     let cacheKey = ObjectIdentifier(walletModel)
-                    if let cachedViewModel = cache.tokenItemViewModels[cacheKey] {
-                        _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_purge")
+                    if let cachedViewModel = cache.tokenItemViewModelsByWalletModel[cacheKey] {
+                        _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_convertToSections_default")
                         return cachedViewModel
                     }
-                    _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_purge")
+                    _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_convertToSections_default")
                     let viewModel = itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
-                    cache.mutate { $0.tokenItemViewModels[cacheKey] = viewModel }
+                    cache.mutate { $0.tokenItemViewModelsByWalletModel[cacheKey] = viewModel }
                     return viewModel
-                case .withoutDerivation:
-                    return itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
+                case .withoutDerivation(let tokenItem):
+                    if let cachedViewModel = cache.tokenItemViewModelsByTokenItem[tokenItem] {
+                        _ = print("\(#function) called at \(CACurrentMediaTime()) cache_hit_convertToSections_withoutDerivation")
+                        return cachedViewModel
+                    }
+                    _ = print("\(#function) called at \(CACurrentMediaTime()) cache_miss_convertToSections_withoutDerivation")
+                    let viewModel = itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
+                    cache.mutate { $0.tokenItemViewModelsByTokenItem[tokenItem] = viewModel }
+                    return viewModel
                 }
             }
 
@@ -202,17 +209,28 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
 
     private func purgeCache(using sections: [AccountSectionInput]) {
         _ = print("\(#function) called at \(CACurrentMediaTime()) with accounts")
-        // Token item view models are cached per wallet model
-        let actualTokenItemViewModelsCacheKeys = sections
-            .flatMap(\.sections)
-            .flatMap(\.walletModels)
-            .map(ObjectIdentifier.init)
-            .toSet()
+        // Bucket the actual keys per cache in a single pass over section items
+        var actualTokenItemViewModelsByWalletModelKeys: Set<ObjectIdentifier> = []
+        var actualTokenItemViewModelsByTokenItemKeys: Set<TokenItem> = []
 
-        let tokenItemViewModelsCacheKeysToDelete = cache
-            .tokenItemViewModels
+        for sectionItem in sections.flatMap(\.sections).flatMap(\.items) {
+            switch sectionItem {
+            case .default(let walletModel):
+                actualTokenItemViewModelsByWalletModelKeys.insert(ObjectIdentifier(walletModel))
+            case .withoutDerivation(let tokenItem):
+                actualTokenItemViewModelsByTokenItemKeys.insert(tokenItem)
+            }
+        }
+
+        let tokenItemViewModelsByWalletModelKeysToDelete = cache
+            .tokenItemViewModelsByWalletModel
             .keys
-            .filter { !actualTokenItemViewModelsCacheKeys.contains($0) }
+            .filter { !actualTokenItemViewModelsByWalletModelKeys.contains($0) }
+
+        let tokenItemViewModelsByTokenItemKeysToDelete = cache
+            .tokenItemViewModelsByTokenItem
+            .keys
+            .filter { !actualTokenItemViewModelsByTokenItemKeys.contains($0) }
 
         // Section adapters and account item view models are cached per account
         let actualSectionItemViewModelsCacheKeys = sections
@@ -231,22 +249,27 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
             .filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
 
         purgeCacheIfNeeded(
-            tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
+            tokenItemViewModelsByWalletModelKeysToDelete: tokenItemViewModelsByWalletModelKeysToDelete,
+            tokenItemViewModelsByTokenItemKeysToDelete: tokenItemViewModelsByTokenItemKeysToDelete,
             tokenSectionsAdaptersCacheKeysToDelete: tokenSectionsAdaptersCacheKeysToDelete,
-            actualTokenItemViewModelsCacheKeys: Array(actualTokenItemViewModelsCacheKeys), // [REDACTED_TODO_COMMENT]
+            actualTokenItemViewModelsByWalletModelKeys: Array(actualTokenItemViewModelsByWalletModelKeys), // [REDACTED_TODO_COMMENT]
+            actualTokenItemViewModelsByTokenItemKeys: Array(actualTokenItemViewModelsByTokenItemKeys), // [REDACTED_TODO_COMMENT]
             actualSectionItemViewModelsCacheKeys: Array(actualSectionItemViewModelsCacheKeys), // [REDACTED_TODO_COMMENT]
             accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete
         )
     }
 
     private func purgeCacheIfNeeded(
-        tokenItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
+        tokenItemViewModelsByWalletModelKeysToDelete: [ObjectIdentifier],
+        tokenItemViewModelsByTokenItemKeysToDelete: [TokenItem],
         tokenSectionsAdaptersCacheKeysToDelete: [ObjectIdentifier],
-        actualTokenItemViewModelsCacheKeys: [ObjectIdentifier], // [REDACTED_TODO_COMMENT]
+        actualTokenItemViewModelsByWalletModelKeys: [ObjectIdentifier], // [REDACTED_TODO_COMMENT]
+        actualTokenItemViewModelsByTokenItemKeys: [TokenItem], // [REDACTED_TODO_COMMENT]
         actualSectionItemViewModelsCacheKeys: [ObjectIdentifier], // [REDACTED_TODO_COMMENT]
         accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier]
     ) {
-        guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
+        guard tokenItemViewModelsByWalletModelKeysToDelete.isNotEmpty
+            || tokenItemViewModelsByTokenItemKeysToDelete.isNotEmpty
             || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
             || accountItemViewModelsCacheKeysToDelete.isNotEmpty
         else {
@@ -254,12 +277,17 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
         }
 
         cache.mutate { cache in
-            let before_tokenItemViewModels = cache.tokenItemViewModels.keys.count // [REDACTED_TODO_COMMENT]
+            let before_tokenItemViewModelsByWalletModel = cache.tokenItemViewModelsByWalletModel.keys.count // [REDACTED_TODO_COMMENT]
+            let before_tokenItemViewModelsByTokenItem = cache.tokenItemViewModelsByTokenItem.keys.count // [REDACTED_TODO_COMMENT]
             let before_tokenSectionsAdapters = cache.tokenSectionsAdapters.keys.count // [REDACTED_TODO_COMMENT]
             let before_accountItemViewModels = cache.accountItemViewModels.keys.count // [REDACTED_TODO_COMMENT]
-            for key in tokenItemViewModelsCacheKeysToDelete {
-                _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenItemViewModel=\(cache.tokenItemViewModels[key])")
-                cache.tokenItemViewModels.removeValue(forKey: key)
+            for key in tokenItemViewModelsByWalletModelKeysToDelete {
+                _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenItemViewModelsByWalletModel=\(cache.tokenItemViewModelsByWalletModel[key])")
+                cache.tokenItemViewModelsByWalletModel.removeValue(forKey: key)
+            }
+            for key in tokenItemViewModelsByTokenItemKeysToDelete {
+                _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenItemViewModelsByTokenItem=\(cache.tokenItemViewModelsByTokenItem[key])")
+                cache.tokenItemViewModelsByTokenItem.removeValue(forKey: key)
             }
             for key in tokenSectionsAdaptersCacheKeysToDelete {
                 _ = print("\(#function) called at \(CACurrentMediaTime()) purging_tokenSectionsAdapters=\(cache.tokenSectionsAdapters[key])")
@@ -269,10 +297,12 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
                 _ = print("\(#function) called at \(CACurrentMediaTime()) purging_accountItemViewModels=\(cache.accountItemViewModels[key])")
                 cache.accountItemViewModels.removeValue(forKey: key)
             }
-            let after_tokenItemViewModels = cache.tokenItemViewModels.keys.count // [REDACTED_TODO_COMMENT]
+            let after_tokenItemViewModelsByWalletModel = cache.tokenItemViewModelsByWalletModel.keys.count // [REDACTED_TODO_COMMENT]
+            let after_tokenItemViewModelsByTokenItem = cache.tokenItemViewModelsByTokenItem.keys.count // [REDACTED_TODO_COMMENT]
             let after_tokenSectionsAdapters = cache.tokenSectionsAdapters.keys.count // [REDACTED_TODO_COMMENT]
             let after_accountItemViewModels = cache.accountItemViewModels.keys.count // [REDACTED_TODO_COMMENT]
-            _ = print("\(#function) called at \(CACurrentMediaTime()) tokenItemViewModels before=\(before_tokenItemViewModels); actual=\(actualTokenItemViewModelsCacheKeys.count), to_delete=\(tokenItemViewModelsCacheKeysToDelete.count); after=\(after_tokenItemViewModels)")
+            _ = print("\(#function) called at \(CACurrentMediaTime()) tokenItemViewModelsByWalletModel before=\(before_tokenItemViewModelsByWalletModel); actual=\(actualTokenItemViewModelsByWalletModelKeys.count), to_delete=\(tokenItemViewModelsByWalletModelKeysToDelete.count); after=\(after_tokenItemViewModelsByWalletModel)")
+            _ = print("\(#function) called at \(CACurrentMediaTime()) tokenItemViewModelsByTokenItem before=\(before_tokenItemViewModelsByTokenItem); actual=\(actualTokenItemViewModelsByTokenItemKeys.count), to_delete=\(tokenItemViewModelsByTokenItemKeysToDelete.count); after=\(after_tokenItemViewModelsByTokenItem)")
             _ = print("\(#function) called at \(CACurrentMediaTime()) tokenSectionsAdapters before=\(before_tokenSectionsAdapters); actual=\(actualSectionItemViewModelsCacheKeys.count), to_delete=\(tokenSectionsAdaptersCacheKeysToDelete.count); after=\(after_tokenSectionsAdapters)")
             _ = print("\(#function) called at \(CACurrentMediaTime()) accountItemViewModels before=\(before_accountItemViewModels); actual=\(actualSectionItemViewModelsCacheKeys.count), to_delete=\(accountItemViewModelsCacheKeysToDelete.count); after=\(after_accountItemViewModels)")
         }
@@ -350,8 +380,10 @@ private extension CommonMultiWalletMainContentViewSectionsProvider {
         var accountItemViewModels: [ObjectIdentifier: ExpandableAccountItemViewModel] = [:]
         /// Keyed by `ObjectIdentifier` of `CryptoAccountModel`.
         var tokenSectionsAdapters: [ObjectIdentifier: TokenSectionsAdapter] = [:]
-        /// Keyed by `ObjectIdentifier` of `WalletModel`.
-        var tokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
+        /// Keyed by `ObjectIdentifier` of `WalletModel`, used for `.default` section items (reference semantics).
+        var tokenItemViewModelsByWalletModel: [ObjectIdentifier: TokenItemViewModel] = [:]
+        /// Keyed by `TokenItem`, used for `.withoutDerivation` section items (value semantics).
+        var tokenItemViewModelsByTokenItem: [TokenItem: TokenItemViewModel] = [:]
     }
 
     /// Temporary internal-only type representing account section input.
