@@ -45,6 +45,7 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
         account: any BaseAccountModel,
         rateProvider: (any AccountRateProvider)?,
         stateStorage: ExpandableAccountItemStateStorage,
+        initiallyExpanded: Bool,
         itemsCountPublisher: AnyPublisher<Int, Never>,
         searchTextPublisher: AnyPublisher<String, Never>,
         filteredBalancePublisher: AnyPublisher<LoadableBalanceView.State, Never>
@@ -58,9 +59,8 @@ final class TokenSelectorExpandableAccountItemViewModel: Identifiable, Observabl
         rawTokensCount = 0
         totalFiatBalance = .empty
 
-        let initialExpanded = stateStorage.isExpanded(account)
-        isExpanded = initialExpanded
-        userExplicitState = initialExpanded
+        isExpanded = initiallyExpanded
+        userExplicitState = initiallyExpanded
 
         if let rateProvider {
             priceChange = Self.mapToPriceChangeState(
