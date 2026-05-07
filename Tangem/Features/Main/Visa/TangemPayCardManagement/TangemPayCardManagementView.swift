@@ -63,5 +63,6 @@ struct TangemPayCardManagementView: View {
         }
         .navigationBarBackButtonHidden(viewModel.cardRenameViewModel != nil)
         .animation(.easeInOut, value: viewModel.cardRenameViewModel != nil)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
