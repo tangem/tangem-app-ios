@@ -55,8 +55,7 @@ final class TokenSelectorViewModel: ObservableObject {
         viewModelsMapper.setInitialSelectedItem(initialSelectedItem)
 
         wallets = viewModelsMapper.wallets
-
-        contentVisibility = .empty
+        contentVisibility = wallets.isEmpty ? .empty : .loading
 
         viewModelsMapper.setupSearchable(searchTextPublisher: $searchText.eraseToAnyPublisher())
         setupWalletFilter(currentWalletId: currentWalletId, preferredWalletId: preferredWalletId)
@@ -101,10 +100,10 @@ final class TokenSelectorViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        // Collect items count from all wallets and compute visibility
         wallets
             .map { $0.viewType.itemsCount }
             .combineLatest()
+            .dropFirst()
             .map { counts -> ContentVisibility in
                 let totalCount = counts.sum()
                 return totalCount == 0 ? .empty : .visible(itemsCount: totalCount)
