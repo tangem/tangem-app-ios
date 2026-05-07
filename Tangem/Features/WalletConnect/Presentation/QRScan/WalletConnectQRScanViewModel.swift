@@ -15,6 +15,7 @@ final class WalletConnectQRScanViewModel: ObservableObject {
     private let cameraAccessProvider: any WalletConnectCameraAccessProvider
     private let openSystemSettingsAction: () -> Void
     private weak var coordinator: (any WalletConnectQRScanRoutable)?
+    private let payLinkParser = WalletConnectPayLinkParser()
     private let uriParser = WalletConnectURLParser()
     private let feedbackGenerator = WalletConnectUIFeedbackGenerator()
 
@@ -97,6 +98,12 @@ extension WalletConnectQRScanViewModel {
             return
         }
 
+        if let payLink = payLinkParser.parse(rawQRCode) {
+            qrCodeNotYetProcessed = false
+            coordinator?.dismiss(with: .payFromQRCode(payLink))
+            return
+        }
+
         do {
             let qrURI = try uriParser.parse(uriString: rawQRCode)
 
@@ -110,6 +117,11 @@ extension WalletConnectQRScanViewModel {
 
     private func handlePasteFromClipboardButtonTapped(_ rawClipboardString: String?) {
         guard let rawClipboardString else { return }
+
+        if let payLink = payLinkParser.parse(rawClipboardString) {
+            coordinator?.dismiss(with: .payFromClipboard(payLink))
+            return
+        }
 
         do {
             let clipboardURI = try uriParser.parse(uriString: rawClipboardString)

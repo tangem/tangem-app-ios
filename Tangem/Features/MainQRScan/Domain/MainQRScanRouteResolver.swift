@@ -30,6 +30,8 @@ struct MainQRScanRouteResolver {
         availableTokenItems: [TokenItem] = []
     ) -> MainQRScanAction {
         switch parser.parse(scannedCode) {
+        case .walletConnectPay(let link):
+            return .walletConnectPay(link)
         case .walletConnect(let uri):
             return .walletConnect(uri)
         case .paymentURI(let request):
