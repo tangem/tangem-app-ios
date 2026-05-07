@@ -245,7 +245,7 @@ extension SwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
+        SendFinishStepBuilder.Types(tokenItem: initialTokenItem, isSwapFlow: true)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
