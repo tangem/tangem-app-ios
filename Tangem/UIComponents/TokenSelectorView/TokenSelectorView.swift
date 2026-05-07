@@ -94,7 +94,7 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         }
 
         if !viewModel.contentVisibility.isLoading {
-            additionalContent
+            additionalContent.transition(.content)
         }
     }
 
