@@ -11,7 +11,7 @@ import Foundation
 struct SeiExternalLinkProvider {
     private let isTestnet: Bool
     private let chainParam: String
-    private let baseURL: String = "https://seiscan.io"
+    private let baseURL: String = "https://mintscan.io/sei"
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
