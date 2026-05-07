@@ -84,10 +84,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .newPromotionBanners: return .version("5.37")
-        case .swapPipelineV2: return .unspecified
+        case .swapPipelineV2: return .version("5.38")
+        case .swapStoriesV2: return .version("5.38")
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
-        case .swapStoriesV2: return .unspecified
         case .swapInProgressV2: return .unspecified
         case .swapPendingTxStateDate: return .unspecified
         case .dexApproveNotificationV2: return .unspecified
