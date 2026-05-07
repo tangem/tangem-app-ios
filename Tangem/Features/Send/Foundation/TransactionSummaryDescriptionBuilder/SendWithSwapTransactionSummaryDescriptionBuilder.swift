@@ -10,7 +10,7 @@ import Foundation
 import TangemExpress
 
 protocol SendWithSwapTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal?, fee: TokenFee, provider: ExpressProvider) -> AttributedString?
+    func makeDescription(amount: Decimal?, fee: TokenFee, provider: ExpressProvider, sourceTokenItem: TokenItem) -> AttributedString?
 }
 
 struct CommonSendWithSwapTransactionSummaryDescriptionBuilder {
@@ -20,7 +20,7 @@ struct CommonSendWithSwapTransactionSummaryDescriptionBuilder {
 // MARK: - SendWithSwapTransactionSummaryDescriptionBuilder
 
 extension CommonSendWithSwapTransactionSummaryDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal?, fee: TokenFee, provider: ExpressProvider) -> AttributedString? {
-        swapTransactionSummaryDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+    func makeDescription(amount: Decimal?, fee: TokenFee, provider: ExpressProvider, sourceTokenItem: TokenItem) -> AttributedString? {
+        swapTransactionSummaryDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider, sourceTokenItem: sourceTokenItem)
     }
 }
