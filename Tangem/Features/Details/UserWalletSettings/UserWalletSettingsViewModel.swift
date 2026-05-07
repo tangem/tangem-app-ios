@@ -462,7 +462,6 @@ private extension UserWalletSettingsViewModel {
 
         let scanParameters = CardScannerParameters(
             shouldAskForAccessCodes: true,
-            performDerivations: false,
             shouldCheckAccessCode: false,
             sessionFilter: userWalletModel.config.cardSessionFilter
         )
