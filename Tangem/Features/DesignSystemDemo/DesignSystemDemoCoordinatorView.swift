@@ -55,6 +55,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemDropDownDemoViewModel) {
                 TangemDropDownDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemLoaderDemoViewModel) {
+                TangemLoaderDemoView(viewModel: $0)
+            }
     }
 
     private var sheets: some View {
@@ -101,6 +104,10 @@ struct DesignSystemDemoView: View {
 
             MainButton(title: "TangemDropDown") {
                 viewModel.openTangemDropDownDemo()
+            }
+
+            MainButton(title: "TangemLoader") {
+                viewModel.openTangemLoaderDemo()
             }
 
             MainButton(title: "Typography") {
