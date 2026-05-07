@@ -120,18 +120,31 @@ private extension CommonWCService {
 
 extension CommonWCService: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
-        guard case .walletConnect(let uri) = action else {
+        switch action {
+        case .walletConnectPay(let link):
+            UIApplication.mainWindow?.endEditing(true)
+
+            Task { @MainActor in
+                guard let viewModel = WalletConnectPayModuleFactory.makePayViewModel(for: link) else { return }
+                viewModel.loadPaymentOptions()
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+
+            return true
+
+        case .walletConnect(let uri):
+            UIApplication.mainWindow?.endEditing(true)
+
+            Task { @MainActor in
+                guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: .deeplink) else { return }
+                viewModel.loadDAppProposal()
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+
+            return true
+
+        default:
             return false
         }
-
-        UIApplication.mainWindow?.endEditing(true)
-
-        Task { @MainActor in
-            guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: .deeplink) else { return }
-            viewModel.loadDAppProposal()
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-
-        return true
     }
 }

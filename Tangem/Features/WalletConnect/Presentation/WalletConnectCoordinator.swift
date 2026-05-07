@@ -47,6 +47,12 @@ extension WalletConnectCoordinator {
 }
 
 extension WalletConnectCoordinator: WalletConnectRoutable {
+    func openPayFlow(for link: WalletConnectPayLink) {
+        guard let viewModel = WalletConnectPayModuleFactory.makePayViewModel(for: link) else { return }
+        viewModel.loadPaymentOptions()
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
     func openDAppConnectionProposal(forURI uri: WalletConnectRequestURI, source: Analytics.WalletConnectSessionSource) {
         guard let viewModel = WalletConnectModuleFactory.makeDAppConnectionViewModel(forURI: uri, source: source) else { return }
         viewModel.loadDAppProposal()

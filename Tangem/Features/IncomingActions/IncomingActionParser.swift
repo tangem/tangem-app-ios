@@ -16,6 +16,7 @@ public class IncomingActionParser {
     private var incomingActionURLParsers: [IncomingActionURLParser] = [
         DismissSafariActionURLHelper(),
         SellActionURLHelper(),
+        WalletConnectPayLinkParser(),
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
         OnrampIncomingActionURLParser(),

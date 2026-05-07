@@ -46,7 +46,7 @@ extension MainCoordinator {
             case .navigation(let navigationAction):
                 return routeNavigationAction(navigationAction)
 
-            case .walletConnect, .start, .dismissSafari, .referralProgram:
+            case .walletConnectPay, .walletConnect, .start, .dismissSafari, .referralProgram:
                 return false
             }
         }

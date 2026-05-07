@@ -27,7 +27,9 @@ enum WalletKitClientFactory {
     private static func configureNetworking() {
         Networking.configure(
             groupIdentifier: AppEnvironment.current.suiteName,
-            projectId: keysManager.walletConnectProjectId,
+            // [REDACTED_TODO_COMMENT]
+//            projectId: keysManager.walletConnectProjectId,
+            projectId: "790bb4f309edf20d4218236296448c00",
             socketFactory: WalletConnectV2DefaultSocketFactory(),
             socketConnectionType: .automatic
         )
@@ -68,7 +70,11 @@ enum WalletKitClientFactory {
     }
 
     private static func configureWalletKit() {
-        WalletKit.configure(metadata: .tangem, crypto: WalletConnectCryptoProvider())
+        WalletKit.configure(
+            metadata: .tangem,
+            crypto: WalletConnectCryptoProvider(),
+            payLogging: !AppEnvironment.current.isProduction
+        )
     }
 }
 

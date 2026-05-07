@@ -7,6 +7,8 @@
 //
 
 enum WalletConnectQRScanResult {
+    case payFromClipboard(WalletConnectPayLink)
+    case payFromQRCode(WalletConnectPayLink)
     case fromClipboard(WalletConnectRequestURI)
     case fromQRCode(WalletConnectRequestURI)
 }

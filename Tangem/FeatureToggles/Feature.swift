@@ -31,6 +31,7 @@ enum Feature: String, Hashable, CaseIterable {
     case sendBalanceSendSplitRows
     case swapStoriesV2
     case manageTokensImprovements
+    case walletConnectPay
 
     var name: String {
         switch self {
@@ -56,6 +57,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
+        case .walletConnectPay: return "WalletConnect Pay"
         }
     }
 
@@ -83,6 +85,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendBalanceSendSplitRows: return .unspecified
         case .swapStoriesV2: return .unspecified
         case .manageTokensImprovements: return .unspecified
+        case .walletConnectPay: return .unspecified
         }
     }
 }

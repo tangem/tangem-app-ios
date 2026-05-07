@@ -190,9 +190,18 @@ extension WalletConnectViewModel {
                     let sessionURI: WalletConnectRequestURI
 
                     switch result {
+                    case .payFromClipboard(let link):
+                        self?.coordinator?.openPayFlow(for: link)
+                        return
+
+                    case .payFromQRCode(let link):
+                        self?.coordinator?.openPayFlow(for: link)
+                        return
+
                     case .fromClipboard(let uri):
                         source = .clipboard
                         sessionURI = uri
+
                     case .fromQRCode(let uri):
                         source = .qrCode
                         sessionURI = uri

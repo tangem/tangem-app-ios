@@ -51,4 +51,13 @@ public enum WalletConnectAccessibilityIdentifiers {
 
     /// Paste button in new connection screen
     public static let pasteButton = "walletConnectPasteButton"
+
+    /// WalletConnect Pay sheet
+    public static let paySheet = "walletConnectPaySheet"
+
+    /// WalletConnect Pay header
+    public static let payHeaderTitle = "walletConnectPayHeaderTitle"
+
+    /// WalletConnect Pay options list
+    public static let payOptionsList = "walletConnectPayOptionsList"
 }

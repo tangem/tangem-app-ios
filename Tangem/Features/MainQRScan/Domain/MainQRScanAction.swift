@@ -9,6 +9,7 @@
 import Foundation
 
 enum MainQRScanAction: Equatable {
+    case walletConnectPay(WalletConnectPayLink)
     case walletConnect(WalletConnectRequestURI)
     case payment(MainQRResolvedPaymentRequest)
     case address(MainQRAddressRequest)

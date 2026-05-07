@@ -72,6 +72,8 @@ private final class WalletConnectEnvironment {
     )
     lazy var connectedDAppRepository = PersistentStorageWalletConnectConnectedDAppRepository(persistentStorage: persistentStorage)
 
+    lazy var payService = ReownWalletConnectPayService(walletKitClient: walletKitClient)
+
     lazy var kingfisherCache: ImageCache = {
         let inMemoryCacheCountLimit = 50
         let fifteenMinutesInSeconds: TimeInterval = 900
@@ -104,6 +106,10 @@ extension InjectedValues {
 
     var wcService: any WCService {
         walletConnectEnvironment.wcService
+    }
+
+    var walletConnectPayService: any WalletConnectPayService {
+        walletConnectEnvironment.payService
     }
 
     var dAppVerificationService: any WalletConnectDAppVerificationService {

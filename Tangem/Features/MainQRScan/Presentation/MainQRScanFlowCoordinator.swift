@@ -102,6 +102,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         isProcessing = false
 
         switch action {
+        case .walletConnectPay(let link):
+            handleWalletConnectPay(link: link)
+
         case .walletConnect(let uri):
             handleWalletConnect(uri: uri)
 
@@ -128,6 +131,20 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         case .showUnrecognized:
             showUnrecognizedAlert()
         }
+    }
+
+    @MainActor
+    private func handleWalletConnectPay(link: WalletConnectPayLink) {
+        guard let viewModel = WalletConnectPayModuleFactory.makePayViewModel(for: link) else {
+            MainQRScanLogger.warning(MainQRScanLoggerStrings.walletConnectViewModelCreationFailed)
+            showUnrecognizedAlert()
+            return
+        }
+
+        viewModel.loadPaymentOptions()
+        closeScanner()
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+        dismissAction(())
     }
 
     @MainActor
@@ -333,6 +350,9 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         )
 
         switch action {
+        case .walletConnectPay(let link):
+            return .walletConnectPay(link)
+
         case .walletConnect(let uri):
             return .walletConnect(uri)
 
@@ -446,6 +466,7 @@ extension MainQRScanFlowCoordinator {
     }
 
     enum ResolvedRouteAction {
+        case walletConnectPay(WalletConnectPayLink)
         case walletConnect(WalletConnectRequestURI)
         case payment(MainQRResolvedPaymentRequest, allMatches: [MainQRWalletModelMatch])
         case address(MatchFilterResult, sendParameters: PredefinedSendParameters, filter: MainQRScanTokenSelectorAvailabilityFilter)
