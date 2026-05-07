@@ -985,6 +985,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Невідомі параметри";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1368,6 +1370,8 @@
 "swapping_token_not_available" = "недоступно";
 "swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
 "swapping_trade_too_large_title" = "Trade too large";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "Будемо раді вашому зворотньому звʼязку";
 "tangem_pay_beta_notification_title" = "Tangem Pay у режимі beta";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1456,6 +1460,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Ви не можете розпочати обмін або новий вивід, поки не завершено поточний.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вивід виконується";
 "tangempay_card_details_withdraw" = "Вивести";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Встановити ліміт від %@";
 "tangempay_card_limit_setup_error_message" = "Не вдалося встановити ліміт. Будь ласка, спробуйте ще раз.";
 "tangempay_card_page_daily_limit_change" = "Змінити";
@@ -1507,6 +1512,8 @@
 "tangempay_onboarding_purchases_title" = "Платіть стільки, скільки бачите";
 "tangempay_onboarding_security_description" = "Буде створено окремий платіжний рахунок без розкриття ваших адрес та активів";
 "tangempay_onboarding_security_title" = "Неперевершена конфіденційність";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Отримайте безкоштовну картку Tangem Pay за лічені хвилини";
 "tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "Платіжний рахунок не синхронізовано";
@@ -1589,7 +1596,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "У вас ще немає транзакцій";
 "transaction_history_error_failed_to_load" = "Не вдалося завантажити історію транзакцій.\nНатисніть кнопку нижче, щоб оновити інформацію";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Кілька адрес";
 "transaction_history_not_supported_description" = "Історія транзакцій наразі не підтримується для цього блокчейну. Але не хвилюйтеся, ми працюємо над цим! А поки можете перевірити це в оглядачі.";
 "transaction_history_operation" = "Операція";
