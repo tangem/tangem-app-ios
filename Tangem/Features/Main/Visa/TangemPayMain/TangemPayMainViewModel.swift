@@ -132,10 +132,12 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func openCardManagement() {
         Analytics.log(.visaScreenCardSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
+        Analytics.log(.visaCardIconClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openCardManagement()
     }
 
     func openFakedoorSheet() {
+        Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openFakedoorSheet()
     }
 
