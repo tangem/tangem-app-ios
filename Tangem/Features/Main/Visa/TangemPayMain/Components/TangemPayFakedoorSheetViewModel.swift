@@ -40,13 +40,18 @@ final class TangemPayFakedoorSheetViewModel: FloatingSheetContentViewModel, Tang
         )
     }
 
+    private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayFakedoorSheetRoutable?
 
-    init(coordinator: TangemPayFakedoorSheetRoutable) {
+    init(userWalletId: UserWalletId, coordinator: TangemPayFakedoorSheetRoutable) {
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
+
+        Analytics.log(.visaFakedoorPopupDisplayed, contextParams: .userWallet(userWalletId))
     }
 
     func dismiss() {
+        Analytics.log(.visaFakedoorGotitClicked, contextParams: .userWallet(userWalletId))
         coordinator?.closeFakedoorSheet()
     }
 }
