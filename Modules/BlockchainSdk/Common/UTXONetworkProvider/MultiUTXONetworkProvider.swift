@@ -24,7 +24,7 @@ class MultiUTXONetworkProvider: MultiNetworkProvider, UTXONetworkProvider {
         self.blockchainName = blockchainName
     }
 
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
+    func getInfo(xpub: UTXOXpubScriptType) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
         providerPublisher { $0.getInfo(xpub: xpub) }
     }
 
@@ -32,7 +32,7 @@ class MultiUTXONetworkProvider: MultiNetworkProvider, UTXONetworkProvider {
         providerPublisher { $0.getUnspentOutputs(address: address) }
     }
 
-    func getUnspentOutputs(xpub: String) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
+    func getUnspentOutputs(xpub: UTXOXpubScriptType) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
         providerPublisher { $0.getUnspentOutputs(xpub: xpub) }
     }
 
@@ -62,7 +62,7 @@ extension MultiUTXONetworkProvider {
 
         var host: String { provider.host }
 
-        func getInfo(xpub: String) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
+        func getInfo(xpub: UTXOXpubScriptType) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
             provider.getInfo(xpub: xpub)
         }
 
@@ -70,7 +70,7 @@ extension MultiUTXONetworkProvider {
             provider.getUnspentOutputs(address: address)
         }
 
-        func getUnspentOutputs(xpub: String) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
+        func getUnspentOutputs(xpub: UTXOXpubScriptType) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
             provider.getUnspentOutputs(xpub: xpub)
         }
 
