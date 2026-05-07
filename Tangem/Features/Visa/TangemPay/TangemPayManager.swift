@@ -105,6 +105,9 @@ final class TangemPayManager: TangemPayAccountModel {
 
         if let cached = lastKnownTangemPayAccount {
             stateSubject.value = .tangemPayAccount(cached)
+            runTask { [cached] in
+                await cached.loadBalance()
+            }
         }
 
         runTask { [self] in
