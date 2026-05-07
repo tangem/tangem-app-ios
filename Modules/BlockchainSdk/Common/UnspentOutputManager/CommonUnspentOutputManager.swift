@@ -32,6 +32,12 @@ class CommonUnspentOutputManager {
             value.filter { $0.isConfirmed }.map { ScriptUnspentOutput(output: $0, script: key) }
         }
     }
+
+    func pendingOutputs() -> [ScriptUnspentOutput] {
+        outputs.read().flatMap { key, value in
+            value.filter { !$0.isConfirmed }.map { ScriptUnspentOutput(output: $0, script: key) }
+        }
+    }
 }
 
 // MARK: - UnspentOutputManager
