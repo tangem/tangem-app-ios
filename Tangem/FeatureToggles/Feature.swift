@@ -74,9 +74,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .newPromotionBanners: return .version("5.37")
-        case .swapPipelineV2: return .unspecified
+        case .swapPipelineV2: return .version("5.38")
         case .sendBalanceSendSplitRows: return .unspecified
-        case .swapStoriesV2: return .unspecified
+        case .swapStoriesV2: return .version("5.38")
         }
     }
 }
