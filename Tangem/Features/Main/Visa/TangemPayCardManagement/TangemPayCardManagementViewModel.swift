@@ -56,6 +56,10 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         bind()
     }
 
+    func onAppear() {
+        Analytics.log(.visaCardManagementScreenOpened, contextParams: .userWallet(userWalletInfo.id))
+    }
+
     func openChangeDailyLimit() {
         guard case .loaded = dailyLimitState else { return }
 
