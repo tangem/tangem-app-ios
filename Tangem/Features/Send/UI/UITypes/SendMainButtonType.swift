@@ -38,6 +38,13 @@ enum SendFlowActionType: Hashable {
     case migrate
     case onramp
 
+    var isSwapFlow: Bool {
+        switch self {
+        case .swap: true
+        default: false
+        }
+    }
+
     var title: String {
         switch self {
         case .send: Localization.commonSend

@@ -410,7 +410,7 @@
         <key>one</key>
         <string>Use your card or ring to get an address for %li network</string>
         <key>other</key>
-        <string>Use your card or ring to get an addresses for %li networks</string>
+        <string>Use your card or ring to get addresses for %li networks</string>
       </dict>
     </dict>
   </dict>

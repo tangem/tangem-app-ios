@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import AnyCodable
 
 struct XRPTarget: TargetType {
     private let node: NodeInfo
@@ -79,6 +80,23 @@ struct XRPTarget: TargetType {
             parameters = [
                 "method": "server_state",
             ]
+        case .accountTransactions(let account, let limit, let marker):
+            // [REDACTED_INFO]
+            var request: [String: Any] = [
+                "account": account,
+                "binary": false,
+                "forward": false,
+                "ledger_index_min": -1, // to avoid limiting the lower threshold for blocks
+                "ledger_index_max": -1, // to avoid limiting the upper threshold for blocks
+                "limit": limit,
+            ]
+
+            request["marker"] = marker
+
+            parameters = [
+                "method": "account_tx",
+                "params": [request],
+            ]
         }
 
         return .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
@@ -100,6 +118,7 @@ extension XRPTarget {
         case accountInfo(account: String)
         case unconfirmed(account: String)
         case accountLines(account: String)
+        case accountTransactions(account: String, limit: Int, marker: [String: AnyCodable]?)
         case submit(tx: String)
         case fee
         case reserve
@@ -121,6 +140,8 @@ extension XRPTarget: TargetTypeLogConvertible {
             "fee"
         case .reserve:
             "reserve"
+        case .accountTransactions:
+            "accountTransactions"
         }
     }
 
