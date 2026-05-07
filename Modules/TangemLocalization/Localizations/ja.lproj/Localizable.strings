@@ -985,6 +985,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "不明なパラメータ";
 "quick_action_buy_description" = "クレジットカードまたは銀行口座";
 "quick_action_receive_description" = "アドレスまたはQRコードを共有してください";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "ポートフォリオ間で";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1368,6 +1370,8 @@
 "swapping_token_not_available" = "利用不可";
 "swapping_trade_too_large_text" = "この取引に十分な流動性がありません。\n金額を減らすか、別のプロバイダーを選択してください。";
 "swapping_trade_too_large_title" = "取引額が大きすぎます";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "皆様からのフィードバックをお待ちしております";
 "tangem_pay_beta_notification_title" = "Tangem Payのベータ版を公開しました";
 "tangem_pay_card_details_unable_to_rename_card_title" = "カード名を変更できません";
@@ -1456,6 +1460,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "現在の処理が完了するまでは、スワップや新しい出金を開始することはできません。";
 "tangempay_card_details_withdraw_in_progress_title" = "出金処理中です";
 "tangempay_card_details_withdraw" = "出金";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "%@以上の金額を設定してください";
 "tangempay_card_limit_setup_error_message" = "限度額を設定できませんでした。もう一度お試しください";
 "tangempay_card_page_daily_limit_change" = "変更";
@@ -1507,6 +1512,8 @@
 "tangempay_onboarding_purchases_title" = "余計な費用なしで、表示金額のみを支払う";
 "tangempay_onboarding_security_description" = "あなたの住所や資産を開示することなく、個別の支払い用アカウントが作成されます。";
 "tangempay_onboarding_security_title" = "他に類を見ないプライバシー";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "無料のTangem Payカードを数分でゲットしましょう";
 "tangempay_pay_support" = "Payサポート";
 "tangempay_payment_account_sync_needed" = "支払アカウントが同期されていません";
@@ -1589,7 +1596,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "まだ取引はありません";
 "transaction_history_error_failed_to_load" = "取引履歴の読み込みに失敗しました。\n情報を更新するには、リロードボタンをクリックしてください。";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "複数のアドレス";
 "transaction_history_not_supported_description" = "現在、このブロックチェーンでは取引履歴はサポートされていません。しかしご心配なく！弊社で対応中です。その間、エクスプローラーで確認することができます。";
 "transaction_history_operation" = "オペレーション";
