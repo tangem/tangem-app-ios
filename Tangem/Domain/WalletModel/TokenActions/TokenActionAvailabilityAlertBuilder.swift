@@ -159,6 +159,19 @@ struct TokenActionAvailabilityAlertBuilder {
         }
     }
 
+    func alert(for status: TokenActionAvailabilityProvider.DynamicAddressesActionAvailabilityStatus) -> AlertBinder? {
+        switch status {
+        case .available:
+            return nil
+
+        case .hasPendingTransaction(let blockchainDisplayName):
+            return .init(
+                title: "",
+                message: Localization.dynamicAddressesUnavailabilityReasonPendingTransactionSend(blockchainDisplayName)
+            )
+        }
+    }
+
     func alert(for status: TokenActionAvailabilityProvider.ReceiveActionAvailabilityStatus, blockchain: Blockchain) -> AlertBinder? {
         switch status {
         case .available:

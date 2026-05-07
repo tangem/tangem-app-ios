@@ -131,6 +131,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openExchange()
         case .openCloreMigration:
             openCloreMigration()
+        case .openDynamicAddressesEnter:
+            if let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider {
+                openDynamicAddressesManagementView(
+                    walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                )
+            }
         case .generateAddresses,
              .backupCard,
              .refresh,
@@ -156,7 +162,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .givePermission,
-             .openManageTokensAfterWalletSuccessImport:
+             .openManageTokensAfterWalletSuccessImport,
+             .renewTangemPaySession:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -267,6 +274,16 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagementView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: userWalletInfo.config,
+            walletModel: walletModel
+        )
+
+        if let unavailableAlert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.dynamicAddressesAvailability) {
+            alert = unavailableAlert
+            return
+        }
+
         if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
             openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
         } else {
