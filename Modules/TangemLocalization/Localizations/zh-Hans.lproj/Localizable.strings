@@ -985,6 +985,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "未知参数";
 "quick_action_buy_description" = "信用卡或银行账户";
 "quick_action_receive_description" = "分享您的地址或二维码";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "在您的投资组合之间";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1368,6 +1370,8 @@
 "swapping_token_not_available" = "无法使用";
 "swapping_trade_too_large_text" = "此交易流动性不足，请减少金额或选择其他供应商。";
 "swapping_trade_too_large_title" = "交易额过大";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "我们非常乐意收到您的反馈。";
 "tangem_pay_beta_notification_title" = "Tangem Pay 现已进入测试阶段";
 "tangem_pay_card_details_unable_to_rename_card_title" = "无法重命名卡片";
@@ -1456,6 +1460,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "当前提款交易完成之前，您无法发起新的提款交易或互换交易。";
 "tangempay_card_details_withdraw_in_progress_title" = "提款进行中";
 "tangempay_card_details_withdraw" = "提款";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "从 %@设定一个限额";
 "tangempay_card_limit_setup_error_message" = "我们无法设置限额，请稍后再试。";
 "tangempay_card_page_daily_limit_change" = "改变";
@@ -1507,6 +1512,8 @@
 "tangempay_onboarding_purchases_title" = "实际支付金额与所示金额一致";
 "tangempay_onboarding_security_description" = "将在不透露您的地址和资产的情况下创建一个单独的付款账户";
 "tangempay_onboarding_security_title" = "无与伦比的隐私保护";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "几分钟内即可获得免费的 Tangem Pay 卡";
 "tangempay_pay_support" = "支付支持";
 "tangempay_payment_account_sync_needed" = "支付账户未同步";
@@ -1589,7 +1596,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "您目前还没有任何交易记录。";
 "transaction_history_error_failed_to_load" = "加载交易历史记录失败。\n点击刷新按钮更新信息。";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "多个地址";
 "transaction_history_not_supported_description" = "本区块链目前不支持交易历史记录。不过不用担心，我们正在努力！在此期间，您可以在资源管理器中查看。";
 "transaction_history_operation" = "操作";
