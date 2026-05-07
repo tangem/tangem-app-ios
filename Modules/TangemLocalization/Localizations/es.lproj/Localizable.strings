@@ -985,6 +985,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Parámetros desconocidos";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1368,6 +1370,8 @@
 "swapping_token_not_available" = "no disponible";
 "swapping_trade_too_large_text" = "No hay liquidez suficiente para esta operación. Reduzca el importe o elija otro proveedor.";
 "swapping_trade_too_large_title" = "Operación demasiado grande";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "Nos encantaría recibir tus comentarios";
 "tangem_pay_beta_notification_title" = "Tangem Pay ya está en beta";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1456,6 +1460,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "No puedes iniciar un intercambio o un nuevo retiro hasta que el actual finalice.";
 "tangempay_card_details_withdraw_in_progress_title" = "Retiro en progreso";
 "tangempay_card_details_withdraw" = "Retirar";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Establecer un límite desde %@";
 "tangempay_card_limit_setup_error_message" = "No se pudo establecer el límite. Por favor, inténtalo de nuevo.";
 "tangempay_card_page_daily_limit_change" = "Cambiar";
@@ -1507,6 +1512,8 @@
 "tangempay_onboarding_purchases_title" = "Paga exactamente lo que ves";
 "tangempay_onboarding_security_description" = "Se creará una cuenta de pago separada sin divulgar tus direcciones y activos";
 "tangempay_onboarding_security_title" = "Privacidad inigualable";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Obtén tu tarjeta Tangem Pay gratuita en minutos";
 "tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "La cuenta de pago no está sincronizada";
@@ -1589,7 +1596,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "Aún no tiene ninguna transacción";
 "transaction_history_error_failed_to_load" = "Error al cargar el historial de transacciones.\nHaga clic en el botón de recarga para actualizar la información.";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Múltiples direcciones";
 "transaction_history_not_supported_description" = "El historial de transacciones no está soportado actualmente para esta blockchain. Pero no se preocupe, ¡estamos trabajando en ello! Mientras tanto, puede consultarlo en el explorador.";
 "transaction_history_operation" = "Operación";
