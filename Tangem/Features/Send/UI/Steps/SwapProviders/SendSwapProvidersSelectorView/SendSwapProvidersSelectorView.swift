@@ -21,29 +21,35 @@ struct SendSwapProvidersSelectorView: View {
                 NavigationBarButton.close(action: viewModel.dismiss)
             })
             .padding(.horizontal, 16)
+            .padding(.vertical, 4)
 
-            if let ukNotificationInput = viewModel.ukNotificationInput {
-                NotificationView(input: ukNotificationInput)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 14)
-            }
+            ScrollView(.vertical) {
+                VStack(spacing: .zero) {
+                    if let ukNotificationInput = viewModel.ukNotificationInput {
+                        NotificationView(input: ukNotificationInput)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 14)
+                    }
 
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            SelectableSection(viewModel.providerViewModels) { data in
-                SendSwapProvidersSelectorProviderView(data: data, isSelected: viewModel.isSelected(data.id).asBinding)
-            }
-            .enableSeparators(false)
-            .padding(.horizontal, 14)
+                    // [REDACTED_TODO_COMMENT]
+                    // [REDACTED_INFO]
+                    SelectableSection(viewModel.providerViewModels) { data in
+                        SendSwapProvidersSelectorProviderView(data: data, isSelected: viewModel.isSelected(data.id).asBinding)
+                    }
+                    .enableSeparators(false)
+                    .padding(.horizontal, 14)
 
-            ExpressMoreProvidersSoonView()
-                .padding(.top, 18)
+                    ExpressMoreProvidersSoonView()
+                        .padding(.top, 18)
+                        .padding(.bottom, 16)
+                        .padding(.horizontal, 16)
+                }
                 .padding(.bottom, 16)
-                .padding(.horizontal, 16)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollIndicators(.hidden)
         }
-        .padding(.vertical, 4)
-        .padding(.bottom, 16)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .easeInOut
