@@ -985,6 +985,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Unknown Parameters";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1368,6 +1370,8 @@
 "swapping_token_not_available" = "not available";
 "swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
 "swapping_trade_too_large_title" = "Trade too large";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "We would be happy to receive your feedback";
 "tangem_pay_beta_notification_title" = "Tangem Pay is now in beta";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1456,6 +1460,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "You can't initiate swap or new withdrawal till the current one is finished";
 "tangempay_card_details_withdraw_in_progress_title" = "Withdrawal in progress";
 "tangempay_card_details_withdraw" = "Withdraw";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Set a limit from %@";
 "tangempay_card_limit_setup_error_message" = "We couldn’t set the limit. Please try again";
 "tangempay_card_page_daily_limit_change" = "Change";
@@ -1507,6 +1512,8 @@
 "tangempay_onboarding_purchases_title" = "Pay exactly what you see";
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "Payment account is not synced";
@@ -1589,7 +1596,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "You don't have any transactions yet";
 "transaction_history_error_failed_to_load" = "Failed to load transaction history.\nClick on reload button to update the information.";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_operation" = "Operation";

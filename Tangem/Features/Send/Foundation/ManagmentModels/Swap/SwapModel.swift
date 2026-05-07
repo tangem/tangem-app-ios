@@ -24,6 +24,8 @@ final class SwapModel {
     private let _sourceToken: CurrentValueSubject<LoadingResult<SendSwapableToken, any Error>, Never>
     private let _receiveToken: CurrentValueSubject<LoadingResult<SendReceiveToken, any Error>, Never>
 
+    private let preselectedTokenChangeAnalyticsLogger: SwapPreselectedTokenChangeAnalyticsLogger
+
     private let _sourceAmount: CurrentValueSubject<SendAmount?, Never>
     private let _receiveAmount: CurrentValueSubject<SendAmount?, Never>
 
@@ -82,6 +84,11 @@ final class SwapModel {
         self.pairUpdateHandler = pairUpdateHandler
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
+        preselectedTokenChangeAnalyticsLogger = SwapPreselectedTokenChangeAnalyticsLogger(
+            preselectedSourceTokenItem: sourceToken?.tokenItem,
+            preselectedReceiveTokenItem: receiveToken?.tokenItem,
+            analyticsLogger: analyticsLogger
+        )
         _sourceAmount = .init(.none)
         _receiveAmount = .init(.none)
 
@@ -851,6 +858,7 @@ extension SwapModel: SwapTokenSelectorOutput {
             externalAmountUpdater.externalUpdate(amount: nil)
         }
 
+        preselectedTokenChangeAnalyticsLogger.logIfNeeded(direction: .source, selected: token.tokenItem)
         update(source: token)
     }
 
@@ -863,6 +871,7 @@ extension SwapModel: SwapTokenSelectorOutput {
             externalAmountUpdater.externalUpdate(amount: nil)
         }
 
+        preselectedTokenChangeAnalyticsLogger.logIfNeeded(direction: .receive, selected: token.tokenItem)
         update(receive: token)
     }
 }
@@ -1325,11 +1334,12 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     ) -> SendSummaryTransactionData? {
         switch providersState {
         case .loaded(_, let selected, _):
-            guard let provider = selected else {
+            guard let provider = selected,
+                  let sourceTokenItem = _sourceToken.value.value?.tokenItem else {
                 return nil
             }
 
-            return .swap(amount: amount, fee: fee, provider: provider.provider)
+            return .swap(amount: amount, fee: fee, provider: provider.provider, sourceTokenItem: sourceTokenItem)
         default:
             return .none
         }
