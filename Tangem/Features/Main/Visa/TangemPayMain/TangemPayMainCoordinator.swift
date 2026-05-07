@@ -130,8 +130,16 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openFakedoorSheet() {
+        guard let options else {
+            assertionFailure("TangemPayMainCoordinator.Options not found")
+            return
+        }
+
         Task { @MainActor in
-            let viewModel = TangemPayFakedoorSheetViewModel(coordinator: self)
+            let viewModel = TangemPayFakedoorSheetViewModel(
+                userWalletId: options.userWalletInfo.id,
+                coordinator: self
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
