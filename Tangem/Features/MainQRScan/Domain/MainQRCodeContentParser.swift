@@ -9,6 +9,7 @@
 import Foundation
 
 struct MainQRCodeContentParser {
+    private let walletConnectPayLinkParser = WalletConnectPayLinkParser()
     private let walletConnectURLParser = WalletConnectURLParser()
     private let paymentRequestParser = MainQRPaymentRequestParser()
 
@@ -17,6 +18,10 @@ struct MainQRCodeContentParser {
 
         guard !value.isEmpty else {
             return .unrecognized
+        }
+
+        if let walletConnectPayLink = walletConnectPayLinkParser.parse(value) {
+            return .walletConnectPay(walletConnectPayLink)
         }
 
         if let walletConnectURI = try? walletConnectURLParser.parse(uriString: value) {

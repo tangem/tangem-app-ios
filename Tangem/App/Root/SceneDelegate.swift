@@ -95,6 +95,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = MainWindow(windowScene: windowScene)
 
         sheetRegistry.registerWalletConnectFloatingSheets()
+        sheetRegistry.registerWalletConnectPayFloatingSheets()
         sheetRegistry.registerAddTokenFlowFloatingSheets()
         sheetRegistry.registerTangemPayWalletSelectorSheets()
         sheetRegistry.registerCloreMigrationFloatingSheets()

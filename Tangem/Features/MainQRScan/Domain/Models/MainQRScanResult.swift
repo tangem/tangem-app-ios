@@ -7,6 +7,7 @@
 //
 
 enum MainQRScanResult {
+    case walletConnectPay(WalletConnectPayLink)
     case walletConnect(WalletConnectRequestURI)
     case paymentURI(MainQRPaymentRequest)
     case plainAddress(String)
