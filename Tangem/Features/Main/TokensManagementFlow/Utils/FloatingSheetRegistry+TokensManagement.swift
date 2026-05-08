@@ -10,7 +10,7 @@ import TangemUI
 
 extension FloatingSheetRegistry {
     func registerTokensManagementFloatingSheets() {
-        register(TokensManagementFlowViewModel.self) {
+        register(TokensManagementFlowCoordinator.self) {
             TokensManagementFlowView(viewModel: $0)
         }
     }
