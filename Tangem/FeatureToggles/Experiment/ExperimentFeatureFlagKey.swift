@@ -10,4 +10,5 @@ import Foundation
 
 enum ExperimentFeatureFlagKey: String {
     case newOnboardingFlow = "new_onboarding_flow" // For example
+    case swapDisplayMode = "swap_display_mode"
 }
