@@ -50,9 +50,11 @@ final class SwapStoriesUITests: BaseTestCase {
 
         mainScreen
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
+
+        MainScreen(app)
             .assertSwapButtonHasNoBadge()
     }
 
@@ -107,10 +109,10 @@ final class SwapStoriesUITests: BaseTestCase {
             .assertCloseButtonVisible()
             .tapStoryForward()
 
-        // Step 3: Close stories → swap token selector opens
+        // Step 3: Close stories → swap screen opens with pre-selected FROM
         storiesScreen
-            .closeStoriesAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
+            .closeStories()
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
 
         // Step 4: Open swap again → stories should not show
@@ -119,8 +121,8 @@ final class SwapStoriesUITests: BaseTestCase {
             .tapMainSwap()
             .assertStoriesNotDisplayed()
 
-        SwapTokenSelectorScreen(app)
-            .waitSwapTokenSelectorDisplayed()
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
     }
 
@@ -264,7 +266,7 @@ final class SwapStoriesUITests: BaseTestCase {
     func testSwapStories_UnavailableStoriesOnMarketsTokenDetailsScreen() throws {
         setAllureId(5470)
 
-        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
+        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap_v2", initialState: "Error")
 
         launchApp(
             tangemApiType: .mock,
@@ -287,7 +289,7 @@ final class SwapStoriesUITests: BaseTestCase {
             .validateSwapScreenDisplayed()
             .tapCloseButtonAndReturnToMarkets()
 
-        wireMockClient.resetScenarioSync("stories_first_time_swap")
+        wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
 
@@ -310,7 +312,7 @@ final class SwapStoriesUITests: BaseTestCase {
     func testSwapStories_UnavailableStoriesOnMainScreen() {
         setAllureId(5469)
 
-        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
+        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap_v2", initialState: "Error")
 
         launchApp(
             tangemApiType: .mock,
@@ -328,12 +330,14 @@ final class SwapStoriesUITests: BaseTestCase {
             .tapMainSwap()
             .assertStoriesNotDisplayed()
 
-        SwapTokenSelectorScreen(app)
-            .waitSwapTokenSelectorDisplayed()
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
+
+        MainScreen(app)
             .assertSwapButtonHasNoBadge()
 
-        wireMockClient.resetScenarioSync("stories_first_time_swap")
+        wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
 
@@ -346,15 +350,15 @@ final class SwapStoriesUITests: BaseTestCase {
         mainScreenAfterRestart
             .tapMainSwap()
             .assertStoriesDisplayed()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
     }
 
     func testSwapStories_UnavailableStoriesOnTokenDetailsScreen() {
         setAllureId(5471)
 
-        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
+        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap_v2", initialState: "Error")
 
         launchApp(
             tangemApiType: .mock,
@@ -377,7 +381,7 @@ final class SwapStoriesUITests: BaseTestCase {
             .tapCloseButton()
             .assertSwapButtonHasNoBadge()
 
-        wireMockClient.resetScenarioSync("stories_first_time_swap")
+        wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
 
