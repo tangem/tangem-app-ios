@@ -78,6 +78,16 @@ struct OrganizeTokensView: View {
 
     @State private var tokenListWidth: CGFloat = .zero
 
+    // MARK: - Colors
+
+    private var backgroundColor: Color {
+        FeatureProvider.isAvailable(.manageTokensImprovements) ? .clear : Colors.Background.secondary
+    }
+
+    private var cellBackgroundColor: Color {
+        FeatureProvider.isAvailable(.manageTokensImprovements) ? Colors.Background.action : Colors.Background.primary
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -92,10 +102,7 @@ struct OrganizeTokensView: View {
 
             tokenListFooter
         }
-        .background(
-            Colors.Background.secondary
-                .ignoresSafeArea(edges: .vertical)
-        )
+        .background(backgroundColor.ignoresSafeArea(edges: .vertical))
         .onWillAppear {
             dragAndDropController.dataSource = viewModel
             viewModel.onViewWillAppear()
@@ -462,7 +469,7 @@ struct OrganizeTokensView: View {
                     item: indexPath.item
                 )
             )
-            .background(Colors.Background.primary)
+            .background(cellBackgroundColor)
             .cornerRadius(
                 parametersProvider.cornerRadius(forItemAt: indexPath),
                 corners: parametersProvider.rectCorners(forItemAt: indexPath)
@@ -485,7 +492,7 @@ struct OrganizeTokensView: View {
                 OrganizeTokensListInnerSectionView(title: title, identifier: section.model.id, isDraggable: true)
             }
         }
-        .background(Colors.Background.primary)
+        .background(cellBackgroundColor)
         .cornerRadius(
             parametersProvider.cornerRadius(forInnerSectionAt: indexPath),
             corners: parametersProvider.rectCorners(forInnerSectionAt: indexPath)
@@ -511,7 +518,7 @@ struct OrganizeTokensView: View {
                 )
             }
         }
-        .background(Colors.Background.primary)
+        .background(cellBackgroundColor)
         .cornerRadius(
             parametersProvider.cornerRadius(forOuterSectionAtIndex: sectionIndex),
             corners: parametersProvider.rectCorners(forOuterSectionAtIndex: sectionIndex)
