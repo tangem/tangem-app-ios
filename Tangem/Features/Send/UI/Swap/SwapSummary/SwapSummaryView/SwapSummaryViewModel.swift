@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import SwiftUI
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
@@ -72,12 +71,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidSelectDisplayMode(_ mode: SwapDisplayMode) {
         guard mode != displayMode else { return }
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        withTransaction(transaction) {
-            displayMode = mode
-            applyDisplayMode(mode)
-        }
+        displayMode = mode
+        applyDisplayMode(mode)
         displayModeResolver.setMode(mode)
     }
 

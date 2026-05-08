@@ -72,6 +72,9 @@ struct SwapSummaryView: View {
         let isDetailed = viewModel.displayMode == .detailed
         let isSimple = viewModel.displayMode == .simple
 
+        // Both views always rendered. Mode switch flips frame/opacity only — no
+        // conditional add/remove, so SwapSummaryProviderView's
+        // `.transition(.opacity.animation(.easeInOut))` does not fire on toggle.
         VStack(spacing: 0) {
             SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
                 .frame(maxHeight: isDetailed ? .infinity : 0)
