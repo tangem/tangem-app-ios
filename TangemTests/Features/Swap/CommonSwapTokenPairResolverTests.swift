@@ -8,7 +8,6 @@
 
 import Combine
 import TangemFoundation
-import TangemPay
 import Testing
 @testable import Tangem
 @testable import BlockchainSdk
@@ -243,9 +242,8 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let wm1 = WalletModelTestsMock(tokenItem: token1, isEmpty: false, fiatBalance: 100)
         let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: false, fiatBalance: 500)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[wm1, wm2]])
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm1, wm2])))
 
         #expect(result.source?.tokenItem == token2)
         #expect(result.destination == nil)
@@ -258,9 +256,8 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let wm1 = WalletModelTestsMock(tokenItem: token1, isEmpty: false, fiatBalance: 100)
         let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: false, fiatBalance: 500)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[wm1], [wm2]])
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm1, wm2])))
 
         #expect(result.source?.tokenItem == token2)
         #expect(result.destination == nil)
@@ -268,18 +265,18 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
 
     // MARK: - Main Screen: Scenario 2/4 (no balance, tokens exist)
 
-    @Test("Main screen: no balance, tokens exist → FROM = first token of first account, TO = nil")
+    @Test("Main screen: no balance, tokens exist → FROM = first token of first account in UI order, TO = nil")
     func mainScreen_noBalance_picksFirstOfFirstAccount() {
-        let token1 = makeTokenItem(id: "eth")
-        let token2 = makeTokenItem(id: "btc")
-        let wm1 = WalletModelTestsMock(tokenItem: token1, isEmpty: true)
-        let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: true)
+        let topToken = makeTokenItem(id: "eth")
+        let bottomToken = makeTokenItem(id: "btc")
+        let topWM = WalletModelTestsMock(tokenItem: topToken, isEmpty: true)
+        let bottomWM = WalletModelTestsMock(tokenItem: bottomToken, isEmpty: true)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[wm1, wm2]])
+        // Input array order = UI order (top → bottom), captured via TokenSectionsAdapter snapshot.
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [topWM, bottomWM])))
 
-        #expect(result.source?.tokenItem == token1)
+        #expect(result.source?.tokenItem == topToken)
         #expect(result.destination == nil)
     }
 
@@ -290,9 +287,8 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let wm1 = WalletModelTestsMock(tokenItem: firstAccountToken, isEmpty: true)
         let wm2 = WalletModelTestsMock(tokenItem: secondAccountToken, isEmpty: true)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[wm1], [wm2]])
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm1, wm2])))
 
         #expect(result.source?.tokenItem == firstAccountToken)
         #expect(result.destination == nil)
@@ -302,45 +298,31 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
 
     @Test("Main screen: no tokens at all → FROM = nil, TO = nil")
     func mainScreen_noTokens_bothNil() {
-        let accountModelsManager = makeAccountModelsManager(accounts: [])
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [])))
 
         #expect(result.source == nil)
         #expect(result.destination == nil)
     }
 
-    @Test("Main screen: TangemPay account is ignored — only crypto accounts are considered")
+    @Test("Main screen: snapshot already excludes TangemPay accounts — only crypto wallet models are passed")
     func mainScreen_tangemPayAccount_ignored() {
         let cryptoToken = makeTokenItem(id: "eth")
         let cryptoWM = WalletModelTestsMock(tokenItem: cryptoToken, isEmpty: false, fiatBalance: 100)
 
-        let cryptoManager = WalletModelsManagerTestsMock()
-        cryptoManager.walletModels = [cryptoWM]
-        let cryptoAccount = CryptoAccountModelMock(
-            isMainAccount: true,
-            walletModelsManager: cryptoManager,
-            onArchive: { _ in }
-        )
-
-        let accountModelsManager = AccountModelsManagerTestsMock(accountModels: [
-            .tangemPay(TangemPayAccountModelTestsMock()),
-            .standard(.single(cryptoAccount)),
-        ])
-
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        // The call site (sections provider) is responsible for filtering out TangemPay before passing.
+        // Resolver works on the snapshot it gets — verify it picks the crypto token correctly.
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [cryptoWM])))
 
-        // TangemPay ignored, crypto token picked as most funded
         #expect(result.source?.tokenItem == cryptoToken)
         #expect(result.destination == nil)
     }
 
     @Test("Main screen: accounts exist but empty (no wallet models) → FROM = nil, TO = nil")
     func mainScreen_emptyAccounts_bothNil() {
-        let accountModelsManager = makeAccountModelsManager(accounts: [[]])
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [])))
 
         #expect(result.source == nil)
         #expect(result.destination == nil)
@@ -428,13 +410,11 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let wm1 = WalletModelTestsMock(tokenItem: token1, isEmpty: false, fiatBalance: 100)
         let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: false, fiatBalance: 500)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[wm1, wm2]])
-
         let mock = SwapAvailabilityCheckerMock()
         mock.unavailableIds = [wm1.id, wm2.id]
 
         let resolver = makeSUT(swapAvailabilityChecker: mock)
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm1, wm2])))
 
         #expect(result.source == nil)
         #expect(result.destination == nil)
@@ -447,13 +427,11 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let wm1 = WalletModelTestsMock(tokenItem: token1, isEmpty: true)
         let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: true)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[wm1, wm2]])
-
         let mock = SwapAvailabilityCheckerMock()
         mock.unavailableIds = [wm1.id, wm2.id]
 
         let resolver = makeSUT(swapAvailabilityChecker: mock)
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm1, wm2])))
 
         #expect(result.source == nil)
         #expect(result.destination == nil)
@@ -466,12 +444,50 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let token2 = makeTokenItem(id: "eth")
         let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: false, fiatBalance: 500)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[], [wm2]])
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm2])))
 
         // mostFundedInWallet aggregates across accounts → picks wm2 from second account
         #expect(result.source?.tokenItem == token2)
+        #expect(result.destination == nil)
+    }
+
+    // MARK: - Main screen: snapshot drives iteration order
+
+    @Test("Main screen: snapshot dictates iteration → FROM = first element regardless of any other ordering")
+    func mainScreen_snapshotDrivesOrder_picksFirstElement() {
+        let firstUI = makeTokenItem(id: "eth")
+        let secondUI = makeTokenItem(id: "btc")
+        let thirdUI = makeTokenItem(id: "sol")
+        let firstWM = WalletModelTestsMock(tokenItem: firstUI, isEmpty: true)
+        let secondWM = WalletModelTestsMock(tokenItem: secondUI, isEmpty: true)
+        let thirdWM = WalletModelTestsMock(tokenItem: thirdUI, isEmpty: true)
+
+        // Snapshot is what the user sees after grouping/sorting/drag-and-drop. Resolver
+        // iterates this array directly — there's no internal reordering anymore.
+        let resolver = makeSUT()
+        let result = resolver.resolve(
+            for: .mainScreen(.init(orderedWalletModels: [firstWM, secondWM, thirdWM]))
+        )
+
+        #expect(result.source?.tokenItem == firstUI)
+        #expect(result.destination == nil)
+    }
+
+    @Test("Main screen: equal balances → FROM = first iterated wins the tie")
+    func mainScreen_equalBalances_picksFirstIteratedTie() {
+        let topToken = makeTokenItem(id: "eth")
+        let bottomToken = makeTokenItem(id: "btc")
+        let topWM = WalletModelTestsMock(tokenItem: topToken, isEmpty: false, fiatBalance: 100)
+        let bottomWM = WalletModelTestsMock(tokenItem: bottomToken, isEmpty: false, fiatBalance: 100)
+
+        // Strict `>` comparison means whoever is iterated first wins the tie.
+        let resolver = makeSUT()
+        let result = resolver.resolve(
+            for: .mainScreen(.init(orderedWalletModels: [topWM, bottomWM]))
+        )
+
+        #expect(result.source?.tokenItem == topToken)
         #expect(result.destination == nil)
     }
 
@@ -480,13 +496,11 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
         let token2 = makeTokenItem(id: "custom2")
         let wm2 = WalletModelTestsMock(tokenItem: token2, isEmpty: true)
 
-        let accountModelsManager = makeAccountModelsManager(accounts: [[], [wm2]])
-
         let mock = SwapAvailabilityCheckerMock()
         mock.unavailableIds = [wm2.id]
 
         let resolver = makeSUT(swapAvailabilityChecker: mock)
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [wm2])))
 
         #expect(result.source == nil)
         #expect(result.destination == nil)
@@ -521,14 +535,12 @@ class CommonSwapTokenPairResolverTests: LeakTrackingTestSuite {
 
     // MARK: - Nice-to-have
 
-    @Test("Main screen: only TangemPay account, no crypto accounts → FROM = nil, TO = nil")
+    @Test("Main screen: snapshot already excludes TangemPay accounts, no crypto wallet models → FROM = nil, TO = nil")
     func mainScreen_onlyTangemPay_returnsBothNil() {
-        let accountModelsManager = AccountModelsManagerTestsMock(accountModels: [
-            .tangemPay(TangemPayAccountModelTestsMock()),
-        ])
-
+        // The snapshot provider is responsible for filtering out TangemPay before passing to the resolver.
+        // From the resolver's perspective this is indistinguishable from "no accounts at all".
         let resolver = makeSUT()
-        let result = resolver.resolve(for: .mainScreen(.init(accountModelsManager: accountModelsManager)))
+        let result = resolver.resolve(for: .mainScreen(.init(orderedWalletModels: [])))
 
         #expect(result.source == nil)
         #expect(result.destination == nil)
@@ -587,20 +599,6 @@ private extension CommonSwapTokenPairResolverTests {
         return walletModel
     }
 
-    func makeAccountModelsManager(accounts: [[any WalletModel]]) -> AccountModelsManagerTestsMock {
-        let cryptoAccounts: [any CryptoAccountModel] = accounts.map { walletModels in
-            let manager = WalletModelsManagerTestsMock()
-            manager.walletModels = walletModels
-            return CryptoAccountModelMock(
-                isMainAccount: true,
-                walletModelsManager: manager,
-                onArchive: { _ in }
-            )
-        }
-
-        return AccountModelsManagerTestsMock(cryptoAccounts: cryptoAccounts)
-    }
-
     func injectAvailability(canSwap tokens: [TokenItem]) {
         InjectedValues[\.expressAvailabilityProvider] = SwapTestAvailabilityProvider(canSwapTokens: Set(tokens))
     }
@@ -637,54 +635,50 @@ private final class SwapTestAvailabilityProvider: ExpressAvailabilityProvider {
     func updateExpressAvailability(for items: [TokenItem], forceReload: Bool, userWalletId: String) {}
 }
 
-// MARK: - Mock AccountModelsManager
+// MARK: - Mock UserTokensManager
 
-private final class AccountModelsManagerTestsMock: AccountModelsManager {
-    let accountModels: [AccountModel]
+private final class UserTokensManagerTestsMock: UserTokensManager {
+    let userTokens: [TokenItem]
 
-    init(cryptoAccounts: [any CryptoAccountModel]) {
-        if cryptoAccounts.isEmpty {
-            accountModels = []
-        } else {
-            let cryptoAccountsEnum: CryptoAccounts = cryptoAccounts.count == 1
-                ? .single(cryptoAccounts[0])
-                : .multiple(cryptoAccounts)
-            accountModels = [.standard(cryptoAccountsEnum)]
-        }
+    init(userTokens: [TokenItem]) {
+        self.userTokens = userTokens
     }
 
-    init(accountModels: [AccountModel]) {
-        self.accountModels = accountModels
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
+    var derivationManager: (DerivationManager & DerivationStatusProvider)? { nil }
+
+    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) { completion(.success(())) }
+    func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool { false }
+    func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool { false }
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, any Error>) -> Void
+    ) {
+        completion(.success(.init(removed: itemsToRemove, added: itemsToAdd)))
     }
 
-    var canAddCryptoAccounts: Bool { false }
-    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
-    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { .just(output: true) }
-    var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { .just(output: accountModels) }
-    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }
-
-    func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountOperationResult { .none }
-    func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] { [] }
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult { .none }
-    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
-    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {}
-    func dispose() {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {}
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
+    func add(_ tokenItem: TokenItem) async throws -> String { "" }
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Error>) -> Void) { completion(.success(tokenItems)) }
+    func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool { false }
+    func remove(_ tokenItem: TokenItem) {}
+    func sync(completion: @escaping () -> Void) { completion() }
 }
 
-// MARK: - Mock TangemPayAccountModel
+// MARK: - UserTokensReordering protocol conformance
 
-private final class TangemPayAccountModelTestsMock: TangemPayAccountModel {
-    struct MockId: Hashable, AccountModelPersistentIdentifierConvertible {
-        let id = UUID()
-        func toPersistentIdentifier() -> UUID { id }
-    }
+extension UserTokensManagerTestsMock: UserTokensReordering {
+    var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+    func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
+}
 
-    let id = MockId()
-    var state: TangemPayLocalState? { nil }
-    var statePublisher: AnyPublisher<TangemPayLocalState, Never> { Empty().eraseToAnyPublisher() }
-    var customerId: String? { nil }
-    var lastKnownTangemPayAccount: Tangem.TangemPayAccount? = nil
+// MARK: - DisposableEntity protocol conformance
 
-    func refreshState() async {}
-    func syncTokens(authorizingInteractor: any TangemPayAuthorizing, pendingDerivations: [PendingDerivation], completion: @escaping () -> Void) {}
+extension UserTokensManagerTestsMock: DisposableEntity {
+    func dispose() {}
 }
