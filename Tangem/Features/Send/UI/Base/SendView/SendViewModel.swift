@@ -66,6 +66,7 @@ final class SendViewModel: ObservableObject {
     private var isValidSubscription: AnyCancellable?
     private var isUpdatingSubscription: AnyCancellable?
     private var isValidContinueSubscription: AnyCancellable?
+    private var navigationBarRefreshSubscription: AnyCancellable?
 
     init(
         interactor: SendBaseInteractor,
@@ -287,6 +288,14 @@ private extension SendViewModel {
         isUpdatingSubscription = step.isUpdatingPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.mainButtonUpdating, on: self, ownership: .weak)
+
+        navigationBarRefreshSubscription = nil
+        if case .swap(let swapViewModel) = step.type {
+            navigationBarRefreshSubscription = swapViewModel.$displayMode
+                .dropFirst()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in self?.objectWillChange.send() }
+        }
     }
 
     func bind() {

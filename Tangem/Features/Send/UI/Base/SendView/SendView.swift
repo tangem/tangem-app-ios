@@ -72,6 +72,24 @@ struct SendView: View {
 
         case .backButton:
             NavigationToolbarButton.back(placement: placement, action: viewModel.userDidTapBackButton)
+
+        case .dotsMenu(let items):
+            ToolbarItem(placement: placement) {
+                Menu {
+                    ForEach(items, id: \.id) { item in
+                        Button(action: item.action) {
+                            HStack {
+                                Text(item.title)
+                                if item.isSelected {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    NavbarDotsImage()
+                }
+            }
         }
     }
 

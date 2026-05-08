@@ -39,7 +39,7 @@ struct SwapSummaryView: View {
                 VStack(spacing: 14) {
                     SwapAmountView(viewModel: viewModel.swapAmountViewModel)
 
-                    SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
+                    providerSectionView
 
                     feeSectionView
 
@@ -62,6 +62,31 @@ struct SwapSummaryView: View {
                 didInitialFocus = true
                 keyboardActive = true
             }
+        }
+    }
+
+    // MARK: - Provider
+
+    @ViewBuilder
+    private var providerSectionView: some View {
+        let isDetailed = viewModel.displayMode == .detailed
+        let isSimple = viewModel.displayMode == .simple
+
+        VStack(spacing: 0) {
+            SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
+                .frame(maxHeight: isDetailed ? .infinity : 0)
+                .opacity(isDetailed ? 1 : 0)
+                .clipped()
+                .accessibilityHidden(!isDetailed)
+
+            SwapSummaryProviderCompactView(
+                viewModel: viewModel.swapSummaryProviderViewModel,
+                shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge
+            )
+            .frame(maxHeight: isSimple ? .infinity : 0)
+            .opacity(isSimple ? 1 : 0)
+            .clipped()
+            .accessibilityHidden(!isSimple)
         }
     }
 
