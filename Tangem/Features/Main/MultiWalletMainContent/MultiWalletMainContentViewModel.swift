@@ -217,7 +217,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openAddAndManageTokens(userWalletModel: userWalletModel)
+        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel)
+        coordinator?.openAddAndManageTokens(factory: factory)
     }
 
     func onAddTokensTap() {
