@@ -23,6 +23,7 @@ final class SwapUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
             .enterFromAmount(amountToEnter)
             .waitForFeeCalculation()
             .validateReceivedAmount()
@@ -39,6 +40,7 @@ final class SwapUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
             .enterFromAmount(amountToEnter)
             .waitForFeeCalculation()
             .tapFeeBlock()
@@ -65,6 +67,7 @@ final class SwapUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
             .enterFromAmount(amountToEnter)
             .waitErrorShown(title: "Error", message: "There was an error. Please try again.")
     }
