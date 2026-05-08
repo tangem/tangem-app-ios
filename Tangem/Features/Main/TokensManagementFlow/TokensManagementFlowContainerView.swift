@@ -15,28 +15,25 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
     // MARK: - Properties
 
     private let state: AnyHashable
-    private let fillsAvailableHeight: Bool
     private let hidesHeader: Bool
-    private let verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior?
     private let headerContent: HeaderContent
     private let mainContent: MainContent
+    private let bottomPadding: CGFloat
 
     // MARK: - Init
 
     init(
         state: AnyHashable,
-        fillsAvailableHeight: Bool = false,
         hidesHeader: Bool = false,
-        verticalSwipeBehavior: FloatingSheetConfiguration.VerticalSwipeBehavior? = nil,
+        bottomPadding: CGFloat = 16,
         @ViewBuilder headerContent: () -> HeaderContent,
         @ViewBuilder mainContent: () -> MainContent
     ) {
         self.state = state
-        self.fillsAvailableHeight = fillsAvailableHeight
         self.hidesHeader = hidesHeader
-        self.verticalSwipeBehavior = verticalSwipeBehavior
         self.headerContent = headerContent()
         self.mainContent = mainContent()
+        self.bottomPadding = bottomPadding
     }
 
     // MARK: - View Body
@@ -54,7 +51,7 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .consumeTouches
-            configuration.verticalSwipeBehavior = verticalSwipeBehavior
+            configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }
     }
 
@@ -73,8 +70,7 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
     private var content: some View {
         mainContent
             .padding(.top, hidesHeader ? 0 : Constants.standardSpacing)
-            .padding(.bottom, Constants.standardSpacing)
-            .frame(maxHeight: fillsAvailableHeight ? .infinity : nil)
+            .padding(.bottom, bottomPadding)
             .transition(.content)
     }
 }
