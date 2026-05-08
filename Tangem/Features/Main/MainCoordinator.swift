@@ -371,9 +371,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
     }
 
-    func openAddAndManageTokens(userWalletModel: UserWalletModel) {
+    func openAddAndManageTokens(factory: TokensManagementFlowFactory) {
         Task { @MainActor in
-            let viewModel = TokensManagementFlowViewModel(userWalletModel: userWalletModel, coordinator: self)
+            let viewModel = factory.makeFlowViewModel(coordinator: self)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
