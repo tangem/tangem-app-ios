@@ -313,6 +313,8 @@
 "common_support" = "支持";
 "common_supported_networks" = "支持的网络";
 "common_swap" = "兑换";
+"common_swap_simple_mode" = "Simple mode";
+"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Tangem钱包";

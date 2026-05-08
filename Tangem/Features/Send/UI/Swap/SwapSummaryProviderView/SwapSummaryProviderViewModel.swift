@@ -19,6 +19,7 @@ protocol SwapSummaryProviderRoutable: AnyObject {
 
 final class SwapSummaryProviderViewModel: ObservableObject, Identifiable {
     @Published private(set) var providerState: ProviderState?
+    @Published private(set) var compactData: SendSwapProviderCompactViewData = .init(provider: .loading)
 
     weak var router: SwapSummaryProviderRoutable?
 
@@ -39,6 +40,10 @@ final class SwapSummaryProviderViewModel: ObservableObject, Identifiable {
             swapProvidersInput: swapProvidersInput,
             receiveTokenAmountInput: receiveTokenAmountInput
         )
+    }
+
+    func userDidTap() {
+        router?.userDidTapProvider()
     }
 }
 
@@ -63,21 +68,36 @@ private extension SwapSummaryProviderViewModel {
             swapProvidersInput.expressProvidersPublisher
         ).map { (selected: $0, all: $1) }
 
-        Publishers.CombineLatest3(tokensPublisher, providersPublisher, highPriceImpactPublisher)
+        let combined = Publishers.CombineLatest3(tokensPublisher, providersPublisher, highPriceImpactPublisher)
             .withWeakCaptureOf(self)
-            .map { viewModel, swapInput in
+            .map { viewModel, swapInput -> (ProviderState?, SendSwapProviderCompactViewData) in
                 let (tokenValues, providerValues, highPriceImpactValue) = swapInput
                 let hasWarning = highPriceImpactValue.map { !$0.level.isNegligible } ?? false
-                return viewModel.mapToProviderState(
+                let providerState = viewModel.mapToProviderState(
                     sourceToken: tokenValues.source,
                     receiveToken: tokenValues.receive,
                     provider: providerValues.selected,
                     providers: providerValues.all,
                     hasHighPriceImpactWarning: hasWarning
                 )
+                let compactData = viewModel.mapToCompactData(
+                    provider: providerValues.selected,
+                    providers: providerValues.all,
+                    hasHighPriceImpactWarning: hasWarning
+                )
+                return (providerState, compactData)
             }
+            .share()
+
+        combined
+            .map { $0.0 }
             .receiveOnMain()
             .assign(to: &$providerState)
+
+        combined
+            .map { $0.1 }
+            .receiveOnMain()
+            .assign(to: &$compactData)
     }
 
     func mapToProviderState(
@@ -149,6 +169,33 @@ private extension SwapSummaryProviderViewModel {
             detailsType: .chevron
         ) { [weak self] in
             self?.router?.userDidTapProvider()
+        }
+    }
+}
+
+private extension SwapSummaryProviderViewModel {
+    func mapToCompactData(
+        provider: LoadingResult<ExpressAvailableProvider, any Error>?,
+        providers: [ExpressAvailableProvider],
+        hasHighPriceImpactWarning: Bool
+    ) -> SendSwapProviderCompactViewData {
+        switch provider {
+        case .none, .loading:
+            return .init(provider: .loading)
+        case .failure:
+            return .init(provider: .failure(""))
+        case .success(let selected):
+            let badge = expressProviderFormatter.mapToBadge(
+                availableProvider: selected,
+                hasHighPriceImpactWarning: hasHighPriceImpactWarning
+            )
+            let canSelectAnother = providers.showableProviders().count > 1
+            let data = SendSwapProviderCompactViewData.ProviderData(
+                provider: selected.provider,
+                canSelectAnother: canSelectAnother,
+                badge: badge
+            )
+            return .init(provider: .success(data))
         }
     }
 }

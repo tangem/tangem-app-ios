@@ -11,7 +11,7 @@ import Combine
 import SwiftUI
 
 class SwapSummaryStep {
-    private let viewModel: SwapSummaryViewModel
+    let viewModel: SwapSummaryViewModel
     private let interactor: SwapSummaryInteractor
     private let autoupdatingTimer: AutoupdatingTimer
     private let analyticsLogger: SendSummaryAnalyticsLogger

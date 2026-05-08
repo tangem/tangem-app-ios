@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
@@ -33,11 +34,15 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var transactionDescription: AttributedString?
     @Published private(set) var alert: AlertBinder?
 
+    @Published var displayMode: SwapDisplayMode
+    @Published var shouldAnimateBestRateBadge: Bool = false
+
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
+    private let displayModeResolver: SwapDisplayModeResolver
 
     weak var router: SwapSummaryStepRoutable?
 
@@ -48,7 +53,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
-        sourceTokenInput: SendSourceTokenInput
+        sourceTokenInput: SendSourceTokenInput,
+        displayModeResolver: SwapDisplayModeResolver = SwapDisplayModeResolver()
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -56,9 +62,38 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
         self.feeCompactViewModel = feeCompactViewModel
+        self.displayModeResolver = displayModeResolver
+        displayMode = displayModeResolver.currentMode()
 
         bind()
         bind(sourceTokenInput: sourceTokenInput)
+        applyDisplayMode(displayMode)
+    }
+
+    func userDidSelectDisplayMode(_ mode: SwapDisplayMode) {
+        guard mode != displayMode else { return }
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            displayMode = mode
+            applyDisplayMode(mode)
+        }
+        displayModeResolver.setMode(mode)
+    }
+
+    func makeDisplayModeMenuItems() -> [SendStepNavigationLeadingViewType.DotsMenuItem] {
+        SwapDisplayMode.allCases.map { mode in
+            .init(
+                id: mode.rawValue,
+                title: mode.menuTitle,
+                isSelected: mode == displayMode,
+                action: { [weak self] in self?.userDidSelectDisplayMode(mode) }
+            )
+        }
+    }
+
+    private func applyDisplayMode(_ mode: SwapDisplayMode) {
+        swapAmountViewModel.update(isReceiveFiatHidden: mode == .simple)
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {

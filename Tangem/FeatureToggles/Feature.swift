@@ -32,6 +32,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapPendingTxStateDate
     case dexApproveNotificationV2
     case manageTokensImprovements
+    case swapSimpleMode
 
     var name: String {
         switch self {
@@ -58,6 +59,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
+        case .swapSimpleMode: return "Swap Simple Mode"
         }
     }
 
@@ -86,6 +88,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPendingTxStateDate: return .unspecified
         case .dexApproveNotificationV2: return .unspecified
         case .manageTokensImprovements: return .unspecified
+        case .swapSimpleMode: return .unspecified
         }
     }
 }

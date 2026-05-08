@@ -313,6 +313,8 @@
 "common_support" = "Soporte";
 "common_supported_networks" = "Redes soportadas";
 "common_swap" = "Intercambiar";
+"common_swap_simple_mode" = "Simple mode";
+"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Tangem Wallet";

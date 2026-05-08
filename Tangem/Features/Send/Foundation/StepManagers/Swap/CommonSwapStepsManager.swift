@@ -58,7 +58,14 @@ extension CommonSwapStepsManager: SendStepsManager {
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
         case .swap:
-            return .init(title: Localization.commonSwap, trailingViewType: .closeButton)
+            let leading: SendStepNavigationLeadingViewType? = FeatureProvider.isAvailable(.swapSimpleMode)
+                ? .dotsMenu(items: summaryStep.viewModel.makeDisplayModeMenuItems())
+                : nil
+            return .init(
+                title: Localization.commonSwap,
+                leadingViewType: leading,
+                trailingViewType: .closeButton
+            )
         case .finish:
             return .init(trailingViewType: .closeButton)
         default:
