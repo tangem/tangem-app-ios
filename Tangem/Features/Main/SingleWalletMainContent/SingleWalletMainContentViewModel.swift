@@ -126,7 +126,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             ActionButtonsViewModel(
                 coordinator: $0,
                 userWalletModel: userWalletModel,
-                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo),
+                tokensOrderProvider: nil
             )
         }
 
