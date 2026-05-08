@@ -13,9 +13,13 @@ public struct VisaCustomerInfoResponse: Codable {
     public let state: CustomerState
     public let createdAt: Date
     public let productInstance: ProductInstance?
+    /// Multi-card BFF v2 field; `nil` for legacy responses, populated alongside `productInstance` during transition.
+    public let productInstances: [PendingOrActiveProductInstance]?
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo?
     public let card: Card?
+    /// Multi-card BFF v2 field; `nil` for legacy responses, populated alongside `card` during transition.
+    public let cards: [Card]?
     public let depositAddress: String?
 
     public init(
@@ -23,18 +27,22 @@ public struct VisaCustomerInfoResponse: Codable {
         state: CustomerState,
         createdAt: Date,
         productInstance: ProductInstance?,
+        productInstances: [PendingOrActiveProductInstance]? = nil,
         paymentAccount: PaymentAccount?,
         kyc: KYCInfo?,
         card: Card?,
+        cards: [Card]? = nil,
         depositAddress: String?
     ) {
         self.id = id
         self.state = state
         self.createdAt = createdAt
         self.productInstance = productInstance
+        self.productInstances = productInstances
         self.paymentAccount = paymentAccount
         self.kyc = kyc
         self.card = card
+        self.cards = cards
         self.depositAddress = depositAddress
     }
 }
@@ -60,6 +68,21 @@ public extension VisaCustomerInfoResponse {
         public let displayName: String
         public let adminCardLimit: CardLimit
         public let actualCardLimit: CardLimit
+    }
+
+    /// Lenient product-instance shape used for the multi-card `productInstances` array, where pending entries
+    /// have `cardId == nil` and `actualCardLimit == nil`.
+    struct PendingOrActiveProductInstance: Codable {
+        public let id: String
+        public let cardWalletAddress: String?
+        public let cardId: String?
+        public let cid: String?
+        public let status: ProductStatus
+        public let updatedAt: Date
+        public let paymentAccountId: String
+        public let displayName: String
+        public let adminCardLimit: CardLimit
+        public let actualCardLimit: CardLimit?
     }
 
     enum ProductStatus: String, Codable {
@@ -115,6 +138,8 @@ public extension VisaCustomerInfoResponse {
     }
 
     struct Card: Codable {
+        /// Multi-card BFF v2 field. `nil` for legacy responses; required to address a card in card-scoped APIs.
+        public let id: String?
         public let cardNumberEnd: String
         public let expirationMonth: String
         public let expirationYear: String
@@ -125,6 +150,7 @@ public extension VisaCustomerInfoResponse {
         public let isPinSet: Bool
 
         public init(
+            id: String? = nil,
             cardNumberEnd: String,
             expirationMonth: String,
             expirationYear: String,
@@ -134,6 +160,7 @@ public extension VisaCustomerInfoResponse {
             cardStatus: CardStatus,
             isPinSet: Bool
         ) {
+            self.id = id
             self.cardNumberEnd = cardNumberEnd
             self.expirationMonth = expirationMonth
             self.expirationYear = expirationYear
@@ -164,5 +191,15 @@ public extension VisaCustomerInfoResponse.Card {
         case blocked = "BLOCKED"
         case cancelled = "CANCELLED"
         case undefined = "UNDEFINED"
+    }
+}
+
+public extension VisaCustomerInfoResponse {
+    func productInstance(forCardId cardId: String) -> PendingOrActiveProductInstance? {
+        productInstances?.first { $0.cardId == cardId }
+    }
+
+    func card(forCardId cardId: String) -> Card? {
+        cards?.first { $0.id == cardId }
     }
 }
