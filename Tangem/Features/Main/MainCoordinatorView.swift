@@ -156,9 +156,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
                 TangemPayTransactionDetailsView(viewModel: $0)
-                    .floatingSheetContent(for: TokensManagementFlowViewModel.self) {
-                        TokensManagementFlowView(viewModel: $0)
-                    }
 
                 NavHolder()
                     .bottomSheet(
