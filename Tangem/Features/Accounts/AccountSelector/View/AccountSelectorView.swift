@@ -15,6 +15,12 @@ import TangemAccounts
 
 struct AccountSelectorView: View {
     @ObservedObject var viewModel: AccountSelectorViewModel
+    private let style: Style
+
+    init(viewModel: AccountSelectorViewModel, style: Style = .legacy) {
+        self.viewModel = viewModel
+        self.style = style
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -29,7 +35,7 @@ struct AccountSelectorView: View {
                 lockedWalletsView
                     .padding(.top, 20)
             }
-            .padding(.init(top: 12, leading: 16, bottom: 16, trailing: 16))
+            .padding(style.contentInsets)
         }
     }
 
@@ -136,5 +142,21 @@ private extension AccountSelectorView {
                 }
             }
         }
+    }
+}
+
+// MARK: - Style
+
+extension AccountSelectorView {
+    struct Style {
+        let contentInsets: EdgeInsets
+
+        static let legacy = Style(
+            contentInsets: EdgeInsets(top: 12, leading: 16, bottom: 16, trailing: 16)
+        )
+
+        static let addAndManage = Style(
+            contentInsets: EdgeInsets(top: 12, leading: 16, bottom: 0, trailing: 16)
+        )
     }
 }
