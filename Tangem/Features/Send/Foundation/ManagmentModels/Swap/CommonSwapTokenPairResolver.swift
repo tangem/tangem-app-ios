@@ -50,7 +50,7 @@ private extension CommonSwapTokenPairResolver {
     ) -> ResolvedSwapPair {
         let hasBalance = input.walletModel.fiatBalance > 0
 
-        // Scenario 1 / 6: token has balance → FROM = current, TO = manual selection
+        // Token has balance → FROM = current, TO = manual selection
         if hasBalance {
             return ResolvedSwapPair(source: input.walletModel, destination: nil)
         }
@@ -58,23 +58,23 @@ private extension CommonSwapTokenPairResolver {
         let groups = groupAccountTokens(for: input.walletModel)
 
         if isExchangeable {
-            // Scenario 2: account has exchangeable token with balance
+            // Account has exchangeable token with balance
             if let topExchangeable = groups.topExchangeable {
                 return ResolvedSwapPair(source: topExchangeable, destination: input.walletModel)
             }
 
-            // Scenario 3: account has exchangeable token but without balance
+            // Account has exchangeable token but without balance
             if groups.hasExchangeableEmpty {
                 return ResolvedSwapPair(source: nil, destination: input.walletModel)
             }
         }
 
-        // Scenario 5 / 7: most funded token in account
+        // Most funded token in account
         if let topFunded = groups.mostFunded {
             return ResolvedSwapPair(source: topFunded, destination: input.walletModel)
         }
 
-        // Scenario 4 / 7 fallback: no tokens with balance → first in account (or nil)
+        // Fallback: no tokens with balance → first in account (or nil)
         return ResolvedSwapPair(source: groups.firstInAccount, destination: input.walletModel)
     }
 
@@ -123,45 +123,31 @@ private extension CommonSwapTokenPairResolver {
 
 private extension CommonSwapTokenPairResolver {
     func resolveFromMainScreen(_ input: SwapPairResolvingOrigin.MainScreenInput) -> ResolvedSwapPair {
-        let groups = groupWalletTokens(for: input.accountModelsManager)
-
-        // Scenario 1 / 3: most funded swap-available token in wallet
-        if let mostFunded = groups.mostFundedInWallet {
-            return ResolvedSwapPair(source: mostFunded, destination: nil)
-        }
-
-        // Scenario 2 / 4: first swap-available token of first account (or nil if none)
-        return ResolvedSwapPair(source: groups.firstOfFirstAccount, destination: nil)
-    }
-
-    func groupWalletTokens(for accountModelsManager: AccountModelsManager) -> WalletTokenGroups {
-        var groups = WalletTokenGroups()
+        var firstSwapAvailable: (any WalletModel)?
+        var mostFundedInWallet: (any WalletModel)?
         var mostFundedFiat: Decimal = 0
 
-        groups.firstOfFirstAccount = accountModelsManager
-            .cryptoAccountModels.first?
-            .walletModelsManager.walletModels.first(where: { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) })
-
-        for model in AccountWalletModelsAggregator.walletModels(from: accountModelsManager) {
+        for model in input.orderedWalletModels {
             guard swapAvailabilityChecker.isSwapAvailable(walletModel: model) else { continue }
+
+            if firstSwapAvailable == nil {
+                firstSwapAvailable = model
+            }
 
             let fiat = model.fiatBalance
             if fiat > 0, fiat > mostFundedFiat {
                 mostFundedFiat = fiat
-                groups.mostFundedInWallet = model
+                mostFundedInWallet = model
             }
         }
 
-        return groups
-    }
-}
+        // Most funded swap-available token in wallet
+        if let mostFundedInWallet {
+            return ResolvedSwapPair(source: mostFundedInWallet, destination: nil)
+        }
 
-// MARK: - WalletTokenGroups
-
-private extension CommonSwapTokenPairResolver {
-    struct WalletTokenGroups {
-        var mostFundedInWallet: (any WalletModel)?
-        var firstOfFirstAccount: (any WalletModel)?
+        // First swap-available token in UI order (or nil if none)
+        return ResolvedSwapPair(source: firstSwapAvailable, destination: nil)
     }
 }
 
@@ -199,7 +185,7 @@ enum SwapPairResolvingOrigin {
     }
 
     struct MainScreenInput {
-        let accountModelsManager: AccountModelsManager
+        let orderedWalletModels: [any WalletModel]
     }
 
     struct MarketsInput {
@@ -210,8 +196,6 @@ enum SwapPairResolvingOrigin {
 // MARK: - Result
 
 struct ResolvedSwapPair {
-    /// nil means user must select manually
     let source: (any WalletModel)?
-    /// nil means user must select manually
     let destination: (any WalletModel)?
 }
