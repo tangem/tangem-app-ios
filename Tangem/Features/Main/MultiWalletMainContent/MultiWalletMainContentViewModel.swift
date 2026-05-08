@@ -861,7 +861,8 @@ private extension MultiWalletMainContentViewModel {
         return .init(
             coordinator: coordinator,
             userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo),
+            tokensOrderProvider: sectionsProvider
         )
     }
 }
