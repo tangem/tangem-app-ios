@@ -247,6 +247,7 @@
 "common_hold_to" = "Hold to %@";
 "common_import" = "Import";
 "common_in_progress" = "In progress";
+"common_in" = "in";
 "common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
@@ -324,6 +325,7 @@
 "common_to" = "To";
 "common_today" = "Today";
 "common_token_send" = "Token to send";
+"common_token" = "Token";
 "common_transaction_failed" = "Transaction failed";
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "Transactions";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Popular";
 "earn_no_results" = "No results";
 "earn_title" = "Staking & Yield mode";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Hi support team, I've encountered an error with code: %@";
 "email_subject_wc_error" = "WalletConnect error";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
@@ -1318,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1563,7 +1570,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choose address";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Generate XPUB";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
