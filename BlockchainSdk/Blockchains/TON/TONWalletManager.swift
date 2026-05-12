@@ -249,7 +249,7 @@ private extension TONWalletManager {
 
 private extension TONWalletManager {
     enum Constants {
-        static let transactionLifetimeInSec: TimeInterval = 60
+        static let transactionLifetimeInSec: TimeInterval = 300
     }
 }
 
