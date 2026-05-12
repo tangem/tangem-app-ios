@@ -313,8 +313,6 @@
 "common_support" = "Suporte";
 "common_supported_networks" = "Redes suportadas";
 "common_swap" = "Trocar";
-"common_swap_simple_mode" = "Simple mode";
-"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Carteira Tangem";
@@ -1320,12 +1318,14 @@
 "sui_not_enough_coin_for_fee_description" = "Uma transação de entrada de pelo menos %1$@ é necessário prosseguir";
 "sui_not_enough_coin_for_fee_title" = "Fundos insuficientes";
 "swap_approve_description" = "Ao aprovar, você permite que o contrato inteligente utilize seus tokens em transações futuras.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Taxa fixa";
 "swap_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para a troca.";
 "swap_in_progress" = "Troca em andamento";
 "swap_search_suggestion_hint" = "Procurando algo diferente?\n Experimente pesquisar ou explore outra criptomoeda!";
 "swap_search_tooltip_description" = "Pesquise qualquer token, mesmo que ele ainda não esteja na sua lista.";
 "swap_search_tooltip_title" = "Use a busca para encontrar o que você precisa.";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Sinta-se seguro com o suporte disponível 24 horas por dia, 7 dias por semana, para ajudá-lo com qualquer problema.";
 "swap_story_fifth_title" = "Sempre aqui";
 "swap_story_first_subtitle_v2" = "Troque criptomoedas diretamente na Tangem\nSem transferências adicionais\nSem movimentação de fundos para corretoras";

@@ -313,8 +313,6 @@
 "common_support" = "Support";
 "common_supported_networks" = "Supported networks";
 "common_swap" = "Swap";
-"common_swap_simple_mode" = "Simple mode";
-"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Tangem Wallet";
@@ -1320,12 +1318,14 @@
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
