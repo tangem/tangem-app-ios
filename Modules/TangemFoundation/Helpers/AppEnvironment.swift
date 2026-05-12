@@ -56,6 +56,13 @@ public extension AppEnvironment {
         #endif
     }
 
+    /// `true` when the process is currently executing under XCTest or Swift Testing.
+    /// Detection relies on `XCTestConfigurationFilePath`, which the test runner sets for both
+    /// host-app unit tests and SPM-target tests (regardless of whether `Info.plist` is present).
+    var isUnitTest: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
+
     var isInternalOrDebug: Bool {
         isDebug || !isProduction
     }
