@@ -7,11 +7,12 @@
 //
 
 import Foundation
+
 public final class UserWalletIdSpoofer: @unchecked Sendable {
     public static let shared = UserWalletIdSpoofer()
-    public static let storageKey = "user_wallet_id_spoof_map"
 
-    private let store: UserDefaults = .standard
+    public let storageKey = "user_wallet_id_spoof_map"
+    public let userDefaults: UserDefaults = .standard
 
     private init() {}
 
@@ -21,7 +22,7 @@ public final class UserWalletIdSpoofer: @unchecked Sendable {
         }
 
         let originalHex = originalValue.hexString
-        let map = (store.dictionary(forKey: Self.storageKey) as? [String: Data]) ?? [:]
+        let map = (userDefaults.dictionary(forKey: storageKey) as? [String: Data]) ?? [:]
 
         return map[originalHex]
     }

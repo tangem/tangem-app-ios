@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemVisa
 import TangemStaking
 import TangemPay
@@ -55,10 +56,13 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.gaslessTransactionsAPIType)
     var gaslessTransactionsAPIType = GaslessTransactionsAPIType.prod
 
+    @AppStorageCompat(UserWalletIdSpoofMapStorageKey(rawValue: UserWalletIdSpoofer.shared.storageKey), store: UserWalletIdSpoofer.shared.userDefaults)
+    var userWalletIdSpoofMap: [String: Data] = [:]
+
     private init() {}
 }
 
-// MARK: - Keys
+// MARK: - Storage keys
 
 private enum FeatureStorageKeys: String {
     case testnet
@@ -76,4 +80,12 @@ private enum FeatureStorageKeys: String {
     case stakeKitAPIType = "stake_kit_api_type"
     case yieldModuleAPIType = "yield_module_api_type"
     case gaslessTransactionsAPIType = "gasless_transactions_api_type"
+}
+
+/// Wraps `UserWalletIdSpoofer.shared.storageKey` so it can be consumed by `@AppStorageCompat`,
+/// which requires its key to conform to `RawRepresentable<String>`. The corresponding
+/// `FeatureStorageKeys` enum can't reference the spoofer's storage key directly because Swift
+/// enum raw values must be literals.
+private struct UserWalletIdSpoofMapStorageKey: RawRepresentable {
+    let rawValue: String
 }
