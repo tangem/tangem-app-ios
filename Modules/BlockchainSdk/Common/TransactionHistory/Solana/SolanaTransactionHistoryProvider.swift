@@ -153,20 +153,22 @@ private extension SolanaTransactionHistoryProvider {
     }
 
     func fetchTransactions(signatures: [String]) -> AnyPublisher<[SolanaTransactionHistoryDTO.TransactionDetails], Error> {
-        let publishers: [AnyPublisher<SolanaTransactionHistoryDTO.TransactionDetails?, Error>] = signatures.map { signature in
+        let publishers: [AnyPublisher<(offset: Int, details: SolanaTransactionHistoryDTO.TransactionDetails?), Error>] = signatures.enumerated().map { offset, signature in
             let target = SolanaTransactionHistoryTarget(configuration: configuration, request: .getTransaction(signature: signature))
             return networkProvider.requestPublisher(target)
                 .filterSuccessfulStatusAndRedirectCodes()
                 .map(JSONRPC.Response<SolanaTransactionHistoryDTO.TransactionDetails?, JSONRPC.APIError>.self)
                 .tryMap { try $0.result.get() }
+                .map { details in (offset: offset, details: details) }
                 .eraseToAnyPublisher()
         }
 
-        return Publishers.Sequence(sequence: publishers)
-            .flatMap(maxPublishers: .max(1)) { $0 }
+        return Publishers.MergeMany(publishers)
             .collect()
-            .map { details in
-                details.compactMap { $0 }
+            .map { indexedDetails in
+                indexedDetails
+                    .sorted { $0.offset < $1.offset }
+                    .compactMap(\.details)
             }
             .eraseToAnyPublisher()
     }
