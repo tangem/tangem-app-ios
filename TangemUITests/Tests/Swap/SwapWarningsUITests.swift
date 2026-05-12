@@ -20,6 +20,7 @@ final class SwapWarningsUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
 
         swapScreen
             .enterFromAmount("1000")
@@ -46,6 +47,7 @@ final class SwapWarningsUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Solana")
 
         swapScreen
             .enterFromAmount("1000")
@@ -74,6 +76,7 @@ final class SwapWarningsUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Solana")
 
         swapScreen
             .enterFromAmount("100")
@@ -151,6 +154,7 @@ final class SwapWarningsUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
 
         swapScreen
             .enterFromAmount("1000")
@@ -179,5 +183,6 @@ final class SwapWarningsUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("USDC")
     }
 }
