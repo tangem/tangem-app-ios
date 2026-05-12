@@ -23,6 +23,10 @@ final class DesignSystemDemoViewModel: ObservableObject {
         coordinator?.openTangemBadgeDemo()
     }
 
+    func openTangemBadgeV2Demo() {
+        coordinator?.openTangemBadgeV2Demo()
+    }
+
     func openTangemCalloutDemo() {
         coordinator?.openTangemCalloutDemo()
     }
@@ -57,5 +61,9 @@ final class DesignSystemDemoViewModel: ObservableObject {
 
     func openTangemLoaderDemo() {
         coordinator?.openTangemLoaderDemo()
+    }
+
+    func openTangemTokenRowDemo() {
+        coordinator?.openTangemTokenRowDemo()
     }
 }

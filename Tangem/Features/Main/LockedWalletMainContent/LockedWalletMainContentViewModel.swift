@@ -259,7 +259,8 @@ private extension LockedWalletMainContentViewModel {
         return .init(
             coordinator: coordinator,
             userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo),
+            tokensOrderProvider: nil
         )
     }
 }
