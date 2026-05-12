@@ -10,8 +10,6 @@ import Foundation
 import SwiftUI
 import UIKit
 import Combine
-
-// import TangemSdk
 import TangemFoundation
 import TangemAssets
 import struct TangemUIUtils.AlertBinder
@@ -52,7 +50,6 @@ final class UserWalletIdSpoofingViewModel: ObservableObject {
                 let currentId = wallet.userWalletId.stringValue
                 let originalId = map.first(where: { $0.value.hexString.uppercased() == currentId.uppercased() })?.key
                 return WalletRow(
-                    id: wallet.userWalletId,
                     name: wallet.name,
                     currentId: currentId,
                     originalId: originalId
@@ -66,8 +63,8 @@ final class UserWalletIdSpoofingViewModel: ObservableObject {
 
     // MARK: - Add-mapping flow
 
-    func presentAddMapping(prefillOriginal: String?) {
-        draftOriginalHex = prefillOriginal ?? ""
+    func presentAddMapping(currentWalletId: String?) {
+        draftOriginalHex = currentWalletId ?? ""
         draftSpoofedHex = ""
         isAddSheetPresented = true
     }
@@ -125,7 +122,7 @@ final class UserWalletIdSpoofingViewModel: ObservableObject {
 
     func copyToClipboard(_ value: String) {
         UIPasteboard.general.string = value
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        FeedbackGenerator.success()
     }
 
     // MARK: - Helpers
@@ -139,11 +136,11 @@ final class UserWalletIdSpoofingViewModel: ObservableObject {
     }
 }
 
-// MARK: - Row models
+// MARK: - Auxiliary types
 
 extension UserWalletIdSpoofingViewModel {
     struct WalletRow: Identifiable {
-        let id: UserWalletId
+        var id: String { currentId }
         let name: String
         let currentId: String
         let originalId: String?
