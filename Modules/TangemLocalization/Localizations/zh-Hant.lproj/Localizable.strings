@@ -1492,8 +1492,14 @@
 "tangempay_get_banner_description" = "獲取您的免費 Tangem Visa 虛擬卡";
 "tangempay_get_tangem_pay" = "获取Tangem Pay";
 "tangempay_go_to_support" = "前往客服中心";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "通常需要最多15分钟";
 "tangempay_issue_card_notification_title" = "設置您的 Tangem 卡";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "卡片通常會在 5 分鐘內自動發行。如需人工審核的特殊情況，可能需要最長 48 小時。";
 "tangempay_issuing_your_card" = "正在发行您的卡片";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1516,8 @@
 "tangempay_kyc_rejected_description_span" = "您的身份";
 "tangempay_kyc_rejected_description" = "抱歉，我們無法驗證";
 "tangempay_kyc_rejected" = "已拒絕";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "獲取您的免費 Tangem Visa 虛擬卡";
 "tangempay_onboarding_banner_title" = "使用 USDC 進行日常支付";
 "tangempay_onboarding_get_card_button_text" = "获取卡片";
