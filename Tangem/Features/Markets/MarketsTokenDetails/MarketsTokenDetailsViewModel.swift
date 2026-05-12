@@ -45,6 +45,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
+    @Published private(set) var shouldShowAddToPortfolioPromo: Bool = false
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -186,6 +187,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         loadDetailedInfo()
         makeHistoryChartViewModel()
         makePortfolioViewModel()
+        bindToPortfolioViewModel()
         bindToHistoryChartViewModel()
     }
 
@@ -304,6 +306,18 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
             .appendingPathComponent("cryptocurrencies")
             .appendingPathComponent(tokenInfo.id.lowercased())
         coordinator?.shareTokenDetails(url: url)
+    }
+
+    func onTapAddToPortfolioPromo() {
+        guard
+            let portfolioViewModel,
+            !portfolioViewModel.isAddTokenButtonDisabled,
+            !portfolioViewModel.isLoadingNetworks
+        else {
+            return
+        }
+
+        portfolioViewModel.onAddTapAction()
     }
 
     func logCarouselScrolledIfNeeded() {
@@ -573,6 +587,20 @@ private extension MarketsTokenDetailsViewModel {
         linksSections = MarketsTokenDetailsLinksMapper(
             openLinkAction: weakify(self, forFunction: MarketsTokenDetailsViewModel.openLinkAction(_:))
         ).mapToSections(model.links)
+    }
+
+    func bindToPortfolioViewModel() {
+        guard let portfolioViewModel else {
+            return
+        }
+
+        portfolioViewModel
+            .$typeView
+            .receive(on: DispatchQueue.main)
+            .map { $0.isEmpty || $0.isList }
+            .removeDuplicates()
+            .assign(to: \.shouldShowAddToPortfolioPromo, on: self, ownership: .weak)
+            .store(in: &bag)
     }
 
     func makePortfolioViewModel() {
