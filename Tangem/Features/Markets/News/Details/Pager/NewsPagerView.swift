@@ -33,11 +33,8 @@ struct NewsPagerView: View {
                 Group {
                     pageIndicatorOverlay
                         .ignoresSafeArea(.container, edges: .bottom)
-                    PageIndicatorView(
-                        totalPages: viewModel.newsIds.count,
-                        currentIndex: viewModel.currentIndex
-                    )
-                    .padding(.bottom, 8)
+                    pageIndicator
+                        .padding(.bottom, 8)
                 }
                 .opacity(viewModel.overlayContentHidingProgress)
             }
@@ -65,7 +62,53 @@ struct NewsPagerView: View {
         }
     }
 
+    @ViewBuilder
+    private var pageIndicator: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            PageIndicatorViewRedesign(
+                totalPages: viewModel.newsIds.count,
+                currentIndex: viewModel.currentIndex
+            )
+        } else {
+            PageIndicatorView(
+                totalPages: viewModel.newsIds.count,
+                currentIndex: viewModel.currentIndex
+            )
+        }
+    }
+
+    @ViewBuilder
     private var pageIndicatorOverlay: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignPageIndicatorOverlay
+        } else {
+            legacyPageIndicatorOverlay
+        }
+    }
+
+    private var redesignPageIndicatorOverlay: some View {
+        ZStack(alignment: .bottom) {
+            VStack(spacing: .zero) {
+                Spacer()
+
+                LinearGradient(
+                    colors: [
+                        Color.Tangem.Surface.level2.opacity(0),
+                        Color.Tangem.Surface.level2.opacity(0.25),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 24)
+
+                BottomFadeWithBlur(backgroundColor: Color.Tangem.Surface.level2)
+                    .ignoresSafeArea(.container, edges: .bottom)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private var legacyPageIndicatorOverlay: some View {
         ZStack(alignment: .bottom) {
             VStack {
                 Spacer()
@@ -162,6 +205,23 @@ private struct NewsPageContentView: View {
             NewsArticleSkeletonView()
                 .hidden(!isLoading)
 
+            errorView
+                .hidden(!isError)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder
+    private var errorView: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: { viewModel.handleViewAction(.retry) }
+            )
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.Tangem.Surface.level2)
+        } else {
             UnableToLoadDataView(
                 isButtonBusy: false,
                 retryButtonAction: { viewModel.handleViewAction(.retry) }
@@ -169,9 +229,7 @@ private struct NewsPageContentView: View {
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.Tangem.Surface.level2)
-            .hidden(!isError)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Article Content
@@ -194,7 +252,49 @@ private struct NewsPageContentView: View {
 
     // MARK: - Like Button
 
+    @ViewBuilder
     private func likeButton(for newsId: Int) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignLikeButton(for: newsId)
+        } else {
+            legacyLikeButton(for: newsId)
+        }
+    }
+
+    private func redesignLikeButton(for newsId: Int) -> some View {
+        let isLiked = viewModel.isLiked(for: newsId)
+
+        return Button { viewModel.handleViewAction(.like(newsId)) } label: {
+            HStack(spacing: .unit(.x1)) {
+                ZStack {
+                    if isLiked {
+                        Assets.Glyphs.glyphsFavouriteFill.image
+                            .resizable()
+                            .frame(size: .init(bothDimensions: 20))
+                            .foregroundStyle(Color.Tangem.Graphic.Status.warning)
+                            .transition(.scale.animation(.easeInOut(duration: 0.2)))
+                    } else {
+                        Assets.Glyphs.glyphsFavorite.image
+                            .resizable()
+                            .frame(size: .init(bothDimensions: 20))
+                            .foregroundStyle(Color.Tangem.Text.Neutral.primary)
+                            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+                    }
+                }
+
+                Text(Localization.newsLike)
+                    .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            }
+            .padding(.horizontal, .unit(.x3))
+            .frame(height: 36)
+            .frame(minWidth: 46)
+            .background(Color.Tangem.Button.backgroundSecondary, in: .capsule)
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func legacyLikeButton(for newsId: Int) -> some View {
         let isLiked = viewModel.isLiked(for: newsId)
 
         return Button { viewModel.handleViewAction(.like(newsId)) } label: {
