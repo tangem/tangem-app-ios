@@ -10,7 +10,7 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class SwapTokenSelectorScreen: ScreenBase<SwapTokenSelectorScreenElement> {
-    private lazy var titleLabel = app.navigationBars.staticTexts["Swap"]
+    private lazy var titleLabel = app.navigationBars.staticTexts["Choose token"]
     private lazy var closeButton = button(.closeButton)
     private lazy var searchField = searchField(.searchField)
     private lazy var clearSearchButton = searchField.buttons["Clear text"].firstMatch
