@@ -17,4 +17,5 @@ protocol EnvironmentSetupRoutable: AnyObject {
     func openSparrowSurveyClassicDemo(withToken token: String)
     func openSparrowSurveyChatDemo(withToken token: String)
     func openSparrowSurveyNPSDemo(withToken token: String)
+    func openUserWalletIdSpoofing()
 }
