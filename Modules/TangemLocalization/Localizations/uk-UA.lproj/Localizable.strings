@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Потрібен дозвіл";
 "express_provider_recommended" = "Рекомендовано";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Провайдер";
 "express_status_buying" = "Купівля %@";
 "express_status_hide_button_text" = "Приховати цю транзакцію";
