@@ -21,7 +21,7 @@ public final class UserWalletIdSpoofer: @unchecked Sendable {
             return nil
         }
 
-        let originalHex = originalValue.hexString
+        let originalHex = originalValue.hexEncodedString
         let map = (userDefaults.dictionary(forKey: storageKey) as? [String: Data]) ?? [:]
 
         return map[originalHex]

@@ -25,9 +25,10 @@ public extension Data {
 extension Data {
     /// Uppercase hex string representation, no separators (e.g., "AABBCC...").
     ///
-    /// Kept internal to `TangemFoundation` module to avoid call-site ambiguity with `TangemSdk`'s
-    /// public `Data.hexString` in modules that import both.
-    var hexString: String {
+    /// Named `hexEncodedString` rather than `hexString` to avoid call-site ambiguity in modules
+    /// that `@testable` import both `TangemFoundation` (which exposes internals) and `TangemSdk`,
+    /// the latter already declaring a public `Data.hexString` of the same shape.
+    var hexEncodedString: String {
         return map { String(format: "%02X", $0) }.joined()
     }
 }
