@@ -79,8 +79,13 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func userDidTapMaxAmount() {
         interactor.userDidRequestMaxAmount()
+    }
+
+    func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
+        interactor.userDidRequestSourceAmount(fraction: fraction)
     }
 
     func userDidTapMainActionButton() {
