@@ -21,6 +21,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTypographyDemo()
     func openTangemDropDownDemo()
     func openTangemLoaderDemo()
+    func openTangemTokenRowDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -40,6 +41,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemSearchFieldDemoViewModel: TangemSearchFieldDemoViewModel?
     @Published var tangemDropDownDemoViewModel: TangemDropDownDemoViewModel?
     @Published var tangemLoaderDemoViewModel: TangemLoaderDemoViewModel?
+    @Published var tangemTokenRowDemoViewModel: TangemTokenRowDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -101,6 +103,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemLoaderDemo() {
         tangemLoaderDemoViewModel = .init()
+    }
+
+    func openTangemTokenRowDemo() {
+        tangemTokenRowDemoViewModel = .init()
     }
 }
 
