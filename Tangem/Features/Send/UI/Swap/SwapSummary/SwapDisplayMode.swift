@@ -16,8 +16,8 @@ enum SwapDisplayMode: String, CaseIterable, Identifiable {
 
     var menuTitle: String {
         switch self {
-        case .simple: return Localization.commonSwapSimpleMode
-        case .detailed: return Localization.commonSwapDetailedMode
+        case .simple: return Localization.swapSimpleMode
+        case .detailed: return Localization.swapDetailedMode
         }
     }
 }

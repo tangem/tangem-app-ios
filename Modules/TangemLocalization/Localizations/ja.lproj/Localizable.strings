@@ -313,8 +313,6 @@
 "common_support" = "サポート";
 "common_supported_networks" = "対応ネットワーク";
 "common_swap" = "スワップ";
-"common_swap_simple_mode" = "Simple mode";
-"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Tangem Wallet";
@@ -1320,12 +1318,14 @@
 "sui_not_enough_coin_for_fee_description" = "続行するには少なくとも%1$@の受信取引が必要です";
 "sui_not_enough_coin_for_fee_title" = "残高不足";
 "swap_approve_description" = "承認すると、このスマートコントラクトが今後の取引でトークンを利用できるようになります。";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "固定レート";
 "swap_give_permission_fee_footer" = "ネットワークは、あなたがトークンのスワップを承認していることを確認するために、トークン承認手数料を請求します。";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "他のものをお探しですか？\n検索してみるか、別の暗号資産をチェックしてみましょう！";
 "swap_search_tooltip_description" = "どのトークンでも検索できます。まだ一覧に表示されていないものでも検索可能です。";
 "swap_search_tooltip_title" = "必要なものは検索して見つけましょう。";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "24時間体制のサポートであらゆる問題に対応します。";
 "swap_story_fifth_title" = "いつもここに";
 "swap_story_first_subtitle_v2" = "Tangem内で暗号資産を直接交換\n追加の送金は不要\n取引所に資産を移す必要なし";

@@ -313,8 +313,6 @@
 "common_support" = "支持";
 "common_supported_networks" = "支持的网络";
 "common_swap" = "兑换";
-"common_swap_simple_mode" = "Simple mode";
-"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Tangem钱包";
@@ -1320,12 +1318,14 @@
 "sui_not_enough_coin_for_fee_description" = "至少需要有 %1$@ 的转入交易才能继续进行";
 "sui_not_enough_coin_for_fee_title" = "资金不足";
 "swap_approve_description" = "批准后，您即允许智能合约在未来的交易中使用您的代币。";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "固定利率";
 "swap_give_permission_fee_footer" = "网络将收取代币批准费，以验证您是否授权使用您的代币进行兑换。";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "还在寻找其他代币？\n尝试搜索或探索其他加密货币！";
 "swap_search_tooltip_description" = "搜索任何代币，即使它还不在你的列表中。";
 "swap_search_tooltip_title" = "使用搜索查找所需内容";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "我们提供全天候支持，让您安心无忧，任何问题都能得到帮助。";
 "swap_story_fifth_title" = "永远在这里";
 "swap_story_first_subtitle_v2" = "在 Tangem 直接兑换加密货币\n无需额外转账\n无需将资金转移到其他交易所";

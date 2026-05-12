@@ -313,8 +313,6 @@
 "common_support" = "Підтримка";
 "common_supported_networks" = "Підтримувані мережі";
 "common_swap" = "Обмін";
-"common_swap_simple_mode" = "Simple mode";
-"common_swap_detailed_mode" = "Detailed mode";
 "common_swapped" = "Swapped";
 "common_swapping" = "Swapping";
 "common_tangem_wallet" = "Tangem Wallet";
@@ -1320,12 +1318,14 @@
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Фіксований курс";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Шукаєте щось інше?\nСпробуйте пошукати або перегляньте інші криптовалюти!";
 "swap_search_tooltip_description" = "Шукайте будь-який токен, навіть якщо його ще немає у вашому списку.";
 "swap_search_tooltip_title" = "Використовуйте пошук, щоб знайти потрібне";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Надійна підтримка 24/7, щоб ваші фінансові операції були швидкими та надійними!";
 "swap_story_fifth_title" = "Цілодобова підтримка";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
