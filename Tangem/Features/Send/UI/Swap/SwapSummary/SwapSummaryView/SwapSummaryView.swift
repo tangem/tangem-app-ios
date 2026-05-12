@@ -52,7 +52,7 @@ struct SwapSummaryView: View {
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.title)
             .scrollDismissesKeyboard(.immediately)
         }
-        .keyboardToolbar(keyboardToolbarContent)
+        .keyboardToolbar(toolbarContent)
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
         .onChange(of: viewModel.swapAmountViewModel.isInputDisabled) { isDisabled in
@@ -140,12 +140,89 @@ struct SwapSummaryView: View {
     }
 
     @ViewBuilder
+    private var toolbarContent: some View {
+        if FeatureProvider.isAvailable(.swapMaxAmountFractions) {
+            chipsToolbarContent
+        } else {
+            keyboardToolbarContent
+        }
+    }
+
+    @ViewBuilder
     private var keyboardToolbarContent: some View {
         if #available(iOS 26.0, *) {
             glassToolbarContent
         } else {
             regularToolbarContent
         }
+    }
+
+    @ViewBuilder
+    private var chipsToolbarContent: some View {
+        if #available(iOS 26.0, *) {
+            glassChipsToolbarContent
+        } else {
+            regularChipsToolbarContent
+        }
+    }
+
+    private var visibleAmountFractions: [SwapAmountFraction] {
+        SwapAmountFraction.allCases.filter { !viewModel.isMaxAmountButtonHidden || $0 != .max }
+    }
+
+    private var regularChipsToolbarContent: some View {
+        HStack(spacing: 8) {
+            ForEach(visibleAmountFractions, id: \.self) { fraction in
+                Button {
+                    viewModel.userDidTapAmountFraction(fraction)
+                } label: {
+                    Text(fraction.title)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                        .background(Capsule().fill(Colors.Button.secondary))
+                }
+                .accessibilityIdentifier(SwapAccessibilityIdentifiers.amountFraction(fraction.accessibilityIdentifierToken))
+            }
+
+            Button(action: { keyboardActive = false }) {
+                keyboardSFSymbol
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(Colors.Button.secondary))
+            }
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.keyboardDismissButton)
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 52)
+    }
+
+    @available(iOS 26.0, *)
+    private var glassChipsToolbarContent: some View {
+        HStack(spacing: 8) {
+            ForEach(visibleAmountFractions, id: \.self) { fraction in
+                Button {
+                    viewModel.userDidTapAmountFraction(fraction)
+                } label: {
+                    Text(fraction.title)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                }
+                .glassEffect(.regular.interactive())
+                .glassEffectTransition(.materialize)
+                .accessibilityIdentifier(SwapAccessibilityIdentifiers.amountFraction(fraction.accessibilityIdentifierToken))
+            }
+
+            Button(action: { keyboardActive = false }) {
+                keyboardSFSymbol
+                    .frame(width: 36, height: 36)
+            }
+            .glassEffect(.regular.interactive(), in: Circle())
+            .glassEffectTransition(.materialize)
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.keyboardDismissButton)
+        }
+        .padding(.horizontal, 12)
+        .frame(height: 52)
     }
 
     @available(iOS 26.0, *)
