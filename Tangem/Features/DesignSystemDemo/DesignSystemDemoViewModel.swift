@@ -62,4 +62,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTangemLoaderDemo() {
         coordinator?.openTangemLoaderDemo()
     }
+
+    func openTangemTokenRowDemo() {
+        coordinator?.openTangemTokenRowDemo()
+    }
 }
