@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li day ago</string>
+        <string>%li Tag zuvor</string>
         <key>other</key>
-        <string>%li days ago</string>
+        <string>%li Tage zuvor</string>
       </dict>
     </dict>
     <key>common_hours</key>
@@ -266,7 +266,7 @@
         <key>one</key>
         <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -381,6 +381,22 @@
         <string>%li -Tokens sind mit dieser Adresse nicht kompatibel</string>
       </dict>
     </dict>
+    <key>tangempay_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -424,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
+        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
       </dict>
     </dict>
   </dict>
