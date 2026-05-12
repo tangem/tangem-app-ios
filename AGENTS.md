@@ -10,6 +10,23 @@ The source code located in the `tangem-developments/tangem-app-ios` repository.
 
 Requirements: iOS 16.4+, Xcode 16.4, Swift 5.10
 
+## Workflow Conventions
+
+Every change starts with a Jira ticket whose key flows through the rest of the workflow, and every PR goes through a self-review before being opened:
+
+- **Every change carries a Jira ticket key.** Branch names, commit subjects, and PR titles all include an `IOS-NNNNN` prefix. Before starting, decide whether the work belongs on an existing ticket or needs a new one — if it isn't obvious, ask. Either way, before any code is touched the ticket must be: assigned to you, in the active sprint, and have both required custom fields populated. The rule applies regardless of whether the ticket is fresh or reused — fill in anything that's missing on a reused one (it usually is).
+  - **Story Points (`customfield_10025`)** — default to `3` unless context clearly suggests otherwise (trivial = 1; clear hotfix or multi-day work = 5+).
+  - **QA Notes (`customfield_11232`)** — per-scenario test plan using the team's template (Preconditions / Steps / Expected result). For changes with zero runtime impact (pure docs/comments, dead-code removal) the entire field can be the team's standard one-line "no QA needed" shorthand — don't fabricate fake scenarios; QA reads the field and noise wastes their time. Refactors, renames, or anything that produces a different binary still need real QA scenarios.
+
+  See [External Systems → Jira](#jira) for cloudId, field IDs, and the ADF caveat.
+- **Branch name:** `IOS-NNNNN_short_description` in snake_case (e.g. `[REDACTED_INFO]_crashfixes`).
+- **Commit message subject:** `IOS-NNNNN Short description`. Body explains the why, not the what — the diff already shows the what.
+- **Move the issue to `In Progress`** the moment you create the branch and start work. Use `getTransitionsForJiraIssue` to find the right transition id, then `transitionJiraIssue`. Don't leave a ticket in `To Do` while a branch with commits exists — sprint metrics and standups read these states.
+- **Self-review before opening the PR.** Once the branch builds and tests pass, do an independent review of the diff as if it were someone else's code: either read `git diff <base>..HEAD` end-to-end with fresh eyes, or delegate to a sub-agent (e.g. Claude Code's `Agent` tool with a skeptical-reviewer prompt; equivalent in other agent harnesses). Apply any meaningful feedback as additional commits before opening the PR — the goal is to spend the human reviewer's attention on judgment calls, not on things you would have caught yourself.
+- **PR title:** identical to the commit subject. The PR body MUST include `[IOS-NNNNN](https://tangem.atlassian.net/browse/IOS-NNNNN)` on its own line so the Atlassian/GitHub integration links the PR back to the ticket. Opening the PR generally moves the issue to `Review` automatically.
+- **PR description style.** Write for the reviewer, not as a changelog. Aim for 3-5 sentences that name the problem, the approach, and the riskiest call you made — and explicitly invite pushback on whatever you most want a second opinion on. Skip bullets that just restate a filename or list what changed; the diff already shows that. Verification steps stay if they're useful, otherwise drop them. PR descriptions live on GitHub (not in the repo), so they may use whatever language matches the team conversation.
+- All commits require a valid GPG signature (see Miscellaneous).
+
 ## Build & Development Commands
 
 ### Initial Setup
@@ -34,6 +51,17 @@ bundle exec fastlane test_modules                                       # SPM mo
 bundle exec fastlane ui_test                                            # UI tests (Alpha scheme)
 bundle exec fastlane ui_test only_testing:TangemUITests/TestClassName   # Single test class
 ```
+
+For a single SPM module test class without running the full module suite (e.g. `TangemFoundationTests/MyTests`):
+```bash
+cd Modules && xcodebuild test \
+    -scheme TangemModules \
+    -destination 'platform=iOS Simulator,id=<udid>' \
+    -only-testing:TangemFoundationTests/MyTests \
+    -disableAutomaticPackageResolution \
+    -onlyUsePackageVersionsFromResolvedFile
+```
+Note: plain `swift test` from `Modules/` fails due to macOS deployment-target conflicts with iOS-only deps. Module test targets use **Swift Testing** (`@Suite`/`@Test`/`#expect`), not XCTest — see `Modules/TangemFoundationTests/PublisherAsyncTests.swift` for race-test patterns (`nonisolated(unsafe)` captures, `@preconcurrency import Combine`). Add `-enableThreadSanitizer YES` for race investigations.
 
 ### Code Formatting
 SwiftFormat runs automatically during bootstrap and is enforced by CI (Dangerfile). Manual run:
@@ -151,6 +179,8 @@ Key lanes defined in `fastlane/Fastfile`:
 
 ## Code Style
 
+**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira fields and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation.
+
 **Style Guide:** Follow [Google's Swift Style Guide](https://google.github.io/swift/)
 
 **SwiftUI Previews:** Must be wrapped in `#if DEBUG`/`#endif` and marked with `// MARK: - Previews`:
@@ -193,6 +223,28 @@ The type is re-exported via `Modules/TangemFoundation/Extensions/Foundation/OSAl
 - **Danger** enforces linting and blocks PRs with compiler warnings/errors
 - PRs over 500 LOC trigger size warnings
 - Issue tracking: `IOS-*` links to Jira tasks
+
+## External Systems
+
+### Firebase Crashlytics
+
+- **iOS app ID:** `1:721920782444:ios:33c2eaa02d871fc63f2849` (Tangem iOS Release, bundle `com.tangem.Tangem`). Required for every `mcp__firebase__crashlytics_*` call.
+- **Console URL template for an issue:** `https://console.firebase.google.com/v1/appid/project/tangemapp/crashlytics/app/1:721920782444:ios:33c2eaa02d871fc63f2849/issues/{issueId}`. Use this when linking crashes from Jira/PRs instead of constructing URLs from event resource names.
+- **Querying a specific build:** call `crashlytics_get_report` with `report=topIssues` and `versionDisplayNames=["5.X (NNNN)"]`. Display name format is `version (build)` — get exact strings via the `topVersions` report first.
+- **Tooling caveat:** `crashlytics_list_events` with `pageSize >= 5` for a busy issue exceeds the MCP token limit and writes the result to a temp file. Same for `crashlytics_batch_get_events` with 10+ events. Delegate trace analysis to a sub-agent that reads the file in chunks.
+- After a fix is merged, mark closed issues `CLOSED` via `crashlytics_update_issue`. Skip vendor-SDK crashes (e.g. Sumsub) — those need vendor tickets.
+
+### Jira
+
+- **Cloud ID:** `d018e0a4-7934-4a07-a61b-3533039acdfa` (`tangem.atlassian.net`).
+- **iOS project key:** `IOS`. Default issue type `Task` (id `10002`). Active sprint id is on `customfield_10021` (read it off any open ticket on board id `12`).
+- **`customfield_11232` — `QA Notes`** is the field manual QA reads. Use the team's per-scenario template (Preconditions / Steps / Expected result), not the description. Discover other field IDs via `getJiraIssueTypeMetaWithFields(cloudId, projectIdOrKey="IOS", issueTypeId="10002")`.
+- **Markdown vs ADF:**
+  - `editJiraIssue` accepts a markdown string for the built-in `description` field (server-side conversion).
+  - `createJiraIssue` rejects markdown for `description` — pass an Atlassian Document Format JSON doc instead.
+  - Any custom textarea field (e.g. `customfield_11232`) on **either** tool always requires ADF `{"type": "doc", "version": 1, "content": [...]}`.
+  - Build ADF programmatically (a small Python helper for `paragraph`/`heading`/`orderedList`/`text`+`marks` keeps the JSON readable).
+- **Assignee on create:** `assignee_accountId` shorthand is silently dropped by `createJiraIssue`. Always follow up with `editJiraIssue` `{"assignee": {"accountId": "..."}}` and read back the issue to verify.
 
 ## Documentation
 
