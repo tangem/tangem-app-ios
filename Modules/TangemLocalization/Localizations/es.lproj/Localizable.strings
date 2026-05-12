@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Permiso requerido";
 "express_provider_recommended" = "Recomendado";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Proveedor";
 "express_status_buying" = "Comprando %@";
 "express_status_hide_button_text" = "Ocultar esta transacción";
