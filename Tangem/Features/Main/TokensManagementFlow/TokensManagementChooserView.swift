@@ -14,12 +14,12 @@ import TangemUI
 struct TokensManagementChooserView: View {
     // MARK: - Properties
 
-    @ObservedObject var viewModel: TokensManagementFlowViewModel
+    @ObservedObject var viewModel: TokensManagementFlowCoordinator
 
     // MARK: - View Body
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 0) {
             row(
                 icon: Assets.plus24,
                 title: Localization.addAndManageSheetManageTitle,
@@ -34,6 +34,10 @@ struct TokensManagementChooserView: View {
                 action: viewModel.openOrganize
             )
         }
+        .background(
+            RoundedRectangle(cornerRadius: Constants.rowCornerRadius, style: .continuous)
+                .fill(Colors.Background.action)
+        )
         .padding(.horizontal, 16)
     }
 
@@ -58,10 +62,7 @@ struct TokensManagementChooserView: View {
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
-            .background(
-                RoundedRectangle(cornerRadius: Constants.rowCornerRadius, style: .continuous)
-                    .fill(Colors.Background.action)
-            )
+            .contentShape(.rect)
         }
         .buttonStyle(.plain)
     }

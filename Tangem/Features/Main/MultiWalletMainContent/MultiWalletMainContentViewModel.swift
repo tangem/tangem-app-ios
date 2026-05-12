@@ -217,7 +217,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openAddAndManageTokens(userWalletModel: userWalletModel)
+        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel)
+        coordinator?.openAddAndManageTokens(factory: factory)
     }
 
     func onAddTokensTap() {
@@ -876,7 +877,8 @@ private extension MultiWalletMainContentViewModel {
         return .init(
             coordinator: coordinator,
             userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo),
+            tokensOrderProvider: sectionsProvider
         )
     }
 }

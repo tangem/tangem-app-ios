@@ -31,6 +31,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemBadgeDemoViewModel) {
                 TangemBadgeDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemBadgeV2DemoViewModel) {
+                TangemBadgeV2DemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemCalloutDemoViewModel) {
                 TangemCalloutDemoView(viewModel: $0)
             }
@@ -58,6 +61,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemLoaderDemoViewModel) {
                 TangemLoaderDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemTokenRowDemoViewModel) {
+                TangemTokenRowDemoView(viewModel: $0)
+            }
     }
 
     private var sheets: some View {
@@ -76,6 +82,10 @@ struct DesignSystemDemoView: View {
 
             MainButton(title: "TangemBadge") {
                 viewModel.openTangemBadgeDemo()
+            }
+
+            MainButton(title: "TangemBadgeV2") {
+                viewModel.openTangemBadgeV2Demo()
             }
 
             MainButton(title: "TangemCallout") {
@@ -108,6 +118,10 @@ struct DesignSystemDemoView: View {
 
             MainButton(title: "TangemLoader") {
                 viewModel.openTangemLoaderDemo()
+            }
+
+            MainButton(title: "TangemTokenRow") {
+                viewModel.openTangemTokenRowDemo()
             }
 
             MainButton(title: "Typography") {
