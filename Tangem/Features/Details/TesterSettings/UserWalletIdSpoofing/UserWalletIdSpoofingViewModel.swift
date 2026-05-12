@@ -73,8 +73,17 @@ final class UserWalletIdSpoofingViewModel: ObservableObject {
     }
 
     func saveDraftMapping() {
-        let originalKey = draftOriginalHex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        let spoofedKey = draftSpoofedHex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        // `removeHexPrefix()` strips a leading `0x`/`0X` so a pasted value like `0xAABB…` matches
+        // `Data.hexString` (no prefix) for the original-id side, and keeps both sides symmetric
+        // with TangemSdk's `Data(hexString:)`, which already strips the prefix on parse.
+        let originalKey = draftOriginalHex
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .removeHexPrefix()
+            .uppercased()
+        let spoofedKey = draftSpoofedHex
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .removeHexPrefix()
+            .uppercased()
 
         guard originalKey.isNotEmpty, spoofedKey.isNotEmpty else {
             presentAlert(title: "Invalid input", message: "Both fields are required.")
