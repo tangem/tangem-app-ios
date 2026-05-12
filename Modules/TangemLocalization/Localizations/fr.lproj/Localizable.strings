@@ -247,6 +247,7 @@
 "common_hold_to" = "Maintenir contre %@";
 "common_import" = "Importez";
 "common_in_progress" = "En cours";
+"common_in" = "dans";
 "common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Plus tard";
 "common_learn_and_earn" = "Apprendre et Gagner";
@@ -324,6 +325,7 @@
 "common_to" = "À";
 "common_today" = "Aujourd'hui";
 "common_token_send" = "Token to send";
+"common_token" = "Token";
 "common_transaction_failed" = "La transaction a échoué";
 "common_transaction_status" = "Statut de la transaction";
 "common_transactions" = "Transactions";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Principalement utilisé";
 "earn_no_results" = "Pas de résultat";
 "earn_title" = "Gagner";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Bonjour équipe de support, j’ai rencontré une erreur avec le code : %@";
 "email_subject_wc_error" = "Erreur WalletConnect";
 "error_wrong_wallet_tapped" = "Vous avez utilisé une carte d'un autre portefeuille. Appuyez sur la carte associée à ce portefeuille";
@@ -559,8 +564,8 @@
 "hw_backup_hardware_title" = "Hardware wallet";
 "hw_backup_hardware_upgrade_description" = "Transférez votre portefeuille actuel vers Tangem.";
 "hw_backup_hardware_upgrade_title" = "Améliorer le wallet actuel";
-"hw_backup_icloud_alert_message" = "We’re working on iCloud backup to make wallet recovery even easier.";
-"hw_backup_icloud_alert_title" = "iCloud backup is coming soon";
+"hw_backup_icloud_alert_message" = "Nous travaillons actuellement sur la sauvegarde de votre portefeuille via iCloud afin de faciliter encore davantage la restauration de celui-ci.";
+"hw_backup_icloud_alert_title" = "La sauvegarde avec iCloud sera bientôt disponible";
 "hw_backup_icloud_description" = "Récupérer un portefeuille existant via la sauvegarde iCloud";
 "hw_backup_icloud_title" = "Sauvegarde iCloud";
 "hw_backup_need_action" = "Aller à la sauvegarde";
@@ -1318,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "Une transaction entrante d'au moins de %1$@ est requise pour continuer";
 "sui_not_enough_coin_for_fee_title" = "Fonds insuffisants";
 "swap_approve_description" = "En approuvant, vous autorisez le contrat intelligent à utiliser vos jetons dans de futures transactions.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
 "swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
 "swap_story_fifth_title" = "Assistance 24 heures sur 24";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1563,7 +1570,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choisissez une adresse";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Générer XPUB";
 "token_details_hide_alert_hide" = "Masquer";
 "token_details_hide_alert_message" = "Vous êtes sur le point de masquer ce jeton de l'écran principal. Vous pouvez le rajouter à tout moment via la page de gestion des jetons.";
