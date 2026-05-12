@@ -24,11 +24,6 @@ extension SwiftUI.Color {
         self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
     }
 
-    /// Build a SwiftUI `Color` whose value depends on the active trait collection.
-    /// Takes `UIColor` (not `Color`) so the dynamic provider's per-trait branching
-    /// is authoritative — wrapping SwiftUI Colors here makes resolution defer to
-    /// whatever environment is active when the closure runs, which is fragile
-    /// across Widget / CarPlay / share-extension contexts.
     static func dsTokensDynamic(light: UIColor, dark: UIColor) -> SwiftUI.Color {
         SwiftUI.Color(uiColor: UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark ? dark : light
@@ -83,13 +78,38 @@ public struct TangemTypographyToken: Hashable, Sendable {
 }
 
 public extension View {
-    /// Overloads SwiftUI's `.font(_: Font?)` so a typography token applies font,
-    /// line height and letter spacing in one call. Swift picks the right
-    /// overload by argument type.
     func font(_ token: TangemTypographyToken) -> some View {
-        font(token.font)
-            .lineSpacing(max(0, token.lineHeight - token.fontSize))
+        modifier(TangemTypographyTokenModifier(token: token))
+    }
+}
+
+private struct TangemTypographyTokenModifier: ViewModifier {
+    let token: TangemTypographyToken
+    @ScaledMetric private var scaledSize: CGFloat
+
+    init(token: TangemTypographyToken) {
+        self.token = token
+        _scaledSize = ScaledMetric(wrappedValue: token.fontSize, relativeTo: .body)
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .font(scaledFont)
+            .lineSpacing(max(0, scaledLineHeight - scaledSize))
             .tracking(token.letterSpacing)
+    }
+
+    private var scaledFont: Font {
+        if token.fontFamily == "SF Pro" {
+            return .system(size: scaledSize, weight: token.fontWeight)
+        }
+        return .custom(token.fontFamily, size: scaledSize).weight(token.fontWeight)
+    }
+
+    private var scaledLineHeight: CGFloat {
+        guard token.fontSize > 0 else { return token.lineHeight }
+
+        return token.lineHeight * (scaledSize / token.fontSize)
     }
 }
 
