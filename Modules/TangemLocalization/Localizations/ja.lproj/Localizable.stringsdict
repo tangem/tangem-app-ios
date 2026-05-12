@@ -54,10 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li hour</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li 時間</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -360,7 +358,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%li ネットワークのアドレスを取得するために、カードまたはリングを利用してください</string>
+        <string>カードまたはリングを使って、[%i}ネットワークのアドレスを取得します</string>
       </dict>
     </dict>
   </dict>
