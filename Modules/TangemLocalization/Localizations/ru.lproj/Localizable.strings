@@ -1492,8 +1492,14 @@
 "tangempay_get_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_get_tangem_pay" = "Получить Tangem Pay";
 "tangempay_go_to_support" = "Написать в поддержку";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Обычно это занимает до 15 минут";
 "tangempay_issue_card_notification_title" = "Готовим вашу Tangem Card";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "Обычно это занимает не больше 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_issuing_your_card" = "Выпускаем карту";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1516,8 @@
 "tangempay_kyc_rejected_description_span" = "ваш профиль.";
 "tangempay_kyc_rejected_description" = "Извините, мы не смогли подтвердить";
 "tangempay_kyc_rejected" = "Отклонено";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_onboarding_banner_title" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_onboarding_get_card_button_text" = "Открыть карту";
