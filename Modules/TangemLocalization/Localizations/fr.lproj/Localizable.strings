@@ -1492,8 +1492,14 @@
 "tangempay_get_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_get_tangem_pay" = "Obtenir Tangem Pay";
 "tangempay_go_to_support" = "Contacter le support";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Cela prend généralement jusqu'à 15 minutes";
 "tangempay_issue_card_notification_title" = "Configuration de votre carte Tangem";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "La carte est généralement émise automatiquement en moins de 5 minutes. Dans de rares cas nécessitant une vérification manuelle, l’émission peut prendre jusqu’à 48 heures.";
 "tangempay_issuing_your_card" = "Émission de votre carte";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1516,8 @@
 "tangempay_kyc_rejected_description_span" = "votre identité.";
 "tangempay_kyc_rejected_description" = "Désolé, nous n'avons pas pu vérifier";
 "tangempay_kyc_rejected" = "Refusé";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_onboarding_banner_title" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_onboarding_get_card_button_text" = "Obtenir la carte";
