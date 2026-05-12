@@ -15,20 +15,21 @@ import TangemLocalization
 final class QuickTopUpBannerViewModel: ObservableObject {
     @Injected(\.onrampRepository) private var onrampRepository: OnrampRepository
 
-    @Published private(set) var isVisible: Bool = false
     @Published private(set) var chips: [Chip] = []
 
-    private let walletModel: any WalletModel
+    var isVisible: Bool { !chips.isEmpty }
+
+    private let sourceToken: any SendSourceToken
     private let onOpenOnramp: (PredefinedOnrampParameters) -> Void
     private let presetAmounts: [Decimal] = [50, 200, 700]
     private var presetByChipID: [Chip.ID: PredefinedOnrampParameters] = [:]
     private var bag = Set<AnyCancellable>()
 
     init(
-        walletModel: any WalletModel,
+        sourceToken: any SendSourceToken,
         onOpenOnramp: @escaping (PredefinedOnrampParameters) -> Void
     ) {
-        self.walletModel = walletModel
+        self.sourceToken = sourceToken
         self.onOpenOnramp = onOpenOnramp
 
         bind()
@@ -55,7 +56,7 @@ final class QuickTopUpBannerViewModel: ObservableObject {
                 }
             }
 
-        let isZeroBalancePublisher = walletModel.availableBalanceProvider.balanceTypePublisher
+        let isZeroBalancePublisher = sourceToken.availableBalanceProvider.balanceTypePublisher
             .map { balanceType in
                 switch balanceType {
                 case .loaded(let amount): return amount == .zero
@@ -73,9 +74,8 @@ final class QuickTopUpBannerViewModel: ObservableObject {
                     let result = makeChips(currencyCode: currencyCode)
                     chips = result.chips
                     presetByChipID = result.presets
-                    isVisible = true
                 } else {
-                    isVisible = false
+                    chips = []
                     presetByChipID = [:]
                 }
             }

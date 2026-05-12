@@ -20,6 +20,8 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
+    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
@@ -378,29 +380,31 @@ private extension TokenDetailsViewModel {
     private func setupQuickTopUpBanner() {
         guard FeatureProvider.isAvailable(.onrampNativePayment) else { return }
 
+        expressAvailabilityProvider.availabilityDidChangePublisher
+            .receiveOnMain()
+            .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
+            .assign(to: &$quickTopUpBannerViewModel)
+    }
+
+    private func mapToQuickTopUpBannerViewModel() -> QuickTopUpBannerViewModel? {
         let availabilityProvider = TokenActionAvailabilityProvider(
             userWalletConfig: userWalletInfo.config,
             walletModel: walletModel
         )
-        let expressAvailabilityProvider: any ExpressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
+        guard availabilityProvider.isBuyAvailable else { return nil }
+        if let existing = quickTopUpBannerViewModel { return existing }
 
-        expressAvailabilityProvider.availabilityDidChangePublisher
-            .receiveOnMain()
-            .sink { [weak self] in
-                guard let self else { return }
+        let sourceToken = CommonSendSourceTokenFactory(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        ).makeSourceToken()
 
-                if availabilityProvider.isBuyAvailable, quickTopUpBannerViewModel == nil {
-                    quickTopUpBannerViewModel = QuickTopUpBannerViewModel(
-                        walletModel: walletModel,
-                        onOpenOnramp: { [weak self] parameters in
-                            self?.openOnramp(parameters: parameters)
-                        }
-                    )
-                } else if !availabilityProvider.isBuyAvailable {
-                    quickTopUpBannerViewModel = nil
-                }
+        return QuickTopUpBannerViewModel(
+            sourceToken: sourceToken,
+            onOpenOnramp: { [weak self] parameters in
+                self?.openOnramp(parameters: parameters)
             }
-            .store(in: &bag)
+        )
     }
 
     private func makeDotsMenuItems() -> [DotsMenuItem] {
