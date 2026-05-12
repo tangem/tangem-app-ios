@@ -189,6 +189,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
                 .product(name: "BlurSwiftUI", package: "BlurUIKit"),
+                .product(name: "TangemMacro", package: "TangemMacro"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
