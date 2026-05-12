@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemFoundation
 import TangemUI
 
 struct MarketsNavigationBackButton: View {
@@ -14,6 +16,40 @@ struct MarketsNavigationBackButton: View {
     let action: () -> Void
 
     var body: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignBody
+        } else {
+            legacyBody
+        }
+    }
+
+    // MARK: - Redesign
+
+    @ViewBuilder
+    private var redesignBody: some View {
+        switch presentSource {
+        case .navigation:
+            redesignButton(icon: Assets.DesignSystem.chevronSmallLeft.image)
+        case .deeplink:
+            redesignButton(icon: Assets.DesignSystem.close.image)
+        }
+    }
+
+    private func redesignButton(icon: Image) -> some View {
+        Button(action: action) {
+            icon
+                .renderingMode(.template)
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+        }
+        .frame(width: 44, height: 44)
+        .background(Color.Tangem.Button.backgroundSecondary, in: Circle())
+        .padding(.leading, .unit(.x4))
+    }
+
+    // MARK: - Legacy
+
+    @ViewBuilder
+    private var legacyBody: some View {
         switch presentSource {
         case .navigation:
             BackButton(
