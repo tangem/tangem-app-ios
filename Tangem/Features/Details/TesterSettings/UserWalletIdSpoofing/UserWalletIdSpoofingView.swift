@@ -31,7 +31,7 @@ struct UserWalletIdSpoofingView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.presentAddMapping(prefillOriginal: nil)
+                    viewModel.presentAddMapping(currentWalletId: nil)
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -113,6 +113,7 @@ struct UserWalletIdSpoofingView: View {
                             .padding(.vertical, 8)
                             .padding(.horizontal, 12)
                             .background(Colors.Background.action)
+
                         if row.id != viewModel.spoofMappingRows.last?.id {
                             Divider().padding(.leading, 12)
                         }
@@ -158,7 +159,7 @@ struct UserWalletIdSpoofingView: View {
             }
 
             Button {
-                viewModel.presentAddMapping(prefillOriginal: row.currentId)
+                viewModel.presentAddMapping(currentWalletId: row.currentId)
             } label: {
                 Image(systemName: "pencil.circle")
                     .foregroundColor(Color.blue)
