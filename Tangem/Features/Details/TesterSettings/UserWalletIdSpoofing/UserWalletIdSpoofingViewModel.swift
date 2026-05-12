@@ -73,8 +73,15 @@ final class UserWalletIdSpoofingViewModel: ObservableObject {
     }
 
     func saveDraftMapping() {
-        let originalKey = draftOriginalHex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        let spoofedKey = draftSpoofedHex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        let originalKey = draftOriginalHex
+            .trimmed()
+            .removeHexPrefix()
+            .uppercased()
+
+        let spoofedKey = draftSpoofedHex
+            .trimmed()
+            .removeHexPrefix()
+            .uppercased()
 
         guard originalKey.isNotEmpty, spoofedKey.isNotEmpty else {
             presentAlert(title: "Invalid input", message: "Both fields are required.")
