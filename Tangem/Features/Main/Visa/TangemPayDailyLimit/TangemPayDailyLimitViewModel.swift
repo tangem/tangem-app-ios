@@ -34,7 +34,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
     let currency: String = AppConstants.usdCurrencyCode
 
     var hintText: String {
-        guard let minFormatted = formatter.string(from: .init(value: 0)),
+        guard let minFormatted = formatter.string(from: .init(value: minLimit)),
               let maxFormatted = formatter.string(from: .init(value: maxLimit)) else {
             return ""
         }
@@ -42,7 +42,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         return Localization.tangempayDailyLimitHint(minFormatted, maxFormatted)
     }
 
-    lazy var presets: [String] = [0, 5000, 10_000, 25_000]
+    lazy var presets: [String] = [minLimit, 5000, 10_000, 25_000]
         .filter { $0 <= maxLimit }
         .map { formatter.string(from: .init(value: $0)) ?? "" }
 
@@ -51,6 +51,8 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         locale: .posixEnUS,
         formattingOptions: .init(minFractionDigits: 0, maxFractionDigits: 0, formatEpsilonAsLowestRepresentableValue: false)
     )
+
+    private let minLimit = 1
 
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayDailyLimitRoutable?
