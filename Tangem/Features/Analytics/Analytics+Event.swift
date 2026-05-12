@@ -344,6 +344,7 @@ extension Analytics {
 
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
+        case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
 
         // MARK: - Seed phrase
 
@@ -715,6 +716,18 @@ extension Analytics {
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+
+        case visaCardIconClicked = "[Visa Screen] Visa Card Icon Clicked"
+        case visaAddExtraCardClicked = "[Visa Screen] Visa Add Extra Card Clicked"
+        case visaFakedoorPopupDisplayed = "[Visa Screen] Visa Fakedoor Popup Displayed"
+        case visaFakedoorGotitClicked = "[Visa Screen] Visa Fakedoor Gotit Clicked"
+        case visaExtraCardIssuancePopupDisplayed = "[Visa Screen] Visa Extra Card Issuance Popup Displayed"
+        case visaExtraCardIssuanceConfirmed = "[Visa Screen] Visa Extra Card Issuance Confirmed"
+
+        case visaCardManagementScreenOpened = "[Visa Card Management] Visa Card Management Screen Opened"
+        case visaCloseCardClicked = "[Visa Card Management] Visa Close Card Clicked"
+        case visaCloseCardConfirmationPopupOpened = "[Visa Card Management] Visa Close Card Confirmation Popup Opened"
+        case visaCloseCardConfirmed = "[Visa Card Management] Visa Close Card Confirmed"
 
         // MARK: - NFT
 

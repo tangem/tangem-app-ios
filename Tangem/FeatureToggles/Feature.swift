@@ -15,9 +15,7 @@ enum Feature: String, Hashable, CaseIterable {
     case exchangeOnlyWithinSingleAddress
     case experimentService
     case walletConnectBitcoin
-    case expressFixedRates
     case mainQRScan
-    case customerIO
     case surveySparrow
     case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
@@ -30,6 +28,8 @@ enum Feature: String, Hashable, CaseIterable {
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
+    case swapInProgressV2
+    case swapPendingTxStateDate
     case dexApproveNotificationV2
     case manageTokensImprovements
 
@@ -41,9 +41,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
-        case .expressFixedRates: return "Express Fixed Rates"
         case .mainQRScan: return "Main QR Scan"
-        case .customerIO: return "customer.io service integration"
         case .surveySparrow: return "SurveySparrow service integration"
         case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
@@ -56,6 +54,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
+        case .swapInProgressV2: return "Swap In Progress V2"
+        case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         }
@@ -69,9 +69,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .walletConnectBitcoin: return .unspecified
-        case .expressFixedRates: return .version("5.37")
         case .mainQRScan: return .version("5.36")
-        case .customerIO: return .version("5.35")
         case .surveySparrow: return .unspecified
         case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
@@ -80,10 +78,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .newPromotionBanners: return .version("5.37")
-        case .swapPipelineV2: return .unspecified
+        case .swapPipelineV2: return .version("5.38")
+        case .swapStoriesV2: return .version("5.38")
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
-        case .swapStoriesV2: return .unspecified
+        case .swapInProgressV2: return .unspecified
+        case .swapPendingTxStateDate: return .unspecified
         case .dexApproveNotificationV2: return .unspecified
         case .manageTokensImprovements: return .unspecified
         }

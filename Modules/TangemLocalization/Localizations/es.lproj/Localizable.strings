@@ -247,6 +247,7 @@
 "common_hold_to" = "Mantener para %@";
 "common_import" = "Importe";
 "common_in_progress" = "En progreso";
+"common_in" = "en";
 "common_insufficient_balance" = "Fondos insuficientes";
 "common_later" = "Más tarde";
 "common_learn_and_earn" = "Aprende y gane";
@@ -324,6 +325,7 @@
 "common_to" = "A";
 "common_today" = "Hoy";
 "common_token_send" = "Token para enviar";
+"common_token" = "Token";
 "common_transaction_failed" = "Transacción fallida";
 "common_transaction_status" = "Estado de la transacción";
 "common_transactions" = "Transacciones";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Popular";
 "earn_no_results" = "Sin resultados";
 "earn_title" = "Modo Staking & Rendimiento";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Hola equipo de soporte, he encontrado un error con el código: %@";
 "email_subject_wc_error" = "Error de WalletConnect";
 "error_wrong_wallet_tapped" = "Ha usado una tarjeta de otra billetera. Toque la tarjeta asociada con esta billetera";
@@ -985,6 +990,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Parámetros desconocidos";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1316,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "Se requiere una transacción entrante de al menos %1$@ para proceder";
 "sui_not_enough_coin_for_fee_title" = "Fondos insuficientes";
 "swap_approve_description" = "Al aprobar, permites que el contrato inteligente use tus tokens en futuras transacciones.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Tasa Fija";
 "swap_give_permission_fee_footer" = "La red cobrará una tasa de aprobación del token para verificar que usted autoriza el uso de su token para el intercambio.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "¿Busca algo más?\n¡Intente buscar o explorar otra criptomoneda!";
 "swap_search_tooltip_description" = "Busque cualquier token, incluso si aún no está en su lista.";
 "swap_search_tooltip_title" = "Utilice la búsqueda para encontrar lo que necesite";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Siéntase seguro con una asistencia permanente que le ayudará con cualquier problema";
 "swap_story_fifth_title" = "Siempre aquí";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1368,6 +1377,8 @@
 "swapping_token_not_available" = "no disponible";
 "swapping_trade_too_large_text" = "No hay liquidez suficiente para esta operación. Reduzca el importe o elija otro proveedor.";
 "swapping_trade_too_large_title" = "Operación demasiado grande";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "Nos encantaría recibir tus comentarios";
 "tangem_pay_beta_notification_title" = "Tangem Pay ya está en beta";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1456,6 +1467,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "No puedes iniciar un intercambio o un nuevo retiro hasta que el actual finalice.";
 "tangempay_card_details_withdraw_in_progress_title" = "Retiro en progreso";
 "tangempay_card_details_withdraw" = "Retirar";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Establecer un límite desde %@";
 "tangempay_card_limit_setup_error_message" = "No se pudo establecer el límite. Por favor, inténtalo de nuevo.";
 "tangempay_card_page_daily_limit_change" = "Cambiar";
@@ -1507,6 +1519,8 @@
 "tangempay_onboarding_purchases_title" = "Paga exactamente lo que ves";
 "tangempay_onboarding_security_description" = "Se creará una cuenta de pago separada sin divulgar tus direcciones y activos";
 "tangempay_onboarding_security_title" = "Privacidad inigualable";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Obtén tu tarjeta Tangem Pay gratuita en minutos";
 "tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "La cuenta de pago no está sincronizada";
@@ -1556,7 +1570,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Elige dirección";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Generar XPUB";
 "token_details_hide_alert_hide" = "Ocultar";
 "token_details_hide_alert_message" = "Está a punto de ocultar este token de la pantalla principal. Puede volver a agregarlo en cualquier momento a través de la página de gestión de tokens.";
@@ -1589,7 +1603,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "Aún no tiene ninguna transacción";
 "transaction_history_error_failed_to_load" = "Error al cargar el historial de transacciones.\nHaga clic en el botón de recarga para actualizar la información.";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Múltiples direcciones";
 "transaction_history_not_supported_description" = "El historial de transacciones no está soportado actualmente para esta blockchain. Pero no se preocupe, ¡estamos trabajando en ello! Mientras tanto, puede consultarlo en el explorador.";
 "transaction_history_operation" = "Operación";

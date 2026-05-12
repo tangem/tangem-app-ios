@@ -247,6 +247,7 @@
 "common_hold_to" = "Hold to %@";
 "common_import" = "導入";
 "common_in_progress" = "進行中";
+"common_in" = "在";
 "common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
@@ -324,6 +325,7 @@
 "common_to" = "To";
 "common_today" = "Today";
 "common_token_send" = "Token to send";
+"common_token" = "代幣";
 "common_transaction_failed" = "Transaction failed";
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "交易";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Popular";
 "earn_no_results" = "No results";
 "earn_title" = "Staking & Yield mode";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "您好，支援團隊，我遇到了一個錯誤，代碼為：%@";
 "email_subject_wc_error" = "WalletConnect 錯誤";
 "error_wrong_wallet_tapped" = "您使用了另一個錢包中的卡。點按與此錢包關聯的卡片";
@@ -985,6 +990,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Unknown Parameters";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1316,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Fixed Rate";
 "swap_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the swap.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
 "swap_search_tooltip_title" = "Use search to find what you need";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Feel confident with round-the-clock support to help with any issues";
 "swap_story_fifth_title" = "Always Here";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1368,6 +1377,8 @@
 "swapping_token_not_available" = "無法使用";
 "swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
 "swapping_trade_too_large_title" = "Trade too large";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "我們期待聆聽您的寶貴意見";
 "tangem_pay_beta_notification_title" = "Tangem Pay現已開放測試版";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1456,6 +1467,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "在当前操作完成之前，您无法启动兑换或新的提款。";
 "tangempay_card_details_withdraw_in_progress_title" = "提款进行中";
 "tangempay_card_details_withdraw" = "提现";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "從 %@ 設定限額";
 "tangempay_card_limit_setup_error_message" = "我们无法设置限额，请稍后再试。";
 "tangempay_card_page_daily_limit_change" = "Change";
@@ -1507,6 +1519,8 @@
 "tangempay_onboarding_purchases_title" = "所見即所付";
 "tangempay_onboarding_security_description" = "將創建單獨的支付帳戶，且不會透露您的地址和資產";
 "tangempay_onboarding_security_title" = "無與倫比的隱私";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "在幾分鐘內獲得免費的 Tangem Pay 卡";
 "tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "付款帳戶未同步";
@@ -1556,7 +1570,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choose address";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Generate XPUB";
 "token_details_hide_alert_hide" = "隱藏";
 "token_details_hide_alert_message" = "您即將在主屏幕上隱藏此代幣。您可以隨時通過管理代幣頁面將其添加回來。";
@@ -1589,7 +1603,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "您還沒有任何交易";
 "transaction_history_error_failed_to_load" = "無法加載交易";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Multiple addresses";
 "transaction_history_not_supported_description" = "Transaction history is currently not supported for this blockchain. But don't worry, we're working on it! In the meantime you can check it in the explorer.";
 "transaction_history_operation" = "Operation";
