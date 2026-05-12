@@ -14,8 +14,9 @@ public struct UserWalletId: Hashable {
     public let stringValue: String
 
     public init(value: Data) {
-        self.value = value
-        stringValue = value.hexString
+        let resolved = UserWalletIdSpoofer.shared.resolve(value) ?? value
+        self.value = resolved
+        stringValue = resolved.hexString
     }
 }
 
@@ -24,14 +25,7 @@ public extension UserWalletId {
         let keyHash = Data(SHA256.hash(data: walletPublicKey))
         let key = SymmetricKey(data: keyHash)
         let authenticationCode = HMAC<SHA256>.authenticationCode(for: Constants.message, using: key)
-        value = Data(authenticationCode)
-        stringValue = value.hexString
-    }
-}
-
-private extension Data {
-    var hexString: String {
-        return map { return String(format: "%02X", $0) }.joined()
+        self.init(value: Data(authenticationCode))
     }
 }
 

@@ -190,6 +190,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
                 self?.coordinator?.openDesignSystemDemo()
             }),
+            DefaultRowViewModel(title: "User Wallet ID Spoofing", action: { [weak self] in
+                self?.coordinator?.openUserWalletIdSpoofing()
+            }),
         ]
 
         forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""
