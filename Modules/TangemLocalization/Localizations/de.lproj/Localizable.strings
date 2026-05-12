@@ -247,6 +247,7 @@
 "common_hold_to" = "Halten bis %@";
 "common_import" = "Importieren";
 "common_in_progress" = "In Arbeit";
+"common_in" = "in";
 "common_insufficient_balance" = "Unzureichende Mittel";
 "common_later" = "Später";
 "common_learn_and_earn" = "Lernen und verdienen";
@@ -324,6 +325,7 @@
 "common_to" = "An";
 "common_today" = "Heute";
 "common_token_send" = "Zu sendendes Token";
+"common_token" = "Token";
 "common_transaction_failed" = "Transaktion fehlgeschlagen";
 "common_transaction_status" = "Transaktionsstatus";
 "common_transactions" = "Transaktionen";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Meist verwendet";
 "earn_no_results" = "Keine Ergebnisse";
 "earn_title" = "Verdienen";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Hallo Support-Team, ich habe einen Fehler mit dem Code %@ festgestellt.";
 "email_subject_wc_error" = "WalletConnect-Fehler";
 "error_wrong_wallet_tapped" = "Du hast eine Karte oder Ring aus einer anderen Wallet verwendet. Tippe auf die Karte oder Ring, die dieser Wallet zugeordnet ist.";
@@ -1318,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
 "swap_approve_description" = "Durch die Genehmigung erlaubst Du dem Smart Contract, Deine Token in zukünftigen Transaktionen zu verwenden.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Fester Zinssatz";
 "swap_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Sie die Verwendung Ihres Tokens für den Swap genehmigen.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Suchen Sie etwas anderes?\n Versuchen Sie es mit der Suche oder erkunden Sie eine andere Kryptowährung!";
 "swap_search_tooltip_description" = "Suchen Sie nach einem beliebigen Token, auch wenn es noch nicht in Ihrer Liste ist.";
 "swap_search_tooltip_title" = "Nutzen Sie die Suche, um zu finden, was Sie benötigen.";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
 "swap_story_fifth_title" = "Immer für Dich da";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1563,7 +1570,7 @@
 "token_details_balance_available" = "Verfügbares Guthaben";
 "token_details_balance_total" = "Gesamtsaldo";
 "token_details_choose_address" = "Adresse wählen";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Generiere XPUB";
 "token_details_hide_alert_hide" = "Ausblenden";
 "token_details_hide_alert_message" = "Du bist dabei, dieses Token vom Hauptbildschirm auszublenden. Du kannst es jederzeit über die Seite „Token verwalten“ wieder hinzufügen.";

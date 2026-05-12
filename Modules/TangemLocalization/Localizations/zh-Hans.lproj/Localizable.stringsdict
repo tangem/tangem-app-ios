@@ -54,10 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li hour</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li小时</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
