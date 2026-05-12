@@ -67,9 +67,9 @@ struct TangemPayDailyLimitSectionView: View {
     }
 
     private func loadedRow(currentLimit: String) -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             DefaultHeaderView(Localization.tangempayCardPageDailyLimitTitle)
-                .padding(.vertical, 12)
+                .padding(.bottom, 8)
             HStack(spacing: 12) {
                 iconView
 
@@ -96,7 +96,6 @@ struct TangemPayDailyLimitSectionView: View {
                 }
             }
         }
-
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(Colors.Background.primary)
