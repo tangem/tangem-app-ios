@@ -354,28 +354,27 @@ extension SendCoordinator: OnrampRoutable {
         dismissOnrampRedirecting()
     }
 
-    func openOnrampKYCVerification(providerName: String, kycURL: URL?, onChooseAnother: @escaping () -> Void) {
+    func openOnrampKYCVerification(providerName: String, kycURL: URL?, routable: OnrampKYCVerificationSheetRoutable) {
         let viewModel = OnrampKYCVerificationSheetViewModel(
             providerName: providerName,
             kycURL: kycURL,
-            onVerify: { [weak self] url in
-                guard let self, let url else { return }
-                Task { @MainActor in
-                    self.floatingSheetPresenter.pauseSheetsDisplaying()
-                    self.safariHandle = self.safariManager.openURL(
-                        url,
-                        configuration: .init(),
-                        onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
-                        onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
-                    )
-                }
-            },
-            onChooseAnother: onChooseAnother
+            routable: routable
         )
-
         Task { @MainActor in
             UIApplication.shared.endEditing()
             floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openOnrampKYCWebView(url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
+            )
         }
     }
 }

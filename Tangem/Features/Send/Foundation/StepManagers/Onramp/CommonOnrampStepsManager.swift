@@ -140,10 +140,21 @@ extension CommonOnrampStepsManager: OnrampModelRoutable {
         router?.openOnrampKYCVerification(
             providerName: provider.provider.name,
             kycURL: kycURL,
-            onChooseAnother: { [weak self] in
-                self?.openOnrampAllOffers()
-            }
+            routable: self
         )
+    }
+}
+
+// MARK: - OnrampKYCVerificationSheetRoutable
+
+extension CommonOnrampStepsManager: OnrampKYCVerificationSheetRoutable {
+    func onrampKYCVerificationDidTapVerify(kycURL: URL?) {
+        guard let kycURL else { return }
+        router?.openOnrampKYCWebView(url: kycURL)
+    }
+
+    func onrampKYCVerificationDidTapChooseAnother() {
+        openOnrampAllOffers()
     }
 }
 

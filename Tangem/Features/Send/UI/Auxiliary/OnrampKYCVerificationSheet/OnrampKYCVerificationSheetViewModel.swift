@@ -16,28 +16,25 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
     let providerName: String
 
     private let kycURL: URL?
-    private let onVerify: (URL?) -> Void
-    private let onChooseAnother: () -> Void
+    private weak var routable: (any OnrampKYCVerificationSheetRoutable)?
 
     init(
         providerName: String,
         kycURL: URL?,
-        onVerify: @escaping (URL?) -> Void,
-        onChooseAnother: @escaping () -> Void
+        routable: any OnrampKYCVerificationSheetRoutable
     ) {
         self.providerName = providerName
         self.kycURL = kycURL
-        self.onVerify = onVerify
-        self.onChooseAnother = onChooseAnother
+        self.routable = routable
     }
 
     func verify() {
-        onVerify(kycURL)
+        routable?.onrampKYCVerificationDidTapVerify(kycURL: kycURL)
         dismiss()
     }
 
     func chooseAnotherMethod() {
-        onChooseAnother()
+        routable?.onrampKYCVerificationDidTapChooseAnother()
         dismiss()
     }
 
