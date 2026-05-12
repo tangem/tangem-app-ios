@@ -247,6 +247,7 @@
 "common_hold_to" = "Mantenha-se em %@";
 "common_import" = "Importar";
 "common_in_progress" = "Em andamento";
+"common_in" = "em";
 "common_insufficient_balance" = "Saldo insuficiente";
 "common_later" = "Mais tarde";
 "common_learn_and_earn" = "Aprenda e Ganhe";
@@ -324,6 +325,7 @@
 "common_to" = "Para";
 "common_today" = "Hoje";
 "common_token_send" = "Token a ser enviado";
+"common_token" = "Token";
 "common_transaction_failed" = "Transação falhou";
 "common_transaction_status" = "Status da transação";
 "common_transactions" = "Transações";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Utilizado principalmente";
 "earn_no_results" = "Nenhum resultado";
 "earn_title" = "Ganhar";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Olá equipe de suporte, encontrei um erro com o seguinte código: %@";
 "email_subject_wc_error" = "Erro no WalletConnect";
 "error_wrong_wallet_tapped" = "Você usou um cartão ou anel de outra carteira. Toque no cartão ou anel associado a esta carteira.";
@@ -1318,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "Uma transação de entrada de pelo menos %1$@ é necessário prosseguir";
 "sui_not_enough_coin_for_fee_title" = "Fundos insuficientes";
 "swap_approve_description" = "Ao aprovar, você permite que o contrato inteligente utilize seus tokens em transações futuras.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Taxa fixa";
 "swap_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para a troca.";
 "swap_in_progress" = "Troca em andamento";
 "swap_search_suggestion_hint" = "Procurando algo diferente?\n Experimente pesquisar ou explore outra criptomoeda!";
 "swap_search_tooltip_description" = "Pesquise qualquer token, mesmo que ele ainda não esteja na sua lista.";
 "swap_search_tooltip_title" = "Use a busca para encontrar o que você precisa.";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Sinta-se seguro com o suporte disponível 24 horas por dia, 7 dias por semana, para ajudá-lo com qualquer problema.";
 "swap_story_fifth_title" = "Sempre aqui";
 "swap_story_first_subtitle_v2" = "Troque criptomoedas diretamente na Tangem\nSem transferências adicionais\nSem movimentação de fundos para corretoras";

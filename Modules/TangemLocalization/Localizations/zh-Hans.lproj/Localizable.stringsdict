@@ -54,10 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li hour</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li小时</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -361,6 +359,20 @@
         <string>li</string>
         <key>other</key>
         <string>使用您的卡片或指环获取%li网络地址</string>
+      </dict>
+    </dict>
+    <key>warning_missing_derivation_no_nfc_message</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
       </dict>
     </dict>
   </dict>
