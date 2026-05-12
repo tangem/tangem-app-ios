@@ -19,3 +19,15 @@ public extension Data {
         return self + suffix
     }
 }
+
+// MARK: - Convenience extensions
+
+extension Data {
+    /// Uppercase hex string representation, no separators (e.g., "AABBCC...").
+    ///
+    /// Kept internal to `TangemFoundation` module to avoid call-site ambiguity with `TangemSdk`'s
+    /// public `Data.hexString` in modules that import both.
+    var hexString: String {
+        return map { String(format: "%02X", $0) }.joined()
+    }
+}
