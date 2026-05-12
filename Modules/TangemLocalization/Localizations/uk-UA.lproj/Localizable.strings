@@ -247,6 +247,7 @@
 "common_hold_to" = "Утримуйте, щоб %@";
 "common_import" = "Імпортувати";
 "common_in_progress" = "В процесі";
+"common_in" = "у";
 "common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Пізніше";
 "common_learn_and_earn" = "Навчайся та заробляй";
@@ -324,6 +325,7 @@
 "common_to" = "До";
 "common_today" = "Сьогодні";
 "common_token_send" = "Token to send";
+"common_token" = "Токен";
 "common_transaction_failed" = "Помилка транзакції";
 "common_transaction_status" = "Статус транзакції";
 "common_transactions" = "Транзакції";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Часто використовані";
 "earn_no_results" = "Немає результатів";
 "earn_title" = "Заробляйте";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
@@ -1318,12 +1323,14 @@
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Фіксований курс";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Шукаєте щось інше?\nСпробуйте пошукати або перегляньте інші криптовалюти!";
 "swap_search_tooltip_description" = "Шукайте будь-який токен, навіть якщо його ще немає у вашому списку.";
 "swap_search_tooltip_title" = "Використовуйте пошук, щоб знайти потрібне";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Надійна підтримка 24/7, щоб ваші фінансові операції були швидкими та надійними!";
 "swap_story_fifth_title" = "Цілодобова підтримка";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1563,7 +1570,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Оберіть адресу";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Згенерувати XPUB";
 "token_details_hide_alert_hide" = "Приховати";
 "token_details_hide_alert_message" = "Ви збираєтеся приховати цей токен з головного екрану. Ви можете додати його назад будь-коли на сторінці керування токенами.";
