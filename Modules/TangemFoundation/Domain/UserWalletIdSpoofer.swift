@@ -17,7 +17,11 @@ public final class UserWalletIdSpoofer: @unchecked Sendable {
     private init() {}
 
     func resolve(_ originalValue: Data) -> Data? {
-        guard AppEnvironment.current.isInternalOrDebug else {
+        // Skip in test contexts so a spoof entry left in the simulator's UserDefaults from a
+        // prior dev session can't silently affect XCTest / Swift Testing runs that share the
+        // host app's defaults.
+        guard AppEnvironment.current.isInternalOrDebug,
+              !AppEnvironment.current.isUnitTest else {
             return nil
         }
 
