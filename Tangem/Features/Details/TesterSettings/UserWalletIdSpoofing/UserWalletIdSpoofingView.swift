@@ -20,13 +20,23 @@ struct UserWalletIdSpoofingView: View {
 
             GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
                 warningBanner
+
                 walletsSection
+
                 mappingsSection
             }
             .interContentPadding(8)
         }
         .navigationBarTitle(Text("User Wallet ID Spoofing"))
-        .navigationBarItems(trailing: addButton)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.presentAddMapping(prefillOriginal: nil)
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
         .alert(item: $viewModel.alert) { $0.alert }
         .sheet(isPresented: $viewModel.isAddSheetPresented) { addMappingSheet }
     }
@@ -63,6 +73,7 @@ struct UserWalletIdSpoofingView: View {
                             .padding(.vertical, 8)
                             .padding(.horizontal, 12)
                             .background(Colors.Background.action)
+
                         if row.id != viewModel.walletRows.last?.id {
                             Divider().padding(.leading, 12)
                         }
@@ -79,7 +90,9 @@ struct UserWalletIdSpoofingView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 sectionHeader(title: "Spoof mappings")
+
                 Spacer()
+
                 if !viewModel.spoofMappingRows.isEmpty {
                     Button("Clear all", action: viewModel.clearAllMappings)
                         .font(.footnote)
@@ -119,11 +132,13 @@ struct UserWalletIdSpoofingView: View {
                 Text(row.name)
                     .font(.subheadline)
                     .foregroundColor(Colors.Text.primary1)
+
                 Text(row.currentId)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(Colors.Text.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
+
                 if let originalId = row.originalId {
                     Text("Spoofed from \(originalId)")
                         .font(.system(.caption2, design: .monospaced))
@@ -132,13 +147,16 @@ struct UserWalletIdSpoofingView: View {
                         .truncationMode(.middle)
                 }
             }
+
             Spacer()
+
             Button {
                 viewModel.copyToClipboard(row.currentId)
             } label: {
                 Image(systemName: "doc.on.doc")
                     .foregroundColor(Color.blue)
             }
+
             Button {
                 viewModel.presentAddMapping(prefillOriginal: row.currentId)
             } label: {
@@ -156,10 +174,12 @@ struct UserWalletIdSpoofingView: View {
                     .foregroundColor(Colors.Text.primary1)
                     .lineLimit(1)
                     .truncationMode(.middle)
+
                 HStack(spacing: 4) {
                     Image(systemName: "arrow.down")
                         .font(.system(.caption2))
                         .foregroundColor(Colors.Text.tertiary)
+
                     Text(row.spoofedHex)
                         .font(.system(.caption, design: .monospaced))
                         .foregroundColor(Color.orange)
@@ -167,7 +187,9 @@ struct UserWalletIdSpoofingView: View {
                         .truncationMode(.middle)
                 }
             }
+
             Spacer()
+
             Button {
                 viewModel.deleteMapping(originalHex: row.originalHex)
             } label: {
@@ -186,14 +208,6 @@ struct UserWalletIdSpoofingView: View {
             .padding(.horizontal)
     }
 
-    private var addButton: some View {
-        Button {
-            viewModel.presentAddMapping(prefillOriginal: nil)
-        } label: {
-            Image(systemName: "plus")
-        }
-    }
-
     // MARK: - Add-mapping sheet
 
     private var addMappingSheet: some View {
@@ -206,6 +220,7 @@ struct UserWalletIdSpoofingView: View {
                         Text("Original hex")
                             .font(.footnote)
                             .foregroundColor(Colors.Text.secondary)
+
                         TextField("e.g., AABBCC…", text: $viewModel.draftOriginalHex)
                             .font(.system(.body, design: .monospaced))
                             .textInputAutocapitalization(.characters)
@@ -218,6 +233,7 @@ struct UserWalletIdSpoofingView: View {
                         Text("Spoofed hex")
                             .font(.footnote)
                             .foregroundColor(Colors.Text.secondary)
+
                         TextField("e.g., 112233…", text: $viewModel.draftSpoofedHex)
                             .font(.system(.body, design: .monospaced))
                             .textInputAutocapitalization(.characters)
