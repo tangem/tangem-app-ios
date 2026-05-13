@@ -62,8 +62,8 @@ final class TangemPayCardRenameViewModel: ObservableObject, Identifiable {
             } catch {
                 viewModel.isLoading = false
                 viewModel.alert = AlertBinder(
-                    title: Localization.commonError,
-                    message: error.localizedDescription
+                    title: Localization.tangemPayCardDetailsUnableToRenameCardTitle,
+                    message: Localization.tangempayCardDetailsUnableToRenameCardDescription
                 )
             }
         }
