@@ -237,6 +237,52 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return data
     }
 
+    func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult {
+        let requestId = UUID().uuidString
+        let request = ExpressDTO.Onramp.NativePaymentData.Request(
+            fromCurrencyCode: item.quotesItem.pairItem.fiatCurrency.identity.code,
+            toContractAddress: item.quotesItem.pairItem.destination.contractAddress,
+            toNetwork: item.quotesItem.pairItem.destination.network,
+            paymentMethod: item.quotesItem.paymentMethod.id,
+            countryCode: item.quotesItem.pairItem.country.identity.code,
+            fromAmount: item.quotesItem.sourceAmountWEI(),
+            fromPrecision: item.quotesItem.pairItem.fiatCurrency.precision,
+            toDecimals: item.quotesItem.pairItem.destination.decimalCount,
+            providerId: item.quotesItem.providerInfo.id,
+            toAddress: item.quotesItem.pairItem.address,
+            toExtraId: nil,
+            redirectUrl: item.redirectSettings.redirectURL,
+            language: item.redirectSettings.language,
+            theme: item.redirectSettings.theme.rawValue,
+            requestId: requestId,
+            paymentData: .init(
+                type: .apple,
+                paymentToken: item.paymentToken,
+                quoteId: item.quoteId,
+                userData: .init(
+                    email: item.userData.email,
+                    firstName: item.userData.firstName,
+                    lastName: item.userData.lastName,
+                    billingAddress: item.userData.billingAddress.map { address in
+                        .init(
+                            street: address.street,
+                            city: address.city,
+                            subAdministrativeArea: address.subAdministrativeArea,
+                            state: address.state,
+                            postalCode: address.postalCode,
+                            country: address.country,
+                            isoCountryCode: address.isoCountryCode
+                        )
+                    }
+                )
+            )
+        )
+
+        let response = try await expressAPIService.onrampNativePaymentData(request: request)
+        let result = try expressAPIMapper.mapToOnrampDataResult(request: request, response: response)
+        return result
+    }
+
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
         let request = ExpressDTO.Onramp.Status.Request(txId: transactionId)
         let response = try await expressAPIService.onrampStatus(request: request)

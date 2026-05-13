@@ -6,8 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
-
 final class CommonTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
@@ -29,9 +27,11 @@ final class CommonTokenSelectorWalletsProvider {
 
 extension CommonTokenSelectorWalletsProvider: TokenSelectorWalletsProvider {
     var wallets: [TokenSelectorWallet] {
-        userWalletRepository.models.map { userWalletModel in
-            mapToTokenSelectorWallet(userWalletModel: userWalletModel)
-        }
+        userWalletRepository.models
+            .filter { !$0.isUserWalletLocked }
+            .map { userWalletModel in
+                mapToTokenSelectorWallet(userWalletModel: userWalletModel)
+            }
     }
 }
 
@@ -40,30 +40,12 @@ extension CommonTokenSelectorWalletsProvider: TokenSelectorWalletsProvider {
 private extension CommonTokenSelectorWalletsProvider {
     func mapToTokenSelectorWallet(userWalletModel: any UserWalletModel) -> TokenSelectorWallet {
         let userWalletInfo = userWalletModel.userWalletInfo
-        let isUserWalletLocked = userWalletModel.isUserWalletLocked
         let accounts = mapToAccountType(
             accountModels: userWalletModel.accountModelsManager.accountModels,
-            userWalletInfo: userWalletInfo,
-            isUserWalletLocked: isUserWalletLocked
+            userWalletInfo: userWalletInfo
         )
-        let accountsPublisher = userWalletModel
-            .accountModelsManager
-            .accountModelsPublisher
-            .withWeakCaptureOf(self)
-            .map { mapper, accountModels in
-                mapper.mapToAccountType(
-                    accountModels: accountModels,
-                    userWalletInfo: userWalletInfo,
-                    isUserWalletLocked: isUserWalletLocked
-                )
-            }
-            .eraseToAnyPublisher()
 
-        return TokenSelectorWallet(
-            wallet: userWalletInfo,
-            accounts: accounts,
-            accountsPublisher: accountsPublisher
-        )
+        return TokenSelectorWallet(wallet: userWalletInfo, accounts: accounts)
     }
 
     func mapToTokenSelectorAccount(
@@ -75,7 +57,7 @@ private extension CommonTokenSelectorWalletsProvider {
             cryptoAccount: cryptoAccount
         )
 
-        return TokenSelectorAccount(account: cryptoAccount, itemsProvider: itemsProvider)
+        return TokenSelectorAccount(account: cryptoAccount, itemsProvider: itemsProvider, rateProvider: cryptoAccount.rateProvider)
     }
 
     func mapToTokenSelectorAccount(
@@ -87,13 +69,12 @@ private extension CommonTokenSelectorWalletsProvider {
             tangemPayAccountModel: tangemPayAccountModel
         )
 
-        return TokenSelectorAccount(account: tangemPayAccountModel, itemsProvider: itemsProvider)
+        return TokenSelectorAccount(account: tangemPayAccountModel, itemsProvider: itemsProvider, rateProvider: nil)
     }
 
     func mapToAccountType(
         accountModels: [AccountModel],
-        userWalletInfo: UserWalletInfo,
-        isUserWalletLocked: Bool
+        userWalletInfo: UserWalletInfo
     ) -> TokenSelectorWallet.AccountType {
         let filteredAccountModels = accountModelFilter.map { filter in accountModels.filter(filter) } ?? accountModels
 
@@ -115,7 +96,7 @@ private extension CommonTokenSelectorWalletsProvider {
             }
         }
 
-        let hasTangemPayInResults = filteredAccountModels.contains { if case .tangemPay = $0 { return true } else { return false } }
+        let hasTangemPayInResults = filteredAccountModels.contains(where: \.isTangemPay)
 
         switch cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() {
         case .single where hasTangemPayInResults:
