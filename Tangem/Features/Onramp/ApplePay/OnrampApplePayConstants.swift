@@ -7,5 +7,5 @@
 //
 
 enum OnrampApplePayConstants {
-    static let merchantIdentifier = "merchant.com.tangem.wallet"
+    static let merchantIdentifier = "merchant.sandbox.mercuryo.com.tangem.tangem"
 }

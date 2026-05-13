@@ -409,7 +409,7 @@ private enum StubFixtures {
         OnrampApplePayResult(
             paymentToken: "token",
             userData: OnrampNativePaymentRequestItem.UserData(
-                email: nil,
+                email: "user@example.com",
                 firstName: nil,
                 lastName: nil,
                 billingAddress: nil

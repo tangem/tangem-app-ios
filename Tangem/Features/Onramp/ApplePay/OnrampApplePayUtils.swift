@@ -24,23 +24,22 @@ enum OnrampApplePayUtils {
         return request
     }
 
-    static func mapPaymentResult(_ payment: PKPayment) -> OnrampApplePayResult {
+    static func mapPaymentResult(_ payment: PKPayment) -> OnrampApplePayResult? {
+        let email = payment.billingContact?.emailAddress ?? "dfedorov@tangem.com"
+
         let tokenString = payment.token.paymentData.base64EncodedString()
 
         let billingAddress: OnrampNativePaymentRequestItem.BillingAddress? = payment.billingContact?.postalAddress.map { address in
             OnrampNativePaymentRequestItem.BillingAddress(
-                street: address.street,
                 city: address.city,
-                subAdministrativeArea: address.subAdministrativeArea,
                 state: address.state,
                 postalCode: address.postalCode,
-                country: address.country,
-                isoCountryCode: address.isoCountryCode
+                country: address.country
             )
         }
 
         let userData = OnrampNativePaymentRequestItem.UserData(
-            email: payment.billingContact?.emailAddress,
+            email: email,
             firstName: payment.billingContact?.name?.givenName,
             lastName: payment.billingContact?.name?.familyName,
             billingAddress: billingAddress
