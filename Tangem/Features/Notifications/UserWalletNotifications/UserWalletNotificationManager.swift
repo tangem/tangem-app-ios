@@ -116,7 +116,8 @@ final class UserWalletNotificationManager {
                 factory.buildNotificationInput(
                     for: .missingDerivation(
                         numberOfNetworks: numberOfPendingDerivations,
-                        icon: CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
+                        icon: CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon(),
+                        hasNFCInteraction: userWalletModel.config.hasFeature(.nfcInteraction)
                     ),
                     action: action,
                     buttonAction: buttonAction,
