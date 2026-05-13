@@ -31,7 +31,6 @@ class CommonCardScanner: CardScanner {
 
         let scannerParameters = CardScannerParameters(
             shouldAskForAccessCodes: false,
-            performDerivations: true,
             shouldCheckAccessCode: true,
             sessionFilter: nil
         )
@@ -43,7 +42,6 @@ class CommonCardScanner: CardScanner {
     func scanCardPublisher() -> AnyPublisher<AppScanTaskResponse, TangemSdkError> {
         let task = AppScanTask(
             shouldAskForAccessCode: parameters.shouldAskForAccessCodes,
-            performDerivations: parameters.performDerivations,
             shouldCheckAccessCode: parameters.shouldCheckAccessCode
         )
 

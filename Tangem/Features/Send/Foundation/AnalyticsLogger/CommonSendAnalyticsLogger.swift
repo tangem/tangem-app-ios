@@ -29,8 +29,8 @@ class CommonSendAnalyticsLogger {
     }
 
     private var feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder {
-        let isFixedFee = sendSourceTokenInput?.sourceToken.value?.isFixedFee ?? false
-        return FeeAnalyticsParameterBuilder(isFixedFee: isFixedFee)
+        let supportFeeSelection = sendFeeInput?.supportFeeSelection ?? false
+        return FeeAnalyticsParameterBuilder(supportFeeSelection: supportFeeSelection)
     }
 
     private var sourceFlow: Analytics.ParameterValue {
@@ -586,6 +586,18 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         }
 
         Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
+    }
+
+    func logSwapPreselectedTokenChanged(
+        direction: Analytics.ParameterValue,
+        preselectedSymbol: String,
+        selectedSymbol: String
+    ) {
+        Analytics.log(event: .swapPreselectedTokenChanged, params: [
+            .direction: direction.rawValue,
+            .preselectedToken: preselectedSymbol,
+            .selectedToken: selectedSymbol,
+        ])
     }
 
     func logSwapTransactionSent(result: TransactionDispatcherResult) {

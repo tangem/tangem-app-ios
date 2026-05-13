@@ -66,7 +66,7 @@ private extension CommonApproveViewModelInputDataBuilder {
             feeFooterText: flowInput.localization.feeFooterText,
             tokenItem: flowInput.sourceToken.tokenItem,
             selectedPolicy: flowInput.selectedPolicy,
-            tangemIconProvider: CommonTangemIconProvider(config: flowInput.sourceToken.userWalletInfo.config)
+            tangemIconProvider: flowInput.sourceToken.tangemIconProvider
         )
 
         let feeFormatter = CommonFeeFormatter()
