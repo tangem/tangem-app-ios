@@ -44,6 +44,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
     init(
         accountInitializationService: BlockchainAccountInitializationService,
         transactionDispatcher: TransactionDispatcher,
+        tangemIconProvider: any TangemIconProvider,
         tokenItem: TokenItem,
         fee: Fee,
         feeTokenItem: TokenItem,
@@ -63,7 +64,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
         self.onInitialized = onInitialized
 
         feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
-        mainButtonIcon = CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction).getMainButtonIcon()
+        mainButtonIcon = tangemIconProvider.getMainButtonIcon()
         needsHoldToInitialize = CommonConfirmTransactionPolicy(dispatcher: transactionDispatcher).needsHoldToConfirm
 
         updateView(state: .success(fee))

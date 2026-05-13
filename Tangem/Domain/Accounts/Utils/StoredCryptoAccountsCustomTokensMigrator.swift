@@ -28,10 +28,12 @@ struct StoredCryptoAccountsCustomTokensMigrator {
             for (tokenIndex, token) in account.tokens.enumerated() {
                 guard
                     token.id == nil, // A custom token (i.e. token w/o identifier), we should attempt to migrate it
-                    let blockchainNetwork = token.blockchainNetwork.knownValue // We can't migrate tokens we know nothing about
+                    let storedBlockchainNetwork = token.blockchainNetwork.knownValue // We can't migrate tokens we know nothing about
                 else {
                     continue
                 }
+
+                let blockchainNetwork = StoredEntryConverter.convertToBlockchainNetwork(storedBlockchainNetwork)
 
                 let tokenToMigrate = TokenToMigrate(
                     accountIndex: accountIndex,

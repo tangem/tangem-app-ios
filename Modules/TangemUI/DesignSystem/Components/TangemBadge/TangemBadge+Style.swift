@@ -20,6 +20,8 @@ extension TangemBadge {
                 return Color.Tangem.Markers.textBlue
             case .red:
                 return Color.Tangem.Markers.textRed
+            case .yellow:
+                return Color.Tangem.Markers.textYellow
             case .gray:
                 return Color.Tangem.Markers.textGray
             }
@@ -36,6 +38,8 @@ extension TangemBadge {
                 return Color.Tangem.Markers.iconBlue
             case .red:
                 return Color.Tangem.Markers.iconRed
+            case .yellow:
+                return Color.Tangem.Markers.iconYellow
             case .gray:
                 return Color.Tangem.Markers.iconGray
             }
@@ -50,6 +54,8 @@ extension TangemBadge {
                 return Color.Tangem.Markers.backgroundSolidBlue
             case .red:
                 return Color.Tangem.Markers.backgroundSolidRed
+            case .yellow:
+                return Color.Tangem.Markers.backgroundSolidYellow
             case .gray:
                 return Color.Tangem.Markers.backgroundSolidGray
             }
@@ -59,6 +65,8 @@ extension TangemBadge {
                 return Color.Tangem.Markers.backgroundTintedBlue
             case .red:
                 return Color.Tangem.Markers.backgroundTintedRed
+            case .yellow:
+                return Color.Tangem.Markers.backgroundTintedYellow
             case .gray:
                 return Color.Tangem.Markers.backgroundTintedGray
             }
@@ -77,6 +85,8 @@ extension TangemBadge {
                 return Color.Tangem.Markers.borderTintedBlue
             case .red:
                 return Color.Tangem.Markers.borderTintedRed
+            case .yellow:
+                return Color.Tangem.Markers.borderTintedYellow
             case .gray:
                 return Color.Tangem.Markers.borderGray
             }

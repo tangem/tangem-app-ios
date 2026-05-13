@@ -16,6 +16,14 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldBalanceInfo(factory: YieldModuleFlowFactory)
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory)
-    func openDynamicAddressesEnterView()
-    func openDynamicAddressesUnavailableSheet()
+    func openDynamicAddressesEnterView(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    )
+    func openDynamicAddressesUnavailableSheet(messageType: DynamicAddressesUnavailableSheetViewModel.MessageType)
+    func openDynamicAddressesDisableSheet(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,
+        analyticsLogger: DynamicAddressesAnalyticsLogger
+    )
 }

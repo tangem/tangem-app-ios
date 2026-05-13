@@ -59,7 +59,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Fill amount and destination, proceed to Summary
         let summaryScreen = sendScreen
-            .enterAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.sendAmount)
             .tapNextButton()
             .enterDestination(Constants.ethereumAddress)
             .tapNextButtonToSummary()
@@ -83,6 +83,7 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForPendingExpressTransaction()
     }
 
+    /// [REDACTED_INFO] Send-via-Swap: network fee tier change (Market↔Fast) is not applied on Summary
     func testSendViaSwapFlowWithTokenSearchAndDataChanges() {
         setAllureId(3968)
 
@@ -121,7 +122,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Fill amount and destination, proceed to Summary
         let summaryScreen = sendScreen
-            .enterAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.sendAmount)
             .tapNextButton()
             .enterDestination(Constants.ethereumAddress)
             .tapNextButtonToSummary()
@@ -155,8 +156,8 @@ final class SendViaSwapUITests: BaseTestCase {
         summaryScreen
             .tapAmountField()
             .waitForDisplay()
-            .clearAmount()
-            .enterAmount(Constants.updatedAmount)
+            .clearReceiveAmount()
+            .enterReceiveAmount(Constants.updatedAmount)
             .tapNextButtonToSummary()
             .waitForDisplay(checkValidatorBlock: false)
     }
@@ -194,7 +195,7 @@ final class SendViaSwapUITests: BaseTestCase {
             .tapConvertButton()
             .tapReceiveToken(name: Constants.ethereumTokenName)
             .tapReceiveNetworkOption(name: "Ethereum")
-            .enterAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.sendAmount)
             .tapRemoveConvertButton()
             .waitForConvertButton()
 
@@ -206,8 +207,8 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Fill amount and Solana address, proceed to Summary
         sendScreen
-            .clearAmount()
-            .enterAmount(Constants.sendAmount)
+            .clearReceiveAmount()
+            .enterReceiveAmount(Constants.sendAmount)
             .tapNextButton()
             .enterDestination(Constants.solanaAddress)
             .tapNextButtonToSummary()
@@ -227,7 +228,7 @@ final class SendViaSwapUITests: BaseTestCase {
             .tapChooseTokenCloseButton()
 
         sendScreen
-            .waitForAmountValue(Constants.sendAmount)
+            .waitForReceiveAmountValue(Constants.sendAmount)
             .tapNextButton()
             .waitForDestinationValue(Constants.solanaAddress)
     }
@@ -284,7 +285,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Fill amount and destination, proceed to Summary
         let summaryScreen = sendScreen
-            .enterAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.sendAmount)
             .tapNextButton()
             .enterDestination(Constants.polygonAddress)
             .tapNextButtonToSummary()
@@ -345,7 +346,7 @@ final class SendViaSwapUITests: BaseTestCase {
 
         // Fill amount and destination, proceed to Summary
         let summaryScreen = sendScreen
-            .enterAmount(Constants.sendAmount)
+            .enterReceiveAmount(Constants.sendAmount)
             .tapNextButton()
             .enterDestination(Constants.ethereumAddress)
             .tapNextButtonToSummary()

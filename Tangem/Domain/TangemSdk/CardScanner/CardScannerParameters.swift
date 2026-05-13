@@ -11,7 +11,6 @@ import TangemSdk
 
 struct CardScannerParameters {
     let shouldAskForAccessCodes: Bool
-    let performDerivations: Bool
     let shouldCheckAccessCode: Bool
     let sessionFilter: SessionFilter?
 }
