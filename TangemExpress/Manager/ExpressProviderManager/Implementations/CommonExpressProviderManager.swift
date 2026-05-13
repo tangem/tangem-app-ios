@@ -84,6 +84,8 @@ private extension CommonExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
             let quote = try await fetchQuote(request: request)
+            request.quotesLoadingPerformanceTracker?.fulfill(hasError: false)
+
             let flowType = flowTypeResolver.resolveFlowType(quote: quote, provider: context.provider)
 
             switch flowType {
@@ -93,9 +95,14 @@ private extension CommonExpressProviderManager {
                 return await dexHelper.processAfterQuote(quote: quote, request: request)
             }
         } catch let error as ExpressAPIError {
+            request.quotesLoadingPerformanceTracker?.fulfill(hasError: true)
             let currencySymbol = context.pair.currencySymbol(for: request.amountType)
             return .mapError(error, currencySymbol: currencySymbol)
+        } catch let error as CancellationError {
+            // Skip fulfilling the performance tracker: it ends the trace with `.unspecified` on deinit
+            return .error(error, quote: .none)
         } catch {
+            request.quotesLoadingPerformanceTracker?.fulfill(hasError: true)
             return .error(error, quote: .none)
         }
     }
