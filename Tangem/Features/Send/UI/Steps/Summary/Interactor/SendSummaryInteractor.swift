@@ -101,8 +101,8 @@ private extension CommonSendSummaryInteractor {
         case .send(let amount, let fee):
             let description = sendDescriptionBuilder.makeDescription(amount: amount, fee: fee)
             return description
-        case .swap(let amount, let fee, let provider):
-            let description = sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider)
+        case .swap(let amount, let fee, let provider, let sourceTokenItem):
+            let description = sendWithSwapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider, sourceTokenItem: sourceTokenItem)
             return description
         }
     }
