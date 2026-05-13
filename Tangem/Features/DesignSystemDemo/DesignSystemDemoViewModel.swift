@@ -46,4 +46,12 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTangemTabsDemo() {
         coordinator?.openTangemTabsDemo()
     }
+
+    func openTangemSearchFieldDemo() {
+        coordinator?.openTangemSearchFieldDemo()
+    }
+
+    func openTangemDropDownDemo() {
+        coordinator?.openTangemDropDownDemo()
+    }
 }

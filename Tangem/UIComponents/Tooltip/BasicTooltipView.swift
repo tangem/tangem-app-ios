@@ -57,14 +57,14 @@ struct BasicTooltipView: View {
             .padding(.horizontal, 14)
             .padding(.bottom, 14)
             .defaultRoundedBackground(
-                with: Colors.Background.primary,
+                with: Colors.Background.action,
                 verticalPadding: .zero,
                 horizontalPadding: .zero
             )
             .shadow(color: .black.opacity(0.12), radius: 40, x: 0, y: 4)
 
             Triangle()
-                .foregroundStyle(Colors.Background.primary)
+                .foregroundStyle(Colors.Background.action)
                 .frame(size: .init(width: 20, height: 8))
                 .rotationEffect(.degrees(180))
         }

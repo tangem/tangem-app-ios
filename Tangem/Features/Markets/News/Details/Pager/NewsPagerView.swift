@@ -97,18 +97,10 @@ struct NewsPagerView: View {
             title: "",
             settings: .init(backgroundColor: Color.Tangem.Surface.level2),
             leftButtons: {
-                if viewModel.isDeeplinkMode {
-                    CloseTextButton(action: { viewModel.handleViewAction(.back) })
-                        .padding(.leading, 16)
-                } else {
-                    BackButton(
-                        height: 44.0,
-                        isVisible: true,
-                        isEnabled: true,
-                        hPadding: 10.0,
-                        action: { viewModel.handleViewAction(.back) }
-                    )
-                }
+                MarketsNavigationBackButton(
+                    presentSource: viewModel.isDeeplinkMode ? .deeplink : .navigation,
+                    action: { viewModel.handleViewAction(.back) }
+                )
             },
             rightButtons: {
                 Button(action: { viewModel.handleViewAction(.share) }) {
