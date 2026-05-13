@@ -9,16 +9,19 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct NotificationBanner: View, Setupable {
     private let bannerType: BannerType
+    private let accessibilityIdentifier: String?
 
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
     @ScaledMetric private var iconHeight: CGFloat
 
-    public init(bannerType: BannerType) {
+    public init(bannerType: BannerType, accessibilityIdentifier: String?) {
         self.bannerType = bannerType
+        self.accessibilityIdentifier = accessibilityIdentifier
         let iconSize = bannerType.content.iconSize
         _padding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
         _iconWidth = ScaledMetric(wrappedValue: iconSize.width)
@@ -40,11 +43,15 @@ public struct NotificationBanner: View, Setupable {
             bannerBody {
                 buttonsView(buttons: buttons)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(accessibilityIdentifier)
         case .tappable(let tapAction):
-            Button(action: { tapAction() }) {
+            Button(action: tapAction.action) {
                 bannerBody()
             }
             .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 
@@ -127,6 +134,7 @@ public struct NotificationBanner: View, Setupable {
                     color: Color.Tangem.Text.Neutral.primary
                 )
                 .multilineTextAlignment(textAlignment)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
 
             Text(subtitle)
                 .style(
@@ -134,6 +142,7 @@ public struct NotificationBanner: View, Setupable {
                     color: Color.Tangem.Text.Neutral.tertiary
                 )
                 .multilineTextAlignment(textAlignment)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
         }
         .padding(.horizontal, SizeUnit.x1.value)
         .padding(.top, SizeUnit.x1.value)
