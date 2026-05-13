@@ -17,7 +17,7 @@ struct TangemPayPushPayloadTests {
         "transaction_id": "43215123",
         "amount": "249.99",
         "currency": "EUR",
-        "authorized_at": "2026-04-07T10:30:00Z",
+        "authorized_at": "2026-04-07T10:30:00.000",
         "status": "approved",
         "merchant_name": "Amazon",
         "enriched_merchant_name": "Amazon.com",
@@ -35,7 +35,7 @@ struct TangemPayPushPayloadTests {
         "transaction_id": "43215123",
         "amount": "500.00",
         "currency": "EUR",
-        "posted_at": "2026-04-07T10:00:00Z",
+        "posted_at": "2026-04-07T10:00:00.000",
         "balance": "10000.00",
         "transaction_hash": "0xabc123def456",
     ]
@@ -97,7 +97,10 @@ struct TangemPayPushPayloadTests {
 
         #expect(spend.amount == Decimal(string: "249.99"))
         #expect(spend.balance == Decimal(string: "750.01"))
-        #expect(spend.authorizedAt == ISO8601DateFormatter().date(from: "2026-04-07T10:30:00Z"))
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        #expect(spend.authorizedAt == dateFormatter.date(from: "2026-04-07T10:30:00.000"))
         #expect(spend.enrichedMerchantIcon == URL(string: "https://icon.example.com/amazon.png"))
     }
 
