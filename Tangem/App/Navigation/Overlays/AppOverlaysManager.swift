@@ -229,13 +229,17 @@ extension AppOverlaysManager {
 
     private static func makeStoryPages(for story: TangemStory, using viewModel: StoriesHostViewModel, imageCache: ImageCache) -> [any View] {
         switch story {
-        case .swap(let swapStoryData):
-            swapStoryData
-                .pagesKeyPaths
-                .map { pageKeyPath in
-                    let page = swapStoryData[keyPath: pageKeyPath]
-                    return SwapStoryPageView(page: page, kingfisherImageCache: imageCache)
-                }
+        case .swap(let data):
+            makeSwapStoryPages(from: data, imageCache: imageCache)
+        case .swapLegacy(let data):
+            makeSwapStoryPages(from: data, imageCache: imageCache)
+        }
+    }
+
+    private static func makeSwapStoryPages(from data: some SwapStoryDataPagesContainer, imageCache: ImageCache) -> [any View] {
+        data.pagesKeyPaths.map { pageKeyPath in
+            let page = data[keyPath: pageKeyPath]
+            return SwapStoryPageView(page: page, kingfisherImageCache: imageCache)
         }
     }
 }

@@ -86,7 +86,7 @@ extension TangemButton {
         private func makeHorizontalInsets() -> CGFloat {
             switch content {
             case .text, .combined:
-                return horizontalInset
+                return style == .ghost ? .zero : horizontalInset
             case .icon:
                 return (size.height - iconSize) / 2
             }
