@@ -1334,11 +1334,12 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     ) -> SendSummaryTransactionData? {
         switch providersState {
         case .loaded(_, let selected, _):
-            guard let provider = selected else {
+            guard let provider = selected,
+                  let sourceTokenItem = _sourceToken.value.value?.tokenItem else {
                 return nil
             }
 
-            return .swap(amount: amount, fee: fee, provider: provider.provider)
+            return .swap(amount: amount, fee: fee, provider: provider.provider, sourceTokenItem: sourceTokenItem)
         default:
             return .none
         }
