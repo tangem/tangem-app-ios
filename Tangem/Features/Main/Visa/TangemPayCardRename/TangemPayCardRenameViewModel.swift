@@ -84,6 +84,11 @@ private extension TangemPayCardRenameViewModel {
             }
             .receiveOnMain()
             .assign(to: &$isSaveDisabled)
+
+        $isLoading
+            .receiveOnMain()
+            .assign(to: \.isCardNameEditingDisabled, on: renameCardDetailsViewModel, ownership: .weak)
+            .store(in: &bag)
     }
 
     func isLengthValid(_ name: String) -> Bool {
