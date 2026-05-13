@@ -189,9 +189,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             return cached.adapter
         }
 
-        let newAdapter = AccountsOrganizeOptionsManagerAdapter(
-            userTokensReorderer: cryptoAccountModel.userTokensManager
-        )
+        let newAdapter = AccountsOrganizeOptionsManagerAdapter(userTokensReorderer: cryptoAccountModel.userTokensManager)
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
         cache.mutate { cache in
@@ -219,7 +217,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         let tokenSectionsAdapter = TokenSectionsAdapter(
             userTokensManager: userTokensManager,
             optionsProviding: optionsProviding,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+            preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
         cache.mutate { $0.tokenSectionsAdapters[cacheKey] = tokenSectionsAdapter }
 

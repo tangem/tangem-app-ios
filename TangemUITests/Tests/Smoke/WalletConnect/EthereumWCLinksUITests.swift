@@ -21,14 +21,13 @@ final class EthereumWCLinksUITests: BaseTestCase {
         app.launchEnvironment = ["UITEST": "1"]
         app.launch()
         CreateWalletSelectorScreen(app)
-            .acceptToSIfNeeded()
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
 
         app.swipeDown()
 
         MainScreen(app)
-            .organizeTokens()
+            .waitForTotalBalanceShimmerToComplete()
         app.terminate()
 
         safariHelper.safari.launch()

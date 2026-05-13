@@ -11,8 +11,6 @@ import Combine
 
 protocol UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { get }
-    var groupingOption: UserTokensReorderingOptions.Grouping { get }
-    var sortingOption: UserTokensReorderingOptions.Sorting { get }
 
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { get }
     var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { get }
