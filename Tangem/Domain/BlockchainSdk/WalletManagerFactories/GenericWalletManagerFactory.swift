@@ -32,13 +32,19 @@ struct GenericWalletManagerFactory: AnyWalletManagerFactory {
                 suiteName: AppEnvironment.current.blockchainDataStorageSuiteName
             )
 
-            return try QuaiWalletManagerFactory(dataStorage: dataStorage)
-                .makeWalletManager(
-                    blockchainNetwork: blockchainNetwork,
-                    tokens: tokens,
-                    keys: keys,
-                    apiList: apiList
-                )
+            return try QuaiWalletManagerFactory(dataStorage: dataStorage).makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
+        case _ where blockchainNetwork.isDynamicAddressesEnabled():
+            return try BitcoinXPUBWalletManagerFactory().makeWalletManager(
+                blockchainNetwork: blockchainNetwork,
+                tokens: tokens,
+                keys: keys,
+                apiList: apiList
+            )
         default:
             return try HDWalletManagerFactory().makeWalletManager(
                 blockchainNetwork: blockchainNetwork,

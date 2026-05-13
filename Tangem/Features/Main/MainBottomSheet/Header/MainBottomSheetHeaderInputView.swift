@@ -46,9 +46,7 @@ struct MainBottomSheetHeaderInputView: View {
         .padding(.bottom, Constants.bottomInset)
     }
 
-    private var customSearchBarStyle: CustomSearchBar.Style {
-        FeatureProvider.isAvailable(.marketsAndNews) ? .focused : .translucent
-    }
+    private var customSearchBarStyle: CustomSearchBar.Style { .focused }
 }
 
 // MARK: - Auxiliary types

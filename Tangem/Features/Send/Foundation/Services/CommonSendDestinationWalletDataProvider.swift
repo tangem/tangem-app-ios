@@ -50,7 +50,7 @@ extension CommonSendDestinationWalletDataProvider: SendDestinationInteractorDepe
             return nil
         }
 
-        let walletAddresses = sourceWalletModel.addresses
+        let walletAddresses = sourceWalletModel.addressesString
 
         return .init(
             walletAddresses: walletAddresses,
@@ -96,7 +96,7 @@ private extension CommonSendDestinationWalletDataProvider {
     }
 
     func makeSendWalletData(from walletModel: any WalletModel) -> SendDestinationInteractorDependenciesProvider.SendingWalletData {
-        let walletAddresses = walletModel.addresses
+        let walletAddresses = walletModel.addressesString
 
         return .init(
             walletAddresses: walletAddresses,

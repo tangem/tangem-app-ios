@@ -9,6 +9,5 @@
 import Combine
 
 protocol TokenSelectorAccountModelItemsProvider {
-    var items: [TokenSelectorItem] { get }
     var itemsPublisher: AnyPublisher<[TokenSelectorItem], Never> { get }
 }

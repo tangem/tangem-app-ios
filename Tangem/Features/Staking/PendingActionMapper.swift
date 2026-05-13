@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemStaking
+import TangemFoundation
 
 struct PendingActionMapper {
     private let balance: StakingBalance
