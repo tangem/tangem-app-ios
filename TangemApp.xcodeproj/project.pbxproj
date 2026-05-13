@@ -37,7 +37,6 @@
 		B6C02EAC2F856B000003ADBE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */; };
 		B6C02EAE2F856B000003ADBE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */; };
 		B6C02EB02F856B000003ADBE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAF2F856B000003ADBE /* FirebaseMessaging */; };
-		B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EB12F856B000003ADBE /* FirebasePerformance */; };
 		B6C0D3FB2CBDC6DD001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FA2CBDC6DD001113ED /* Moya */; };
 		B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FC2CBDC6FE001113ED /* Moya */; };
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
@@ -48,6 +47,7 @@
 		B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE7D2CF39729008DEA94 /* AmplitudeSwift */; };
 		B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE802CF39C69008DEA94 /* AnalyticsConnector */; };
 		B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6E27FA42DFD1CAC00B29813 /* TangemModules */; };
+		B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6EF56642FAD132F000E1C6A /* TangemModules */; };
 		B6FDC0AB2F902F280061FD2B /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6FDC0AA2F902F280061FD2B /* BigInt */; };
 		B6FF157E2F8F2A6E000C63B6 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6FF157D2F8F2A6E000C63B6 /* BigInt */; };
 		C21C40C82F7D778F00CF1555 /* GoogleService-Info-Alpha.plist in Resources */ = {isa = PBXBuildFile; fileRef = C21C40A42F7D778F00CF1555 /* GoogleService-Info-Alpha.plist */; };
@@ -313,7 +313,6 @@
 				B6DBDE4A2F97790F00885068 /* Hiero in Frameworks */,
 				DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */,
 				B62C167F2CBE0B7900522683 /* Moya in Frameworks */,
-				B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */,
 				B6FF157E2F8F2A6E000C63B6 /* BigInt in Frameworks */,
 				B6C02EB02F856B000003ADBE /* FirebaseMessaging in Frameworks */,
 				B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */,
@@ -411,6 +410,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */,
 				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -604,7 +604,6 @@
 				B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */,
 				B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */,
 				B6C02EAF2F856B000003ADBE /* FirebaseMessaging */,
-				B6C02EB12F856B000003ADBE /* FirebasePerformance */,
 				B6FF157D2F8F2A6E000C63B6 /* BigInt */,
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
 				B6DBDE492F97790F00885068 /* Hiero */,
@@ -7743,11 +7742,6 @@
 			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-		B6C02EB12F856B000003ADBE /* FirebasePerformance */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebasePerformance;
-		};
 		B6C0D3FA2CBDC6DD001113ED /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
@@ -7794,6 +7788,11 @@
 			productName = AnalyticsConnector;
 		};
 		B6E27FA42DFD1CAC00B29813 /* TangemModules */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = TangemModules;
+		};
+		B6EF56642FAD132F000E1C6A /* TangemModules */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
 			productName = TangemModules;
