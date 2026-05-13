@@ -62,8 +62,8 @@ final class TangemPayCardRenameViewModel: ObservableObject, Identifiable {
             } catch {
                 viewModel.isLoading = false
                 viewModel.alert = AlertBinder(
-                    title: Localization.commonError,
-                    message: error.localizedDescription
+                    title: Localization.tangemPayCardDetailsUnableToRenameCardTitle,
+                    message: Localization.tangempayCardDetailsUnableToRenameCardDescription
                 )
             }
         }
@@ -84,6 +84,11 @@ private extension TangemPayCardRenameViewModel {
             }
             .receiveOnMain()
             .assign(to: &$isSaveDisabled)
+
+        $isLoading
+            .receiveOnMain()
+            .assign(to: \.isCardNameEditingDisabled, on: renameCardDetailsViewModel, ownership: .weak)
+            .store(in: &bag)
     }
 
     func isLengthValid(_ name: String) -> Bool {
