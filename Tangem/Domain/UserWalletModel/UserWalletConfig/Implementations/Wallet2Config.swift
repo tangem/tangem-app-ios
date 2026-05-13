@@ -343,7 +343,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052":
             return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
         // Winter Sakura
-        case "AF990053", "AF990054", "AF990055":
+        case "AF990053", "AF990054", "AF990055", "AF990074", "AF990075", "AF990076":
             return cardsCount == 2 ? Assets.Cards.winterSakuraDouble : Assets.Cards.winterSakuraTriple
         // Lunar
         case "AF990057", "AF990058", "AF990059":
@@ -609,7 +609,7 @@ extension Wallet2Config: UserWalletConfig {
                 ? .twoCards(.init(card: CC.sakura, secondCard: CC.sakura))
                 : .threeCards(.init(card: CC.sakura, secondCard: CC.sakura, thirdCard: CC.sakura))
         // Winter Sakura
-        case "AF990053", "AF990054", "AF990055":
+        case "AF990053", "AF990054", "AF990055", "AF990074", "AF990075", "AF990076":
             return cardsCount == 2
                 ? .twoCards(.init(card: CC.winterSakura, secondCard: CC.winterSakura))
                 : .threeCards(.init(card: CC.winterSakura, secondCard: CC.winterSakura, thirdCard: CC.winterSakura))
