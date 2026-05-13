@@ -251,6 +251,43 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     @MainActor
+    func openInfoDialogue(title: String, message: String) {
+        let viewModel = MarketsDescriptionDialogueViewModel(
+            title: title,
+            descriptionText: message,
+            closeAction: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+            }
+        )
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    @MainActor
+    func openFullDescriptionDialogue(
+        title: String,
+        description: String,
+        onGenerateAITapAction: @escaping () -> Void
+    ) {
+        let viewModel = MarketsDescriptionDialogueViewModel(
+            title: title,
+            descriptionText: description,
+            showGeneratedWithAI: true,
+            onGenerateAITapAction: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+                // Floating sheet doesn't expose a dismiss animation completion callback,
+                // so we use a delay to avoid presenting mail compose while the sheet is still animating out
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    onGenerateAITapAction()
+                }
+            },
+            closeAction: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+            }
+        )
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int) {
         let viewModel = NewsPagerViewModel(
             newsIds: newsIds,
@@ -303,7 +340,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             }
 
             tangemStoriesPresenter.present(
-                story: .swap(.initialWithoutImages),
+                story: .initialSwapStoryBasedOnToggle,
                 analyticsSource: .markets,
                 presentCompletion: openSwapBlock
             )
