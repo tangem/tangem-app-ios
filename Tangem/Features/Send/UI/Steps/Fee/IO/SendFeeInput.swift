@@ -14,9 +14,11 @@ protocol SendFeeInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> { get }
+    var supportFeeSelection: Bool { get }
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 extension SendFeeInput {
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> { .just(output: true) }
+    var supportFeeSelection: Bool { false }
 }

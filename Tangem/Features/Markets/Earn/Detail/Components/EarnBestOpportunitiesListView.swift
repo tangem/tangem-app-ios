@@ -65,7 +65,7 @@ struct EarnBestOpportunitiesListView: View {
     private var loadingSkeletonsRedesign: some View {
         VStack(spacing: .zero) {
             ForEach(0 ..< 8) { _ in
-                MarketTokenRowSkeletonView()
+                TangemTwoLineRowSkeletonView()
             }
         }
     }

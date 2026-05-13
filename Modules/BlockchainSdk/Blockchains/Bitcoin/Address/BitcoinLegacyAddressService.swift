@@ -1,0 +1,51 @@
+//
+//  BitcoinLegacyAddressService.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+class BitcoinLegacyAddressService {
+    private let builder: Base58LockingScriptBuilder
+
+    init(networkParams: UTXONetworkParams) {
+        builder = .init(network: networkParams)
+    }
+}
+
+// MARK: - BitcoinScriptAddressProvider
+
+extension BitcoinLegacyAddressService: BitcoinScriptAddressProvider {
+    func makeScriptAddress(redeemScript: Data) throws -> (address: String, script: UTXOLockingScript) {
+        let (address, script) = try builder.encode(redeemScript: redeemScript, type: .p2sh)
+        return (address, script)
+    }
+}
+
+// MARK: - AddressValidator
+
+extension BitcoinLegacyAddressService: AddressValidator {
+    func validate(_ address: String) -> Bool {
+        do {
+            _ = try builder.decode(address: address)
+            return true
+        } catch {
+            return false
+        }
+    }
+}
+
+// MARK: - AddressProvider
+
+extension BitcoinLegacyAddressService: AddressProvider {
+    func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
+        try publicKey.blockchainKey.validateAsSecp256k1Key()
+
+        let derivationPublicKey = DerivationPublicKey(publicKey: publicKey.blockchainKey, derivationPath: publicKey.derivationPath)
+        let (address, lockingScript) = try builder.encode(publicKey: derivationPublicKey, type: .p2pkh)
+        return LockingScriptAddress(value: address, type: addressType, lockingScript: lockingScript)
+    }
+}

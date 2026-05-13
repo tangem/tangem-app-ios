@@ -103,6 +103,11 @@ protocol SendApproveAnalyticsLogger {
 protocol SwapManagementModelAnalyticsLogger {
     func logSwapButtonSwap()
     func logSwapTransactionSent(result: TransactionDispatcherResult)
+    func logSwapPreselectedTokenChanged(
+        direction: Analytics.ParameterValue,
+        preselectedSymbol: String,
+        selectedSymbol: String
+    )
 }
 
 // MARK: - SendBaseView
