@@ -10,6 +10,11 @@ import SwiftUI
 
 public protocol NotificationBannerContainerItem: Identifiable {
     var bannerType: NotificationBanner.BannerType { get }
+    var accessibilityIdentifier: String? { get }
+}
+
+public extension NotificationBannerContainerItem {
+    var accessibilityIdentifier: String? { nil }
 }
 
 public enum NotificaitonBannerContainerStackingType {
@@ -38,7 +43,8 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         LazyVStack(spacing: SizeUnit.x4.value) {
             ForEach(nonStackableItems) { item in
                 NotificationBanner(
-                    bannerType: item.bannerType
+                    bannerType: item.bannerType,
+                    accessibilityIdentifier: item.accessibilityIdentifier
                 )
             }
 
@@ -57,7 +63,8 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         case .stack:
             NotificationBannerStack(items: items) { item in
                 NotificationBanner(
-                    bannerType: item.bannerType
+                    bannerType: item.bannerType,
+                    accessibilityIdentifier: item.accessibilityIdentifier
                 )
                 .transition(
                     .asymmetric(

@@ -22,5 +22,7 @@ struct RedesignActionButtonsView: View {
 
             RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.actionButtonsList)
     }
 }
