@@ -489,7 +489,16 @@ extension TokenActionAvailabilityProvider {
     }
 
     private var isStakingOfferAvailable: Bool {
-        walletModel.stakingManagerState.yieldInfo?.isAvailable ?? false
+        switch walletModel.stakingManagerState {
+        case .staked:
+            return true
+        case .availableToStake(let yield):
+            return yield.isAvailable
+        case .loading(let cached), .loadingError(_, let cached):
+            return cached != nil
+        case .notEnabled, .temporaryUnavailable:
+            return false
+        }
     }
 }
 

@@ -31,6 +31,9 @@ final actor CommonStakingTargetAmountLimitProvider {
 
 extension CommonStakingTargetAmountLimitProvider: StakingTargetAmountLimitProvider {
     func snapshot() async -> [String: StakingTargetAmountLimitInfo] {
+        if loadingTask == nil, infos.isEmpty {
+            startFetch()
+        }
         if let loadingTask {
             _ = await loadingTask.value
         }
