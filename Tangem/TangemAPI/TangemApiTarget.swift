@@ -82,9 +82,9 @@ struct TangemApiTarget: TargetType {
         case .earnNetworks:
             return "/earn/networks"
 
-        // MARK: - Staking paths
-        case .stakingVaultsConfig:
-            return "/staking/vaults/config"
+        // MARK: - Coins paths
+        case .coinsSettings:
+            return "/coins/settings"
 
         // MARK: - Action Buttons
         case .hotCrypto:
@@ -156,7 +156,7 @@ struct TangemApiTarget: TargetType {
              .hotCrypto,
              .earnYieldMarkets,
              .earnNetworks,
-             .stakingVaultsConfig,
+             .coinsSettings,
              .story,
              .pushNotificationsEligible,
              .getUserAccounts,
@@ -245,8 +245,8 @@ struct TangemApiTarget: TargetType {
         case .earnNetworks(let requestModel):
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
 
-        // MARK: - Staking tasks
-        case .stakingVaultsConfig:
+        // MARK: - Coins tasks
+        case .coinsSettings:
             return .requestPlain
 
         // MARK: - News tasks
@@ -340,7 +340,7 @@ struct TangemApiTarget: TargetType {
              .hotCrypto,
              .earnYieldMarkets,
              .earnNetworks,
-             .stakingVaultsConfig,
+             .coinsSettings,
              .apiList,
              .pushNotificationsEligible,
              .createUserWalletsApplication,
@@ -400,9 +400,9 @@ extension TangemApiTarget {
         case earnYieldMarkets(_ requestModel: EarnDTO.List.Request)
         case earnNetworks(_ requestModel: EarnDTO.Networks.Request)
 
-        // MARK: - Staking Targets
+        // MARK: - Coins Targets
 
-        case stakingVaultsConfig
+        case coinsSettings
 
         // MARK: - Action Buttons
 
@@ -443,7 +443,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .stakingVaultsConfig:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -500,7 +500,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .saveUserAccounts,
              .getArchivedUserAccounts,
              .activatePromoCode,
-             .stakingVaultsConfig:
+             .coinsSettings:
             return true
         }
     }

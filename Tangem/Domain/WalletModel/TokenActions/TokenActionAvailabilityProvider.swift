@@ -477,7 +477,7 @@ extension TokenActionAvailabilityProvider {
 
 extension TokenActionAvailabilityProvider {
     var isStakeAvailable: Bool {
-        isStakeFeatureAvailable && isSendAvailable
+        isStakeFeatureAvailable && isSendAvailable && isStakingOfferAvailable
     }
 
     /// Checks whether staking is available for the token without considering `isSendAvailable`.
@@ -486,6 +486,10 @@ extension TokenActionAvailabilityProvider {
         let canStake = stakingFeatureProvider.isAvailable(for: walletModel.tokenItem)
 
         return canStake
+    }
+
+    private var isStakingOfferAvailable: Bool {
+        walletModel.stakingManagerState.yieldInfo?.isAvailable ?? false
     }
 }
 

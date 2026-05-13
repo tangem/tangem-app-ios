@@ -49,9 +49,9 @@ protocol TangemApiService: AnyObject {
     func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response
 
-    // MARK: - Staking
+    // MARK: - Coins
 
-    func loadStakingVaultsConfig() async throws -> StakingVaultsConfigDTO.Response
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response
 
     // MARK: - News
 

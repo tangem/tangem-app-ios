@@ -298,10 +298,10 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .earnNetworks(requestModel), decoder: decoder)
     }
 
-    // MARK: - Staking Implementation
+    // MARK: - Coins Implementation
 
-    func loadStakingVaultsConfig() async throws -> StakingVaultsConfigDTO.Response {
-        try await request(for: .stakingVaultsConfig, decoder: decoder)
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
+        try await request(for: .coinsSettings, decoder: decoder)
     }
 
     // MARK: - Action Buttons

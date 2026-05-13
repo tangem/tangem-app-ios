@@ -14,7 +14,7 @@ final actor CommonStakingTargetAmountLimitProvider {
     private let tangemApiService: TangemApiService
     private let userWalletEventProvider: AnyPublisher<UserWalletRepositoryEvent, Never>
 
-    private var limits: [String: Decimal] = [:]
+    private var infos: [String: StakingTargetAmountLimitInfo] = [:]
     private var loadingTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
@@ -30,11 +30,11 @@ final actor CommonStakingTargetAmountLimitProvider {
 // MARK: - StakingTargetAmountLimitProvider
 
 extension CommonStakingTargetAmountLimitProvider: StakingTargetAmountLimitProvider {
-    func limit(forTargetAddress address: String) async -> Decimal? {
+    func info(forTargetAddress address: String) async -> StakingTargetAmountLimitInfo? {
         if let loadingTask {
             _ = await loadingTask.value
         }
-        return limits[address.lowercased()]
+        return infos[address.lowercased()]
     }
 }
 
@@ -73,32 +73,35 @@ private extension CommonStakingTargetAmountLimitProvider {
         loadingTask = Task<Void, Never> { [weak self] in
             guard let self else { return }
             await runFetch()
+            await clearLoadingTask()
         }
     }
 
-    func runFetch() async {
-        // [REDACTED_TODO_COMMENT]
-        // Remove the early return below once the endpoint is live; until then `limits` stays
-        // empty and `P2PMapper` falls back to `capacity - totalAssets`.
-        return
+    func clearLoadingTask() {
+        loadingTask = nil
+    }
 
-//        do {
-//            let response = try await tangemApiService.loadStakingVaultsConfig()
-//            let dict = response.vaults.reduce(into: [String: Decimal]()) { result, vault in
-//                if let limit = vault.limit {
-//                    result[vault.vaultAddress.lowercased()] = limit
-//                }
-//            }
-//            guard !Task.isCancelled else { return }
-//            limits = dict
-//        } catch {
-//            AppLogger.error("Failed to load staking target amount limits", error: error)
-//        }
+    func runFetch() async {
+        do {
+            let response = try await tangemApiService.loadCoinsSettings()
+            let vaults = response.staking?.vaults ?? []
+            let dict = vaults.reduce(into: [String: StakingTargetAmountLimitInfo]()) { result, vault in
+                guard vault.limit != nil else { return }
+                result[vault.vaultAddress.lowercased()] = StakingTargetAmountLimitInfo(
+                    limit: vault.limit,
+                    coefficient: vault.coefficient
+                )
+            }
+            guard !Task.isCancelled else { return }
+            infos = dict
+        } catch {
+            AppLogger.error("Failed to load staking target amount limits", error: error)
+        }
     }
 
     func clearCache() {
         loadingTask?.cancel()
         loadingTask = nil
-        limits = [:]
+        infos = [:]
     }
 }

@@ -16,11 +16,11 @@ struct P2PMapper {
 
     func mapToYieldInfo(
         from response: P2PDTO.Vaults.VaultsInfo,
-        targetAmountLimits: [String: Decimal]
+        targetAmountInfos: [String: StakingTargetAmountLimitInfo]
     ) throws -> StakingYieldInfo {
         let vaults = response.vaults
             .filter { !$0.isSmoothingPool && !$0.isPrivate }
-            .map { mapToStakingTargetInfo(from: $0, targetAmountLimits: targetAmountLimits) }
+            .map { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
 
         let rewardRateValues = RewardRateValues(
             aprs: vaults.compactMap(\.rewardRate),
@@ -28,10 +28,11 @@ struct P2PMapper {
         )
 
         let maximumStakeAmount = vaults.compactMap(\.maximumStakeAmount).min()
+        let isAvailable = vaults.contains { $0.status != .full }
 
         return StakingYieldInfo(
             id: item.network.rawValue,
-            isAvailable: true,
+            isAvailable: isAvailable,
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: StakingConstants.p2pEnterMinimumRequirements,
@@ -139,14 +140,21 @@ struct P2PMapper {
 
     func mapToStakingTargetInfo(
         from vault: P2PDTO.Vaults.Vault,
-        targetAmountLimits: [String: Decimal]
+        targetAmountInfos: [String: StakingTargetAmountLimitInfo]
     ) -> StakingTargetInfo {
-        let configLimit = targetAmountLimits[vault.vaultAddress.lowercased()]
+        let info = targetAmountInfos[vault.vaultAddress.lowercased()]
         let capacityFallback = vault.totalAssets.flatMap { totalAssets in
             vault.capacity.flatMap { capacity in
                 capacity - totalAssets
             }
         }
+        let isAvailable: Bool = {
+            guard let capacity = vault.capacity,
+                  let totalAssets = vault.totalAssets else {
+                return false
+            }
+            return capacity - totalAssets > Constants.availabilityThreshold
+        }()
         return StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
@@ -154,9 +162,9 @@ struct P2PMapper {
             partner: false,
             iconURL: nil,
             rewardType: rewardType,
-            rewardRate: vault.apy ?? .zero,
-            status: .active,
-            maximumStakeAmount: configLimit ?? capacityFallback
+            rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
+            status: isAvailable ? .active : .full,
+            maximumStakeAmount: isAvailable ? (info?.limit ?? capacityFallback) : nil
         )
     }
 
@@ -186,5 +194,12 @@ public extension StakingTokenItem {
             decimals: blockchain.decimalCount,
             symbol: blockchain.currencySymbol
         )
+    }
+}
+
+private extension P2PMapper {
+    enum Constants {
+        static let percentMultiplier = Decimal(stringValue: "100")!
+        static let availabilityThreshold: Decimal = 2
     }
 }

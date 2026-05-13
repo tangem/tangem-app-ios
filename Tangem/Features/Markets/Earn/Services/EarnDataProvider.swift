@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemStaking
 
 protocol EarnDataProvider: AnyObject {
     var eventPublisher: AnyPublisher<EarnDataEvent, Never> { get }
@@ -27,6 +28,7 @@ final class CommonEarnDataService: EarnDataProvider {
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
 
     // MARK: - Subjects
 
@@ -94,7 +96,8 @@ final class CommonEarnDataService: EarnDataProvider {
                 )
 
                 let response = try await provider.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
-                let models = response.items.map { provider.mapper.mapToEarnTokenModel(from: $0) }
+                let filteredItems = await provider.filterUnavailableItems(response.items)
+                let models = filteredItems.map { provider.mapper.mapToEarnTokenModel(from: $0) }
 
                 await MainActor.run {
                     provider.applyMostlyUsedTokens(models)
@@ -179,7 +182,30 @@ final class CommonEarnDataService: EarnDataProvider {
             networkIds: filter.networkIds
         )
 
-        return try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
+        let response = try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
+        let filteredItems = await filterUnavailableItems(response.items)
+        return EarnDTO.List.Response(items: filteredItems, meta: response.meta)
+    }
+
+    private func filterUnavailableItems(_ items: [EarnDTO.List.Item]) async -> [EarnDTO.List.Item] {
+        guard items.contains(where: isEthereumP2PStakingItem) else { return items }
+
+        let isAvailable: Bool
+        do {
+            let yield = try await stakingYieldInfoProvider.yieldInfo(for: StakingIntegrationId.ethereumP2P.rawValue)
+            isAvailable = yield.isAvailable
+        } catch {
+            return items
+        }
+        guard !isAvailable else { return items }
+        return items.filter { !isEthereumP2PStakingItem($0) }
+    }
+
+    private func isEthereumP2PStakingItem(_ item: EarnDTO.List.Item) -> Bool {
+        item.networkId.lowercased() == Constants.ethereumNetworkId
+            && item.token.symbol.uppercased() == Constants.ethSymbol
+            && item.type.lowercased() == Constants.stakingType
+            && (item.token.address?.isEmpty ?? true)
     }
 
     @MainActor
@@ -232,6 +258,9 @@ final class CommonEarnDataService: EarnDataProvider {
 private extension CommonEarnDataService {
     enum Constants {
         static let mostlyUsedLimit = 5
+        static let ethereumNetworkId = "ethereum"
+        static let ethSymbol = "ETH"
+        static let stakingType = "staking"
     }
 }
 

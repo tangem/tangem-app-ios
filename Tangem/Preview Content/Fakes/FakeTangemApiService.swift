@@ -230,7 +230,7 @@ final class FakeTangemApiService: TangemApiService {
         try MockEarnProvider().loadEarnNetworks()
     }
 
-    func loadStakingVaultsConfig() async throws -> StakingVaultsConfigDTO.Response {
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
         throw "Not implemented"
     }
 }
