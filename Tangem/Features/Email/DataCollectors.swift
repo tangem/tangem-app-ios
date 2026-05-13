@@ -31,26 +31,24 @@ private extension EmailDataCollector {
     func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
         var dataToFormat: [EmailCollectedData] = []
 
-        // Drop `.domain(...)` entries: their offsets don't map to `wallet.addresses`,
-        // and `displayAddress(for:)`/`exploreURL(for:)` would crash on out-of-bounds index.
-        let receiveAddressTypes = walletModel.receiveAddressTypes.filter { $0.key == .address }
-        if receiveAddressTypes.count > 1 {
+        let addresses = walletModel.addresses
+        if addresses.count > 1 {
             var explorerLinks = "Multiple explorers links: "
-            var addresses = "Multiple addresses: "
+            var addressesString = "Multiple addresses: "
             let suffix = " ; \n"
-            receiveAddressTypes.enumerated().forEach {
-                let namePrefix = $0.element.info.localizedName + " - "
-                addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
-                explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
+            for address in addresses {
+                let namePrefix = address.localizedName + " - "
+                addressesString += namePrefix + address.value + suffix
+                explorerLinks += namePrefix + (walletModel.exploreURL(for: address.value)?.absoluteString ?? "") + suffix
             }
             explorerLinks.removeLast(suffix.count)
-            addresses.removeLast(suffix.count)
+            addressesString.removeLast(suffix.count)
 
-            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addressesString))
             dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
-        } else if receiveAddressTypes.count == 1 {
-            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
-            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
+        } else if let address = addresses.first {
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: address.value))
+            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: address.value)?.absoluteString ?? ""))
         }
 
         return dataToFormat
@@ -368,8 +366,14 @@ struct VisaDisputeTransactionDataCollector: EmailDataCollector {
 struct TangemPaySupportDataCollector: EmailDataCollector {
     enum Source {
         case transactionDetails(TangemPayTransactionRecord)
+        case transactionDetailsPush(TangemPayPushPayload, PushTransactionType)
         case failedToIssueCardSheet
         case permanentBanner
+
+        enum PushTransactionType {
+            case transaction
+            case receiveWithdraw
+        }
     }
 
     let source: Source
@@ -396,6 +400,13 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
                 issueType = "Receive/Withdraw"
                 encodable = value
             }
+
+        case .transactionDetailsPush(let payload, let pushTransactionType):
+            issueType = switch pushTransactionType {
+            case .transaction: "Transaction"
+            case .receiveWithdraw: "Receive/Withdraw"
+            }
+            encodable = payload
 
         case .failedToIssueCardSheet:
             issueType = "Card issuing"
