@@ -21,6 +21,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
     @Published var isFlipped: Bool = false
     @Published var cardName: String = ""
+    @Published var isCardNameEditingDisabled: Bool = false
 
     var onCardNameTapped: (() -> Void)?
 
