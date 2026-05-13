@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Permission Required";
 "express_provider_recommended" = "Recommended";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Provider";
 "express_status_buying" = "Buying %@";
 "express_status_hide_button_text" = "Hide this transaction";
@@ -1492,8 +1493,14 @@
 "tangempay_get_banner_description" = "Ottieni la tua carta virtuale Tangem Visa gratuita";
 "tangempay_get_tangem_pay" = "Ottieni Tangem Pay";
 "tangempay_go_to_support" = "Vai al supporto";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Di solito richiede fino a 15 minuti";
 "tangempay_issue_card_notification_title" = "Configurazione della tua carta Tangem";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "La carta viene solitamente emessa automaticamente entro 5 minuti. In rari casi, se è necessaria una revisione manuale, l’emissione può richiedere fino a 48 ore.";
 "tangempay_issuing_your_card" = "Emissione della tua carta";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1517,8 @@
 "tangempay_kyc_rejected_description_span" = "la tua identità.";
 "tangempay_kyc_rejected_description" = "Spiacenti, non siamo riusciti a verificare";
 "tangempay_kyc_rejected" = "Rifiutato";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Ottieni la tua carta virtuale Tangem Visa gratuita";
 "tangempay_onboarding_banner_title" = "Usa USDC per i pagamenti quotidiani";
 "tangempay_onboarding_get_card_button_text" = "Ottieni carta";

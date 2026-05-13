@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Permission Required";
 "express_provider_recommended" = "Recommended";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Provider";
 "express_status_buying" = "Buying %@";
 "express_status_hide_button_text" = "Hide this transaction";
@@ -1492,8 +1493,14 @@
 "tangempay_get_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_go_to_support" = "Go to Support";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "The card is usually issued automatically within 5 minutes. In rare cases, if manual review is required, it may take up to 48 hours.";
 "tangempay_issuing_your_card" = "Issuing your card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1517,8 @@
 "tangempay_kyc_rejected_description_span" = "your profile.";
 "tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
 "tangempay_kyc_rejected" = "Rejected";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_onboarding_banner_title" = "Use USDC for everyday payments";
 "tangempay_onboarding_get_card_button_text" = "Get card";

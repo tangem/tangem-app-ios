@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "権限が必要です";
 "express_provider_permission_needed" = "許可が必要です";
 "express_provider_recommended" = "推奨";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "プロバイダー";
 "express_status_buying" = "%@を買い付けています";
 "express_status_hide_button_text" = "この取引を非表示にする";
@@ -1492,8 +1493,14 @@
 "tangempay_get_banner_description" = "無料のTangem Visaバーチャルカードを入手";
 "tangempay_get_tangem_pay" = "Tangem Payを入手";
 "tangempay_go_to_support" = "サポートへ移動";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "通常は最大で15分ほどかかります";
 "tangempay_issue_card_notification_title" = "Tangemカードのセットアップ";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "カードは通常、5分以内に自動で発行されます。手動での審査が必要な稀な場合は、最大48時間かかることがあります。";
 "tangempay_issuing_your_card" = "カードを発行しています";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1517,8 @@
 "tangempay_kyc_rejected_description_span" = "本人確認ができませんでした。";
 "tangempay_kyc_rejected_description" = "申し訳ございませんが、";
 "tangempay_kyc_rejected" = "拒否されました";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "無料のTangem Visaバーチャルカードを入手";
 "tangempay_onboarding_banner_title" = "日常の支払いにUSDCを利用";
 "tangempay_onboarding_get_card_button_text" = "カードをGET";

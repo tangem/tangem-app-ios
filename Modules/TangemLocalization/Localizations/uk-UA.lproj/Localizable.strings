@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Потрібен дозвіл";
 "express_provider_recommended" = "Рекомендовано";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Провайдер";
 "express_status_buying" = "Купівля %@";
 "express_status_hide_button_text" = "Приховати цю транзакцію";
@@ -1492,8 +1493,14 @@
 "tangempay_get_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
 "tangempay_get_tangem_pay" = "Отримати Tangem Pay";
 "tangempay_go_to_support" = "Написати у підтримку";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Зазвичай це займає до 15 хвилин";
 "tangempay_issue_card_notification_title" = "Готуємо вашу картку Tangem";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "Карту зазвичай випускають автоматично протягом 5 хвилин. У рідкісних випадках, коли потрібна ручна перевірка, процес може тривати до 48 годин.";
 "tangempay_issuing_your_card" = "Випускаємо картку";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1510,6 +1517,8 @@
 "tangempay_kyc_rejected_description_span" = "вашу особу.";
 "tangempay_kyc_rejected_description" = "Вибачте, ми не змогли підтвердити";
 "tangempay_kyc_rejected" = "Відхилено";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
 "tangempay_onboarding_banner_title" = "Використовуйте USDC для щоденних платежів";
 "tangempay_onboarding_get_card_button_text" = "Отримати картку";
