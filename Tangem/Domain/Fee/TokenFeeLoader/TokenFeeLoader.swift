@@ -9,16 +9,8 @@
 import Foundation
 
 protocol TokenFeeLoader {
-    var allowsFeeSelection: Bool { get }
-
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee]
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee]
-}
-
-extension TokenFeeLoader {
-    var supportingFeeOptions: [FeeOption] {
-        allowsFeeSelection ? [.slow, .market, .fast] : [.market]
-    }
 }
 
 // MARK: - EthereumTokenFeeLoader

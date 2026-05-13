@@ -30,7 +30,6 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var id: WalletModelId { sourceToken.id }
     var header: TokenHeader { sourceToken.header }
     var feeTokenItem: TokenItem { sourceToken.feeTokenItem }
-    var isFixedFee: Bool { sourceToken.isFixedFee }
     var isCustom: Bool { sourceToken.isCustom }
     var defaultAddressString: String { sourceToken.defaultAddressString }
 
@@ -42,4 +41,5 @@ struct CommonSendTransferableToken: SendTransferableToken {
 
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
+    var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
 }
