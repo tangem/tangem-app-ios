@@ -188,7 +188,7 @@ struct TangemPayMainView: View {
     private var cardIconRow: some View {
         HStack(spacing: 8) {
             Button(action: viewModel.openCardManagement) {
-                TangemPaySmallCardView(cardNumberEnd: viewModel.cardNumberEnd)
+                TangemPaySmallCardView(state: .issued(cardNumberEnd: viewModel.cardNumberEnd))
             }
             .disabled(viewModel.isStale)
             .opacity(viewModel.isStale ? 0.6 : 1)
