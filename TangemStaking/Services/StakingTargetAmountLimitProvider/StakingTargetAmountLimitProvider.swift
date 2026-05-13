@@ -18,5 +18,5 @@ public struct StakingTargetAmountLimitInfo: Sendable {
 }
 
 public protocol StakingTargetAmountLimitProvider: Sendable {
-    func info(forTargetAddress address: String) async -> StakingTargetAmountLimitInfo?
+    func snapshot() async -> [String: StakingTargetAmountLimitInfo]
 }

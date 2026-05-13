@@ -139,20 +139,20 @@ private extension P2PStakingManager {
             return .notEnabled
         }
 
-        // Empty validators or unavailable yield means temporarily unavailable
-        guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
-            return .temporaryUnavailable(yield, cached: stateRepository.state())
-        }
-
         let stakingBalances = balances?.map { balance in
             mapToStakingBalance(balance: balance, yield: yield)
         }
 
-        guard let stakingBalances, !stakingBalances.isEmpty else {
-            return .availableToStake(yield)
+        // Preserve .staked UI for users with existing positions even when no vault accepts new stakes.
+        if let stakingBalances, !stakingBalances.isEmpty {
+            return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: yield.isAvailable))
         }
 
-        return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: true))
+        guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
+            return .temporaryUnavailable(yield, cached: stateRepository.state())
+        }
+
+        return .availableToStake(yield)
     }
 
     func transactionInfo(action: StakingAction) async throws -> StakingTransactionInfo {

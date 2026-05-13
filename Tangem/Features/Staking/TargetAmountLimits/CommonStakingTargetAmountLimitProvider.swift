@@ -30,11 +30,11 @@ final actor CommonStakingTargetAmountLimitProvider {
 // MARK: - StakingTargetAmountLimitProvider
 
 extension CommonStakingTargetAmountLimitProvider: StakingTargetAmountLimitProvider {
-    func info(forTargetAddress address: String) async -> StakingTargetAmountLimitInfo? {
+    func snapshot() async -> [String: StakingTargetAmountLimitInfo] {
         if let loadingTask {
             _ = await loadingTask.value
         }
-        return infos[address.lowercased()]
+        return infos
     }
 }
 
