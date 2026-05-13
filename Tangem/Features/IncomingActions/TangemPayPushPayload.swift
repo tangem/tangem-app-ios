@@ -233,7 +233,20 @@ extension TangemPayPushPayload {
 
 // MARK: - Extractor
 
-private let pushPayloadDateFormatter = ISO8601DateFormatter()
+private let pushPayloadDateFormatters: [DateFormatter] = {
+    let formats = [
+        "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS",
+        "yyyy-MM-dd'T'HH:mm:ssZ",
+        "yyyy-MM-dd'T'HH:mm:ss",
+    ]
+
+    return formats.map { format in
+        let formatter = DateFormatter(dateFormat: format)
+        formatter.locale = .posixEnUS
+        return formatter
+    }
+}()
 
 private extension TangemPayPushPayload {
     struct Extractor<Keys: CodingKey> {
@@ -248,7 +261,14 @@ private extension TangemPayPushPayload {
         }
 
         func date(_ key: Keys) -> Date? {
-            string(key).flatMap(pushPayloadDateFormatter.date(from:))
+            guard let string = string(key) else {
+                return nil
+            }
+
+            return pushPayloadDateFormatters
+                .lazy
+                .compactMap { $0.date(from: string) }
+                .first
         }
 
         func url(_ key: Keys) -> URL? {
