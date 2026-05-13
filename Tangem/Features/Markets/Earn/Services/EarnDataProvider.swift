@@ -96,7 +96,7 @@ final class CommonEarnDataService: EarnDataProvider {
                 )
 
                 let response = try await provider.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
-                let filteredItems = await provider.filterUnavailableItems(response.items)
+                let filteredItems = try await provider.filterUnavailableItems(response.items)
                 let models = filteredItems.map { provider.mapper.mapToEarnTokenModel(from: $0) }
 
                 await MainActor.run {
@@ -183,17 +183,19 @@ final class CommonEarnDataService: EarnDataProvider {
         )
 
         let response = try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
-        let filteredItems = await filterUnavailableItems(response.items)
+        let filteredItems = try await filterUnavailableItems(response.items)
         return EarnDTO.List.Response(items: filteredItems, meta: response.meta)
     }
 
-    private func filterUnavailableItems(_ items: [EarnDTO.List.Item]) async -> [EarnDTO.List.Item] {
+    private func filterUnavailableItems(_ items: [EarnDTO.List.Item]) async throws -> [EarnDTO.List.Item] {
         guard items.contains(where: isEthereumP2PStakingItem) else { return items }
 
         let isAvailable: Bool
         do {
             let yield = try await stakingYieldInfoProvider.yieldInfo(for: StakingIntegrationId.ethereumP2P.rawValue)
             isAvailable = yield.isAvailable
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             return items
         }
