@@ -92,6 +92,31 @@ extension CommonOnrampManager: OnrampManager {
             throw error
         }
     }
+
+    public func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult {
+        do {
+            guard let quoteId = provider.quote?.quoteId else {
+                throw OnrampManagerError.quoteIdNotFound
+            }
+
+            let quotesItem = try provider.makeOnrampQuotesRequestItem()
+            let requestItem = OnrampNativePaymentRequestItem(
+                quotesItem: quotesItem,
+                redirectSettings: redirectSettings,
+                paymentToken: applePayResult.paymentToken,
+                quoteId: quoteId,
+                userData: applePayResult.userData
+            )
+            let result = try await apiProvider.onrampNativePaymentData(item: requestItem)
+            return result
+        } catch let error as ExpressAPIError {
+            analyticsLogger.logExpressAPIError(error, provider: provider.provider, paymentMethod: provider.paymentMethod)
+            throw error
+        } catch {
+            analyticsLogger.logAppError(error, provider: provider.provider)
+            throw error
+        }
+    }
 }
 
 // MARK: - Private

@@ -11,7 +11,7 @@ import XCTest
 final class SwapActionButtonUITests: BaseTestCase {
     private let token = "Ethereum"
     private let fromTokenSymbol = "ETH"
-    private let receiveToken = "Polygon"
+    private let receiveTokenInSelector = "POL (ex-MATIC)"
     private let receiveTokenSymbol = "POL"
 
     func testSwapFromTokenDetails_NavigatesToSwapScreen() {
@@ -29,6 +29,8 @@ final class SwapActionButtonUITests: BaseTestCase {
 
         swapScreen
             .waitFromTokenDisplayed(tokenSymbol: fromTokenSymbol)
+            .chooseReceiveToken(receiveTokenInSelector)
+            .waitToTokenDisplayed(tokenSymbol: receiveTokenSymbol)
 
         swapScreen
             .enterFromAmount("1")
@@ -45,13 +47,12 @@ final class SwapActionButtonUITests: BaseTestCase {
 
         let swapScreen = mainScreen
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
-            .selectToken(token)
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken(token)
+            .chooseReceiveToken(receiveTokenInSelector)
 
         swapScreen
-            .selectReceiveToken(receiveToken)
-            .validateSwapScreenDisplayed()
             .waitFromTokenDisplayed(tokenSymbol: fromTokenSymbol)
             .waitToTokenDisplayed(tokenSymbol: receiveTokenSymbol)
 

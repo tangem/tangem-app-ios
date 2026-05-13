@@ -17,4 +17,5 @@ enum AnyWalletManagerFactoryError: Error {
     case entryHasNotDerivationPath
     case noDerivation
     case walletWithBlockchainCurveNotFound
+    case twinWalletPublicKeyNotFound
 }

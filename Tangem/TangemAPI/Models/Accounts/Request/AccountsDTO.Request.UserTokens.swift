@@ -27,5 +27,6 @@ extension AccountsDTO.Request {
         let derivationPath: String?
         let contractAddress: String?
         let addresses: [String]?
+        let dynamicAddressesEnabled: Bool?
     }
 }
