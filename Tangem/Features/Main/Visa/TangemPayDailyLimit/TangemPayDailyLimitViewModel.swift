@@ -115,7 +115,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
                     viewModel.isLoading = false
                     viewModel.alert = AlertBinder(
                         title: Localization.commonSomethingWentWrong,
-                        message: Localization.tangempayCardPageDailyLimitErrorDescription
+                        message: Localization.tangempayCardLimitSetupErrorMessage
                     )
                 }
             }
