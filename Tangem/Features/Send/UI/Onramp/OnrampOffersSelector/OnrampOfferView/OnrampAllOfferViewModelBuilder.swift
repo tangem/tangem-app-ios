@@ -16,7 +16,7 @@ struct OnrampAllOfferViewModelBuilder {
     private let amountBadgeBuilder: OnrampAmountBadgeBuilder = .init()
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
-    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: @escaping () -> Void) -> OnrampOfferViewModel {
+    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: OnrampOfferViewModel.BuyAction) -> OnrampOfferViewModel {
         let title: OnrampOfferViewModel.Title = switch provider.state {
         case .loaded where provider.globalAttractiveType == .best: .bestRate
         case .loaded where provider.processingTimeType == .fastest: .fastest
@@ -53,7 +53,7 @@ struct OnrampAllOfferViewModelBuilder {
             amount: amount,
             provider: offerProvider,
             isAvailable: provider.isSuccessfullyLoaded,
-            buyButtonAction: buyAction
+            buyAction: buyAction
         )
     }
 }

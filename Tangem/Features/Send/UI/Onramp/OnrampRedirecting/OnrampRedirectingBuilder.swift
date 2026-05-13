@@ -38,7 +38,8 @@ private extension OnrampRedirectingBuilder {
         CommonOnrampRedirectingInteractor(
             input: io.input,
             output: io.output,
-            onrampManager: onrampManager
+            onrampManager: onrampManager,
+            redirectSettingsBuilder: OnrampRedirectSettingsBuilder()
         )
     }
 }
