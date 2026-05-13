@@ -38,7 +38,7 @@ struct P2PMapper {
             enterMinimumRequirement: StakingConstants.p2pEnterMinimumRequirements,
             exitMinimumRequirement: .zero,
             targets: vaults,
-            preferredTargets: vaults,
+            preferredTargets: vaults.filter { $0.status != .full },
             item: item,
             unbondingPeriod: .variable(minDays: 1, maxDays: 4),
             warmupPeriod: .constant(days: 0),
@@ -196,7 +196,7 @@ public extension StakingTokenItem {
 
 private extension P2PMapper {
     enum Constants {
-        static let percentMultiplier = Decimal(stringValue: "100")!
+        static let percentMultiplier = Decimal(100)
         static let availabilityThreshold: Decimal = 2
     }
 }
