@@ -61,6 +61,9 @@ extension P2PStakingManager: StakingManager {
             )
             let state = state(balances: balances, yield: yield)
             updateState(state)
+        } catch is CancellationError {
+            // Ignored intentionally
+            return
         } catch {
             updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }

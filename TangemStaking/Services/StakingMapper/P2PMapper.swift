@@ -20,7 +20,7 @@ struct P2PMapper {
     ) throws -> StakingYieldInfo {
         let vaults = response.vaults
             .filter { !$0.isSmoothingPool && !$0.isPrivate }
-            .map { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
+            .compactMap { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
 
         let rewardRateValues = RewardRateValues(
             aprs: vaults.compactMap(\.rewardRate),
@@ -141,12 +141,9 @@ struct P2PMapper {
     func mapToStakingTargetInfo(
         from vault: P2PDTO.Vaults.Vault,
         targetAmountInfos: [String: StakingTargetAmountLimitInfo]
-    ) -> StakingTargetInfo {
-        let info = targetAmountInfos[vault.vaultAddress.lowercased()]
-        let capacityFallback = vault.totalAssets.flatMap { totalAssets in
-            vault.capacity.flatMap { capacity in
-                capacity - totalAssets
-            }
+    ) -> StakingTargetInfo? {
+        guard let info = targetAmountInfos[vault.vaultAddress.lowercased()] else {
+            return nil
         }
         let isAvailable: Bool = {
             guard let capacity = vault.capacity,
@@ -164,7 +161,7 @@ struct P2PMapper {
             rewardType: rewardType,
             rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
             status: isAvailable ? .active : .full,
-            maximumStakeAmount: isAvailable ? (info?.limit ?? capacityFallback) : nil
+            maximumStakeAmount: isAvailable ? info.limit : nil
         )
     }
 
