@@ -25,7 +25,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case legacyDerivation
     case systemDeprecationTemporary
     case systemDeprecationPermanent(version: String, date: String)
-    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?)
+    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
     case walletLocked
     case missingBackup
     case supportedOnlySingleCurrencyWallet
@@ -146,8 +146,12 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSystemUpdateMessage
         case .systemDeprecationPermanent(let version, let dateString):
             return Localization.warningIosDeprecationMessage(version, dateString)
-        case .missingDerivation(let numberOfNetworks, _):
-            return Localization.warningMissingDerivationMessage(numberOfNetworks)
+        case .missingDerivation(let numberOfNetworks, _, let hasNFCInteraction):
+            if hasNFCInteraction {
+                return Localization.warningMissingDerivationMessage(numberOfNetworks)
+            } else {
+                return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
+            }
         case .walletLocked:
             return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
         case .missingBackup:
@@ -302,7 +306,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
             ])
-        case .missingDerivation(_, let icon):
+        case .missingDerivation(_, let icon, _):
             guard let buttonAction else {
                 break
             }
