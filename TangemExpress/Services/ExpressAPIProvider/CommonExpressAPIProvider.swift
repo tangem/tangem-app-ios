@@ -244,7 +244,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             toContractAddress: item.quotesItem.pairItem.destination.contractAddress,
             toNetwork: item.quotesItem.pairItem.destination.network,
             paymentMethod: item.quotesItem.paymentMethod.id,
-            countryCode: item.quotesItem.pairItem.country.identity.code,
+            countryCode: "US", // item.quotesItem.pairItem.country.identity.code,
             fromAmount: item.quotesItem.sourceAmountWEI(),
             fromPrecision: item.quotesItem.pairItem.fiatCurrency.precision,
             toDecimals: item.quotesItem.pairItem.destination.decimalCount,
@@ -265,13 +265,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
                     lastName: item.userData.lastName,
                     billingAddress: item.userData.billingAddress.map { address in
                         .init(
-                            street: address.street,
                             city: address.city,
-                            subAdministrativeArea: address.subAdministrativeArea,
                             state: address.state,
                             postalCode: address.postalCode,
-                            country: address.country,
-                            isoCountryCode: address.isoCountryCode
+                            country: address.country
                         )
                     }
                 )
