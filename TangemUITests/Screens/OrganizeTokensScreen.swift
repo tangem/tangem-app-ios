@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import XCTest
 import TangemAccessibilityIdentifiers
 @testable import TangemAssets

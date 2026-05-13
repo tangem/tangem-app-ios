@@ -35,7 +35,7 @@ struct TokenSelectorItemView: View {
             )
             .padding(.vertical, 14)
         }
-        .disabled(viewModel.disabledReason != nil)
+        .disabled(viewModel.disabledReason?.disablesTap ?? false)
         .background(Colors.Background.action)
         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: viewModel.name))
     }

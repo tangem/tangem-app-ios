@@ -10,6 +10,7 @@ import SwiftUI
 import Foundation
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct SelectorReceiveAssetsAddressPageItemView: View {
     @ObservedObject private(set) var viewModel: SelectorReceiveAssetsAddressPageItemViewModel
@@ -22,6 +23,12 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
             )
 
             FixedSpacer(height: Layout.Container.tokenIconTextVerticalSpacing)
+
+            if viewModel.isDynamicAddressesEnabled {
+                dynamicAddressesBadgeView()
+
+                FixedSpacer(height: Layout.Container.tokenIconTextVerticalSpacing)
+            }
 
             tokenContentView()
 
@@ -64,6 +71,24 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                     .padding(.horizontal, Layout.TokenContentView.addressHorizontalPadding)
             }
         }
+    }
+
+    private func dynamicAddressesBadgeView() -> some View {
+        HStack(alignment: .center, spacing: 4) {
+            Assets.dynamicAddressesRowsIcon.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 16, height: 16)
+                .foregroundStyle(Colors.Icon.accent)
+                .padding(.leading, 6)
+
+            Text(Localization.dynamicAddressesReceiveBadge)
+                .style(Fonts.Bold.caption1, color: Colors.Text.accent)
+                .padding(.trailing, 10)
+        }
+        .padding(.vertical, 4)
+        .background(Colors.Text.accent.opacity(0.1))
+        .clipShape(Capsule())
     }
 }
 

@@ -79,7 +79,13 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
         }
 
         do {
-            _ = try DerivationPath(rawPath: rawPath)
+            let derivationPath = try DerivationPath(rawPath: rawPath)
+            let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: derivationPath))
+
+            guard !context.hasDynamicAddressRestriction(for: tokenItem) else {
+                return .failure(hint: Localization.dynamicAddressesCustomTokenErrorOnAddition)
+            }
+
             return .success
         } catch {
             return .failure(hint: .none)

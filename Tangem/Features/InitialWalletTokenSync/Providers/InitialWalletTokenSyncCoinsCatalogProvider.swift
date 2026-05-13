@@ -48,7 +48,7 @@ struct CommonInitialWalletTokenSyncCoinsCatalogProvider: InitialWalletTokenSyncC
             )
             return try await tangemApiService.loadCoins(requestModel: request)
         } catch {
-            AppLogger.tag("WalletTokenAutoSync").debug("Coins catalog lookup failed: \(error)")
+            AssetsDiscoveryLogger.debug("Coins catalog lookup failed: \(error)")
             return nil
         }
     }

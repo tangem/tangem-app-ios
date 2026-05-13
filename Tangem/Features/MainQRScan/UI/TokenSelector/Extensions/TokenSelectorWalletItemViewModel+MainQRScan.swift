@@ -21,7 +21,7 @@ extension TokenSelectorWalletItemViewModel {
         switch viewType {
         case .wallet(let wallet):
             return wallet.hasCompatibleItems
-        case .accounts(_, let accounts):
+        case .accounts(let accounts):
             return accounts.contains(where: { $0.hasCompatibleItems })
         }
     }

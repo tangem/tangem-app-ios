@@ -13,6 +13,8 @@ import TangemFoundation
 struct MarketsTokenDetailsDateHelper {
     private let initialDate: Date
 
+    private var calendar: Calendar { .autoupdatingCurrent }
+
     init(
         initialDate: Date
     ) {
@@ -45,15 +47,15 @@ struct MarketsTokenDetailsDateHelper {
     private func makeIntervalBeginningDate(using selectedPriceChangeIntervalType: MarketsPriceIntervalType) -> Date {
         switch selectedPriceChangeIntervalType {
         case .week:
-            return initialDate.dateByAdding(-7, .day).date
+            return calendar.date(byAdding: .day, value: -7, to: initialDate) ?? initialDate
         case .month:
-            return initialDate.dateByAdding(-1, .month).date
+            return calendar.date(byAdding: .month, value: -1, to: initialDate) ?? initialDate
         case .quarter:
-            return initialDate.dateByAdding(-3, .month).date
+            return calendar.date(byAdding: .month, value: -3, to: initialDate) ?? initialDate
         case .halfYear:
-            return initialDate.dateByAdding(-6, .month).date
+            return calendar.date(byAdding: .month, value: -6, to: initialDate) ?? initialDate
         case .year:
-            return initialDate.dateByAdding(-1, .year).date
+            return calendar.date(byAdding: .year, value: -1, to: initialDate) ?? initialDate
         case .day,
              .all:
             assertionFailure("Unreachable")

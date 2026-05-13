@@ -7,11 +7,40 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct MainBottomSheetHeaderView: View {
     @ObservedObject var viewModel: MainBottomSheetHeaderViewModel
 
+    @FocusState private var isFocused: Bool
+
+    @ScaledMetric private var fieldPadding: CGFloat = .unit(.x4)
+
     var body: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            bodyRedesign
+        } else {
+            bodyLegacy
+        }
+    }
+
+    private var bodyRedesign: some View {
+        TangemSearchField(
+            text: $viewModel.enteredSearchText,
+            focusAction: viewModel.focusSearchBarAction,
+            clearAction: viewModel.clearSearchBarAction,
+            cancelAction: viewModel.cancelSearchBarAction,
+            onFocusChanged: viewModel.focusChangedAction
+        )
+        .placeholder(text: viewModel.searchPlaceholder)
+        .cornerStyle(.capsule)
+        .padding(fieldPadding)
+        .background(.ultraThinMaterial)
+        .focused($isFocused)
+        .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
+    }
+
+    private var bodyLegacy: some View {
         MainBottomSheetHeaderInputView(
             searchText: $viewModel.enteredSearchText,
             isTextFieldFocused: $viewModel.inputShouldBecomeFocused,

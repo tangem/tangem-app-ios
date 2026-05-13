@@ -17,8 +17,11 @@ class MarketsListDataFilterProvider {
 
     // MARK: - Initialization
 
-    init(initialOrderType: MarketsListOrderType? = nil) {
-        _intervalTypeValue = .init(.day)
+    init(
+        initialOrderType: MarketsListOrderType? = nil,
+        initialIntervalType: MarketsPriceIntervalType? = nil
+    ) {
+        _intervalTypeValue = .init(initialIntervalType ?? .day)
         _orderTypeValue = .init(initialOrderType ?? .rating)
     }
 

@@ -62,7 +62,7 @@ final class AccountArchiveUITests: BaseTestCase {
     func testArchiveReferralAccount() {
         setAllureId(5981)
         let scenarios = [
-            ScenarioConfig(name: scenarioName, initialState: "TwoAccountsArchivable"),
+            ScenarioConfig(name: scenarioName, initialState: "TwoAccountsArchivableAndReferral"),
             ScenarioConfig(name: "referral_api", initialState: "Participating"),
         ]
         launchApp(tangemApiType: .mock, scenarios: scenarios)
