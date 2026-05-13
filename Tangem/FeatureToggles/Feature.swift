@@ -34,6 +34,7 @@ enum Feature: String, Hashable, CaseIterable {
     case dexApproveNotificationV2
     case manageTokensImprovements
     case swapMaxAmountFractions
+    case pushNotificationsSettings
 
     var name: String {
         switch self {
@@ -62,6 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
+        case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
         }
     }
 
@@ -92,6 +94,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .dexApproveNotificationV2: return .unspecified
         case .manageTokensImprovements: return .unspecified
         case .swapMaxAmountFractions: return .unspecified
+        case .pushNotificationsSettings: return .unspecified
         }
     }
 }
