@@ -17,8 +17,10 @@ final class SwapSearchUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .selectFromToken(Constants.Token.ethereum)
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken(Constants.Token.ethereumInSelector)
+            .tapToTokenSelector()
             .typeSearchText(Constants.Search.trx)
             .selectMarketToken(Constants.Token.tron)
             .tapAddTokenButton()
@@ -35,8 +37,10 @@ final class SwapSearchUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .selectFromToken(Constants.Token.polygon)
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken(Constants.Token.polygonInSelector)
+            .tapToTokenSelector()
             .typeSearchText(Constants.Search.tether)
             .selectMarketToken(Constants.Token.tether)
             .tapAddTokenButton()
@@ -50,15 +54,12 @@ final class SwapSearchUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
-        let swapScreen = CreateWalletSelectorScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.Token.ethereum)
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
-
-        swapScreen
-            .tapSwapTokensButton()
             .tapFromTokenSelector()
             .typeSearchText(Constants.Search.xrp)
             .selectMarketToken(Constants.Token.xrp)
@@ -76,8 +77,10 @@ final class SwapSearchUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .selectFromToken(Constants.Token.ethereum)
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken(Constants.Token.ethereumInSelector)
+            .tapToTokenSelector()
             .typeSearchText(Constants.Search.pepe)
             .selectMarketToken(Constants.Token.pepe)
             .tapAddTokenButton()
@@ -98,7 +101,9 @@ final class SwapSearchUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .tapToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
             .waitForTrendingNowError()
             .waitForRetryButtonDisplayed()
@@ -109,7 +114,8 @@ private extension SwapSearchUITests {
     enum Constants {
         enum Token {
             static let ethereum = "Ethereum"
-            static let polygon = "Polygon"
+            static let ethereumInSelector = "Ethereum"
+            static let polygonInSelector = "POL (ex-MATIC)"
             static let tron = "TRON"
             static let tether = "Tether"
             static let xrp = "XRP"
