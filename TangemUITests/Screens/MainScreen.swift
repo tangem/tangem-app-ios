@@ -24,6 +24,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
     private lazy var walletLockedNotification = button(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
+    private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -354,6 +355,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func swipeWalletLeft() -> Self {
         XCTContext.runActivity(named: "Swipe wallet card left (next wallet)") { _ in
+            waitForMainScreenReadyForSwipe()
             let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
             let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
             start.press(forDuration: 0.1, thenDragTo: end)
@@ -365,6 +367,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func swipeWalletRight() -> Self {
         XCTContext.runActivity(named: "Swipe wallet card right (previous wallet)") { _ in
+            waitForMainScreenReadyForSwipe()
             let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
             let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
             start.press(forDuration: 0.1, thenDragTo: end)
@@ -449,6 +452,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Open details screen") { _ in
             detailsButton.waitAndTap()
             return DetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func openTangemPay() -> TangemPayMainScreen {
+        XCTContext.runActivity(named: "Open Tangem Pay from main screen") { _ in
+            scrollToElement(tangemPayTile)
+            tangemPayTile.waitAndTap()
+            return TangemPayMainScreen(app)
         }
     }
 
@@ -793,6 +805,12 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             .matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
+    }
+
+    /// Waits for main screen elements before coordinate-based wallet swipe.
+    private func waitForMainScreenReadyForSwipe() {
+        waitAndAssertTrue(headerCardImage, "Header card image should exist before swiping wallet")
+        waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
     }
 
     /// Scrolls the tokens list so that the organize button is above the markets sheet grabber

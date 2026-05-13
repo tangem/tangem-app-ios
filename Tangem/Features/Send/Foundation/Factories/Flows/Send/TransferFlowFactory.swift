@@ -116,7 +116,7 @@ extension TransferNFTFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
+            tangemIconProvider: transferableToken.tangemIconProvider
         )
     }
 }
@@ -128,8 +128,7 @@ extension TransferNFTFlowFactory: SendDestinationStepBuildable {
         SendDestinationStepBuilder.IO(
             input: sendModel,
             output: sendModel,
-            receiveTokenInput: .none,
-            destinationAccountOutput: sendModel
+            receiveTokenInput: .none
         )
     }
 
