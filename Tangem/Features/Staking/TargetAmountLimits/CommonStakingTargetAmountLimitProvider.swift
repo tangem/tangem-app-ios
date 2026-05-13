@@ -73,15 +73,20 @@ private extension CommonStakingTargetAmountLimitProvider {
 
     func startFetch() {
         loadingTask?.cancel()
-        loadingTask = Task<Void, Never> { [weak self] in
-            guard let self else { return }
-            await runFetch()
-            await clearLoadingTask()
+        let task = Task<Void, Never> { [weak self] in
+            await self?.runFetch()
+        }
+        loadingTask = task
+        Task { [weak self] in
+            _ = await task.value
+            await self?.clearLoadingTaskIfCurrent(task)
         }
     }
 
-    func clearLoadingTask() {
-        loadingTask = nil
+    func clearLoadingTaskIfCurrent(_ task: Task<Void, Never>) {
+        if loadingTask == task {
+            loadingTask = nil
+        }
     }
 
     func runFetch() async {

@@ -81,7 +81,9 @@ extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
 
         do {
             let result = try await task.value
-            // Store in cache after successful load
+            guard loadingTasks[integrationId] == task else {
+                return result
+            }
             yieldInfos[integrationId] = CachedStakingYieldInfo(
                 stakingYieldInfo: result,
                 timestamp: Date()
@@ -89,8 +91,9 @@ extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
             loadingTasks[integrationId] = nil
             return result
         } catch {
-            // Clean up failed task
-            loadingTasks[integrationId] = nil
+            if loadingTasks[integrationId] == task {
+                loadingTasks[integrationId] = nil
+            }
             throw error
         }
     }
