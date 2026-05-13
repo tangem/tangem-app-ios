@@ -32,13 +32,6 @@ struct CommonTokenSelectorCryptoAccountModelItemsProvider {
 // MARK: - TokenSelectorCryptoAccountModelItemsProvider
 
 extension CommonTokenSelectorCryptoAccountModelItemsProvider: TokenSelectorAccountModelItemsProvider {
-    var items: [TokenSelectorItem] {
-        tokenSectionsAdapter
-            .organizedSections(from: cryptoAccount.walletModelsManager.walletModels)
-            .flatMap { $0.items.compactMap { $0.walletModel } }
-            .map { mapToTokenSelectorItem(walletModel: $0) }
-    }
-
     var itemsPublisher: AnyPublisher<[TokenSelectorItem], Never> {
         let walletModelsPublisher = cryptoAccount.walletModelsManager.walletModelsPublisher
 

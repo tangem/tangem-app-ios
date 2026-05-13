@@ -9,6 +9,8 @@ import Foundation
 import BlockchainSdk
 import TangemSdk
 
+/// Resolves token streams from Moralis Wallet API. Used only for blockchains in `MoralisSupportedBlockchains`
+/// (see `WalletTokenAutoSyncOrchestratorFactory`, which prefers this relayer before the configuration-based path).
 struct MoralisWalletTokenAutoSyncRelayer: WalletTokenAutoSyncRelayer {
     private let tokenBalanceClient: MoralisTokenBalanceClient
     private let coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider
