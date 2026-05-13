@@ -1,6 +1,6 @@
 //
 //  PerformanceTracker+Result.swift
-//  Tangem
+//  TangemAnalytics
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension PerformanceTracker {
+public extension PerformanceTracker {
     /// The result of tracking a metric.
-    enum Result {
+    enum Result: Equatable {
         case success
         case failure
         case unspecified
