@@ -23,17 +23,17 @@ struct WalletAddressResolver {
     /// Resolves address for the given blockchain using the provided key infos.
     /// - Throws: `WalletAddressResolver.Error` if the curve has no key, derived keys are missing, or address generation fails.
     func resolveAddress(
-        for blockchain: Blockchain,
+        for blockchainNetwork: BlockchainNetwork,
         keyInfos: [KeyInfo]
     ) throws -> NetworkAddressPair {
+        let blockchain = blockchainNetwork.blockchain
+
         switch blockchain {
         case .hedera:
             throw Error.unsupportedBlockchain(blockchain)
         default:
             break
         }
-
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: blockchain.derivationPath(for: .v3))
 
         let walletPublicKey: Wallet.PublicKey
         do {

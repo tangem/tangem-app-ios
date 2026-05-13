@@ -72,6 +72,8 @@ extension Analytics {
         case swap = "Swap"
         case send = "Send"
         case sendAndSwap = "Send&Swap"
+        case from = "From"
+        case to = "To"
         case backup = "Backup"
         case sign = "Sign"
 
@@ -81,6 +83,8 @@ extension Analytics {
         case transactionSourceApprove = "Approve"
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceStaking = "Staking"
+        case dynamicAddressesSourceDetailedScreen = "Detailed Screen"
+        case dynamicAddressesSourceDynamicAddresses = "Dynamic Addresses"
 
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"

@@ -12,17 +12,17 @@ import BlockchainSdk
 import TangemFoundation
 
 struct TwinWalletManagerFactory {
-    private let pairPublicKey: Data
+    private let pairPublicKey: Data?
 
-    init(pairPublicKey: Data) {
+    init(pairPublicKey: Data?) {
         self.pairPublicKey = pairPublicKey
     }
 }
 
 extension TwinWalletManagerFactory: AnyWalletManagerFactory {
     func makeWalletManager(blockchainNetwork: BlockchainNetwork, tokens: [Token], keys: [KeyInfo], apiList: APIList) throws -> WalletManager {
-        guard let walletPublicKey = keys.first?.publicKey else {
-            throw CommonError.noData
+        guard let walletPublicKey = keys.first?.publicKey, let pairPublicKey else {
+            throw AnyWalletManagerFactoryError.twinWalletPublicKeyNotFound
         }
 
         let factory = WalletManagerFactoryProvider(apiList: apiList).factory

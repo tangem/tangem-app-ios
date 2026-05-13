@@ -18,13 +18,6 @@ final class TangemPayBuilder {
         userWalletId.stringValue
     }
 
-    private var tokens: TangemPayAuthorizationTokens? {
-        TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: customerWalletId,
-            keysRepository: keysRepository
-        )?.tokens
-    }
-
     private lazy var availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private lazy var authorizationService = TangemPayAuthorizationServiceBuilder().build(customerWalletId: customerWalletId)

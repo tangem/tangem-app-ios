@@ -25,14 +25,6 @@ final class FakeOrganizeTokensOptionsManager {
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension FakeOrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
-    var groupingOption: UserTokensReorderingOptions.Grouping {
-        return _groupingOption.value
-    }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting {
-        return _sortingOption.value
-    }
-
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         return _groupingOption.eraseToAnyPublisher()
     }

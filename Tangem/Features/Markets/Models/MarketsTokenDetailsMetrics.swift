@@ -10,6 +10,7 @@ import Foundation
 
 struct MarketsTokenDetailsMetrics: Codable, Equatable {
     let marketRating: Int?
+    let marketRatingChange24H: Int?
     let circulatingSupply: Decimal?
     let marketCap: Decimal?
     let volume24H: Decimal?

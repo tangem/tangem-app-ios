@@ -22,4 +22,8 @@ final class UserTokensRepositoryBatchUpdater {
     func update(_ request: UserTokensRepositoryUpdateRequest) {
         updates.append(.update(request))
     }
+
+    func updateBlockchainNetwork(_ blockchainNetwork: BlockchainNetwork, for tokenItem: TokenItem) {
+        updates.append(.updateBlockchainNetwork(blockchainNetwork, for: tokenItem))
+    }
 }

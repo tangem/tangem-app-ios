@@ -28,7 +28,7 @@ class AppsFlyerWrapper {
     }
 
     func configure(delegate: AppDelegate) {
-        guard !AppEnvironment.current.isAlphaOrBetaOrDebug else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -39,7 +39,7 @@ class AppsFlyerWrapper {
     }
 
     func handleApplicationDidBecomeActive() {
-        guard !AppEnvironment.current.isAlphaOrBetaOrDebug else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -47,7 +47,7 @@ class AppsFlyerWrapper {
     }
 
     func handleUserActivity(userActivity: NSUserActivity) {
-        guard !AppEnvironment.current.isAlphaOrBetaOrDebug else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -55,7 +55,7 @@ class AppsFlyerWrapper {
     }
 
     func log(event: String, params: [String: Any]) {
-        guard !AppEnvironment.current.isAlphaOrBetaOrDebug else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -70,7 +70,7 @@ class AppsFlyerWrapper {
     }
 
     private func setUserId(userId: String) {
-        guard !AppEnvironment.current.isAlphaOrBetaOrDebug else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 

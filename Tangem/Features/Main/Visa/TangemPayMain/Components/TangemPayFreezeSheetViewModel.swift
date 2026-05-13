@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemFoundation
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 protocol TangemPayFreezeSheetRoutable: AnyObject {
     func closeFreezeSheet()
@@ -35,6 +36,10 @@ final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, Tangem
             size: .default,
             action: freeze
         )
+    }
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.freezeSheetConfirmButton
     }
 
     let userWalletId: UserWalletId

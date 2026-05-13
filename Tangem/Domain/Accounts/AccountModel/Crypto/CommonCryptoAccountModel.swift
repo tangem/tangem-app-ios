@@ -178,6 +178,7 @@ extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
 extension CommonCryptoAccountModel: DisposableEntity {
     nonisolated func dispose() {
         walletModelsManager.dispose()
+        userTokensManager.dispose()
     }
 }
 

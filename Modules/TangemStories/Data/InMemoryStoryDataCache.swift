@@ -22,8 +22,10 @@ public actor InMemoryStoryDataCache: StoryDataCache {
         cache[story.id] = story
 
         switch story {
-        case .swap(let swapStoryData):
-            cacheSwapStoryImagesInKingfisher(swapStoryData)
+        case .swap(let data):
+            cacheSwapStoryImagesInKingfisher(data)
+        case .swapLegacy(let data):
+            cacheSwapStoryImagesInKingfisher(data)
         }
     }
 
@@ -35,14 +37,16 @@ public actor InMemoryStoryDataCache: StoryDataCache {
         guard let storyToClean = cache.removeValue(forKey: storyId) else { return }
 
         switch storyToClean {
-        case .swap(let swapStoryData):
-            removeSwapStoryImagesFromKingfisher(swapStoryData)
+        case .swap(let data):
+            removeSwapStoryImagesFromKingfisher(data)
+        case .swapLegacy(let data):
+            removeSwapStoryImagesFromKingfisher(data)
         }
     }
 
     // MARK: - Kingfisher
 
-    private func cacheSwapStoryImagesInKingfisher(_ swapStoryData: TangemStory.SwapStoryData) {
+    private func cacheSwapStoryImagesInKingfisher(_ swapStoryData: some SwapStoryDataPagesContainer) {
         for pageKeyPath in swapStoryData.pagesKeyPaths {
             guard
                 let backgroundImage = swapStoryData[keyPath: pageKeyPath].image,
@@ -55,7 +59,7 @@ public actor InMemoryStoryDataCache: StoryDataCache {
         }
     }
 
-    private func removeSwapStoryImagesFromKingfisher(_ swapStoryData: TangemStory.SwapStoryData) {
+    private func removeSwapStoryImagesFromKingfisher(_ swapStoryData: some SwapStoryDataPagesContainer) {
         for pageKeyPath in swapStoryData.pagesKeyPaths {
             guard let backgroundImage = swapStoryData[keyPath: pageKeyPath].image else { continue }
             kingfisherCache.removeImage(forKey: backgroundImage.url.absoluteString)

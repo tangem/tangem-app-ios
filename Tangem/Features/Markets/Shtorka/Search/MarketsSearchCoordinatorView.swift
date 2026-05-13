@@ -19,7 +19,8 @@ struct MarketsSearchCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.rootViewModel {
                 MarketsSearchView(
                     viewModel: viewModel,
-                    onBackButtonAction: coordinator.dismiss
+                    leadingButton: coordinator.leadingButton,
+                    onLeadingButtonAction: coordinator.dismiss
                 )
                 .navigationLinks(links)
             }
