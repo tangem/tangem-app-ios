@@ -18,7 +18,9 @@ enum LegacyStoredEntryConverter {
                 symbol: entry.symbol,
                 decimalCount: entry.decimalCount,
                 // By definition, all legacy tokens currently stored are known
-                blockchainNetwork: .known(blockchainNetwork: entry.blockchainNetwork),
+                blockchainNetwork: .known(
+                    blockchainNetwork: StoredEntryConverter.convertToStoredBlockchainNetwork(entry.blockchainNetwork)
+                ),
                 contractAddress: entry.contractAddress
             )
         }
