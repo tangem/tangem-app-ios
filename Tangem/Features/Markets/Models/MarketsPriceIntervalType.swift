@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemUI
 
 enum MarketsPriceIntervalType: String, CaseIterable, Codable, Identifiable, Equatable {
     case day = "24h"
@@ -48,6 +49,14 @@ extension MarketsPriceIntervalType {
         case .year: return Localization.marketsSelectorInterval1yTitle
         case .all: return Localization.marketsSelectorIntervalAllTitle
         }
+    }
+}
+
+// MARK: - TangemSegmentedPickerTextProvider
+
+extension MarketsPriceIntervalType: TangemSegmentedPickerTextProvider {
+    var text: String {
+        tokenDetailsNameLocalized
     }
 }
 

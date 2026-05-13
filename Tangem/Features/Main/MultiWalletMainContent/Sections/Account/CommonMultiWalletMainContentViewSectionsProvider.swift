@@ -315,6 +315,18 @@ extension CommonMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
     }
 }
 
+// MARK: - MainScreenUIOrderedTokensProviding
+
+extension CommonMultiWalletMainContentViewSectionsProvider: MainScreenUIOrderedTokensProviding {
+    var uiOrderedWalletModelsPublisher: AnyPublisher<[any WalletModel], Never> {
+        commonSectionsPublisher
+            .map { input in
+                input.accountSections.flatMap { $0.sections.flatMap(\.walletModels) }
+            }
+            .eraseToAnyPublisher()
+    }
+}
+
 // MARK: - Auxiliary types
 
 private extension CommonMultiWalletMainContentViewSectionsProvider {
