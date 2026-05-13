@@ -28,7 +28,7 @@ final class StoryAnalyticsService {
     private func reportSwapStoryShown(lastViewedPageIndex: Int, source: Analytics.StoriesSource) {
         let humanReadablePageIndex = lastViewedPageIndex + 1
 
-        let event = Analytics.Event.storiesSwapShown
+        let event = Analytics.Event.storiesSwapStory
         let params = [
             Analytics.ParameterKey.source: source.rawValue,
             Analytics.ParameterKey.watched: "\(humanReadablePageIndex)",

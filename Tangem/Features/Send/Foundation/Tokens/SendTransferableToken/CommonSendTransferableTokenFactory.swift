@@ -12,7 +12,10 @@ struct CommonSendTransferableTokenFactory {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
 
-    func makeTransferableToken(balanceType: SendSourceTokenFactoryBalanceType = .available) -> SendTransferableToken {
+    func makeTransferableToken(
+        balanceType: SendSourceTokenFactoryBalanceType = .available,
+        supportingFeeOptions: TokenFeeProviderSupportingOptions = .all
+    ) -> SendTransferableToken {
         let sourceTokenFactory = CommonSendSourceTokenFactory(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel
@@ -26,8 +29,10 @@ struct CommonSendTransferableTokenFactory {
         )
 
         // The `tokenFeeProvidersManager` for send with all fee options
-        let tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(walletModel: walletModel)
-            .makeTokenFeeProvidersManager()
+        let tokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: supportingFeeOptions
+        ).makeTokenFeeProvidersManager()
 
         return CommonSendTransferableToken(
             transactionValidator: walletModel.transactionValidator,
