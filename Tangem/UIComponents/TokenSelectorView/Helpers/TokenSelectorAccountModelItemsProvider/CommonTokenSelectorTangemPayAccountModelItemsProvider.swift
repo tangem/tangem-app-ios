@@ -19,10 +19,6 @@ final class CommonTokenSelectorTangemPayAccountModelItemsProvider {
 }
 
 extension CommonTokenSelectorTangemPayAccountModelItemsProvider: TokenSelectorAccountModelItemsProvider {
-    var items: [TokenSelectorItem] {
-        tokenSelectorItems(state: tangemPayAccountModel.state)
-    }
-
     var itemsPublisher: AnyPublisher<[TokenSelectorItem], Never> {
         tangemPayAccountModel
             .statePublisher

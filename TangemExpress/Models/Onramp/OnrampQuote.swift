@@ -8,4 +8,6 @@
 
 public struct OnrampQuote: Hashable {
     public let expectedAmount: Decimal
+    public let nativePaymentAvailable: Bool
+    public let quoteId: String?
 }

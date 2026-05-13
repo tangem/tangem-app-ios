@@ -24,7 +24,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: RegularSwapPairUpdateHandler(
-            expressManager: expressDependenciesFactory.expressManager
+            expressManager: expressDependenciesFactory.expressManager,
+            expressPairsRepository: expressDependenciesFactory.expressPairsRepository
         ),
         shouldStartInitialLoading: true
     )
