@@ -12,6 +12,7 @@ import TangemFoundation
 import SwiftUI
 import TangemMacro
 
+// [REDACTED_INFO]: Delete when redesign toggle is removed
 enum BalancesState {
     case common(viewModel: CommonBalancesViewModel)
     case yield(viewModel: YieldBalancesViewModel)

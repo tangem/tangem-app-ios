@@ -12,6 +12,7 @@ import SwiftUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
 
+// [REDACTED_INFO]: Delete when redesign toggle is removed
 struct BalanceWithButtonsView: View {
     @ObservedObject var viewModel: BalanceWithButtonsViewModel
 
