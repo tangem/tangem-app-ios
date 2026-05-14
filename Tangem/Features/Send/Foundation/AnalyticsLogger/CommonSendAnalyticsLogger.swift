@@ -866,7 +866,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
         ]
-        
+
         if let tokenFee = tokenFee {
             params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
             let isGasless = tokenFee.value.value?.isGasless ?? false
