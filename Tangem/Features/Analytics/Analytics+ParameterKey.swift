@@ -98,6 +98,7 @@ extension Analytics {
         case mobileWallet = "Mobile Wallet"
         case feeToken = "Fee Token"
         case availableFee = "Available Fee"
+        case feeAssetType = "Fee Asset Type"
 
         case qrType = "QR Type"
         case fromSummary = "From Summary"
