@@ -30,7 +30,7 @@ public class ExpressAvailableProvider {
     }
 
     deinit {
-        ExpressLogger.debug("deinit \(objectDescription(self))")
+        ExpressLogger.debug(self, "deinit")
     }
 
     public func getState() -> ExpressProviderManagerState {
