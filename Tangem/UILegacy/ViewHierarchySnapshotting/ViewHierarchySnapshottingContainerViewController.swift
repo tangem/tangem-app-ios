@@ -19,7 +19,7 @@ final class ViewHierarchySnapshottingContainerViewController: UIViewController {
     var shouldPropagateOverriddenUserInterfaceStyleToChildren = false
 
     deinit {
-        AppLogger.info("ViewHierarchySnapshottingContainerViewController deinit")
+        AppLogger.debug(self, "deinit")
     }
 
     @discardableResult
