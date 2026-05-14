@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 
 struct NotificationSettingsView: View {
     @ObservedObject var viewModel: NotificationSettingsViewModel
@@ -42,9 +43,32 @@ struct NotificationSettingsView: View {
 
     @ViewBuilder
     private var transactionPushSection: some View {
-        if let transactionPushViewModel = viewModel.transactionPushViewModel {
-            TransactionNotificationsRowToggleView(viewModel: transactionPushViewModel)
+        if viewModel.isTransactionPushVisible {
+            VStack(spacing: Layout.transactionSectionSpacing) {
+                GroupedSection(viewModel.warningPermissionViewModel) {
+                    DefaultWarningRow(viewModel: $0)
+                }
+
+                GroupedSection(viewModel.pushNotifyViewModel) {
+                    DefaultToggleRowView(viewModel: $0)
+                } footer: {
+                    Button(action: viewModel.onTapMoreInfoTransactionPushNotifications) {
+                        Group {
+                            Text("\(Localization.walletSettingsPushNotificationsDescription) ")
+                                + readMoreText
+                        }
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
+                    }
+                }
+            }
         }
+    }
+
+    private var readMoreText: Text {
+        let text = Localization.pushNotificationsMoreInfo.replacingOccurrences(of: " ", with: String.unbreakableSpace)
+        return Text(text).foregroundColor(Colors.Text.accent)
     }
 
     private var offersUpdatesSection: some View {
@@ -61,5 +85,13 @@ struct NotificationSettingsView: View {
         } footer: {
             DefaultFooterView(NotificationSettingsViewModel.Constants.priceAlertsFooter)
         }
+    }
+}
+
+// MARK: - Layout
+
+private extension NotificationSettingsView {
+    enum Layout {
+        static let transactionSectionSpacing: CGFloat = 14
     }
 }
