@@ -15,7 +15,7 @@ import BlockchainSdk
 
 struct NewsModelMapper {
     private let iconBuilder: IconURLBuilder = .init()
-    private let dateFormatter: NewsDateFormatter = .init()
+    private let dateFormatter: RelativeDateFormatter = .shared
 
     let readStatusProvider: NewsReadStatusProvider
 

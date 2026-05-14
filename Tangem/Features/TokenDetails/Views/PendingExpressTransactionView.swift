@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAccessibilityIdentifiers
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemUI
@@ -29,8 +30,7 @@ struct PendingExpressTransactionView: View {
     private var content: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text(info.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                titleStack
 
                 HStack(spacing: 6) {
                     TokenIcon(
@@ -73,6 +73,28 @@ struct PendingExpressTransactionView: View {
     }
 
     @ViewBuilder
+    private var titleStack: some View {
+        if FeatureProvider.isAvailable(.swapPendingTxStateDate) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(info.title)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                TimelineView(.periodic(from: .now, by: 60)) { context in
+                    let timeAgo = RelativeDateFormatter.shared.formatTimeAgo(
+                        from: info.referenceDate,
+                        relativeTo: context.date
+                    )
+                    Text("\(info.stateTitle) \(timeAgo)")
+                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                }
+            }
+        } else {
+            Text(info.title)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+        }
+    }
+
+    @ViewBuilder
     private var stateIcon: some View {
         switch info.state {
         case .inProgress:
@@ -91,16 +113,14 @@ extension PendingExpressTransactionView {
     struct Info: Identifiable, Equatable {
         let id: String
         let title: String
+        let stateTitle: String
+        let referenceDate: Date
         let sourceIconInfo: TokenIconInfo
         let sourceAmountText: String
         let destinationIconInfo: TokenIconInfo
         let destinationAmountText: String
         let state: State
-        let action: (String) -> Void
-
-        static func == (lhs: Info, rhs: Info) -> Bool {
-            return lhs.id == rhs.id && lhs.state == rhs.state
-        }
+        @IgnoredEquatable private(set) var action: (String) -> Void
     }
 
     enum State: Equatable {
@@ -110,6 +130,9 @@ extension PendingExpressTransactionView {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct PendingExpressTransactionView_Previews: PreviewProvider {
     static let iconInfoBuilder = TokenIconInfoBuilder()
     static var previews: some View {
@@ -120,6 +143,8 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
                 PendingExpressTransactionView(info: .init(
                     id: UUID().uuidString,
                     title: Localization.expressExchangeBy("ChangeNow"),
+                    stateTitle: Localization.expressExchangeStatusConfirming,
+                    referenceDate: Date().addingTimeInterval(-59 * 60),
                     sourceIconInfo: iconInfoBuilder.build(from: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)), isCustom: false),
                     sourceAmountText: "10 BTC",
                     destinationIconInfo: iconInfoBuilder.build(
@@ -134,6 +159,8 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
                 PendingExpressTransactionView(info: .init(
                     id: UUID().uuidString,
                     title: Localization.expressExchangeBy("1inch"),
+                    stateTitle: Localization.expressExchangeStatusVerifying,
+                    referenceDate: Date().addingTimeInterval(-3 * 3600),
                     sourceIconInfo: iconInfoBuilder.build(
                         from: .token(.inverseBTCBlaBlaBlaMock, .init(.ethereum(testnet: false), derivationPath: nil)),
                         isCustom: true
@@ -151,6 +178,8 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
                 PendingExpressTransactionView(info: .init(
                     id: UUID().uuidString,
                     title: Localization.expressExchangeBy("ChangeNow"),
+                    stateTitle: Localization.expressExchangeStatusFailed,
+                    referenceDate: Date().addingTimeInterval(-2 * 24 * 3600),
                     sourceIconInfo: iconInfoBuilder.build(
                         from: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
                         isCustom: false
@@ -168,3 +197,4 @@ struct PendingExpressTransactionView_Previews: PreviewProvider {
         }
     }
 }
+#endif // DEBUG

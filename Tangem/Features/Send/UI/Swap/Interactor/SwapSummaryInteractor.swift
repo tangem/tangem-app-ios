@@ -18,7 +18,9 @@ protocol SwapSummaryInteractor: AnyObject {
     var isActionInProcessing: AnyPublisher<Bool, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
+    // [REDACTED_TODO_COMMENT]
     func userDidRequestMaxAmount()
+    func userDidRequestSourceAmount(fraction: SwapAmountFraction)
     func userDidRequestSwap()
 }
 
@@ -105,8 +107,13 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         output?.userDidRequestSwap()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func userDidRequestMaxAmount() {
         output?.userDidRequestMaxAmount()
+    }
+
+    func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
+        output?.userDidRequestSourceAmount(fraction: fraction)
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
