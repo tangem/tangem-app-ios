@@ -20,28 +20,22 @@ struct InternalAuthorizationTokens {
     }
 }
 
-class AuthorizationTokensHolder {
-    private var authTokensInfo: ThreadSafeContainer<InternalAuthorizationTokens?>
-
-    var tokensInfo: InternalAuthorizationTokens? {
-        authTokensInfo.read()
-    }
+actor AuthorizationTokensHolder {
+    private(set) var tokensInfo: InternalAuthorizationTokens?
 
     init(authorizationTokens: VisaAuthorizationTokens? = nil) {
         guard
             let authorizationTokens,
             let tokensInfo = try? InternalAuthorizationTokens(bffTokens: authorizationTokens)
         else {
-            authTokensInfo = .init(nil)
+            self.tokensInfo = nil
             return
         }
 
-        authTokensInfo = .init(tokensInfo)
+        self.tokensInfo = tokensInfo
     }
 
-    func setTokens(authorizationTokens: InternalAuthorizationTokens) async throws {
-        authTokensInfo.mutate { value in
-            value = authorizationTokens
-        }
+    func setTokens(authorizationTokens: InternalAuthorizationTokens) {
+        tokensInfo = authorizationTokens
     }
 }
