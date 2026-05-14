@@ -13,5 +13,15 @@ protocol UserTokensPushNotificationsManager {
     var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> { get }
     var status: UserWalletPushNotifyStatus { get }
 
-    func handleUpdateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus)
+    var isNotInitialized: Bool { get }
+
+    func handleUpdateOnRemoteStatus(_ isEnabled: Bool)
+    func handleUpdateOnLocalStatus(_ isEnabled: Bool)
+    func handleSyncError()
+
+    func getInitialPushStatusWithAllowance() async -> Bool
+
+    /// Returns true if remote status is enabled on backend
+    /// Used to determine if permission warning should be shown
+    var isRemoteStatusEnabled: Bool { get }
 }
