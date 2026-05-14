@@ -19,7 +19,7 @@ protocol PendingExpressTransactionsManager: AnyObject {
 
 class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
-    @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
+    @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let userWalletId: String
@@ -233,7 +233,7 @@ class CommonPendingExpressTransactionsManager {
             ExpressLogger.info("Transaction external status: \(expressTransaction.externalStatus.rawValue)")
             ExpressLogger.info("Refunded token: \(String(describing: refundedTokenItem))")
 
-            pendingExpressTransactionAnalyticsTracker.trackStatusForSwapTransaction(
+            await pendingExpressTransactionAnalyticsTracker.trackStatusForSwapTransaction(
                 transactionId: pendingTransaction.transactionRecord.expressTransactionId,
                 tokenSymbol: tokenItem.currencySymbol,
                 status: pendingTransaction.transactionRecord.transactionStatus,
@@ -279,8 +279,10 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
     }
 }
 
-extension CommonPendingExpressTransactionsManager {
+// MARK: - Constants
+
+private extension CommonPendingExpressTransactionsManager {
     enum Constants {
-        static let statusUpdateTimeout: Double = 10
+        static let statusUpdateTimeout: TimeInterval = 10
     }
 }
