@@ -16,7 +16,12 @@ import Testing
 struct OnrampApplePayUtilsTests {
     @Test("makePaymentRequest sets the merchant, networks, capabilities, currency, and country")
     func makePaymentRequestShape() {
-        let request = OnrampApplePayUtils.makePaymentRequest(amount: 99.99, currencyCode: "EUR", countryCode: "DE")
+        let request = OnrampApplePayUtils.makePaymentRequest(
+            amount: 99.99,
+            currencyCode: "EUR",
+            countryCode: "DE",
+            summaryItemLabel: "1 ETH"
+        )
 
         #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier)
         #expect(request.supportedNetworks == [.visa, .masterCard])
@@ -26,12 +31,17 @@ struct OnrampApplePayUtilsTests {
         #expect(Set(request.requiredBillingContactFields) == Set([.postalAddress, .name, .emailAddress]))
     }
 
-    @Test("makePaymentRequest exposes a single Tangem summary item with the requested amount")
+    @Test("makePaymentRequest exposes a single summary item with the supplied label and amount")
     func makePaymentRequestSummaryItem() {
-        let request = OnrampApplePayUtils.makePaymentRequest(amount: 12.50, currencyCode: "USD", countryCode: "US")
+        let request = OnrampApplePayUtils.makePaymentRequest(
+            amount: 12.50,
+            currencyCode: "USD",
+            countryCode: "US",
+            summaryItemLabel: "0.005 ETH"
+        )
 
         #expect(request.paymentSummaryItems.count == 1)
-        #expect(request.paymentSummaryItems.first?.label == "Tangem")
+        #expect(request.paymentSummaryItems.first?.label == "0.005 ETH")
         #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: 12.50))
     }
 

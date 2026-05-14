@@ -10,7 +10,12 @@ import PassKit
 import TangemExpress
 
 enum OnrampApplePayUtils {
-    static func makePaymentRequest(amount: Decimal, currencyCode: String, countryCode: String) -> PKPaymentRequest {
+    static func makePaymentRequest(
+        amount: Decimal,
+        currencyCode: String,
+        countryCode: String,
+        summaryItemLabel: String
+    ) -> PKPaymentRequest {
         let request = PKPaymentRequest()
         request.merchantIdentifier = OnrampApplePayConstants.merchantIdentifier
         request.supportedNetworks = [.visa, .masterCard]
@@ -19,7 +24,7 @@ enum OnrampApplePayUtils {
         request.currencyCode = currencyCode
         request.requiredBillingContactFields = [.postalAddress, .name, .emailAddress]
         request.paymentSummaryItems = [
-            PKPaymentSummaryItem(label: "Tangem", amount: amount as NSDecimalNumber),
+            PKPaymentSummaryItem(label: summaryItemLabel, amount: amount as NSDecimalNumber),
         ]
         return request
     }
