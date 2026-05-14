@@ -46,6 +46,9 @@ public struct TangemSearchField: View, Setupable {
     private var fieldCornerStyle: CornerStyle = .capsule
     private var hasSearchIcon: Bool = true
     private var hasClearButton: Bool = true
+    private var containerAccessibilityIdentifier: String?
+    private var textFieldAccessibilityIdentifier: String?
+    private var clearButtonAccessibilityIdentifier: String?
 
     private let animation: Animation = .easeInOut
 
@@ -92,6 +95,9 @@ private extension TangemSearchField {
             .background(Color.Tangem.Field.backgroundDefault, in: fieldShape)
             .contentShape(.rect)
             .onTapGesture(perform: onFieldTap)
+            .accessibilityElement(children: .contain)
+            .accessibilityAddTraits(focusAction != nil ? .isButton : [])
+            .accessibilityIdentifier(containerAccessibilityIdentifier)
     }
 
     var fieldContent: some View {
@@ -138,6 +144,7 @@ private extension TangemSearchField {
         TextField("", text: $text)
             .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             .focused($isFocused)
+            .accessibilityIdentifier(textFieldAccessibilityIdentifier)
     }
 
     var textPlaceholder: some View {
@@ -155,6 +162,8 @@ private extension TangemSearchField {
             .frame(size: clearIconSize)
             .contentShape(.rect)
             .onTapGesture(perform: onClear)
+            .accessibilityAddTraits(clearAction != nil ? .isButton : [])
+            .accessibilityIdentifier(clearButtonAccessibilityIdentifier)
     }
 
     var cancelButton: some View {
@@ -262,5 +271,17 @@ public extension TangemSearchField {
             $0.hasSearchIcon = hasSearchIcon
             $0.hasClearButton = hasClearButton
         }
+    }
+
+    func containerAccessibilityIdentifier(_ identifier: String?) -> Self {
+        map { $0.containerAccessibilityIdentifier = identifier }
+    }
+
+    func textFieldAccessibilityIdentifier(_ identifier: String?) -> Self {
+        map { $0.textFieldAccessibilityIdentifier = identifier }
+    }
+
+    func clearButtonAccessibilityIdentifier(_ identifier: String?) -> Self {
+        map { $0.clearButtonAccessibilityIdentifier = identifier }
     }
 }
