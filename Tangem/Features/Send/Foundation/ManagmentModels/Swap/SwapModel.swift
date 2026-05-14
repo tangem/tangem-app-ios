@@ -107,7 +107,7 @@ final class SwapModel {
 
     deinit {
         updateTask?.cancel()
-        ExpressLogger.debug("deinit SwapModel")
+        ExpressLogger.debug(self, "deinit")
     }
 }
 
@@ -324,7 +324,7 @@ extension SwapModel {
                     await input.updateRateType()
                 }
             } catch is CancellationError {
-                ExpressLogger.debug("updateTask was cancelled")
+                ExpressLogger.info("updateTask was cancelled")
                 // Do nothing
             } catch {
                 input.analyticsLogger.logSwapErrorExpressQuote(
@@ -337,7 +337,7 @@ extension SwapModel {
     }
 
     func update(providersState: ProvidersState) {
-        ExpressLogger.debug(self, "ProvidersState will update to: \(providersState)")
+        ExpressLogger.info(self, "ProvidersState will update to: \(providersState)")
 
         _providersState.send(providersState)
     }
