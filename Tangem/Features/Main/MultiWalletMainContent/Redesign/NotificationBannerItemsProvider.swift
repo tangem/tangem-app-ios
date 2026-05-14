@@ -18,13 +18,11 @@ final class NotificationBannerItemsProvider {
     init(
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         tangemPayNotificationManager: NotificationManager
     ) {
         bind(
             userWalletNotificationManager: userWalletNotificationManager,
             tokensNotificationManager: tokensNotificationManager,
-            bannerNotificationManager: bannerNotificationManager,
             tangemPayNotificationManager: tangemPayNotificationManager
         )
     }
@@ -34,7 +32,6 @@ private extension NotificationBannerItemsProvider {
     func bind(
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         tangemPayNotificationManager: NotificationManager,
     ) {
         let userWalletPublisher = userWalletNotificationManager
@@ -45,25 +42,19 @@ private extension NotificationBannerItemsProvider {
             .notificationPublisher
             .removeDuplicates()
 
-        let bannerPublisher = bannerNotificationManager?
-            .notificationPublisher
-            .removeDuplicates()
-            .eraseToAnyPublisher() ?? Just([]).eraseToAnyPublisher()
-
         let tangemPayPublisher = tangemPayNotificationManager
             .notificationPublisher
             .removeDuplicates()
 
         Publishers
-            .CombineLatest4(
+            .CombineLatest3(
                 userWalletPublisher,
                 tokensPublisher,
-                bannerPublisher,
                 tangemPayPublisher
             )
             .map {
                 MultiWalletNotificationBannerMapper().mapItems(
-                    $0.0, $0.1, $0.2, $0.3
+                    $0.0, $0.1, $0.2
                 )
             }
             .removeDuplicates()
