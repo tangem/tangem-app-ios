@@ -103,7 +103,7 @@ class CommonWalletModel {
 
     deinit {
         assetRequirementsTaskCancellable?.cancel()
-        AppLogger.debug(self)
+        AppLogger.debug(self, "deinit")
     }
 
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
@@ -384,7 +384,7 @@ extension CommonWalletModel: WalletModelUpdater {
                 await _receiveAddressService.update(with: wallet.addresses)
 
                 await walletManagerDidUpdate()
-                logger.debug(self, "Update method finished with state '\(walletManager.state)'")
+                logger.info(self, "Update method finished with state '\(walletManager.state)'")
             }
         }()
 
