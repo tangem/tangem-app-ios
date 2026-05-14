@@ -77,6 +77,7 @@ class FakeWalletManager: WalletManager {
     }
 
     func setNeedsUpdate() {}
+
     func update() async {
         AppLogger.debug("Receive update request")
         try? await Task.sleep(for: .seconds(5))
