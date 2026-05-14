@@ -23,11 +23,15 @@ struct TokenDetailsView: View {
 
     var body: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
-            VStack(spacing: 14) {
+            VStack(spacing: Constants.sectionSpacing) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
                 if FeatureProvider.isAvailable(.redesign) {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+
+                    if let actionsViewModel = viewModel.actionsViewModel {
+                        TokenDetailsActionsView(viewModel: actionsViewModel)
+                    }
                 } else {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
                 }
@@ -154,12 +158,15 @@ struct TokenDetailsView: View {
 
 // MARK: - Constants
 
-private extension TokenDetailsView {
+extension TokenDetailsView {
     enum Constants {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
+        static let sectionSpacing: CGFloat = 14
     }
+}
 
+private extension TokenDetailsView {
     enum CoordinateSpaceName {
         private static let prefix = "TokenDetailsView.CoordinateSpaceName."
 

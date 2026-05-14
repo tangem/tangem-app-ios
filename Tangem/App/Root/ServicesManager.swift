@@ -133,6 +133,20 @@ final class CommonServicesManager {
             UITestsStorageCleaner.clearWalletData()
         }
 
+        // Feature toggle overrides — reset previous overrides for deterministic UI test runs
+        FeatureStorage.instance.availableFeatures = [:]
+
+        for feature in Feature.allCases {
+            let onFlag = "-uitest-feature-\(feature.rawValue)-on"
+            let offFlag = "-uitest-feature-\(feature.rawValue)-off"
+
+            if arguments.contains(onFlag) {
+                FeatureStorage.instance.availableFeatures[feature] = .on
+            } else if arguments.contains(offFlag) {
+                FeatureStorage.instance.availableFeatures[feature] = .off
+            }
+        }
+
         UIView.setAnimationsEnabled(false)
     }
 }
