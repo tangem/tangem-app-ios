@@ -74,7 +74,7 @@ class CommonUserWalletModel {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("CommonUserWalletModel deinit")
     }
 
     private func updateConfiguration(walletInfo: WalletInfo, shouldSave: Bool = true) {

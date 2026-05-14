@@ -318,6 +318,6 @@ private struct FixedConfiguration: Logger.Configuration {
     let loggable: Bool
     let writable: Bool
 
-    func isLoggable() -> Bool { loggable }
-    func isWritable() -> Bool { writable }
+    func shouldLogMessage(with logLevel: Logger.Level) -> Bool { loggable }
+    func shouldWriteMessage(with logLevel: Logger.Level) -> Bool { writable }
 }
