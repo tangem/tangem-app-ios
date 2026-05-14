@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+#if DEBUG
+
 import Foundation
 
 public final class UserWalletIdSpoofer: @unchecked Sendable {
@@ -17,13 +19,11 @@ public final class UserWalletIdSpoofer: @unchecked Sendable {
     private init() {}
 
     func resolve(_ originalValue: Data) -> Data? {
-        guard AppEnvironment.current.isInternalOrDebug else {
-            return nil
-        }
-
         let originalHex = originalValue.hexEncodedString
         let map = (userDefaults.dictionary(forKey: storageKey) as? [String: Data]) ?? [:]
 
         return map[originalHex]
     }
 }
+
+#endif // DEBUG

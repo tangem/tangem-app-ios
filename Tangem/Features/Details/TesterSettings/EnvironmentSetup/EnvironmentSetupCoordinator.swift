@@ -27,7 +27,9 @@ final class EnvironmentSetupCoordinator: CoordinatorObject {
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
     @Published var addressesInfoViewModel: AddressesInfoViewModel?
     @Published var designSystemDemoCoordinator: DesignSystemDemoCoordinator?
+    #if DEBUG
     @Published var userWalletIdSpoofingViewModel: UserWalletIdSpoofingViewModel?
+    #endif // DEBUG
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -92,9 +94,11 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
         designSystemDemoCoordinator?.start(with: ())
     }
 
+    #if DEBUG
     func openUserWalletIdSpoofing() {
         userWalletIdSpoofingViewModel = UserWalletIdSpoofingViewModel()
     }
+    #endif // DEBUG
 
     func openSparrowSurveyClassicDemo(withToken token: String) {
         openSparrowSurveyDemo(withToken: token, surveyType: .CLASSIC)
