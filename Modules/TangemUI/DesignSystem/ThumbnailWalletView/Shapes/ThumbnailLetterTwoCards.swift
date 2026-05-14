@@ -11,7 +11,7 @@ import SwiftUI
 typealias ThumbnailLetterTwoCardsView = ThumbnailPathBuilderView<ThumbnailLetterTwoCardsPathBuilder>
 
 public enum ThumbnailLetterTwoCardsPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors {
+    public struct FillColors: Equatable {
         public let card: Color
         public let secondCard: Color
         public let tLetter: Color
