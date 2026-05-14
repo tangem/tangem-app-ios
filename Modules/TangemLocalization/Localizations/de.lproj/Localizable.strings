@@ -331,6 +331,7 @@
 "common_transactions" = "Transaktionen";
 "common_transfer" = "Überweisung";
 "common_transferred" = "Übertragen";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "Ich verstehe, fahre bitte fort.";
 "common_understand" = "Ich verstehe";
 "common_unknown_error" = "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
@@ -498,7 +499,6 @@
 "express_provider_permission_needed_v2" = "Genehmigung erforderlich";
 "express_provider_permission_needed" = "Erlaubnis erforderlich";
 "express_provider_recommended" = "Empfohlen";
-"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Anbieter";
 "express_status_buying" = "Kauf %@";
 "express_status_hide_button_text" = "Diese Transaktion ausblenden";
@@ -1217,6 +1217,7 @@
 "staking_details_warmup_period_info" = "Die zugewiesene Zeit für die Aktivierung der Teilnahme am Staking.";
 "staking_details_warmup_period" = "Aufwärmphase";
 "staking_dismiss_message" = "Möchtest du den Staking-Bildschirm wirklich schließen?";
+"staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
@@ -1334,7 +1335,7 @@
 "swap_simple_mode" = "Einfacher Modus";
 "swap_story_fifth_subtitle" = "Vertraue auf den rund um die Uhr verfügbaren Support bei allen Problemen";
 "swap_story_fifth_title" = "Immer für Dich da";
-"swap_story_first_subtitle_v2" = "Tauschen Sie Kryptowährungen direkt in Tangem\keine zusätzlichen Überweisungen\keine Verschiebung von Geldern zu Börsen";
+"swap_story_first_subtitle_v2" = "Tauschen Sie Kryptowährungen direkt in Tangem\nkeine zusätzlichen Überweisungen\nkeine Verschiebung von Geldern zu Börsen";
 "swap_story_first_subtitle" = "Mehrere vertrauenswürdige Anbieter an einem Ort – tausche mühelos alle Vermögenswerte in Deiner Wallet";
 "swap_story_first_title_v2" = "Tausche innerhalb deiner Wallet";
 "swap_story_first_title" = "Tausche mit uns";
@@ -1456,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "Karte neu ausstellen";
 "tangempay_card_details_rename_card_invalid_description" = "Es sind nur Buchstaben und Zahlen erlaubt";
 "tangempay_card_details_rename_card_invalid_title" = "Ungültige Zeichen";
+"tangempay_card_details_rename_card_placeholder" = "Kartenname";
 "tangempay_card_details_reveal_text" = "Aufdecken";
 "tangempay_card_details_show_details" = "Details anzeigen";
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio für deine Karte.";
@@ -1500,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Es dauert in der Regel bis zu 15 Minuten.";
 "tangempay_issue_card_notification_title" = "Einrichtung Ihrer Tangem-Karte";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "Die Karte wird in der Regel innerhalb von 5 Minuten automatisch ausgestellt. In seltenen Fällen, wenn eine manuelle Überprüfung erforderlich ist, kann die Ausstellung bis zu 48 Stunden dauern.";
 "tangempay_issuing_your_card" = "Ausstellung Deiner Karte";
@@ -1550,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
 "tangempay_set_pin_code" = "Satz \nPIN-Code";
 "tangempay_status_deactivated" = "Karte deaktiviert";
+"tangempay_status_replacing" = "Ersetzen deine Karte";
 "tangempay_sync_needed_restore_access" = "Zugang wiederherstellen";
 "tangempay_sync_needed" = "Sitzung abgelaufen";
 "tangempay_tangem_visa_card" = "Nutzen Sie USDC für alltägliche Zahlungen";
