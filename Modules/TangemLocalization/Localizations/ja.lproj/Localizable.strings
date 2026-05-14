@@ -498,6 +498,7 @@
 "express_provider_permission_needed_v2" = "権限が必要です";
 "express_provider_permission_needed" = "許可が必要です";
 "express_provider_recommended" = "推奨";
+"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "プロバイダー";
 "express_status_buying" = "%@を買い付けています";
 "express_status_hide_button_text" = "この取引を非表示にする";
