@@ -156,6 +156,18 @@
       "$type": "opacity",
       "$value": "0.9"
     },
+    "95": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`95`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.95"
+    },
     "100": {
       "$extensions": {
         "com.figma.codeSyntax": {
