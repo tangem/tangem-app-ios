@@ -156,28 +156,28 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
                 TangemPayTransactionDetailsView(viewModel: $0)
-            }
 
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.pushNotificationsViewModel,
-                backgroundColor: Colors.Background.primary
-            ) {
-                PushNotificationsBottomSheetView(viewModel: $0)
-            }
-            .bottomSheet(
-                item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                PendingExpressTxStatusBottomSheetView(viewModel: $0)
-            }
+                NavHolder()
+                    .bottomSheet(
+                        item: $coordinator.pushNotificationsViewModel,
+                        backgroundColor: Colors.Background.primary
+                    ) {
+                        PushNotificationsBottomSheetView(viewModel: $0)
+                    }
+                    .bottomSheet(
+                        item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
+                        backgroundColor: Colors.Background.tertiary
+                    ) {
+                        PendingExpressTxStatusBottomSheetView(viewModel: $0)
+                    }
 
-        NavHolder()
-            .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
-                guard newValue else { return }
+                NavHolder()
+                    .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
+                        guard newValue else { return }
 
-                coordinator.isAppStoreReviewRequested.toggle()
-                requestReview()
+                        coordinator.isAppStoreReviewRequested.toggle()
+                        requestReview()
+                    }
             }
     }
 

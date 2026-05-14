@@ -1253,12 +1253,31 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         router?.performSwapAction()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func userDidRequestMaxAmount() {
         guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
             return
         }
 
         externalAmountUpdater.externalUpdate(amount: balance)
+    }
+
+    func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
+        guard let token = sourceToken.value,
+              let balance = token.availableBalanceProvider.balanceType.loaded else {
+            return
+        }
+
+        let amount: Decimal = {
+            switch fraction {
+            case .max:
+                return balance
+            case .quarter, .half, .threeQuarters:
+                let raw = balance * fraction.multiplier
+                return raw.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
+            }
+        }()
+        externalAmountUpdater.externalUpdate(amount: amount)
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
@@ -1484,7 +1503,9 @@ extension SwapModel: NotificationTapDelegate {
              .postponePushPermissionRequest,
              .activate,
              .openCloreMigration,
-             .openManageTokensAfterWalletSuccessImport:
+             .openDynamicAddressesEnter,
+             .openManageTokensAfterWalletSuccessImport,
+             .renewTangemPaySession:
             assertionFailure("Notification tap not handled")
         }
     }

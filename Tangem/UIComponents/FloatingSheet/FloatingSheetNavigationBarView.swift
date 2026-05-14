@@ -29,9 +29,7 @@ struct FloatingSheetNavigationBarView: View {
                 if let title {
                     Text(title)
                         .style(Fonts.Bold.body, color: Colors.Text.primary1)
-                        .ifLet(titleAccessibilityIdentifier) { view, identifier in
-                            view.accessibilityIdentifier(identifier)
-                        }
+                        .accessibilityIdentifier(titleAccessibilityIdentifier)
                 }
 
                 if let subtitle {
