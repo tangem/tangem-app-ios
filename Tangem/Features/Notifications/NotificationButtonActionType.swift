@@ -57,6 +57,7 @@ enum NotificationButtonActionType: Identifiable {
     case closeMobileUpgrade
     case allowPushPermissionRequest
     case postponePushPermissionRequest
+    case openPushNotificationsSystemSettings
     case activate
     case givePermission
     case openManageTokensAfterWalletSuccessImport
@@ -93,6 +94,7 @@ enum NotificationButtonActionType: Identifiable {
         case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
+        case .openPushNotificationsSystemSettings: "openPushNotificationsSystemSettings".hashValue
         case .activate: "activate".hashValue
         case .givePermission: "givePermission".hashValue
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
@@ -153,6 +155,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonEnable
         case .postponePushPermissionRequest:
             return Localization.commonLater
+        case .openPushNotificationsSystemSettings:
+            return "Open Settings"
         case .activate:
             return Localization.commonActivate
         case .givePermission:
@@ -198,6 +202,7 @@ enum NotificationButtonActionType: Identifiable {
              .closeMobileUpgrade,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
+             .openPushNotificationsSystemSettings,
              .activate,
              .givePermission,
              .openCloreMigration,
@@ -236,6 +241,7 @@ enum NotificationButtonActionType: Identifiable {
              .swap,
              .addTokenTrustline,
              .postponePushPermissionRequest,
+             .openPushNotificationsSystemSettings,
              .givePermission,
              .openCloreMigration,
              .openDynamicAddressesEnter,

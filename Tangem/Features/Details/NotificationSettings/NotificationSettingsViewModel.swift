@@ -21,7 +21,7 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     // MARK: - ViewState
 
-    @Published private(set) var isBannerVisible: Bool = false
+    @Published private(set) var allowNotificationsBannerInput: NotificationViewInput?
 
     @Published var isPushNotifyEnabled: Bool = false
     @Published private(set) var pushNotifyViewModel: DefaultToggleRowViewModel?
@@ -77,10 +77,6 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     func onAppear() {
         refreshBannerVisibility()
-    }
-
-    func openAppSettingsFromBanner() {
-        coordinator?.openAppSettings()
     }
 
     func onTapMoreInfoTransactionPushNotifications() {
@@ -168,8 +164,26 @@ private extension NotificationSettingsViewModel {
         Task { @MainActor [weak self] in
             guard let self else { return }
             let isAuthorized = await pushNotificationsPermission.isAuthorized
-            isBannerVisible = !isAuthorized
+            allowNotificationsBannerInput = isAuthorized ? nil : makeAllowNotificationsBannerInput()
         }
+    }
+
+    func makeAllowNotificationsBannerInput() -> NotificationViewInput {
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] _, _ in
+            self?.coordinator?.openAppSettings()
+        }
+
+        return NotificationViewInput(
+            style: .withButtons([
+                NotificationView.NotificationButton(
+                    action: buttonAction,
+                    actionType: .openPushNotificationsSystemSettings,
+                    isWithLoader: false
+                ),
+            ]),
+            severity: .warning,
+            settings: .init(event: PushSettingsNotificationsEvent.allowNotifications, dismissAction: nil)
+        )
     }
 }
 
@@ -305,9 +319,5 @@ extension NotificationSettingsViewModel {
 
         static let priceAlertsTitle = "Price Alerts"
         static let priceAlertsFooter = "Get notified about price changes for top market coins."
-
-        static let allowNotificationsTitle = "Allow notifications"
-        static let allowNotificationsDescription = "Push Notifications are enabled but won’t work until you allow notifications in your device settings."
-        static let allowNotificationsButton = "Open Settings"
     }
 }
