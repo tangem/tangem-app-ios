@@ -124,11 +124,7 @@ struct TangemPayDailyLimitSectionView: View {
 
     private var errorBanner: some View {
         HStack(spacing: 12) {
-            Assets.attention.image
-                .resizable()
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.attention)
-                .frame(width: 20, height: 20)
+            Assets.attention20.image
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(Localization.tangempayCardPageDailyLimitErrorTitle)
