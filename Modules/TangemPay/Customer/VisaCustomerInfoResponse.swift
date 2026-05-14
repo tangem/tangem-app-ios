@@ -67,7 +67,7 @@ public extension VisaCustomerInfoResponse {
         public let paymentAccountId: String
         public let displayName: String
         public let adminCardLimit: CardLimit
-        public let actualCardLimit: CardLimit
+        public let actualCardLimit: CardLimit?
     }
 
     /// Lenient product-instance shape used for the multi-card `productInstances` array, where pending entries
