@@ -1631,6 +1631,7 @@
 "transaction_history_transaction_validator" = "валідатор: %@";
 "transaction_notifications_warning_description" = "Сповіщення ввімкнені, але не працюватимуть, доки ви не дозволите їх у налаштуваннях пристрою.";
 "transaction_notifications_warning_title" = "Сповіщення про транзакції";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Мінімум %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Мінімальна сума транзакції становить %1$@.";
 "tron_will_be_send_token_fee_description" = "Комісії мережі Tron для популярних токенів можуть бути вищими. Стейкінг TRX може допомогти знизити транзакційні витрати.";
@@ -1660,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Сповіщення про транзакції";
 "user_push_notification_agreement_argument_one" = "Будьте в курсі останніх функцій та новин";
 "user_push_notification_agreement_argument_three" = "Отримуйте сповіщення про вхідні транзакції";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Ранній доступ до нових функцій та ексклюзивних пропозицій.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Нові функції та важливі новини";
 "user_push_notification_agreement_argument_two" = "Дізнавайтеся першими про нові акції";
 "user_push_notification_agreement_header" = "Бажаєте використовувати Push-повідомлення?";
