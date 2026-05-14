@@ -18,7 +18,7 @@ final class CommonCryptoAccountsGlobalStateProvider {
     private var unsafeSubscriptions: [AnyHashable: AnyCancellable] = [:]
 
     fileprivate init() {
-        cryptoAccountsGlobalStateProviderLogger.debug(
+        CryptoAccountsGlobalStateProviderLogger.info(
             "Instance initialized (\(objectDescription(self)))"
         )
     }
@@ -28,7 +28,7 @@ final class CommonCryptoAccountsGlobalStateProvider {
 
 extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider {
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        cryptoAccountsGlobalStateProviderLogger.debug(
+        CryptoAccountsGlobalStateProviderLogger.info(
             "Called with \(LoggingWrapper(identifier)) (\(objectDescription(self)))"
         )
 
@@ -46,7 +46,7 @@ extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProv
     }
 
     func unregister<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        cryptoAccountsGlobalStateProviderLogger.debug(
+        CryptoAccountsGlobalStateProviderLogger.info(
             "Called with \(LoggingWrapper(identifier)) (\(objectDescription(self)))"
         )
 
@@ -80,7 +80,7 @@ extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProv
     }
 
     private static func globalState(for cryptoAccountsCount: [AnyHashable: Int]) -> CryptoAccounts.State {
-        cryptoAccountsGlobalStateProviderLogger.debug(
+        CryptoAccountsGlobalStateProviderLogger.info(
             "Called with \(cryptoAccountsCount.map { (LoggingWrapper($0.key), $0.value) }) (\(objectDescription(self)))"
         )
 
@@ -96,7 +96,7 @@ extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProv
             return oldValue != count
         }
 
-        cryptoAccountsGlobalStateProviderLogger.debug(
+        CryptoAccountsGlobalStateProviderLogger.info(
             "Called with \(LoggingWrapper(identifier)), \(count), \(hasChanges) (\(objectDescription(self)))"
         )
 

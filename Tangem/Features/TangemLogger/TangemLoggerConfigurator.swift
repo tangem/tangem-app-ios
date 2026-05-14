@@ -30,14 +30,25 @@ struct TangemLoggerConfigurator: Initializable {
 // MARK: - TangemLogger.Configuration
 
 struct TangemLoggerConfiguration: TangemLogger.Logger.Configuration {
-    /// Write to console
-    func isLoggable() -> Bool {
-        AppEnvironment.current.isDebug
+    func shouldLogMessage(with logLevel: TangemLogger.Logger.Level) -> Bool {
+        switch logLevel {
+        case .debug,
+             .info,
+             .warning,
+             .error:
+            return AppEnvironment.current.isDebug
+        }
     }
 
-    /// Write to file
-    func isWritable() -> Bool {
-        true
+    func shouldWriteMessage(with logLevel: TangemLogger.Logger.Level) -> Bool {
+        switch logLevel {
+        case .info,
+             .warning,
+             .error:
+            return true
+        case .debug:
+            return false
+        }
     }
 }
 
@@ -52,7 +63,15 @@ struct TangemSDKLogger: TangemSdkLogger {
             TSDKLogger.error(error: "\(prefix) \(message)")
         case .warning:
             TSDKLogger.warning("\(prefix) \(message)")
-        default:
+        case .command,
+             .tlv,
+             .session,
+             .nfc,
+             .network,
+             .view:
+            TSDKLogger.info("\(prefix) \(message)")
+        case .apdu,
+             .debug:
             TSDKLogger.debug("\(prefix) \(message)")
         }
     }

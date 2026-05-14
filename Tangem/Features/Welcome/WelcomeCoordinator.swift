@@ -55,7 +55,7 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("WelcomeCoordinator deinit")
     }
 
     func start(with options: WelcomeCoordinator.Options) {
