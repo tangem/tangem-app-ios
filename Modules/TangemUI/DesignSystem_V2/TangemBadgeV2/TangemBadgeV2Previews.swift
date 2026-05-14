@@ -12,11 +12,11 @@ import TangemAssets
 // MARK: - Showcase
 
 public struct TangemBadgeV2Showcase: View {
-    @State private var size: TangemBadgeV2.Size = .x6
-    @State private var variant: TangemBadgeV2.Variant = .tinted
-    @State private var appearance: TangemBadgeV2.Appearance = .neutral
-    @State private var showSlotStart: Bool = false
-    @State private var showSlotEnd: Bool = false
+    @State private var size: TangemBadgeV2Size = .x6
+    @State private var variant: TangemBadgeV2Variant = .tinted
+    @State private var appearance: TangemBadgeV2Appearance = .neutral
+    @State private var slotStartMode: SlotMode = .off
+    @State private var slotEndMode: SlotMode = .off
     @State private var customText: String = "Badge"
     @State private var dynamicTypeIndex: Int = Self.dynamicTypeAllCases.firstIndex(of: .large) ?? 0
 
@@ -44,30 +44,30 @@ public struct TangemBadgeV2Showcase: View {
     private var pickerSection: some View {
         VStack(spacing: 8) {
             Picker("Size", selection: $size) {
-                Text("x9").tag(TangemBadgeV2.Size.x9)
-                Text("x6").tag(TangemBadgeV2.Size.x6)
-                Text("x4").tag(TangemBadgeV2.Size.x4)
+                Text("x9").tag(TangemBadgeV2Size.x9)
+                Text("x6").tag(TangemBadgeV2Size.x6)
+                Text("x4").tag(TangemBadgeV2Size.x4)
             }
             .pickerStyle(.segmented)
 
             Picker("Variant", selection: $variant) {
-                Text("tinted").tag(TangemBadgeV2.Variant.tinted)
-                Text("solid").tag(TangemBadgeV2.Variant.solid)
-                Text("outline").tag(TangemBadgeV2.Variant.outline)
+                Text("tinted").tag(TangemBadgeV2Variant.tinted)
+                Text("solid").tag(TangemBadgeV2Variant.solid)
+                Text("outline").tag(TangemBadgeV2Variant.outline)
             }
             .pickerStyle(.segmented)
 
             Picker("Appearance", selection: $appearance) {
-                Text("neutral").tag(TangemBadgeV2.Appearance.neutral)
-                Text("info").tag(TangemBadgeV2.Appearance.info)
-                Text("error").tag(TangemBadgeV2.Appearance.error)
-                Text("warning").tag(TangemBadgeV2.Appearance.warning)
-                Text("success").tag(TangemBadgeV2.Appearance.success)
+                Text("neutral").tag(TangemBadgeV2Appearance.neutral)
+                Text("info").tag(TangemBadgeV2Appearance.info)
+                Text("error").tag(TangemBadgeV2Appearance.error)
+                Text("warning").tag(TangemBadgeV2Appearance.warning)
+                Text("success").tag(TangemBadgeV2Appearance.success)
             }
             .pickerStyle(.segmented)
 
-            Toggle("Slot Start", isOn: $showSlotStart)
-            Toggle("Slot End", isOn: $showSlotEnd)
+            slotPicker("Slot Start", selection: $slotStartMode)
+            slotPicker("Slot End", selection: $slotEndMode)
 
             HStack {
                 Text("label:").font(.caption)
@@ -84,17 +84,59 @@ public struct TangemBadgeV2Showcase: View {
     }
 
     private var badgePreview: some View {
-        TangemBadgeV2(label: customText, accessibilityLabel: nil)
-            .size(size)
-            .variant(variant)
-            .appearance(appearance)
-            .slotStart(showSlotStart ? size.slotIcon : nil)
-            .slotEnd(showSlotEnd ? size.slotIcon : nil)
+        configuredBadge
             // `@ScaledMetric` instances inside the badge are reconstructed on `.size(_:)` —
             // forcing a fresh view identity per size keeps the live ScaledMetric values
             // in sync with the picked size as Dynamic Type changes.
             .id(size)
             .dynamicTypeSize(dynamicTypeSize)
+    }
+
+    @ViewBuilder
+    private var configuredBadge: some View {
+        let base = TangemBadgeV2(label: customText, accessibilityLabel: nil)
+            .size(size)
+            .variant(variant)
+            .appearance(appearance)
+
+        switch (slotStartMode, slotEndMode) {
+        case (.off, .off): base
+        case (.icon, .off): base.slotStart(size.slotIcon)
+        case (.custom, .off): base.slotStart { customSlotContent }
+        case (.off, .icon): base.slotEnd(size.slotIcon)
+        case (.icon, .icon): base.slotStart(size.slotIcon).slotEnd(size.slotIcon)
+        case (.custom, .icon): base.slotStart { customSlotContent }.slotEnd(size.slotIcon)
+        case (.off, .custom): base.slotEnd { customSlotContent }
+        case (.icon, .custom): base.slotStart(size.slotIcon).slotEnd { customSlotContent }
+        case (.custom, .custom): base.slotStart { customSlotContent }.slotEnd { customSlotContent }
+        }
+    }
+
+    /// Demonstrates that arbitrary `View` content fits into a slot — not just
+    /// `ImageType` icons. A plain `Circle` shows the badge stamps its scaled
+    /// frame on slot content so Dynamic Type stays consistent.
+    private var customSlotContent: some View {
+        Circle()
+            .fill(DesignSystem.Tokens.Theme.Icon.brand)
+            .aspectRatio(1, contentMode: .fit)
+    }
+
+    private func slotPicker(_ title: String, selection: Binding<SlotMode>) -> some View {
+        HStack(spacing: 8) {
+            Text(title).font(.caption)
+            Picker(title, selection: selection) {
+                Text("off").tag(SlotMode.off)
+                Text("icon").tag(SlotMode.icon)
+                Text("custom").tag(SlotMode.custom)
+            }
+            .pickerStyle(.segmented)
+        }
+    }
+
+    enum SlotMode: Hashable {
+        case off
+        case icon
+        case custom
     }
 }
 
@@ -102,11 +144,9 @@ public struct TangemBadgeV2Showcase: View {
 
 #if DEBUG
 
-private typealias _Badge = TangemBadgeV2
-
 private struct BadgeMatrixView: View {
-    let variants: [_Badge.Variant] = [.tinted, .solid, .outline]
-    let appearances: [_Badge.Appearance] = [.neutral, .info, .error, .warning, .success]
+    let variants: [TangemBadgeV2Variant] = [.tinted, .solid, .outline]
+    let appearances: [TangemBadgeV2Appearance] = [.neutral, .info, .error, .warning, .success]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -117,7 +157,7 @@ private struct BadgeMatrixView: View {
 
                     HStack(spacing: 8) {
                         ForEach(appearances, id: \.self) { appearance in
-                            _Badge(label: appearanceName(appearance), accessibilityLabel: nil)
+                            TangemBadgeV2(label: appearanceName(appearance), accessibilityLabel: nil)
                                 .variant(variant)
                                 .appearance(appearance)
                         }
@@ -130,7 +170,7 @@ private struct BadgeMatrixView: View {
         .background(Color.Tangem.Surface.level1)
     }
 
-    private func variantName(_ variant: _Badge.Variant) -> String {
+    private func variantName(_ variant: TangemBadgeV2Variant) -> String {
         switch variant {
         case .tinted: "Tinted"
         case .solid: "Solid"
@@ -138,7 +178,7 @@ private struct BadgeMatrixView: View {
         }
     }
 
-    private func appearanceName(_ appearance: _Badge.Appearance) -> String {
+    private func appearanceName(_ appearance: TangemBadgeV2Appearance) -> String {
         switch appearance {
         case .neutral: "Neutral"
         case .info: "Info"
@@ -150,7 +190,7 @@ private struct BadgeMatrixView: View {
 }
 
 private struct BadgeSizeComparisonView: View {
-    let sizes: [_Badge.Size] = [.x9, .x6, .x4]
+    let sizes: [TangemBadgeV2Size] = [.x9, .x6, .x4]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -159,19 +199,19 @@ private struct BadgeSizeComparisonView: View {
                     Text(sizeName(size))
                         .frame(width: 40, alignment: .leading)
 
-                    _Badge(label: "Label", accessibilityLabel: nil)
+                    TangemBadgeV2(label: "Label", accessibilityLabel: nil)
                         .size(size)
 
-                    _Badge(label: "Label", accessibilityLabel: nil)
+                    TangemBadgeV2(label: "Label", accessibilityLabel: nil)
                         .size(size)
                         .slotStart(size.slotIcon)
 
-                    _Badge(label: "Label", accessibilityLabel: nil)
+                    TangemBadgeV2(label: "Label", accessibilityLabel: nil)
                         .size(size)
                         .slotStart(size.slotIcon)
                         .slotEnd(size.slotIcon)
 
-                    _Badge(label: "Label", accessibilityLabel: nil)
+                    TangemBadgeV2(label: "Label", accessibilityLabel: nil)
                         .size(size)
                         .variant(.solid)
                         .appearance(.success)
@@ -184,7 +224,7 @@ private struct BadgeSizeComparisonView: View {
         .background(Color.Tangem.Surface.level1)
     }
 
-    private func sizeName(_ size: _Badge.Size) -> String {
+    private func sizeName(_ size: TangemBadgeV2Size) -> String {
         switch size {
         case .x9: "x9"
         case .x6: "x6"
@@ -219,7 +259,7 @@ private struct BadgeSizeComparisonView: View {
 
 // MARK: - Helpers
 
-private extension TangemBadgeV2.Size {
+private extension TangemBadgeV2Size {
     var slotIcon: ImageType {
         switch self {
         case .x9: DesignSystem.Icons.SignUsd.regular20
