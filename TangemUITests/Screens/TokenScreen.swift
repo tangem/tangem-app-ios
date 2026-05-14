@@ -39,6 +39,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var nativeStakingChevron = image(.nativeStakingChevron)
 
     private lazy var availableSegment = button(.availableSegment)
+    private lazy var balanceModePicker = button(.balanceModePicker)
 
     // Balance elements
     private lazy var totalBalance = staticText(.totalBalance)
@@ -172,8 +173,13 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     @discardableResult
     func tapAvailableSegment() -> Self {
-        XCTContext.runActivity(named: "Tap Available segment") { _ in
-            availableSegment.waitAndTap()
+        XCTContext.runActivity(named: "Switch to Available balance") { _ in
+            // Temporary fallback to support both the legacy and redesigned token screen layouts.
+            if availableSegment.exists {
+                availableSegment.waitAndTap()
+            } else {
+                balanceModePicker.waitAndTap()
+            }
             return self
         }
     }
@@ -292,6 +298,7 @@ enum TokenScreenElement: String, UIElement {
     case tokenNameLabel
     case notEnoughFeeForTransactionBanner
     case availableSegment
+    case balanceModePicker
     case totalBalance
     case availableBalance
     case stakingBalance
@@ -328,6 +335,8 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
         case .availableSegment:
             return "Available"
+        case .balanceModePicker:
+            return TokenAccessibilityIdentifiers.balanceModePicker
         case .totalBalance:
             return TokenAccessibilityIdentifiers.totalBalance
         case .availableBalance:
