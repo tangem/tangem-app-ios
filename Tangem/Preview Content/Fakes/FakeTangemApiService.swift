@@ -11,10 +11,6 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
-    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response {
-        throw "Not implemented"
-    }
-
     private let geoIpRegionCode: String
 
     // MARK: - News Handlers (Tests/Previews)
