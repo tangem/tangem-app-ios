@@ -331,6 +331,7 @@
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "I understand, continue";
 "common_understand" = "I understand";
 "common_unknown_error" = "There was an error. Please try again.";
@@ -1501,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Di solito richiede fino a 15 minuti";
 "tangempay_issue_card_notification_title" = "Configurazione della tua carta Tangem";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "La carta viene solitamente emessa automaticamente entro 5 minuti. In rari casi, se è necessaria una revisione manuale, l’emissione può richiedere fino a 48 ore.";
 "tangempay_issuing_your_card" = "Emissione della tua carta";
@@ -1551,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
 "tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_status_deactivated" = "Carta disattivata";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed" = "Sessione scaduta";
 "tangempay_tangem_visa_card" = "Usa USDC per i pagamenti quotidiani";
@@ -1628,6 +1631,7 @@
 "transaction_history_transaction_validator" = "validator: %@";
 "transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
 "transaction_notifications_warning_title" = "Transaction Notifications";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "The minimum transaction amount is %1$@.";
 "tron_will_be_send_token_fee_description" = "Tron network fees for popular tokens can be higher. Staking TRX may help reduce transaction costs.";
@@ -1657,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
 "user_push_notification_agreement_argument_three" = "Get notified of incoming transactions";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Early access to fresh features and exclusive offers.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
 "user_push_notification_agreement_argument_two" = "Be the first to know about new promotions";
 "user_push_notification_agreement_header" = "Would you like to use\nPush-notifications?";

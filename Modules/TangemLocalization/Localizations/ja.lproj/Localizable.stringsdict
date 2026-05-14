@@ -343,10 +343,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li card</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li枚のカード</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -387,10 +385,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>アドレスを同期して、%liネットワークのアドレスを取得します</string>
       </dict>
     </dict>
   </dict>
