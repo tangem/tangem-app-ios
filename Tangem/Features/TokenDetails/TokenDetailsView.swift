@@ -36,10 +36,6 @@ struct TokenDetailsView: View {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
                 }
 
-                ForEach(viewModel.bannerNotificationInputs) { input in
-                    NotificationView(input: input)
-                }
-
                 ForEach(viewModel.tokenNotificationInputs) { input in
                     NotificationView(input: input)
                         .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
@@ -232,16 +228,10 @@ private extension TokenDetailsView {
     )
     let coordinator = TokenDetailsCoordinator()
 
-    let bannerNotificationManager = BannerNotificationManager(
-        userWalletInfo: userWalletModel.userWalletInfo,
-        placement: .tokenDetails(walletModel.tokenItem),
-    )
-
     TokenDetailsView(viewModel: .init(
         userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         notificationManager: notifManager,
-        bannerNotificationManager: bannerNotificationManager,
         userTokensManager: cryptoAccountModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
