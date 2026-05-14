@@ -62,6 +62,12 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayMaximumCardsIssuedSheetViewModel.self) {
+                TangemPayMaximumCardsIssuedSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayIssueAdditionalCardCostPopupViewModel.self) {
+                TangemPayIssueAdditionalCardCostPopupView(viewModel: $0)
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }

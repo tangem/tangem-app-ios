@@ -22,11 +22,11 @@ class BitcoreNetworkProvider {
 // MARK: - UTXONetworkProvider
 
 extension BitcoreNetworkProvider: UTXONetworkProvider {
-    func getInfo(xpub: String) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
+    func getInfo(xpub: UTXOXpubScriptType) -> AnyPublisher<UTXOXpubAddressesInfo, any Error> {
         .anyFail(error: UTXOXpubNetworkAddressInfoProviderError.xpubNotSupported)
     }
 
-    func getUnspentOutputs(xpub: String) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
+    func getUnspentOutputs(xpub: UTXOXpubScriptType) -> AnyPublisher<[UTXOUsedAddress: [UnspentOutput]], any Error> {
         .anyFail(error: UTXOXpubNetworkAddressInfoProviderError.xpubNotSupported)
     }
 
