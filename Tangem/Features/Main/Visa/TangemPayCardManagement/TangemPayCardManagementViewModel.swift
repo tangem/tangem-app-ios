@@ -120,13 +120,13 @@ private extension TangemPayCardManagementViewModel {
         .store(in: &bag)
 
         tangemPayAccount.cardLimitPublisher
-            .map {
+            .map { amount -> TangemPayDailyLimitState in
                 let formatter = BalanceFormatter().makeDefaultFiatFormatter(
                     forCurrencyCode: AppConstants.usdCurrencyCode,
                     locale: .posixEnUS,
                     formattingOptions: .init(minFractionDigits: 0, maxFractionDigits: 0, formatEpsilonAsLowestRepresentableValue: false)
                 )
-                if let limit = formatter.string(from: .init(value: $0)) {
+                if let amount, let limit = formatter.string(from: .init(value: amount)) {
                     return .loaded(currentLimit: limit)
                 } else {
                     return .error
