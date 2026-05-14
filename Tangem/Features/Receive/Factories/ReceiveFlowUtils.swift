@@ -23,11 +23,8 @@ struct ReceiveAddressInfoUtils {
                 address: address.value,
                 type: address.type,
                 localizedName: address.localizedName,
-                addressQRImage: QrCodeGenerator.generateQRCode(
-                    from: address.value,
-                    backgroundColor: colorScheme.backgroundColor,
-                    foregroundColor: colorScheme.foregroundColor
-                )
+                qrBackgroundColor: colorScheme.backgroundColor,
+                qrForegroundColor: colorScheme.foregroundColor
             )
         }
     }
