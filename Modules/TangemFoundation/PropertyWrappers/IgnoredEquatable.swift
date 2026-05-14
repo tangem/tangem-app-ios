@@ -44,3 +44,5 @@ extension IgnoredEquatable: Hashable {
     @inlinable
     public func hash(into hasher: inout Hasher) { /* no-op */ }
 }
+
+extension IgnoredEquatable: Sendable where Value: Sendable {}
