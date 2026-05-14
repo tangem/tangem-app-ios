@@ -25,6 +25,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
+    /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         tokenItem: walletModel.tokenItem,
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
@@ -49,6 +50,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             }
         }
     )
+
+    let actionsViewModel: TokenDetailsActionsViewModel?
 
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
@@ -93,6 +96,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
 
+        actionsViewModel = FeatureProvider.isAvailable(.redesign)
+            ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
+            : nil
+
         super.init(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel,
@@ -100,6 +107,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
             tokenRouter: tokenRouter
         )
+
+        actionsViewModel?.setRoutable(self)
+
         notificationManager.setupManager(with: self)
         bannerNotificationManager?.setupManager(with: self)
 
@@ -640,6 +650,10 @@ extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
         walletModel.isCustom
     }
 }
+
+// MARK: - TokenDetailsActionsRoutable
+
+extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
