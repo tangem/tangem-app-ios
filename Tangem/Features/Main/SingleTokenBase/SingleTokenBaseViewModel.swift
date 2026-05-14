@@ -694,6 +694,17 @@ extension SingleTokenBaseViewModel {
 
         openReceive()
     }
+
+    func performTokenAction(_ type: TokenActionType) {
+        switch type {
+        case .buy: openBuyCryptoAction()
+        case .send: openSendAction()
+        case .receive: openReceiveAction()
+        case .exchange: openExchangeAction()
+        case .sell: openSellAction()
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
+        }
+    }
 }
 
 // MARK: - CustomStringConvertible protocol conformance
