@@ -104,6 +104,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
         let nilCurrencyInput = StubOnrampAmountInput(fiatCurrency: nil)
         let builder = OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: true),
+            tokenItem: Self.testTokenItem,
             amountInput: nilCurrencyInput,
             authorizationHandler: nil
         )
@@ -243,10 +244,13 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
     ) -> OnrampOfferViewModelBuyActionBuilder {
         OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: isApplePayAllowed),
+            tokenItem: Self.testTokenItem,
             amountInput: amountInput,
             authorizationHandler: authorizationHandler
         )
     }
+
+    fileprivate static let testTokenItem: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
 }
 
 // MARK: - Spies / Stubs

@@ -13,9 +13,11 @@ import TangemExpress
 
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
+    let tokenItem: TokenItem
     weak var amountInput: OnrampAmountInput?
     weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
 
+    private let balanceFormatter = BalanceFormatter()
     private var countryCode: String { Locale.current.region?.identifier ?? "US" }
 
     func make(
@@ -46,10 +48,16 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
+        let summaryItemLabel = balanceFormatter.formatCryptoBalance(
+            quote.expectedAmount,
+            currencyCode: tokenItem.currencySymbol
+        )
+
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: currencyCode,
-            countryCode: countryCode
+            countryCode: countryCode,
+            summaryItemLabel: summaryItemLabel
         )
 
         return .nativeApplePay(request: request) { [self, onWillBuy] phase in
