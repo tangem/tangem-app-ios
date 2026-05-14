@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 
-let PromotionsLogger = AppLogger.tag("Promotions")
+let PromotionsLogger = AppLogger.tag("Promotion")
 
 protocol PromotionRepository {
     func promotionsPublisher(userWalletId: UserWalletId, placeholder: PromotionPlacement) -> AnyPublisher<[Promotion], Never>
