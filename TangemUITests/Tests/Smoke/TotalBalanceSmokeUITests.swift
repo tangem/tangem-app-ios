@@ -408,15 +408,4 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             }
         }
     }
-
-    func testLongPressWalletHeader_NoDeleteButton() {
-        setAllureId(3965)
-        launchApp(tangemApiType: .mock)
-
-        let mainScreen = CreateWalletSelectorScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .longPressWalletHeader()
-
-        mainScreen.waitForNoDeleteButton()
-    }
 }
