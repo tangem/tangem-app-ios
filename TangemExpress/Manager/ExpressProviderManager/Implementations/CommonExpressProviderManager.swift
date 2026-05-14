@@ -27,7 +27,7 @@ final class CommonExpressProviderManager {
 
     // MARK: - State
 
-    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
+    private let _state = OSAllocatedUnfairLock<ExpressProviderManagerState>(initialState: .idle)
 
     init(
         context: ExpressProviderFlowContext,
@@ -48,17 +48,17 @@ extension CommonExpressProviderManager: ExpressProviderManager {
     var feeProvider: any ExpressFeeProvider { context.expressFeeProvider }
 
     func getState() -> ExpressProviderManagerState {
-        _state.read()
+        _state { $0 }
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
-        _state.mutate { $0 = state }
+        _state { $0 = state }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let state = _state.read()
+        let state = _state { $0 }
 
         switch state {
         case .cexPreview:
