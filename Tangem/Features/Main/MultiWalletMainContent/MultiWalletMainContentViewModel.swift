@@ -153,7 +153,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     deinit {
-        AppLogger.debug("\(userWalletModel.name) deinit")
+        AppLogger.debug("MultiWalletMainContentViewModel \(userWalletModel.name) deinit")
     }
 
     func onDidAppear() {
