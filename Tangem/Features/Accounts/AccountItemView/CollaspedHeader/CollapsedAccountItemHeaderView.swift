@@ -27,6 +27,12 @@ struct CollapsedAccountItemHeaderView: View {
     /// Horizontal offset for positioning the invisible matchedGeometryEffect anchor point.
     @ScaledMetric private var geometryEffectAnchorOffset: CGFloat = 20
 
+    private var balanceLoaderStyle: LoadableBalanceView.LoaderStyle {
+        FeatureProvider.isAvailable(.redesign)
+            ? .init(size: .init(width: .unit(.x18), height: .unit(.x4)), cornerRadiusStyle: .capsule)
+            : .init(size: .init(width: .unit(.x10), height: .unit(.x3)))
+    }
+
     var body: some View {
         TwoLineRowWithIcon(
             icon: {
@@ -52,7 +58,7 @@ struct CollapsedAccountItemHeaderView: View {
                 LoadableBalanceView(
                     state: totalFiatBalance,
                     style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
-                    loader: .init(size: .init(width: 40, height: 12))
+                    loader: balanceLoaderStyle
                 )
             },
             secondaryLeadingView: {

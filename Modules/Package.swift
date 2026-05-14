@@ -67,6 +67,7 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
         .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.3.0")),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "12.12.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -117,6 +118,18 @@ var serviceModules: [PackageDescription.Target] {
         ),
         .tangemTarget(
             name: "TangemAccessibilityIdentifiers"
+        ),
+        .tangemTarget(
+            name: "TangemAnalytics",
+            dependencies: [
+                .product(name: "FirebasePerformance", package: "firebase-ios-sdk"),
+                "TangemFoundation",
+                "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
         ),
         .tangemTarget(
             name: "TangemAssets",
@@ -189,6 +202,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
                 .product(name: "BlurSwiftUI", package: "BlurUIKit"),
+                .product(name: "TangemMacro", package: "TangemMacro"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -321,6 +335,16 @@ var unitTestsModules: [PackageDescription.Target] {
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemAnalyticsTests",
+            dependencies: [
+                "TangemAnalytics",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

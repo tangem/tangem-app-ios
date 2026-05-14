@@ -14,6 +14,7 @@ struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let id: NotificationViewId
     let bannerType: NotificationBanner.BannerType
     let priority: NotificationBanner.Priority
+    let accessibilityIdentifier: String?
 }
 
 struct MultiWalletNotificationBannerMapper {
@@ -29,7 +30,8 @@ private extension MultiWalletNotificationBannerMapper {
         NotificationBannerItem(
             id: input.id,
             bannerType: makeBannerType(from: input),
-            priority: mapPriority(from: input.severity)
+            priority: mapPriority(from: input.severity),
+            accessibilityIdentifier: input.settings.event.accessibilityIdentifier
         )
     }
 
