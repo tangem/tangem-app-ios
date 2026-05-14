@@ -11,7 +11,7 @@ import SwiftUI
 typealias ThumbnailThreeCardsView = ThumbnailPathBuilderView<ThumbnailThreeCardsPathBuilder>
 
 public enum ThumbnailThreeCardsPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors {
+    public struct FillColors: Equatable {
         public let card: Color
         public let secondCard: Color
         public let thirdCard: Color
