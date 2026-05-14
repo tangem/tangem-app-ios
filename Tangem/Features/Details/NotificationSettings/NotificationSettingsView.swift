@@ -34,10 +34,8 @@ struct NotificationSettingsView: View {
 
     @ViewBuilder
     private var allowNotificationsBannerSection: some View {
-        if viewModel.isBannerVisible {
-            AllowNotificationsBannerView(
-                openSettingsAction: viewModel.openAppSettingsFromBanner
-            )
+        if let input = viewModel.allowNotificationsBannerInput {
+            NotificationView(input: input)
         }
     }
 
