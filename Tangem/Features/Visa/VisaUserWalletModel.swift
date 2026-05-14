@@ -351,11 +351,11 @@ extension VisaUserWalletModel {
                 allowRefresherTask: true
             )
 
-        if authorizationTokensHandler.refreshTokenExpired {
+        if await authorizationTokensHandler.refreshTokenExpired {
             throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
         }
 
-        if authorizationTokensHandler.accessTokenExpired {
+        if await authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
         }
 
