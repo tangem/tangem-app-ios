@@ -331,6 +331,7 @@
 "common_transactions" = "交易";
 "common_transfer" = "转让";
 "common_transferred" = "已转账";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "我明白，请继续";
 "common_understand" = "我明白";
 "common_unknown_error" = "出现错误，请重试。";
@@ -1216,6 +1217,7 @@
 "staking_details_warmup_period_info" = "激活参与质押的指定时间。";
 "staking_details_warmup_period" = "热身期";
 "staking_dismiss_message" = "您确定要关闭质押界面吗？";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "目前没有可用的验证节点。请稍后再试。";
 "staking_error_no_validators_title" = "质押功能不可用";
 "staking_give_permission_fee_footer" = "网络将收取代币批准费，以验证您是否授权使用您的代币进行质押。";
@@ -1455,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "重新发行卡片";
 "tangempay_card_details_rename_card_invalid_description" = "只允许输入字母和数字。";
 "tangempay_card_details_rename_card_invalid_title" = "无效字符";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "显示";
 "tangempay_card_details_show_details" = "显示详情";
 "tangempay_card_details_swap_description" = "将您投资组合中的任何资产互换到卡片";
@@ -1499,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "通常需要最多15分钟";
 "tangempay_issue_card_notification_title" = "设置您的 Tangem 卡";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "该卡通常会在 5 分钟内自动发放。极少数情况下，如果需要人工审核，则可能需要长达 48 小时。";
 "tangempay_issuing_your_card" = "正在发放您的卡片";
@@ -1549,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "无法显示详细信息。但刷卡支付功能仍然可用。";
 "tangempay_set_pin_code" = "设置 PIN 码";
 "tangempay_status_deactivated" = "卡片已停用";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "恢复访问权限";
 "tangempay_sync_needed" = "会话已过期";
 "tangempay_tangem_visa_card" = "使用 USDC 进行日常支付";
