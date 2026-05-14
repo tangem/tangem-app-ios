@@ -20,7 +20,7 @@ struct P2PMapper {
     ) throws -> StakingYieldInfo {
         let vaults = response.vaults
             .filter { !$0.isSmoothingPool && !$0.isPrivate }
-            .compactMap { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
+            .map { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
 
         let rewardRateValues = RewardRateValues(
             aprs: vaults.compactMap(\.rewardRate),
@@ -141,27 +141,26 @@ struct P2PMapper {
     func mapToStakingTargetInfo(
         from vault: P2PDTO.Vaults.Vault,
         targetAmountInfos: [String: StakingTargetAmountLimitInfo]
-    ) -> StakingTargetInfo? {
-        guard let info = targetAmountInfos[vault.vaultAddress.lowercased()] else {
-            return nil
-        }
-        let isAvailable: Bool = {
+    ) -> StakingTargetInfo {
+        let info = targetAmountInfos[vault.vaultAddress.lowercased()]
+        let hasCapacity: Bool = {
             guard let capacity = vault.capacity,
                   let totalAssets = vault.totalAssets else {
                 return false
             }
             return capacity - totalAssets > Constants.availabilityThreshold
         }()
+        let isAvailable = info != nil && hasCapacity
         return StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
-            preferred: true,
+            preferred: isAvailable,
             partner: false,
             iconURL: nil,
             rewardType: rewardType,
             rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
             status: isAvailable ? .active : .full,
-            maximumStakeAmount: isAvailable ? info.limit : nil
+            maximumStakeAmount: isAvailable ? info?.limit : nil
         )
     }
 

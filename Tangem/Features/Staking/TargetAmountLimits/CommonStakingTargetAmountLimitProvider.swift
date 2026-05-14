@@ -100,8 +100,13 @@ private extension CommonStakingTargetAmountLimitProvider {
                     coefficient: vault.coefficient
                 )
             }
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else {
+                infos = [:]
+                return
+            }
             infos = dict
+        } catch is CancellationError {
+            infos = [:]
         } catch {
             AppLogger.error("Failed to load staking target amount limits", error: error)
         }

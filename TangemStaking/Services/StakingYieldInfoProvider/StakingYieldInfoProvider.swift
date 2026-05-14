@@ -16,7 +16,7 @@ public protocol StakingYieldInfoProvider {
 public final actor CommonStakingYieldInfoProvider {
     private let stakeKitAPIProvider: StakeKitAPIProvider
     private let p2pAPIProvider: P2PAPIProvider
-    private let targetAmountLimitProvider: StakingTargetAmountLimitProvider?
+    private let targetAmountLimitProvider: StakingTargetAmountLimitProvider
 
     private var yieldInfos = [String: CachedStakingYieldInfo]()
     private var loadingTasks = [String: Task<StakingYieldInfo, Error>]()
@@ -25,17 +25,15 @@ public final actor CommonStakingYieldInfoProvider {
     public init(
         stakeKitAPIProvider: StakeKitAPIProvider,
         p2pAPIProvider: P2PAPIProvider,
-        targetAmountLimitProvider: StakingTargetAmountLimitProvider? = nil,
-        cacheInvalidationPublisher: AnyPublisher<Void, Never>? = nil
+        targetAmountLimitProvider: StakingTargetAmountLimitProvider,
+        cacheInvalidationPublisher: AnyPublisher<Void, Never>
     ) {
         self.stakeKitAPIProvider = stakeKitAPIProvider
         self.p2pAPIProvider = p2pAPIProvider
         self.targetAmountLimitProvider = targetAmountLimitProvider
 
-        if let cacheInvalidationPublisher {
-            Task { [weak self] in
-                await self?.bind(cacheInvalidationPublisher: cacheInvalidationPublisher)
-            }
+        Task { [weak self] in
+            await self?.bind(cacheInvalidationPublisher: cacheInvalidationPublisher)
         }
     }
 

@@ -10,26 +10,28 @@ import Foundation
 import Combine
 import TangemStaking
 
-private struct StakingYieldInfoProviderKey: InjectionKey {
-    static var currentValue: StakingYieldInfoProvider = {
+private final class StakingYieldInfoProviderBuilder {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    func build() -> StakingYieldInfoProvider {
         let factory = StakingDependenciesFactory()
 
-        let lockPublisher = InjectedValues[\.userWalletRepository].eventProvider
-            .compactMap { event -> Void? in
-                if case .locked = event { return () }
-                return nil
-            }
+        let lockPublisher = userWalletRepository.eventProvider
+            .filter { $0 == .locked }
+            .map { _ in () }
             .eraseToAnyPublisher()
 
-        let provider = CommonStakingYieldInfoProvider(
+        return CommonStakingYieldInfoProvider(
             stakeKitAPIProvider: factory.makeStakeKitAPIProvider(),
             p2pAPIProvider: factory.makeP2PAPIProvider(),
             targetAmountLimitProvider: factory.targetAmountLimitProvider,
             cacheInvalidationPublisher: lockPublisher
         )
+    }
+}
 
-        return provider
-    }()
+private struct StakingYieldInfoProviderKey: InjectionKey {
+    static var currentValue: StakingYieldInfoProvider = StakingYieldInfoProviderBuilder().build()
 }
 
 extension InjectedValues {
