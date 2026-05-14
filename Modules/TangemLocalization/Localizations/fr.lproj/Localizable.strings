@@ -1631,6 +1631,7 @@
 "transaction_history_transaction_validator" = "validateur : %@";
 "transaction_notifications_warning_description" = "Les notifications sont activées, mais elles ne fonctionneront pas tant que vous n'aurez pas autorisé les notifications dans les paramètres de votre appareil.";
 "transaction_notifications_warning_title" = "Notifications de transaction";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Le montant minimum pour effectuer cette transaction est %1$@.";
 "tron_will_be_send_token_fee_description" = "Les frais de réseau Tron pour les jetons populaires peuvent être plus élevés. Le staking de TRX peut contribuer à réduire les coûts de transaction.";
@@ -1660,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
 "user_push_notification_agreement_argument_three" = "Recevez des notifications des transactions entrantes";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Accès anticipé à de nouvelles fonctionnalités et à des offres exclusives.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Actualités et mises à jour";
 "user_push_notification_agreement_argument_two" = "Soyez le premier informé des nouvelles promotions";
 "user_push_notification_agreement_header" = "Souhaitez-vous utiliser les\nnotifications push?";
