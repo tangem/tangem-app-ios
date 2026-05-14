@@ -142,7 +142,7 @@ private extension ApproveInteractor {
 
         await allowanceService.markApproveTransactionSent(spender: data.spender)
 
-        ExpressLogger.debug("Sent the approve transaction with signerType: \(result.signerType), host: \(result.currentHost)")
+        ExpressLogger.info("Sent the approve transaction with signerType: \(result.signerType), host: \(result.currentHost)")
         analyticsLogger.logApproveTransactionSent(
             policy: currentPolicy,
             signerType: result.signerType,
@@ -155,7 +155,7 @@ private extension ApproveInteractor {
     /// Sends revoke (approve to 0) then approve in one batch.
     /// Required for tokens like USDT on Ethereum that need allowance reset to zero first.
     func sendRevokeAndApprove(revokeData: ApproveTransactionData, approveData: ApproveTransactionData, feeUnit: BSDKFee) async throws {
-        ExpressLogger.debug("Sending revoke+approve batch for spender: \(approveData.spender)")
+        ExpressLogger.info("Sending revoke+approve batch for spender: \(approveData.spender)")
 
         // feeUnit is the 1x revoke fee estimate.
         // Approve tx needs ~2x the gas, so we double gasLimit and amount.
@@ -183,7 +183,7 @@ private extension ApproveInteractor {
         await allowanceService.markApproveTransactionSent(spender: approveData.spender)
 
         if let result = results.last {
-            ExpressLogger.debug("Sent the revoke+approve transactions with signerType: \(result.signerType), host: \(result.currentHost)")
+            ExpressLogger.info("Sent the revoke+approve transactions with signerType: \(result.signerType), host: \(result.currentHost)")
             analyticsLogger.logApproveTransactionSent(
                 policy: currentPolicy,
                 signerType: result.signerType,

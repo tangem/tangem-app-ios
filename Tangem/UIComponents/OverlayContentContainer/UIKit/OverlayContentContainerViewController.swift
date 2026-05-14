@@ -98,7 +98,7 @@ final class OverlayContentContainerViewController: StatusBarManagingViewControll
     }
 
     deinit {
-        AppLogger.info("OverlayContentContainerViewController deinit")
+        AppLogger.debug(self, "deinit")
     }
 
     @available(*, unavailable, message: "init(coder:) has not been implemented")
