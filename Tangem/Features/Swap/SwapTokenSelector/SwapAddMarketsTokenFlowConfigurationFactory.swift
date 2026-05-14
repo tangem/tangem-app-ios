@@ -89,7 +89,7 @@ enum SwapAddMarketsTokenFlowConfigurationFactory {
         }
 
         guard retryCount < Constants.maxWalletModelRetries else {
-            AppLogger.debug("Failed to find wallet model for \(tokenItem) after \(retryCount) retries")
+            AppLogger.error(error: "Failed to find wallet model for \(tokenItem) after \(retryCount) retries")
             return
         }
 
