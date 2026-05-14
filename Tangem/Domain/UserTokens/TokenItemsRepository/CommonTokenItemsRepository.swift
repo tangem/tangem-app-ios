@@ -24,7 +24,7 @@ final class CommonTokenItemsRepository {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug(self, "deinit")
     }
 }
 
