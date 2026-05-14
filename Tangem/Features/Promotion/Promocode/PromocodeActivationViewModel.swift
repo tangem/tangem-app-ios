@@ -48,10 +48,10 @@ final class PromocodeActivationViewModel: ObservableObject {
             isCheckingPromoCode = false
         }
 
-        AnalyticsLogger.debug("Activating promo code: \(promoCode)")
+        AnalyticsLogger.info("Activating promo code: \(promoCode)")
 
         if let refcode {
-            AnalyticsLogger.debug("Refcode was provided: \(refcode)")
+            AnalyticsLogger.info("Refcode was provided: \(refcode)")
             referralService.saveAndBindIfNeeded(refcode: refcode, campaign: campaign)
         }
 
