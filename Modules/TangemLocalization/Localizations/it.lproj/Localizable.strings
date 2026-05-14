@@ -331,6 +331,7 @@
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "I understand, continue";
 "common_understand" = "I understand";
 "common_unknown_error" = "There was an error. Please try again.";
@@ -498,7 +499,6 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Permission Required";
 "express_provider_recommended" = "Recommended";
-"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Provider";
 "express_status_buying" = "Buying %@";
 "express_status_hide_button_text" = "Hide this transaction";
@@ -1217,6 +1217,7 @@
 "staking_details_warmup_period_info" = "The allocated time for activating participation in staking.";
 "staking_details_warmup_period" = "Warmup period";
 "staking_dismiss_message" = "Are you sure you want to close the staking screen?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
@@ -1456,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "Riemettere la carta";
 "tangempay_card_details_rename_card_invalid_description" = "Sono consentite solo lettere e numeri";
 "tangempay_card_details_rename_card_invalid_title" = "Caratteri non validi";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Rivela";
 "tangempay_card_details_show_details" = "Mostra dettagli";
 "tangempay_card_details_swap_description" = "Scambia qualsiasi asset nel tuo portafoglio con una carta";
@@ -1500,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Di solito richiede fino a 15 minuti";
 "tangempay_issue_card_notification_title" = "Configurazione della tua carta Tangem";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "La carta viene solitamente emessa automaticamente entro 5 minuti. In rari casi, se è necessaria una revisione manuale, l’emissione può richiedere fino a 48 ore.";
 "tangempay_issuing_your_card" = "Emissione della tua carta";
@@ -1550,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
 "tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_status_deactivated" = "Carta disattivata";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed" = "Sessione scaduta";
 "tangempay_tangem_visa_card" = "Usa USDC per i pagamenti quotidiani";
