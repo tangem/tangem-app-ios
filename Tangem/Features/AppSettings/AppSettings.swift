@@ -72,12 +72,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
     var userDidSwipeWalletsOnMainScreen: Bool = false
 
-    @AppStorageCompat(StorageType.mainPromotionDismissed)
-    var mainPromotionDismissed: [String] = []
-
-    @AppStorageCompat(StorageType.tokenPromotionDismissed)
-    var tokenPromotionDismissed: [String] = []
-
     @AppStorageCompat(StorageType.userDidTapSendScreenSummary)
     var userDidTapSendScreenSummary: Bool = false
 
