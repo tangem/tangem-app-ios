@@ -88,8 +88,6 @@ protocol TangemApiService: AnyObject {
 
     func bindReferral(request model: ReferralDTO.Request) async throws
 
-    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response
-
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError>
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response

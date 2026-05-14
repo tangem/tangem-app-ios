@@ -22,8 +22,6 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion:
-            AppEnvironment.current.apiBaseUrlv2
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -51,8 +49,6 @@ struct TangemApiTarget: TargetType {
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
             return "/referral"
-        case .promotion:
-            return "/promotion"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -140,7 +136,6 @@ struct TangemApiTarget: TargetType {
              .geo,
              .getUserWalletTokens,
              .loadReferralProgramInfo,
-             .promotion,
              .loadPromotions,
              .apiList,
              .features,
@@ -200,8 +195,6 @@ struct TangemApiTarget: TargetType {
             )
         case .participateInReferralProgram(let requestData):
             return .requestParameters(requestData)
-        case .promotion(let request):
-            return .requestParameters(request)
         case .loadPromotions(let request):
             return .requestParameters(request)
         case .hidePromotion(let request):
@@ -318,7 +311,6 @@ struct TangemApiTarget: TargetType {
              .loadReferralProgramInfo,
              .participateInReferralProgram,
              .createAccount,
-             .promotion,
              .loadPromotions,
              .hidePromotion,
              .activatePromoCode,
@@ -367,8 +359,6 @@ extension TangemApiTarget {
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
 
-        // Promotion
-        case promotion(request: BannerPromotion.Request)
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
 
         // Promotions
@@ -478,7 +468,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .loadReferralProgramInfo,
              .participateInReferralProgram,
              .createAccount,
-             .promotion,
              .loadPromotions,
              .hidePromotion,
              .pushNotificationsEligible,
