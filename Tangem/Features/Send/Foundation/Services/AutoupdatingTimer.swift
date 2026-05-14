@@ -14,7 +14,7 @@ final class AutoupdatingTimer {
     private var isPaused: Bool = true
 
     deinit {
-        AutoupdateTimerLogger.debug("deinit")
+        AutoupdateTimerLogger.debug("AutoupdatingTimer deinit")
         stopTimer()
     }
 
