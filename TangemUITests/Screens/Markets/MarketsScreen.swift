@@ -189,7 +189,7 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func tapShowTokensUnderCapButton() -> Self {
         XCTContext.runActivity(named: "Tap 'Show tokens' under cap button") { _ in
-            tokensUnderCapExpandButton.waitAndTap()
+            tokensUnderCapExpandButton.waitAndTapWithScroll()
             return self
         }
     }
