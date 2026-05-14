@@ -122,7 +122,7 @@ private extension StakingModel {
                 case .failure(let error):
                     return .networkError(error)
                 case .loading:
-                    StakingLogger.debug("Invalid loading state")
+                    StakingLogger.warning("Invalid loading state")
                 case .success(let fee):
                     if let state = validate(amount: .zero, fee: fee.amount.value) {
                         return state

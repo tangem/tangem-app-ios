@@ -213,7 +213,7 @@ private extension CommonEthereumPendingTransactionsManager {
                                 return (transaction, statusInfo)
                             } catch {
                                 // Fall back to default network service on error
-                                BSDKLogger.debug("Failed to fetch status with specific provider for \(transaction.hash), error: \(error), switching to default provider")
+                                BSDKLogger.error(error: "Failed to fetch status with specific provider for \(transaction.hash), error: \(error), switching to default provider")
                             }
                         }
                     }
@@ -223,7 +223,7 @@ private extension CommonEthereumPendingTransactionsManager {
                         let statusInfo = try await networkService.getTransactionByHash(transaction.hash).async()
                         return (transaction, statusInfo)
                     } catch {
-                        BSDKLogger.debug("Failed to fetch status for \(transaction.hash): \(error)")
+                        BSDKLogger.error(error: "Failed to fetch status for \(transaction.hash): \(error)")
                         return (transaction, PendingTransactionStatusInfo(provider: networkService.networkProviderType, transaction: nil))
                     }
                 }
@@ -252,16 +252,14 @@ private extension CommonEthereumPendingTransactionsManager {
                 } catch is CancellationError {
                     break
                 } catch {
-                    BSDKLogger.debug(
-                        "Failed to sync pending Ethereum transactions for \(walletAddress): \(error)"
-                    )
+                    BSDKLogger.error(error: "Failed to sync pending Ethereum transactions for \(walletAddress): \(error)")
                 }
                 do {
                     try await Task.sleep(for: .seconds(Constants.transactionCheckInterval))
                 } catch is CancellationError {
                     break
                 } catch {
-                    BSDKLogger.debug("Pending Ethereum transactions polling sleep interrupted: \(error)")
+                    BSDKLogger.error(error: "Pending Ethereum transactions polling sleep interrupted: \(error)")
                 }
             }
         }
