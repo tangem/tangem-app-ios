@@ -28,7 +28,7 @@ final class CommonSwapNotificationManager {
     private let balanceFormatter = BalanceFormatter()
 
     private weak var delegate: NotificationTapDelegate?
-    private var analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
+    private let analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
 
     private var setupCancellable: AnyCancellable?
     private var analyticsServiceCancellable: AnyCancellable?
