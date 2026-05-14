@@ -112,7 +112,7 @@ private extension DEXProviderFlowHelper {
                         .init(provider: provider, policy: request.approvePolicy, data: data, approvalFlow: .approve, fee: fee, quote: quote)
                     )
                 case .revokeAndPermissionRequired(let revoke, let approve):
-                    ExpressLogger.debug("Revoke+approve allowance state for provider: \(provider.id)")
+                    ExpressLogger.info("Revoke+approve allowance state for provider: \(provider.id)")
                     let revokeAndApproveFee = try await expressFeeProvider.revokeAndApproveTransactionFee(revokeData: revoke)
                     return .revokeAndPermissionRequired(
                         .init(provider: provider, policy: request.approvePolicy, data: approve, approvalFlow: .revokeAndApprove(revokeData: revoke, feeUnit: revokeAndApproveFee.unit), fee: revokeAndApproveFee.total, quote: quote)
