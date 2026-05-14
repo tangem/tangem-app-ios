@@ -382,7 +382,10 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        tokenNotificationInputs = notificationManager.notificationInputs
+        runTask(in: self) { viewModel in
+            let tokenNotificationInputs = await viewModel.notificationManager.notificationInputs
+            await MainActor.run { viewModel.tokenNotificationInputs = tokenNotificationInputs }
+        }
         dotsMenuItems = makeDotsMenuItems()
 
         bind()
