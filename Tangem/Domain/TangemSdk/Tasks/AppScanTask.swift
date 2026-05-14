@@ -67,7 +67,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("AppScanTask deinit")
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
