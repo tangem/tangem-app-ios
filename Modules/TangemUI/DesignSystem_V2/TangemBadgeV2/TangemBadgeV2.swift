@@ -10,27 +10,39 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-/// A capsule-shaped, label-centric badge with optional leading/trailing icon slots.
+/// A capsule-shaped, label-centric badge with optional leading/trailing slots.
 ///
 /// Use ``size(_:)`` to pick one of the three discrete sizes (x9 / x6 / x4),
 /// ``variant(_:)`` for tinted / solid / outline, and ``appearance(_:)`` for
-/// neutral / info / error / warning / success. Attach icons via ``slotStart(_:)`` /
-/// ``slotEnd(_:)``. Defaults match the Figma component: size `.x6`, variant `.tinted`,
-/// appearance `.neutral`, both slots empty.
+/// neutral / info / error / warning / success. Defaults match the Figma
+/// component: size `.x6`, variant `.tinted`, appearance `.neutral`, both
+/// slots empty.
+///
+/// Slots accept arbitrary SwiftUI content via the ``slotStart(_:)-(()->_)`` /
+/// ``slotEnd(_:)-(()->_)`` ViewBuilder modifiers. The badge stamps a
+/// `.frame(height:)` matching its size tier on slot content so Dynamic Type
+/// stays consistent; colors, shapes, and styles are the consumer's concern.
+///
+/// For the common case of an `ImageType` icon, the ``slotStart(_:)-(ImageType?)``
+/// / ``slotEnd(_:)-(ImageType?)`` overloads re-apply the template-tint
+/// pipeline so the icon picks up the badge's current `iconColor`.
 ///
 /// ```swift
 /// TangemBadgeV2(label: "Live")
 ///     .appearance(.success)
 ///     .slotStart(DesignSystem.Icons.SignEqual.regular16)
+///
+/// TangemBadgeV2(label: "Loading")
+///     .slotStart { ProgressView().controlSize(.mini) }
 /// ```
-public struct TangemBadgeV2: View, Setupable {
+public struct TangemBadgeV2<SlotStart: View, SlotEnd: View>: View, Setupable {
     private let label: String
+    private let slotStartContent: SlotStart
+    private let slotEndContent: SlotEnd
 
     private var size: Size = .x6
     private var variant: Variant = .tinted
     private var appearance: Appearance = .neutral
-    private var slotStartIcon: ImageType?
-    private var slotEndIcon: ImageType?
     private var accessibilityLabel: String?
 
     @ScaledMetric private var minHeight: CGFloat
@@ -39,21 +51,34 @@ public struct TangemBadgeV2: View, Setupable {
     @ScaledMetric private var outerVerticalPadding: CGFloat
     @ScaledMetric private var labelHorizontalPadding: CGFloat
 
-    public init(label: String, accessibilityLabel: String?) {
+    fileprivate init(
+        label: String,
+        size: Size = .x6,
+        variant: Variant = .tinted,
+        appearance: Appearance = .neutral,
+        accessibilityLabel: String? = nil,
+        slotStart: SlotStart,
+        slotEnd: SlotEnd
+    ) {
         self.label = label
+        self.size = size
+        self.variant = variant
+        self.appearance = appearance
         self.accessibilityLabel = accessibilityLabel
+        slotStartContent = slotStart
+        slotEndContent = slotEnd
 
-        let defaultSize = Size.x6
-        _minHeight = ScaledMetric(wrappedValue: defaultSize.baseMinHeight)
-        _iconSize = ScaledMetric(wrappedValue: defaultSize.baseIconSize)
-        _outerHorizontalPadding = ScaledMetric(wrappedValue: defaultSize.baseOuterHorizontalPadding)
-        _outerVerticalPadding = ScaledMetric(wrappedValue: defaultSize.baseOuterVerticalPadding)
-        _labelHorizontalPadding = ScaledMetric(wrappedValue: defaultSize.baseLabelHorizontalPadding)
+        _minHeight = ScaledMetric(wrappedValue: size.baseMinHeight)
+        _iconSize = ScaledMetric(wrappedValue: size.baseIconSize)
+        _outerHorizontalPadding = ScaledMetric(wrappedValue: size.baseOuterHorizontalPadding)
+        _outerVerticalPadding = ScaledMetric(wrappedValue: size.baseOuterVerticalPadding)
+        _labelHorizontalPadding = ScaledMetric(wrappedValue: size.baseLabelHorizontalPadding)
     }
 
     public var body: some View {
         HStack(spacing: 0) {
-            slotIcon(slotStartIcon)
+            slotStartContent
+                .frame(height: iconSize)
 
             Text(label)
                 .style(size.font, color: textColor)
@@ -61,27 +86,18 @@ public struct TangemBadgeV2: View, Setupable {
                 .truncationMode(.tail)
                 .padding(.horizontal, labelHorizontalPadding)
 
-            slotIcon(slotEndIcon)
+            slotEndContent
+                .frame(height: iconSize)
         }
         .padding(.horizontal, outerHorizontalPadding)
         .padding(.vertical, outerVerticalPadding)
         .frame(minHeight: minHeight)
         .background(backgroundColor, in: Capsule())
         .overlay { borderOverlay }
+        .environment(\.tangemBadgeV2IconColor, iconColor)
+        .accessibilityElement(children: .combine)
         .ifLet(accessibilityLabel) { view, label in
             view.accessibilityLabel(Text(label))
-        }
-    }
-
-    @ViewBuilder
-    private func slotIcon(_ icon: ImageType?) -> some View {
-        if let icon {
-            icon.image
-                .renderingMode(.template)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: iconSize, height: iconSize)
-                .foregroundStyle(iconColor)
         }
     }
 
@@ -93,7 +109,20 @@ public struct TangemBadgeV2: View, Setupable {
     }
 }
 
-// MARK: - Setupable
+// MARK: - Empty-slot Init
+
+public extension TangemBadgeV2 where SlotStart == EmptyView, SlotEnd == EmptyView {
+    init(label: String, accessibilityLabel: String?) {
+        self.init(
+            label: label,
+            accessibilityLabel: accessibilityLabel,
+            slotStart: EmptyView(),
+            slotEnd: EmptyView()
+        )
+    }
+}
+
+// MARK: - Setupable Modifiers
 
 public extension TangemBadgeV2 {
     func size(_ size: Size) -> Self {
@@ -115,88 +144,128 @@ public extension TangemBadgeV2 {
         map { $0.appearance = appearance }
     }
 
-    func slotStart(_ icon: ImageType?) -> Self {
-        map { $0.slotStartIcon = icon }
-    }
-
-    func slotEnd(_ icon: ImageType?) -> Self {
-        map { $0.slotEndIcon = icon }
-    }
-
     func accessibilityLabel(_ label: String?) -> Self {
         map { $0.accessibilityLabel = label }
     }
 }
 
-// MARK: - Public Types
+// MARK: - Slot Transforms
 
 public extension TangemBadgeV2 {
-    enum Size: Sendable, Hashable, CaseIterable {
-        case x9
-        case x6
-        case x4
+    func slotStart<V: View>(@ViewBuilder _ content: () -> V) -> TangemBadgeV2<V, SlotEnd> {
+        TangemBadgeV2<V, SlotEnd>(
+            label: label,
+            size: size,
+            variant: variant,
+            appearance: appearance,
+            accessibilityLabel: accessibilityLabel,
+            slotStart: content(),
+            slotEnd: slotEndContent
+        )
+    }
 
-        var baseMinHeight: CGFloat {
-            switch self {
-            case .x9: DesignSystem.Tokens.Size.s450
-            case .x6: DesignSystem.Tokens.Size.s300
-            case .x4: DesignSystem.Tokens.Size.s200
-            }
-        }
+    func slotEnd<V: View>(@ViewBuilder _ content: () -> V) -> TangemBadgeV2<SlotStart, V> {
+        TangemBadgeV2<SlotStart, V>(
+            label: label,
+            size: size,
+            variant: variant,
+            appearance: appearance,
+            accessibilityLabel: accessibilityLabel,
+            slotStart: slotStartContent,
+            slotEnd: content()
+        )
+    }
 
-        var baseIconSize: CGFloat {
-            switch self {
-            case .x9: DesignSystem.Tokens.Size.s250
-            case .x6: DesignSystem.Tokens.Size.s200
-            case .x4: DesignSystem.Tokens.Size.s150
-            }
-        }
-
-        var baseOuterHorizontalPadding: CGFloat {
-            switch self {
-            case .x9: DesignSystem.Tokens.Spacing.s100
-            case .x6: DesignSystem.Tokens.Spacing.s050
-            case .x4: DesignSystem.Tokens.Spacing.s025
-            }
-        }
-
-        var baseOuterVerticalPadding: CGFloat {
-            switch self {
-            case .x9: DesignSystem.Tokens.Spacing.s100
-            case .x6: DesignSystem.Tokens.Spacing.s050
-            case .x4: DesignSystem.Tokens.Spacing.none
-            }
-        }
-
-        var baseLabelHorizontalPadding: CGFloat {
-            switch self {
-            case .x9: DesignSystem.Tokens.Spacing.s050
-            case .x6: DesignSystem.Tokens.Spacing.s050
-            case .x4: DesignSystem.Tokens.Spacing.s025
-            }
-        }
-
-        var font: TangemTypographyToken {
-            switch self {
-            case .x9: DesignSystem.Tokens.Font.Subheading.medium
-            case .x6, .x4: DesignSystem.Tokens.Font.Caption.medium
+    func slotStart(_ icon: ImageType?) -> TangemBadgeV2<some View, SlotEnd> {
+        slotStart {
+            if let icon {
+                AutoTintedSlotIcon(icon: icon)
             }
         }
     }
 
-    enum Variant: Sendable, Hashable, CaseIterable {
-        case tinted
-        case solid
-        case outline
+    func slotEnd(_ icon: ImageType?) -> TangemBadgeV2<SlotStart, some View> {
+        slotEnd {
+            if let icon {
+                AutoTintedSlotIcon(icon: icon)
+            }
+        }
+    }
+}
+
+// MARK: - Public Type
+
+public enum TangemBadgeV2Size: Sendable, Hashable, CaseIterable {
+    case x9
+    case x6
+    case x4
+
+    var baseMinHeight: CGFloat {
+        switch self {
+        case .x9: DesignSystem.Tokens.Size.s450
+        case .x6: DesignSystem.Tokens.Size.s300
+        case .x4: DesignSystem.Tokens.Size.s200
+        }
     }
 
-    enum Appearance: Sendable, Hashable, CaseIterable {
-        case neutral
-        case info
-        case error
-        case warning
-        case success
+    var baseIconSize: CGFloat {
+        switch self {
+        case .x9: DesignSystem.Tokens.Size.s250
+        case .x6: DesignSystem.Tokens.Size.s200
+        case .x4: DesignSystem.Tokens.Size.s150
+        }
     }
+
+    var baseOuterHorizontalPadding: CGFloat {
+        switch self {
+        case .x9: DesignSystem.Tokens.Spacing.s100
+        case .x6: DesignSystem.Tokens.Spacing.s050
+        case .x4: DesignSystem.Tokens.Spacing.s025
+        }
+    }
+
+    var baseOuterVerticalPadding: CGFloat {
+        switch self {
+        case .x9: DesignSystem.Tokens.Spacing.s100
+        case .x6: DesignSystem.Tokens.Spacing.s050
+        case .x4: DesignSystem.Tokens.Spacing.none
+        }
+    }
+
+    var baseLabelHorizontalPadding: CGFloat {
+        switch self {
+        case .x9: DesignSystem.Tokens.Spacing.s050
+        case .x6: DesignSystem.Tokens.Spacing.s050
+        case .x4: DesignSystem.Tokens.Spacing.s025
+        }
+    }
+
+    var font: TangemTypographyToken {
+        switch self {
+        case .x9: DesignSystem.Tokens.Font.Subheading.medium
+        case .x6, .x4: DesignSystem.Tokens.Font.Caption.medium
+        }
+    }
+}
+
+public enum TangemBadgeV2Variant: Sendable, Hashable, CaseIterable {
+    case tinted
+    case solid
+    case outline
+}
+
+public enum TangemBadgeV2Appearance: Sendable, Hashable, CaseIterable {
+    case neutral
+    case info
+    case error
+    case warning
+    case success
+}
+
+public extension TangemBadgeV2 {
+    typealias Size = TangemBadgeV2Size
+    typealias Variant = TangemBadgeV2Variant
+    typealias Appearance = TangemBadgeV2Appearance
 }
 
 // MARK: - Style Matrix
@@ -259,7 +328,7 @@ private struct AppearancePalette {
     let subtleIcon: Color
 }
 
-private extension TangemBadgeV2.Appearance {
+private extension TangemBadgeV2Appearance {
     var palette: AppearancePalette {
         switch self {
         case .neutral:
@@ -303,5 +372,34 @@ private extension TangemBadgeV2.Appearance {
                 subtleIcon: DesignSystem.Tokens.Theme.Icon.Status.success
             )
         }
+    }
+}
+
+// MARK: - Auto-tinted Slot Icon
+
+private struct AutoTintedSlotIcon: View {
+    let icon: ImageType
+
+    @Environment(\.tangemBadgeV2IconColor) private var iconColor
+
+    var body: some View {
+        icon.image
+            .renderingMode(.template)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundStyle(iconColor)
+    }
+}
+
+// MARK: - Environment
+
+private struct TangemBadgeV2IconColorKey: EnvironmentKey {
+    static let defaultValue: Color = .primary
+}
+
+private extension EnvironmentValues {
+    var tangemBadgeV2IconColor: Color {
+        get { self[TangemBadgeV2IconColorKey.self] }
+        set { self[TangemBadgeV2IconColorKey.self] = newValue }
     }
 }
