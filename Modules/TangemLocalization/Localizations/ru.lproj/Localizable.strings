@@ -247,6 +247,7 @@
 "common_hold_to" = "Удерживайте, чтобы %@";
 "common_import" = "Импортировать";
 "common_in_progress" = "В процессе";
+"common_in" = "в";
 "common_insufficient_balance" = "Недостаточный баланс";
 "common_later" = "Позже";
 "common_learn_and_earn" = "Учись и зарабатывай";
@@ -324,6 +325,7 @@
 "common_to" = "На";
 "common_today" = "Сегодня";
 "common_token_send" = "Токен к отправке";
+"common_token" = "Токен";
 "common_transaction_failed" = "Ошибка транзакции";
 "common_transaction_status" = "Статус транзакции";
 "common_transactions" = "Транзакции";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Популярные";
 "earn_no_results" = "Нет результата";
 "earn_title" = "Доступные активы";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Привет, команда поддержки, у меня возникла ошибка с кодом: %@";
 "email_subject_wc_error" = "Ошибка WalletConnect";
 "error_wrong_wallet_tapped" = "Вы использовали карту или кольцо от другого кошелька. Приложите карту или кольцо, связанную с этим кошельком.";
@@ -985,6 +990,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Неизвестные параметры";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Поделиться адресом или QR кодом";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1209,6 +1216,7 @@
 "staking_details_warmup_period_info" = "Время, необходимое для начала процесса стейкинга и активации процесса начисления наград";
 "staking_details_warmup_period" = "Период прогрева";
 "staking_dismiss_message" = "Вы действительно хотите закрыть окно стейкинга?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "В данный момент нет доступных валидаторов. Попробуйте позже.";
 "staking_error_no_validators_title" = "Стейкинг недоступен";
 "staking_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для стейкинга.";
@@ -1316,12 +1324,14 @@
 "sui_not_enough_coin_for_fee_description" = "Для отправки требуется входящая транзакция на сумму не менее %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостаточно средств";
 "swap_approve_description" = "Подтверждая, вы разрешаете смарт-контракту использовать ваши токены в будущих транзакциях.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Фиксированный курс";
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Найдите любой токен, даже если его ещё нет в вашем списке";
 "swap_search_tooltip_title" = "Используйте поиск, чтобы найти то, что вам нужно.";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Чувствуйте уверенность с круглосуточной поддержкой, готовой помочь в любой ситуации!";
 "swap_story_fifth_title" = "Круглосуточная поддержка";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1368,6 +1378,8 @@
 "swapping_token_not_available" = "недоступен";
 "swapping_trade_too_large_text" = "Недостаточно ликвидности для этой сделки.\nУменьшите сумму или выберите другого провайдера.";
 "swapping_trade_too_large_title" = "Сумма сделки слишком велика";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "Будем рады вашей обратной связи";
 "tangem_pay_beta_notification_title" = "Tangem Pay в режиме beta";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1444,6 +1456,7 @@
 "tangempay_card_details_reissue_card" = "Перевыпустить карту";
 "tangempay_card_details_rename_card_invalid_description" = "Можно вводить только буквы и цифры";
 "tangempay_card_details_rename_card_invalid_title" = "Недопустимые символы";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Показать";
 "tangempay_card_details_show_details" = "Реквизиты";
 "tangempay_card_details_swap_description" = "Пополните карту любым активом через обмен ";
@@ -1456,6 +1469,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Вы не можете начать обмен или новый вывод, пока не завершится текущий.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вывод выполняется";
 "tangempay_card_details_withdraw" = "Вывести";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Можно установить от %@";
 "tangempay_card_limit_setup_error_message" = "Не удалось установить лимит. Пожалуйста, попробуйте снова.";
 "tangempay_card_page_daily_limit_change" = "Изменить";
@@ -1480,8 +1494,14 @@
 "tangempay_get_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_get_tangem_pay" = "Получить Tangem Pay";
 "tangempay_go_to_support" = "Написать в поддержку";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Обычно это занимает до 15 минут";
 "tangempay_issue_card_notification_title" = "Готовим вашу Tangem Card";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "Обычно это занимает не больше 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_issuing_your_card" = "Выпускаем карту";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1498,6 +1518,8 @@
 "tangempay_kyc_rejected_description_span" = "ваш профиль.";
 "tangempay_kyc_rejected_description" = "Извините, мы не смогли подтвердить";
 "tangempay_kyc_rejected" = "Отклонено";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_onboarding_banner_title" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_onboarding_get_card_button_text" = "Открыть карту";
@@ -1507,6 +1529,8 @@
 "tangempay_onboarding_purchases_title" = "Сколько видишь – столько платишь";
 "tangempay_onboarding_security_description" = "Мы создадим отдельный платежный счет без раскрытия ваших активов \nи их адресов";
 "tangempay_onboarding_security_title" = "Абсолютная приватность";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Откройте виртуальную \nTangem Pay Card";
 "tangempay_pay_support" = "Поддержка Pay";
 "tangempay_payment_account_sync_needed" = "Платежный аккаунт не синхронизирован";
@@ -1556,7 +1580,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Общий баланс";
 "token_details_choose_address" = "Выберите адрес";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Сгенерировать XPUB";
 "token_details_hide_alert_hide" = "Скрыть";
 "token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
@@ -1589,7 +1613,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "У вас еще нет транзакций";
 "transaction_history_error_failed_to_load" = "Не удалось загрузить историю транзакций.\nНажмите на кнопку перезагрузки, чтобы обновить информацию.";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Несколько адресов";
 "transaction_history_not_supported_description" = "История транзакций в настоящее время не поддерживается для этого блокчейна. Но не волнуйтесь, мы работаем над этим! А пока вы можете проверить ее в обозревателе.";
 "transaction_history_operation" = "Операция";
