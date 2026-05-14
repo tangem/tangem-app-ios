@@ -23,7 +23,6 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaScaledUIEnabled
     case dynamicAddresses
     case usdtRevokeGaslessFee
-    case newPromotionBanners
     case swapPipelineV2
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
@@ -52,7 +51,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
-        case .newPromotionBanners: return "New Promotion Banners"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .xrplTransactionHistory: return "XRPL Transaction History"
@@ -83,7 +81,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
-        case .newPromotionBanners: return .version("5.37")
         case .swapPipelineV2: return .version("5.38")
         case .swapStoriesV2: return .version("5.38")
         case .xrplTransactionHistory: return .unspecified
