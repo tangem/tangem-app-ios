@@ -133,9 +133,9 @@ extension BitcoinWalletManager: XPUBWalletManagerUpdater, MultipleXPUBWalletMana
     }
 
     private func updateWallet(with responses: [UTXOXpubNetworkProviderUpdatingResponse]) throws {
-        let usedAddresses = responses
-            .flatMap(\.info.addresses)
-            .map(\.usedAddress)
+        let usedAddressesFromInfo = responses.flatMap(\.info.addresses).map(\.usedAddress)
+        let usedAddressesFromOutputs = responses.flatMap(\.outputs.keys)
+        let usedAddresses = (usedAddressesFromInfo + usedAddressesFromOutputs).unique()
 
         wallet.update(usedAddresses: usedAddresses)
 
