@@ -238,7 +238,7 @@
             ]
           },
           "$type": "lineHeights",
-          "$value": "17"
+          "$value": "18"
         }
       },
       "weight": {
@@ -266,7 +266,7 @@
       "lineSpacing": {
         "medium": {
           "$type": "lineSpacing",
-          "$value": "0"
+          "$value": "1"
         }
       },
       "tracking": {
