@@ -24,7 +24,7 @@ final class NewsDetailsViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let newsId: Int
-    private let dateFormatter: NewsDateFormatter
+    private let dateFormatter: RelativeDateFormatter
     private weak var coordinator: NewsDetailsRoutable?
 
     private var taskCancellable: AnyCancellable?
@@ -33,7 +33,7 @@ final class NewsDetailsViewModel: ObservableObject {
 
     init(
         newsId: Int,
-        dateFormatter: NewsDateFormatter = NewsDateFormatter(),
+        dateFormatter: RelativeDateFormatter = .shared,
         coordinator: NewsDetailsRoutable? = nil
     ) {
         self.newsId = newsId
@@ -124,7 +124,7 @@ extension NewsDetailsViewModel {
         let newsUrl: String
         let sources: [Source]
 
-        init(from response: NewsDTO.Details.Response, dateFormatter: NewsDateFormatter) {
+        init(from response: NewsDTO.Details.Response, dateFormatter: RelativeDateFormatter) {
             id = response.id
             title = response.title
             score = String(format: "%.1f", response.score)
@@ -204,7 +204,7 @@ extension NewsDetailsViewModel {
         let url: URL?
         let imageUrl: URL?
 
-        init(from article: NewsDTO.Details.RelatedArticle, dateFormatter: NewsDateFormatter) {
+        init(from article: NewsDTO.Details.RelatedArticle, dateFormatter: RelativeDateFormatter) {
             id = article.id
             title = article.title ?? ""
             sourceName = article.sourceName ?? ""
