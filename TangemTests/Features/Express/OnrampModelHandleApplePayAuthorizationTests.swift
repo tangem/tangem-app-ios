@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import PassKit
 import Testing
+import TangemFoundation
 @testable import Tangem
 @testable import TangemExpress
 @testable import BlockchainSdk
@@ -132,56 +133,56 @@ private enum RecordedEvent: Equatable {
 }
 
 private final class EventLog: @unchecked Sendable {
-    private let lock = NSLock()
+    private let criticalSection = OSAllocatedUnfairLock()
     private var _events: [RecordedEvent] = []
 
     func append(_ event: RecordedEvent) {
-        lock.lock()
-        _events.append(event)
-        lock.unlock()
+        criticalSection { _events.append(event) }
     }
 
     var events: [RecordedEvent] {
-        lock.lock()
-        defer { lock.unlock() }
-        return _events
+        criticalSection { _events }
     }
 }
 
 // MARK: - ResultHandlerRecorder
 
 private final class ResultHandlerRecorder: @unchecked Sendable {
-    private let lock = NSLock()
+    private let criticalSection = OSAllocatedUnfairLock()
     private let eventLog: EventLog
     private var _callCount: Int = 0
     private var _lastStatus: PKPaymentAuthorizationStatus?
     private var _lastErrors: [Error] = []
-    var onFirstCall: (() -> Void)?
+    private var _onFirstCall: (() -> Void)?
 
     init(eventLog: EventLog) {
         self.eventLog = eventLog
     }
 
+    var onFirstCall: (() -> Void)? {
+        get { criticalSection { _onFirstCall } }
+        set { criticalSection { _onFirstCall = newValue } }
+    }
+
     func record(_ result: PKPaymentAuthorizationResult) {
         eventLog.append(.resultHandler)
-        lock.lock()
-        _callCount += 1
-        _lastStatus = result.status
-        _lastErrors = result.errors
-        let isFirst = _callCount == 1
-        let onFirst = onFirstCall
-        lock.unlock()
-        if isFirst { onFirst?() }
+        let onFirst: (() -> Void)? = criticalSection {
+            _callCount += 1
+            _lastStatus = result.status
+            _lastErrors = result.errors
+            return _callCount == 1 ? _onFirstCall : nil
+        }
+        onFirst?()
     }
 
     var snapshot: ResultOutcome {
-        lock.lock()
-        defer { lock.unlock() }
-        return ResultOutcome(
-            callCount: _callCount,
-            lastStatus: _lastStatus,
-            lastErrors: _lastErrors
-        )
+        criticalSection {
+            ResultOutcome(
+                callCount: _callCount,
+                lastStatus: _lastStatus,
+                lastErrors: _lastErrors
+            )
+        }
     }
 }
 

@@ -247,7 +247,7 @@ private extension CommonExpressManager {
 
         let eligible = eligibleProviders(from: providers)
 
-        guard !eligible.isEmpty else {
+        guard eligible.isNotEmpty else {
             return nil
         }
 
@@ -282,8 +282,17 @@ private extension CommonExpressManager {
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
         let candidates = candidateProviders
 
+        defer { updateIsBestFlag() }
+
         let providers = candidates.map { $0.provider.name }.joined(separator: ", ")
         ExpressLogger.info(self, "Start a parallel updating in providers: \(providers) with request \(request)")
+
+        guard candidates.isNotEmpty else {
+            return
+        }
+
+        let tracker = ExpressQuotesLoadingPerformanceTracker.started(providersCount: candidates.count)
+        let request = request.with(quotesLoadingPerformanceTracker: tracker)
 
         // Run a parallel asynchronous tasks
         await withTaskGroup(of: Void.self) { taskGroup in
@@ -294,9 +303,6 @@ private extension CommonExpressManager {
                 }
             }
         }
-
-        // Update "isBest" flag after each provider's state updating
-        updateIsBestFlag()
     }
 
     func makeRequest(for provider: ExpressAvailableProvider? = nil) throws -> ExpressManagerSwappingPairRequest {
