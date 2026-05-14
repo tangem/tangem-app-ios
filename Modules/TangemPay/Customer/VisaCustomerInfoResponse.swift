@@ -39,7 +39,7 @@ public extension VisaCustomerInfoResponse {
         public let paymentAccountId: String
         public let displayName: String
         public let adminCardLimit: CardLimit
-        public let actualCardLimit: CardLimit
+        public let actualCardLimit: CardLimit?
     }
 
     enum ProductStatus: String, Decodable {
