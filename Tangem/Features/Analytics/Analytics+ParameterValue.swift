@@ -91,6 +91,8 @@ extension Analytics {
         case transactionFeeMax = "Max"
         case custom = "Custom"
 
+        case coin = "Coin"
+
         case signInTypeBiometrics = "Biometric"
 
         case walletCreationTypePrivateKey = "Private Key"
@@ -331,6 +333,10 @@ extension Analytics {
 
         static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
             return boolean ? .enabled : .disabled
+        }
+
+        static func feeAssetType(isGasless: Bool) -> ParameterValue {
+            return isGasless ? .token : .coin
         }
     }
 }
