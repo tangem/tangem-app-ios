@@ -48,17 +48,17 @@ final class TangemPayAccount {
             .eraseToAnyPublisher()
     }
 
-    var cardLimit: Int {
-        customerInfoSubject.value.productInstance.actualCardLimit.amount
+    var cardLimit: Int? {
+        customerInfoSubject.value.productInstance.actualCardLimit?.amount
     }
 
     var adminCardLimit: Int {
         customerInfoSubject.value.productInstance.adminCardLimit.amount
     }
 
-    var cardLimitPublisher: AnyPublisher<Int, Never> {
+    var cardLimitPublisher: AnyPublisher<Int?, Never> {
         customerInfoSubject
-            .map(\.productInstance.actualCardLimit.amount)
+            .map { $0.productInstance.actualCardLimit?.amount }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
