@@ -90,7 +90,7 @@ extension Analytics {
         case transactionFeeNormal = "Normal"
         case transactionFeeMax = "Max"
         case custom = "Custom"
-        
+
         case coin = "Coin"
 
         case signInTypeBiometrics = "Biometric"
