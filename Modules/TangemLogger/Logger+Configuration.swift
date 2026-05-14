@@ -12,15 +12,18 @@ import Foundation
 
 public extension Logger {
     protocol Configuration {
-        func isLoggable() -> Bool
-        func isWritable() -> Bool
+        /// Write to console.
+        func shouldLogMessage(with logLevel: Logger.Level) -> Bool
+
+        /// Write to log file.
+        func shouldWriteMessage(with logLevel: Logger.Level) -> Bool
     }
 
     struct DefaultConfiguration: Configuration {
         public init() {}
 
-        public func isLoggable() -> Bool { false }
-        public func isWritable() -> Bool { false }
+        public func shouldLogMessage(with logLevel: Logger.Level) -> Bool { false }
+        public func shouldWriteMessage(with logLevel: Logger.Level) -> Bool { false }
     }
 }
 

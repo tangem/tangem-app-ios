@@ -164,7 +164,7 @@ final class AppSettings {
     private init() {}
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("AppSettings deinit")
     }
 }
 
