@@ -15,6 +15,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "TangemAnalyticsTests",
+        "name" : "TangemAnalyticsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "TangemFoundationTests",
         "name" : "TangemFoundationTests"
       }

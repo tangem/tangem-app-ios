@@ -39,7 +39,7 @@ enum TwinOnboardingScreenElement: String, UIElement {
         case .continueButton:
             "Continue"
         case .titleText:
-            "One wallet. Two cards."
+            OnboardingAccessibilityIdentifiers.title
         }
     }
 }
