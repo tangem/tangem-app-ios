@@ -261,7 +261,7 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
+        if !userWalletModel.userTokensPushNotificationsManager.isNotInitialized {
             pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
                 userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
                 coordinator: coordinator,
