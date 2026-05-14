@@ -21,7 +21,6 @@ import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
-    @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
@@ -74,7 +73,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     private weak var coordinator: (any TokenDetailsRoutable)?
-    private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
@@ -87,7 +85,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
@@ -96,7 +93,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         pendingTransactionDetails: PendingTransactionDetails?
     ) {
         self.coordinator = coordinator
-        self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
@@ -116,7 +112,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         actionsViewModel?.setRoutable(self)
 
         notificationManager.setupManager(with: self)
-        bannerNotificationManager?.setupManager(with: self)
 
         prepareSelf()
     }
@@ -450,12 +445,6 @@ private extension TokenDetailsViewModel {
                 }
                 .store(in: &bag)
         }
-
-        bannerNotificationManager?.notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
 
         walletModel.stakingManagerStatePublisher
             .receive(on: DispatchQueue.main)
