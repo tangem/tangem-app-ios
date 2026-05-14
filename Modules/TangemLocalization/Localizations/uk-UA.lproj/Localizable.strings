@@ -247,6 +247,7 @@
 "common_hold_to" = "Утримуйте, щоб %@";
 "common_import" = "Імпортувати";
 "common_in_progress" = "В процесі";
+"common_in" = "у";
 "common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Пізніше";
 "common_learn_and_earn" = "Навчайся та заробляй";
@@ -324,6 +325,7 @@
 "common_to" = "До";
 "common_today" = "Сьогодні";
 "common_token_send" = "Token to send";
+"common_token" = "Токен";
 "common_transaction_failed" = "Помилка транзакції";
 "common_transaction_status" = "Статус транзакції";
 "common_transactions" = "Транзакції";
@@ -433,6 +435,9 @@
 "earn_mostly_used" = "Часто використовані";
 "earn_no_results" = "Немає результатів";
 "earn_title" = "Заробляйте";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
@@ -985,6 +990,8 @@
 "qr_scanner_warning_unknown_parameters_title" = "Невідомі параметри";
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
+"quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
 "quick_top_up_title" = "Quick top up";
@@ -1209,6 +1216,7 @@
 "staking_details_warmup_period_info" = "Відведений час для активації участі в стейкінгу.";
 "staking_details_warmup_period" = "Період блокування";
 "staking_dismiss_message" = "Ви впевнені, що хочете закрити вікно стейкінгу?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
@@ -1316,12 +1324,14 @@
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
+"swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Фіксований курс";
 "swap_give_permission_fee_footer" = "Мережа стягує комісію за схвалення токену за підтвердження, що саме ви дозволяєте використовувати ваш токен для обміну.";
 "swap_in_progress" = "Swap in progress";
 "swap_search_suggestion_hint" = "Шукаєте щось інше?\nСпробуйте пошукати або перегляньте інші криптовалюти!";
 "swap_search_tooltip_description" = "Шукайте будь-який токен, навіть якщо його ще немає у вашому списку.";
 "swap_search_tooltip_title" = "Використовуйте пошук, щоб знайти потрібне";
+"swap_simple_mode" = "Simple mode";
 "swap_story_fifth_subtitle" = "Надійна підтримка 24/7, щоб ваші фінансові операції були швидкими та надійними!";
 "swap_story_fifth_title" = "Цілодобова підтримка";
 "swap_story_first_subtitle_v2" = "Exchange crypto directly in Tangem\nNo additional transfers\nNo moving funds to exchanges";
@@ -1368,6 +1378,8 @@
 "swapping_token_not_available" = "недоступно";
 "swapping_trade_too_large_text" = "Not enough liquidity for this trade.\nReduce the amount or choose another provider.";
 "swapping_trade_too_large_title" = "Trade too large";
+"swapping_transfer_action_in_progress" = "Transfer...";
+"swapping_transfer_action" = "Transfer";
 "tangem_pay_beta_notification_subtitle" = "Будемо раді вашому зворотньому звʼязку";
 "tangem_pay_beta_notification_title" = "Tangem Pay у режимі beta";
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
@@ -1444,6 +1456,7 @@
 "tangempay_card_details_reissue_card" = "Перевипустити картку";
 "tangempay_card_details_rename_card_invalid_description" = "Дозволені лише літери та цифри";
 "tangempay_card_details_rename_card_invalid_title" = "Неприпустимі символи";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Показати";
 "tangempay_card_details_show_details" = "Показати деталі";
 "tangempay_card_details_swap_description" = "Обміняйте будь-який актив у вашому портфелі на картку";
@@ -1456,6 +1469,7 @@
 "tangempay_card_details_withdraw_in_progress_description" = "Ви не можете розпочати обмін або новий вивід, поки не завершено поточний.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вивід виконується";
 "tangempay_card_details_withdraw" = "Вивести";
+"tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Встановити ліміт від %@";
 "tangempay_card_limit_setup_error_message" = "Не вдалося встановити ліміт. Будь ласка, спробуйте ще раз.";
 "tangempay_card_page_daily_limit_change" = "Змінити";
@@ -1480,8 +1494,14 @@
 "tangempay_get_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
 "tangempay_get_tangem_pay" = "Отримати Tangem Pay";
 "tangempay_go_to_support" = "Написати у підтримку";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Зазвичай це займає до 15 хвилин";
 "tangempay_issue_card_notification_title" = "Готуємо вашу картку Tangem";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "Карту зазвичай випускають автоматично протягом 5 хвилин. У рідкісних випадках, коли потрібна ручна перевірка, процес може тривати до 48 годин.";
 "tangempay_issuing_your_card" = "Випускаємо картку";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1498,6 +1518,8 @@
 "tangempay_kyc_rejected_description_span" = "вашу особу.";
 "tangempay_kyc_rejected_description" = "Вибачте, ми не змогли підтвердити";
 "tangempay_kyc_rejected" = "Відхилено";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
 "tangempay_onboarding_banner_title" = "Використовуйте USDC для щоденних платежів";
 "tangempay_onboarding_get_card_button_text" = "Отримати картку";
@@ -1507,6 +1529,8 @@
 "tangempay_onboarding_purchases_title" = "Платіть стільки, скільки бачите";
 "tangempay_onboarding_security_description" = "Буде створено окремий платіжний рахунок без розкриття ваших адрес та активів";
 "tangempay_onboarding_security_title" = "Неперевершена конфіденційність";
+"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
+"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Отримайте безкоштовну картку Tangem Pay за лічені хвилини";
 "tangempay_pay_support" = "Pay Support";
 "tangempay_payment_account_sync_needed" = "Платіжний рахунок не синхронізовано";
@@ -1556,7 +1580,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Оберіть адресу";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Згенерувати XPUB";
 "token_details_hide_alert_hide" = "Приховати";
 "token_details_hide_alert_message" = "Ви збираєтеся приховати цей токен з головного екрану. Ви можете додати його назад будь-коли на сторінці керування токенами.";
@@ -1589,7 +1613,7 @@
 "transaction_history_earned_from_stake" = "Earned from stake";
 "transaction_history_empty_transactions" = "У вас ще немає транзакцій";
 "transaction_history_error_failed_to_load" = "Не вдалося завантажити історію транзакцій.\nНатисніть кнопку нижче, щоб оновити інформацію";
-"transaction_history_from_inline_address" = "from: %%image%% %1$@";
+"transaction_history_from_inline_address" = "from: %%image%% %@";
 "transaction_history_multiple_addresses" = "Кілька адрес";
 "transaction_history_not_supported_description" = "Історія транзакцій наразі не підтримується для цього блокчейну. Але не хвилюйтеся, ми працюємо над цим! А поки можете перевірити це в оглядачі.";
 "transaction_history_operation" = "Операція";
