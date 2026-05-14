@@ -30,7 +30,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
         switch suggestedOfferType {
         case .great: .great
         case .fastest: .fastest
-        case .recent, .plain: .text(Localization.onrampTitleYouGet)
+        case .recent, .plain, .nativeApplePay: .text(Localization.onrampTitleYouGet)
         }
     }
 
