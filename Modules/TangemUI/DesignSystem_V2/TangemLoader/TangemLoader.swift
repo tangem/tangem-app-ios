@@ -36,9 +36,14 @@ public struct TangemLoader: View {
             .renderingMode(.template)
             .foregroundStyle(color)
             .rotationEffect(.degrees(isRotating ? 360 : 0))
-            .animation(.linear(duration: 0.8).repeatForever(autoreverses: false), value: isRotating)
             .task {
-                isRotating = true
+                isRotating = false
+                withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: false)) {
+                    isRotating = true
+                }
+            }
+            .onDisappear {
+                isRotating = false
             }
     }
 }
