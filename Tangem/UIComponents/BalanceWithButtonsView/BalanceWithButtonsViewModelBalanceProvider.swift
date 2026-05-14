@@ -8,6 +8,7 @@
 
 import Combine
 
+// [REDACTED_INFO]: Delete when redesign toggle is removed
 protocol BalanceWithButtonsViewModelBalanceProvider: AnyObject {
     var totalCryptoBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var totalFiatBalancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
