@@ -10,12 +10,7 @@ import Foundation
 import Combine
 
 protocol UserTokensPushNotificationsService: AnyObject {
-    var entries: [ApplicationWalletEntry] { get }
-    var entriesPublisher: AnyPublisher<[ApplicationWalletEntry], Never> { get }
-
     func initialize()
-
-    func updateWallet(notifyStatus: Bool, by userWalletId: String)
 }
 
 private struct UserTokensPushNotificationsServiceKey: InjectionKey {
