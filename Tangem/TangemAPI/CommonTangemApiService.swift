@@ -223,10 +223,6 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func promotion(request requestModel: BannerPromotion.Request) async throws -> BannerPromotion.Response {
-        try await request(for: .promotion(request: requestModel), decoder: decoder)
-    }
-
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
         let target = TangemApiTarget(type: .activatePromoCode(requestModel: model))
 

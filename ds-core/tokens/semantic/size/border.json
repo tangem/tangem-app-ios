@@ -1,0 +1,189 @@
+{
+  "border-radius": {
+    "100": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b100",
+          "iOS": "DesignSystem.Tokens.CornerRadius.100"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.100}"
+    },
+    "150": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b150",
+          "iOS": "DesignSystem.Tokens.CornerRadius.150"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.150}"
+    },
+    "200": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b200",
+          "iOS": "DesignSystem.Tokens.CornerRadius.200"
+        }
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.200}"
+    },
+    "250": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b250",
+          "iOS": "DesignSystem.Tokens.CornerRadius.250"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.250}"
+    },
+    "300": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b300",
+          "iOS": "DesignSystem.Tokens.CornerRadius.300"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.300}"
+    },
+    "400": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b400",
+          "iOS": "DesignSystem.Tokens.CornerRadius.400"
+        }
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.400}"
+    },
+    "none": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.none",
+          "iOS": "DesignSystem.Tokens.CornerRadius.none"
+        }
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.0}"
+    },
+    "075": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b075",
+          "iOS": "DesignSystem.Tokens.CornerRadius.075"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.075}"
+    },
+    "050": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.b050",
+          "iOS": "DesignSystem.Tokens.CornerRadius.050"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "{dimension.050}"
+    },
+    "full": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderRadius.full",
+          "iOS": "DesignSystem.Tokens.CornerRadius.full"
+        },
+        "com.figma.scopes": [
+          "CORNER_RADIUS"
+        ]
+      },
+      "$type": "borderRadius",
+      "$value": "999px"
+    }
+  },
+  "border-width": {
+    "none": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderWidth.none",
+          "iOS": "DesignSystem.Tokens.BorderWidth.none"
+        }
+      },
+      "$type": "borderWidth",
+      "$value": "{dimension.0}"
+    },
+    "xs": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderWidth.xs",
+          "iOS": "DesignSystem.Tokens.BorderWidth.xs"
+        },
+        "com.figma.scopes": [
+          "STROKE_FLOAT"
+        ]
+      },
+      "$type": "borderWidth",
+      "$value": "0.5px"
+    },
+    "sm": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderWidth.sm",
+          "iOS": "DesignSystem.Tokens.BorderWidth.sm"
+        },
+        "com.figma.scopes": [
+          "STROKE_FLOAT"
+        ]
+      },
+      "$type": "borderWidth",
+      "$value": "{dimension.0125}"
+    },
+    "md": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderWidth.md",
+          "iOS": "DesignSystem.Tokens.BorderWidth.md"
+        },
+        "com.figma.scopes": [
+          "STROKE_FLOAT"
+        ]
+      },
+      "$type": "borderWidth",
+      "$value": "{dimension.025}"
+    },
+    "lg": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.borderWidth.lg",
+          "iOS": "DesignSystem.Tokens.BorderWidth.lg"
+        },
+        "com.figma.scopes": [
+          "STROKE_FLOAT"
+        ]
+      },
+      "$type": "borderWidth",
+      "$value": "{dimension.050}"
+    }
+  }
+}

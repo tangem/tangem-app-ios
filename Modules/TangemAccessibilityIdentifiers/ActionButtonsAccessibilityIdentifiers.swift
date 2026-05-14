@@ -19,6 +19,8 @@ public enum ActionButtonsAccessibilityIdentifiers {
     public static let swapButtonBadge = "\(prefix)SwapBadge"
     public static let sellButton = "\(prefix)Sell"
     public static let analyticsButton = "\(prefix)Analytics"
+    public static let addFundsButton = "\(prefix)AddFunds"
+    public static let transferButton = "\(prefix)Transfer"
 
     /// Toast notifications
     public static let addressCopiedToast = "\(prefix)AddressCopiedToast"

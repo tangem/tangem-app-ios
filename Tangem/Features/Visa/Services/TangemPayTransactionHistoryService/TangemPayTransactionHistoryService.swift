@@ -16,6 +16,8 @@ typealias TangemPayTransactionRecord = TangemPayTransactionHistoryResponse.Trans
 
 final class TangemPayTransactionHistoryService {
     private let apiService: CustomerInfoManagementService
+    private let cacheStorage: TangemPayTransactionHistoryCacheStorage?
+    private let customerWalletId: String?
     private let mapper = TangemPayTransactionHistoryMapper()
 
     private let stateSubject = CurrentValueSubject<TransactionsListView.State, Never>(.loading)
@@ -27,8 +29,33 @@ final class TangemPayTransactionHistoryService {
     @MainActor
     private(set) var records: [TangemPayTransactionRecord] = []
 
-    init(apiService: CustomerInfoManagementService) {
+    init(
+        apiService: CustomerInfoManagementService,
+        cacheStorage: TangemPayTransactionHistoryCacheStorage? = nil,
+        customerWalletId: String? = nil
+    ) {
         self.apiService = apiService
+        self.cacheStorage = cacheStorage
+        self.customerWalletId = customerWalletId
+
+        if let cached = loadCachedRecords(), !cached.isEmpty {
+            Task { @MainActor [weak self] in
+                guard let self, records.isEmpty else { return }
+                records = cached
+                stateSubject.send(.loaded(mapper.formatTransactions(records)))
+            }
+        }
+    }
+
+    private func loadCachedRecords() -> [TangemPayTransactionRecord]? {
+        guard let cacheStorage, let customerWalletId else { return nil }
+        return cacheStorage.cachedTransactions(customerWalletId: customerWalletId)
+    }
+
+    @MainActor
+    private func storeCacheIfPossible() {
+        guard let cacheStorage, let customerWalletId, !records.isEmpty else { return }
+        cacheStorage.saveCachedTransactions(records, customerWalletId: customerWalletId)
     }
 }
 
@@ -68,8 +95,11 @@ extension TangemPayTransactionHistoryService {
                         reachedEndOfHistoryList = newRecords.count != Constants.numberOfItemsOnPage
 
                         stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                        storeCacheIfPossible()
                     } catch {
-                        stateSubject.send(.error(error))
+                        if records.isEmpty {
+                            stateSubject.send(.error(error))
+                        }
                     }
                 }
             }
@@ -98,8 +128,11 @@ extension TangemPayTransactionHistoryService {
                 }
 
                 stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                storeCacheIfPossible()
             } catch {
-                stateSubject.send(.error(error))
+                if records.isEmpty {
+                    stateSubject.send(.error(error))
+                }
             }
         }
     }
