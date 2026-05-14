@@ -84,15 +84,15 @@ public extension VisaRefreshTokenRepository {
 /// Implementations must ensure safe token lifecycle handling and validity checking.
 public protocol VisaAuthorizationTokensHandler {
     // [REDACTED_TODO_COMMENT]
-    var accessToken: JWT? { get }
-    var accessTokenExpired: Bool { get }
-    var refreshTokenExpired: Bool { get }
-    var containsAccessToken: Bool { get }
-    var authorizationHeader: String? { get }
-    var authorizationTokens: VisaAuthorizationTokens? { get }
+    var accessToken: JWT? { get async }
+    var accessTokenExpired: Bool { get async }
+    var refreshTokenExpired: Bool { get async }
+    var containsAccessToken: Bool { get async }
+    var authorizationHeader: String? { get async }
+    var authorizationTokens: VisaAuthorizationTokens? { get async }
     func setupTokens(_ tokens: VisaAuthorizationTokens) async throws
     func forceRefreshToken() async throws
-    func exchageTokens() async throws
+    func exchangeTokens() async throws
     func setupRefreshTokenSaver(_ refreshTokenSaver: VisaRefreshTokenSaver)
 }
 
@@ -141,7 +141,7 @@ final class CommonVisaAuthorizationTokensHandler {
         scheduler.cancel()
         refresherTask = Task { [weak self] in
             do {
-                guard let tokens = self?.authorizationTokensHolder.tokensInfo else {
+                guard let tokens = await self?.authorizationTokensHolder.tokensInfo else {
                     VisaLogger.info("Can't setup authorization tokens refresh task, missing authorization tokens in holder")
                     return
                 }
@@ -199,7 +199,7 @@ final class CommonVisaAuthorizationTokensHandler {
         let tokenRefreshTimeInterval = tokenLifeTime - minSecondsBeforeExpiration
         VisaLogger.info("Scheduling token refresh each: \(tokenRefreshTimeInterval) seconds.")
         scheduler.scheduleJob(interval: tokenRefreshTimeInterval, repeats: true) { [weak self] in
-            guard let tokens = self?.authorizationTokensHolder.tokensInfo else {
+            guard let tokens = await self?.authorizationTokensHolder.tokensInfo else {
                 VisaLogger.info("Failed to find access token. Canceling scheduled refresh job.")
                 self?.scheduler.cancel()
                 return
@@ -275,7 +275,7 @@ final class CommonVisaAuthorizationTokensHandler {
     }
 
     private func saveTokens(authTokens: InternalAuthorizationTokens) async throws {
-        try await authorizationTokensHolder.setTokens(authorizationTokens: authTokens)
+        await authorizationTokensHolder.setTokens(authorizationTokens: authTokens)
 
         switch authTokens.bffTokens.authorizationType {
         case .cardWallet, .customerWallet:
@@ -289,28 +289,48 @@ final class CommonVisaAuthorizationTokensHandler {
 }
 
 extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
-    var accessToken: JWT? { authorizationTokensHolder.tokensInfo?.jwtTokens.accessToken }
+    var accessToken: JWT? {
+        get async {
+            await authorizationTokensHolder.tokensInfo?.jwtTokens.accessToken
+        }
+    }
 
-    var accessTokenExpired: Bool { authorizationTokensHolder.tokensInfo?.jwtTokens.accessToken?.expired ?? true }
+    var accessTokenExpired: Bool {
+        get async {
+            await authorizationTokensHolder.tokensInfo?.jwtTokens.accessToken?.expired ?? true
+        }
+    }
 
-    var refreshTokenExpired: Bool { authorizationTokensHolder.tokensInfo?.jwtTokens.refreshToken.expired ?? true }
+    var refreshTokenExpired: Bool {
+        get async {
+            await authorizationTokensHolder.tokensInfo?.jwtTokens.refreshToken.expired ?? true
+        }
+    }
 
-    var containsAccessToken: Bool { authorizationTokensHolder.tokensInfo != nil }
+    var containsAccessToken: Bool {
+        get async {
+            await authorizationTokensHolder.tokensInfo != nil
+        }
+    }
 
     var authorizationHeader: String? {
-        do {
-            guard let tokens = authorizationTokensHolder.tokensInfo else {
-                throw VisaAuthorizationTokensHandlerError.missingAccessToken
-            }
+        get async {
+            do {
+                guard let tokens = await authorizationTokensHolder.tokensInfo else {
+                    throw VisaAuthorizationTokensHandlerError.missingAccessToken
+                }
 
-            return try AuthorizationTokensUtility().getAuthorizationHeader(from: tokens.jwtTokens)
-        } catch {
-            return nil
+                return try AuthorizationTokensUtility().getAuthorizationHeader(from: tokens.jwtTokens)
+            } catch {
+                return nil
+            }
         }
     }
 
     var authorizationTokens: VisaAuthorizationTokens? {
-        authorizationTokensHolder.tokensInfo?.bffTokens
+        get async {
+            await authorizationTokensHolder.tokensInfo?.bffTokens
+        }
     }
 
     func setupTokens(_ tokens: VisaAuthorizationTokens) async throws {
@@ -324,7 +344,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
     }
 
     func forceRefreshToken() async throws {
-        guard let tokens = authorizationTokensHolder.tokensInfo else {
+        guard let tokens = await authorizationTokensHolder.tokensInfo else {
             VisaLogger.info("Nothing to refresh")
             return
         }
@@ -336,8 +356,8 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
         }
     }
 
-    func exchageTokens() async throws {
-        guard let tokens = authorizationTokensHolder.tokensInfo else {
+    func exchangeTokens() async throws {
+        guard let tokens = await authorizationTokensHolder.tokensInfo else {
             VisaLogger.info("Nothing to exchange")
             return
         }
@@ -349,7 +369,7 @@ extension CommonVisaAuthorizationTokensHandler: VisaAuthorizationTokensHandler {
         self.refreshTokenSaver = refreshTokenSaver
         runTask(in: self) { handler in
             do {
-                guard let tokens = handler.authorizationTokensHolder.tokensInfo else {
+                guard let tokens = await handler.authorizationTokensHolder.tokensInfo else {
                     VisaLogger.info("Nothing to save in refresh token storage")
                     return
                 }

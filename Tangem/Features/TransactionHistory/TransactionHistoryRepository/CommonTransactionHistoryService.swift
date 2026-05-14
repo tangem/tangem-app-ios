@@ -20,7 +20,7 @@ class CommonTransactionHistoryService {
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private let pageSize: Int = 100
     private var cancellable: AnyCancellable?
-    private var storage: ThreadSafeContainer<[TransactionRecord]> = []
+    private let storage = TransactionRecordsStorage()
 
     init(
         tokenItem: TokenItem,
@@ -45,17 +45,17 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
     }
 
     var items: [TransactionRecord] {
-        return storage.read()
+        get async { await storage.records }
     }
 
     var canFetchHistory: Bool {
         transactionHistoryProvider.canFetchHistory
     }
 
-    func clearHistory() {
+    func clearHistory() async {
         cancellable = nil
         transactionHistoryProvider.reset()
-        cleanStorage()
+        await cleanStorage()
         AppLogger.info(self, "was reset")
     }
 
@@ -93,7 +93,11 @@ private extension CommonTransactionHistoryService {
                 AppLogger.info(self, "canceled")
                 result(.success(()))
             })
-            .sink { [weak self] completion in
+            .withWeakCaptureOf(self)
+            .asyncMap { service, response in
+                await service.addToStorage(records: response.records)
+            }
+            .receiveCompletion { [weak self] completion in
                 switch completion {
                 case .failure(let error):
                     self?._state.send(.failedToLoad(error))
@@ -104,20 +108,30 @@ private extension CommonTransactionHistoryService {
                     AppLogger.info(self, "loaded")
                     result(.success(()))
                 }
-            } receiveValue: { [weak self] response in
-                self?.addToStorage(records: response.records)
             }
     }
 
-    func cleanStorage() {
-        storage.mutate { value in
-            value.removeAll()
-        }
+    func cleanStorage() async {
+        await storage.clear()
     }
 
-    func addToStorage(records: [TransactionRecord]) {
-        storage.mutate { value in
-            value += records
+    func addToStorage(records: [TransactionRecord]) async {
+        await storage.append(records)
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CommonTransactionHistoryService {
+    actor TransactionRecordsStorage {
+        private(set) var records: [TransactionRecord] = []
+
+        func clear() {
+            records.removeAll()
+        }
+
+        func append(_ newRecords: [TransactionRecord]) {
+            records += newRecords
         }
     }
 }
