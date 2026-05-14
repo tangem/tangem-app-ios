@@ -20,6 +20,26 @@
         },
         "$type": "dimension",
         "$value": "{dimension.400}"
+      },
+      "fade": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.dimens3.blur.Fade",
+            "iOS": "DesignSystem.Tokens.Blur.Size.fade"
+          }
+        },
+        "$type": "dimension",
+        "$value": "{dimension.100}"
+      },
+      "none": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.dimens3.blur.None",
+            "iOS": "DesignSystem.Tokens.Blur.Size.none"
+          }
+        },
+        "$type": "dimension",
+        "$value": "{dimension.0}"
       }
     }
   }
