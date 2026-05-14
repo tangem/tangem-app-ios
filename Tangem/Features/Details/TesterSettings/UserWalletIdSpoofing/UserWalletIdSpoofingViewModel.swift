@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+#if DEBUG
+
 import Foundation
 import SwiftUI
 import UIKit
@@ -152,3 +154,5 @@ extension UserWalletIdSpoofingViewModel {
         let spoofedHex: String
     }
 }
+
+#endif // DEBUG

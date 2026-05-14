@@ -15,5 +15,7 @@ final class EnvironmentSetupRoutableMock: EnvironmentSetupRoutable {
     func openSparrowSurveyClassicDemo(withToken: String) {}
     func openSparrowSurveyChatDemo(withToken: String) {}
     func openSparrowSurveyNPSDemo(withToken: String) {}
+    #if DEBUG
     func openUserWalletIdSpoofing() {}
+    #endif // DEBUG
 }

@@ -39,9 +39,11 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.designSystemDemoCoordinator) {
                 DesignSystemDemoCoordinatorView(coordinator: $0)
             }
+        #if DEBUG
             .navigation(item: $coordinator.userWalletIdSpoofingViewModel) {
                 UserWalletIdSpoofingView(viewModel: $0)
             }
+        #endif // DEBUG
     }
 
     @ViewBuilder

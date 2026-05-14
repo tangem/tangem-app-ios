@@ -56,8 +56,10 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.gaslessTransactionsAPIType)
     var gaslessTransactionsAPIType = GaslessTransactionsAPIType.prod
 
+    #if DEBUG
     @AppStorageCompat(UserWalletIdSpoofMapStorageKey(rawValue: UserWalletIdSpoofer.shared.storageKey), store: UserWalletIdSpoofer.shared.userDefaults)
     var userWalletIdSpoofMap: [String: Data] = [:]
+    #endif // DEBUG
 
     private init() {}
 }
@@ -82,6 +84,7 @@ private enum FeatureStorageKeys: String {
     case gaslessTransactionsAPIType = "gasless_transactions_api_type"
 }
 
+#if DEBUG
 /// Wraps `UserWalletIdSpoofer.shared.storageKey` so it can be consumed by `@AppStorageCompat`,
 /// which requires its key to conform to `RawRepresentable<String>`. The corresponding
 /// `FeatureStorageKeys` enum can't reference the spoofer's storage key directly because Swift
@@ -89,3 +92,4 @@ private enum FeatureStorageKeys: String {
 private struct UserWalletIdSpoofMapStorageKey: RawRepresentable {
     let rawValue: String
 }
+#endif // DEBUG

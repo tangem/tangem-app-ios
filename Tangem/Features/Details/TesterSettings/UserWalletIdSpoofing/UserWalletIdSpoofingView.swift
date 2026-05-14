@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+#if DEBUG
+
 import SwiftUI
 import TangemAssets
 import TangemUI
@@ -255,3 +257,5 @@ struct UserWalletIdSpoofingView: View {
         }
     }
 }
+
+#endif // DEBUG
