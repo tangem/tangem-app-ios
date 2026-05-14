@@ -176,7 +176,7 @@ actor CommonAccountModelsManager {
             let globalCryptoAccountsStatePublisher = cryptoAccountsGlobalStateProvider
                 .globalCryptoAccountsStatePublisher()
                 .handleEvents(receiveOutput: { state in
-                    cryptoAccountsGlobalStateProviderLogger.debug(
+                    CryptoAccountsGlobalStateProviderLogger.info(
                         "Called with \(state) (\(debugDescription))"
                     )
                 })

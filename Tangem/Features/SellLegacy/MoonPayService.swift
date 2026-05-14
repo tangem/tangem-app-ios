@@ -103,7 +103,7 @@ class MoonPayService {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("MoonPayService deinit")
     }
 
     private func makeSignature(for components: URLComponents) -> URLQueryItem {
