@@ -38,7 +38,7 @@ final class WalletModelsTotalBalanceProvider {
     }
 
     deinit {
-        AppLogger.debug("deinit \(self)")
+        AppLogger.debug(self, "deinit")
     }
 }
 
