@@ -17,7 +17,7 @@ final class CommonReferralService {
     }
 
     private func bind(refcode: String, campaign: String?) {
-        AnalyticsLogger.debug("Start binding for refcode: \(refcode)")
+        AnalyticsLogger.info("Start binding for refcode: \(refcode)")
         AppSettings.shared.hasReferralBindingRequest = true
 
         runTask(in: self, isDetached: true) { service in
@@ -30,13 +30,13 @@ final class CommonReferralService {
 
                 try await service.tangemApiService.bindReferral(request: request)
 
-                AnalyticsLogger.debug("Refcode \(refcode) was binded")
+                AnalyticsLogger.info("Refcode \(refcode) was binded")
 
                 await MainActor.run {
                     AppSettings.shared.hasReferralBindingRequest = false
                 }
             } catch {
-                AnalyticsLogger.debug("Refcode \(refcode) was not binded")
+                AnalyticsLogger.error(error: "Refcode \(refcode) was not binded")
                 AppLogger.error(error: error)
             }
         }
@@ -91,7 +91,7 @@ extension CommonReferralService: ReferralService {
         }
 
         guard hasNoReferral else {
-            AnalyticsLogger.debug("Refcode \(refcode) was not saved because referral already exists")
+            AnalyticsLogger.warning("Refcode \(refcode) was not saved because referral already exists")
             return
         }
 
