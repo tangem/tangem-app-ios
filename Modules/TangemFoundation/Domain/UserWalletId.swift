@@ -14,7 +14,11 @@ public struct UserWalletId: Hashable {
     public let stringValue: String
 
     public init(value: Data) {
+        #if DEBUG
         let resolved = UserWalletIdSpoofer.shared.resolve(value) ?? value
+        #else
+        let resolved = value
+        #endif // DEBUG
         self.value = resolved
         stringValue = resolved.hexEncodedString
     }
