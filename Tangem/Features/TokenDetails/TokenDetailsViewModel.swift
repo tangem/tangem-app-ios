@@ -25,7 +25,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
-    /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
+    private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
+
+    // [REDACTED_INFO]: Remove when the redesign feature toggle is removed
+
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         tokenItem: walletModel.tokenItem,
         buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
@@ -67,6 +70,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     var customTokenColor: Color? {
         walletModel.tokenItem.token?.customTokenColor
     }
+
+    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let bannerNotificationManager: NotificationManager?
@@ -573,6 +578,41 @@ private extension TokenDetailsViewModel {
         case .failedToLoad:
             return makeEligibleViewModelIfPossible()
         }
+    }
+
+    private func makeNavigationBarViewModel() -> TokenDetailsNavigationBarViewModel {
+        let tokenStorage: TokenDetailsNavigationBarViewModel.TokenStorage
+        let headerProvider = TokenHeaderProvider(userWalletName: userWalletInfo.name, account: walletModel.account)
+
+        switch headerProvider.makeHeader() {
+        case .account(let accountName, let accountIcon):
+            tokenStorage = .account(icon: accountIcon, name: accountName)
+
+        case .wallet(name: let walletName, hasOnlyOneWallet: false):
+            tokenStorage = .wallet(name: walletName, icon: userWalletInfo.config.walletThumbnailType)
+
+        case .wallet(_, hasOnlyOneWallet: true):
+            tokenStorage = .singleWallet
+        }
+
+        let title = TokenDetailsNavigationBarViewModel.Title(
+            tokenName: walletModel.tokenItem.name,
+            storedIn: tokenStorage
+        )
+
+        let subtitle: String
+
+        if walletModel.tokenItem.isToken {
+            let tokenName = walletModel.tokenItem.blockchain.tokenTypeName ?? Localization.commonToken
+            let networkName = walletModel.tokenItem.blockchain.displayName
+            let preposition = Localization.commonIn
+            let network = Localization.wcCommonNetwork.lowercased()
+            subtitle = "\(tokenName) \(preposition) \(networkName) \(network)"
+        } else {
+            subtitle = Localization.commonMainNetwork
+        }
+
+        return TokenDetailsNavigationBarViewModel(title: title, subtitle: subtitle)
     }
 }
 
