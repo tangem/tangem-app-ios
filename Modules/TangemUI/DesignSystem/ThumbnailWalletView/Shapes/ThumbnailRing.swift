@@ -11,7 +11,7 @@ import SwiftUI
 typealias ThumbnailRingView = ThumbnailPathBuilderView<ThumbnailRingPathBuilder>
 
 public enum ThumbnailRingPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors {
+    public struct FillColors: Equatable {
         public let ring: Color
 
         public init(ring: Color) {
