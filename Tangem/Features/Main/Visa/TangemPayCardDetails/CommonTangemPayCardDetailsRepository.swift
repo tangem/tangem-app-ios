@@ -12,7 +12,16 @@ import TangemVisa
 import TangemPay
 
 final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
-    let lastFourDigits: String
+    var lastFourDigits: String {
+        tangemPayAccount.card?.cardNumberEnd ?? ""
+    }
+
+    var lastFourDigitsPublisher: AnyPublisher<String, Never> {
+        tangemPayAccount.cardPublisher
+            .map { $0?.cardNumberEnd ?? "" }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
         tangemPayAccount.cardDisplayNamePublisher
@@ -21,7 +30,6 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
     private let tangemPayAccount: TangemPayAccount
 
     init(tangemPayAccount: TangemPayAccount) {
-        lastFourDigits = tangemPayAccount.card?.cardNumberEnd ?? ""
         self.tangemPayAccount = tangemPayAccount
     }
 

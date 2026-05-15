@@ -35,16 +35,13 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var shouldDisplayReplacingCardBanner: Bool = false
     @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published private(set) var cardNumberEnd: String
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
 
     var isDeactivated: Bool {
         tangemPayAccount.isDeactivated
-    }
-
-    var cardNumberEnd: String {
-        cardDetailsRepository.lastFourDigits
     }
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
@@ -76,6 +73,7 @@ final class TangemPayMainViewModel: ObservableObject {
             : nil
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
+        cardNumberEnd = cardDetailsRepository.lastFourDigits
 
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerService
@@ -277,6 +275,11 @@ private extension TangemPayMainViewModel {
         tangemPayAccount.isReissuingCardPublisher
             .receiveOnMain()
             .assign(to: \.shouldDisplayReplacingCardBanner, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        cardDetailsRepository.lastFourDigitsPublisher
+            .receiveOnMain()
+            .assign(to: \.cardNumberEnd, on: self, ownership: .weak)
             .store(in: &bag)
 
         pendingExpressTransactionsManager
