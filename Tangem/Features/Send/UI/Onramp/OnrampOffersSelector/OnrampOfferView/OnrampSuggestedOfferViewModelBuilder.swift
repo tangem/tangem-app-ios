@@ -30,23 +30,35 @@ struct OnrampSuggestedOfferViewModelBuilder {
         switch suggestedOfferType {
         case .great: .great
         case .fastest: .fastest
-        case .recent, .plain, .nativeApplePay: .text(Localization.onrampTitleYouGet)
+        case .nativeApplePay(let provider): mapToNativeApplePayTitle(provider: provider)
+        case .recent, .plain: .text(Localization.onrampTitleYouGet)
+        }
+    }
+
+    private func mapToNativeApplePayTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
+        switch provider.globalAttractiveType {
+        case .best, .great: .great
+        case .loss, .none: .fastest
         }
     }
 
     func mapToOnrampOfferViewModel(
         title: OnrampOfferViewModel.Title,
         provider: OnrampProvider,
-        buyAction: OnrampOfferViewModel.BuyAction
+        buyAction: OnrampOfferViewModel.BuyAction,
+        infoAction: (() -> Void)? = nil,
+        legalNotice: OnrampOfferViewModel.LegalNotice? = nil
     ) -> OnrampOfferViewModel {
-        let amount: OnrampOfferViewModel.Amount = {
-            let formattedAmount = formatter.formatCryptoBalance(
-                provider.quote?.expectedAmount,
-                currencyCode: tokenItem.currencySymbol
-            )
+        let formattedAmount = formatter.formatCryptoBalance(
+            provider.quote?.expectedAmount,
+            currencyCode: tokenItem.currencySymbol
+        )
 
-            return .init(formatted: formattedAmount, badge: .none)
-        }()
+        let amount = OnrampOfferViewModel.Amount(
+            formatted: formattedAmount,
+            badge: .none,
+            infoAction: infoAction
+        )
 
         let timeFormatted = processingTimeFormatter.format(provider.paymentMethod.type.processingTime)
         let offerProvider: OnrampOfferViewModel.Provider = .init(
@@ -60,7 +72,8 @@ struct OnrampSuggestedOfferViewModelBuilder {
             amount: amount,
             provider: offerProvider,
             isAvailable: provider.isSuccessfullyLoaded,
-            buyAction: buyAction
+            buyAction: buyAction,
+            legalNotice: legalNotice
         )
     }
 }
