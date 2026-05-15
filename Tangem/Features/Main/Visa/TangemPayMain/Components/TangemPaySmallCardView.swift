@@ -10,20 +10,30 @@ import SwiftUI
 import TangemAssets
 
 struct TangemPaySmallCardView: View {
-    let cardNumberEnd: String
+    enum State {
+        case active(cardNumberEnd: String)
+        case replacing
+    }
+
+    let state: State
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            Color.Tangem.Visa.cardDetailBackground
+            switch state {
+            case .active:
+                Color.Tangem.Visa.cardDetailBackground
 
-            LinearGradient(
-                colors: [
-                    .clear,
-                    Color.Tangem.Button.backgroundAccent.opacity(0.5),
-                ],
-                startPoint: UnitPoint(x: 0.1, y: 0.85),
-                endPoint: UnitPoint(x: 0.95, y: 0.0)
-            )
+                LinearGradient(
+                    colors: [
+                        .clear,
+                        Color.Tangem.Button.backgroundAccent.opacity(0.5),
+                    ],
+                    startPoint: UnitPoint(x: 0.1, y: 0.85),
+                    endPoint: UnitPoint(x: 0.95, y: 0.0)
+                )
+            case .replacing:
+                Color.Tangem.Graphic.Neutral.quaternary
+            }
 
             Text("VISA")
                 .font(.system(size: 7, weight: .bold))
@@ -32,10 +42,7 @@ struct TangemPaySmallCardView: View {
                 .padding(.leading, 27)
                 .padding(.top, 3)
 
-            Text(cardNumberEnd)
-                .font(.system(size: 8, weight: .semibold))
-                .foregroundColor(.white)
-                .tracking(0.06)
+            bottomLeadingContent
                 .padding(.leading, 3)
                 .padding(.top, 20)
         }
@@ -54,6 +61,21 @@ struct TangemPaySmallCardView: View {
                     ),
                     lineWidth: 1
                 )
+        }
+    }
+
+    @ViewBuilder
+    private var bottomLeadingContent: some View {
+        switch state {
+        case .active(let cardNumberEnd):
+            Text(cardNumberEnd)
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundColor(.white)
+                .tracking(0.06)
+        case .replacing:
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundColor(.white)
         }
     }
 }
