@@ -18,6 +18,7 @@ final class CommonNotificationPreferencesProvider {
     // MARK: - Private Properties
 
     private let userWalletId: String
+    private let remoteStatusSubject: CurrentValueSubject<UserWalletPushNotifyRemoteStatus, Never> = .init(.idle)
     private var updateTask: Task<Void, Never>?
 
     // MARK: - Init
@@ -41,6 +42,14 @@ private extension NotificationPreferencesDTO.Body {
 // MARK: - NotificationPreferencesProvider
 
 extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider {
+    var remoteStatus: UserWalletPushNotifyRemoteStatus {
+        remoteStatusSubject.value
+    }
+
+    func setRemoteStatus(_ status: UserWalletPushNotifyRemoteStatus) {
+        remoteStatusSubject.send(status)
+    }
+
     func updatePreferences(_ preferences: [(type: PushNotificationsSettingType, isEnabled: Bool)]) throws {
         let requestBody = NotificationPreferencesDTO.Body(preferences)
         updateTask?.cancel()
