@@ -29,7 +29,7 @@ final class LogsComposer {
             return
         }
 
-        OSLogFileWriter.shared.zipLogFile { result in
+        OSLogFileWriter.shared.zipLogFile(infoData: getInfoData()) { result in
             switch result {
             case .success(let file):
                 do {
