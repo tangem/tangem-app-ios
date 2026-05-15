@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 import TangemVisa
 
 class TangemPayMainCoordinator: CoordinatorObject {
@@ -397,7 +398,13 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
     func openTangemPayReissueSheet(userWalletId: UserWalletId, tangemPayAccount: TangemPayAccount) {
         Task { @MainActor in
             do {
-                let feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                let feeResponse: TangemPayFeeResponse
+                if let cached = await tangemPayAccount.feeRepository.getFee(for: .cardReplacement) {
+                    feeResponse = cached
+                } else {
+                    feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                    await tangemPayAccount.feeRepository.setFee(feeResponse, for: .cardReplacement)
+                }
                 let balance = try await tangemPayAccount.customerService.getBalance()
 
                 let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
