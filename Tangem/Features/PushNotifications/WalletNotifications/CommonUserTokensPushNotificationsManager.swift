@@ -26,7 +26,6 @@ final class CommonUserTokensPushNotificationsManager {
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     private let notificationPreferencesProvider: NotificationPreferencesProvider
 
-    private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<UserWalletPushNotifyRemoteStatus, Never> = .init(.idle)
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
 
     private var updateTask: Task<Void, Error>?
@@ -132,7 +131,7 @@ final class CommonUserTokensPushNotificationsManager {
 private extension CommonUserTokensPushNotificationsManager {
     func definePushNotifyStatus() async -> UserWalletPushNotifyStatus {
         let isAuthorized = await pushNotificationsPermission.isAuthorized
-        let currentRemoteStatus = _userWalletPushRemoteStatusSubject.value
+        let currentRemoteStatus = notificationPreferencesProvider.remoteStatus
 
         // If remote status is still loading (idle), return loading
         guard currentRemoteStatus != .idle else {
@@ -205,9 +204,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
     }
 
     func handleUpdateOnRemoteStatus(_ value: Bool) {
-        let updateRemoteStatus: UserWalletPushNotifyRemoteStatus = value ? .enabled : .disabled
-        _userWalletPushRemoteStatusSubject.send(updateRemoteStatus)
-
+        notificationPreferencesProvider.setRemoteStatus(value ? .enabled : .disabled)
         updateStatusIfNeeded()
     }
 
@@ -222,12 +219,11 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
             if isAuthorized {
                 // Step 1: Update remote status based on user's intent
                 // This represents what the user wants on the backend
-                let updateRemoteStatus: UserWalletPushNotifyRemoteStatus = value ? .enabled : .disabled
-                manager._userWalletPushRemoteStatusSubject.send(updateRemoteStatus)
+                manager.notificationPreferencesProvider.setRemoteStatus(value ? .enabled : .disabled)
             } else if !value {
                 // If permissions are not granted but user wants to disable,
                 // we can still update remote status to disabled
-                manager._userWalletPushRemoteStatusSubject.send(.disabled)
+                manager.notificationPreferencesProvider.setRemoteStatus(.disabled)
             }
             // If permissions are not granted and user wants to enable,
             // we don't update remote status (it stays as is)
@@ -267,7 +263,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
     }
 
     var isRemoteStatusEnabled: Bool {
-        _userWalletPushRemoteStatusSubject.value.isEnabled
+        notificationPreferencesProvider.remoteStatus.isEnabled
     }
 }
 
@@ -305,7 +301,7 @@ private extension CommonUserTokensPushNotificationsManager {
     }
 
     func allowancePushNotifyStatus() -> Bool {
-        let currentRemoteStatus = _userWalletPushRemoteStatusSubject.value.isEnabled
+        let currentRemoteStatus = notificationPreferencesProvider.remoteStatus.isEnabled
 
         let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
 
