@@ -18,9 +18,10 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
         self.mapper = mapper
     }
 
-    func yield() async throws -> StakingYieldInfo {
+    func yield(targetAmountLimitProvider: StakingTargetAmountLimitProvider?) async throws -> StakingYieldInfo {
         let response = try await service.getVaultsList()
-        return try mapper.mapToYieldInfo(from: response)
+        let targetAmountInfos = await targetAmountLimitProvider?.snapshot() ?? [:]
+        return try mapper.mapToYieldInfo(from: response, targetAmountInfos: targetAmountInfos)
     }
 
     func balances(walletAddress: String, vaults: [String]) async throws -> [StakingBalanceInfo] {
