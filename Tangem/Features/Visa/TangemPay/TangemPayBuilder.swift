@@ -62,6 +62,8 @@ final class TangemPayBuilder {
         tangemPayTokenBalanceProvider: balancesService.fixedFiatTotalTokenBalanceProvider
     )
 
+    private lazy var feeRepository = TangemPayFeeRepository()
+
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
@@ -107,6 +109,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
+            feeRepository: feeRepository,
             account: account
         )
     }
