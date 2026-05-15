@@ -1,5 +1,5 @@
 //
-//  PushNotificationsSyncWalletsClient.swift
+//  PushNotificationsSyncWalletsProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import TangemFoundation
 
-/// Synchronizes local wallet models with remote push-notification wallet state.
-final class PushNotificationsSyncWalletsClient {
+/// Provides synchronization of local wallet models with remote push-notification wallet state.
+final class PushNotificationsSyncWalletsProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -41,7 +41,7 @@ final class PushNotificationsSyncWalletsClient {
 
 // MARK: - Private
 
-private extension PushNotificationsSyncWalletsClient {
+private extension PushNotificationsSyncWalletsProvider {
     var applicationUid: String {
         AppSettings.shared.applicationUid
     }
@@ -114,11 +114,11 @@ private extension PushNotificationsSyncWalletsClient {
                 await createMissingWallets(entries: entries)
                 await connectWallets(entries: entries, shouldRetry: false)
             } else {
-                AppLogger.error(error: error)
+                PushNotificationsSyncServiceLogger.error("Failed to connect wallets after retry", error: error)
             }
         } catch {
             // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
-            AppLogger.error(error: error)
+            PushNotificationsSyncServiceLogger.error("Failed to connect wallets", error: error)
         }
     }
 

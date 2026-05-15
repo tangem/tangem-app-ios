@@ -1,5 +1,5 @@
 //
-//  PushNotificationsSyncWalletNameClient.swift
+//  PushNotificationsSyncWalletNameProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemFoundation
 import Combine
 
-final class PushNotificationsSyncWalletNameClient {
+final class PushNotificationsSyncWalletNameProvider {
     // MARK: - Private Properties
 
     private let tangemApiService: TangemApiService
@@ -67,7 +67,10 @@ final class PushNotificationsSyncWalletNameClient {
             do {
                 try await tangemApiService.updateWallet(by: userWalletId, context: context)
             } catch {
-                AppLogger.error(error: error)
+                PushNotificationsSyncServiceLogger.error(
+                    "Failed to sync wallet name for userWalletId: \(userWalletId), name: \(name)",
+                    error: error
+                )
             }
         }
     }

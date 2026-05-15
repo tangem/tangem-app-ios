@@ -1,5 +1,5 @@
 //
-//  PushNotificationsSyncApplicationsClient.swift
+//  PushNotificationsSyncApplicationsProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import TangemFoundation
 
-/// Handles remote "application" registration and FCM token updates for user-wallet push notifications.
-final class PushNotificationsSyncApplicationsClient {
+/// Provides remote "application" registration and FCM token updates for user-wallet push notifications.
+final class PushNotificationsSyncApplicationsProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     enum InitializeType {
@@ -38,8 +38,6 @@ final class PushNotificationsSyncApplicationsClient {
 
         let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
 
-        AppLogger.info("Application has been created for uid: \(response.uid)")
-
         await MainActor.run {
             AppSettings.shared.applicationUid = response.uid
             AppSettings.shared.lastStoredFCMToken = fcmToken
@@ -53,7 +51,5 @@ final class PushNotificationsSyncApplicationsClient {
         await MainActor.run {
             AppSettings.shared.lastStoredFCMToken = fcmToken
         }
-
-        AppLogger.info("Application has been updated for uid: \(applicationUid)")
     }
 }

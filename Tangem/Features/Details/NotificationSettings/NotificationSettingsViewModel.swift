@@ -10,26 +10,18 @@ import Combine
 import SwiftUI
 import TangemFoundation
 import TangemLocalization
-import TangemAssets
 import struct TangemUIUtils.AlertBinder
 
 final class NotificationSettingsViewModel: ObservableObject {
     // MARK: - Injected
 
     @Injected(\.pushNotificationsPermission) private var pushNotificationsPermission: PushNotificationsPermissionService
-    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
+    @Injected(\.pushNotificationsSyncService) private var pushNotificationsSyncService: PushNotificationsSyncService
 
     // MARK: - ViewState
 
     @Published private(set) var allowNotificationsBannerInput: NotificationViewInput?
-
-    @Published var isPushNotifyEnabled: Bool = false
-    @Published private(set) var pushNotifyViewModel: DefaultToggleRowViewModel?
-    @Published private(set) var warningPermissionViewModel: DefaultWarningRowViewModel?
-
-    var isTransactionPushVisible: Bool {
-        pushNotifyViewModel != nil || warningPermissionViewModel != nil
-    }
+    @Published private(set) var transactionNotificationsRowToggleViewModel: TransactionNotificationsRowToggleViewModel?
 
     @Published private(set) var offersUpdatesViewModel: DefaultToggleRowViewModel?
     @Published private(set) var priceAlertsViewModel: DefaultToggleRowViewModel?
@@ -47,18 +39,6 @@ final class NotificationSettingsViewModel: ObservableObject {
     /// In-memory state for non-functional toggles (Offers & Updates, Price Alerts).
     @Published private var isOffersUpdatesEnabled: Bool = false
     @Published private var isPriceAlertsEnabled: Bool = false
-
-    private var isEnabledPushNotificationStatusBinding: BindingValue<Bool> {
-        BindingValue<Bool>(
-            root: self,
-            default: false,
-            get: { $0.isPushNotifyEnabled },
-            set: { viewModel, value in
-                viewModel.isPushNotifyEnabled = value
-                viewModel.handleTogglePushNotifyStatus(toggleValue: value)
-            }
-        )
-    }
 
     private var requestPermissionTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
@@ -78,10 +58,6 @@ final class NotificationSettingsViewModel: ObservableObject {
     func onAppear() {
         refreshBannerVisibility()
     }
-
-    func onTapMoreInfoTransactionPushNotifications() {
-        coordinator?.openTransactionNotifications()
-    }
 }
 
 // MARK: - Private
@@ -95,38 +71,17 @@ private extension NotificationSettingsViewModel {
                 viewModel.refreshBannerVisibility()
             }
             .store(in: &bag)
-
-        userTokensPushNotificationsManager?
-            .statusPublisher
-            .dropFirst()
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, status in
-                viewModel.isPushNotifyEnabled = status.isActive
-                viewModel.displayPermissionWarningIfNeeded(for: status)
-            }
-            .store(in: &bag)
     }
 
     func setupViewModels() {
-        let isEligible = userTokensPushNotificationsService.entries.contains { $0.id == userWalletModel.userWalletId.stringValue }
-        if isEligible {
-            userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
-            isPushNotifyEnabled = userWalletModel.userTokensPushNotificationsManager.status.isActive
-        }
+        userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
 
         if let manager = userTokensPushNotificationsManager {
-            let currentStatus = manager.status
-
-            // One-time initialization. Because isNotInitialized is non-recoverable
-            pushNotifyViewModel = DefaultToggleRowViewModel(
-                title: Localization.walletSettingsPushNotificationsTitle,
-                isDisabled: currentStatus.isNotInitialized,
-                isOn: isEnabledPushNotificationStatusBinding
+            transactionNotificationsRowToggleViewModel = TransactionNotificationsRowToggleViewModel(
+                userTokensPushNotificationsManager: manager,
+                coordinator: coordinator,
+                showPushSettingsAlert: weakify(self, forFunction: NotificationSettingsViewModel.displayEnablePushSettingsAlert)
             )
-
-            displayPermissionWarningIfNeeded(for: currentStatus)
         }
 
         offersUpdatesViewModel = DefaultToggleRowViewModel(
@@ -187,69 +142,6 @@ private extension NotificationSettingsViewModel {
     }
 }
 
-// MARK: - Transaction Push Notifications
-
-private extension NotificationSettingsViewModel {
-    func displayPermissionWarningIfNeeded(for status: UserWalletPushNotifyStatus) {
-        if case .unavailable(let reason, let enabledRemote) = status, enabledRemote, reason == .permissionDenied {
-            warningPermissionViewModel = DefaultWarningRowViewModel(
-                title: Localization.transactionNotificationsWarningTitle,
-                subtitle: Localization.transactionNotificationsWarningDescription,
-                leftView: .icon(Assets.attention)
-            )
-        } else {
-            warningPermissionViewModel = nil
-        }
-    }
-
-    /// Handles the state changes of the transaction push notifications toggle.
-    ///
-    /// Mirrors the legacy `TransactionNotificationsRowToggleViewModel` behavior:
-    /// - `.enabled` / `.disabled` → push status flip based on the new toggle value.
-    /// - `.unavailable(.permissionDenied)` + enabling → request authorization (and show settings alert if denied).
-    /// - `.unavailable(.permissionDenied)` + disabling → mark remote as disabled, keep blocked state.
-    /// - Other states (e.g. `.notInitialized`) → no-op; toggle is rendered as disabled.
-    func handleTogglePushNotifyStatus(toggleValue: Bool) {
-        guard let manager = userTokensPushNotificationsManager else { return }
-
-        Analytics.log(.pushToggleClicked, params: [.state: toggleValue ? .on : .off])
-
-        let toUpdatePushNotifyStatus: UserWalletPushNotifyStatus
-
-        switch manager.status {
-        case .enabled, .disabled:
-            toUpdatePushNotifyStatus = toggleValue ? .enabled : .disabled
-        case .unavailable(let blockedReason, _) where blockedReason == .permissionDenied && toggleValue:
-            handleAndCheckUnavailablePushNotifyStatus()
-            return
-        case .unavailable(let blockedReason, _) where blockedReason == .permissionDenied && !toggleValue:
-            toUpdatePushNotifyStatus = .unavailable(reason: .permissionDenied, enabledRemote: false)
-        default:
-            // DefaultToggleRowViewModel did at disabled state. The status does not need to be updated
-            return
-        }
-
-        manager.handleUpdateWalletPushNotifyStatus(toUpdatePushNotifyStatus)
-    }
-
-    func handleAndCheckUnavailablePushNotifyStatus() {
-        requestPermissionTask?.cancel()
-
-        requestPermissionTask = runTask(in: self) { @MainActor viewModel in
-            await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
-
-            if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager?.handleUpdateWalletPushNotifyStatus(.enabled)
-            } else {
-                // To display a system message about the need for permission to receive notifications.
-                viewModel.displayEnablePushSettingsAlert()
-            }
-
-            viewModel.refreshBannerVisibility()
-        }
-    }
-}
-
 // MARK: - In-memory Toggles (Offers / Price Alerts)
 
 private extension NotificationSettingsViewModel {
@@ -286,14 +178,14 @@ private extension NotificationSettingsViewModel {
             primaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertNegativeButton),
                 action: { [weak self] in
-                    self?.isPushNotifyEnabled = false
+                    self?.transactionNotificationsRowToggleViewModel?.isPushNotifyEnabled = false
                     self?.coordinator?.onAlertDismiss()
                 }
             ),
             secondaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertPositiveButton),
                 action: { [weak self] in
-                    self?.isPushNotifyEnabled = false
+                    self?.transactionNotificationsRowToggleViewModel?.isPushNotifyEnabled = false
                     self?.coordinator?.openAppSettings()
                     self?.coordinator?.onAlertDismiss()
                 }

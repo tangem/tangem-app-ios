@@ -21,10 +21,10 @@ final class CommonPushNotificationsSyncService: NSObject {
 
     // MARK: - Private Properties
 
-    private let applicationClient = PushNotificationsSyncApplicationsClient()
-    private let walletsStateClient = PushNotificationsSyncWalletsClient()
+    private let applicationProvider = PushNotificationsSyncApplicationsProvider()
+    private let walletsStateProvider = PushNotificationsSyncWalletsProvider()
 
-    private lazy var walletNameClient = PushNotificationsSyncWalletNameClient(
+    private lazy var walletNameProvider = PushNotificationsSyncWalletNameProvider(
         tangemApiService: tangemApiService,
         userWalletRepository: userWalletRepository
     )
@@ -98,7 +98,6 @@ final class CommonPushNotificationsSyncService: NSObject {
     private func handleUserWalletUpdates(by event: UserWalletRepositoryEvent) {
         switch event {
         case .inserted, .unlocked, .deleted, .unlockedWallet:
-            AppLogger.info("Did receive event: \(event)")
             updateState()
         default:
             return
@@ -110,12 +109,12 @@ final class CommonPushNotificationsSyncService: NSObject {
 
         updateStateTask = runTask(in: self) { service in
             do {
-                try await service.walletsStateClient
+                try await service.walletsStateProvider
                     .syncUserWalletModelState(applicationUid: service.applicationUid)
-                await service.walletNameClient.restartObserving()
+                await service.walletNameProvider.restartObserving()
             } catch {
-                AppLogger.info("Failed sync remote with remote wallets state")
-                service.walletsStateClient.handleSyncErrorForAllWallets()
+                PushNotificationsSyncServiceLogger.error("Failed to sync wallets state with remote", error: error)
+                service.walletsStateProvider.handleSyncErrorForAllWallets()
             }
         }
     }
@@ -134,14 +133,14 @@ extension CommonPushNotificationsSyncService: PushNotificationsSyncService {
             let uid = service.applicationUid
 
             do {
-                switch service.applicationClient.initializeType(applicationUid: uid) {
+                switch service.applicationProvider.initializeType(applicationUid: uid) {
                 case .create:
-                    try await service.applicationClient.createApplication(fcmToken: fcmToken)
+                    try await service.applicationProvider.createApplication(fcmToken: fcmToken)
                 case .update:
-                    try await service.applicationClient.updateApplication(fcmToken: fcmToken, applicationUid: uid)
+                    try await service.applicationProvider.updateApplication(fcmToken: fcmToken, applicationUid: uid)
                 }
             } catch {
-                AppLogger.error("Failed to initialize push notifications service", error: error)
+                PushNotificationsSyncServiceLogger.error("Failed to initialize push notifications sync service", error: error)
                 return
             }
 
@@ -163,9 +162,9 @@ extension CommonPushNotificationsSyncService: MessagingDelegate {
             }
 
             do {
-                try await service.applicationClient.updateApplication(fcmToken: fcmToken, applicationUid: appUid)
+                try await service.applicationProvider.updateApplication(fcmToken: fcmToken, applicationUid: appUid)
             } catch {
-                AppLogger.error("Failed to update FCM token", error: error)
+                PushNotificationsSyncServiceLogger.error("Failed to update FCM token", error: error)
             }
         }
     }
