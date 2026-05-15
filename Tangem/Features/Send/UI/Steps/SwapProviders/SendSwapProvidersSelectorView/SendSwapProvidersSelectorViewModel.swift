@@ -153,16 +153,15 @@ private extension SendSwapProvidersSelectorViewModel {
     }
 
     func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool) -> SendSwapProvidersSelectorProviderViewData {
-        let senderCurrencyCode = tokenItem.currencySymbol
-        let destinationCurrencyCode = receiveTokenInput?.receiveToken.value?.tokenItem.currencySymbol
+        let destinationTokenItem = receiveTokenInput?.receiveToken.value?.tokenItem
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
         let state = availableProvider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
-                senderCurrencyCode: senderCurrencyCode,
-                destinationCurrencyCode: destinationCurrencyCode,
+                senderTokenItem: tokenItem,
+                destinationTokenItem: destinationTokenItem,
                 option: .exchangeReceivedAmount
             )
         )
