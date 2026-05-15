@@ -31,6 +31,11 @@ final class PushNotificationsSyncWalletNameProvider {
     // MARK: - Implementation
 
     @MainActor
+    func stopObserving() {
+        bag.removeAll()
+    }
+
+    @MainActor
     func restartObserving() {
         bag.removeAll()
 
@@ -48,30 +53,43 @@ final class PushNotificationsSyncWalletNameProvider {
             }
             .merge()
             .withWeakCaptureOf(self)
-            .sink { service, result in
-                service.updateRemoteWallet(
+            .flatMap { service, result -> AnyPublisher<Void, Never> in
+                service.updateRemoteWalletPublisher(
                     name: result.name,
                     context: result.context,
                     userWalletId: result.id
                 )
             }
+            .sink()
             .store(in: &bag)
     }
 
-    func updateRemoteWallet(name: String, context: some Encodable, userWalletId: String) {
-        Task { [weak self] in
-            guard let self else {
-                return
-            }
+    private func updateRemoteWalletPublisher(
+        name: String,
+        context: some Encodable,
+        userWalletId: String
+    ) -> AnyPublisher<Void, Never> {
+        Deferred {
+            Future<Void, Never> { [weak self] promise in
+                guard let self else {
+                    promise(.success(()))
+                    return
+                }
 
-            do {
-                try await tangemApiService.updateWallet(by: userWalletId, context: context)
-            } catch {
-                PushNotificationsSyncServiceLogger.error(
-                    "Failed to sync wallet name for userWalletId: \(userWalletId), name: \(name)",
-                    error: error
-                )
+                Task {
+                    do {
+                        try await self.tangemApiService.updateWallet(by: userWalletId, context: context)
+                    } catch {
+                        PushNotificationsSyncServiceLogger.error(
+                            "Failed to sync wallet name for userWalletId: \(userWalletId), name: \(name)",
+                            error: error
+                        )
+                    }
+
+                    promise(.success(()))
+                }
             }
         }
+        .eraseToAnyPublisher()
     }
 }

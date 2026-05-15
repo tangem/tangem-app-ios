@@ -8,16 +8,6 @@
 
 import Foundation
 
-enum UserWalletPushNotifyRemoteStatus: Equatable {
-    case idle
-    case enabled
-    case disabled
-
-    var isEnabled: Bool {
-        self == .enabled
-    }
-}
-
 /// Represents the push notification status for a user's wallet
 enum UserWalletPushNotifyStatus: Equatable {
     /// Still loading, initialization in progress
