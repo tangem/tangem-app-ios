@@ -331,6 +331,7 @@
 "common_transactions" = "Транзакції";
 "common_transfer" = "Переказ";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "Я розумію, продовжити";
 "common_understand" = "Я зрозумів";
 "common_unknown_error" = "Виникла помилка. Будь ласка, спробуйте ще раз.";
@@ -564,8 +565,8 @@
 "hw_backup_hardware_title" = "Апаратний гаманець";
 "hw_backup_hardware_upgrade_description" = "Перетворіть поточний гаманець на холодний гаманець Tangem.";
 "hw_backup_hardware_upgrade_title" = "Оновіть поточний гаманець";
-"hw_backup_icloud_alert_message" = "We’re working on iCloud backup to make wallet recovery even easier.";
-"hw_backup_icloud_alert_title" = "iCloud backup is coming soon";
+"hw_backup_icloud_alert_message" = "Ми працюємо над резервним копіюванням в iCloud, щоб зробити відновлення гаманця ще простішим.";
+"hw_backup_icloud_alert_title" = "Резервне копіювання в iCloud незабаром з'явиться";
 "hw_backup_icloud_description" = "Відновлення існуючого гаманця через iCloud";
 "hw_backup_icloud_title" = "iCloud відновлення";
 "hw_backup_need_action" = "Перейти до бекапу";
@@ -1216,6 +1217,7 @@
 "staking_details_warmup_period_info" = "Відведений час для активації участі в стейкінгу.";
 "staking_details_warmup_period" = "Період блокування";
 "staking_dismiss_message" = "Ви впевнені, що хочете закрити вікно стейкінгу?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
@@ -1455,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "Перевипустити картку";
 "tangempay_card_details_rename_card_invalid_description" = "Дозволені лише літери та цифри";
 "tangempay_card_details_rename_card_invalid_title" = "Неприпустимі символи";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Показати";
 "tangempay_card_details_show_details" = "Показати деталі";
 "tangempay_card_details_swap_description" = "Обміняйте будь-який актив у вашому портфелі на картку";
@@ -1499,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Зазвичай це займає до 15 хвилин";
 "tangempay_issue_card_notification_title" = "Готуємо вашу картку Tangem";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "Карту зазвичай випускають автоматично протягом 5 хвилин. У рідкісних випадках, коли потрібна ручна перевірка, процес може тривати до 48 годин.";
 "tangempay_issuing_your_card" = "Випускаємо картку";
@@ -1549,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "Не можемо показати дані картки, але оплати продовжують працювати.";
 "tangempay_set_pin_code" = "Встановіть \nPIN-код";
 "tangempay_status_deactivated" = "Картку деактивовано";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Відновити доступ";
 "tangempay_sync_needed" = "Сесія закінчилася";
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
@@ -1626,6 +1631,7 @@
 "transaction_history_transaction_validator" = "валідатор: %@";
 "transaction_notifications_warning_description" = "Сповіщення ввімкнені, але не працюватимуть, доки ви не дозволите їх у налаштуваннях пристрою.";
 "transaction_notifications_warning_title" = "Сповіщення про транзакції";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Мінімум %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Мінімальна сума транзакції становить %1$@.";
 "tron_will_be_send_token_fee_description" = "Комісії мережі Tron для популярних токенів можуть бути вищими. Стейкінг TRX може допомогти знизити транзакційні витрати.";
@@ -1655,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Сповіщення про транзакції";
 "user_push_notification_agreement_argument_one" = "Будьте в курсі останніх функцій та новин";
 "user_push_notification_agreement_argument_three" = "Отримуйте сповіщення про вхідні транзакції";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Ранній доступ до нових функцій та ексклюзивних пропозицій.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Нові функції та важливі новини";
 "user_push_notification_agreement_argument_two" = "Дізнавайтеся першими про нові акції";
 "user_push_notification_agreement_header" = "Бажаєте використовувати Push-повідомлення?";

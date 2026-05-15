@@ -67,7 +67,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         maxLimit = tangemPayAccount.adminCardLimit
         self.coordinator = coordinator
 
-        let currentLimit = tangemPayAccount.cardLimit
+        let currentLimit = tangemPayAccount.cardLimit ?? 0
 
         amountFieldViewModel.update(value: Decimal(currentLimit))
 
@@ -115,7 +115,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
                     viewModel.isLoading = false
                     viewModel.alert = AlertBinder(
                         title: Localization.commonSomethingWentWrong,
-                        message: Localization.tangempayCardPageDailyLimitErrorDescription
+                        message: Localization.tangempayCardLimitSetupErrorMessage
                     )
                 }
             }

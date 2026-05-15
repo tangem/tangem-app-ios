@@ -10,8 +10,7 @@ import Foundation
 import TangemFoundation
 
 class CommonUnspentOutputManager {
-    private var outputs: ThreadSafeContainer<[UTXOLockingScript: [UnspentOutput]]> = [:]
-
+    private let outputs = OSAllocatedUnfairLock<[UTXOLockingScript: [UnspentOutput]]>(initialState: [:])
     private let preImageTransactionBuilder: UTXOPreImageTransactionBuilder
     private let lockingScriptBuilder: LockingScriptBuilder
     private let sorter: UTXOTransactionInputsSorter
@@ -28,14 +27,18 @@ class CommonUnspentOutputManager {
 
     /// Will be overridden in KaspaUnspentOutputManager
     func availableOutputs() -> [ScriptUnspentOutput] {
-        outputs.read().flatMap { key, value in
-            value.filter { $0.isConfirmed }.map { ScriptUnspentOutput(output: $0, script: key) }
+        outputs { dict in
+            dict.flatMap { key, value in
+                value.filter { $0.isConfirmed }.map { ScriptUnspentOutput(output: $0, script: key) }
+            }
         }
     }
 
     func pendingOutputs() -> [ScriptUnspentOutput] {
-        outputs.read().flatMap { key, value in
-            value.filter { !$0.isConfirmed }.map { ScriptUnspentOutput(output: $0, script: key) }
+        outputs { dict in
+            dict.flatMap { key, value in
+                value.filter { !$0.isConfirmed }.map { ScriptUnspentOutput(output: $0, script: key) }
+            }
         }
     }
 }
@@ -43,13 +46,17 @@ class CommonUnspentOutputManager {
 // MARK: - UnspentOutputManager
 
 extension CommonUnspentOutputManager: UnspentOutputManager {
-    func update(outputs: [UnspentOutput], for address: String) throws {
+    func update(outputs newOutputs: [UnspentOutput], for address: String) throws {
         let script = try lockingScriptBuilder.lockingScript(for: address)
-        self.outputs.mutate { $0[script] = outputs }
+        outputs { dict in
+            dict[script] = newOutputs
+        }
     }
 
-    func update(outputs: [UnspentOutput], for script: UTXOLockingScript) {
-        self.outputs.mutate { $0[script] = outputs }
+    func update(outputs newOutputs: [UnspentOutput], for script: UTXOLockingScript) {
+        outputs { dict in
+            dict[script] = newOutputs
+        }
     }
 
     func preImage(amount: Int, fee: Int, destination: String, changeAddress: String, opReturn: Data?) async throws -> PreImageTransaction {
@@ -65,15 +72,21 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
     }
 
     func confirmedBalance() -> UInt64 {
-        outputs.read().flatMap { $0.value }.filter { $0.isConfirmed }.sum(by: \.amount)
+        outputs { dict in
+            dict.flatMap { $0.value }.filter { $0.isConfirmed }.sum(by: \.amount)
+        }
     }
 
     func unconfirmedBalance() -> UInt64 {
-        outputs.read().flatMap { $0.value }.filter { !$0.isConfirmed }.sum(by: \.amount)
+        outputs { dict in
+            dict.flatMap { $0.value }.filter { !$0.isConfirmed }.sum(by: \.amount)
+        }
     }
 
     func clearOutputs() {
-        outputs.mutate { $0.removeAll() }
+        outputs { dict in
+            dict.removeAll()
+        }
     }
 }
 

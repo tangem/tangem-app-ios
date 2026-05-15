@@ -172,14 +172,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     final func onButtonReloadHistory() {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
-        // We should reset transaction history to initial state here
-        walletModel.clearHistory()
-
-        DispatchQueue.main.async {
-            self.isReloadingTransactionHistory = true
+        runTask(in: self) { viewModel in
+            // We should reset transaction history to initial state here
+            await viewModel.walletModel.clearHistory()
+            await MainActor.run { viewModel.isReloadingTransactionHistory = true }
+            await viewModel.performLoadHistory()
         }
-
-        performLoadHistory()
     }
 
     func copyDefaultAddress() {
@@ -205,13 +203,18 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
+    /// Sync convenience wrapper for `func performLoadHistory() async`.
     private func performLoadHistory() {
-        Task {
-            await walletModel.updateTransactionsHistory()
-            await MainActor.run {
-                if isReloadingTransactionHistory {
-                    isReloadingTransactionHistory = false
-                }
+        Task { [weak self] in
+            await self?.performLoadHistory()
+        }
+    }
+
+    private func performLoadHistory() async {
+        await walletModel.updateTransactionsHistory()
+        await MainActor.run {
+            if isReloadingTransactionHistory {
+                isReloadingTransactionHistory = false
             }
         }
     }
@@ -343,7 +346,7 @@ extension SingleTokenBaseViewModel {
             .store(in: &bag)
 
         notificationManager.notificationPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .removeDuplicates()
             // Fix for reappearing banner notifications.
             // [REDACTED_TODO_COMMENT]
@@ -697,6 +700,17 @@ extension SingleTokenBaseViewModel {
         ])
 
         openReceive()
+    }
+
+    func performTokenAction(_ type: TokenActionType) {
+        switch type {
+        case .buy: openBuyCryptoAction()
+        case .send: openSendAction()
+        case .receive: openReceiveAction()
+        case .exchange: openExchangeAction()
+        case .sell: openSellAction()
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
+        }
     }
 }
 
