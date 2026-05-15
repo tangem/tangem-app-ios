@@ -294,6 +294,12 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .earnNetworks(requestModel), decoder: decoder)
     }
 
+    // MARK: - Coins Implementation
+
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
+        try await request(for: .coinsSettings, decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
