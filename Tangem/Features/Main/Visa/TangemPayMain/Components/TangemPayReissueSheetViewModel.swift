@@ -49,19 +49,22 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
     private let userWalletId: UserWalletId
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayReissueSheetRoutable?
+    private let onError: () -> Void
 
     init(
         userWalletId: UserWalletId,
         tangemPayAccount: TangemPayAccount,
         feeText: String,
         isInsufficientFunds: Bool,
-        coordinator: TangemPayReissueSheetRoutable
+        coordinator: TangemPayReissueSheetRoutable,
+        onError: @escaping () -> Void
     ) {
         self.userWalletId = userWalletId
         self.tangemPayAccount = tangemPayAccount
         self.feeText = feeText
         self.isInsufficientFunds = isInsufficientFunds
         self.coordinator = coordinator
+        self.onError = onError
 
         Analytics.log(.visaReplaceCardConfirmationPopupOpened, contextParams: .userWallet(userWalletId))
     }
@@ -94,6 +97,8 @@ private extension TangemPayReissueSheetViewModel {
             } catch {
                 VisaLogger.error("Failed to reissue card", error: error)
                 viewModel.isLoading = false
+                viewModel.dismiss()
+                viewModel.onError()
             }
         }
     }
