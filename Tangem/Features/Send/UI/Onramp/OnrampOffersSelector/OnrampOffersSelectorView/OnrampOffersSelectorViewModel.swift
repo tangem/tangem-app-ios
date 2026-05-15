@@ -117,25 +117,13 @@ private extension OnrampOffersSelectorViewModel {
                 }
             )
 
-            let infoAction: (() -> Void)? = buyAction.isNativeApplePay
-                ? { [weak self] in self?.openProviderRequirementsSheet() }
-                : nil
-
             return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
                 provider: provider,
-                buyAction: buyAction,
-                infoAction: infoAction
+                buyAction: buyAction
             )
         }
 
         return offers.sorted { lhs, _ in lhs.isNativePayment }
-    }
-
-    func openProviderRequirementsSheet() {
-        let viewModel = OnrampProviderRequirementsBottomSheetViewModel()
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
     }
 }
 
