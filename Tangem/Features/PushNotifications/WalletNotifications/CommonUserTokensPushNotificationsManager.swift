@@ -16,8 +16,6 @@ final class CommonUserTokensPushNotificationsManager {
     // MARK: - Services
 
     @Injected(\.pushNotificationsPermission) var pushNotificationsPermission: PushNotificationsPermissionService
-    @Injected(\.pushNotificationsInteractor) var pushNotificationsInteractor: PushNotificationsInteractor
-    @Injected(\.pushNotificationsPermission) var pushNotificationsPermissionService: PushNotificationsPermissionService
 
     // MARK: - Private Properties
 
@@ -149,6 +147,8 @@ private extension CommonUserTokensPushNotificationsManager {
             return .disabledInApp
         case .idle:
             return .loading
+        case .syncFailed:
+            return .failed
         }
     }
 
@@ -201,10 +201,8 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         return status == .loading || status == .failed
     }
 
-    func handleUpdateOnRemoteStatus(_ value: Bool) {
-        let updateRemoteStatus: UserWalletPushNotifyRemoteStatus = value ? .enabled : .disabled
-        _userWalletPushRemoteStatusSubject.send(updateRemoteStatus)
-
+    func handleUpdateOnRemoteStatus(_ status: UserWalletPushNotifyRemoteStatus) {
+        _userWalletPushRemoteStatusSubject.send(status)
         updateStatusIfNeeded()
     }
 
@@ -241,7 +239,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func getInitialPushStatusWithAllowance() async -> Bool {
         let currentStatus = status
-        let isAuthorizedPushNotifications = await pushNotificationsPermissionService.isAuthorized
+        let isAuthorizedPushNotifications = await pushNotificationsPermission.isAuthorized
 
         // For failed state, don't use allowance logic - return false to avoid sending incorrect status
         if currentStatus == .failed {

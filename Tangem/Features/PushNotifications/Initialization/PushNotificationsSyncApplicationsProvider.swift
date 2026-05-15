@@ -40,7 +40,9 @@ final class PushNotificationsSyncApplicationsProvider {
 
         await MainActor.run {
             AppSettings.shared.applicationUid = response.uid
-            AppSettings.shared.lastStoredFCMToken = fcmToken
+            if !fcmToken.isEmpty {
+                AppSettings.shared.lastStoredFCMToken = fcmToken
+            }
         }
     }
 

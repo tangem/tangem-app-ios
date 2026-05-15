@@ -19,7 +19,7 @@ protocol UserTokensPushNotificationsManager {
     /// Used to determine if permission warning should be shown
     var isRemoteStatusEnabled: Bool { get }
 
-    func handleUpdateOnRemoteStatus(_ isEnabled: Bool)
+    func handleUpdateOnRemoteStatus(_ status: UserWalletPushNotifyRemoteStatus)
     func handleUpdateOnLocalStatus(_ isEnabled: Bool)
     func handleSyncError()
 
