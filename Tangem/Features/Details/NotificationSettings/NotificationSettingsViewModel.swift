@@ -36,7 +36,6 @@ final class NotificationSettingsViewModel: ObservableObject {
     /// `nil` when the wallet is not eligible for transaction push notifications.
     private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager?
 
-    /// In-memory state for non-functional toggles (Offers & Updates, Price Alerts).
     @Published private var isOffersUpdatesEnabled: Bool = false
     @Published private var isPriceAlertsEnabled: Bool = false
 
@@ -91,7 +90,7 @@ private extension NotificationSettingsViewModel {
                 default: false,
                 get: { $0.isOffersUpdatesEnabled },
                 set: { viewModel, newValue in
-                    viewModel.handleInMemoryToggleWithPermission(
+                    viewModel.handlePreferenceToggle(
                         newValue: newValue,
                         setter: { viewModel.isOffersUpdatesEnabled = $0 }
                     )
@@ -106,7 +105,7 @@ private extension NotificationSettingsViewModel {
                 default: false,
                 get: { $0.isPriceAlertsEnabled },
                 set: { viewModel, newValue in
-                    viewModel.handleInMemoryToggleWithPermission(
+                    viewModel.handlePreferenceToggle(
                         newValue: newValue,
                         setter: { viewModel.isPriceAlertsEnabled = $0 }
                     )
@@ -142,13 +141,13 @@ private extension NotificationSettingsViewModel {
     }
 }
 
-// MARK: - In-memory Toggles (Offers / Price Alerts)
+// MARK: - Remote Toggles (Offers / Price Alerts)
 
 private extension NotificationSettingsViewModel {
-    /// For non-functional toggles (Offers & Updates, Price Alerts):
-    /// - Enabling triggers system permission request flow (matches existing transaction toggle behavior).
-    /// - State is kept in memory only; no backend or persistence side effects.
-    func handleInMemoryToggleWithPermission(newValue: Bool, setter: @escaping (Bool) -> Void) {
+    /// Handles a toggle change for Offers & Updates or Price Alerts:
+    /// - Disabling: sends PUT immediately (optimistic, reverts on error).
+    /// - Enabling: requests system permission first, then sends PUT.
+    func handlePreferenceToggle(newValue: Bool, setter: @escaping (Bool) -> Void) {
         if !newValue {
             setter(false)
             return
