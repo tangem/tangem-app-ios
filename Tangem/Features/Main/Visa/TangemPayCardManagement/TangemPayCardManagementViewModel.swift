@@ -9,6 +9,7 @@
 import Combine
 import PassKit
 import TangemUI
+import TangemUIUtils
 import TangemSdk
 import TangemVisa
 import TangemFoundation
@@ -24,6 +25,8 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState = .loading
+    @Published private(set) var isReissuing: Bool = false
+    @Published var alert: AlertBinder?
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -119,6 +122,11 @@ private extension TangemPayCardManagementViewModel {
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
 
+        tangemPayAccount.isReissuingCardPublisher
+            .receiveOnMain()
+            .assign(to: \.isReissuing, on: self, ownership: .weak)
+            .store(in: &bag)
+
         tangemPayAccount.cardLimitPublisher
             .map { amount -> TangemPayDailyLimitState in
                 let formatter = BalanceFormatter().makeDefaultFiatFormatter(
@@ -180,7 +188,18 @@ private extension TangemPayCardManagementViewModel {
 
     func onReplaceCard() {
         Analytics.log(.visaReplaceCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTangemPayReissueSheet(userWalletId: userWalletInfo.id, tangemPayAccount: tangemPayAccount)
+        coordinator?.openTangemPayReissueSheet(
+            userWalletId: userWalletInfo.id,
+            tangemPayAccount: tangemPayAccount,
+            onError: { [weak self] in self?.showReissueError() }
+        )
+    }
+
+    func showReissueError() {
+        alert = AlertBinder(
+            title: Localization.commonSomethingWentWrong,
+            message: Localization.tangempayReissueCardFeeUnreachableErrorTitle
+        )
     }
 
     func setPin() {
