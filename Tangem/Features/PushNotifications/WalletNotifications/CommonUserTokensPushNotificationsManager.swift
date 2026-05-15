@@ -24,6 +24,7 @@ final class CommonUserTokensPushNotificationsManager {
     private let userWalletId: UserWalletId
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
+    private let notificationPreferencesProvider: NotificationPreferencesProvider
 
     private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<UserWalletPushNotifyRemoteStatus, Never> = .init(.idle)
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
@@ -36,11 +37,13 @@ final class CommonUserTokensPushNotificationsManager {
     init(
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
-        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
+        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing,
+        notificationPreferencesProvider: NotificationPreferencesProvider
     ) {
         self.userWalletId = userWalletId
         self.accountModelsManager = accountModelsManager
         self.remoteStatusSyncing = remoteStatusSyncing
+        self.notificationPreferencesProvider = notificationPreferencesProvider
 
         bind()
     }
