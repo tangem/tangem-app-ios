@@ -182,7 +182,11 @@ struct TangemPayMainView: View {
     private var cardIconRow: some View {
         HStack(spacing: 8) {
             Button(action: viewModel.openCardManagement) {
-                TangemPaySmallCardView(cardNumberEnd: viewModel.cardNumberEnd)
+                TangemPaySmallCardView(
+                    state: viewModel.shouldDisplayReplacingCardBanner
+                        ? .replacing
+                        : .active(cardNumberEnd: viewModel.cardNumberEnd)
+                )
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
 
