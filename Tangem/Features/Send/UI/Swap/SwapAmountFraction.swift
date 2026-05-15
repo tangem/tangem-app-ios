@@ -44,4 +44,13 @@ enum SwapAmountFraction: CaseIterable {
             return "max"
         }
     }
+
+    var analyticsValue: String {
+        switch self {
+        case .quarter, .half, .threeQuarters:
+            return "\(percent)"
+        case .max:
+            return Analytics.ParameterValue.max.rawValue
+        }
+    }
 }
