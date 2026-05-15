@@ -88,7 +88,7 @@ extension Analytics {
 
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"
-        case transactionFeeMax = "Max"
+        case max = "Max"
         case custom = "Custom"
 
         case coin = "Coin"
@@ -338,5 +338,7 @@ extension Analytics {
         static func feeAssetType(isGasless: Bool) -> ParameterValue {
             return isGasless ? .token : .coin
         }
+
+        static let transactionFeeMax: ParameterValue = .max
     }
 }
