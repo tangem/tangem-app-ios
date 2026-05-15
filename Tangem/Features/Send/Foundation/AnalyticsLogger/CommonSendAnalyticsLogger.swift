@@ -492,6 +492,16 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logUserDidTapOnProvider() {
         Analytics.log(.sendProviderClicked)
     }
+
+    func logTapAmountFraction(_ fraction: SwapAmountFraction) {
+        guard let tokenItem = sourceTokenItem else { return }
+
+        Analytics.log(event: .swapFastAmountInput, params: [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .percentage: fraction.analyticsValue,
+        ])
+    }
 }
 
 // MARK: - SendApproveAnalyticsLogger
