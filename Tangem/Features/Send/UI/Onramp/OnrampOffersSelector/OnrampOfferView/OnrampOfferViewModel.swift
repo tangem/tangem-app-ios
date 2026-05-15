@@ -21,6 +21,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let amount: Amount
     let provider: Provider
     let isAvailable: Bool
+    let legalNotice: LegalNotice?
 
     var isNativePayment: Bool { buyAction.isNativeApplePay }
 
@@ -32,13 +33,15 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         amount: Amount,
         provider: Provider,
         isAvailable: Bool,
-        buyAction: BuyAction
+        buyAction: BuyAction,
+        legalNotice: LegalNotice? = nil
     ) {
         self.title = title
         self.amount = amount
         self.provider = provider
         self.isAvailable = isAvailable
         self.buyAction = buyAction
+        self.legalNotice = legalNotice
     }
 }
 
@@ -53,12 +56,32 @@ extension OnrampOfferViewModel {
     struct Amount: Hashable {
         let formatted: String
         let badge: OnrampAmountBadge.Badge?
+
+        @IgnoredEquatable
+        var infoAction: (() -> Void)?
+
+        init(
+            formatted: String,
+            badge: OnrampAmountBadge.Badge?,
+            infoAction: (() -> Void)? = nil
+        ) {
+            self.formatted = formatted
+            self.badge = badge
+            self.infoAction = infoAction
+        }
     }
 
     struct Provider: Hashable {
         let name: String
         let paymentType: OnrampPaymentMethod
         let timeFormatted: String
+    }
+
+    struct LegalNotice: Hashable {
+        let providerName: String
+        let termsOfUse: URL?
+        let privacyPolicy: URL?
+        let cookiePolicy: URL?
     }
 
     @CaseFlagable

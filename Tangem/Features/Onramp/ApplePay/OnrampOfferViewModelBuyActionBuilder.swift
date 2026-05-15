@@ -76,7 +76,6 @@ struct OnrampOfferViewModelBuyActionBuilder {
             authorizationHandler?.applePaySheetWillPresent()
 
         case .didAuthorize(let payment, let resultHandler):
-            print("[ApplePay] didAuthorize billingContact email:", payment.billingContact?.emailAddress ?? "<nil>", "name:", payment.billingContact?.name as Any, "postalAddress.country:", payment.billingContact?.postalAddress?.country ?? "<nil>")
             guard let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment) else {
                 let error = PKPaymentRequest.paymentContactInvalidError(
                     withContactField: .emailAddress,

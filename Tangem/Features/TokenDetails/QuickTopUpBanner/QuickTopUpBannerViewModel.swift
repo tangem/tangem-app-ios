@@ -21,7 +21,6 @@ final class QuickTopUpBannerViewModel: ObservableObject {
 
     private let sourceToken: any SendSourceToken
     private let onOpenOnramp: (PredefinedOnrampParameters) -> Void
-    private let presetAmounts: [Decimal] = [50, 200, 700]
     private var presetByChipID: [Chip.ID: PredefinedOnrampParameters] = [:]
     private var bag = Set<AnyCancellable>()
 
@@ -70,8 +69,7 @@ final class QuickTopUpBannerViewModel: ObservableObject {
             .sink { [weak self] currencyCode, isZeroBalance in
                 guard let self else { return }
 
-                if let currencyCode, isZeroBalance {
-                    let result = makeChips(currencyCode: currencyCode)
+                if let currencyCode, isZeroBalance, let result = makeChips(currencyCode: currencyCode) {
                     chips = result.chips
                     presetByChipID = result.presets
                 } else {
@@ -82,7 +80,9 @@ final class QuickTopUpBannerViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func makeChips(currencyCode: String) -> (chips: [Chip], presets: [Chip.ID: PredefinedOnrampParameters]) {
+    private func makeChips(currencyCode: String) -> (chips: [Chip], presets: [Chip.ID: PredefinedOnrampParameters])? {
+        guard let amounts = Self.presetAmounts(for: currencyCode) else { return nil }
+
         let formatter = BalanceFormatter()
         let options = BalanceFormattingOptions(
             minFractionDigits: 0,
@@ -93,9 +93,9 @@ final class QuickTopUpBannerViewModel: ObservableObject {
 
         var chips: [Chip] = []
         var presets: [Chip.ID: PredefinedOnrampParameters] = [:]
-        chips.reserveCapacity(presetAmounts.count + 1)
+        chips.reserveCapacity(amounts.count + 1)
 
-        for amount in presetAmounts {
+        for amount in amounts {
             let title = formatter.formatFiatBalance(amount, currencyCode: currencyCode, formattingOptions: options)
             let id = UUID().uuidString
             chips.append(Chip(id: id, title: title))
@@ -107,5 +107,13 @@ final class QuickTopUpBannerViewModel: ObservableObject {
         presets[otherID] = PredefinedOnrampParameters.none
 
         return (chips, presets)
+    }
+
+    private static func presetAmounts(for currencyCode: String) -> [Decimal]? {
+        switch currencyCode {
+        case AppConstants.eurCurrencyCode: [50, 200, 650]
+        case AppConstants.usdCurrencyCode: [50, 200, 700]
+        default: nil
+        }
     }
 }
