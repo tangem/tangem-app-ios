@@ -68,25 +68,21 @@ extension HoldToConfirmButton {
         let cancelTitle: String
         let holdDuration: TimeInterval
         let shakeDuration: TimeInterval
-        let vibratesPerSecond: Int
 
         public static let `default` = Self(
             cancelTitle: Localization.commonTapAndHoldHint,
-            holdDuration: 1.5,
-            shakeDuration: 0.8,
-            vibratesPerSecond: 20
+            holdDuration: 2.0,
+            shakeDuration: 0.8
         )
 
         public init(
             cancelTitle: String,
             holdDuration: TimeInterval,
-            shakeDuration: TimeInterval,
-            vibratesPerSecond: Int
+            shakeDuration: TimeInterval
         ) {
             self.cancelTitle = cancelTitle
             self.holdDuration = holdDuration
             self.shakeDuration = shakeDuration
-            self.vibratesPerSecond = vibratesPerSecond
         }
     }
 
