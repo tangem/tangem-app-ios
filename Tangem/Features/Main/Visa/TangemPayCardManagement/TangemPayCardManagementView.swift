@@ -51,11 +51,11 @@ struct TangemPayCardManagementView: View {
             .padding(.vertical, 12)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .keyboardToolbar {
+        .safeAreaInset(edge: .bottom, content: {
             if let renameVM = viewModel.cardRenameViewModel {
                 TangemPayCardRenameToolbarView(renameViewModel: renameVM)
             }
-        }
+        })
         .toolbar {
             if let renameVM = viewModel.cardRenameViewModel {
                 NavigationToolbarButton.close(placement: .topBarTrailing, action: renameVM.close)

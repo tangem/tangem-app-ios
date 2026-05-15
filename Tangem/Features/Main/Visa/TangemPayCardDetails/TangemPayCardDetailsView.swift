@@ -255,15 +255,20 @@ struct TangemPayCardDetailsView: View {
                 }
             }
         case .editing:
-            TextField("", text: $viewModel.cardName)
-                .font(Fonts.Bold.footnote)
-                .foregroundColor(Colors.Text.constantWhite)
-                .tint(Colors.Text.constantWhite)
-                .focused($isCardNameFocused)
-                .task {
-                    try? await Task.sleep(for: .milliseconds(300))
-                    isCardNameFocused = true
+            TextField(
+                text: $viewModel.cardName,
+                label: {
+                    Text(Localization.tangempayCardDetailsRenameCardPlaceholder)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                 }
+            )
+            .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
+            .tint(Colors.Text.constantWhite)
+            .focused($isCardNameFocused)
+            .task {
+                try? await Task.sleep(for: .milliseconds(300))
+                isCardNameFocused = true
+            }
         }
     }
 

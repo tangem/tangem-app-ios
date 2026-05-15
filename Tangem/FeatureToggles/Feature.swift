@@ -23,17 +23,18 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaScaledUIEnabled
     case dynamicAddresses
     case usdtRevokeGaslessFee
-    case newPromotionBanners
     case swapPipelineV2
     case onrampNativePayment
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
+    case swapProviderTypeFilter
     case swapInProgressV2
     case swapPendingTxStateDate
     case dexApproveNotificationV2
     case manageTokensImprovements
     case swapMaxAmountFractions
+    case pushNotificationsSettings
 
     var name: String {
         switch self {
@@ -51,17 +52,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
-        case .newPromotionBanners: return "New Promotion Banners"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
+        case .swapProviderTypeFilter: return "13675_Swap_Provider_Type_Filter"
         case .swapInProgressV2: return "Swap In Progress V2"
         case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
+        case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
         }
     }
 
@@ -81,17 +83,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
-        case .newPromotionBanners: return .version("5.37")
         case .swapPipelineV2: return .version("5.38")
         case .onrampNativePayment: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
         case .swapStoriesV2: return .version("5.38")
+        case .swapProviderTypeFilter: return .unspecified
         case .swapInProgressV2: return .unspecified
         case .swapPendingTxStateDate: return .unspecified
         case .dexApproveNotificationV2: return .unspecified
         case .manageTokensImprovements: return .unspecified
         case .swapMaxAmountFractions: return .unspecified
+        case .pushNotificationsSettings: return .unspecified
         }
     }
 }
