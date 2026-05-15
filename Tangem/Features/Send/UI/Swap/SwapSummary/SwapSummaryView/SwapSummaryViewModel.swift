@@ -85,6 +85,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
+        analyticsLogger.logTapAmountFraction(fraction)
         interactor.userDidRequestSourceAmount(fraction: fraction)
     }
 
