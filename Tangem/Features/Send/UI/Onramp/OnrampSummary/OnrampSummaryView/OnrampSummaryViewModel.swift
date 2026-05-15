@@ -152,7 +152,7 @@ private extension OnrampSummaryViewModel {
 
         let isNativeApplePay = suggestedOfferType.isNativeApplePay
         let infoAction: (() -> Void)? = isNativeApplePay ? { [weak self] in self?.openProviderRequirementsSheet() } : nil
-        let legalNotice = isNativeApplePay ? makeLegalNotice(for: provider) : nil
+        let legalNotice = isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
         let footnote = isNativeApplePay ? makeCumulativeLimitFootnote(for: provider) : nil
 
         let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
@@ -164,15 +164,6 @@ private extension OnrampSummaryViewModel {
         )
 
         return RecommendedItem(viewModel: viewModel, footnote: footnote)
-    }
-
-    func makeLegalNotice(for provider: OnrampProvider) -> OnrampOfferViewModel.LegalNotice {
-        OnrampOfferViewModel.LegalNotice(
-            providerName: provider.provider.name,
-            termsOfUse: provider.provider.termsOfUse,
-            privacyPolicy: provider.provider.privacyPolicy,
-            cookiePolicy: OnrampNativePaymentLegalLinks.cookiePolicyURL(providerId: provider.provider.id)
-        )
     }
 
     func makeCumulativeLimitFootnote(for provider: OnrampProvider) -> String {
