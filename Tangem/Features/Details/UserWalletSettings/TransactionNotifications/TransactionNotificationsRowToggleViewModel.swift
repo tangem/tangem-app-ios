@@ -93,7 +93,7 @@ private extension TransactionNotificationsRowToggleViewModel {
         // One-time initialization. Because isNotInitialized is non-recoverable
         pushNotifyViewModel = DefaultToggleRowViewModel(
             title: Localization.walletSettingsPushNotificationsTitle,
-            isDisabled: currentStatus.isNotInitialized,
+            isDisabled: userTokensPushNotificationsManager.isNotInitialized,
             isOn: isEnabledPushNotificationStatusBinding
         )
 
@@ -105,7 +105,10 @@ private extension TransactionNotificationsRowToggleViewModel {
 
 private extension TransactionNotificationsRowToggleViewModel {
     func displayPermissionWarningIfNeeded(for status: UserWalletPushNotifyStatus) {
-        if case .unavailable(let reason, let enabledRemote) = status, enabledRemote, reason == .permissionDenied {
+        // Only show warning if:
+        // 1. System permissions are not granted (status = .needSystemPermission)
+        // 2. AND remote status is enabled on backend
+        if status == .needSystemPermission, userTokensPushNotificationsManager.isRemoteStatusEnabled {
             warningPermissionViewModel = DefaultWarningRowViewModel(
                 title: Localization.transactionNotificationsWarningTitle,
                 subtitle: Localization.transactionNotificationsWarningDescription,
@@ -125,32 +128,28 @@ private extension TransactionNotificationsRowToggleViewModel {
     /// - Parameter value: The new desired state of push notifications (true for enabled, false for disabled)
     ///
     /// The method follows these rules:
-    /// - For `.enabled` or `.disabled` states: Simply switches between these states based on the remote server value
-    /// - For `.unAvailable` state with `.permissionDenied` reason:
+    /// - For .enabled or .disabledInApp states: Simply switches between these states based on the remote server value
+    /// - For .needSystemPermission state:
     ///   - If enabling: Shows an alert to guide user to system settings
-    ///   - If disabling: Updates to `.unAvailable(reason: .permissionDenied, remote: false)`
-    /// - For other states: Maintains current status and UI shows toggle as disabled
+    ///   - If disabling: No action needed (already disabled)
+    /// - For other states (`.loading`, `.failed`): Maintains current status and UI shows toggle as disabled
     ///
-    /// The actual status update is delegated to the `userTokensPushNotificationsManager`.
+    /// The actual status update is delegated to the userTokensPushNotificationsManager.
     func handleTogglePushNotifyStatus(toggleValue: Bool) {
         Analytics.log(.pushToggleClicked, params: [.state: toggleValue ? .on : .off])
 
-        let toUpdatePushNotifyStatus: UserWalletPushNotifyStatus
-
         switch userTokensPushNotificationsManager.status {
-        case .enabled, .disabled:
-            toUpdatePushNotifyStatus = toggleValue ? .enabled : .disabled
-        case .unavailable(let blockedReason, _) where blockedReason == .permissionDenied && toggleValue:
+        case .enabled, .disabledInApp:
+            userTokensPushNotificationsManager.handleUpdateOnLocalStatus(toggleValue)
+        case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
-        case .unavailable(let blockedReason, _) where blockedReason == .permissionDenied && !toggleValue:
-            toUpdatePushNotifyStatus = .unavailable(reason: .permissionDenied, enabledRemote: false)
+        case .needSystemPermission where !toggleValue:
+            break
         default:
             // DefaultToggleRowViewModel did at disabled state. The status does not need to be updated
-            return
+            break
         }
-
-        userTokensPushNotificationsManager.handleUpdateWalletPushNotifyStatus(toUpdatePushNotifyStatus)
     }
 
     func handleAndCheckUnavailablePushNotifyStatus() {
@@ -160,7 +159,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.handleUpdateWalletPushNotifyStatus(.enabled)
+                viewModel.userTokensPushNotificationsManager.handleUpdateOnLocalStatus(true)
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()
