@@ -91,6 +91,7 @@ final class TangemPayAccount {
 
     let customerService: any CustomerInfoManagementService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
+    let feeRepository: TangemPayFeeRepository
 
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
 
@@ -123,6 +124,7 @@ final class TangemPayAccount {
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
+        feeRepository: TangemPayFeeRepository,
         account: (any TangemPayAccountModel)?
     ) {
         self.userWalletId = userWalletId
@@ -134,6 +136,7 @@ final class TangemPayAccount {
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
+        self.feeRepository = feeRepository
         self.account = account
     }
 
