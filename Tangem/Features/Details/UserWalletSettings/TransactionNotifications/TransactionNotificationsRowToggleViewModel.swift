@@ -82,14 +82,12 @@ private extension TransactionNotificationsRowToggleViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, status in
                 viewModel.isPushNotifyEnabled = status.isActive
-                viewModel.displayPermissionWarningIfNeeded(for: status)
+                viewModel.refreshPermissionWarning()
             }
             .store(in: &bag)
     }
 
     func setupViewModels() {
-        let currentStatus = userTokensPushNotificationsManager.status
-
         // One-time initialization. Because isNotInitialized is non-recoverable
         pushNotifyViewModel = DefaultToggleRowViewModel(
             title: Localization.walletSettingsPushNotificationsTitle,
@@ -97,26 +95,24 @@ private extension TransactionNotificationsRowToggleViewModel {
             isOn: isEnabledPushNotificationStatusBinding
         )
 
-        displayPermissionWarningIfNeeded(for: currentStatus)
+        refreshPermissionWarning()
     }
 }
 
 // MARK: - Private Push Notifications Implementation
 
 private extension TransactionNotificationsRowToggleViewModel {
-    func displayPermissionWarningIfNeeded(for status: UserWalletPushNotifyStatus) {
-        // Only show warning if:
-        // 1. System permissions are not granted (status = .needSystemPermission)
-        // 2. AND remote status is enabled on backend
-        if status == .needSystemPermission, userTokensPushNotificationsManager.isRemoteStatusEnabled {
-            warningPermissionViewModel = DefaultWarningRowViewModel(
-                title: Localization.transactionNotificationsWarningTitle,
-                subtitle: Localization.transactionNotificationsWarningDescription,
-                leftView: .icon(Assets.attention),
-            )
-        } else {
+    func refreshPermissionWarning() {
+        guard userTokensPushNotificationsManager.shouldShowPermissionWarning else {
             warningPermissionViewModel = nil
+            return
         }
+
+        warningPermissionViewModel = DefaultWarningRowViewModel(
+            title: Localization.transactionNotificationsWarningTitle,
+            subtitle: Localization.transactionNotificationsWarningDescription,
+            leftView: .icon(Assets.attention),
+        )
     }
 
     /// Handles the state changes of push notifications toggle in wallet settings.
@@ -140,7 +136,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         switch userTokensPushNotificationsManager.status {
         case .enabled, .disabledInApp:
-            userTokensPushNotificationsManager.handleUpdateOnLocalStatus(toggleValue)
+            userTokensPushNotificationsManager.dispatch(.localStatusUpdated(toggleValue))
         case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
@@ -159,7 +155,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.handleUpdateOnLocalStatus(true)
+                viewModel.userTokensPushNotificationsManager.dispatch(.localStatusUpdated(true))
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()
