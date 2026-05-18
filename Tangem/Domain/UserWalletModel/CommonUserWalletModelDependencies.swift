@@ -193,11 +193,14 @@ private extension CommonUserWalletModelDependencies {
         shouldLoadExpressAvailability: Bool
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
+        let transactionHistorySyncRegistry = CommonTransactionHistorySyncRegistry()
+
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
-            keysDerivingInteractor: keysDerivingInteractor
+            keysDerivingInteractor: keysDerivingInteractor,
+            transactionHistorySyncRegistry: transactionHistorySyncRegistry
         )
 
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
