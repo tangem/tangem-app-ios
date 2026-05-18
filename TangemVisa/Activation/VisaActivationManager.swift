@@ -225,7 +225,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
     /// - Returns: The refreshed `VisaCardActivationRemoteState`.
     /// - Throws: A `VisaActivationError` if the state cannot be retrieved.
     func refreshActivationRemoteState() async throws(VisaActivationError) -> VisaCardActivationRemoteState {
-        guard let authorizationTokens = authorizationTokensHandler.authorizationTokens else {
+        guard let authorizationTokens = await authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
 
@@ -318,7 +318,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
             throw .missingActivationStatusInfo
         }
 
-        guard let authorizationTokens = authorizationTokensHandler.authorizationTokens else {
+        guard let authorizationTokens = await authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
 
@@ -347,7 +347,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
     func setPINCode(_ pinCode: String) async throws(VisaActivationError) {
         guard
             let activationInput,
-            let authorizationTokens = authorizationTokensHandler.authorizationTokens,
+            let authorizationTokens = await authorizationTokensHandler.authorizationTokens,
             let activationOrderId = activationStatus?.activationOrder?.id
         else {
             throw .missingAccessToken
@@ -435,7 +435,7 @@ private extension CommonVisaActivationManager {
     ) async throws(VisaActivationError) -> CardActivationResponse {
         do {
             var authorizationChallenge: String?
-            if !authorizationTokensHandler.containsAccessToken {
+            if await !authorizationTokensHandler.containsAccessToken {
                 authorizationChallenge = try await authorizationProcessor.getAuthorizationChallenge(for: activationInput)
             }
 
@@ -470,7 +470,7 @@ private extension CommonVisaActivationManager {
                 isTestnet: isTestnet
             )
 
-            guard let tokens = authorizationTokensHandler.authorizationTokens else {
+            guard let tokens = await authorizationTokensHandler.authorizationTokens else {
                 throw VisaActivationError.missingAccessToken
             }
 
@@ -575,7 +575,7 @@ private extension CommonVisaActivationManager {
     ///   - activationInput: The card's activation context.
     /// - Throws: `VisaActivationError` if deployment submission fails.
     func handleCardActivation(using activationResponse: CardActivationResponse, activationInput: VisaCardActivationInput) async throws(VisaActivationError) {
-        guard let tokens = authorizationTokensHandler.authorizationTokens else {
+        guard let tokens = await authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
 
@@ -611,13 +611,13 @@ private extension CommonVisaActivationManager {
     /// Forces a refresh of the authorization tokens after card activation. Backend have two type of authorization tokens:
     ///     - tokens for activation process
     ///     - tokens for activated card
-    /// That is why we need to force refresh token, to retreive tokens for activated card
+    /// That is why we need to force refresh token, to retrieve tokens for activated card
     /// - Throws: `VisaActivationError` if token refresh fails.
     func saveActivatedCardRefreshToken() async throws(VisaActivationError) {
         do {
-            try await authorizationTokensHandler.exchageTokens()
+            try await authorizationTokensHandler.exchangeTokens()
         } catch {
-            VisaLogger.error("Failed to retreive activated card refresh token", error: error)
+            VisaLogger.error("Failed to retrieve activated card refresh token", error: error)
             throw .underlyingError(error)
         }
     }
