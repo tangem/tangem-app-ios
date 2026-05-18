@@ -9,11 +9,14 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemFoundation
 
 final class CommonWalletModelTransactionHistoryFeatureManager {
     private let key: TransactionHistoryProviderKey
     private let tokenItem: TokenItem
     private let registry: any TransactionHistoryProviderRegistry
+    private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistorySyncing)?, Never>(nil)
+    private var transactionHistoryProviderSubscription: AnyCancellable?
 
     private var isAvailable: Bool {
         // [REDACTED_TODO_COMMENT]
@@ -28,19 +31,30 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
         self.key = key
         self.tokenItem = tokenItem
         self.registry = registry
+
+        bind()
+    }
+
+    private func bind() {
+        if isAvailable {
+            transactionHistoryProviderSubscription = Future
+                .async { [registry, key] in
+                    await registry.provider(for: key)
+                }
+                .eraseToOptional()
+                .sink { [transactionHistoryProviderSubject] in
+                    transactionHistoryProviderSubject.send($0)
+                }
+        }
     }
 
     // MARK: - Feature
 
     var transactionHistoryProvider: (any TransactionHistorySyncing)? {
-        guard isAvailable else {
-            return nil
-        }
-
-        return registry.provider(for: key)
+        transactionHistoryProviderSubject.value
     }
 
     var transactionHistoryProviderPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
-        Just(transactionHistoryProvider).eraseToAnyPublisher()
+        transactionHistoryProviderSubject.eraseToAnyPublisher()
     }
 }

@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol TransactionHistoryProviderRegistry: AnyObject, Sendable {
-    func provider(for key: TransactionHistoryProviderKey) -> any TransactionHistorySyncing
+protocol TransactionHistoryProviderRegistry: Sendable {
+    func provider(for key: TransactionHistoryProviderKey) async -> any TransactionHistorySyncing
 }
