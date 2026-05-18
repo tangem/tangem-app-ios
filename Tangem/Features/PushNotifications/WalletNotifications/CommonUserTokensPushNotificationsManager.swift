@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import UIKit
 import Foundation
 import Combine
 import CombineExt
@@ -22,6 +21,7 @@ final class CommonUserTokensPushNotificationsManager {
     private let userWalletId: UserWalletId
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
+    private let updateTrigger: UserTokensPushNotificationsUpdateTrigger
     private let notificationPreferencesProvider: NotificationPreferencesProvider
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
@@ -41,6 +41,7 @@ final class CommonUserTokensPushNotificationsManager {
         self.accountModelsManager = accountModelsManager
         self.remoteStatusSyncing = remoteStatusSyncing
         self.notificationPreferencesProvider = notificationPreferencesProvider
+        updateTrigger = UserTokensPushNotificationsUpdateTrigger(accountModelsManager: accountModelsManager)
 
         bind()
     }
@@ -48,56 +49,16 @@ final class CommonUserTokensPushNotificationsManager {
     // MARK: - Private Implementation
 
     private func bind() {
-        let isUserTokenListReadyPublisher = accountModelsManager
-            .cryptoAccountModelsPublisher
-            .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
-                guard cryptoAccountModels.isNotEmpty else {
-                    return .just(output: false)
-                }
-
-                return cryptoAccountModels
-                    .map { $0.userTokensManager.userTokensPublisher }
-                    .combineLatest()
-                    .mapToValue(true)
-                    .eraseToAnyPublisher()
-            }
-            .filter { $0 }
-            .share(replay: 1)
-
-        accountModelsManager
-            .cryptoAccountModelsPublisher
-            .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
-                let hasPendingDerivationsPublishers = cryptoAccountModels
-                    .compactMap { $0.userTokensManager.derivationManager?.hasPendingDerivations }
-
-                guard hasPendingDerivationsPublishers.isNotEmpty else {
-                    return .just(output: false)
-                }
-
-                return hasPendingDerivationsPublishers
-                    .combineLatest()
-                    .map { $0.contains(true) }
-                    .eraseToAnyPublisher()
-            }
-            .pairwise()
-            .filter { previous, current in
-                // Proceed further only when pending derivations are finished
-                return previous != current && current == false
-            }
-            .combineLatest(isUserTokenListReadyPublisher)
+        updateTrigger
+            .eventsPublisher
             .withWeakCaptureOf(self)
-            .sink { manager, _ in
-                manager.syncRemoteStatus()
-            }
-            .store(in: &bag)
-
-        NotificationCenter.default
-            .publisher(for: UIApplication.willEnterForegroundNotification)
-            .combineLatest(isUserTokenListReadyPublisher)
-            .withWeakCaptureOf(self)
-            .receiveOnMain()
-            .sink { manager, _ in
-                manager.updateStatusIfNeeded()
+            .sink { manager, event in
+                switch event {
+                case .syncRemoteStatusRequired:
+                    manager.syncRemoteStatus()
+                case .updateStatusRequired:
+                    manager.updateStatusIfNeeded()
+                }
             }
             .store(in: &bag)
     }
