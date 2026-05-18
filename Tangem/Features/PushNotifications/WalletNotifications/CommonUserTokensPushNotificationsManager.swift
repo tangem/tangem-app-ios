@@ -280,7 +280,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParamet
     }
 
     func provideTokenListNotifyStatusValue() -> Bool {
-        UserTokenListExternalParametersHelper.provideTokenListNotifyStatusValue(with: self)
+        isRemoteStatusEnabled
     }
 }
 

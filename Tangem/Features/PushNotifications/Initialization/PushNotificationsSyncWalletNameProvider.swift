@@ -42,14 +42,15 @@ final class PushNotificationsSyncWalletNameProvider {
         userWalletRepository
             .models
             .map { userWalletModel in
-                let context = userWalletModel.config
-                    .contextBuilder
-                    .enrich(withName: userWalletModel.name)
-                    .build()
-
-                return userWalletModel.updatePublisher
+                userWalletModel.updatePublisher
                     .compactMap(\.newName)
-                    .map { (id: userWalletModel.userWalletId.stringValue, name: $0, context: context) }
+                    .map {
+                        let context = userWalletModel.config
+                            .contextBuilder
+                            .enrich(withName: $0)
+                            .build()
+                        return (id: userWalletModel.userWalletId.stringValue, name: $0, context: context)
+                    }
             }
             .merge()
             .withWeakCaptureOf(self)
