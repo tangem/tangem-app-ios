@@ -360,6 +360,8 @@ final class CommonCryptoAccountsRepository {
         // Updating local storage only after successful remote update
         persistentStorage.replace(with: updatedAccounts)
         auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
+        // Remote state is established here; subsequent local mutations must debounce-push, otherwise the next GET overwrites them.
+        auxiliaryDataStorage.hasSyncedWithRemote = true
 
         return distributionResult
     }
