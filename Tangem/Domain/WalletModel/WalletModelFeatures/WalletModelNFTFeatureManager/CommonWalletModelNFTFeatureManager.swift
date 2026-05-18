@@ -72,3 +72,10 @@ final class CommonWalletModelNFTFeatureManager {
         _nftNetworkServicePublisher.eraseToAnyPublisher()
     }
 }
+
+// MARK: - WalletModelFeatureManager protocol conformance
+
+extension CommonWalletModelNFTFeatureManager: WalletModelFeatureManager {
+    var featurePayload: NFTNetworkService? { nftNetworkService }
+    var featurePayloadPublisher: AnyPublisher<NFTNetworkService?, Never> { nftNetworkServicePublisher }
+}

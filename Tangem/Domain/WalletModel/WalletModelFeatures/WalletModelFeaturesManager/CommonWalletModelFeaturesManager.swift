@@ -9,11 +9,16 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemNFT
 
-final class CommonWalletModelFeaturesManager {
-    private let nftFeatureManager: CommonWalletModelNFTFeatureManager
-    private let dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager
-    private let transactionHistoryFeatureManager: CommonWalletModelTransactionHistoryFeatureManager
+final class CommonWalletModelFeaturesManager<
+    NFT: WalletModelFeatureManager<NFTNetworkService>,
+    DynamicAddresses: WalletModelFeatureManager<DynamicAddressesManager>,
+    TransactionHistory: WalletModelFeatureManager<any TransactionHistorySyncing>
+> {
+    private let nftFeatureManager: NFT
+    private let dynamicAddressesFeatureManager: DynamicAddresses
+    private let transactionHistoryFeatureManager: TransactionHistory
 
     // MARK: - Staking
 
@@ -21,9 +26,9 @@ final class CommonWalletModelFeaturesManager {
     private lazy var stakingFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> = .just(output: nil)
 
     init(
-        nftFeatureManager: CommonWalletModelNFTFeatureManager,
-        dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager,
-        transactionHistoryFeatureManager: CommonWalletModelTransactionHistoryFeatureManager
+        nftFeatureManager: NFT,
+        dynamicAddressesFeatureManager: DynamicAddresses,
+        transactionHistoryFeatureManager: TransactionHistory
     ) {
         self.nftFeatureManager = nftFeatureManager
         self.dynamicAddressesFeatureManager = dynamicAddressesFeatureManager
@@ -36,21 +41,21 @@ final class CommonWalletModelFeaturesManager {
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var features: [WalletModelFeature] {
         [
-            nftFeatureManager.nftNetworkService.map(WalletModelFeature.nft(networkService:)),
-            dynamicAddressesFeatureManager.dynamicAddressesManager.map(WalletModelFeature.dynamicAddresses(manager:)),
-            transactionHistoryFeatureManager.transactionHistoryProvider.map(WalletModelFeature.transactionHistory(provider:)),
+            nftFeatureManager.featurePayload.map(WalletModelFeature.nft(networkService:)),
+            dynamicAddressesFeatureManager.featurePayload.map(WalletModelFeature.dynamicAddresses(manager:)),
+            transactionHistoryFeatureManager.featurePayload.map(WalletModelFeature.transactionHistory(provider:)),
         ].compactMap { $0 }
     }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         [
-            nftFeatureManager.nftNetworkServicePublisher
+            nftFeatureManager.featurePayloadPublisher
                 .map { $0.map(WalletModelFeature.nft(networkService:)) }
                 .eraseToAnyPublisher(),
-            dynamicAddressesFeatureManager.dynamicAddressesManagerPublisher
+            dynamicAddressesFeatureManager.featurePayloadPublisher
                 .map { $0.map(WalletModelFeature.dynamicAddresses(manager:)) }
                 .eraseToAnyPublisher(),
-            transactionHistoryFeatureManager.transactionHistoryProviderPublisher
+            transactionHistoryFeatureManager.featurePayloadPublisher
                 .map { $0.map(WalletModelFeature.transactionHistory(provider:)) }
                 .eraseToAnyPublisher(),
             stakingFeaturePublisher,
