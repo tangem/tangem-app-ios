@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "Solo tiene 1 token añadido a su portafolio. Para utilizar la función de intercambio, necesita añadir al menos 2 tokens";
 "action_buttons_you_want_to_receive" = "Seleccione el token que desea recibir";
 "action_buttons_you_want_to_swap" = "Seleccione el token que desea intercambiar";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "Elige red";
 "add_custom_token_title" = "Agregue un token personalizado";
 "add_tokens_title" = "Gestionar tokens";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "Envíe solo %1$@ (%2$@) desde redes como %3$@ a esta dirección. Usar otros tokens y redes puede resultar en la pérdida de fondos.";
 "address_type_default" = "Por defecto";
 "address_type_legacy" = "Legacy";
@@ -565,8 +572,8 @@
 "hw_backup_hardware_title" = "Billetera de hardware";
 "hw_backup_hardware_upgrade_description" = "Mueva su billetera actual a Tangem.";
 "hw_backup_hardware_upgrade_title" = "Actualizar la billetera actual";
-"hw_backup_icloud_alert_message" = "We’re working on iCloud backup to make wallet recovery even easier.";
-"hw_backup_icloud_alert_title" = "iCloud backup is coming soon";
+"hw_backup_icloud_alert_message" = "Estamos trabajando en la copia de seguridad de iCloud para facilitar aún más la recuperación de la billetera.";
+"hw_backup_icloud_alert_title" = "Próximamente, copia de seguridad de iCloud disponible";
 "hw_backup_icloud_description" = "Recuperar la billetera existente a través de una copia de seguridad de iCloud";
 "hw_backup_icloud_title" = "Copia de seguridad de iCloud";
 "hw_backup_need_action" = "Ir a copia de seguridad";
@@ -864,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Otras opciones";
 "onboarding_create_wallet_options_message" = "Sus claves se generarán de forma segura dentro del chip. No hay seed phrase, lo que significa que nadie puede exportarla ni robarla.";
 "onboarding_create_wallet_options_title" = "Generar claves de forma privada";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the";
 "onboarding_done_body" = "Su tarjeta está activada y lista para usar";
 "onboarding_done_header" = "¡Éxito!";
 "onboarding_done_wallet" = "¡Su billetera está configurada y lista para usar!";
@@ -968,6 +976,8 @@
 "onramp_via" = "Vía";
 "onramp_you_will_pay_title" = "Pagará";
 "organize_tokens_group" = "Agrupar";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "Por saldo";
 "organize_tokens_title" = "Organizar tokens";
 "organize_tokens_ungroup" = "Desagrupar";
@@ -1347,7 +1357,7 @@
 "swap_story_second_subtitle" = "Maximice su valor con tarifas de una amplia red de proveedores de confianza, eligiendo siempre la mejor";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Tarifas inmejorables";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Sencillo e intuitivo, permite cambiar tokens con solo unos cuantos toques";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simplemente cómodo";

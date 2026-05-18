@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "You only have 1 token added to your portfolio. To use the exchange feature, you need to add at least 2 tokens.";
 "action_buttons_you_want_to_receive" = "Choose the token you want to receive";
 "action_buttons_you_want_to_swap" = "Choose the token you want to swap";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "Send only %1$@ (%2$@) from %3$@ network to this address. Using other tokens and networks may result in loss of funds.";
 "address_type_default" = "Default";
 "address_type_legacy" = "Legacy";
@@ -864,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Other options";
 "onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the chip. There is no seed phrase, which means nobody can export or steal it.";
 "onboarding_create_wallet_options_title" = "Generate keys privately";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the";
 "onboarding_done_body" = "Your card is activated and ready to be used";
 "onboarding_done_header" = "Success!";
 "onboarding_done_wallet" = "Your wallet is set up and ready to use!";
@@ -968,6 +976,8 @@
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Group";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
@@ -1347,7 +1357,7 @@
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Unbeatable Rates";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simply Convenient";

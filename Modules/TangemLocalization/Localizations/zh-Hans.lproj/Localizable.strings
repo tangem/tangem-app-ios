@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "您的投资组合中仅添加了 1 个代币。要使用兑换功能，您至少需要添加 2 个代币。";
 "action_buttons_you_want_to_receive" = "选择您想要接收的代币";
 "action_buttons_you_want_to_swap" = "选择您要兑换的代币";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "添加到您的投资组合";
 "add_and_manage_sheet_manage_title" = "添加代币";
 "add_and_manage_sheet_organize_subtitle" = "排序和分组";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "选择网络";
 "add_custom_token_title" = "添加自定义代币";
 "add_tokens_title" = "管理代币";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "只能从 %3$@ 网络发送 %1$@ (%2$@) 到此地址。使用其他代币和网络可能会导致资金损失。";
 "address_type_default" = "默认";
 "address_type_legacy" = "传统";
@@ -864,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "其他选项";
 "onboarding_create_wallet_options_message" = "您的密钥将在芯片内部安全生成，没有助记词，这意味着任何人都无法导出或窃取它。";
 "onboarding_create_wallet_options_title" = "私下生成密钥";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the";
 "onboarding_done_body" = "您的卡已激活，可以使用了。";
 "onboarding_done_header" = "成功！";
 "onboarding_done_wallet" = "您的钱包已设置完毕，可以使用了！";
@@ -968,6 +976,8 @@
 "onramp_via" = "通过";
 "onramp_you_will_pay_title" = "您将支付";
 "organize_tokens_group" = "分组";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "按余额";
 "organize_tokens_title" = "整理代币";
 "organize_tokens_ungroup" = "取消分组";

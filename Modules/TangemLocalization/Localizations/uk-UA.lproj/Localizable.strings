@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "У вас додано лише 1 токен. Щоб скористатися функцією обміну, потрібно додати мінімум 2 токени.";
 "action_buttons_you_want_to_receive" = "Оберіть токен для отримання";
 "action_buttons_you_want_to_swap" = "Оберіть токен для обміну";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "Оберіть мережу";
 "add_custom_token_title" = "Додати токен";
 "add_tokens_title" = "Токени";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "Надсилайте тільки %1$@ (%2$@) в мережі %3$@ на цю адресу. Використання іншої мережі може призвести до втрати коштів.";
 "address_type_default" = "За замовчуванням";
 "address_type_legacy" = "Застарілий";
@@ -864,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Інші опції";
 "onboarding_create_wallet_options_message" = "Ваші ключі будуть надійно згенеровані всередині чіпу. Ніякої seed-фрази, а це означає, що ніхто не зможе її експортувати або вкрасти.";
 "onboarding_create_wallet_options_title" = "Генеруйте ключі приватно";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the";
 "onboarding_done_body" = "Ваша картка активована та готова до використання";
 "onboarding_done_header" = "Успішно!";
 "onboarding_done_wallet" = "Ваш гаманець налаштований і готовий до використання!";
@@ -968,6 +976,8 @@
 "onramp_via" = "Через";
 "onramp_you_will_pay_title" = "Ви заплатите";
 "organize_tokens_group" = "Групами";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "За балансом";
 "organize_tokens_title" = "Сортування токенів";
 "organize_tokens_ungroup" = "Список";
@@ -1347,7 +1357,7 @@
 "swap_story_second_subtitle" = "Отримуйте максимальну вигоду з кращими курсами від надійних провайдерів";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Найкращі тарифи";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Просто та зручно — обмін токенів в декілька дотиків";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Легше, ніж будь-коли";
