@@ -39,12 +39,6 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
     @Published private(set) var additionalCardIssueOffer: TangemPayCustomerOffer?
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
-    /// Mirrors `tangemPayAccount.anyCardReissuingPublisher`. The view doesn't read this
-    /// directly — it's published purely so `card.isReissuing` (a sync getter) is re-read
-    /// during the in-flight reissue window. Without this, the `.replacing` small-card
-    /// state would only appear after the next `loadCustomerInfo` (i.e. on reissue
-    /// completion), losing the visual feedback during the operation itself.
-    @Published private(set) var isAnyCardReissuing: Bool = false
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
@@ -99,7 +93,6 @@ final class TangemPayMainViewModel: ObservableObject {
         pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(
             userWalletInfo: userWalletInfo,
             tokenItem: TangemPayUtilities.usdcTokenItem,
-            // We don't handle update after transaction is done here yet.
             walletModelUpdater: nil
         )
         .makePendingExpressTransactionsManager()
@@ -218,7 +211,6 @@ final class TangemPayMainViewModel: ObservableObject {
             do {
                 try await self?.openWithdraw(swapableToken: swapableToken)
             } catch is CancellationError {
-                // Do nothing
             } catch {
                 self?.alert = error.alertBinder
             }
@@ -234,10 +226,6 @@ final class TangemPayMainViewModel: ObservableObject {
             await tangemPayAccount.loadCustomerInfo()
             await tangemPayAccount.loadBalance()
             await tangemPayAccount.loadOffers()
-            // Reconcile local `activeIssueOrdersSubject` against BFF's `findOrders`. Without
-            // this, returning to the screen after a card finished issuing while the polling
-            // task was suspended (background / killed) leaves the completed order in local
-            // state and it renders as a duplicate "issuing" entry next to the issued card.
             await tangemPayAccount.resumeAdditionalCardIssuePolling()
         }
     }
@@ -311,10 +299,6 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .map { offers in offers.first { $0.type.isAdditionalCardIssue } }
             .assign(to: &$additionalCardIssueOffer)
-
-        tangemPayAccount.anyCardReissuingPublisher
-            .receiveOnMain()
-            .assign(to: &$isAnyCardReissuing)
 
         Publishers.CombineLatest3(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,

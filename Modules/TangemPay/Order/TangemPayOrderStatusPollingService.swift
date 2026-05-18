@@ -21,10 +21,10 @@ public final class TangemPayOrderStatusPollingService {
     public func startOrderStatusPolling(
         orderId: String,
         interval: TimeInterval,
-        onCompleted: @MainActor @escaping () -> Void,
-        onCanceled: @MainActor @escaping () -> Void,
-        onFailed: @MainActor @escaping (Error) -> Void,
-        onProgress: (@MainActor @escaping (TangemPayOrderResponse) -> Void)? = nil
+        onCompleted: @escaping () -> Void,
+        onCanceled: @escaping () -> Void,
+        onFailed: @escaping (Error) -> Void,
+        onProgress: ((TangemPayOrderResponse) -> Void)? = nil
     ) {
         orderStatusPollingTask?.cancel()
 
@@ -41,29 +41,22 @@ public final class TangemPayOrderStatusPollingService {
                 case .success(let order):
                     switch order.status {
                     case .new, .processing:
-                        if let onProgress {
-                            await onProgress(order)
-                        }
+                        onProgress?(order)
                         continue
                     case .completed:
-                        await onCompleted()
+                        onCompleted()
                         return
                     case .canceled:
-                        await onCanceled()
+                        onCanceled()
                         return
                     case .failed, .undefined:
-                        await onFailed(TangemPayOrderStatusPollingError.terminalStatus(order.status))
+                        onFailed(TangemPayOrderStatusPollingError.terminalStatus(order.status))
                         return
                     }
                 case .failure:
                     continue
                 }
             }
-            // End-of-loop reached only via external Task.cancel() (PollingSequence returns nil
-            // when canceled). Stay silent here — fires no callback. Callers that issue cancel()
-            // are responsible for any cleanup that the cancelled poll would have driven, so a
-            // cancel-previous-on-start from a re-entrant `startOrderStatusPolling` doesn't fire
-            // a stale `onCanceled` that the predecessor's caller didn't ask for.
         }
     }
 

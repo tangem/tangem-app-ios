@@ -22,13 +22,6 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         cachesBalance: true
     )
 
-    // Does NOT cache. The token balances repository is keyed by (walletModelId, .available)
-    // and totalTokenBalanceProvider above already uses that slot to persist
-    // `fiat.availableBalance`. Letting this provider also write would last-writer-win the
-    // slot with `availableForWithdrawal.amount` (often 0 with multiple cards) and the UI's
-    // `.loading(cached:)` render would briefly show $0 between every refresh — visible blink.
-    // This provider only feeds withdraw-availability / swap checks that read `.balanceType`
-    // directly, never `cachedBalance()`, so suppressing the cache write is safe.
     lazy var availableBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
@@ -57,7 +50,6 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     private let tokenItem = TangemPayUtilities.usdcTokenItem
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
-    /// Provider / Storage  to load `FiatRate` for `AppCurrency`
     private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: tokenItem
     )

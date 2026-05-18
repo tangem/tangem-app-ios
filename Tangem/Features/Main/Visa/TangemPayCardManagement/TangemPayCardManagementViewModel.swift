@@ -50,10 +50,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         )
     )
 
-    /// Stable handle to the user's selection across the `order → pending PI → issued card`
-    /// lifecycle. Each transition changes `entry.id`, but `productInstanceId` stays put once
-    /// the BFF has assigned one — so we anchor on that and fall back to the original entry id
-    /// only while the order hasn't been tied to a product instance yet.
     private var selectionAnchor: SelectionAnchor?
 
     init(
@@ -65,7 +61,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
         selectedCardId = initialEntry.id
-        isIssuing = initialEntry.isIssuing
         self.coordinator = coordinator
 
         rebuildCardDetailsItems(entries: tangemPayAccount.cardEntries)
@@ -108,10 +103,6 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 extension TangemPayCardManagementViewModel {
     struct CardDetailsItem: Identifiable {
         let id: String
-        /// Stable identity across the `order → pending PI → issued card` lifecycle, used to
-        /// preserve embedded view-model state when an entry's `id` flips from `orderId` to
-        /// `cardId`. `nil` only for fresh `.issuing(.order)` entries the BFF hasn't tied to
-        /// a product instance yet.
         let productInstanceId: String?
         let content: Content
 
@@ -126,29 +117,23 @@ extension TangemPayCardManagementViewModel {
 
 private extension TangemPayCardManagementViewModel {
     struct SelectionAnchor {
-        var entryId: String
-        var productInstanceId: String?
+        let entryId: String
+        let productInstanceId: String?
 
         init(entry: TangemPayCardEntry) {
             entryId = entry.id
             productInstanceId = entry.productInstanceId
         }
 
-        /// Picks up a `productInstanceId` for the original entry if the BFF has now assigned
-        /// one — relevant only while the user is anchored to a freshly placed `.issuing(.order)`
-        /// that hasn't yet been tied to a product instance.
-        mutating func upgradeProductInstanceIdIfDiscovered(in entries: [TangemPayCardEntry]) {
-            guard productInstanceId == nil,
-                  let entry = entries.first(where: { $0.id == entryId }) else { return }
-            productInstanceId = entry.productInstanceId
-        }
-
-        func resolve(in entries: [TangemPayCardEntry]) -> TangemPayCardEntry? {
+        func resolveSelection(in entries: [TangemPayCardEntry]) -> (entry: TangemPayCardEntry, newAnchor: SelectionAnchor)? {
             if let pid = productInstanceId,
                let entry = entries.first(where: { $0.productInstanceId == pid }) {
-                return entry
+                return (entry, SelectionAnchor(entry: entry))
             }
-            return entries.first(where: { $0.id == entryId })
+            if let entry = entries.first(where: { $0.id == entryId }) {
+                return (entry, SelectionAnchor(entry: entry))
+            }
+            return nil
         }
     }
 }
@@ -157,7 +142,6 @@ private extension TangemPayCardManagementViewModel {
 
 private extension TangemPayCardManagementViewModel {
     func bind() {
-        // Re-anchor whenever the user (or our own resolution) sets a new selection.
         $selectedCardId
             .withWeakCaptureOf(self)
             .sink { vm, id in
@@ -173,8 +157,6 @@ private extension TangemPayCardManagementViewModel {
             .sink { vm, entries in vm.applyEntries(entries) }
             .store(in: &bag)
 
-        // `isIssuing` is per-entry (covers `.issuing(.order)` where no `TangemPayCard` exists
-        // yet), so it observes the entries list directly rather than a per-card publisher.
         Publishers.CombineLatest(tangemPayAccount.cardEntriesPublisher, $selectedCardId)
             .map { entries, id -> Bool in
                 guard let id else { return false }
@@ -188,13 +170,12 @@ private extension TangemPayCardManagementViewModel {
         bindSelectedCard(
             fallback: TangemPayFreezingState.unavailable,
             publisher: { card in
-                Publishers.CombineLatest(card.statusPublisher, card.isFreezingUnfreezingPublisher)
-                    .map { status, isPending -> TangemPayFreezingState in
-                        switch (status == .blocked, isPending) {
-                        case (false, false): .normal
-                        case (false, true): .freezingInProgress
-                        case (true, false): .frozen
-                        case (true, true): .unfreezingInProgress
+                Publishers.CombineLatest(card.statusPublisher, card.inflightLifecycleOperationPublisher)
+                    .map { status, operation -> TangemPayFreezingState in
+                        switch operation {
+                        case .freeze: .freezingInProgress
+                        case .unfreeze: .unfreezingInProgress
+                        case .reissue, nil: status == .blocked ? .frozen : .normal
                         }
                     }
                     .eraseToAnyPublisher()
@@ -219,15 +200,12 @@ private extension TangemPayCardManagementViewModel {
             to: \.dailyLimitState
         )
 
-        // Reissue progress lives on each `TangemPayCard.isReissuingPublisher` in the multi-card
-        // model — switch the observed publisher whenever the user selects a different card.
         bindSelectedCard(
             fallback: false,
             publisher: { $0.isReissuingPublisher },
             to: \.isReissuing
         )
 
-        // `freezingState` drives both the embedded card-details VM state and the action rows.
         $freezingState
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -251,9 +229,6 @@ private extension TangemPayCardManagementViewModel {
         .store(in: &bag)
     }
 
-    /// Subscribes to a per-card publisher, switching whenever `selectedCardId` changes. When no
-    /// card is selected (or the selection points at an `.issuing(.order)` entry with no
-    /// `TangemPayCard` yet), `fallback` is emitted instead.
     func bindSelectedCard<T>(
         fallback: T,
         publisher: @escaping (TangemPayCard) -> AnyPublisher<T, Never>,
@@ -277,15 +252,10 @@ private extension TangemPayCardManagementViewModel {
 
 private extension TangemPayCardManagementViewModel {
     func applyEntries(_ entries: [TangemPayCardEntry]) {
-        selectionAnchor?.upgradeProductInstanceIdIfDiscovered(in: entries)
-
-        let resolved = selectionAnchor?.resolve(in: entries)
+        let resolution = selectionAnchor?.resolveSelection(in: entries)
         rebuildCardDetailsItems(entries: entries)
 
-        guard let resolved else {
-            // Anchor was set but the selection's card/order has vanished from BFF entirely.
-            // Pop back to the card list (FR-MOB-EDGE-007) and forget the anchor so we don't
-            // re-pop on the next entries refresh.
+        guard let resolution else {
             if selectionAnchor != nil {
                 coordinator?.popToCardListScreen()
                 selectionAnchor = nil
@@ -294,15 +264,13 @@ private extension TangemPayCardManagementViewModel {
             return
         }
 
-        if resolved.id != selectedCardId {
-            selectedCardId = resolved.id
+        selectionAnchor = resolution.newAnchor
+        if resolution.entry.id != selectedCardId {
+            selectedCardId = resolution.entry.id
         }
     }
 
     func rebuildCardDetailsItems(entries: [TangemPayCardEntry]) {
-        // Two-axis lookup: prefer `productInstanceId` (stable across order → PI → card
-        // transitions) and fall back to `id` for entries the BFF hasn't tied to a product
-        // instance yet. This is the same anchoring strategy `SelectionAnchor` uses.
         var existingByProductInstanceId: [String: CardDetailsItem] = [:]
         var existingById: [String: CardDetailsItem] = [:]
         for item in cardDetailsItems {
@@ -394,8 +362,6 @@ private extension TangemPayCardManagementViewModel {
         ]
     }
 
-    /// Builds a row that disables itself (`action: nil`) while a freeze/unfreeze operation is
-    /// in flight on the selected card.
     func row(
         title: String,
         accessibilityIdentifier: String? = nil,

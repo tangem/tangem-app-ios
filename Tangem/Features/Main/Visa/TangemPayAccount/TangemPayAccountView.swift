@@ -81,7 +81,6 @@ struct TangemPayAccountView: View {
             Assets.redCircleWarning20Outline.image
 
         case .unavailable(let cached), .syncNeeded(let cached):
-            // No cached data → no cloud indicator: the row is just dimmed via opacity above.
             if let cached {
                 cachedTrailingContent(cached.trailing)
             } else {
@@ -113,8 +112,6 @@ struct TangemPayAccountView: View {
                 balanceTrailingContent(balance: balance)
             }
         case .empty:
-            // We have a cached payload (e.g. KYC subtitle) without a balance — still surface
-            // the cloud so the user knows the row reflects locally stored data.
             cachedCloudIcon
         }
     }

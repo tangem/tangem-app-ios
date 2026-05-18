@@ -22,9 +22,6 @@ struct TangemPayMainView: View {
     )
 
     var body: some View {
-        // This scroll view must use non-lazy content settings because the transactions list view
-        // and other subviews already contain inner lazy stacks.
-        // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: 14) {
                 header

@@ -109,11 +109,6 @@ private extension TangemPayTokenBalanceProvider {
     }
 
     func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>?) -> TokenBalanceType {
-        // Only consult the shared repository when this provider actually owns the cache slot
-        // for its keyPath. A non-caching provider would otherwise read a value written by a
-        // sibling provider with a different keyPath, surfacing a semantically-wrong cached
-        // amount in `.loading` / `.failure` states (e.g. the available-for-withdrawal
-        // provider would see the fiat balance during a refresh window).
         let cached = cachesBalance ? cachedBalance() : nil
         switch balance {
         case .none:

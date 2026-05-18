@@ -32,11 +32,6 @@ enum TangemPayCardEntry: Identifiable {
         }
     }
 
-    /// The stable identity that persists across the `order → pending PI → issued card`
-    /// lifecycle for a single logical card-issuance. `nil` only for orders the BFF hasn't yet
-    /// attached to a product instance. Used by `TangemPayCardManagementViewModel` to keep the
-    /// user's selection pointed at the same physical card as `entry.id` shifts between
-    /// `orderId`, `productInstance.id`, and `card.cardId`.
     var productInstanceId: String? {
         switch self {
         case .issued(let card), .issuing(.card(let card)):

@@ -100,8 +100,6 @@ public struct TangemPayAPIError: Error, Decodable {
     public let message: String?
 
     public enum Code {
-        /// `CardIssueInsufficientBalanceException` — surfaced by the additional-card-issue flow
-        /// per FR-MOB-BR6-006.
         public static let cardIssueInsufficientBalance = 140116
     }
 }

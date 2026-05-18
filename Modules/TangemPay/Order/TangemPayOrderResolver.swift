@@ -14,7 +14,6 @@ public struct TangemPayOrderResolver {
         self.customerService = customerService
     }
 
-    /// Returns the most recent active order matching `predicate`, or `nil` if none exists.
     public func findActiveOrder(
         types: [String],
         matching predicate: (TangemPayOrderResponse) -> Bool
@@ -23,10 +22,6 @@ public struct TangemPayOrderResolver {
         return orders.filter(predicate).mostRecentByUpdatedAt
     }
 
-    /// Places an order, translating the `cardIssueInsufficientBalance` API error into the
-    /// resolver's typed `.insufficientBalance` so callers (specifically the additional-card-issue
-    /// flow per FR-MOB-BR6-006) can render the dedicated insufficient-funds UI without reaching
-    /// into BFF error codes.
     public func placeOrder(
         request: TangemPayPlaceOrderRequest,
         idempotencyKey: String
@@ -48,8 +43,6 @@ public enum TangemPayOrderResolverError: Error {
 }
 
 public extension Sequence where Element == TangemPayOrderResponse {
-    /// FR-MOB-ORDER-002: deterministic selection rule for picking one out of several active
-    /// orders — most recent by `updatedAt`.
     var mostRecentByUpdatedAt: TangemPayOrderResponse? {
         self.max { lhs, rhs in
             (lhs.updatedAt ?? .distantPast) < (rhs.updatedAt ?? .distantPast)
