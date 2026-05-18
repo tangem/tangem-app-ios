@@ -77,12 +77,21 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
             guard let self else { return }
             let chunkSize = maxConcurrentRequests ?? requests.count
             await pollChunked(for: requests, chunkSize: max(chunkSize, 1))
-            await cancelTask()
+            // Only release `updateTask` on a natural exit (empty requests).
+            // If the task was cancelled, a replacement task is already in flight —
+            // touching `updateTask` here would clobber that replacement.
+            if !Task.isCancelled {
+                await clearUpdateTask()
+            }
         }
     }
 
     func cancelTask() {
         updateTask?.cancel()
+        updateTask = nil
+    }
+
+    private func clearUpdateTask() {
         updateTask = nil
     }
 
