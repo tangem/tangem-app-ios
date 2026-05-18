@@ -25,4 +25,10 @@ struct NavigationBarButtonRole {
         iconAsset: Assets.Glyphs.cross20ButtonNew,
         accessibilityIdentifier: CommonUIAccessibilityIdentifiers.closeButton
     )
+
+    static let add = NavigationBarButtonRole(
+        sfSymbol: "plus",
+        iconAsset: Assets.plus24,
+        accessibilityIdentifier: CommonUIAccessibilityIdentifiers.addButton
+    )
 }
