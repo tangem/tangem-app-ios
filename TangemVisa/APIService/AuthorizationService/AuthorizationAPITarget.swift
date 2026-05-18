@@ -92,9 +92,9 @@ extension AuthorizationAPITarget {
         /// Two types of nonce can be requested:
         /// 1. `card_id` - nonce for card that didn't finish activation process
         /// 2. `card_wallet` - nonce for activated card
-        /// Signed nonce used for retreiving authorization tokens
+        /// Signed nonce used for retrieving authorization tokens
         case generateNonce(request: GenerateNonceRequestDTO)
-        /// Two types of tokens can be retreived:
+        /// Two types of tokens can be retrieved:
         /// 1. `card_id` - this access token can be using for activation process
         /// 2. `card_wallet` - this access token provides access to transaction history and some customer info
         case getAuthorizationTokens(request: GetAuthorizationTokensRequestDTO)
