@@ -442,7 +442,11 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
     }
 
-    func openTangemPayReissueSheet(userWalletId: UserWalletId, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayReissueSheet(
+        userWalletId: UserWalletId,
+        tangemPayAccount: TangemPayAccount,
+        onError: @escaping () -> Void
+    ) {
         Task { @MainActor in
             do {
                 let feeResponse: TangemPayFeeResponse
@@ -462,11 +466,13 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
                     tangemPayAccount: tangemPayAccount,
                     feeText: feeText,
                     isInsufficientFunds: isInsufficientFunds,
-                    coordinator: self
+                    coordinator: self,
+                    onError: onError
                 )
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             } catch {
                 VisaLogger.error("Failed to load reissue fee", error: error)
+                onError()
             }
         }
     }
