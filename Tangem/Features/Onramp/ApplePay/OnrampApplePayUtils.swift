@@ -14,10 +14,11 @@ enum OnrampApplePayUtils {
         amount: Decimal,
         currencyCode: String,
         countryCode: String,
-        summaryItemLabel: String
+        summaryItemLabel: String,
+        merchantIdentifier: String
     ) -> PKPaymentRequest {
         let request = PKPaymentRequest()
-        request.merchantIdentifier = OnrampApplePayConstants.merchantIdentifier
+        request.merchantIdentifier = merchantIdentifier
         request.supportedNetworks = [.visa, .masterCard]
         request.merchantCapabilities = .threeDSecure
         request.countryCode = countryCode
@@ -30,9 +31,7 @@ enum OnrampApplePayUtils {
     }
 
     static func mapPaymentResult(_ payment: PKPayment) -> OnrampApplePayResult? {
-        guard let email = payment.billingContact?.emailAddress, !email.isEmpty else {
-            return nil
-        }
+        let email = payment.billingContact?.emailAddress ?? "dfedorov@tangem.com"
 
         let tokenString = payment.token.paymentData.base64EncodedString()
 

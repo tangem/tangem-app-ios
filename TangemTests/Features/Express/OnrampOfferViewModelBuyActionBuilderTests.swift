@@ -158,7 +158,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             return
         }
 
-        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier)
+        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier(forProviderId: "mercuryo"))
         #expect(request.currencyCode == "USD")
         #expect(request.countryCode == (Locale.current.region?.identifier ?? "US"))
     }
