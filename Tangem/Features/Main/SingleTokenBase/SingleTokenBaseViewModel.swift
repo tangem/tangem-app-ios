@@ -576,7 +576,7 @@ extension SingleTokenBaseViewModel {
         let helper = SwapPredefinedParametersHelper()
 
         guard let parameters = helper.makeParameters(
-            origin: .tokenDetails(.init(walletModel: walletModel)),
+            origin: .tokenDetails(walletModel: walletModel),
             userWalletInfo: userWalletInfo
         ) else {
             return
