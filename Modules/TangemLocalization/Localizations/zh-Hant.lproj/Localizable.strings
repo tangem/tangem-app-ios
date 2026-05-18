@@ -331,6 +331,7 @@
 "common_transactions" = "交易";
 "common_transfer" = "Transfer";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "I understand, continue";
 "common_understand" = "我了解";
 "common_unknown_error" = "There was an error. Please try again.";
@@ -498,7 +499,6 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Permission Required";
 "express_provider_recommended" = "Recommended";
-"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Provider";
 "express_status_buying" = "Buying %@";
 "express_status_hide_button_text" = "Hide this transaction";
@@ -1217,6 +1217,7 @@
 "staking_details_warmup_period_info" = "The allocated time for activating participation in staking.";
 "staking_details_warmup_period" = "Warmup period";
 "staking_dismiss_message" = "Are you sure you want to close the staking screen?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
@@ -1456,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "重新发行卡片";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "显示";
 "tangempay_card_details_show_details" = "顯示詳情";
 "tangempay_card_details_swap_description" = "將您投資組合中的任何資產兌換成卡片";
@@ -1500,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "通常需要最多15分钟";
 "tangempay_issue_card_notification_title" = "設置您的 Tangem 卡";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "卡片通常會在 5 分鐘內自動發行。如需人工審核的特殊情況，可能需要最長 48 小時。";
 "tangempay_issuing_your_card" = "正在发行您的卡片";
@@ -1550,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
 "tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_status_deactivated" = "卡片已停用";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed" = "工作階段已過期";
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
@@ -1627,6 +1631,7 @@
 "transaction_history_transaction_validator" = "validator: %@";
 "transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
 "transaction_notifications_warning_title" = "Transaction Notifications";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "The minimum transaction amount is %1$@.";
 "tron_will_be_send_token_fee_description" = "Tron network fees for popular tokens can be higher. Staking TRX may help reduce transaction costs.";
@@ -1656,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
 "user_push_notification_agreement_argument_three" = "Get notified of incoming transactions";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Early access to fresh features and exclusive offers.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
 "user_push_notification_agreement_argument_two" = "Be the first to know about new promotions";
 "user_push_notification_agreement_header" = "Would you like to use\nPush-notifications?";

@@ -11,10 +11,6 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
-    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response {
-        throw "Not implemented"
-    }
-
     private let geoIpRegionCode: String
 
     // MARK: - News Handlers (Tests/Previews)
@@ -236,6 +232,10 @@ final class FakeTangemApiService: TangemApiService {
 
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
         try MockEarnProvider().loadEarnNetworks()
+    }
+
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
+        throw "Not implemented"
     }
 }
 
