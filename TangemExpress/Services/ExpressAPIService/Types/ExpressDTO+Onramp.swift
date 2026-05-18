@@ -133,7 +133,7 @@ extension ExpressDTO {
                 let requestId: String
                 let externalTxId: String?
                 let externalTxUrl: String?
-                let widgetUrl: URL
+                let widgetUrl: URL?
             }
         }
 
