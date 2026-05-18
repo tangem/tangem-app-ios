@@ -70,12 +70,14 @@ struct TangemPayCardManagementView: View {
             .padding(.horizontal, 16)
         }
 
-        TangemPayDailyLimitSectionView(
-            state: viewModel.dailyLimitState,
-            isFrozen: viewModel.freezingState.isFrozen,
-            changeAction: viewModel.openChangeDailyLimit
-        )
-        .padding(.horizontal, 16)
+        if let dailyLimitState = viewModel.dailyLimitState {
+            TangemPayDailyLimitSectionView(
+                state: dailyLimitState,
+                isFrozen: viewModel.freezingState.isFrozen,
+                changeAction: viewModel.openChangeDailyLimit
+            )
+            .padding(.horizontal, 16)
+        }
 
         GroupedSection(viewModel.cardSettingsRows) {
             DefaultRowView(viewModel: $0)

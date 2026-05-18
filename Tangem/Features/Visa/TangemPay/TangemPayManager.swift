@@ -60,6 +60,7 @@ final class TangemPayManager: TangemPayAccountModel {
     private let customerService: CustomerInfoManagementService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
+    private let orderResolver: TangemPayOrderResolver
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
     private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
@@ -77,6 +78,7 @@ final class TangemPayManager: TangemPayAccountModel {
         customerService: CustomerInfoManagementService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
+        orderResolver: TangemPayOrderResolver,
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
         customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
@@ -89,6 +91,7 @@ final class TangemPayManager: TangemPayAccountModel {
         self.customerService = customerService
         self.enrollmentStateFetcher = enrollmentStateFetcher
         self.orderStatusPollingService = orderStatusPollingService
+        self.orderResolver = orderResolver
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
         self.customerInfoCacheStorage = customerInfoCacheStorage
@@ -277,15 +280,14 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     @discardableResult
-    private func issueCardIfNeeded(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> String {
-        let activeOrders = try await customerService.findOrders(
+    private func issueCardIfNeeded(customerWalletAddress: String) async throws -> String {
+        let existing = try await orderResolver.findActiveOrder(
             types: [TangemPayOrderType.cardIssueVirtualRainKyc.rawValue],
-            statuses: [.new, .processing]
+            matching: { order in
+                order.data?.customerWalletAddress == customerWalletAddress
+            }
         )
-        if let existing = activeOrders
-            .filter({ $0.data?.customerWalletAddress == customerWalletAddress })
-            .sorted(by: { ($0.updatedAt ?? .distantPast) > ($1.updatedAt ?? .distantPast) })
-            .first {
+        if let existing {
             return existing.id
         }
 
@@ -299,7 +301,7 @@ final class TangemPayManager: TangemPayAccountModel {
             customerWalletId,
             customerWalletAddress
         )
-        return try await customerService.placeOrder(
+        return try await orderResolver.placeOrder(
             request: request,
             idempotencyKey: idempotencyKey
         ).id

@@ -11,13 +11,14 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
+struct TangemPayDailyLimit: Equatable {
+    let currentLimit: String
+}
+
 enum TangemPayDailyLimitState: Equatable {
     case loading
-    case loaded(currentLimit: String)
+    case loaded(TangemPayDailyLimit)
     case error
-    /// No card is selected (the management screen is showing an issuing entry). The section
-    /// is hidden in this case, but the explicit state keeps it from looking like a stalled load.
-    case unavailable
 }
 
 struct TangemPayDailyLimitSectionView: View {
@@ -29,15 +30,13 @@ struct TangemPayDailyLimitSectionView: View {
         switch state {
         case .loading:
             loadingRow
-        case .loaded(let currentLimit):
-            loadedRow(currentLimit: currentLimit)
+        case .loaded(let limit):
+            loadedRow(limit: limit)
         case .error:
             VStack(alignment: .leading, spacing: 14) {
                 errorRow
                 errorBanner
             }
-        case .unavailable:
-            EmptyView()
         }
     }
 
@@ -67,7 +66,7 @@ struct TangemPayDailyLimitSectionView: View {
         .cornerRadiusContinuous(14)
     }
 
-    private func loadedRow(currentLimit: String) -> some View {
+    private func loadedRow(limit: TangemPayDailyLimit) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             DefaultHeaderView(Localization.tangempayCardPageDailyLimitTitle)
                 .padding(.bottom, 8)
@@ -78,7 +77,7 @@ struct TangemPayDailyLimitSectionView: View {
                     Text(Localization.tangempayCardPageDailyLimitCurrentLimit)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                    Text(currentLimit)
+                    Text(limit.currentLimit)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                         .lineLimit(1)
                 }
@@ -150,11 +149,21 @@ struct TangemPayDailyLimitSectionView: View {
     }
 }
 
+#if DEBUG
+
+// MARK: - Previews
+
 #Preview {
     VStack(spacing: 8) {
         TangemPayDailyLimitSectionView(state: .loading, isFrozen: false, changeAction: {})
-        TangemPayDailyLimitSectionView(state: .loaded(currentLimit: "50"), isFrozen: false, changeAction: {})
+        TangemPayDailyLimitSectionView(
+            state: .loaded(TangemPayDailyLimit(currentLimit: "50")),
+            isFrozen: false,
+            changeAction: {}
+        )
         TangemPayDailyLimitSectionView(state: .error, isFrozen: false, changeAction: {})
     }
     .preferredColorScheme(.dark)
 }
+
+#endif // DEBUG

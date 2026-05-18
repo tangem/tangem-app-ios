@@ -13,30 +13,8 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayAccount {
-    var paymentTokenItem: TokenItem {
-        TangemPayUtilities.usdcTokenItem
-    }
-
     var cardsPublisher: AnyPublisher<[TangemPayCard], Never> {
         cardsSubject.eraseToAnyPublisher()
-    }
-
-    var pendingProductInstancesPublisher: AnyPublisher<[VisaCustomerInfoResponse.ProductInstance], Never> {
-        customerInfoSubject
-            .map { $0.productInstances.filter { $0.cardId == nil } }
-            .eraseToAnyPublisher()
-    }
-
-    var pendingProductInstances: [VisaCustomerInfoResponse.ProductInstance] {
-        customerInfoSubject.value.productInstances.filter { $0.cardId == nil }
-    }
-
-    var activeIssueOrdersPublisher: AnyPublisher<[TangemPayOrderResponse], Never> {
-        activeIssueOrdersSubject.eraseToAnyPublisher()
-    }
-
-    var activeIssueOrders: [TangemPayOrderResponse] {
-        activeIssueOrdersSubject.value
     }
 
     var cardEntries: [TangemPayCardEntry] {
@@ -117,7 +95,6 @@ final class TangemPayAccount {
     var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerService: any CustomerInfoManagementService
-    let withdrawTransactionService: any TangemPayWithdrawTransactionService
     let feeRepository: TangemPayFeeRepository
 
     let userWalletId: UserWalletId
@@ -149,7 +126,6 @@ final class TangemPayAccount {
         customerInfo: VisaCustomerInfoResponse,
         customerService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
-        withdrawTransactionService: any TangemPayWithdrawTransactionService,
         expressCEXTransactionDispatcher: any TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider,
@@ -161,7 +137,6 @@ final class TangemPayAccount {
         customerInfoSubject = CurrentValueSubject(customerInfo)
         self.customerService = customerService
         self.balancesService = balancesService
-        self.withdrawTransactionService = withdrawTransactionService
         self.expressCEXTransactionDispatcher = expressCEXTransactionDispatcher
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
         // Account owns its own polling service. Sharing with `TangemPayManager` (or with
@@ -189,9 +164,6 @@ final class TangemPayAccount {
     func loadCustomerInfo() async {
         do throws(TangemPayAPIServiceError) {
             let customerInfo = try await customerService.loadCustomerInfo()
-            // The synchronous block below runs uninterrupted on MainActor — no other
-            // MainActor work can interleave between these statements, so the multi-subject
-            // update is atomic without needing a lock.
             let prunedOrders = prunedActiveIssueOrders(
                 orders: activeIssueOrdersSubject.value,
                 against: customerInfo
@@ -224,53 +196,28 @@ final class TangemPayAccount {
 
     @MainActor
     func resumeAdditionalCardIssuePolling() async {
-        // Snapshot BEFORE the BFF call. If `issueAdditionalCard` appends a brand-new order
-        // while `findOrders` is in flight, that new order must NOT be considered for removal
-        // — it post-dates BFF's view and could be missing from `findOrders` due to eventual
-        // consistency. Iterating the snapshot (instead of the live subject) confines removals
-        // to orders that existed at request time.
+        // Snapshot BEFORE the BFF call: a concurrent `issueAdditionalCard` may append a new
+        // order while `findOrders` is in flight, and that new order must NOT be pruned (it
+        // post-dates BFF's view and could be missing from `findOrders` due to eventual
+        // consistency).
         let localOrdersBeforeFetch = activeIssueOrdersSubject.value
 
+        let bffActiveOrders: [TangemPayOrderResponse]
         do {
-            let bffActiveOrders = try await customerService.findOrders(
+            bffActiveOrders = try await customerService.findOrders(
                 types: TangemPayOrderType.cardIssueFamily,
                 statuses: [.new, .processing]
             )
-
-            // Reconcile local state against BFF — `findOrders` is the source of truth for
-            // active orders (FR-MOB-ORDER-001). Without this, an order whose terminal
-            // transition was missed locally (e.g. polling didn't fire while backgrounded,
-            // or `order.data.productInstanceId` was never populated so `prunedActiveIssueOrders`
-            // couldn't match it against the issued PI) lingers in `activeIssueOrdersSubject`
-            // and renders as a duplicate "issuing" entry next to the already-issued card.
-            //
-            // We also cancel the in-flight polling task and clear `isIssueInFlight`
-            // synchronously — without this, the flag would stay set until the next polling
-            // tick (up to ~1 minute), during which the user couldn't issue another card.
-            // The polling service stays silent on external cancel (no `onCanceled` callback
-            // fires) so we do the cleanup here at the call site.
-            let bffOrderIds = Set(bffActiveOrders.map(\.id))
-            var didCancelStale = false
-            for staleOrder in localOrdersBeforeFetch where !bffOrderIds.contains(staleOrder.id) {
-                removeActiveIssueOrder(id: staleOrder.id)
-                didCancelStale = true
-            }
-            if didCancelStale {
-                orderStatusPollingService.cancel()
-                isIssueInFlight = false
-            }
-
-            guard let order = bffActiveOrders
-                .sorted(by: { ($0.updatedAt ?? .distantPast) > ($1.updatedAt ?? .distantPast) })
-                .first else { return }
-            appendActiveIssueOrder(order)
-            updateActiveIssueOrder(order)
-            guard !isIssueInFlight else { return }
-            isIssueInFlight = true
-            startAdditionalCardIssueTracking(orderId: order.id)
         } catch {
             VisaLogger.error("Failed to restore in-flight card-issue polling", error: error)
+            return
         }
+
+        pruneStaleLocalIssueOrders(in: localOrdersBeforeFetch, against: bffActiveOrders)
+
+        guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
+        upsertActiveIssueOrder(order)
+        startTrackingIfIdle(orderId: order.id)
     }
 
     @MainActor
@@ -300,13 +247,25 @@ final class TangemPayAccount {
         )
 
         do {
-            let order = try await orderResolver.resolveOrCreateAdditionalCardIssueOrder(
-                orderType: offerData.orderType,
-                customerWalletAddress: customerWalletAddress,
-                specificationName: offerData.specificationName,
-                idempotencyKey: idempotencyKey
-            )
-            appendActiveIssueOrder(order)
+            // Reuse a matching active order if BFF already has one (`findActiveOrder` failures
+            // are swallowed — placing fresh is safe because the idempotency key dedupes server-side).
+            let existing = try? await orderResolver.findActiveOrder(types: TangemPayOrderType.cardIssueFamily) { order in
+                order.type == offerData.orderType
+                    && order.data?.specificationName == offerData.specificationName
+                    && order.data?.customerWalletAddress == customerWalletAddress
+            }
+            let order: TangemPayOrderResponse
+            if let existing {
+                order = existing
+            } else {
+                let request = TangemPayPlaceOrderRequest(
+                    type: offerData.orderType,
+                    customerWalletAddress: customerWalletAddress,
+                    specificationName: offerData.specificationName
+                )
+                order = try await orderResolver.placeOrder(request: request, idempotencyKey: idempotencyKey)
+            }
+            upsertActiveIssueOrder(order)
             runTask { [weak self] in
                 await self?.loadCustomerInfo()
             }
@@ -373,11 +332,20 @@ private extension TangemPayAccount {
             .store(in: &bag)
     }
 
+    var pendingProductInstances: [VisaCustomerInfoResponse.ProductInstance] {
+        customerInfoSubject.value.productInstances.filter { $0.cardId == nil }
+    }
+
+    /// Inserts a new order or replaces an existing one (matched by `id`) with fresh data.
+    /// Both code paths emit a single subject update.
     @MainActor
-    func appendActiveIssueOrder(_ order: TangemPayOrderResponse) {
+    func upsertActiveIssueOrder(_ order: TangemPayOrderResponse) {
         var orders = activeIssueOrdersSubject.value
-        guard !orders.contains(where: { $0.id == order.id }) else { return }
-        orders.append(order)
+        if let index = orders.firstIndex(where: { $0.id == order.id }) {
+            orders[index] = order
+        } else {
+            orders.append(order)
+        }
         activeIssueOrdersSubject.send(orders)
         publishCardEntries()
     }
@@ -390,6 +358,8 @@ private extension TangemPayAccount {
         publishCardEntries()
     }
 
+    /// Update-only counterpart to `upsertActiveIssueOrder` — used by `onProgress` so a tick
+    /// arriving after reconciliation removed the order doesn't resurrect it.
     @MainActor
     func updateActiveIssueOrder(_ order: TangemPayOrderResponse) {
         var orders = activeIssueOrdersSubject.value
@@ -397,6 +367,34 @@ private extension TangemPayAccount {
         orders[index] = order
         activeIssueOrdersSubject.send(orders)
         publishCardEntries()
+    }
+
+    /// Removes locally tracked orders that BFF no longer considers active (FR-MOB-ORDER-001 /
+    /// FR-MOB-ORDER-004). If anything was reconciled away, cancels the polling task and clears
+    /// `isIssueInFlight` so the user can immediately start a new issue without waiting for the
+    /// next polling tick. The polling service stays silent on external cancel — that's why
+    /// `isIssueInFlight` is cleared here at the call site rather than via an `onCanceled`
+    /// callback.
+    @MainActor
+    func pruneStaleLocalIssueOrders(
+        in localOrders: [TangemPayOrderResponse],
+        against bffActiveOrders: [TangemPayOrderResponse]
+    ) {
+        let bffOrderIds = Set(bffActiveOrders.map(\.id))
+        let staleIds = localOrders.map(\.id).filter { !bffOrderIds.contains($0) }
+        guard !staleIds.isEmpty else { return }
+
+        staleIds.forEach { removeActiveIssueOrder(id: $0) }
+        orderStatusPollingService.cancel()
+        isIssueInFlight = false
+    }
+
+    /// Starts tracking the given order only if no other issue is currently in flight.
+    @MainActor
+    func startTrackingIfIdle(orderId: String) {
+        guard !isIssueInFlight else { return }
+        isIssueInFlight = true
+        startAdditionalCardIssueTracking(orderId: orderId)
     }
 
     func prunedActiveIssueOrders(

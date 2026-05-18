@@ -14,49 +14,45 @@ public struct TangemPayOrderResolver {
         self.customerService = customerService
     }
 
-    public func resolveOrCreateAdditionalCardIssueOrder(
-        orderType: String,
-        customerWalletAddress: String,
-        specificationName: String,
+    /// Returns the most recent active order matching `predicate`, or `nil` if none exists.
+    public func findActiveOrder(
+        types: [String],
+        matching predicate: (TangemPayOrderResponse) -> Bool
+    ) async throws -> TangemPayOrderResponse? {
+        let orders = try await customerService.findOrders(types: types, statuses: [.new, .processing])
+        return orders.filter(predicate).mostRecentByUpdatedAt
+    }
+
+    /// Places an order, translating the `cardIssueInsufficientBalance` API error into the
+    /// resolver's typed `.insufficientBalance` so callers (specifically the additional-card-issue
+    /// flow per FR-MOB-BR6-006) can render the dedicated insufficient-funds UI without reaching
+    /// into BFF error codes.
+    public func placeOrder(
+        request: TangemPayPlaceOrderRequest,
         idempotencyKey: String
     ) async throws -> TangemPayOrderResponse {
-        // Errors here are swallowed: a fresh placement is safe because the idempotency key prevents
-        // server-side duplicates.
-        if let orders = try? await customerService.findOrders(
-            types: TangemPayOrderType.cardIssueFamily,
-            statuses: [.new, .processing]
-        ) {
-            let candidates = orders.filter { order in
-                order.type == orderType
-                    && order.data?.specificationName == specificationName
-                    && order.data?.customerWalletAddress == customerWalletAddress
-            }
-            let sorted = candidates.sorted { lhs, rhs in
-                (lhs.updatedAt ?? .distantPast) > (rhs.updatedAt ?? .distantPast)
-            }
-            if let existing = sorted.first {
-                return existing
-            }
-        }
-
-        let request = TangemPayPlaceOrderRequest(
-            type: orderType,
-            customerWalletAddress: customerWalletAddress,
-            specificationName: specificationName
-        )
-
         do {
             return try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
-        } catch {
-            // BFF code 140116 = CardIssueInsufficientBalanceException
-            if case .apiError(let apiError) = error, apiError.code == 140116 {
+        } catch let serviceError as TangemPayAPIServiceError {
+            if case .apiError(let apiError) = serviceError,
+               apiError.code == TangemPayAPIError.Code.cardIssueInsufficientBalance {
                 throw TangemPayOrderResolverError.insufficientBalance
             }
-            throw error
+            throw serviceError
         }
     }
 }
 
 public enum TangemPayOrderResolverError: Error {
     case insufficientBalance
+}
+
+public extension Sequence where Element == TangemPayOrderResponse {
+    /// FR-MOB-ORDER-002: deterministic selection rule for picking one out of several active
+    /// orders — most recent by `updatedAt`.
+    var mostRecentByUpdatedAt: TangemPayOrderResponse? {
+        self.max { lhs, rhs in
+            (lhs.updatedAt ?? .distantPast) < (rhs.updatedAt ?? .distantPast)
+        }
+    }
 }
