@@ -214,6 +214,7 @@
       "Read(./vendor/ios_dependencies/**)"
     ]
   },
+  "skillListingBudgetFraction": 0.10,
   "enableAllProjectMcpServers": true,
   "hooks": {
     "Stop": [
