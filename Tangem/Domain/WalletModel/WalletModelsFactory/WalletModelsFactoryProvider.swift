@@ -25,10 +25,13 @@ struct WalletModelsFactoryProvider {
             userTokensManager: userTokensManager
         )
 
+        let transactionHistorySyncRegistry = CommonTransactionHistorySyncRegistry()
+
         let featuresManagerProvider = WalletModelFeaturesManagerProvider(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
-            dynamicAddressesManagerProvider: dynamicAddressesManagerProvider
+            dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
+            transactionHistorySyncRegistry: transactionHistorySyncRegistry
         )
 
         let transactionHistoryServiceProvider = TransactionHistoryServiceProvider()

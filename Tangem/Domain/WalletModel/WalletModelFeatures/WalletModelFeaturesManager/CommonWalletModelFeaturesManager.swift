@@ -13,23 +13,21 @@ import CombineExt
 final class CommonWalletModelFeaturesManager {
     private let nftFeatureManager: CommonWalletModelNFTFeatureManager
     private let dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager
+    private let transactionHistoryFeatureManager: CommonWalletModelTransactionHistoryFeatureManager
 
     // MARK: - Staking
 
     // [REDACTED_TODO_COMMENT]
     private lazy var stakingFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> = .just(output: nil)
 
-    // MARK: - Transaction history
-
-    // [REDACTED_TODO_COMMENT]
-    private lazy var transactionHistoryFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> = .just(output: nil)
-
     init(
         nftFeatureManager: CommonWalletModelNFTFeatureManager,
-        dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager
+        dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager,
+        transactionHistoryFeatureManager: CommonWalletModelTransactionHistoryFeatureManager
     ) {
         self.nftFeatureManager = nftFeatureManager
         self.dynamicAddressesFeatureManager = dynamicAddressesFeatureManager
+        self.transactionHistoryFeatureManager = transactionHistoryFeatureManager
     }
 }
 
@@ -40,6 +38,7 @@ extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
         [
             nftFeatureManager.nftNetworkService.map(WalletModelFeature.nft(networkService:)),
             dynamicAddressesFeatureManager.dynamicAddressesManager.map(WalletModelFeature.dynamicAddresses(manager:)),
+            transactionHistoryFeatureManager.transactionHistorySync.map(WalletModelFeature.transactionHistory(sync:)),
         ].compactMap { $0 }
     }
 
@@ -51,8 +50,10 @@ extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
             dynamicAddressesFeatureManager.dynamicAddressesManagerPublisher
                 .map { $0.map(WalletModelFeature.dynamicAddresses(manager:)) }
                 .eraseToAnyPublisher(),
+            transactionHistoryFeatureManager.transactionHistorySyncPublisher
+                .map { $0.map(WalletModelFeature.transactionHistory(sync:)) }
+                .eraseToAnyPublisher(),
             stakingFeaturePublisher,
-            transactionHistoryFeaturePublisher,
         ]
         .combineLatest()
         .map { $0.compactMap(\.self) }
