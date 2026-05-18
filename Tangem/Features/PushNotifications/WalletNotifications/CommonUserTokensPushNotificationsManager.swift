@@ -16,8 +16,6 @@ final class CommonUserTokensPushNotificationsManager {
     // MARK: - Services
 
     @Injected(\.pushNotificationsPermission) var pushNotificationsPermission: PushNotificationsPermissionService
-    @Injected(\.pushNotificationsInteractor) var pushNotificationsInteractor: PushNotificationsInteractor
-    @Injected(\.pushNotificationsPermission) var pushNotificationsPermissionService: PushNotificationsPermissionService
 
     // MARK: - Private Properties
 
@@ -151,6 +149,8 @@ private extension CommonUserTokensPushNotificationsManager {
             return .disabledInApp
         case .idle:
             return .loading
+        case .syncFailed:
+            return .failed
         }
     }
 
@@ -203,8 +203,12 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         return status == .loading || status == .failed
     }
 
-    func handleUpdateOnRemoteStatus(_ value: Bool) {
-        notificationPreferencesProvider.setRemoteStatus(value ? .enabled : .disabled)
+    var isRemoteStatusEnabled: Bool {
+        notificationPreferencesProvider.remoteStatus.isEnabled
+    }
+
+    func handleUpdateOnRemoteStatus(_ status: UserWalletPushNotifyRemoteStatus) {
+        notificationPreferencesProvider.setRemoteStatus(status)
         updateStatusIfNeeded()
     }
 
@@ -240,7 +244,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func getInitialPushStatusWithAllowance() async -> Bool {
         let currentStatus = status
-        let isAuthorizedPushNotifications = await pushNotificationsPermissionService.isAuthorized
+        let isAuthorizedPushNotifications = await pushNotificationsPermission.isAuthorized
 
         // For failed state, don't use allowance logic - return false to avoid sending incorrect status
         if currentStatus == .failed {
@@ -261,10 +265,6 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
             await manager.updateWalletPushNotifyStatus(.failed)
         }
     }
-
-    var isRemoteStatusEnabled: Bool {
-        notificationPreferencesProvider.remoteStatus.isEnabled
-    }
 }
 
 // MARK: - UserTokenListExternalParametersProvider
@@ -281,7 +281,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParamet
     }
 
     func provideTokenListNotifyStatusValue() -> Bool {
-        UserTokenListExternalParametersHelper.provideTokenListNotifyStatusValue(with: self)
+        notificationPreferencesProvider.remoteStatus.isEnabled
     }
 }
 
