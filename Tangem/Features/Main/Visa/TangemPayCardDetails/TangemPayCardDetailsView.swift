@@ -265,6 +265,7 @@ struct TangemPayCardDetailsView: View {
             .style(Fonts.Bold.footnote, color: Colors.Text.constantWhite)
             .tint(Colors.Text.constantWhite)
             .focused($isCardNameFocused)
+            .disabled(viewModel.isCardNameEditingDisabled)
             .task {
                 try? await Task.sleep(for: .milliseconds(300))
                 isCardNameFocused = true
