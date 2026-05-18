@@ -219,6 +219,7 @@ extension MainCoordinator: MainRoutable {
              .buy,
              .sell,
              .swap,
+             .swapWithDeferredPairResolution,
              .referral,
              .staking,
              .marketsTokenDetails,
@@ -1002,6 +1003,7 @@ extension MainCoordinator {
         case buy(userWalletModel: UserWalletModel)
         case sell(userWalletModel: UserWalletModel)
         case swap(userWalletModel: UserWalletModel)
+        case swapWithDeferredPairResolution(parameters: PredefinedSwapParameters)
         case referral(input: ReferralInputModel)
         case staking(options: StakingDetailsCoordinator.Options)
         case yield(walletModel: any WalletModel, userWalletModel: UserWalletModel)
@@ -1058,7 +1060,10 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
 // MARK: - Swap Flow Helper
 
 private extension MainCoordinator {
-    func openSwapFlow(parameters: PredefinedSwapParameters, source: SendCoordinator.Source) {
+    func openSwapFlow(
+        parameters: PredefinedSwapParameters,
+        source: SendCoordinator.Source
+    ) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: source)
 
