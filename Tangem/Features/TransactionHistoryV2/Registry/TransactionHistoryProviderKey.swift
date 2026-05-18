@@ -7,9 +7,7 @@
 //
 
 import Foundation
-@preconcurrency import TangemFoundation
 
 struct TransactionHistoryProviderKey: Sendable, Hashable {
-    let userWalletId: UserWalletId
     let address: String
 }
