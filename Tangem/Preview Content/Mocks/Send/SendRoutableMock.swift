@@ -35,8 +35,7 @@ class SendRoutableMock: SendRoutable {
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {}
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
-    func openOnrampKYCVerification(providerName: String, kycURL: URL?, routable: OnrampKYCVerificationSheetRoutable) {}
-    func openOnrampKYCWebView(url: URL) {}
+    func openOnrampKYCVerification(providerName: String, routable: OnrampKYCVerificationSheetRoutable) {}
     func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {}
