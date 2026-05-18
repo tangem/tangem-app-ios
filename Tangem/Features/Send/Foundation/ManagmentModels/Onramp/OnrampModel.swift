@@ -583,14 +583,11 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                         model.nativePaymentDataDidLoad(data: data, provider: provider)
                         result.succeed()
                     case .widget(let data):
-                        model.redirectDataDidLoad(data: data, provider: provider)
+                        model.router?.openOnrampKYCVerification(provider: provider) { [weak model] in
+                            model?.redirectDataDidLoad(data: data, provider: provider)
+                        }
                         result.fail()
                     }
-                }
-            } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
-                await runOnMain {
-                    result.fail(error)
-                    model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
             } catch let error as CancellationError {
                 await runOnMain { result.fail(error) }

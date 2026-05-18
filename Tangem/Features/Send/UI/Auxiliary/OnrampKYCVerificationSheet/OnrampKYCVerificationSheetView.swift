@@ -115,8 +115,8 @@ struct OnrampKYCVerificationSheetView: View {
 
 #if DEBUG
 private final class OnrampKYCVerificationSheetRoutableMock: OnrampKYCVerificationSheetRoutable {
-    func onrampKYCVerificationDidTapVerify(kycURL: URL?) {}
-    func onrampKYCVerificationDidTapChooseAnother() {}
+    func onChooseAnother() {}
+    func onProceedToWidget() {}
 }
 
 struct OnrampKYCVerificationSheetView_Previews: PreviewProvider {
@@ -124,7 +124,6 @@ struct OnrampKYCVerificationSheetView_Previews: PreviewProvider {
         OnrampKYCVerificationSheetView(
             viewModel: OnrampKYCVerificationSheetViewModel(
                 providerName: "MoonPay",
-                kycURL: nil,
                 routable: OnrampKYCVerificationSheetRoutableMock()
             )
         )
