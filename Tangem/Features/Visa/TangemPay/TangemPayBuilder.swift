@@ -62,8 +62,6 @@ final class TangemPayBuilder {
         tangemPayTokenBalanceProvider: balancesService.fixedFiatTotalTokenBalanceProvider
     )
 
-    private lazy var operationGate = TangemPayOperationGate()
-
     private lazy var orderResolver = TangemPayOrderResolver(customerService: customerService)
 
     private lazy var feeRepository = TangemPayFeeRepository()
@@ -108,9 +106,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             withdrawTransactionService: withdrawTransactionService,
             expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
-            orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
-            operationGate: operationGate,
             orderResolver: orderResolver,
             feeRepository: feeRepository,
             account: account

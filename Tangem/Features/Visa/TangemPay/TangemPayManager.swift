@@ -167,7 +167,7 @@ final class TangemPayManager: TangemPayAccountModel {
 
     func refreshState() async {
         guard await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId) else {
-            orderStatusPollingService.cancelAll()
+            orderStatusPollingService.cancel()
             stateSubject.value = nil
             return
         }
@@ -224,7 +224,7 @@ final class TangemPayManager: TangemPayAccountModel {
             stateSubject.value = .cardDeactivated(account)
 
         case .kycRequired(let productInstanceExists):
-            orderStatusPollingService.cancelAll()
+            orderStatusPollingService.cancel()
             stateSubject.value = .kycRequired(weakReferenceHolder)
             if !productInstanceExists {
                 do {
@@ -235,7 +235,7 @@ final class TangemPayManager: TangemPayAccountModel {
             }
 
         case .kycDeclined:
-            orderStatusPollingService.cancelAll()
+            orderStatusPollingService.cancel()
             stateSubject.value = .kycDeclined(weakReferenceHolder)
             Analytics.log(.visaOnboardingVisaKYCRejected, contextParams: .userWallet(userWalletId))
         }
@@ -308,7 +308,7 @@ final class TangemPayManager: TangemPayAccountModel {
     private func makePaymentAccount(
         customerInfo: VisaCustomerInfoResponse
     ) -> TangemPayAccount {
-        orderStatusPollingService.cancelAll()
+        orderStatusPollingService.cancel()
         let account = tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: customerInfo,
             account: self
