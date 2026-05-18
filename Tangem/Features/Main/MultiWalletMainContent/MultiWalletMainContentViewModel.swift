@@ -816,7 +816,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             delegate?.displayAddressCopiedToast()
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(.init(walletModel: walletModel)),
+                origin: .tokenDetails(walletModel: walletModel),
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
                 return
@@ -861,8 +861,7 @@ private extension MultiWalletMainContentViewModel {
         return .init(
             coordinator: coordinator,
             userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo),
-            tokensOrderProvider: sectionsProvider
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
     }
 }
