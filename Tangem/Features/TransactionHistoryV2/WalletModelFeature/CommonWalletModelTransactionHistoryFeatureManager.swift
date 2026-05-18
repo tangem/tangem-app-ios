@@ -32,14 +32,14 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
 
     // MARK: - Feature
 
-    var transactionHistoryFeature: WalletModelFeature? {
+    var transactionHistorySync: (any TransactionHistorySyncing)? {
         guard isAvailable else {
             return nil
         }
-        return .transactionHistory(sync: registry.sync(for: key))
+        return registry.sync(for: key)
     }
 
-    var transactionHistoryFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
-        Just(transactionHistoryFeature).eraseToAnyPublisher()
+    var transactionHistorySyncPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
+        Just(transactionHistorySync).eraseToAnyPublisher()
     }
 }

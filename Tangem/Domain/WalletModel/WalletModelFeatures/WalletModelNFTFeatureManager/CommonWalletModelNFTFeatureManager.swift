@@ -19,19 +19,12 @@ final class CommonWalletModelNFTFeatureManager {
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
 
-    private lazy var _nftFeaturePublisher: some Publisher<WalletModelFeature?, Never> = nftAvailabilityProvider
+    private lazy var _nftNetworkServicePublisher: some Publisher<NFTNetworkService?, Never> = nftAvailabilityProvider
         .didChangeNFTAvailabilityPublisher
         .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { featuresManager, _ in
-            guard
-                featuresManager.isNFTAvailable,
-                let networkService = featuresManager.nftNetworkService
-            else {
-                return nil
-            }
-
-            return .nft(networkService: networkService)
+            featuresManager.nftNetworkService
         }
 
     /// Can change its value at runtime.
@@ -48,17 +41,6 @@ final class CommonWalletModelNFTFeatureManager {
 
     private var _nftNetworkService: NFTNetworkService?
 
-    private var nftNetworkService: NFTNetworkService? {
-        if isNFTEnabledForWallet {
-            let service = _nftNetworkService ?? NFTNetworkServiceFactory().makeNetworkService(for: tokenItem)
-            _nftNetworkService = service
-        } else {
-            _nftNetworkService = nil
-        }
-
-        return _nftNetworkService
-    }
-
     init(
         userWalletId: UserWalletId,
         userWalletConfig: UserWalletConfig,
@@ -71,14 +53,22 @@ final class CommonWalletModelNFTFeatureManager {
 
     // MARK: - Feature
 
-    var nftFeature: WalletModelFeature? {
-        guard isNFTAvailable, let networkService = nftNetworkService else {
+    var nftNetworkService: NFTNetworkService? {
+        guard isNFTAvailable else {
             return nil
         }
-        return .nft(networkService: networkService)
+
+        if isNFTEnabledForWallet {
+            let service = _nftNetworkService ?? NFTNetworkServiceFactory().makeNetworkService(for: tokenItem)
+            _nftNetworkService = service
+        } else {
+            _nftNetworkService = nil
+        }
+
+        return _nftNetworkService
     }
 
-    var nftFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
-        _nftFeaturePublisher.eraseToAnyPublisher()
+    var nftNetworkServicePublisher: AnyPublisher<NFTNetworkService?, Never> {
+        _nftNetworkServicePublisher.eraseToAnyPublisher()
     }
 }
