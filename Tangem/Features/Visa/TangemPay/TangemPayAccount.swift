@@ -13,6 +13,12 @@ import TangemPay
 import TangemVisa
 
 final class TangemPayAccount {
+    /// Maximum number of active cards a single customer may hold (FR-MOB-NCARD-001:
+    /// "up to 3 active cards"). Backend `customer/offers` is expected to stop returning
+    /// the additional-card offer once the cap is reached; this constant is the local
+    /// fallback used by call sites that gate UX on the cap directly.
+    static let maxCardsAllowed = 3
+
     var cardsPublisher: AnyPublisher<[TangemPayCard], Never> {
         cardsSubject.eraseToAnyPublisher()
     }

@@ -40,6 +40,16 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
+    private let dailyLimitFormatter = BalanceFormatter().makeDefaultFiatFormatter(
+        forCurrencyCode: AppConstants.usdCurrencyCode,
+        locale: .posixEnUS,
+        formattingOptions: .init(
+            minFractionDigits: 0,
+            maxFractionDigits: 0,
+            formatEpsilonAsLowestRepresentableValue: false
+        )
+    )
+
     /// Stable handle to the user's selection across the `order → pending PI → issued card`
     /// lifecycle. Each transition changes `entry.id`, but `productInstanceId` stays put once
     /// the BFF has assigned one — so we anchor on that and fall back to the original entry id
@@ -98,6 +108,11 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 extension TangemPayCardManagementViewModel {
     struct CardDetailsItem: Identifiable {
         let id: String
+        /// Stable identity across the `order → pending PI → issued card` lifecycle, used to
+        /// preserve embedded view-model state when an entry's `id` flips from `orderId` to
+        /// `cardId`. `nil` only for fresh `.issuing(.order)` entries the BFF hasn't tied to
+        /// a product instance yet.
+        let productInstanceId: String?
         let content: Content
 
         enum Content {
@@ -165,6 +180,7 @@ private extension TangemPayCardManagementViewModel {
                 guard let id else { return false }
                 return entries.first(where: { $0.id == id })?.isIssuing ?? false
             }
+            .removeDuplicates()
             .receiveOnMain()
             .assign(to: \.isIssuing, on: self, ownership: .weak)
             .store(in: &bag)
@@ -188,20 +204,11 @@ private extension TangemPayCardManagementViewModel {
 
         bindSelectedCard(
             fallback: TangemPayDailyLimitState?.none,
-            publisher: { card in
+            publisher: { [dailyLimitFormatter] card in
                 let initial: TangemPayDailyLimitState? = .loading
                 return card.cardLimitPublisher
                     .map { amount -> TangemPayDailyLimitState? in
-                        let formatter = BalanceFormatter().makeDefaultFiatFormatter(
-                            forCurrencyCode: AppConstants.usdCurrencyCode,
-                            locale: .posixEnUS,
-                            formattingOptions: .init(
-                                minFractionDigits: 0,
-                                maxFractionDigits: 0,
-                                formatEpsilonAsLowestRepresentableValue: false
-                            )
-                        )
-                        if let formatted = formatter.string(from: .init(value: amount)) {
+                        if let formatted = dailyLimitFormatter.string(from: .init(value: amount)) {
                             return .loaded(TangemPayDailyLimit(currentLimit: formatted))
                         }
                         return .error
@@ -293,16 +300,34 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func rebuildCardDetailsItems(entries: [TangemPayCardEntry]) {
-        var existing: [String: CardDetailsItem] = .init(
-            uniqueKeysWithValues: cardDetailsItems.map { ($0.id, $0) }
-        )
+        // Two-axis lookup: prefer `productInstanceId` (stable across order → PI → card
+        // transitions) and fall back to `id` for entries the BFF hasn't tied to a product
+        // instance yet. This is the same anchoring strategy `SelectionAnchor` uses.
+        var existingByProductInstanceId: [String: CardDetailsItem] = [:]
+        var existingById: [String: CardDetailsItem] = [:]
+        for item in cardDetailsItems {
+            existingById[item.id] = item
+            if let pid = item.productInstanceId {
+                existingByProductInstanceId[pid] = item
+            }
+        }
 
         cardDetailsItems = entries.map { entry in
-            let existingItem = existing.removeValue(forKey: entry.id)
+            let preservedItem: CardDetailsItem? = {
+                if let pid = entry.productInstanceId, let match = existingByProductInstanceId[pid] {
+                    return match
+                }
+                return existingById[entry.id]
+            }()
+
             switch entry {
             case .issued(let card):
-                if case .issued(let preservedVM) = existingItem?.content {
-                    return CardDetailsItem(id: card.cardId, content: .issued(preservedVM))
+                if case .issued(let preservedVM) = preservedItem?.content {
+                    return CardDetailsItem(
+                        id: card.cardId,
+                        productInstanceId: entry.productInstanceId,
+                        content: .issued(preservedVM)
+                    )
                 }
                 let detailsVM = TangemPayCardDetailsViewModel(
                     userWalletId: userWalletInfo.id,
@@ -312,9 +337,17 @@ private extension TangemPayCardManagementViewModel {
                 detailsVM.onCardNameTapped = { [weak self] in
                     self?.openCardRename()
                 }
-                return CardDetailsItem(id: card.cardId, content: .issued(detailsVM))
+                return CardDetailsItem(
+                    id: card.cardId,
+                    productInstanceId: entry.productInstanceId,
+                    content: .issued(detailsVM)
+                )
             case .issuing:
-                return CardDetailsItem(id: entry.id, content: .issuing)
+                return CardDetailsItem(
+                    id: entry.id,
+                    productInstanceId: entry.productInstanceId,
+                    content: .issuing
+                )
             }
         }
     }

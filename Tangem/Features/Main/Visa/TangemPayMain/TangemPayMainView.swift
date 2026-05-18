@@ -169,14 +169,14 @@ struct TangemPayMainView: View {
                     FixedSizeButtonWithIconInfo(
                         title: Localization.tangempayCardDetailsAddFunds,
                         icon: Assets.plus14,
-                        disabled: viewModel.actionButtonsDisabled,
+                        disabled: viewModel.isStale,
                         action: viewModel.addFunds
                     ),
                     FixedSizeButtonWithIconInfo(
                         title: Localization.tangempayCardDetailsWithdraw,
                         icon: Assets.arrowUpMini,
                         loading: viewModel.isWithdrawButtonLoading,
-                        disabled: viewModel.actionButtonsDisabled,
+                        disabled: viewModel.isStale,
                         action: viewModel.withdraw
                     ),
                 ]

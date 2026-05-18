@@ -57,10 +57,6 @@ final class TangemPayMainViewModel: ObservableObject {
         tangemPayAccount.isDeactivated
     }
 
-    var actionButtonsDisabled: Bool {
-        isStale
-    }
-
     var hasIssuingEntry: Bool {
         cardEntries.contains { $0.isIssuing }
     }
@@ -184,7 +180,7 @@ final class TangemPayMainViewModel: ObservableObject {
     func tapAddCard() {
         Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
 
-        guard tangemPayAccount.cardEntries.count < Constants.maxCardsAllowed else {
+        guard tangemPayAccount.cardEntries.count < TangemPayAccount.maxCardsAllowed else {
             coordinator?.openMaximumCardsIssuedSheet()
             return
         }
@@ -463,10 +459,3 @@ private extension TangemPayTransactionHistoryResponse.Record {
     }
 }
 
-// MARK: - Constants
-
-private extension TangemPayMainViewModel {
-    enum Constants {
-        static let maxCardsAllowed = 3
-    }
-}

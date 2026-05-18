@@ -19,7 +19,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
-    @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
 
     // MARK: - Root view model
 
@@ -463,9 +462,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
     }
 
     func popToCardListScreen() {
-        Task { @MainActor in
-            cardManagementViewModel = nil
-        }
+        cardManagementViewModel = nil
     }
 
     private static func formatFee(amount: Decimal, currency: String) -> String {
