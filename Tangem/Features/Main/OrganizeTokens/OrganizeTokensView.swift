@@ -108,7 +108,6 @@ struct OrganizeTokensView: View {
             viewModel.onViewWillAppear()
         }
         .onAppear {
-            viewModel.onViewAppear()
             scrollState.onViewAppear()
         }
     }

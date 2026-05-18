@@ -367,7 +367,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         organizeTokensViewModel = OrganizeTokensViewModel(
             userWalletModel: userWalletModel,
-            coordinator: self
+            coordinator: self,
+            analyticsLogger: TokensManagementAnalyticsLogger()
         )
     }
 
