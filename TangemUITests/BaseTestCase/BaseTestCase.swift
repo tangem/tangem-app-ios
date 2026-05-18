@@ -38,6 +38,7 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
+        features: [TestFeature: Bool] = [.redesign: false],
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments: [String] = []
@@ -68,6 +69,11 @@ class BaseTestCase: XCTestCase {
 
         if keepWallets {
             arguments.append("-uitest-keep-wallets")
+        }
+
+        for (feature, isEnabled) in features {
+            let suffix = isEnabled ? "on" : "off"
+            arguments.append("-uitest-feature-\(feature.rawValue)-\(suffix)")
         }
 
         app.launchArguments = arguments
