@@ -31,8 +31,6 @@ final class SwapActionButtonViewModel: ActionButtonViewModel {
     // MARK: Private property
 
     private weak var coordinator: ActionButtonsSwapFlowRoutable?
-    private weak var tokensOrderProvider: (any MainScreenUIOrderedTokensProviding)?
-    private var uiOrderedWalletModels: [any WalletModel]?
     private var bag: Set<AnyCancellable> = []
 
     private let lastButtonTapped: PassthroughSubject<ActionButtonModel, Never>
@@ -42,14 +40,12 @@ final class SwapActionButtonViewModel: ActionButtonViewModel {
         model: ActionButtonModel,
         coordinator: some ActionButtonsSwapFlowRoutable,
         lastButtonTapped: PassthroughSubject<ActionButtonModel, Never>,
-        userWalletModel: some UserWalletModel,
-        tokensOrderProvider: (any MainScreenUIOrderedTokensProviding)?
+        userWalletModel: some UserWalletModel
     ) {
         self.model = model
         self.coordinator = coordinator
         self.lastButtonTapped = lastButtonTapped
         self.userWalletModel = userWalletModel
-        self.tokensOrderProvider = tokensOrderProvider
 
         bind()
     }
@@ -104,15 +100,6 @@ private extension SwapActionButtonViewModel {
                 if oldValue == .loading {
                     scheduleLoadedAction()
                 }
-            }
-            .store(in: &bag)
-
-        tokensOrderProvider?
-            .uiOrderedWalletModelsPublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { viewModel, ordered in
-                viewModel.uiOrderedWalletModels = ordered
             }
             .store(in: &bag)
     }
@@ -176,19 +163,28 @@ private extension SwapActionButtonViewModel {
     }
 
     func openSwap() {
-        let helper = SwapPredefinedParametersHelper()
-        let orderedWalletModels = uiOrderedWalletModels
-            ?? AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+        let userWalletInfo = userWalletModel.userWalletInfo
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
 
-        if let parameters = helper.makeParameters(
-            origin: .mainScreen(.init(orderedWalletModels: orderedWalletModels)),
-            userWalletInfo: userWalletModel.userWalletInfo
-        ) {
-            coordinator?.openSwap(predefinedParameters: parameters)
-        } else {
-            let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
-            coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
+        let bestEffort = MainSwapPairResolver.makeBestEffortSourceToken(from: walletModels, userWalletInfo: userWalletInfo)
+        let fallback = walletModels.first.map { walletModel in
+            CommonSendSwapableTokenFactory(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                operationType: .swap
+            ).makeSwapableToken()
         }
+
+        guard let sourceToken = bestEffort ?? fallback else {
+            return
+        }
+
+        let resolver = MainSwapPairResolver(
+            userWalletModel: userWalletModel,
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
+        )
+
+        coordinator?.openSwap(predefinedParameters: .deferredPairResolution(source: sourceToken, resolver: resolver))
     }
 
     func showScheduledAlert(with message: String) {
