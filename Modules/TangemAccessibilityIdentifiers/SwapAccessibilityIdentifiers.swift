@@ -34,4 +34,8 @@ public enum SwapAccessibilityIdentifiers {
 
     /// Price change info button on receive section
     public static let priceChangeInfoButton = "swapPriceChangeInfoButton"
+
+    /// Amount fraction chips above keyboard (25%, 50%, 75%, Max)
+    public static func amountFraction(_ suffix: String) -> String { "swapAmountFraction_\(suffix)" }
+    public static let keyboardDismissButton = "swapKeyboardDismissButton"
 }

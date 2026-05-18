@@ -24,7 +24,7 @@ struct UTXOTransactionHistoryMapper {
 extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
     func mapToTransactionRecords(
         _ response: BlockBookAddressResponse,
-        walletAddress: String,
+        walletAddress: [String],
         amountType: Amount.AmountType
     ) throws -> [TransactionRecord] {
         assert(amountType == .coin, "UTXOTransactionHistoryMapper doesn't support a token amount")
@@ -38,12 +38,16 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
         }
     }
 
-    func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, walletAddress: String) throws -> TransactionRecord {
+    func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, walletAddress: [String]) throws -> TransactionRecord {
         guard let feeSatoshi = Decimal(stringValue: transaction.fees) else {
             throw TransactionHistoryMapperError.notFound("Transaction.fees")
         }
 
-        let isOutgoing = transaction.compat.vin.contains(where: { $0.addresses?.contains(walletAddress) == true })
+        let walletAddressSet = Set(walletAddress)
+        let isOutgoing = transaction.compat.vin.contains { vin in
+            guard let addresses = vin.addresses else { return false }
+            return !walletAddressSet.isDisjoint(with: addresses)
+        }
         let status: TransactionRecord.TransactionStatus = transaction.confirmations > 0 ? .confirmed : .unconfirmed
         let fee = feeSatoshi / decimalValue
 

@@ -8,12 +8,13 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 public protocol TangemDropDownTextProvider: Hashable {
     var text: String { get }
 }
 
-public struct TangemDropDown<Data>: View
+public struct TangemDropDown<Data>: View, Setupable
     where Data: RandomAccessCollection, Data.Element: TangemDropDownTextProvider {
     fileprivate typealias Item = Data.Element
 
@@ -23,6 +24,8 @@ public struct TangemDropDown<Data>: View
 
     private let data: Data
     @Binding private var selection: Item
+
+    private var accessibilityIdentifierFactory: ((Data.Element) -> String)?
 
     public init(
         data: Data,
@@ -54,6 +57,7 @@ private extension TangemDropDown {
                             .resizable()
                     }
                 }
+                .accessibilityIdentifier(accessibilityIdentifierFactory?(item))
             }
         } label: {
             if #available(iOS 26.0, *) {
@@ -93,5 +97,13 @@ private extension TangemDropDown {
             in: RoundedRectangle(cornerRadius: .unit(.x4))
         )
         .transaction { if !isIOS26 { $0.animation = nil } }
+    }
+}
+
+// MARK: - Setupable
+
+public extension TangemDropDown {
+    func accessibilityIdentifier(factory: @escaping (Data.Element) -> String) -> Self {
+        map { $0.accessibilityIdentifierFactory = factory }
     }
 }

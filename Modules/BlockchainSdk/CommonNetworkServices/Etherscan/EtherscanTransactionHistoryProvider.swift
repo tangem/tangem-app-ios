@@ -13,7 +13,8 @@ import TangemFoundation
 
 final class EtherscanTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
-    Mapper.Response == EtherscanTransactionHistoryResult {
+    Mapper.Response == EtherscanTransactionHistoryResult,
+    Mapper.WalletAddress == String {
     private let mapper: Mapper
     private let networkProvider: TangemProvider<EtherscanTransactionHistoryTarget>
     private let targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
@@ -32,22 +33,24 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
     }
 
     private func makeTarget(
-        for request: TransactionHistory.Request,
+        for address: String,
+        contractAddress: String?,
+        limit: Int,
         requestedPageNumber: Int
     ) -> EtherscanTransactionHistoryTarget {
         let target: EtherscanTransactionHistoryTarget.Target
-        if let contractAddress = request.amountType.token?.contractAddress {
+        if let contractAddress {
             target = .getTokenTransactionHistory(
-                address: request.address,
+                address: address,
                 contract: contractAddress,
                 page: requestedPageNumber,
-                limit: request.limit
+                limit: limit
             )
         } else {
             target = .getCoinTransactionHistory(
-                address: request.address,
+                address: address,
                 page: requestedPageNumber,
-                limit: request.limit
+                limit: limit
             )
         }
 
@@ -59,6 +62,10 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
         requestedPageNumber: Int?,
         retryAttempt: Int
     ) -> AnyPublisher<TransactionHistory.Response, Error> {
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
         return Deferred { [weak self] in
             Future { promise in
                 if let requestedPageNumber {
@@ -75,7 +82,12 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
             return Just(request)
                 .withWeakCaptureOf(historyProvider)
                 .map { historyProvider, request in
-                    return historyProvider.makeTarget(for: request, requestedPageNumber: requestedPageNumber)
+                    return historyProvider.makeTarget(
+                        for: address,
+                        contractAddress: request.amountType.token?.contractAddress,
+                        limit: request.limit,
+                        requestedPageNumber: requestedPageNumber
+                    )
                 }
                 .withWeakCaptureOf(historyProvider)
                 .map { historyProvider, target in
@@ -94,7 +106,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                 .tryMap { historyProvider, result in
                     let transactionRecords = try historyProvider
                         .mapper
-                        .mapToTransactionRecords(result, walletAddress: request.address, amountType: request.amountType)
+                        .mapToTransactionRecords(result, walletAddress: address, amountType: request.amountType)
                         .filter { record in
                             historyProvider.shouldBeIncludedInHistory(
                                 amountType: request.amountType,
@@ -172,6 +184,10 @@ extension EtherscanTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
+        guard case .address = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
         return loadTransactionHistory(request: request, requestedPageNumber: nil, retryAttempt: 0)
     }
 

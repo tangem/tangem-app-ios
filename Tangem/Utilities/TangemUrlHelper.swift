@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import FirebaseAnalytics
+import TangemFirebaseDynamicShim
 
 enum TangemUrlHelper {
     static func queryItems(utmCampaign: TangemUTM.Campaign) -> [URLQueryItem] {

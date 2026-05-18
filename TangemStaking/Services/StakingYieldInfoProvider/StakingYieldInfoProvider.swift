@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 public protocol StakingYieldInfoProvider {
     func yieldInfo(for integrationId: String) async throws -> StakingYieldInfo
@@ -15,13 +16,39 @@ public protocol StakingYieldInfoProvider {
 public final actor CommonStakingYieldInfoProvider {
     private let stakeKitAPIProvider: StakeKitAPIProvider
     private let p2pAPIProvider: P2PAPIProvider
+    private let targetAmountLimitProvider: StakingTargetAmountLimitProvider
 
     private var yieldInfos = [String: CachedStakingYieldInfo]()
     private var loadingTasks = [String: Task<StakingYieldInfo, Error>]()
+    private var bag: Set<AnyCancellable> = []
 
-    public init(stakeKitAPIProvider: StakeKitAPIProvider, p2pAPIProvider: P2PAPIProvider) {
+    public init(
+        stakeKitAPIProvider: StakeKitAPIProvider,
+        p2pAPIProvider: P2PAPIProvider,
+        targetAmountLimitProvider: StakingTargetAmountLimitProvider,
+        cacheInvalidationPublisher: AnyPublisher<Void, Never>
+    ) {
         self.stakeKitAPIProvider = stakeKitAPIProvider
         self.p2pAPIProvider = p2pAPIProvider
+        self.targetAmountLimitProvider = targetAmountLimitProvider
+
+        Task { [weak self] in
+            await self?.bind(cacheInvalidationPublisher: cacheInvalidationPublisher)
+        }
+    }
+
+    private func bind(cacheInvalidationPublisher: AnyPublisher<Void, Never>) {
+        cacheInvalidationPublisher
+            .sink { [weak self] in
+                Task { await self?.invalidateCache() }
+            }
+            .store(in: &bag)
+    }
+
+    func invalidateCache() {
+        loadingTasks.values.forEach { $0.cancel() }
+        loadingTasks.removeAll()
+        yieldInfos.removeAll()
     }
 }
 
@@ -38,12 +65,13 @@ extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
         }
 
         // Create new loading task
-        let task = Task<StakingYieldInfo, Error> {
+        let task = Task<StakingYieldInfo, Error> { [weak self] in
+            guard let self else { throw CancellationError() }
             switch integrationId {
             case StakingIntegrationId.ethereumP2P.rawValue:
-                try await p2pAPIProvider.yield()
+                return try await p2pAPIProvider.yield(targetAmountLimitProvider: targetAmountLimitProvider)
             default:
-                try await stakeKitAPIProvider.yield(integrationId: integrationId)
+                return try await stakeKitAPIProvider.yield(integrationId: integrationId)
             }
         }
 
@@ -51,7 +79,9 @@ extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
 
         do {
             let result = try await task.value
-            // Store in cache after successful load
+            guard loadingTasks[integrationId] == task else {
+                return result
+            }
             yieldInfos[integrationId] = CachedStakingYieldInfo(
                 stakingYieldInfo: result,
                 timestamp: Date()
@@ -59,8 +89,9 @@ extension CommonStakingYieldInfoProvider: StakingYieldInfoProvider {
             loadingTasks[integrationId] = nil
             return result
         } catch {
-            // Clean up failed task
-            loadingTasks[integrationId] = nil
+            if loadingTasks[integrationId] == task {
+                loadingTasks[integrationId] = nil
+            }
             throw error
         }
     }

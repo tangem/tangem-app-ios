@@ -9,11 +9,16 @@
 import Foundation
 import SwiftUI
 import Combine
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        settings.title
+        guard settings.isSwapFlow,
+              FeatureProvider.isAvailable(.swapInProgressV2) else {
+            return settings.title
+        }
+        return Localization.swapInProgress
     }
 
     @Published private(set) var showHeader = false
@@ -110,5 +115,6 @@ extension SendFinishViewModel {
     struct Settings {
         let title: String
         let possibleToShowExploreButtons: Bool
+        let isSwapFlow: Bool
     }
 }

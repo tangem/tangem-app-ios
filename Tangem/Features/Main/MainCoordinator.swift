@@ -371,6 +371,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
     }
 
+    func openAddAndManageTokens(factory: TokensManagementFlowFactory) {
+        Task { @MainActor in
+            let viewModel = factory.makeFlowViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
@@ -461,7 +468,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayMainView(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        userWalletModel: any UserWalletModel
+    ) {
         mainBottomSheetUIManager.hide()
 
         let dismissAction: Action<FeeCurrencyNavigatingDismissOption?> = { [weak self] dismissOptions in
@@ -474,10 +485,13 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(
-            userWalletInfo: userWalletInfo,
-            tangemPayAccount: tangemPayAccount
-        ))
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                userWalletModel: userWalletModel
+            )
+        )
         tangemPayMainCoordinator = coordinator
     }
 
@@ -492,7 +506,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         if let tangemPayAccount = accountModel?.state?.tangemPayAccount {
             openTangemPayMainView(
                 userWalletInfo: userWalletModel.userWalletInfo,
-                tangemPayAccount: tangemPayAccount
+                tangemPayAccount: tangemPayAccount,
+                userWalletModel: userWalletModel
             )
             return
         }
@@ -514,7 +529,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 receiveValue: { [weak self] tangemPayAccount in
                     self?.openTangemPayMainView(
                         userWalletInfo: userWalletModel.userWalletInfo,
-                        tangemPayAccount: tangemPayAccount
+                        tangemPayAccount: tangemPayAccount,
+                        userWalletModel: userWalletModel
                     )
                 }
             )
@@ -736,6 +752,16 @@ extension MainCoordinator: OrganizeTokensRoutable {
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
+    }
+}
+
+// MARK: - TokensManagementFlowRoutable protocol conformance
+
+extension MainCoordinator: TokensManagementFlowRoutable {
+    func closeTokensManagementFlow() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
