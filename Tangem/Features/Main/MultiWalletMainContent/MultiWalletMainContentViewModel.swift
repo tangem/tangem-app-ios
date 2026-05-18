@@ -212,7 +212,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel)
+        let analyticsLogger = TokensManagementAnalyticsLogger()
+        analyticsLogger.logButtonAddAndOrganize()
+
+        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel, analyticsLogger: analyticsLogger)
         coordinator?.openAddAndManageTokens(factory: factory)
     }
 
