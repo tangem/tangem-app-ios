@@ -448,11 +448,36 @@ extension TokenActionAvailabilityProvider {
     }
 }
 
+// MARK: - Dynamic Addresses Management
+
+extension TokenActionAvailabilityProvider {
+    enum DynamicAddressesActionAvailabilityStatus {
+        case available
+        case hasPendingTransaction(blockchainDisplayName: String)
+    }
+
+    var isDynamicAddressesActionAvailable: Bool {
+        if case .available = dynamicAddressesAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {
+        if case .hasPendingTransaction(let blockchain) = walletModel.sendingRestrictions {
+            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
+        }
+
+        return .available
+    }
+}
+
 // MARK: Stake
 
 extension TokenActionAvailabilityProvider {
     var isStakeAvailable: Bool {
-        isStakeFeatureAvailable && isSendAvailable
+        isStakeFeatureAvailable && isSendAvailable && isStakingOfferAvailable
     }
 
     /// Checks whether staking is available for the token without considering `isSendAvailable`.
@@ -461,6 +486,19 @@ extension TokenActionAvailabilityProvider {
         let canStake = stakingFeatureProvider.isAvailable(for: walletModel.tokenItem)
 
         return canStake
+    }
+
+    private var isStakingOfferAvailable: Bool {
+        switch walletModel.stakingManagerState {
+        case .staked:
+            return true
+        case .availableToStake(let yield):
+            return yield.isAvailable
+        case .loading(let cached), .loadingError(_, let cached):
+            return cached != nil
+        case .notEnabled, .temporaryUnavailable:
+            return false
+        }
     }
 }
 
