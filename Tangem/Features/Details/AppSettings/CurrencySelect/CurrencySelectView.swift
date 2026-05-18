@@ -22,6 +22,14 @@ struct CurrencySelectView: View {
         }
         .navigationTitle(Localization.detailsRowTitleCurrency)
         .navigationBarTitleDisplayMode(.inline)
+        // Must stay at view root: on iOS 26 re-inlining the SearchTextField on content-state transitions trips "search text field was already borrowed".
+        .searchable(
+            text: Binding(
+                get: { viewModel.state.searchText },
+                set: { viewModel.handle(viewEvent: .searchTextUpdated($0)) }
+            ),
+            placement: searchFieldPlacement
+        )
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
         }
@@ -46,13 +54,6 @@ struct CurrencySelectView: View {
                 .padding(.vertical, 8)
                 .padding(.horizontal, 16)
             }
-            .searchable(
-                text: Binding(
-                    get: { viewModel.state.searchText },
-                    set: { viewModel.handle(viewEvent: .searchTextUpdated($0)) }
-                ),
-                placement: searchFieldPlacement
-            )
 
         case .failure(let error):
             Text(error.localizedDescription)

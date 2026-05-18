@@ -442,10 +442,20 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
     }
 
-    func openTangemPayReissueSheet(userWalletId: UserWalletId, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayReissueSheet(
+        userWalletId: UserWalletId,
+        tangemPayAccount: TangemPayAccount,
+        onError: @escaping () -> Void
+    ) {
         Task { @MainActor in
             do {
-                let feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                let feeResponse: TangemPayFeeResponse
+                if let cached = await tangemPayAccount.feeRepository.getFee(for: .cardReplacement) {
+                    feeResponse = cached
+                } else {
+                    feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                    await tangemPayAccount.feeRepository.setFee(feeResponse, for: .cardReplacement)
+                }
                 let balance = try await tangemPayAccount.customerService.getBalance()
 
                 let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
@@ -456,11 +466,13 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
                     tangemPayAccount: tangemPayAccount,
                     feeText: feeText,
                     isInsufficientFunds: isInsufficientFunds,
-                    coordinator: self
+                    coordinator: self,
+                    onError: onError
                 )
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             } catch {
                 VisaLogger.error("Failed to load reissue fee", error: error)
+                onError()
             }
         }
     }
