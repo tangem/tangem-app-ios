@@ -13,24 +13,24 @@ public class ExpressAvailableProvider {
     public let provider: ExpressProvider
     public let manager: ExpressProviderManager
     public let supportedRateTypes: Set<ExpressProviderRateType>
-    public var isBest: Bool { _isBest.read() }
+    public var isBest: Bool { _isBest { $0 } }
 
-    private let _isBest: ThreadSafeContainer<Bool>
+    private let _isBest: OSAllocatedUnfairLock<Bool>
 
     init(provider: ExpressProvider, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>, isBest: Bool) {
         self.provider = provider
         self.manager = manager
         self.supportedRateTypes = supportedRateTypes
 
-        _isBest = .init(isBest)
+        _isBest = .init(initialState: isBest)
     }
 
     func update(isBest: Bool) {
-        _isBest.mutate { $0 = isBest }
+        _isBest { $0 = isBest }
     }
 
     deinit {
-        ExpressLogger.debug("deinit \(objectDescription(self))")
+        ExpressLogger.debug(self, "deinit")
     }
 
     public func getState() -> ExpressProviderManagerState {

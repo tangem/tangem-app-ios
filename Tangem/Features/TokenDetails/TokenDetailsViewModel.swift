@@ -21,9 +21,12 @@ import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
-    @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
     @Published var dotsMenuItems: [DotsMenuItem] = []
+
+    private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
+
+    // [REDACTED_INFO]: Remove when the redesign feature toggle is removed
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         tokenItem: walletModel.tokenItem,
@@ -50,6 +53,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     )
 
+    let actionsViewModel: TokenDetailsActionsViewModel?
+
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
 
@@ -65,8 +70,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
+    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
+
     private weak var coordinator: (any TokenDetailsRoutable)?
-    private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
@@ -79,7 +85,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
@@ -88,10 +93,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         pendingTransactionDetails: PendingTransactionDetails?
     ) {
         self.coordinator = coordinator
-        self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+
+        actionsViewModel = FeatureProvider.isAvailable(.redesign)
+            ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
+            : nil
 
         super.init(
             userWalletInfo: userWalletInfo,
@@ -100,8 +108,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
             tokenRouter: tokenRouter
         )
+
+        actionsViewModel?.setRoutable(self)
+
         notificationManager.setupManager(with: self)
-        bannerNotificationManager?.setupManager(with: self)
 
         prepareSelf()
     }
@@ -368,7 +378,10 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        tokenNotificationInputs = notificationManager.notificationInputs
+        runTask(in: self) { viewModel in
+            let tokenNotificationInputs = await viewModel.notificationManager.notificationInputs
+            await MainActor.run { viewModel.tokenNotificationInputs = tokenNotificationInputs }
+        }
         dotsMenuItems = makeDotsMenuItems()
 
         bind()
@@ -433,12 +446,6 @@ private extension TokenDetailsViewModel {
                 }
                 .store(in: &bag)
         }
-
-        bannerNotificationManager?.notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
 
         walletModel.stakingManagerStatePublisher
             .receive(on: DispatchQueue.main)
@@ -565,6 +572,41 @@ private extension TokenDetailsViewModel {
             return makeEligibleViewModelIfPossible()
         }
     }
+
+    private func makeNavigationBarViewModel() -> TokenDetailsNavigationBarViewModel {
+        let tokenStorage: TokenDetailsNavigationBarViewModel.TokenStorage
+        let headerProvider = TokenHeaderProvider(userWalletName: userWalletInfo.name, account: walletModel.account)
+
+        switch headerProvider.makeHeader() {
+        case .account(let accountName, let accountIcon):
+            tokenStorage = .account(icon: accountIcon, name: accountName)
+
+        case .wallet(name: let walletName, hasOnlyOneWallet: false):
+            tokenStorage = .wallet(name: walletName, icon: userWalletInfo.config.walletThumbnailType)
+
+        case .wallet(_, hasOnlyOneWallet: true):
+            tokenStorage = .singleWallet
+        }
+
+        let title = TokenDetailsNavigationBarViewModel.Title(
+            tokenName: walletModel.tokenItem.name,
+            storedIn: tokenStorage
+        )
+
+        let subtitle: String
+
+        if walletModel.tokenItem.isToken {
+            let tokenName = walletModel.tokenItem.blockchain.tokenTypeName ?? Localization.commonToken
+            let networkName = walletModel.tokenItem.blockchain.displayName
+            let preposition = Localization.commonIn
+            let network = Localization.wcCommonNetwork.lowercased()
+            subtitle = "\(tokenName) \(preposition) \(networkName) \(network)"
+        } else {
+            subtitle = Localization.commonMainNetwork
+        }
+
+        return TokenDetailsNavigationBarViewModel(title: title, subtitle: subtitle)
+    }
 }
 
 // MARK: - SingleTokenNotificationManagerInteractionDelegate
@@ -641,6 +683,10 @@ extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
         walletModel.isCustom
     }
 }
+
+// MARK: - TokenDetailsActionsRoutable
+
+extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
