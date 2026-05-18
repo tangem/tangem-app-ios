@@ -59,7 +59,6 @@ extension PredefinedSendParameters {
 }
 
 enum PredefinedSwapParameters {
-    case pair(source: SendSwapableToken, receive: SendSwapableToken? = nil)
     case from(_ source: SendSwapableToken, receive: SendReceiveToken? = nil)
     case to(_ receive: SendSwapableToken)
 }
