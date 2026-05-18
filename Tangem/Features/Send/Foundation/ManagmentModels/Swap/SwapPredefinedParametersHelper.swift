@@ -9,28 +9,26 @@
 import Foundation
 
 struct SwapPredefinedParametersHelper {
-    func makeParameters(origin: SwapPairResolvingOrigin, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
+    enum Origin {
+        case tokenDetails(walletModel: any WalletModel)
+        case markets(walletModel: any WalletModel)
+    }
+
+    func makeParameters(origin: Origin, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
         switch origin {
-        case .tokenDetails(let input):
+        case .tokenDetails(let walletModel):
             if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(for: origin, userWalletInfo: userWalletInfo)
+                return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
             }
 
-            return makeFromParameters(walletModel: input.walletModel, userWalletInfo: userWalletInfo)
+            return makeFromParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
 
-        case .markets(let input):
+        case .markets(let walletModel):
             if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(for: origin, userWalletInfo: userWalletInfo)
+                return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
             }
 
-            return makeToParameters(walletModel: input.walletModel, userWalletInfo: userWalletInfo)
-
-        case .mainScreen:
-            if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(for: origin, userWalletInfo: userWalletInfo)
-            }
-
-            return nil
+            return makeToParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
         }
     }
 }
@@ -59,13 +57,13 @@ private extension SwapPredefinedParametersHelper {
     }
 
     func resolveParameters(
-        for origin: SwapPairResolvingOrigin,
+        walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo
     ) -> PredefinedSwapParameters? {
-        let resolver = CommonSwapTokenPairResolver(
+        let resolver = TokenDetailsSwapPairResolver(
             swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
         )
-        let resolved = resolver.resolve(for: origin)
+        let resolved = resolver.resolve(walletModel: walletModel)
 
         if let sourceWalletModel = resolved.source {
             let sourceToken = CommonSendSwapableTokenFactory(
