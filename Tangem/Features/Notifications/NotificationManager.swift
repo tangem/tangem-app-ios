@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol NotificationManager: AnyObject {
-    var notificationInputs: [NotificationViewInput] { get }
+    var notificationInputs: [NotificationViewInput] { get async }
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> { get }
 
     func setupManager(with delegate: NotificationTapDelegate?)
