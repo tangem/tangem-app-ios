@@ -331,6 +331,7 @@
 "common_transactions" = "Transações";
 "common_transfer" = "Transferir";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "Entendi, continue.";
 "common_understand" = "Eu entendo";
 "common_unknown_error" = "Ocorreu um erro. Por favor, tente novamente.";
@@ -1216,6 +1217,7 @@
 "staking_details_warmup_period_info" = "O período alocado para ativar a participação no staking.";
 "staking_details_warmup_period" = "Período de aquecimento";
 "staking_dismiss_message" = "Tem certeza de que deseja fechar a tela de staking?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "Não há validadores disponíveis no momento. Tente novamente mais tarde.";
 "staking_error_no_validators_title" = "Staking indisponível";
 "staking_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para staking.";
@@ -1455,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "Substituir cartão";
 "tangempay_card_details_rename_card_invalid_description" = "Somente letras e números são permitidos.";
 "tangempay_card_details_rename_card_invalid_title" = "Caracteres inválidos";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Revelar";
 "tangempay_card_details_show_details" = "Mostrar detalhes";
 "tangempay_card_details_swap_description" = "Troque qualquer ativo da sua carteira por um cartão.";
@@ -1499,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Geralmente leva até 15 minutos.";
 "tangempay_issue_card_notification_title" = "Configurando seu cartão Tangem";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "O cartão geralmente é emitido automaticamente em até 5 minutos. Em casos raros, se for necessária uma análise manual, o processo pode levar até 48 horas.";
 "tangempay_issuing_your_card" = "Emissão do seu cartão";
@@ -1549,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "Não foi possível exibir os detalhes. No entanto, os pagamentos com cartão ainda estão funcionando.";
 "tangempay_set_pin_code" = "Defina o código PIN.";
 "tangempay_status_deactivated" = "Cartão desativado";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Restaurar acesso";
 "tangempay_sync_needed" = "Sessão expirada";
 "tangempay_tangem_visa_card" = "Use USDC para pagamentos do dia a dia.";
@@ -1626,6 +1631,7 @@
 "transaction_history_transaction_validator" = "validador: %@";
 "transaction_notifications_warning_description" = "As notificações estão ativadas, mas não funcionarão até que você as permita nas configurações do seu dispositivo.";
 "transaction_notifications_warning_title" = "Notificações de transação";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Mínimo %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "O valor mínimo da transação é %1$@.";
 "tron_will_be_send_token_fee_description" = "As taxas da rede Tron para tokens populares podem ser mais altas. Fazer staking de TRX pode ajudar a reduzir os custos de transação.";
@@ -1655,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Alertas de transação";
 "user_push_notification_agreement_argument_one" = "Fique por dentro das últimas novidades e recursos.";
 "user_push_notification_agreement_argument_three" = "Receba notificações de transações recebidas.";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Acesso antecipado a novas funcionalidades e ofertas exclusivas.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Atualizações de notícias e recursos";
 "user_push_notification_agreement_argument_two" = "Seja o primeiro a saber sobre novas promoções.";
 "user_push_notification_agreement_header" = "Você gostaria de usar notificações push?";

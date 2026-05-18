@@ -22,18 +22,21 @@ struct TokenDetailsView: View {
     )
 
     var body: some View {
-        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
-            VStack(spacing: 14) {
+        // This scroll view must use non-lazy content settings because the transactions list view
+        // and other subviews already contain inner lazy stacks.
+        // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
+            VStack(spacing: Constants.sectionSpacing) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
-                if FeatureProvider.isAvailable(.redesign) {
+                if viewModel.isRedesign {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+
+                    if let actionsViewModel = viewModel.actionsViewModel {
+                        TokenDetailsActionsView(viewModel: actionsViewModel)
+                    }
                 } else {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
-                }
-
-                ForEach(viewModel.bannerNotificationInputs) { input in
-                    NotificationView(input: input)
                 }
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
@@ -99,28 +102,45 @@ struct TokenDetailsView: View {
         }
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                TokenIcon(
-                    tokenIconInfo: .init(
-                        name: "",
-                        blockchainIconAsset: nil,
-                        imageURL: viewModel.iconUrl,
-                        isCustom: false,
-                        customTokenColor: viewModel.customTokenColor
-                    ),
-                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
-                )
-                .opacity(scrollOffsetHandler.state)
-            }
+        .toolbar {
+            principalToolbarContent
 
             ToolbarItem(placement: .navigationBarTrailing) {
                 navbarTrailingButton
                     .accessibilityAddTraits(.isButton)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
             }
-        })
+        }
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ToolbarContentBuilder
+    private var principalToolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            if viewModel.isRedesign {
+                redesignPrincipalToolbarContent
+            } else {
+                legacyPrincipalToolbarContent
+            }
+        }
+    }
+
+    private var redesignPrincipalToolbarContent: some View {
+        TokenDetailsNavigationBar(viewModel: viewModel.navigationBarViewModel)
+    }
+
+    private var legacyPrincipalToolbarContent: some View {
+        TokenIcon(
+            tokenIconInfo: .init(
+                name: "",
+                blockchainIconAsset: nil,
+                imageURL: viewModel.iconUrl,
+                isCustom: false,
+                customTokenColor: viewModel.customTokenColor
+            ),
+            size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+        )
+        .opacity(scrollOffsetHandler.state)
     }
 
     @ViewBuilder
@@ -154,12 +174,15 @@ struct TokenDetailsView: View {
 
 // MARK: - Constants
 
-private extension TokenDetailsView {
+extension TokenDetailsView {
     enum Constants {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
+        static let sectionSpacing: CGFloat = 14
     }
+}
 
+private extension TokenDetailsView {
     enum CoordinateSpaceName {
         private static let prefix = "TokenDetailsView.CoordinateSpaceName."
 
@@ -208,16 +231,10 @@ private extension TokenDetailsView {
     )
     let coordinator = TokenDetailsCoordinator()
 
-    let bannerNotificationManager = BannerNotificationManager(
-        userWalletInfo: userWalletModel.userWalletInfo,
-        placement: .tokenDetails(walletModel.tokenItem),
-    )
-
     TokenDetailsView(viewModel: .init(
         userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         notificationManager: notifManager,
-        bannerNotificationManager: bannerNotificationManager,
         userTokensManager: cryptoAccountModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,

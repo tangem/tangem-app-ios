@@ -29,6 +29,7 @@ public enum MainAccessibilityIdentifiers {
     public static let missingDerivationNotification = "mainMissingDerivationNotification"
     public static let walletLockedNotification = "mainWalletLockedNotification"
     public static let searchThroughMarketField = "mainSearchThroughMarketField"
+    public static let searchThroughMarketFieldContainer = "mainSearchThroughMarketFieldContainer"
     public static let searchThroughMarketClearButton = "mainSearchThroughMarketClearButton"
     public static let addToPortfolioButton = "mainAddToPortfolioButton"
 
