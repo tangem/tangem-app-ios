@@ -34,7 +34,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         VisaWalletRoutable &
         RateAppRoutable &
         ActionButtonsRoutable &
-        NFTEntrypointRoutable
+        NFTEntrypointRoutable &
+        TokensManagementFlowRoutable
 
     @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
 
@@ -112,19 +113,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 totalBalanceProvider: model
             )
 
-            let bannerNotificationManager: BannerNotificationManager? = {
-                guard !FeatureProvider.isAvailable(.newPromotionBanners),
-                      model.config.hasFeature(.multiCurrency) else {
-                    return nil
-                }
-
-                return BannerNotificationManager(
-                    userWalletInfo: model.userWalletInfo,
-                    userWalletModel: model,
-                    placement: .main
-                )
-            }()
-
             let promotionNotificationsManager = CommonPromotionNotificationsManager(
                 userWalletId: model.userWalletId,
                 placement: .main
@@ -144,7 +132,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 userWalletNotificationManager: userWalletNotificationManager,
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
-                bannerNotificationManager: bannerNotificationManager,
                 promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
@@ -155,7 +142,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
-            bannerNotificationManager?.setupManager(with: viewModel)
 
             return .multiWallet(
                 id: id,

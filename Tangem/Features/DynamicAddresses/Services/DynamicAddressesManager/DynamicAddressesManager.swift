@@ -7,17 +7,19 @@
 //
 
 import Foundation
-import Combine
-import TangemMacro
+import BlockchainSdk
 
 protocol DynamicAddressesManager {
-    var state: DynamicAddressesState { get }
-    var statePublisher: AnyPublisher<DynamicAddressesState, Never> { get }
-
     var enablingRequirements: DynamicAddressesEnablingRequirements? { get }
     var disablingRequirements: DynamicAddressesDisablingRequirements? { get }
 
+    @MainActor
+    func hasDynamicAddressesBalancesFlag() async -> Bool
+
+    @MainActor
     func enableDynamicAddresses() async throws -> BlockchainNetwork
+
+    @MainActor
     func disableDynamicAddresses() throws -> BlockchainNetwork
 }
 
@@ -28,12 +30,6 @@ enum DynamicAddressesEnablingRequirements: Equatable {
 
 enum DynamicAddressesDisablingRequirements: Equatable {
     case compoundTransaction(BSDKAmount, destination: String)
-}
-
-@CaseFlagable
-enum DynamicAddressesState {
-    case disabled
-    case enabled
 }
 
 enum DynamicAddressesManagerError: LocalizedError {

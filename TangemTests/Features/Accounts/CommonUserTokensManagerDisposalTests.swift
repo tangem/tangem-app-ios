@@ -24,7 +24,7 @@ struct CommonUserTokensManagerDisposalTests {
         var completion: Subscribers.Completion<Never>?
 
         sut.userTokensPublisher
-            .sink(receiveCompletion: { completion = $0 }, receiveValue: { _ in })
+            .receiveCompletion { completion = $0 }
             .store(in: &cancellables)
 
         sut.dispose()
@@ -39,7 +39,7 @@ struct CommonUserTokensManagerDisposalTests {
         var completion: Subscribers.Completion<Never>?
 
         sut.orderedWalletModelIds
-            .sink(receiveCompletion: { completion = $0 }, receiveValue: { _ in })
+            .receiveCompletion { completion = $0 }
             .store(in: &cancellables)
 
         sut.dispose()
@@ -54,7 +54,7 @@ struct CommonUserTokensManagerDisposalTests {
         var completion: Subscribers.Completion<Never>?
 
         sut.groupingOptionPublisher
-            .sink(receiveCompletion: { completion = $0 }, receiveValue: { _ in })
+            .receiveCompletion { completion = $0 }
             .store(in: &cancellables)
 
         sut.dispose()
@@ -69,7 +69,7 @@ struct CommonUserTokensManagerDisposalTests {
         var completion: Subscribers.Completion<Never>?
 
         sut.sortingOptionPublisher
-            .sink(receiveCompletion: { completion = $0 }, receiveValue: { _ in })
+            .receiveCompletion { completion = $0 }
             .store(in: &cancellables)
 
         sut.dispose()
