@@ -11,10 +11,10 @@ import Combine
 
 public extension Future where Failure == Error {
     static func async(operation: @escaping () async throws -> Output) -> some Publisher<Output, Failure> {
-        var task: Task<Void, Failure>?
+        let cancellableWrapper = ThreadSafeCancellableWrapper()
 
         return Future<Output, Failure> { promise in
-            task = Task {
+            let task = Task {
                 do {
                     let output = try await operation()
                     try Task.checkCancellation()
@@ -23,23 +23,25 @@ public extension Future where Failure == Error {
                     promise(.failure(error))
                 }
             }
+            cancellableWrapper.set(task.eraseToAnyCancellable())
         }.handleEvents(receiveCancel: {
-            task?.cancel()
+            cancellableWrapper.cancel()
         })
     }
 }
 
 public extension Future where Failure == Never {
     static func async(operation: @escaping @Sendable () async -> Output) -> some Publisher<Output, Never> {
-        var task: Task<Void, Never>?
+        let cancellableWrapper = ThreadSafeCancellableWrapper()
 
         return Future<Output, Never> { promise in
-            task = Task {
+            let task = Task {
                 let output = await operation()
                 promise(.success(output))
             }
+            cancellableWrapper.set(task.eraseToAnyCancellable())
         }.handleEvents(receiveCancel: {
-            task?.cancel()
+            cancellableWrapper.cancel()
         })
     }
 }
