@@ -11,8 +11,8 @@ import Combine
 import CombineExt
 
 final class CommonWalletModelFeaturesManager {
-    private let nftFeatureManager: WalletModelNFTFeatureManager
-    private let dynamicAddressesFeatureManager: WalletModelDynamicAddressesFeatureManager
+    private let nftFeatureManager: CommonWalletModelNFTFeatureManager
+    private let dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager
 
     // MARK: - Staking
 
@@ -25,8 +25,8 @@ final class CommonWalletModelFeaturesManager {
     private lazy var transactionHistoryFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> = .just(output: nil)
 
     init(
-        nftFeatureManager: WalletModelNFTFeatureManager,
-        dynamicAddressesFeatureManager: WalletModelDynamicAddressesFeatureManager
+        nftFeatureManager: CommonWalletModelNFTFeatureManager,
+        dynamicAddressesFeatureManager: CommonWalletModelDynamicAddressesFeatureManager
     ) {
         self.nftFeatureManager = nftFeatureManager
         self.dynamicAddressesFeatureManager = dynamicAddressesFeatureManager
