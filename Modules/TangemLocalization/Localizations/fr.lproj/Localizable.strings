@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "Vous n'avez qu'un seul token ajouté à votre portefeuille. Pour utiliser la fonction d'échange, vous devez ajouter au moins 2 tokens.";
 "action_buttons_you_want_to_receive" = "Sélectionnez le jeton que vous souhaitez recevoir";
 "action_buttons_you_want_to_swap" = "Sélectionnez le jeton que vous souhaitez échanger";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "Choisissez le réseau";
 "add_custom_token_title" = "Ajouter un jeton personnalisé";
 "add_tokens_title" = "Gérer les jetons";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "Envoyez uniquement %1$@ (%2$@) depuis les réseaux %3$@ à cette adresse. L'utilisation d'autres jetons et réseaux peut entraîner une perte de fonds.";
 "address_type_default" = "Défaut";
 "address_type_legacy" = "Héritage";
@@ -864,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Autres options";
 "onboarding_create_wallet_options_message" = "Vos clés seront générées de manière sécurisée à l'intérieur de la puce. Il n'y a pas de seed phrase, ce qui signifie que personne ne peut l'exporter ou la voler.";
 "onboarding_create_wallet_options_title" = "Générer des clés de manière privée";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the";
 "onboarding_done_body" = "Votre carte est activée et prête à être utilisée";
 "onboarding_done_header" = "Succès !";
 "onboarding_done_wallet" = "Votre portefeuille est configuré et prêt à être utilisé !";
@@ -968,6 +976,8 @@
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "Vous paierez";
 "organize_tokens_group" = "Grouper";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "Par solde";
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
@@ -1347,7 +1357,7 @@
 "swap_story_second_subtitle" = "Maximisez votre valeur avec des tarifs d'un large réseau de fournisseurs de confiance";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Meilleurs Tarifs";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Simple et intuitif, vous permettant d'échanger des jetons en quelques clics";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Plus Simple Que Jamais";
