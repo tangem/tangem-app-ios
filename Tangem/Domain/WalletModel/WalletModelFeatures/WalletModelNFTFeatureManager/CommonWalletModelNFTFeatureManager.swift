@@ -68,11 +68,9 @@ final class CommonWalletModelNFTFeatureManager {
         self.userWalletConfig = userWalletConfig
         self.tokenItem = tokenItem
     }
-}
 
-// MARK: - WalletModelNFTFeatureManager protocol conformance
+    // MARK: - Feature
 
-extension CommonWalletModelNFTFeatureManager: WalletModelNFTFeatureManager {
     var nftFeature: WalletModelFeature? {
         guard isNFTAvailable, let networkService = nftNetworkService else {
             return nil

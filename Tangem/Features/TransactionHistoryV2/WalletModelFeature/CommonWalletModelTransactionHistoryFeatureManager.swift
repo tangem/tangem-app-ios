@@ -29,11 +29,9 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
         self.tokenItem = tokenItem
         self.registry = registry
     }
-}
 
-// MARK: - WalletModelTransactionHistoryFeatureManager protocol conformance
+    // MARK: - Feature
 
-extension CommonWalletModelTransactionHistoryFeatureManager: WalletModelTransactionHistoryFeatureManager {
     var transactionHistoryFeature: WalletModelFeature? {
         guard isAvailable else {
             return nil
