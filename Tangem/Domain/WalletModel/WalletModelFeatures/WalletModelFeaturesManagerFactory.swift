@@ -1,5 +1,5 @@
 //
-//  WalletModelFeaturesManagerProvider.swift
+//  WalletModelFeaturesManagerFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import BlockchainSdk
 import TangemFoundation
 
-struct WalletModelFeaturesManagerProvider {
+struct WalletModelFeaturesManagerFactory {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
     let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider

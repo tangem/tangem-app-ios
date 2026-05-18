@@ -26,7 +26,7 @@ struct WalletModelsFactoryProvider {
             userTokensManager: userTokensManager
         )
 
-        let featuresManagerProvider = WalletModelFeaturesManagerProvider(
+        let featuresManagerFactory = WalletModelFeaturesManagerFactory(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
             dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
@@ -38,7 +38,7 @@ struct WalletModelsFactoryProvider {
         let factory = CommonWalletModelsFactory(
             config: userWalletConfig,
             userWalletId: userWalletId,
-            walletModelFeaturesManagerProvider: featuresManagerProvider,
+            walletModelFeaturesManagerFactory: featuresManagerFactory,
             transactionHistoryServiceProvider: transactionHistoryServiceProvider
         )
 
