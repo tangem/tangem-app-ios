@@ -94,6 +94,8 @@ public struct FloatingSheetView: View {
                         }
                         .id(viewModel.id)
                         .transition(.slideFromBottom)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityAddTraits(.isModal)
                         .onAppear {
                             DispatchQueue.main.async {
                                 sheetContentHasAppeared = true
