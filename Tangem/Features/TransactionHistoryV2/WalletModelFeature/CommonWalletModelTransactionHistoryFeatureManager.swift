@@ -36,6 +36,7 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
         guard isAvailable else {
             return nil
         }
+
         return registry.provider(for: key)
     }
 
