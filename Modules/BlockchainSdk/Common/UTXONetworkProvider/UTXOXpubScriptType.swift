@@ -13,7 +13,7 @@ public enum UTXOXpubScriptType: Hashable {
     case p2pkh(xpub: String)
     case p2wpkh(xpub: String)
 
-    func wrapped() -> String {
+    public func wrapped() -> String {
         switch self {
         case .p2pkh(let xpub): "pkh(\(xpub))"
         case .p2wpkh(let xpub): "wpkh(\(xpub))"

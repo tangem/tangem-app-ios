@@ -13,7 +13,8 @@ import TangemFoundation
 final class TronTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
     Mapper: BlockBookTransactionHistoryTotalPageCountExtractor,
-    Mapper.Response == BlockBookAddressResponse {
+    Mapper.Response == BlockBookAddressResponse,
+    Mapper.WalletAddress == String {
     private let blockBookProvider: BlockBookUTXOProvider
     private let mapper: Mapper
 
@@ -47,6 +48,10 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
         let requestedPageNumber: Int
         if let page = page {
             requestedPageNumber = page.number + 1
@@ -66,7 +71,7 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
         .flatMap { historyProvider, parameters in
             return historyProvider
                 .blockBookProvider
-                .addressData(address: request.address, parameters: parameters)
+                .addressData(address: address, parameters: parameters)
         }
         .withWeakCaptureOf(self)
         .tryMap { historyProvider, response in
@@ -116,7 +121,7 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
             let (response, _) = input
             let records = try historyProvider.mapper.mapToTransactionRecords(
                 response,
-                walletAddress: request.address,
+                walletAddress: address,
                 amountType: request.amountType
             )
             .filter { record in
