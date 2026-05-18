@@ -12,7 +12,3 @@ import TangemLogger
 protocol LogFileProvider {
     var logData: Data? { get }
 }
-
-enum LogFilesNames {
-    static let infoLogs = "infoLogs.txt"
-}
