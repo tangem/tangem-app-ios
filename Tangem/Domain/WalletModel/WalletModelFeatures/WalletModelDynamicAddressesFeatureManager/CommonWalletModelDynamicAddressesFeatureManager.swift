@@ -15,11 +15,9 @@ final class CommonWalletModelDynamicAddressesFeatureManager {
     init(dynamicAddressesManager: DynamicAddressesManager?) {
         self.dynamicAddressesManager = dynamicAddressesManager
     }
-}
 
-// MARK: - WalletModelDynamicAddressesFeatureManager protocol conformance
+    // MARK: - Feature
 
-extension CommonWalletModelDynamicAddressesFeatureManager: WalletModelDynamicAddressesFeatureManager {
     var dynamicAddressesFeature: WalletModelFeature? {
         dynamicAddressesManager.map { .dynamicAddresses(manager: $0) }
     }
