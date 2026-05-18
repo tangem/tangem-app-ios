@@ -38,14 +38,16 @@ struct CommonSendSourceTokenFactory {
             emailDataProvider: userWalletInfo.emailDataProvider
         )
 
-        let availableBalanceProvider: TokenBalanceProvider = switch balanceType {
-        case .available: walletModel.availableBalanceProvider
-        case .staked: walletModel.stakingBalanceProvider
-        }
-
-        let fiatAvailableBalanceProvider: TokenBalanceProvider = switch balanceType {
-        case .available: walletModel.fiatAvailableBalanceProvider
-        case .staked: walletModel.fiatStakingBalanceProvider
+        let availableBalanceProvider: TokenBalanceProvider
+        let fiatAvailableBalanceProvider: TokenBalanceProvider
+        switch balanceType {
+        case .available:
+            availableBalanceProvider = walletModel.availableBalanceProvider
+            fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
+        case .staked(let action):
+            let crypto = UnstakingBalanceProvider(tokenItem: walletModel.tokenItem, action: action)
+            availableBalanceProvider = crypto
+            fiatAvailableBalanceProvider = FiatTokenBalanceProvider(input: walletModel, cryptoBalanceProvider: crypto)
         }
 
         return CommonSendSourceToken(
@@ -73,5 +75,5 @@ struct CommonSendSourceTokenFactory {
 
 enum SendSourceTokenFactoryBalanceType {
     case available
-    case staked
+    case staked(action: UnstakingModel.Action)
 }
