@@ -331,6 +331,7 @@
 "common_transactions" = "Transactions";
 "common_transfer" = "Fourniture";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "Je comprends, continuer.";
 "common_understand" = "Je comprends";
 "common_unknown_error" = "Il y avait une erreur. Veuillez réessayer.";
@@ -498,7 +499,6 @@
 "express_provider_permission_needed_v2" = "Permission needed";
 "express_provider_permission_needed" = "Permission requise";
 "express_provider_recommended" = "Recommandé";
-"express_provider_for_swap" = "Provider for swap";
 "express_provider" = "Fournisseur";
 "express_status_buying" = "Achat en cours %@";
 "express_status_hide_button_text" = "Masquer cette transaction";
@@ -1217,6 +1217,7 @@
 "staking_details_warmup_period_info" = "Le temps imparti pour activer la participation au staking.";
 "staking_details_warmup_period" = "Période d'échauffement";
 "staking_dismiss_message" = "Êtes-vous sûr(e) de vouloir fermer l'écran de staking ?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "Aucun validateur disponible pour le moment. Veuillez réessayer plus tard.";
 "staking_error_no_validators_title" = "Staking indisponible";
 "staking_give_permission_fee_footer" = "Le réseau facturera des frais d’approbation de jeton pour vérifier que vous autorisez l’utilisation de votre jeton pour le jalonnement.";
@@ -1456,6 +1457,7 @@
 "tangempay_card_details_reissue_card" = "Réémettre la carte";
 "tangempay_card_details_rename_card_invalid_description" = "Seules les lettres et les chiffres sont autorisés";
 "tangempay_card_details_rename_card_invalid_title" = "Caractères non valides";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Révéler";
 "tangempay_card_details_show_details" = "Afficher les détails";
 "tangempay_card_details_swap_description" = "Échangez n'importe quel actif de votre portefeuille contre une carte";
@@ -1500,6 +1502,7 @@
 "tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "Cela prend généralement jusqu'à 15 minutes";
 "tangempay_issue_card_notification_title" = "Configuration de votre carte Tangem";
+"tangempay_issue_card" = "Issue card";
 "tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "La carte est généralement émise automatiquement en moins de 5 minutes. Dans de rares cas nécessitant une vérification manuelle, l’émission peut prendre jusqu’à 48 heures.";
 "tangempay_issuing_your_card" = "Émission de votre carte";
@@ -1550,6 +1553,7 @@
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
 "tangempay_set_pin_code" = "Définir le \ncode PIN";
 "tangempay_status_deactivated" = "Carte désactivée";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Restaurer l'accès";
 "tangempay_sync_needed" = "Session expirée";
 "tangempay_tangem_visa_card" = "Utilisez USDC pour les paiements quotidiens";
@@ -1627,6 +1631,7 @@
 "transaction_history_transaction_validator" = "validateur : %@";
 "transaction_notifications_warning_description" = "Les notifications sont activées, mais elles ne fonctionneront pas tant que vous n'aurez pas autorisé les notifications dans les paramètres de votre appareil.";
 "transaction_notifications_warning_title" = "Notifications de transaction";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Le montant minimum pour effectuer cette transaction est %1$@.";
 "tron_will_be_send_token_fee_description" = "Les frais de réseau Tron pour les jetons populaires peuvent être plus élevés. Le staking de TRX peut contribuer à réduire les coûts de transaction.";
@@ -1656,7 +1661,9 @@
 "user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
 "user_push_notification_agreement_argument_three" = "Recevez des notifications des transactions entrantes";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Accès anticipé à de nouvelles fonctionnalités et à des offres exclusives.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Actualités et mises à jour";
 "user_push_notification_agreement_argument_two" = "Soyez le premier informé des nouvelles promotions";
 "user_push_notification_agreement_header" = "Souhaitez-vous utiliser les\nnotifications push?";

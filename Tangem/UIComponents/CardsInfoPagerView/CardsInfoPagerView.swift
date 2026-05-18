@@ -264,6 +264,9 @@ struct CardsInfoPagerView<
         ScrollViewReader { scrollViewProxy in
             Group {
                 if let refreshScrollViewStateObject {
+                    // This scroll view must use non-lazy content settings because the transactions list view
+                    // and other subviews already contain inner lazy stacks.
+                    // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
                     RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
                         makeContent(with: geometryProxy)
                     }

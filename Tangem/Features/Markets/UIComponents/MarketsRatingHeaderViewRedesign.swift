@@ -28,6 +28,9 @@ struct MarketsRatingHeaderViewRedesign: View {
             data: viewModel.marketListOrderTypeOptions,
             selection: $viewModel.marketListOrderType
         )
+        .accessibilityIdentifier { order in
+            MarketsAccessibilityIdentifiers.marketsSortOption(order.rawValue)
+        }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSortButton)
     }
 
@@ -36,5 +39,8 @@ struct MarketsRatingHeaderViewRedesign: View {
             data: viewModel.marketPriceIntervalTypeOptions,
             selection: $viewModel.marketPriceIntervalType
         )
+        .accessibilityIdentifier { interval in
+            MarketsAccessibilityIdentifiers.marketsIntervalSegment(interval.marketsAccessibilityId)
+        }
     }
 }

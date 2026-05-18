@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemUI
 
 struct MainBottomSheetHeaderView: View {
@@ -34,6 +35,9 @@ struct MainBottomSheetHeaderView: View {
         )
         .placeholder(text: viewModel.searchPlaceholder)
         .cornerStyle(.capsule)
+        .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
+        .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
+        .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
         .padding(fieldPadding)
         .background(.ultraThinMaterial)
         .focused($isFocused)
