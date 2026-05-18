@@ -22,7 +22,10 @@ struct TangemPayMainView: View {
     )
 
     var body: some View {
-        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
+        // This scroll view must use non-lazy content settings because the transactions list view
+        // and other subviews already contain inner lazy stacks.
+        // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: 14) {
                 header
 
@@ -188,7 +191,11 @@ struct TangemPayMainView: View {
     private var cardIconRow: some View {
         HStack(spacing: 8) {
             Button(action: viewModel.openCardManagement) {
-                TangemPaySmallCardView(state: .issued(cardNumberEnd: viewModel.cardNumberEnd))
+                TangemPaySmallCardView(
+                    state: viewModel.shouldDisplayReplacingCardBanner
+                        ? .replacing
+                        : .issued(cardNumberEnd: viewModel.cardNumberEnd)
+                )
             }
             .disabled(viewModel.isStale)
             .opacity(viewModel.isStale ? 0.6 : 1)
