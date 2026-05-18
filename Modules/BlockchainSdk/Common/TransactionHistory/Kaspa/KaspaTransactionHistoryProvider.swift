@@ -37,7 +37,7 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": String(describing: page?.number),
+                "pageNumber": page?.number ?? "nil",
                 "hasReachedEnd": hasReachedEnd,
             ]
         )
