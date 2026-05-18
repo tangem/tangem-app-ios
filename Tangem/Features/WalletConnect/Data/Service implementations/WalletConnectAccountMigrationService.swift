@@ -42,8 +42,8 @@ final class WalletConnectAccountMigrationService {
                 }
                 updatedDApps.append(contentsOf: migratedDApps)
             } catch {
-                WCLogger.warning("WalletConnect migration failed for topic: \(savedSession.session.topic). Keep original session. Error: \(error)")
-                updatedDApps.append(savedSession)
+                WCLogger.warning("WalletConnect migration failed for topic: \(savedSession.session.topic). Dropping session. Error: \(error)")
+                hasChanges = true
             }
         }
 

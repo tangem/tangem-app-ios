@@ -14,12 +14,6 @@ import TangemVisa
 
 protocol EmailDataCollector: LogFileProvider {}
 
-extension EmailDataCollector {
-    var fileName: String {
-        LogFilesNames.infoLogs
-    }
-}
-
 private extension EmailDataCollector {
     func formatData(_ collectedInfo: [EmailCollectedData], appendDeviceInfo: Bool = true) -> Data? {
         let sessionPrefix = "Session ID: \(AppConstants.sessionId)\n"
