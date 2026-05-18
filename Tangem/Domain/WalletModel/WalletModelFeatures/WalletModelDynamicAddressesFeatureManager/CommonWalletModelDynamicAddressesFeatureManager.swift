@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 final class CommonWalletModelDynamicAddressesFeatureManager {
-    private let dynamicAddressesManager: DynamicAddressesManager?
+    let dynamicAddressesManager: DynamicAddressesManager?
 
     init(dynamicAddressesManager: DynamicAddressesManager?) {
         self.dynamicAddressesManager = dynamicAddressesManager
@@ -18,11 +18,7 @@ final class CommonWalletModelDynamicAddressesFeatureManager {
 
     // MARK: - Feature
 
-    var dynamicAddressesFeature: WalletModelFeature? {
-        dynamicAddressesManager.map { .dynamicAddresses(manager: $0) }
-    }
-
-    var dynamicAddressesFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
-        .just(output: dynamicAddressesFeature)
+    var dynamicAddressesManagerPublisher: AnyPublisher<DynamicAddressesManager?, Never> {
+        .just(output: dynamicAddressesManager)
     }
 }

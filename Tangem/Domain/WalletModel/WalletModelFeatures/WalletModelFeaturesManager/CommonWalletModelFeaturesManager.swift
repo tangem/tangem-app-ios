@@ -38,15 +38,19 @@ final class CommonWalletModelFeaturesManager {
 extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
     var features: [WalletModelFeature] {
         [
-            nftFeatureManager.nftFeature,
-            dynamicAddressesFeatureManager.dynamicAddressesFeature,
+            nftFeatureManager.nftNetworkService.map(WalletModelFeature.nft(networkService:)),
+            dynamicAddressesFeatureManager.dynamicAddressesManager.map(WalletModelFeature.dynamicAddresses(manager:)),
         ].compactMap { $0 }
     }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         [
-            nftFeatureManager.nftFeaturePublisher,
-            dynamicAddressesFeatureManager.dynamicAddressesFeaturePublisher,
+            nftFeatureManager.nftNetworkServicePublisher
+                .map { $0.map(WalletModelFeature.nft(networkService:)) }
+                .eraseToAnyPublisher(),
+            dynamicAddressesFeatureManager.dynamicAddressesManagerPublisher
+                .map { $0.map(WalletModelFeature.dynamicAddresses(manager:)) }
+                .eraseToAnyPublisher(),
             stakingFeaturePublisher,
             transactionHistoryFeaturePublisher,
         ]
