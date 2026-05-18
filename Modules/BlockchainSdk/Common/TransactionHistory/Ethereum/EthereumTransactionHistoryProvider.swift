@@ -12,7 +12,8 @@ import TangemFoundation
 
 final class EthereumTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
-    Mapper.Response == BlockBookAddressResponse {
+    Mapper.Response == BlockBookAddressResponse,
+    Mapper.WalletAddress == String {
     private let blockBookProvider: BlockBookUTXOProvider
     private let mapper: Mapper
 
@@ -55,6 +56,10 @@ extension EthereumTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
         let requestPage: Int
 
         // if indexing is created, load the next page
@@ -71,7 +76,7 @@ extension EthereumTransactionHistoryProvider: TransactionHistoryProvider {
             filterType: .init(amountType: request.amountType)
         )
 
-        return blockBookProvider.addressData(address: request.address, parameters: parameters)
+        return blockBookProvider.addressData(address: address, parameters: parameters)
             .tryMap { [weak self] response -> TransactionHistory.Response in
                 guard let self else {
                     throw BlockchainSdkError.empty
@@ -79,7 +84,7 @@ extension EthereumTransactionHistoryProvider: TransactionHistoryProvider {
 
                 let records = try mapper.mapToTransactionRecords(
                     response,
-                    walletAddress: request.address,
+                    walletAddress: address,
                     amountType: request.amountType
                 )
                 .filter { record in
