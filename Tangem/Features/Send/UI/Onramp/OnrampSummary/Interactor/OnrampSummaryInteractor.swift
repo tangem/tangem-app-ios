@@ -197,8 +197,8 @@ extension CommonOnrampSummaryInteractor {
                 .first
 
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
-                recent.map { .recent($0) },
                 nativeApplePay.map { .nativeApplePay($0) },
+                recent.map { .recent($0) },
                 great.map { .great($0) },
                 fastest.map { .fastest($0) },
             ]

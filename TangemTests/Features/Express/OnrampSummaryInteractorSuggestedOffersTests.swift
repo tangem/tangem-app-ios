@@ -96,6 +96,41 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
         #expect(!offers.contains(where: { firstCaseFor($0) == .nativeApplePay }))
     }
 
+    @Test("Recent transaction sharing the native Apple Pay provider yields a single nativeApplePay entry")
+    func nativeApplePayWinsOverRecentSameProvider() {
+        let nativeApplePay = OnrampTestFixtures.makeProvider(
+            providerId: "provider-apple-pay",
+            paymentMethodId: "apple-pay",
+            amount: 100,
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+        )
+        let other = OnrampTestFixtures.makeProvider(
+            providerId: "provider-card",
+            paymentMethodId: "card",
+            amount: 100,
+            state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2"))
+        )
+
+        let list = makeProvidersList([nativeApplePay, other])
+
+        let recentTransaction = RecentOnrampTransactionParameters(
+            providerId: nativeApplePay.provider.id,
+            paymentMethodId: nativeApplePay.paymentMethod.id
+        )
+
+        let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
+            selectedProvider: .success(nativeApplePay),
+            providers: .success(list),
+            recentOnrampTransaction: recentTransaction
+        )
+
+        let offers = unwrapSuccess(result)
+        #expect(firstCase(offers) == .nativeApplePay)
+        #expect(!offers.contains(where: { firstCaseFor($0) == .recent }))
+        let applePayEntries = offers.filter { $0.provider === nativeApplePay }
+        #expect(applePayEntries.count == 1)
+    }
+
     @Test("Same provider qualifying for nativeApplePay and great keeps a single entry at index 0")
     func dedupKeepsNativeApplePaySlot() {
         let onlyProvider = OnrampTestFixtures.makeProvider(
