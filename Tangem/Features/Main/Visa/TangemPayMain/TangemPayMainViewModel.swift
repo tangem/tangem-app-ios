@@ -458,4 +458,3 @@ private extension TangemPayTransactionHistoryResponse.Record {
         }
     }
 }
-
