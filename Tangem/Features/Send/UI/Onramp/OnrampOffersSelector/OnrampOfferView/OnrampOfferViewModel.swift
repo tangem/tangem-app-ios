@@ -81,7 +81,6 @@ extension OnrampOfferViewModel {
         let providerName: String
         let termsOfUse: URL?
         let privacyPolicy: URL?
-        let cookiePolicy: URL?
     }
 
     @CaseFlagable

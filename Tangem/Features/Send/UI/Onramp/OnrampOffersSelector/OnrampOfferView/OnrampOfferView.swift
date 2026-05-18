@@ -123,17 +123,15 @@ struct OnrampOfferView: View {
     ) -> AttributedString {
         let tos = Localization.commonTermsOfUse
         let privacy = Localization.commonPrivacyPolicy
-        let cookies = Localization.commonCookiePolicy
 
         var attributed = AttributedString(
-            Localization.onrampNativePaymentLegalNotice(notice.providerName, tos, privacy, cookies)
+            Localization.onrampNativePaymentLegalNotice(notice.providerName, tos, privacy)
         )
         attributed.font = Fonts.Regular.caption1
         attributed.foregroundColor = Colors.Text.tertiary
 
         formatLink(in: &attributed, text: tos, url: notice.termsOfUse)
         formatLink(in: &attributed, text: privacy, url: notice.privacyPolicy)
-        formatLink(in: &attributed, text: cookies, url: notice.cookiePolicy)
         return attributed
     }
 
