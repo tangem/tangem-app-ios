@@ -44,6 +44,7 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
+    private var pendingApplePayFinishStep: Bool = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -403,9 +404,10 @@ private extension OnrampModel {
         stopTimer()
         _transactionTime.send(Date())
         _expressTransactionId.send(data.txId)
-        DispatchQueue.main.async {
-            self.router?.openFinishStep()
-        }
+        // Defer the navigation until PassKit reports the sheet has dismissed
+        // (`applePaySheetDidFinish`); otherwise the parent OnrampSummary view is torn
+        // down mid-animation and the sheet gets orphaned in a stuck state.
+        pendingApplePayFinishStep = true
     }
 
     func log(_ message: String) {
@@ -552,6 +554,11 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
 
     func applePaySheetDidFinish() {
         autoupdatingTimer.resumeTimer()
+
+        if pendingApplePayFinishStep {
+            pendingApplePayFinishStep = false
+            router?.openFinishStep()
+        }
     }
 
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
@@ -570,24 +577,26 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
 
                 try Task.checkCancellation()
 
-                switch onrampResult {
-                case .nativePayment(let data):
-                    result.succeed()
-                    model.nativePaymentDataDidLoad(data: data, provider: provider)
-                case .widget(let data):
-                    model.redirectDataDidLoad(data: data, provider: provider)
-                    result.fail()
+                await runOnMain {
+                    switch onrampResult {
+                    case .nativePayment(let data):
+                        model.nativePaymentDataDidLoad(data: data, provider: provider)
+                        result.succeed()
+                    case .widget(let data):
+                        model.redirectDataDidLoad(data: data, provider: provider)
+                        result.fail()
+                    }
                 }
             } catch let error as ExpressAPIError where error.errorCode == .onrampKYCRequired {
-                result.fail(error)
                 await runOnMain {
+                    result.fail(error)
                     model.router?.openOnrampKYCVerification(provider: provider, kycURL: nil)
                 }
             } catch let error as CancellationError {
-                result.fail(error)
+                await runOnMain { result.fail(error) }
             } catch {
-                result.fail(error)
                 await runOnMain {
+                    result.fail(error)
                     model.alertPresenter?.showAlert(error.alertBinder)
                 }
             }
