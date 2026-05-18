@@ -15,9 +15,9 @@ import TangemFoundation
 import TangemVisa
 
 final class TangemPayCardDetailsViewModel: ObservableObject {
-    let lastFourDigits: String
     let cardNameDisplayMode: CardNameDisplayMode
 
+    @Published private(set) var lastFourDigits: String
     @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
     @Published var isFlipped: Bool = false
     @Published var cardName: String = ""
@@ -41,6 +41,11 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
         self.userWalletId = userWalletId
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
+
+        repository.lastFourDigitsPublisher
+            .receiveOnMain()
+            .assign(to: \.lastFourDigits, on: self, ownership: .weak)
+            .store(in: &bag)
 
         repository.cardNamePublisher
             .receiveOnMain()
