@@ -207,6 +207,12 @@ protocol SendSummaryAnalyticsLogger {
     func logUserDidTapOnProvider()
 
     func logSummaryStepOpened()
+
+    func logTapAmountFraction(_ fraction: SwapAmountFraction)
+}
+
+extension SendSummaryAnalyticsLogger {
+    func logTapAmountFraction(_ fraction: SwapAmountFraction) {}
 }
 
 protocol SendFinishAnalyticsLogger {
