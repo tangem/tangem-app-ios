@@ -12,7 +12,9 @@ struct SendTokenHeaderBuilder {
     let tokenHeader: TokenHeader
     let actionType: SendFlowActionType
 
-    func makeSendTokenHeader(isSource: Bool = true) -> SendTokenHeader {
+    func makeSendTokenHeader(isSource: Bool = true, isFinishStep: Bool = false) -> SendTokenHeader {
+        let useSwapInProgressV2Copy = isFinishStep && FeatureProvider.isAvailable(.swapInProgressV2)
+
         switch (tokenHeader, actionType) {
         // For `.unstake` always show `stakingStakedAmount`
         case (_, .unstake):
@@ -22,7 +24,9 @@ struct SendTokenHeaderBuilder {
             return .action(name: Localization.sendFromTitle)
 
         case (.wallet(_, hasOnlyOneWallet: true), .swap) where isSource:
-            return .action(name: Localization.swappingFromTitle)
+            return .action(name: useSwapInProgressV2Copy
+                ? Localization.swappingFromTitleV2
+                : Localization.swappingFromTitle)
 
         case (.wallet(_, hasOnlyOneWallet: true), .swap):
             return .action(name: Localization.swappingToTitle)
@@ -34,10 +38,16 @@ struct SendTokenHeaderBuilder {
             return .wallet(name: Localization.commonToWalletName(name))
 
         case (.account(let name, let icon), .swap) where isSource:
-            return .account(prefix: Localization.commonFrom, name: name, icon: icon)
+            let prefix = useSwapInProgressV2Copy
+                ? Localization.swappingFromAccountTitle
+                : Localization.commonFrom
+            return .account(prefix: prefix, name: name, icon: icon)
 
         case (.account(let name, let icon), .swap):
-            return .account(prefix: Localization.commonTo, name: name, icon: icon)
+            let prefix = useSwapInProgressV2Copy
+                ? Localization.swappingToAccountTitle
+                : Localization.commonTo
+            return .account(prefix: prefix, name: name, icon: icon)
 
         case (.wallet(let name, _), _):
             return .wallet(name: Localization.commonFromWalletName(name))
@@ -51,7 +61,12 @@ struct SendTokenHeaderBuilder {
 // MARK: - TokenHeader+
 
 extension TokenHeader {
-    func asSendTokenHeader(actionType: SendFlowActionType, isSource: Bool = true) -> SendTokenHeader {
-        SendTokenHeaderBuilder(tokenHeader: self, actionType: actionType).makeSendTokenHeader(isSource: isSource)
+    func asSendTokenHeader(
+        actionType: SendFlowActionType,
+        isSource: Bool = true,
+        isFinishStep: Bool = false
+    ) -> SendTokenHeader {
+        SendTokenHeaderBuilder(tokenHeader: self, actionType: actionType)
+            .makeSendTokenHeader(isSource: isSource, isFinishStep: isFinishStep)
     }
 }
