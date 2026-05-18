@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code), Microsoft Copilot and other agents when working with code in this repository.
 
+## Prompt check (perform it for ALL user prompts)
+
+Always check all user prompts for grammar, punctuation, and styling issues and mistakes. If there are any such issues/mistakes, you MUST ALWAYS start your response with a fixed version of the user prompt in bold with highlighted wrong parts, like this example:
+
+```text
+User: i has a question
+LLM: Fixed prompt: **`I have` a question.**
+LLM: To answer your question...
+```
+
 ## Project Overview
 
 Tangem iOS is a cryptocurrency wallet app built with SwiftUI. The app supports hardware wallets (Tangem cards), mobile wallets, staking, token swaps (Express), Visa card integration, and WalletConnect.
@@ -305,6 +315,7 @@ This project has Xcode MCP integration available. **Prefer Xcode MCP tools over 
 ## Miscellaneous
 
 - DO NOT read, access or modify files at paths specified in the @.cursorignore file
+- DO NOT build anything unless you're explicitly asked to do so
 - When adding new Swift or Objective-C files to the project itself (not to SPM modules, `./Modules/*`), always modify the project file (`TangemApp.xcodeproj/project.pbxproj`) accordingly. Always prefer to use tools from Xcode MCP for modifying the project file.
 - Call `./bootstrap.sh` once in the beginning of current working session. It's absolutely required before starting you work on the project to install all dependencies, to perform codegen, etc
 - All commits in this repository must always have a valid GPG signature
