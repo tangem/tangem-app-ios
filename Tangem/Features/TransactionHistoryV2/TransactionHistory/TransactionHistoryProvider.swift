@@ -1,5 +1,5 @@
 //
-//  TransactionHistorySyncer.swift
+//  TransactionHistoryProvider.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,11 +9,11 @@
 import Foundation
 import TangemFoundation
 
-final actor TransactionHistorySyncer {
+final actor TransactionHistoryProvider {
     private static let pullToRefreshThrottle: TimeInterval = 10
     private static let postBroadcastDelayNanos: UInt64 = 5 * 1_000_000_000
 
-    private let key: TransactionHistorySyncKey
+    private let key: TransactionHistoryProviderKey
 
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
     private var subscribers: [UUID: AsyncStream<TransactionHistorySyncState>.Continuation] = [:]
@@ -24,7 +24,7 @@ final actor TransactionHistorySyncer {
     private var hasCompletedInitial: Bool = false
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    init(key: TransactionHistorySyncKey) {
+    init(key: TransactionHistoryProviderKey) {
         self.key = key
     }
 
@@ -66,7 +66,7 @@ final actor TransactionHistorySyncer {
 
 // MARK: - TransactionHistorySyncing protocol conformance
 
-extension TransactionHistorySyncer: TransactionHistorySyncing {
+extension TransactionHistoryProvider: TransactionHistorySyncing {
     var state: TransactionHistorySyncState {
         stateValue
     }
