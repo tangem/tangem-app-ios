@@ -8,14 +8,14 @@
 
 import Foundation
 
-// [REDACTED_TODO_COMMENT]
+/// Registry for transaction history providers used, single instance per user wallet model.
+/// Transaction history providers are keyed by `TransactionHistoryProviderKey`.
 final class CommonTransactionHistoryProviderRegistry {}
 
 // MARK: - TransactionHistoryProviderRegistry protocol conformance
 
 extension CommonTransactionHistoryProviderRegistry: TransactionHistoryProviderRegistry {
     func provider(for key: TransactionHistoryProviderKey) -> any TransactionHistorySyncing {
-        // [REDACTED_TODO_COMMENT]
         fatalError("\(Self.self).provider(for:) is not implemented")
     }
 }
