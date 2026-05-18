@@ -22,3 +22,10 @@ final class CommonWalletModelDynamicAddressesFeatureManager {
         .just(output: dynamicAddressesManager)
     }
 }
+
+// MARK: - WalletModelFeatureManager protocol conformance
+
+extension CommonWalletModelDynamicAddressesFeatureManager: WalletModelFeatureManager {
+    var featurePayload: DynamicAddressesManager? { dynamicAddressesManager }
+    var featurePayloadPublisher: AnyPublisher<DynamicAddressesManager?, Never> { dynamicAddressesManagerPublisher }
+}
