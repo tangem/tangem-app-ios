@@ -34,6 +34,7 @@ final class CommonPushNotificationsSyncService: NSObject {
     private var eventProviderSubscription: AnyCancellable?
 
     private var updateStateTask: Task<Void, Never>?
+    private var isInitialized = false
 
     private var applicationUid: String {
         AppSettings.shared.applicationUid
@@ -109,8 +110,15 @@ final class CommonPushNotificationsSyncService: NSObject {
 
         updateStateTask = runTask(in: self) { service in
             do {
+                // Stop observing before sync so that server-originated name changes applied
+                // inside syncUserWalletModelState do not fire back to the server via the
+                // active walletNameProvider subscription left from the previous updateState call.
+                // Observing is restarted after sync to capture only user-initiated renames.
+                await service.walletNameProvider.stopObserving()
+
                 try await service.walletsStateProvider
                     .syncUserWalletModelState(applicationUid: service.applicationUid)
+
                 await service.walletNameProvider.restartObserving()
             } catch {
                 PushNotificationsSyncServiceLogger.error("Failed to sync wallets state with remote", error: error)
@@ -128,6 +136,9 @@ extension CommonPushNotificationsSyncService: PushNotificationsSyncService {
     /// fetches the list of wallets linked to the appUid.
     /// After successful initialization, notifies downstream subscribers.
     func initialize() {
+        guard !isInitialized else { return }
+        isInitialized = true
+
         runTask(in: self) { service in
             let fcmToken = Messaging.messaging().fcmToken ?? ""
             let uid = service.applicationUid
