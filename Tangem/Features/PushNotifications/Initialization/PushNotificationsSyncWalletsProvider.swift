@@ -36,7 +36,7 @@ final class PushNotificationsSyncWalletsProvider {
 
     func handleSyncErrorForAllWallets() {
         for userWalletModel in userWalletRepository.models {
-            userWalletModel.userTokensPushNotificationsManager.handleSyncError()
+            userWalletModel.userTokensPushNotificationsManager.dispatch(.syncFailed)
         }
     }
 }
@@ -116,7 +116,7 @@ private extension PushNotificationsSyncWalletsProvider {
 
         findUserWalletModel
             .userTokensPushNotificationsManager
-            .handleUpdateOnRemoteStatus(entry.notifyStatus ? .enabled : .disabled)
+            .dispatch(.remoteStatusUpdated(.ready(entry.notifyStatus)))
     }
 
     func connectWallets(walletIds: [String], shouldRetry: Bool = true) async throws {
