@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>dispositivo</string>
+        <string>%li dispositivo</string>
         <key>other</key>
-        <string>dispositivos</string>
+        <string>%li dispositivos</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -424,9 +424,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use seu Cartão ou Anel para obter o endereço de uma rede.</string>
+        <string>Use seu Cartão ou Anel para obter o endereço de uma rede %li.</string>
         <key>other</key>
-        <string>Use seu Cartão ou Anel para obter endereços de rede.</string>
+        <string>Use seu Cartão ou Anel para obter endereços de redes %li.</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>

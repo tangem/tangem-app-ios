@@ -7,13 +7,13 @@
 //
 
 import Foundation
+import UIKit
 import Combine
-import FirebaseCore
 import BlockchainSdk
 import TangemStaking
 import TangemStories
 import TangemFoundation
-import UIKit
+import TangemFirebaseDynamicShim
 
 private struct ServicesManagerKey: InjectionKey {
     static var currentValue: ServicesManager = CommonServicesManager()
@@ -49,6 +49,7 @@ final class CommonServicesManager {
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
     @Injected(\.referralService) private var referralService: ReferralService
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
+    @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -74,8 +75,10 @@ final class CommonServicesManager {
 
         let plistName = "GoogleService-Info-\(AppEnvironment.current.rawValue.capitalizingFirstLetter())"
 
-        guard let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
-              let options = FirebaseOptions(contentsOfFile: filePath) else {
+        guard
+            let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
+            let options = FirebaseOptions(contentsOfFile: filePath)
+        else {
             assertionFailure("GoogleService-Info.plist not found")
             return
         }
@@ -162,6 +165,8 @@ extension CommonServicesManager: ServicesManager {
 
         AppLogger.info("Start services initializing")
 
+        configureFirebase()
+
         configureForUITests()
 
         SettingsMigrator.migrateIfNeeded()
@@ -176,7 +181,6 @@ extension CommonServicesManager: ServicesManager {
             KeychainCleaner.cleanAllData()
         }
 
-        configureFirebase()
         AmplitudeWrapper.shared.configure()
         experimentService.configure()
         AppsFlyerWrapper.shared.configure(delegate: delegate)
@@ -201,6 +205,7 @@ extension CommonServicesManager: ServicesManager {
         gaslessTransactionsNetworkManager.initialize()
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
+        stakingTargetAmountLimitProvider.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

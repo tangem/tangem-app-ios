@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -33,6 +34,7 @@ struct AddToPortfolioPromoView: View {
                     Capsule().fill(Color.Tangem.Button.backgroundSecondary)
                 )
         }
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
     }
 
     var body: some View {
