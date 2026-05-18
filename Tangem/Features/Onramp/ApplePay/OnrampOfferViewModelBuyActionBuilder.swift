@@ -48,6 +48,11 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
+        // No Apple Pay merchant identifier configured for this provider in the current environment.
+        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
         let summaryItemLabel = balanceFormatter.formatCryptoBalance(
             quote.expectedAmount,
             currencyCode: tokenItem.currencySymbol
@@ -57,7 +62,8 @@ struct OnrampOfferViewModelBuyActionBuilder {
             amount: amount,
             currencyCode: currencyCode,
             countryCode: countryCode,
-            summaryItemLabel: summaryItemLabel
+            summaryItemLabel: summaryItemLabel,
+            merchantIdentifier: merchantIdentifier
         )
 
         return .nativeApplePay(request: request) { [self, onWillBuy] phase in

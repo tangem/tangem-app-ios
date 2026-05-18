@@ -20,10 +20,11 @@ struct OnrampApplePayUtilsTests {
             amount: 99.99,
             currencyCode: "EUR",
             countryCode: "DE",
-            summaryItemLabel: "1 ETH"
+            summaryItemLabel: "1 ETH",
+            merchantIdentifier: "merchant.example.tangem"
         )
 
-        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier)
+        #expect(request.merchantIdentifier == "merchant.example.tangem")
         #expect(request.supportedNetworks == [.visa, .masterCard])
         #expect(request.merchantCapabilities == .threeDSecure)
         #expect(request.currencyCode == "EUR")
@@ -37,7 +38,8 @@ struct OnrampApplePayUtilsTests {
             amount: 12.50,
             currencyCode: "USD",
             countryCode: "US",
-            summaryItemLabel: "0.005 ETH"
+            summaryItemLabel: "0.005 ETH",
+            merchantIdentifier: "merchant.example.tangem"
         )
 
         #expect(request.paymentSummaryItems.count == 1)
