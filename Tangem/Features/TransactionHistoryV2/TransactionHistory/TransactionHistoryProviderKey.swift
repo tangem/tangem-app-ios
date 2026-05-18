@@ -1,5 +1,5 @@
 //
-//  TransactionHistorySyncKey.swift
+//  TransactionHistoryProviderKey.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 @preconcurrency import TangemFoundation
 
-struct TransactionHistorySyncKey: Sendable, Hashable {
+struct TransactionHistoryProviderKey: Sendable, Hashable {
     let userWalletId: UserWalletId
     let address: String
 }
