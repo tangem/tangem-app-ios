@@ -58,3 +58,10 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
         transactionHistoryProviderSubject.eraseToAnyPublisher()
     }
 }
+
+// MARK: - WalletModelFeatureManager protocol conformance
+
+extension CommonWalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
+    var featurePayload: (any TransactionHistorySyncing)? { transactionHistoryProvider }
+    var featurePayloadPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> { transactionHistoryProviderPublisher }
+}
