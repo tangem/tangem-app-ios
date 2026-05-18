@@ -9,6 +9,6 @@
 import Foundation
 
 protocol OnrampKYCVerificationSheetRoutable: AnyObject {
-    func onrampKYCVerificationDidTapVerify(kycURL: URL?)
-    func onrampKYCVerificationDidTapChooseAnother()
+    func onChooseAnother()
+    func onProceedToWidget()
 }
