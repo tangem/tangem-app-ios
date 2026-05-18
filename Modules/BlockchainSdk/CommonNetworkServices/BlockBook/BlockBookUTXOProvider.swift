@@ -52,6 +52,13 @@ class BlockBookUTXOProvider {
         executeRequest(.address(address: address, parameters: parameters), responseType: BlockBookAddressResponse.self)
     }
 
+    func addressData(
+        xpub: String,
+        parameters: BlockBookTarget.XPUBRequestParameters
+    ) -> AnyPublisher<BlockBookAddressResponse, Error> {
+        executeRequest(.xpub(xpub: xpub, parameters: parameters), responseType: BlockBookAddressResponse.self)
+    }
+
     func rpcCall<Result: Decodable>(
         method: String,
         params: AnyEncodable,
