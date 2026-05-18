@@ -11,6 +11,5 @@ import Foundation
 
 struct TransactionHistorySyncKey: Sendable, Hashable {
     let userWalletId: UserWalletId
-    let accountId: Data
     let address: String
 }
