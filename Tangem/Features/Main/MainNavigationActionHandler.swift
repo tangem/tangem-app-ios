@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import BlockchainSdk
 import TangemVisa
 
@@ -227,14 +228,42 @@ extension MainCoordinator {
         }
 
         private func routeSwapAction(userWalletId: String?) -> Bool {
-            guard let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
-                  isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
+            guard
+                let userWalletModel = findUserWalletModel(userWalletModelId: userWalletId),
+                isFeatureSupported(feature: .swapping, userWalletModel: userWalletModel)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
 
-            coordinator?.openDeepLink(.swap(userWalletModel: userWalletModel))
+            guard FeatureProvider.isAvailable(.swapPipelineV2) else {
+                coordinator?.openDeepLink(.swap(userWalletModel: userWalletModel))
+                return true
+            }
+
+            let walletModels = AccountWalletModelsAggregator.walletModels(
+                from: userWalletModel.accountModelsManager
+            )
+
+            guard let sourceToken = MainSwapPairResolver.makeBestEffortSourceToken(
+                from: walletModels,
+                userWalletInfo: userWalletModel.userWalletInfo
+            ) else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let resolver = MainSwapPairResolver(
+                userWalletModel: userWalletModel,
+                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+            )
+
+            coordinator?.openDeepLink(
+                .swapWithDeferredPairResolution(
+                    parameters: .deferredPairResolution(source: sourceToken, resolver: resolver)
+                )
+            )
+
             return true
         }
 
