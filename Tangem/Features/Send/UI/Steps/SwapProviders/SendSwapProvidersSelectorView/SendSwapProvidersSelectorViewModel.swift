@@ -10,6 +10,7 @@ import Combine
 import TangemExpress
 import TangemUI
 import TangemFoundation
+import TangemLocalization
 
 class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -19,6 +20,8 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
 
     @Published var ukNotificationInput: NotificationViewInput?
     @Published var providerViewModels: [SendSwapProvidersSelectorProviderViewData] = []
+    @Published var providerTypeFilterOptions: [ProviderTypeFilter] = []
+    @Published var selectedProviderTypeFilter: ProviderTypeFilter = .all
 
     // MARK: - Dependencies
 
@@ -76,17 +79,44 @@ private extension SendSwapProvidersSelectorViewModel {
     func bind(input: SendSwapProvidersInput) {
         let highPriceImpactPublisher = receiveTokenAmountInput?.highPriceImpactPublisher ?? Just(nil).eraseToAnyPublisher()
 
-        Publishers.CombineLatest4(
+        let showableProvidersPublisher = Publishers.CombineLatest3(
             input.selectedExpressProviderPublisher.map { $0?.value },
             input.expressProvidersPublisher,
-            highPriceImpactPublisher,
             input.currentRateTypePublisher
+        )
+        .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
+            let showable = providers.showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
+            return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
+        }
+
+        showableProvidersPublisher
+            .map { Self.computeFilterOptions(showableProviders: $0.providers) }
+            .removeDuplicates()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, options in
+                viewModel.providerTypeFilterOptions = options
+                if options.isEmpty, viewModel.selectedProviderTypeFilter != .all {
+                    viewModel.selectedProviderTypeFilter = .all
+                }
+            }
+            .store(in: &bag)
+
+        Publishers.CombineLatest3(
+            showableProvidersPublisher,
+            highPriceImpactPublisher,
+            $selectedProviderTypeFilter
         )
         .withWeakCaptureOf(self)
         .map { viewModel, values in
-            let (selectedProvider, providers, highPriceImpactValue, currentRateType) = values
+            let (state, highPriceImpactValue, filter) = values
             let hasWarning = highPriceImpactValue.map { !$0.level.isNegligible } ?? false
-            return viewModel.prepareProviderRows(selectedProvider: selectedProvider, providers: providers, currentRateType: currentRateType, hasHighPriceImpactWarning: hasWarning)
+            return viewModel.prepareProviderRows(
+                selectedProvider: state.selectedProvider,
+                showableProviders: state.providers,
+                providerTypeFilter: filter,
+                hasHighPriceImpactWarning: hasWarning
+            )
         }
         .receiveOnMain()
         .assign(to: &$providerViewModels)
@@ -99,26 +129,39 @@ private extension SendSwapProvidersSelectorViewModel {
             .assign(to: &$ukNotificationInput)
     }
 
-    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, providers: [ExpressAvailableProvider], currentRateType: ExpressProviderRateType?, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
-        let viewModels: [SendSwapProvidersSelectorProviderViewData] = providers
-            .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
+    static func computeFilterOptions(showableProviders: [ExpressAvailableProvider]) -> [ProviderTypeFilter] {
+        guard FeatureProvider.isAvailable(.swapProviderTypeFilter) else { return [] }
+        var hasCex = false
+        var hasDex = false
+        for available in showableProviders {
+            switch available.provider.type {
+            case .cex: hasCex = true
+            case .dex, .dexBridge: hasDex = true
+            case .onramp, .unknown: break
+            }
+            if hasCex, hasDex { break }
+        }
+        guard hasCex, hasDex else { return [] }
+        return [.all, .cex, .dex]
+    }
+
+    private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, showableProviders: [ExpressAvailableProvider], providerTypeFilter: ProviderTypeFilter, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
+        showableProviders
+            .filter { providerTypeFilter.matches($0.provider.type) }
             .sortedByPriorityAndQuotes()
             .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
-
-        return viewModels
     }
 
     func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool) -> SendSwapProvidersSelectorProviderViewData {
-        let senderCurrencyCode = tokenItem.currencySymbol
-        let destinationCurrencyCode = receiveTokenInput?.receiveToken.value?.tokenItem.currencySymbol
+        let destinationTokenItem = receiveTokenInput?.receiveToken.value?.tokenItem
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
         let state = availableProvider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
-                senderCurrencyCode: senderCurrencyCode,
-                destinationCurrencyCode: destinationCurrencyCode,
+                senderTokenItem: tokenItem,
+                destinationTokenItem: destinationTokenItem,
                 option: .exchangeReceivedAmount
             )
         )
@@ -188,4 +231,37 @@ private extension SendSwapProvidersSelectorViewModel {
             return nil
         }
     }
+}
+
+// MARK: - ProviderTypeFilter
+
+extension SendSwapProvidersSelectorViewModel {
+    enum ProviderTypeFilter: Hashable, TangemSegmentedPickerTextProvider {
+        case all
+        case cex
+        case dex
+
+        var text: String {
+            switch self {
+            case .all: Localization.commonAll
+            case .cex: ExpressProviderType.cex.title
+            case .dex: ExpressProviderType.dex.title
+            }
+        }
+
+        func matches(_ type: ExpressProviderType) -> Bool {
+            switch self {
+            case .all: true
+            case .cex: type == .cex
+            case .dex: type == .dex || type == .dexBridge
+            }
+        }
+    }
+}
+
+// MARK: - ShowableProvidersState
+
+private struct ShowableProvidersState {
+    let selectedProvider: ExpressAvailableProvider?
+    let providers: [ExpressAvailableProvider]
 }

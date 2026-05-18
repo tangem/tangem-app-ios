@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemAccessibilityIdentifiers
 import class TangemUI.Toast
 import struct TangemUI.WarningToast
 
@@ -51,7 +52,10 @@ extension WalletConnectQRScanCoordinator: WalletConnectQRScanRoutable {
             return
         }
 
-        Toast(view: WarningToast(text: errorMessage))
-            .present(layout: .top(padding: 20), type: .temporary())
+        Toast(
+            view: WarningToast(text: errorMessage)
+                .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorToast)
+        )
+        .present(layout: .top(padding: 20), type: .temporary())
     }
 }
