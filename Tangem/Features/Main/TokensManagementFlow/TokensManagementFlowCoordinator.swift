@@ -17,6 +17,7 @@ final class TokensManagementFlowCoordinator: ObservableObject, FloatingSheetCont
     @Published private(set) var state: ViewState = .chooser
 
     private let factory: TokensManagementFlowFactory
+    private let logger: TokensManagementAnalyticsLogger
     private weak var output: TokensManagementFlowRoutable?
 
     private var currentAccount: (any CryptoAccountModel)?
@@ -26,6 +27,7 @@ final class TokensManagementFlowCoordinator: ObservableObject, FloatingSheetCont
 
     init(factory: TokensManagementFlowFactory, coordinator: TokensManagementFlowRoutable) {
         self.factory = factory
+        logger = factory.analyticsLogger
         output = coordinator
     }
 }
@@ -34,10 +36,12 @@ final class TokensManagementFlowCoordinator: ObservableObject, FloatingSheetCont
 
 extension TokensManagementFlowCoordinator {
     func openOrganize() {
+        logger.logButtonOrganizeTokens()
         state = .organize(factory.makeOrganizeTokensViewModel(coordinator: self))
     }
 
     func openAddTokens() {
+        logger.logButtonAddTokens()
         Task { @MainActor in
             let accountSelector = factory.makeAccountSelectorViewModel { [weak self] cellModel in
                 self?.didSelectAccount(cellModel.cryptoAccountModel)
