@@ -13,7 +13,7 @@ struct WalletModelsFactoryProvider {
     let userWalletConfig: UserWalletConfig
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
-    let transactionHistorySyncRegistry: any TransactionHistorySyncRegistry
+    let transactionHistoryProviderRegistry: any TransactionHistoryProviderRegistry
 
     func makeWalletModelsFactory(
         blockchainSettingsUpdater: BlockchainSettingsUpdater,
@@ -30,7 +30,7 @@ struct WalletModelsFactoryProvider {
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
             dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
-            transactionHistorySyncRegistry: transactionHistorySyncRegistry
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
         )
 
         let transactionHistoryServiceProvider = TransactionHistoryServiceProvider()

@@ -11,9 +11,9 @@ import Combine
 import BlockchainSdk
 
 final class CommonWalletModelTransactionHistoryFeatureManager {
-    private let key: TransactionHistorySyncKey
+    private let key: TransactionHistoryProviderKey
     private let tokenItem: TokenItem
-    private let registry: any TransactionHistorySyncRegistry
+    private let registry: any TransactionHistoryProviderRegistry
 
     private var isAvailable: Bool {
         // [REDACTED_TODO_COMMENT]
@@ -21,9 +21,9 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
     }
 
     init(
-        key: TransactionHistorySyncKey,
+        key: TransactionHistoryProviderKey,
         tokenItem: TokenItem,
-        registry: any TransactionHistorySyncRegistry
+        registry: any TransactionHistoryProviderRegistry
     ) {
         self.key = key
         self.tokenItem = tokenItem
@@ -32,14 +32,14 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
 
     // MARK: - Feature
 
-    var transactionHistorySync: (any TransactionHistorySyncing)? {
+    var transactionHistoryProvider: (any TransactionHistorySyncing)? {
         guard isAvailable else {
             return nil
         }
-        return registry.sync(for: key)
+        return registry.provider(for: key)
     }
 
-    var transactionHistorySyncPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
-        Just(transactionHistorySync).eraseToAnyPublisher()
+    var transactionHistoryProviderPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
+        Just(transactionHistoryProvider).eraseToAnyPublisher()
     }
 }

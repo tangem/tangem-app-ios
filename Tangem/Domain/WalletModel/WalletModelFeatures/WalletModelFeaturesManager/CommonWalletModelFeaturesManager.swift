@@ -38,7 +38,7 @@ extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
         [
             nftFeatureManager.nftNetworkService.map(WalletModelFeature.nft(networkService:)),
             dynamicAddressesFeatureManager.dynamicAddressesManager.map(WalletModelFeature.dynamicAddresses(manager:)),
-            transactionHistoryFeatureManager.transactionHistorySync.map(WalletModelFeature.transactionHistory(sync:)),
+            transactionHistoryFeatureManager.transactionHistoryProvider.map(WalletModelFeature.transactionHistory(provider:)),
         ].compactMap { $0 }
     }
 
@@ -50,8 +50,8 @@ extension CommonWalletModelFeaturesManager: WalletModelFeaturesManager {
             dynamicAddressesFeatureManager.dynamicAddressesManagerPublisher
                 .map { $0.map(WalletModelFeature.dynamicAddresses(manager:)) }
                 .eraseToAnyPublisher(),
-            transactionHistoryFeatureManager.transactionHistorySyncPublisher
-                .map { $0.map(WalletModelFeature.transactionHistory(sync:)) }
+            transactionHistoryFeatureManager.transactionHistoryProviderPublisher
+                .map { $0.map(WalletModelFeature.transactionHistory(provider:)) }
                 .eraseToAnyPublisher(),
             stakingFeaturePublisher,
         ]
