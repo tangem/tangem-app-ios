@@ -87,25 +87,3 @@ extension TangemPayNotificationManager: NotificationManager {
         // Notifications are not dismissable
     }
 }
-
-// MARK: - TangemPayLocalState+notificationEvent
-
-private extension TangemPayLocalState {
-    func asNotificationEvent() -> TangemPayNotificationEvent? {
-        switch self {
-        case .unavailable:
-            .unavailable
-
-        case .loading,
-             .kycRequired,
-             .kycDeclined,
-             .issuingCard,
-             .failedToIssueCard,
-             .tangemPayAccount,
-             .cardDeactivated,
-             .syncNeeded,
-             .syncInProgress:
-            nil
-        }
-    }
-}

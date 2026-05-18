@@ -54,20 +54,23 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
 
     private let minLimit = 1
 
-    private let tangemPayAccount: TangemPayAccount
+    private let card: TangemPayCard
+    private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayDailyLimitRoutable?
 
     private var bag = Set<AnyCancellable>()
 
     init(
-        tangemPayAccount: TangemPayAccount,
+        card: TangemPayCard,
+        userWalletId: UserWalletId,
         coordinator: TangemPayDailyLimitRoutable
     ) {
-        self.tangemPayAccount = tangemPayAccount
-        maxLimit = tangemPayAccount.adminCardLimit
+        self.card = card
+        self.userWalletId = userWalletId
+        maxLimit = card.adminCardLimit
         self.coordinator = coordinator
 
-        let currentLimit = tangemPayAccount.cardLimit ?? 0
+        let currentLimit = card.cardLimit
 
         amountFieldViewModel.update(value: Decimal(currentLimit))
 
@@ -77,7 +80,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        Analytics.log(.visaScreenLimitManagementScreenOpened, contextParams: .userWallet(tangemPayAccount.userWalletId))
+        Analytics.log(.visaScreenLimitManagementScreenOpened, contextParams: .userWallet(userWalletId))
     }
 
     func selectPreset(_ value: String) {
@@ -96,15 +99,14 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         Analytics.log(
             event: .visaScreenSetLimitsConfirmed,
             params: [.amount: "\(intValue)"],
-            contextParams: .userWallet(tangemPayAccount.userWalletId)
+            contextParams: .userWallet(userWalletId)
         )
 
         isLoading = true
 
         runTask(in: self) { viewModel in
             do {
-                try await viewModel.tangemPayAccount.customerService.setCardLimit(amount: intValue)
-                await viewModel.tangemPayAccount.loadCustomerInfo()
+                try await viewModel.card.setLimit(intValue)
 
                 await MainActor.run {
                     viewModel.isLoading = false

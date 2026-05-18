@@ -17,8 +17,12 @@ public enum TangemPayAccessibilityIdentifiers {
 
     // MARK: - Tangem Pay payment account screen
 
-    public static let paymentAccountCardButton = "\(prefix)PaymentAccountCardButton"
+    public static let paymentAccountCardButtonPrefix = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
+
+    public static func paymentAccountCardButton(cardId: String) -> String {
+        "\(paymentAccountCardButtonPrefix)_\(cardId)"
+    }
 
     // MARK: - Card details (reveal + copy)
 

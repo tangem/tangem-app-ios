@@ -47,20 +47,20 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
     let isInsufficientFunds: Bool
 
     private let userWalletId: UserWalletId
-    private let tangemPayAccount: TangemPayAccount
+    private let card: TangemPayCard
     private weak var coordinator: TangemPayReissueSheetRoutable?
     private let onError: () -> Void
 
     init(
         userWalletId: UserWalletId,
-        tangemPayAccount: TangemPayAccount,
+        card: TangemPayCard,
         feeText: String,
         isInsufficientFunds: Bool,
         coordinator: TangemPayReissueSheetRoutable,
         onError: @escaping () -> Void
     ) {
         self.userWalletId = userWalletId
-        self.tangemPayAccount = tangemPayAccount
+        self.card = card
         self.feeText = feeText
         self.isInsufficientFunds = isInsufficientFunds
         self.coordinator = coordinator
@@ -88,11 +88,8 @@ private extension TangemPayReissueSheetViewModel {
         isLoading = true
 
         runTask(in: self) { viewModel in
-            do throws(TangemPayAPIServiceError) {
-                let response = try await viewModel.tangemPayAccount.customerService.reissueCard(
-                    cardId: viewModel.tangemPayAccount.cardId
-                )
-                viewModel.tangemPayAccount.startReissueOrderTracking(orderId: response.orderId)
+            do {
+                try await viewModel.card.reissue()
                 viewModel.dismiss()
             } catch {
                 VisaLogger.error("Failed to reissue card", error: error)

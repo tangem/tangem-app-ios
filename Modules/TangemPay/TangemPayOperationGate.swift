@@ -13,7 +13,6 @@ public final class TangemPayOperationGate {
         case freeze(cardId: String)
         case unfreeze(cardId: String)
         case reissue(cardId: String)
-        case withdraw
         case rename(cardId: String)
         case setLimit(cardId: String)
     }

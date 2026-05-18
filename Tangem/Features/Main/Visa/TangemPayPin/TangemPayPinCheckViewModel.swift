@@ -14,7 +14,7 @@ import TangemUI
 import TangemPay
 
 protocol TangemPayPinCheckRoutable: AnyObject {
-    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
+    func openTangemPaySetPin(card: TangemPayCard)
     func closePinCheck()
 }
 
@@ -31,25 +31,28 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
     }
 
     private let pinValidator = VisaPinValidator()
-    private let tangemPayAccount: TangemPayAccount
+    private let card: TangemPayCard
+    private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayPinCheckRoutable?
 
     init(
-        account: TangemPayAccount,
+        card: TangemPayCard,
+        userWalletId: UserWalletId,
         coordinator: TangemPayPinCheckRoutable
     ) {
+        self.card = card
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
-        tangemPayAccount = account
 
         revealPin()
 
-        Analytics.log(.visaScreenCurrentPinShown, contextParams: .userWallet(tangemPayAccount.userWalletId))
+        Analytics.log(.visaScreenCurrentPinShown, contextParams: .userWallet(userWalletId))
     }
 
     func changePin() {
-        Analytics.log(.visaScreenChangePinOnCurrentPinClicked, contextParams: .userWallet(tangemPayAccount.userWalletId))
+        Analytics.log(.visaScreenChangePinOnCurrentPinClicked, contextParams: .userWallet(userWalletId))
         coordinator?.closePinCheck()
-        coordinator?.openTangemPaySetPin(tangemPayAccount: tangemPayAccount)
+        coordinator?.openTangemPaySetPin(card: card)
     }
 
     func close() {
@@ -59,32 +62,10 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
     private func revealPin() {
         runTask(in: self) { viewModel in
             do {
-                let service = viewModel.tangemPayAccount
-                    .customerService
-
-                let publicKey = try await RainCryptoUtilities
-                    .getRainRSAPublicKey(
-                        for: FeatureStorage.instance.visaAPIType
-                    )
-
-                let (secretKey, sessionId) = try RainCryptoUtilities
-                    .generateSecretKeyAndSessionId(
-                        publicKey: publicKey
-                    )
-                let response = try await service.getPin(
-                    sessionId: sessionId
-                )
-                let decryptedBlock = try RainCryptoUtilities.decryptSecret(
-                    base64Secret: response.secret,
-                    base64Iv: response.iv,
-                    secretKey: secretKey
-                )
-                let decryptedPin = try RainCryptoUtilities.decryptPinBlock(
-                    encryptedBlock: decryptedBlock
-                )
+                let pin = try await viewModel.card.getPin()
 
                 Task { @MainActor in
-                    viewModel.state = .loaded(PIN: decryptedPin)
+                    viewModel.state = .loaded(PIN: pin)
                 }
             } catch {
                 viewModel.onError()

@@ -37,15 +37,11 @@ final class TangemPayManager: TangemPayAccountModel {
     private(set) var customerId: String?
 
     var lastKnownTangemPayAccount: TangemPayAccount? {
-        guard
-            let cached = customerInfoCacheStorage.cachedCustomerInfo(customerWalletId: customerWalletId),
-            let productInstance = cached.productInstance
-        else {
+        guard let cached = customerInfoCacheStorage.cachedCustomerInfo(customerWalletId: customerWalletId) else {
             return nil
         }
         return tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: cached,
-            productInstance: productInstance,
             account: self
         )
     }
@@ -64,7 +60,6 @@ final class TangemPayManager: TangemPayAccountModel {
     private let customerService: CustomerInfoManagementService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
-    private let orderIdStorage: TangemPayOrderIdStorage
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
     private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
@@ -82,7 +77,6 @@ final class TangemPayManager: TangemPayAccountModel {
         customerService: CustomerInfoManagementService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
-        orderIdStorage: TangemPayOrderIdStorage,
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
         customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
@@ -95,7 +89,6 @@ final class TangemPayManager: TangemPayAccountModel {
         self.customerService = customerService
         self.enrollmentStateFetcher = enrollmentStateFetcher
         self.orderStatusPollingService = orderStatusPollingService
-        self.orderIdStorage = orderIdStorage
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
         self.customerInfoCacheStorage = customerInfoCacheStorage
@@ -135,7 +128,7 @@ final class TangemPayManager: TangemPayAccountModel {
             paeraCustomerFlagRepository.setIsKYCHidden(false, for: customerWalletId)
         } catch {
             keysRepository.update(derivations: error.derivationResult)
-            VisaLogger.error("Failed to authorize with customer wallet", error: error.underlyingError)
+            VisaLogger.error("Failed to authorize with customer wallet", error: error)
             stateSubject.value = .unavailable
             return
         }
@@ -174,7 +167,7 @@ final class TangemPayManager: TangemPayAccountModel {
 
     func refreshState() async {
         guard await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId) else {
-            orderStatusPollingService.cancel()
+            orderStatusPollingService.cancelAll()
             stateSubject.value = nil
             return
         }
@@ -217,11 +210,8 @@ final class TangemPayManager: TangemPayAccountModel {
             }
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .enrolled(let customerInfo, let productInstance):
-            let account = makePaymentAccount(
-                customerInfo: customerInfo,
-                productInstance: productInstance
-            )
+        case .enrolled(let customerInfo):
+            let account = makePaymentAccount(customerInfo: customerInfo)
             customerInfoCacheStorage.saveCachedCustomerInfo(
                 customerInfo,
                 customerWalletId: customerWalletId
@@ -229,15 +219,12 @@ final class TangemPayManager: TangemPayAccountModel {
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .cardDeactivated(let customerInfo, let productInstance):
-            let account = makePaymentAccount(
-                customerInfo: customerInfo,
-                productInstance: productInstance
-            )
+        case .cardDeactivated(let customerInfo):
+            let account = makePaymentAccount(customerInfo: customerInfo)
             stateSubject.value = .cardDeactivated(account)
 
         case .kycRequired(let productInstanceExists):
-            orderStatusPollingService.cancel()
+            orderStatusPollingService.cancelAll()
             stateSubject.value = .kycRequired(weakReferenceHolder)
             if !productInstanceExists {
                 do {
@@ -248,7 +235,7 @@ final class TangemPayManager: TangemPayAccountModel {
             }
 
         case .kycDeclined:
-            orderStatusPollingService.cancel()
+            orderStatusPollingService.cancelAll()
             stateSubject.value = .kycDeclined(weakReferenceHolder)
             Analytics.log(.visaOnboardingVisaKYCRejected, contextParams: .userWallet(userWalletId))
         }
@@ -278,38 +265,57 @@ final class TangemPayManager: TangemPayAccountModel {
                 }
             },
             onCanceled: { [weak self] in
+                guard case .issuingCard = self?.stateSubject.value else { return }
                 self?.stateSubject.value = .failedToIssueCard
             },
-            onFailed: { error in
+            onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll order status", error: error)
+                guard case .issuingCard = self?.stateSubject.value else { return }
+                self?.stateSubject.value = .failedToIssueCard
             }
         )
     }
 
     @discardableResult
     private func issueCardIfNeeded(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> String {
-        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
-            return cardIssuingOrderId
-        } else {
-            let orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
-            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
-            return orderId
+        let activeOrders = try await customerService.findOrders(
+            types: [TangemPayOrderType.cardIssueVirtualRainKyc.rawValue],
+            statuses: [.new, .processing]
+        )
+        if let existing = activeOrders
+            .filter({ $0.data?.customerWalletAddress == customerWalletAddress })
+            .sorted(by: { ($0.updatedAt ?? .distantPast) > ($1.updatedAt ?? .distantPast) })
+            .first {
+            return existing.id
         }
+
+        let request = TangemPayPlaceOrderRequest(
+            type: TangemPayOrderType.cardIssueVirtualRainKyc.rawValue,
+            customerWalletAddress: customerWalletAddress,
+            specificationName: TangemPayPlaceOrderRequest.firstCardSpecificationName
+        )
+        let idempotencyKey = TangemPayIdempotencyKey.make(
+            "first-card",
+            customerWalletId,
+            customerWalletAddress
+        )
+        return try await customerService.placeOrder(
+            request: request,
+            idempotencyKey: idempotencyKey
+        ).id
     }
 
     private func makePaymentAccount(
-        customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance
+        customerInfo: VisaCustomerInfoResponse
     ) -> TangemPayAccount {
-        orderStatusPollingService.cancel()
-        orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
+        orderStatusPollingService.cancelAll()
         let account = tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: customerInfo,
-            productInstance: productInstance,
             account: self
         )
         runTask {
             await account.loadBalance()
+            await account.loadOffers()
         }
         return account
     }

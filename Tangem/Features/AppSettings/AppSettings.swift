@@ -114,9 +114,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.settingsVersion)
     var settingsVersion: Int = 0
 
-    @AppStorageCompat(StorageType.tangemPayCardIssuingOrderIdForCustomerWalletId)
-    var tangemPayCardIssuingOrderIdForCustomerWalletId: [String: String] = [:]
-
     @AppStorageCompat(StorageType.tangemPayShowAddToApplePayGuide)
     var tangemPayShowAddToApplePayGuide: Bool = true
 
@@ -165,20 +162,6 @@ final class AppSettings {
 
     deinit {
         AppLogger.debug("AppSettings deinit")
-    }
-}
-
-extension AppSettings: TangemPayOrderIdStorage {
-    func cardIssuingOrderId(customerWalletId: String) -> String? {
-        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
-    }
-
-    func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String) {
-        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = orderId
-    }
-
-    func deleteCardIssuingOrderId(customerWalletId: String) {
-        tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
     }
 }
 

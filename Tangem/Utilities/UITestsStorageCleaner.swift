@@ -45,7 +45,6 @@ enum UITestsStorageCleaner {
     /// Clears Tangem Pay UserDefaults caches so state doesn't leak between test launches.
     private static func clearTangemPayState() {
         #if DEBUG
-        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId = [:]
         AppSettings.shared.tangemPayShowAddToApplePayGuide = true
         AppSettings.shared.tangemPayIsPaeraCustomer = [:]
         AppSettings.shared.tangemPayIsDisabledForCustomerWalletId = [:]

@@ -13,29 +13,31 @@ import TangemPay
 
 final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
     var lastFourDigits: String {
-        tangemPayAccount.card?.cardNumberEnd ?? ""
+        card.cardNumberEnd
     }
 
+    /// `lastFourDigitsPublisher` (added by [REDACTED_INFO] to refresh the UI after reissue) is
+    /// sourced from this card's own snapshot in the multi-card model — reissue swaps the
+    /// inner BFF snapshot on the same `TangemPayCard` instance, so we observe that.
     var lastFourDigitsPublisher: AnyPublisher<String, Never> {
-        tangemPayAccount.cardPublisher
-            .map { $0?.cardNumberEnd ?? "" }
+        card.snapshotPublisher
+            .map(\.card.cardNumberEnd)
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
     var cardNamePublisher: AnyPublisher<String, Never> {
-        tangemPayAccount.cardDisplayNamePublisher
+        card.displayNamePublisher
     }
 
-    private let tangemPayAccount: TangemPayAccount
+    private let card: TangemPayCard
 
-    init(tangemPayAccount: TangemPayAccount) {
-        self.tangemPayAccount = tangemPayAccount
+    init(card: TangemPayCard) {
+        self.card = card
     }
 
     func updateCardDisplayName(_ name: String) async throws {
-        try await tangemPayAccount.customerService.updateCardDisplayName(name)
-        await tangemPayAccount.loadCustomerInfo()
+        try await card.updateDisplayName(name)
     }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
@@ -49,7 +51,10 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
                 publicKey: publicKey
             )
 
-        let cardDetails = try await tangemPayAccount.customerService.getCardDetails(sessionId: sessionId)
+        let cardDetails = try await card.customerService.getCardDetails(
+            cardId: card.cardId,
+            sessionId: sessionId
+        )
 
         let decryptedPan = try RainCryptoUtilities.decryptSecret(
             base64Secret: cardDetails.pan.secret,

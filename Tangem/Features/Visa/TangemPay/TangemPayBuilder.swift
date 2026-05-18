@@ -62,6 +62,10 @@ final class TangemPayBuilder {
         tangemPayTokenBalanceProvider: balancesService.fixedFiatTotalTokenBalanceProvider
     )
 
+    private lazy var operationGate = TangemPayOperationGate()
+
+    private lazy var orderResolver = TangemPayOrderResolver(customerService: customerService)
+
     private lazy var feeRepository = TangemPayFeeRepository()
 
     init(
@@ -83,7 +87,6 @@ final class TangemPayBuilder {
             customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,
             orderStatusPollingService: orderStatusPollingService,
-            orderIdStorage: AppSettings.shared,
             paeraCustomerFlagRepository: AppSettings.shared,
             cachedStateStorage: AppSettings.shared,
             customerInfoCacheStorage: AppSettings.shared,
@@ -95,13 +98,11 @@ final class TangemPayBuilder {
 extension TangemPayBuilder: TangemPayAccountBuilder {
     func makeTangemPayAccount(
         customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance,
         account: (any TangemPayAccountModel)?
     ) -> TangemPayAccount {
         TangemPayAccount(
             userWalletId: userWalletId,
             customerInfo: customerInfo,
-            productInstance: productInstance,
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
@@ -109,6 +110,8 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
+            operationGate: operationGate,
+            orderResolver: orderResolver,
             feeRepository: feeRepository,
             account: account
         )

@@ -35,14 +35,14 @@ struct TangemPayMainView: View {
 
                 balanceCard
 
-                if viewModel.shouldDisplayReplacingCardBanner {
-                    TangemPayReplacingCardBanner()
-                }
-
                 if viewModel.shouldDisplayAddToApplePayGuide {
                     Button(action: viewModel.openAddToApplePayGuide) {
                         TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
                     }
+                }
+
+                if viewModel.hasIssuingEntry {
+                    TangemPayIssuingCardBanner()
                 }
 
                 if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
@@ -78,7 +78,6 @@ struct TangemPayMainView: View {
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
-        .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: Constants.coordinateSpaceName)
         .toolbar {
@@ -160,7 +159,7 @@ struct TangemPayMainView: View {
             )
             .opacity(viewModel.isStale ? 0.6 : 1)
 
-            cardIconRow
+            cardListRow
                 .padding(.vertical, 4)
 
             ScrollableButtonsView(
@@ -188,20 +187,13 @@ struct TangemPayMainView: View {
         .cornerRadiusContinuous(14)
     }
 
-    private var cardIconRow: some View {
+    private var cardListRow: some View {
         HStack(spacing: 8) {
-            Button(action: viewModel.openCardManagement) {
-                TangemPaySmallCardView(
-                    state: viewModel.shouldDisplayReplacingCardBanner
-                        ? .replacing
-                        : .issued(cardNumberEnd: viewModel.cardNumberEnd)
-                )
+            ForEach(viewModel.cardEntries) { entry in
+                cardEntryButton(for: entry)
             }
-            .disabled(viewModel.isStale)
-            .opacity(viewModel.isStale ? 0.6 : 1)
-            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
 
-            Button(action: viewModel.openFakedoorSheet) {
+            Button(action: viewModel.tapAddCard) {
                 Image(systemName: "plus")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(Colors.Text.tertiary)
@@ -212,6 +204,31 @@ struct TangemPayMainView: View {
             .opacity(viewModel.isStale ? 0.6 : 1)
 
             Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private func cardEntryButton(for entry: TangemPayCardEntry) -> some View {
+        switch entry {
+        case .issued(let card):
+            Button {
+                viewModel.openCardManagement(entry: entry)
+            } label: {
+                TangemPaySmallCardView(
+                    state: card.isReissuing
+                        ? .replacing
+                        : .issued(cardNumberEnd: card.cardNumberEnd)
+                )
+            }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
+            .disabled(viewModel.isStale)
+            .opacity(viewModel.isStale ? 0.6 : 1)
+        case .issuing:
+            Button {
+                viewModel.openCardManagement(entry: entry)
+            } label: {
+                TangemPaySmallCardView(state: .issuing)
+            }
         }
     }
 }

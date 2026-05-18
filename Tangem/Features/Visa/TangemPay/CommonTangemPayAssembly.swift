@@ -12,7 +12,7 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
     let customerWalletAddressAndSavedTokensResolver: TangemPayCustomerWalletAddressAndSavedTokensResolver
         = CommonTangemPayCustomerWalletAddressAndSavedTokensResolver()
 
-    func makeCardDetailsRepository(for tangemPayAccount: TangemPayAccount) -> TangemPayCardDetailsRepository {
-        CommonTangemPayCardDetailsRepository(tangemPayAccount: tangemPayAccount)
+    func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
+        CommonTangemPayCardDetailsRepository(card: card)
     }
 }

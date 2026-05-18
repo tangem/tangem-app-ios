@@ -25,12 +25,18 @@ public struct TangemPayOrderResolver {
         if let orders = try? await customerService.findOrders(
             types: TangemPayOrderType.cardIssueFamily,
             statuses: [.new, .processing]
-        ), let existing = orders.first(where: { order in
-            order.type == orderType
-                && order.data?.specificationName == specificationName
-                && order.data?.customerWalletAddress == customerWalletAddress
-        }) {
-            return existing
+        ) {
+            let candidates = orders.filter { order in
+                order.type == orderType
+                    && order.data?.specificationName == specificationName
+                    && order.data?.customerWalletAddress == customerWalletAddress
+            }
+            let sorted = candidates.sorted { lhs, rhs in
+                (lhs.updatedAt ?? .distantPast) > (rhs.updatedAt ?? .distantPast)
+            }
+            if let existing = sorted.first {
+                return existing
+            }
         }
 
         let request = TangemPayPlaceOrderRequest(

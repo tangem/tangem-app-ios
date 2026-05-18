@@ -16,6 +16,7 @@ final class TangemPayTokenBalanceProvider {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
     private let keyPath: KeyPath<TangemPayBalance, Decimal>
+    private let cachesBalance: Bool
 
     private let walletModelId: WalletModelId
     private let balanceFormatter: BalanceFormatter
@@ -26,17 +27,21 @@ final class TangemPayTokenBalanceProvider {
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
         balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>,
-        keyPath: KeyPath<TangemPayBalance, Decimal>
+        keyPath: KeyPath<TangemPayBalance, Decimal>,
+        cachesBalance: Bool
     ) {
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
         self.balanceSubject = balanceSubject
         self.keyPath = keyPath
+        self.cachesBalance = cachesBalance
 
         walletModelId = .init(tokenItem: tokenItem)
         balanceFormatter = .init()
 
-        bind(to: balanceSubject)
+        if cachesBalance {
+            bind(to: balanceSubject)
+        }
     }
 }
 
@@ -104,13 +109,19 @@ private extension TangemPayTokenBalanceProvider {
     }
 
     func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>?) -> TokenBalanceType {
+        // Only consult the shared repository when this provider actually owns the cache slot
+        // for its keyPath. A non-caching provider would otherwise read a value written by a
+        // sibling provider with a different keyPath, surfacing a semantically-wrong cached
+        // amount in `.loading` / `.failure` states (e.g. the available-for-withdrawal
+        // provider would see the fiat balance during a refresh window).
+        let cached = cachesBalance ? cachedBalance() : nil
         switch balance {
         case .none:
             return .loaded(.zero)
         case .loading:
-            return .loading(cachedBalance())
+            return .loading(cached)
         case .failure:
-            return .failure(cachedBalance())
+            return .failure(cached)
         case .success(let balance):
             let targetBalance = balance[keyPath: keyPath]
             return .loaded(targetBalance)

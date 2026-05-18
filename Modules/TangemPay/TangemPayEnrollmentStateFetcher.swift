@@ -25,36 +25,33 @@ public struct TangemPayEnrollmentStateFetcher {
         let customerInfo = try await customerService.loadCustomerInfo()
         let customerId = customerInfo.id
 
-        if let productInstance = customerInfo.productInstance,
-           customerInfo.state == .former {
-            return (
-                .cardDeactivated(
-                    customerInfo: customerInfo,
-                    productInstance: productInstance
-                ), customerId
-            )
+        if customerInfo.state == .former, !customerInfo.productInstances.isEmpty {
+            return (.cardDeactivated(customerInfo: customerInfo), customerId)
         }
 
         guard customerInfo.kyc?.status == .approved else {
             if case .declined = customerInfo.kyc?.status {
                 return (.kycDeclined, customerId)
             }
-            return (.kycRequired(productInstanceExists: customerInfo.productInstance != nil), customerId)
+            return (
+                .kycRequired(productInstanceExists: !customerInfo.productInstances.isEmpty),
+                customerId
+            )
         }
 
-        if let productInstance = customerInfo.productInstance {
-            switch productInstance.status {
-            case .active, .blocked:
-                return (.enrolled(customerInfo: customerInfo, productInstance: productInstance), customerId)
+        if !customerInfo.productInstances.isEmpty {
+            let hasActiveOrBlocked = customerInfo.productInstances.contains {
+                $0.status == .active || $0.status == .blocked
+            }
+            if hasActiveOrBlocked {
+                return (.enrolled(customerInfo: customerInfo), customerId)
+            }
 
-            case .deactivated:
-                return (.cardDeactivated(
-                    customerInfo: customerInfo,
-                    productInstance: productInstance
-                ), customerId)
-
-            default:
-                break
+            let allTerminal = customerInfo.productInstances.allSatisfy {
+                $0.status == .deactivated || $0.status == .canceled
+            }
+            if allTerminal {
+                return (.cardDeactivated(customerInfo: customerInfo), customerId)
             }
         }
 

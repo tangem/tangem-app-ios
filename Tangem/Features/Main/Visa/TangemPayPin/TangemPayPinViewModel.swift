@@ -36,20 +36,29 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         pinValidator.pinCodeLength
     }
 
+    private let card: TangemPayCard
     private let tangemPayAccount: TangemPayAccount
+    private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayPinRoutable?
 
     private let pinValidator = VisaPinValidator()
     private var bag = Set<AnyCancellable>()
 
-    init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayPinRoutable) {
+    init(
+        card: TangemPayCard,
+        tangemPayAccount: TangemPayAccount,
+        userWalletId: UserWalletId,
+        coordinator: TangemPayPinRoutable
+    ) {
+        self.card = card
         self.tangemPayAccount = tangemPayAccount
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
         bind()
     }
 
     func onAppear() {
-        Analytics.log(.visaScreenChangePinScreenShown, contextParams: .userWallet(tangemPayAccount.userWalletId))
+        Analytics.log(.visaScreenChangePinScreenShown, contextParams: .userWallet(userWalletId))
     }
 
     func close() {
@@ -66,7 +75,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     func submit() {
-        let userWalletId = tangemPayAccount.userWalletId
         Analytics.log(.visaScreenChangePinSubmitClicked, contextParams: .userWallet(userWalletId))
         isLoading = true
 
@@ -76,7 +84,8 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
                 let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
 
-                let response = try await viewModel.tangemPayAccount.customerService.setPin(
+                let response = try await viewModel.card.customerService.setPin(
+                    cardId: viewModel.card.cardId,
                     pin: encryptedPin,
                     sessionId: sessionId,
                     iv: iv
@@ -88,12 +97,12 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                     case .success:
                         Analytics.log(
                             .visaScreenChangePinSuccessShown,
-                            contextParams: .userWallet(userWalletId)
+                            contextParams: .userWallet(viewModel.userWalletId)
                         )
                         viewModel.state = .created
                     case .pinTooWeak:
                         viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage
-                    case .decryptionError, .unknownError:
+                    case .decryptionError, .unknownError, .undefined:
                         viewModel.errorMessage = Localization.tangempayServiceUnavailableTitle
                     }
                 }

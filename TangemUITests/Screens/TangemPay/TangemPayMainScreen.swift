@@ -10,7 +10,9 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
-    private lazy var paymentAccountCardButton = button(.paymentAccountCardButton)
+    private lazy var paymentAccountCardButton = app.buttons
+        .matching(NSPredicate(format: "identifier BEGINSWITH %@", TangemPayAccessibilityIdentifiers.paymentAccountCardButtonPrefix))
+        .firstMatch
     private lazy var balanceText = staticText(.paymentAccountBalance)
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
 
@@ -95,13 +97,10 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
 }
 
 enum TangemPayMainScreenElement: String, UIElement {
-    case paymentAccountCardButton
     case paymentAccountBalance
 
     var accessibilityIdentifier: String {
         switch self {
-        case .paymentAccountCardButton:
-            TangemPayAccessibilityIdentifiers.paymentAccountCardButton
         case .paymentAccountBalance:
             TangemPayAccessibilityIdentifiers.paymentAccountBalance
         }

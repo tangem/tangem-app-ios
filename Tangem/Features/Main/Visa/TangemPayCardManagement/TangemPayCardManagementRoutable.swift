@@ -11,13 +11,14 @@ import TangemFoundation
 
 protocol TangemPayCardManagementRoutable: AnyObject {
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
-    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
-    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount)
+    func openTangemPaySetPin(card: TangemPayCard)
+    func openTangemPayCheckPin(card: TangemPayCard)
     func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void)
     func openTangemPayReissueSheet(
         userWalletId: UserWalletId,
-        tangemPayAccount: TangemPayAccount,
+        card: TangemPayCard,
         onError: @escaping () -> Void
     )
-    func openChangeDailyLimit(tangemPayAccount: TangemPayAccount)
+    func openChangeDailyLimit(card: TangemPayCard)
+    func popToCardListScreen()
 }

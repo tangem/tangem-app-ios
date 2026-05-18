@@ -15,6 +15,9 @@ enum TangemPayDailyLimitState: Equatable {
     case loading
     case loaded(currentLimit: String)
     case error
+    /// No card is selected (the management screen is showing an issuing entry). The section
+    /// is hidden in this case, but the explicit state keeps it from looking like a stalled load.
+    case unavailable
 }
 
 struct TangemPayDailyLimitSectionView: View {
@@ -33,6 +36,8 @@ struct TangemPayDailyLimitSectionView: View {
                 errorRow
                 errorBanner
             }
+        case .unavailable:
+            EmptyView()
         }
     }
 

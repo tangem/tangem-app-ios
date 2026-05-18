@@ -12,36 +12,28 @@ public struct VisaCustomerInfoResponse: Codable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
-    public let productInstance: ProductInstance?
-    /// Multi-card BFF v2 field; `nil` for legacy responses, populated alongside `productInstance` during transition.
-    public let productInstances: [PendingOrActiveProductInstance]?
+    public let productInstances: [ProductInstance]
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo?
-    public let card: Card?
-    /// Multi-card BFF v2 field; `nil` for legacy responses, populated alongside `card` during transition.
-    public let cards: [Card]?
+    public let cards: [Card]
     public let depositAddress: String?
 
     public init(
         id: String,
         state: CustomerState,
         createdAt: Date,
-        productInstance: ProductInstance?,
-        productInstances: [PendingOrActiveProductInstance]? = nil,
+        productInstances: [ProductInstance],
         paymentAccount: PaymentAccount?,
         kyc: KYCInfo?,
-        card: Card?,
-        cards: [Card]? = nil,
+        cards: [Card],
         depositAddress: String?
     ) {
         self.id = id
         self.state = state
         self.createdAt = createdAt
-        self.productInstance = productInstance
         self.productInstances = productInstances
         self.paymentAccount = paymentAccount
         self.kyc = kyc
-        self.card = card
         self.cards = cards
         self.depositAddress = depositAddress
     }
@@ -55,24 +47,15 @@ public extension VisaCustomerInfoResponse {
         case blocked = "BLOCKED"
         case former = "FORMER"
         case unknown = "UNKNOWN"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct ProductInstance: Codable {
-        public let id: String
-        public let cardWalletAddress: String?
-        public let cardId: String
-        public let cid: String?
-        public let status: ProductStatus
-        public let updatedAt: Date
-        public let paymentAccountId: String
-        public let displayName: String
-        public let adminCardLimit: CardLimit
-        public let actualCardLimit: CardLimit?
-    }
-
-    /// Lenient product-instance shape used for the multi-card `productInstances` array, where pending entries
-    /// have `cardId == nil` and `actualCardLimit == nil`.
-    struct PendingOrActiveProductInstance: Codable {
         public let id: String
         public let cardWalletAddress: String?
         public let cardId: String?
@@ -98,6 +81,12 @@ public extension VisaCustomerInfoResponse {
         case deactivated = "DEACTIVATED"
         case canceled = "CANCELED"
         case unknown = "UNKNOWN"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct PaymentAccount: Codable {
@@ -122,6 +111,11 @@ public extension VisaCustomerInfoResponse {
         case inProgress = "IN_PROGRESS"
         case expired = "EXPIRED"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum KYCRisk: String, Codable {
@@ -129,17 +123,26 @@ public extension VisaCustomerInfoResponse {
         case medium = "MEDIUM"
         case high = "HIGH"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum KYCReviewAnswer: String, Codable {
         case green = "GREEN"
         case red = "RED"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct Card: Codable {
-        /// Multi-card BFF v2 field. `nil` for legacy responses; required to address a card in card-scoped APIs.
-        public let id: String?
+        public let id: String
         public let cardNumberEnd: String
         public let expirationMonth: String
         public let expirationYear: String
@@ -150,7 +153,7 @@ public extension VisaCustomerInfoResponse {
         public let isPinSet: Bool
 
         public init(
-            id: String? = nil,
+            id: String,
             cardNumberEnd: String,
             expirationMonth: String,
             expirationYear: String,
@@ -183,23 +186,33 @@ public extension VisaCustomerInfoResponse.Card {
         case virtual = "VIRTUAL"
         case physical = "PHYSICAL"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum CardStatus: String, Codable {
         case active = "ACTIVE"
         case inactive = "INACTIVE"
         case blocked = "BLOCKED"
-        case cancelled = "CANCELLED"
+        case canceled = "CANCELED"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 }
 
 public extension VisaCustomerInfoResponse {
-    func productInstance(forCardId cardId: String) -> PendingOrActiveProductInstance? {
-        productInstances?.first { $0.cardId == cardId }
+    func productInstance(forCardId cardId: String) -> ProductInstance? {
+        productInstances.first { $0.cardId == cardId }
     }
 
     func card(forCardId cardId: String) -> Card? {
-        cards?.first { $0.id == cardId }
+        cards.first { $0.id == cardId }
     }
 }

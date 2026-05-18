@@ -18,43 +18,42 @@ import TangemPay
 import TangemAccessibilityIdentifiers
 
 final class TangemPayCardManagementViewModel: ObservableObject {
-    let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
-
+    @Published private(set) var cardDetailsItems: [CardDetailsItem] = []
+    @Published var selectedCardId: String?
     @Published private(set) var cardRenameViewModel: TangemPayCardRenameViewModel?
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState = .loading
+    @Published private(set) var isIssuing: Bool = false
     @Published private(set) var isReissuing: Bool = false
     @Published var alert: AlertBinder?
 
+    var hasMultipleCards: Bool {
+        cardDetailsItems.count > 1
+    }
+
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
-    private let cardDetailsRepository: TangemPayCardDetailsRepository
+    @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
     private weak var coordinator: TangemPayCardManagementRoutable?
 
     private var bag = Set<AnyCancellable>()
+    private var productInstanceIdByOrderId: [String: String] = [:]
 
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
-        cardDetailsRepository: TangemPayCardDetailsRepository,
+        initialEntry: TangemPayCardEntry,
         coordinator: TangemPayCardManagementRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
-        self.cardDetailsRepository = cardDetailsRepository
+        selectedCardId = initialEntry.id
+        isIssuing = initialEntry.isIssuing
         self.coordinator = coordinator
 
-        tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
-            userWalletId: userWalletInfo.id,
-            repository: cardDetailsRepository,
-            cardNameDisplayMode: .interactive
-        )
-
-        tangemPayCardDetailsViewModel.onCardNameTapped = { [weak self] in
-            self?.openCardRename()
-        }
+        rebuildCardDetailsItems(entries: tangemPayAccount.cardEntries)
 
         bind()
     }
@@ -64,19 +63,20 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     }
 
     func openChangeDailyLimit() {
-        guard case .loaded = dailyLimitState else { return }
+        guard case .loaded = dailyLimitState, let card = currentCard else { return }
 
         Analytics.log(.visaScreenDailyLimitChangeClicked, contextParams: .userWallet(userWalletInfo.id))
 
-        coordinator?.openChangeDailyLimit(tangemPayAccount: tangemPayAccount)
+        coordinator?.openChangeDailyLimit(card: card)
     }
 
     func openAddToApplePayGuide() {
+        guard let card = currentCard else { return }
         Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openAddToApplePayGuide(
-            viewModel: .init(
+            viewModel: TangemPayCardDetailsViewModel(
                 userWalletId: userWalletInfo.id,
-                repository: cardDetailsRepository
+                repository: tangemPayAssembly.makeCardDetailsRepository(for: card)
             )
         )
     }
@@ -84,66 +84,218 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     func dismissAddToApplePayGuideBanner() {
         AppSettings.shared.tangemPayShowAddToApplePayGuide = false
     }
+
+    private var currentCard: TangemPayCard? {
+        guard let id = selectedCardId else { return nil }
+        return tangemPayAccount.card(cardId: id)
+    }
+}
+
+extension TangemPayCardManagementViewModel {
+    struct CardDetailsItem: Identifiable {
+        let id: String
+        let content: Content
+
+        enum Content {
+            case issued(TangemPayCardDetailsViewModel)
+            case issuing
+        }
+    }
 }
 
 // MARK: - Private
 
 private extension TangemPayCardManagementViewModel {
     func bind() {
-        tangemPayAccount.statusPublisher
-            .map { $0 == .blocked ? .frozen : .normal }
+        tangemPayAccount.cardEntriesPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { vm, entries in vm.applyEntries(entries) }
+            .store(in: &bag)
+
+        Publishers.CombineLatest(
+            tangemPayAccount.cardEntriesPublisher,
+            $selectedCardId
+        )
+        .map { entries, id -> Bool in
+            guard let id else { return false }
+            return entries.first(where: { $0.id == id })?.isIssuing ?? false
+        }
+        .receiveOnMain()
+        .assign(to: \.isIssuing, on: self, ownership: .weak)
+        .store(in: &bag)
+
+        $selectedCardId
+            .map { [weak tangemPayAccount] id -> AnyPublisher<TangemPayFreezingState, Never> in
+                guard let id, let card = tangemPayAccount?.card(cardId: id) else {
+                    return Just(.unavailable).eraseToAnyPublisher()
+                }
+                return Publishers.CombineLatest(card.statusPublisher, card.isFreezingUnfreezingPublisher)
+                    .map { status, isPending -> TangemPayFreezingState in
+                        switch (status == .blocked, isPending) {
+                        case (false, false): .normal
+                        case (false, true): .freezingInProgress
+                        case (true, false): .frozen
+                        case (true, true): .unfreezingInProgress
+                        }
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
             .receiveOnMain()
             .assign(to: \.freezingState, on: self, ownership: .weak)
             .store(in: &bag)
 
-        $freezingState
-            .map(\.cardDetailsState)
+        $selectedCardId
+            .map { [weak tangemPayAccount] id -> AnyPublisher<TangemPayDailyLimitState, Never> in
+                guard let id, let card = tangemPayAccount?.card(cardId: id) else {
+                    return Just(.unavailable).eraseToAnyPublisher()
+                }
+                return card.cardLimitPublisher
+                    .map { amount -> TangemPayDailyLimitState in
+                        let formatter = BalanceFormatter().makeDefaultFiatFormatter(
+                            forCurrencyCode: AppConstants.usdCurrencyCode,
+                            locale: .posixEnUS,
+                            formattingOptions: .init(minFractionDigits: 0, maxFractionDigits: 0, formatEpsilonAsLowestRepresentableValue: false)
+                        )
+                        if let limit = formatter.string(from: .init(value: amount)) {
+                            return .loaded(currentLimit: limit)
+                        }
+                        return .error
+                    }
+                    .prepend(.loading)
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
             .receiveOnMain()
-            .assign(to: \.state, on: tangemPayCardDetailsViewModel, ownership: .weak)
+            .assign(to: \.dailyLimitState, on: self, ownership: .weak)
             .store(in: &bag)
 
         $freezingState
             .receiveOnMain()
-            .sink { [weak self] state in
-                self?.updateCardSettingsRows(freezingState: state)
+            .withWeakCaptureOf(self)
+            .sink { vm, freezing in
+                guard let id = vm.selectedCardId,
+                      case .issued(let detailsVM) = vm.cardDetailsItems.first(where: { $0.id == id })?.content else {
+                    return
+                }
+                detailsVM.state = freezing.cardDetailsState
             }
             .store(in: &bag)
 
         Publishers.CombineLatest(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
-            tangemPayAccount.statusPublisher
+            tangemPayAccount.statePublisher
         )
-        .map { tangemPayShowAddToApplePayGuide, status in
+        .map { showGuide, customerState in
             PKPaymentAuthorizationViewController.canMakePayments()
-                && status == .active
-                && tangemPayShowAddToApplePayGuide
+                && customerState == .active
+                && showGuide
         }
         .receiveOnMain()
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
 
-        tangemPayAccount.isReissuingCardPublisher
+        // Track reissue progress for the currently selected card. In the multi-card model
+        // reissue state lives on each `TangemPayCard.isReissuingPublisher`; we switch the
+        // observed publisher whenever the user selects a different card.
+        $selectedCardId
+            .map { [weak tangemPayAccount] id -> AnyPublisher<Bool, Never> in
+                guard let id, let card = tangemPayAccount?.card(cardId: id) else {
+                    return Just(false).eraseToAnyPublisher()
+                }
+                return card.isReissuingPublisher
+            }
+            .switchToLatest()
             .receiveOnMain()
             .assign(to: \.isReissuing, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tangemPayAccount.cardLimitPublisher
-            .map { amount -> TangemPayDailyLimitState in
-                let formatter = BalanceFormatter().makeDefaultFiatFormatter(
-                    forCurrencyCode: AppConstants.usdCurrencyCode,
-                    locale: .posixEnUS,
-                    formattingOptions: .init(minFractionDigits: 0, maxFractionDigits: 0, formatEpsilonAsLowestRepresentableValue: false)
-                )
-                if let amount, let limit = formatter.string(from: .init(value: amount)) {
-                    return .loaded(currentLimit: limit)
-                } else {
-                    return .error
-                }
-            }
-            .prepend(.loading)
+        $freezingState
             .receiveOnMain()
-            .assign(to: \.dailyLimitState, on: self, ownership: .weak)
+            .withWeakCaptureOf(self)
+            .sink { vm, state in
+                vm.updateCardSettingsRows(freezingState: state)
+            }
             .store(in: &bag)
+    }
+
+    func applyEntries(_ entries: [TangemPayCardEntry]) {
+        captureProductInstanceIds(from: tangemPayAccount.activeIssueOrders)
+
+        let resolvedId = Self.resolveSelectedId(
+            currentId: selectedCardId,
+            entries: entries,
+            productInstanceIdByOrderId: productInstanceIdByOrderId
+        )
+        rebuildCardDetailsItems(entries: entries)
+
+        guard let resolvedId else {
+            selectedCardId = nil
+            return
+        }
+
+        if entries.contains(where: { $0.id == resolvedId }) {
+            if resolvedId != selectedCardId {
+                selectedCardId = resolvedId
+            }
+        } else {
+            coordinator?.popToCardListScreen()
+        }
+    }
+
+    func captureProductInstanceIds(from orders: [TangemPayOrderResponse]) {
+        for order in orders {
+            if let pid = order.data?.productInstanceId {
+                productInstanceIdByOrderId[order.id] = pid
+            }
+        }
+    }
+
+    static func resolveSelectedId(
+        currentId: String?,
+        entries: [TangemPayCardEntry],
+        productInstanceIdByOrderId: [String: String]
+    ) -> String? {
+        guard let currentId else { return nil }
+        let productInstanceId = productInstanceIdByOrderId[currentId] ?? currentId
+        let pendingInstances = entries.compactMap(\.pendingProductInstance)
+        let cards = entries.compactMap(\.card)
+
+        if pendingInstances.contains(where: { $0.id == productInstanceId }) {
+            return productInstanceId
+        }
+        if let card = cards.first(where: { $0.productInstance.id == productInstanceId }) {
+            return card.cardId
+        }
+        return currentId
+    }
+
+    func rebuildCardDetailsItems(entries: [TangemPayCardEntry]) {
+        var existing: [String: CardDetailsItem] = .init(
+            uniqueKeysWithValues: cardDetailsItems.map { ($0.id, $0) }
+        )
+
+        cardDetailsItems = entries.map { entry in
+            let existingItem = existing.removeValue(forKey: entry.id)
+            switch entry {
+            case .issued(let card):
+                if case .issued(let preservedVM) = existingItem?.content {
+                    return CardDetailsItem(id: card.cardId, content: .issued(preservedVM))
+                }
+                let detailsVM = TangemPayCardDetailsViewModel(
+                    userWalletId: userWalletInfo.id,
+                    repository: tangemPayAssembly.makeCardDetailsRepository(for: card),
+                    cardNameDisplayMode: .interactive
+                )
+                detailsVM.onCardNameTapped = { [weak self] in
+                    self?.openCardRename()
+                }
+                return CardDetailsItem(id: card.cardId, content: .issued(detailsVM))
+            case .issuing:
+                return CardDetailsItem(id: entry.id, content: .issuing)
+            }
+        }
     }
 
     func updateCardSettingsRows(freezingState: TangemPayFreezingState) {
@@ -187,10 +339,11 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func onReplaceCard() {
+        guard let card = currentCard else { return }
         Analytics.log(.visaReplaceCardClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTangemPayReissueSheet(
             userWalletId: userWalletInfo.id,
-            tangemPayAccount: tangemPayAccount,
+            card: card,
             onError: { [weak self] in self?.showReissueError() }
         )
     }
@@ -203,30 +356,31 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func setPin() {
-        coordinator?.openTangemPaySetPin(tangemPayAccount: tangemPayAccount)
+        guard let card = currentCard else { return }
+        coordinator?.openTangemPaySetPin(card: card)
     }
 
     func checkPin() {
-        coordinator?.openTangemPayCheckPin(tangemPayAccount: tangemPayAccount)
+        guard let card = currentCard else { return }
+        coordinator?.openTangemPayCheckPin(card: card)
     }
 
     func freeze() {
-        freezingState = .freezingInProgress
-        tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
+        guard let card = currentCard else { return }
 
         Task { @MainActor in
             do {
-                try await tangemPayAccount.freeze()
+                try await card.freeze()
             } catch {
-                freezingState = .normal
                 showFreezeUnfreezeErrorToast(freeze: true)
             }
         }
     }
 
     func onPin() {
+        guard let card = currentCard else { return }
         Analytics.log(.visaScreenPinCodeClicked, contextParams: .userWallet(userWalletInfo.id))
-        guard tangemPayAccount.card?.isPinSet == true else {
+        guard card.isPinSet else {
             setPin()
             return
         }
@@ -252,15 +406,13 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func unfreeze() {
+        guard let card = currentCard else { return }
         Analytics.log(.visaScreenUnfreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        freezingState = .unfreezingInProgress
-        tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
 
         Task { @MainActor in
             do {
-                try await tangemPayAccount.unfreeze()
+                try await card.unfreeze()
             } catch {
-                freezingState = .frozen
                 showFreezeUnfreezeErrorToast(freeze: false)
             }
         }
@@ -279,9 +431,10 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func openCardRename() {
+        guard let card = currentCard else { return }
         cardRenameViewModel = TangemPayCardRenameViewModel(
             userWalletId: userWalletInfo.id,
-            repository: cardDetailsRepository,
+            repository: tangemPayAssembly.makeCardDetailsRepository(for: card),
             onDismiss: { [weak self] in
                 self?.cardRenameViewModel = nil
             }
@@ -294,7 +447,7 @@ private extension TangemPayCardManagementViewModel {
 private extension TangemPayFreezingState {
     var cardDetailsState: TangemPayCardDetailsState {
         switch self {
-        case .normal:
+        case .normal, .unavailable:
             .hidden(isFrozen: false)
         case .freezingInProgress:
             .loading(isFrozen: false)
