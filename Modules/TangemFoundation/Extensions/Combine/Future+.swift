@@ -28,3 +28,18 @@ public extension Future where Failure == Error {
         })
     }
 }
+
+public extension Future where Failure == Never {
+    static func async(operation: @escaping @Sendable () async -> Output) -> some Publisher<Output, Never> {
+        var task: Task<Void, Never>?
+
+        return Future<Output, Never> { promise in
+            task = Task {
+                let output = await operation()
+                promise(.success(output))
+            }
+        }.handleEvents(receiveCancel: {
+            task?.cancel()
+        })
+    }
+}
