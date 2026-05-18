@@ -31,10 +31,13 @@ struct WalletModelsFactoryProvider {
             dynamicAddressesManagerProvider: dynamicAddressesManagerProvider
         )
 
+        let transactionHistoryServiceProvider = TransactionHistoryServiceProvider()
+
         let factory = CommonWalletModelsFactory(
             config: userWalletConfig,
             userWalletId: userWalletId,
-            walletModelFeaturesManagerProvider: featuresManagerProvider
+            walletModelFeaturesManagerProvider: featuresManagerProvider,
+            transactionHistoryServiceProvider: transactionHistoryServiceProvider
         )
 
         if userWalletConfig.isDemo {
