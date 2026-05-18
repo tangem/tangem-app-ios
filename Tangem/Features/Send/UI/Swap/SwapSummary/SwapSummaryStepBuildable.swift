@@ -35,6 +35,9 @@ enum SwapSummaryStepBuilder {
         let sourceTokenAmountInput: SendSourceTokenAmountInput
         let receiveTokenInput: SendReceiveTokenInput
         let receiveTokenAmountInput: SendReceiveTokenAmountInput
+        /// Optional — only present in the Swap-with-Transfer flow.
+        /// When `nil`, the screen never enters Transfer mode (regular Swap flow).
+        let transferWithSwapModelInput: TransferWithSwapModelInput?
     }
 
     struct Dependencies {
@@ -67,7 +70,8 @@ enum SwapSummaryStepBuilder {
             swapAmountViewModel: swapAmountViewModel,
             swapSummaryProviderViewModel: swapSummaryProviderViewModel,
             feeCompactViewModel: feeCompactViewModel,
-            sourceTokenInput: io.sourceTokenInput
+            sourceTokenInput: io.sourceTokenInput,
+            transferWithSwapModelInput: io.transferWithSwapModelInput
         )
 
         swapAmountViewModel.router = viewModel

@@ -926,6 +926,7 @@ extension CommonSendAnalyticsLogger {
         case nft
         case swap
         case sendAndSwap
+        case transferAndSwap
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -934,6 +935,7 @@ extension CommonSendAnalyticsLogger {
             case .nft: .nft
             case .swap: .swap
             case .sendAndSwap: .sendAndSwap
+            case .transferAndSwap: .transferAndSwap
             }
         }
     }

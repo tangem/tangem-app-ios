@@ -73,7 +73,13 @@ final class TokenSelectorViewModel: ObservableObject {
         }
 
         availabilityProvider.setup(directionPublisher: directionPublisher)
-        viewModelsMapper.setupSelectedItemFilter(selectedItemPublisher: directionPublisher.map { $0?.tokenItem })
+
+        // When the Swap-with-Transfer feature is on, the user is allowed to pick the SAME token
+        // as the source (treated as a regular transfer). Skipping the same-token filter keeps
+        // the source visible in the destination list (and vice versa).
+        if !FeatureProvider.isAvailable(.swapWithTransfer) {
+            viewModelsMapper.setupSelectedItemFilter(selectedItemPublisher: directionPublisher.map { $0?.tokenItem })
+        }
     }
 
     func triggerScrollToTop() {

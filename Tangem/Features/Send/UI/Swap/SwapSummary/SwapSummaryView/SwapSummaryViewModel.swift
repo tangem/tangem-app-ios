@@ -48,7 +48,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
-        sourceTokenInput: SendSourceTokenInput
+        sourceTokenInput: SendSourceTokenInput,
+        transferWithSwapModelInput: TransferWithSwapModelInput?
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -59,6 +60,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
         bind()
         bind(sourceTokenInput: sourceTokenInput)
+        bind(transferWithSwapModelInput: transferWithSwapModelInput)
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {
@@ -73,6 +75,19 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
             .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
             .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
+    }
+
+    /// Drive the main button label (`Swap` → `Transfer`) from the transfer-mode publisher.
+    /// `nil` means the flow doesn't support transfer mode (old `SwapFlowFactory`) — state stays `.swap`.
+    func bind(transferWithSwapModelInput: TransferWithSwapModelInput?) {
+        guard let transferWithSwapModelInput else { return }
+
+        transferWithSwapModelInput
+            .isTransferModePublisher
+            .map { $0 ? MainButtonState.transfer : MainButtonState.swap }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$mainButtonState)
     }
 
     func userDidTapFee() {
@@ -171,6 +186,7 @@ extension SwapSummaryViewModel {
     @RawCaseName
     enum MainButtonState: Identifiable {
         case swap
+        case transfer
         case insufficientFunds
         case permitAndSwap
 
@@ -178,6 +194,8 @@ extension SwapSummaryViewModel {
             switch self {
             case .swap:
                 return Localization.swappingSwapAction
+            case .transfer:
+                return Localization.commonTransfer
             case .insufficientFunds:
                 return Localization.swappingInsufficientFunds
             case .permitAndSwap:
@@ -187,7 +205,7 @@ extension SwapSummaryViewModel {
 
         func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
             switch self {
-            case .swap, .permitAndSwap:
+            case .swap, .transfer, .permitAndSwap:
                 return tangemIconProvider.getMainButtonIcon()
             case .insufficientFunds:
                 return .none

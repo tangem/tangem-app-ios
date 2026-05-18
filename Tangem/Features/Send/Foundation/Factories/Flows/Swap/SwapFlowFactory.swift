@@ -185,7 +185,8 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             sourceTokenInput: swapModel,
             sourceTokenAmountInput: swapModel,
             receiveTokenInput: swapModel,
-            receiveTokenAmountInput: swapModel
+            receiveTokenAmountInput: swapModel,
+            transferWithSwapModelInput: nil
         )
     }
 

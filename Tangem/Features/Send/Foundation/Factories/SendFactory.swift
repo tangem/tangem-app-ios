@@ -23,12 +23,20 @@ struct SendFactory {
             )
 
         case .swap(.from(let sourceToken, let receiveToken)):
+            if FeatureProvider.isAvailable(.swapWithTransfer),
+               let withSwapToken = sourceToken as? SendWithSwapToken {
+                return TransferWithSwapFlowFactory(sourceToken: withSwapToken, receiveToken: receiveToken)
+            }
             return SwapFlowFactory(sourceToken: sourceToken, receiveToken: receiveToken)
 
         case .swap(.to(let receiveToken)):
             return SwapFlowFactory(receiveToken: receiveToken)
 
         case .swap(.pair(let source, let destination)):
+            if FeatureProvider.isAvailable(.swapWithTransfer),
+               let withSwapToken = source as? SendWithSwapToken {
+                return TransferWithSwapFlowFactory(sourceToken: withSwapToken, receiveToken: destination)
+            }
             return SwapFlowFactory(sourceToken: source, receiveToken: destination)
 
         case .nft(let transferableToken, let parameters):
