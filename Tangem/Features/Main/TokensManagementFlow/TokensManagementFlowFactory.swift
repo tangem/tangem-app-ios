@@ -10,10 +10,12 @@ import BlockchainSdk
 import TangemSdk
 
 final class TokensManagementFlowFactory {
+    private(set) var analyticsLogger: TokensManagementAnalyticsLogger
     private let userWalletModel: UserWalletModel
 
-    init(userWalletModel: UserWalletModel) {
+    init(userWalletModel: UserWalletModel, analyticsLogger: TokensManagementAnalyticsLogger) {
         self.userWalletModel = userWalletModel
+        self.analyticsLogger = analyticsLogger
     }
 
     @MainActor
@@ -22,7 +24,11 @@ final class TokensManagementFlowFactory {
     }
 
     func makeOrganizeTokensViewModel(coordinator: OrganizeTokensRoutable) -> OrganizeTokensViewModel {
-        OrganizeTokensViewModel(userWalletModel: userWalletModel, coordinator: coordinator)
+        OrganizeTokensViewModel(
+            userWalletModel: userWalletModel,
+            coordinator: coordinator,
+            analyticsLogger: analyticsLogger
+        )
     }
 
     @MainActor
