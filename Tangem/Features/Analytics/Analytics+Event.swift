@@ -348,6 +348,7 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFastAmountInput = "[Swap] Fast amount input"
 
         // MARK: - Seed phrase
 

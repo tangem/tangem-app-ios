@@ -144,6 +144,9 @@ protocol WalletModelDynamicAddressesProvider {
     var dynamicAddressesDisablingRequirements: DynamicAddressesDisablingRequirements? { get }
 
     @MainActor
+    func hasDynamicAddressesBalancesFlag() async -> Bool
+
+    @MainActor
     func enableDynamicAddresses() async throws
 
     @MainActor

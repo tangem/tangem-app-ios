@@ -37,6 +37,7 @@ import SolanaSwift
 // `024` - ValidationError
 // `025` - YieldModuleError
 // `026` - BTCError
+// `027` - TransactionHistory.ProviderError
 
 extension BlockchainSdkError: UniversalError {
     public var errorCode: Int {
@@ -558,6 +559,15 @@ extension BitcoinError: UniversalError {
             102026004
         case .wrongSignaturesCount:
             102026005
+        }
+    }
+}
+
+extension TransactionHistory.ProviderError: UniversalError {
+    public var errorCode: Int {
+        switch self {
+        case .requestKeyNotSupported:
+            return 102027000
         }
     }
 }
