@@ -49,7 +49,8 @@ struct OrganizeTokensHeaderView_Previews: PreviewProvider {
         )
         let viewModel = OrganizeTokensHeaderViewModel(
             optionsProviding: optionsManager,
-            optionsEditing: optionsManager
+            optionsEditing: optionsManager,
+            analyticsLogger: TokensManagementAnalyticsLogger()
         )
         return OrganizeTokensHeaderView(viewModel: viewModel)
     }
