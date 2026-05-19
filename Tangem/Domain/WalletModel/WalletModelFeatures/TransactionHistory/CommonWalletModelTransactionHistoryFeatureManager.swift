@@ -18,9 +18,19 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
     private let transactionHistoryProviderSubject = CurrentValueSubject<TransactionHistorySyncing?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
-    private var isAvailable: Bool {
-        // [REDACTED_TODO_COMMENT]
+    private var isFeatureAvailable: Bool {
         FeatureProvider.isAvailable(.transactionHistoryV2)
+    }
+
+    private var isBlockchainSupported: Bool {
+        // [REDACTED_TODO_COMMENT]
+        switch tokenItem.blockchain {
+        case .solana,
+             _ where tokenItem.blockchain.isEvm:
+            return true
+        default:
+            return false
+        }
     }
 
     init(
@@ -36,7 +46,7 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
     }
 
     private func bind() {
-        if isAvailable {
+        if isFeatureAvailable, isBlockchainSupported {
             transactionHistoryProviderSubscription = Future
                 .async { [registry, key] in
                     await registry.provider(for: key)
