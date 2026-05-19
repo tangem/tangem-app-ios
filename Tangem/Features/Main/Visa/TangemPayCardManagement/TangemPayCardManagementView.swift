@@ -56,6 +56,20 @@ struct TangemPayCardManagementView: View {
             .padding(.vertical, 12)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .disabled(viewModel.isLoadingReissueFee)
+        .overlay {
+            if viewModel.isLoadingReissueFee {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+
+                    ActivityIndicatorView(
+                        style: .large,
+                        color: UIColor(Color.Tangem.Graphic.Neutral.tertiary)
+                    )
+                }
+            }
+        }
         .safeAreaInset(edge: .bottom, content: {
             if let renameVM = viewModel.cardRenameViewModel {
                 TangemPayCardRenameToolbarView(renameViewModel: renameVM)
