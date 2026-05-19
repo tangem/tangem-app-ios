@@ -9,11 +9,11 @@
 import Foundation
 
 public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTokenSyncConfigurationProvider {
-    private let networkServiceFactory: WalletNetworkServiceFactory
+    private let networkServiceFactory: () -> WalletNetworkServiceFactory
     private let isSolanaScaledUIEnabled: Bool
 
     public init(
-        networkServiceFactory: WalletNetworkServiceFactory,
+        networkServiceFactory: @escaping @autoclosure () -> WalletNetworkServiceFactory,
         isSolanaScaledUIEnabled: Bool = true
     ) {
         self.networkServiceFactory = networkServiceFactory
@@ -59,104 +59,106 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
         for blockchain: Blockchain,
         address: String
     ) async throws -> InitialWalletTokenSyncConfiguration {
+        let factory = networkServiceFactory()
+
         switch blockchain {
         case .veChain:
             return try await VeChainInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .near:
             return try await NEARInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .tezos:
             return try await TezosInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .aptos:
             return try await AptosInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .algorand:
             return try await AlgorandInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .binance:
             return try await BinanceInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .stellar:
             return try await StellarInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .koinos:
             return try await KoinosInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .sui:
             return try await SuiInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .internetComputer:
             return try await ICPInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .filecoin:
             return try await FilecoinInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .casper:
             return try await CasperInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .cosmos, .terraV1, .terraV2, .sei:
             return try await CosmosInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .ton:
             return try await TONInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .polkadot, .kusama, .azero, .joystream, .bittensor, .energyWebX:
             return try await PolkadotInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .xrp:
             return try await XRPInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .kaspa:
             return try await KaspaInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .bitcoin, .litecoin, .bitcoinCash, .dogecoin, .dash, .ravencoin, .ducatus, .clore, .fact0rn, .pepecoin, .radiant:
             return try await UTXOInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .alephium:
             return try await AlephiumInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .tron:
             return try await TronInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .cardano:
             return try await CardanoInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .chia:
             return try await ChiaInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         case .solana:
             return try await SolanaInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: networkServiceFactory,
+                networkServiceFactory: factory,
                 isSolanaScaledUIEnabled: isSolanaScaledUIEnabled
             ).configuration(for: blockchain, address: address)
         default:
             if blockchain.isEvm {
                 return try await EVMInitialWalletTokenSyncConfigurationProvider(
-                    networkServiceFactory: networkServiceFactory
+                    networkServiceFactory: factory
                 ).configuration(for: blockchain, address: address)
             }
 
