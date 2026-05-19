@@ -10,17 +10,23 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-struct WalletTokenAutoSyncOrchestratorFactory {
+final class WalletTokenAutoSyncOrchestratorFactory {
     private let sharedSyncStateActor = WalletTokenAutoSyncStateActor()
 
     private let coinsCatalogProvider: InitialWalletTokenSyncCoinsCatalogProvider = CommonInitialWalletTokenSyncCoinsCatalogProvider(
         tangemApiService: InjectedValues[\.tangemApiService]
     )
 
-    private let configurationProvider: InitialWalletTokenSyncConfigurationProvider = CommonInitialWalletTokenSyncConfigurationProvider(
-        networkServiceFactory: WalletNetworkServiceFactoryProvider().factory,
-        isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
-    )
+    private let networkServiceFactoryProvider = WalletNetworkServiceFactoryProvider()
+
+    private lazy var configurationProvider: InitialWalletTokenSyncConfigurationProvider = {
+        let provider = networkServiceFactoryProvider
+
+        return CommonInitialWalletTokenSyncConfigurationProvider(
+            networkServiceFactory: provider.factory,
+            isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
+        )
+    }()
 
     private let persister: WalletTokenAutoSyncPersister = CommonWalletTokenAutoSyncPersister()
     private let analyticsProvider: WalletTokenAutoSyncAnalyticsProvider = CommonWalletTokenAutoSyncAnalyticsService()
