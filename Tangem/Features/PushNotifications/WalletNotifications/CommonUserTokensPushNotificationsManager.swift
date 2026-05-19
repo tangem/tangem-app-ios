@@ -203,7 +203,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         return status == .loading || status == .failed
     }
 
-    func dispatch(_ event: UserTokensPushNotificationsManager.Event) {
+    func dispatch(_ event: UserTokensPushEvent) {
         switch event {
         case .remoteStatusUpdated(let state):
             applyRemoteStatusUpdate(state)
