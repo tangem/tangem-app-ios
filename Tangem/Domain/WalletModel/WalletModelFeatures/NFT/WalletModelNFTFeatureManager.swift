@@ -1,5 +1,5 @@
 //
-//  CommonWalletModelNFTFeatureManager.swift
+//  WalletModelNFTFeatureManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import CombineExt
 import TangemNFT
 import TangemFoundation
 
-final class CommonWalletModelNFTFeatureManager {
+final class WalletModelNFTFeatureManager {
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
 
     private let userWalletId: UserWalletId
@@ -69,7 +69,7 @@ final class CommonWalletModelNFTFeatureManager {
 
 // MARK: - WalletModelFeatureManager protocol conformance
 
-extension CommonWalletModelNFTFeatureManager: WalletModelFeatureManager {
+extension WalletModelNFTFeatureManager: WalletModelFeatureManager {
     var featurePayload: NFTNetworkService? { nftNetworkService }
 
     var featurePayloadPublisher: AnyPublisher<NFTNetworkService?, Never> {

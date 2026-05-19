@@ -19,20 +19,20 @@ struct WalletModelFeaturesManagerFactory {
         tokenItem: TokenItem,
         walletManager: any WalletManager
     ) -> any WalletModelFeaturesManager {
-        let nftFeatureManager = CommonWalletModelNFTFeatureManager(
+        let nftFeatureManager = WalletModelNFTFeatureManager(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
             tokenItem: tokenItem
         )
 
-        let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager(
+        let dynamicAddressesFeatureManager = WalletModelDynamicAddressesFeatureManager(
             dynamicAddressesManager: dynamicAddressesManagerProvider.makeDynamicAddressesManager(
                 tokenItem: tokenItem,
                 walletManager: walletManager
             )
         )
 
-        let transactionHistoryFeatureManager = CommonWalletModelTransactionHistoryFeatureManager(
+        let transactionHistoryFeatureManager = WalletModelTransactionHistoryFeatureManager(
             key: TransactionHistoryProviderKey(address: walletManager.wallet.address), // [REDACTED_TODO_COMMENT]
             tokenItem: tokenItem,
             registry: transactionHistoryProviderRegistry
