@@ -49,12 +49,10 @@ struct PerformanceTrackerTests {
 
     @Test("Concurrent end calls run the closure exactly once (lock-protected check-and-set)")
     func concurrentEndIsThreadSafe() {
-        let lock = NSLock()
+        let criticalSection = OSAllocatedUnfairLock()
         var calls: [PerformanceTracker.Result] = []
         let token = PerformanceMetricToken(traceName: "test_trace") { result in
-            lock.lock()
-            defer { lock.unlock() }
-            calls.append(result)
+            criticalSection { calls.append(result) }
         }
 
         DispatchQueue.concurrentPerform(iterations: 1_000) { _ in
