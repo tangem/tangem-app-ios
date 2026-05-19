@@ -314,11 +314,14 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Notification Preferences
 
-    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Body {
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body {
         try await request(for: .getNotificationPreferences(userWalletId: userWalletId), decoder: decoder)
     }
 
-    func updateNotificationPreferences(userWalletId: String, preferences: NotificationPreferencesDTO.Body) async throws {
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Update.Request
+    ) async throws {
         let target: TangemApiTarget.TargetType = .updateNotificationPreferences(userWalletId: userWalletId, body: preferences)
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }

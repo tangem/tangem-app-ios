@@ -25,6 +25,7 @@ final class CommonUserTokensPushNotificationsManager {
     private let notificationPreferencesProvider: NotificationPreferencesProvider
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
+    private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<RemoteValueState<Bool>, Never> = .init(.loading)
 
     private var updateTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
@@ -90,12 +91,7 @@ final class CommonUserTokensPushNotificationsManager {
 private extension CommonUserTokensPushNotificationsManager {
     func definePushNotifyStatus() async -> UserWalletPushNotifyStatus {
         let isAuthorized = await pushNotificationsPermission.isAuthorized
-        let currentRemoteStatus = notificationPreferencesProvider.remoteStatus
-
-        // If remote status is still loading (idle), return loading
-        guard currentRemoteStatus != .loading else {
-            return .loading
-        }
+        let currentRemoteStatus = _userWalletPushRemoteStatusSubject.value
 
         // If system permission is not granted
         guard isAuthorized else {
@@ -269,7 +265,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParamet
     }
 
     func provideTokenListNotifyStatusValue() -> Bool {
-        notificationPreferencesProvider.remoteStatus.isEnabled
+        isRemoteStatusEnabled
     }
 }
 
@@ -289,7 +285,7 @@ private extension CommonUserTokensPushNotificationsManager {
     }
 
     func allowancePushNotifyStatus() -> Bool {
-        let currentRemoteStatus = notificationPreferencesProvider.remoteStatus.isEnabled
+        let currentRemoteStatus = isRemoteStatusEnabled
 
         let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
 

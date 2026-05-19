@@ -1,5 +1,5 @@
 //
-//  PushNotificationsSetting.swift
+//  PushChannel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,8 @@
 
 import Foundation
 
-enum PushNotificationsSettingType: CaseIterable, Hashable {
+/// Identifies a push-notification subsystem (wallet-level or preference channel).
+enum PushChannel: String, CaseIterable, Hashable {
     case transactionAlerts
     case offersUpdates
     case priceAlerts

@@ -9,9 +9,34 @@
 import Foundation
 
 enum NotificationPreferencesDTO {
-    struct Body: Codable {
-        let transactionAlerts: Bool
-        let offersUpdates: Bool
-        let priceAlerts: Bool
+    struct Preference: Codable, Equatable {
+        let isEnabled: Bool
+        let isVisible: Bool
+    }
+
+    enum Response {
+        struct Body: Codable, Equatable {
+            let transactionAlerts: Preference
+            let offersUpdates: Preference
+            let priceAlerts: Preference
+        }
+    }
+
+    enum Update {
+        struct Request: Codable, Equatable {
+            let transactionAlerts: Bool
+            let offersUpdates: Bool
+            let priceAlerts: Bool
+        }
+    }
+}
+
+extension NotificationPreferencesDTO.Response.Body {
+    func preference(for channel: PushChannel) -> NotificationPreferencesDTO.Preference {
+        switch channel {
+        case .transactionAlerts: transactionAlerts
+        case .offersUpdates: offersUpdates
+        case .priceAlerts: priceAlerts
+        }
     }
 }
