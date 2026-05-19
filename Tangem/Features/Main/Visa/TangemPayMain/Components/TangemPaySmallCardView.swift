@@ -13,6 +13,7 @@ struct TangemPaySmallCardView: View {
     enum State {
         case issued(cardNumberEnd: String)
         case issuing
+        case replacing
     }
 
     let state: State
@@ -28,17 +29,7 @@ struct TangemPaySmallCardView: View {
                 .padding(.leading, 27)
                 .padding(.top, 3)
 
-            switch state {
-            case .issued(let cardNumberEnd):
-                Text(cardNumberEnd)
-                    .font(.system(size: 8, weight: .semibold))
-                    .foregroundColor(.white)
-                    .tracking(0.06)
-                    .padding(.leading, 3)
-                    .padding(.top, 20)
-            case .issuing:
-                bottomLeftIssuingIcon
-            }
+            bottomLeadingContent
         }
         .frame(width: 48, height: 32)
         .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -74,8 +65,29 @@ struct TangemPaySmallCardView: View {
                     endPoint: UnitPoint(x: 0.95, y: 0.0)
                 )
             }
-        case .issuing:
+        case .issuing, .replacing:
             Color.Tangem.Graphic.Neutral.quaternary
+        }
+    }
+
+    @ViewBuilder
+    private var bottomLeadingContent: some View {
+        switch state {
+        case .issued(let cardNumberEnd):
+            Text(cardNumberEnd)
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundColor(.white)
+                .tracking(0.06)
+                .padding(.leading, 3)
+                .padding(.top, 20)
+        case .issuing:
+            bottomLeftIssuingIcon
+        case .replacing:
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .font(.system(size: 8, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.leading, 3)
+                .padding(.top, 20)
         }
     }
 

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemLocalization
 
 struct TangemPayCardManagementView: View {
@@ -27,23 +28,27 @@ struct TangemPayCardManagementView: View {
                 .transition(.identity)
 
                 if viewModel.cardRenameViewModel == nil {
-                    if viewModel.shouldDisplayAddToApplePayGuide {
-                        Button(action: viewModel.openAddToApplePayGuide) {
-                            TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
+                    if viewModel.isReissuing {
+                        TangemPayReplacingCardBanner()
+                    } else {
+                        if viewModel.shouldDisplayAddToApplePayGuide {
+                            Button(action: viewModel.openAddToApplePayGuide) {
+                                TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
+                            }
                         }
-                    }
 
-                    TangemPayDailyLimitSectionView(
-                        state: viewModel.dailyLimitState,
-                        isFrozen: viewModel.freezingState.isFrozen,
-                        changeAction: viewModel.openChangeDailyLimit
-                    )
+                        TangemPayDailyLimitSectionView(
+                            state: viewModel.dailyLimitState,
+                            isFrozen: viewModel.freezingState.isFrozen,
+                            changeAction: viewModel.openChangeDailyLimit
+                        )
 
-                    GroupedSection(viewModel.cardSettingsRows) {
-                        DefaultRowView(viewModel: $0)
-                    } header: {
-                        DefaultHeaderView(Localization.tangempayCardPageSettingsTitle)
-                            .padding(.vertical, 12)
+                        GroupedSection(viewModel.cardSettingsRows) {
+                            DefaultRowView(viewModel: $0)
+                        } header: {
+                            DefaultHeaderView(Localization.tangempayCardPageSettingsTitle)
+                                .padding(.vertical, 12)
+                        }
                     }
                 }
             }
@@ -51,11 +56,25 @@ struct TangemPayCardManagementView: View {
             .padding(.vertical, 12)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .keyboardToolbar {
+        .disabled(viewModel.isLoadingReissueFee)
+        .overlay {
+            if viewModel.isLoadingReissueFee {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+
+                    ActivityIndicatorView(
+                        style: .large,
+                        color: UIColor(Color.Tangem.Graphic.Neutral.tertiary)
+                    )
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, content: {
             if let renameVM = viewModel.cardRenameViewModel {
                 TangemPayCardRenameToolbarView(renameViewModel: renameVM)
             }
-        }
+        })
         .toolbar {
             if let renameVM = viewModel.cardRenameViewModel {
                 NavigationToolbarButton.close(placement: .topBarTrailing, action: renameVM.close)
@@ -63,6 +82,7 @@ struct TangemPayCardManagementView: View {
         }
         .navigationBarBackButtonHidden(viewModel.cardRenameViewModel != nil)
         .animation(.easeInOut, value: viewModel.cardRenameViewModel != nil)
+        .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
     }
 }
