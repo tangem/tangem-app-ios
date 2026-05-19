@@ -17,6 +17,7 @@ protocol TangemPayCardManagementRoutable: AnyObject {
     func openTangemPayReissueSheet(
         userWalletId: UserWalletId,
         tangemPayAccount: TangemPayAccount,
+        onLoadingChange: @escaping (Bool) -> Void,
         onError: @escaping () -> Void
     )
     func openChangeDailyLimit(tangemPayAccount: TangemPayAccount)
