@@ -31,7 +31,9 @@ enum OnrampApplePayUtils {
     }
 
     static func mapPaymentResult(_ payment: PKPayment) -> OnrampApplePayResult? {
-        let email = payment.billingContact?.emailAddress ?? "dfedorov@tangem.com"
+        guard let email = payment.billingContact?.emailAddress, !email.isEmpty else {
+            return nil
+        }
 
         let tokenString = payment.token.paymentData.base64EncodedString()
 
