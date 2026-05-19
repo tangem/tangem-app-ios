@@ -21,7 +21,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
-    private lazy var missingDerivationNotification = button(.missingDerivationNotification)
+    /// Type-agnostic: redesign exposes this as `Button`, legacy as `Other`. Drop after redesign rollout.
+    private lazy var missingDerivationNotification = app.descendants(matching: .any)
+        .matching(identifier: MainAccessibilityIdentifiers.missingDerivationNotification)
+        .firstMatch
     private lazy var walletLockedNotification = button(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
@@ -741,28 +744,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             XCTAssertFalse(buyActionButton.isEnabled, "Buy button should be disabled")
             XCTAssertFalse(swapActionButton.isEnabled, "Exchange button should be disabled")
             XCTAssertFalse(sellActionButton.isEnabled, "Sell button should be disabled")
-            return self
-        }
-    }
-
-    // MARK: - Badge Validation Methods
-
-    @discardableResult
-    func assertSwapButtonHasBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has badge indicator on main screen") { _ in
-            XCTAssertTrue(swapActionButton.waitForExistence(timeout: .robustUIUpdate), "Swap button should exist")
-            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
-            waitAndAssertTrue(badge, "Swap button badge should be displayed on main screen")
-            return self
-        }
-    }
-
-    @discardableResult
-    func assertSwapButtonHasNoBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has no badge indicator on main screen") { _ in
-            XCTAssertTrue(swapActionButton.waitForExistence(timeout: .robustUIUpdate), "Swap button should exist")
-            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
-            XCTAssertFalse(badge.exists, "Swap button badge should not be displayed on main screen")
             return self
         }
     }
