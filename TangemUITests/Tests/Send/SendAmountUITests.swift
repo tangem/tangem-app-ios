@@ -65,7 +65,7 @@ private extension SendAmountUITests {
 
         enum AmountValidation {
             static let validAmount = "0.001"
-            static let exceedingAmount = "99,999,999"
+            static let exceedingAmount = "999,999"
         }
 
         enum CurrencySwitching {
