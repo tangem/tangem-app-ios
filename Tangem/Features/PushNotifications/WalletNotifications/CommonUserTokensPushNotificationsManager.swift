@@ -132,8 +132,8 @@ private extension CommonUserTokensPushNotificationsManager {
 
         // Only update the final status subject.
         // Remote status is managed separately:
-        // - Event.remoteStatusUpdated: updates from backend
-        // - Event.localStatusUpdated: updates from user intent
+        // - Event.didReceiveRemoteStatus: updates from backend
+        // - Event.didChangeLocalStatus: updates from user intent
         _userWalletPushStatusSubject.send(status)
 
         if shouldSyncRemoteStatus(currentStatus: currentStatus, newStatus: status) {
@@ -200,18 +200,15 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         _userWalletPushStatusSubject.value
     }
 
-    var isNotInitialized: Bool {
-        let status = _userWalletPushStatusSubject.value
-        return status == .loading || status == .failed
-    }
-
     func dispatch(_ event: UserTokensPushEvent) {
         switch event {
-        case .remoteStatusUpdated(let state):
+        case .didReceiveRemoteStatus(let state):
             applyRemoteStatusUpdate(state)
-        case .localStatusUpdated(let value):
+        case .didChangeLocalStatus(let value):
             applyLocalStatusUpdate(value)
-        case .syncFailed:
+        case .walletBindingWithApplicationSynchronized:
+            updateStatusIfNeeded()
+        case .walletsBindingInfoUnavailable:
             applySyncFailure()
         }
     }
@@ -283,7 +280,7 @@ private extension CommonUserTokensPushNotificationsManager {
 
     func permissionRequestInitialPushAllowance() {
         let toUpdateNotifyStatus = allowancePushNotifyStatus()
-        dispatch(.localStatusUpdated(toUpdateNotifyStatus))
+        dispatch(.didChangeLocalStatus(toUpdateNotifyStatus))
     }
 
     func allowancePushNotifyStatus() -> Bool {
