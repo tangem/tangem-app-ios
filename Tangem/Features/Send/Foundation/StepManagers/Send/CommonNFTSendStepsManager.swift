@@ -15,7 +15,6 @@ final class CommonNFTSendStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private weak var router: SendRoutable?
 
     private var stack: [SendStep]
@@ -31,7 +30,6 @@ final class CommonNFTSendStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy,
         router: SendRoutable
     ) {
         self.destinationStep = destinationStep
@@ -39,7 +37,6 @@ final class CommonNFTSendStepsManager {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.router = router
 
         stack = [destinationStep]
@@ -112,7 +109,7 @@ extension CommonNFTSendStepsManager: SendStepsManager {
         switch currentStep().type {
         case .destination where isEditAction: .init(action: .continue)
         case .destination: .init(action: .next)
-        case .summary: .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
+        case .summary: .init(action: .action)
         case .finish: .init(action: .close)
         default: .empty
         }
