@@ -147,10 +147,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
             return
         }
 
-        if let inFlightSyncTask = inFlightInitialSyncTask {
-            return await inFlightSyncTask.value
-        }
-
         switch kind {
         case .pullToRefresh:
             if let last = lastSuccessfulPullToRefreshAt, Date().timeIntervalSince(last) < Constants.pullToRefreshThrottle {
