@@ -196,7 +196,7 @@ private extension SwapAmountViewModel {
     func updateExpressCurrencyInputEnabledState(providersState: SwapModel.ProvidersState) {
         switch providersState {
         case .loaded(let providers, _, _):
-            isInputDisabled = providers.isEmpty
+            isInputDisabled = providers.available.isEmpty
         case .loading(.rates), .loading(.autoupdate), .loading(.fee):
             break // Keep current state during rates/autoupdate/fee loading to avoid interrupting typing
         case .idle, .failure, .loading(.providers), .loading(.provider):

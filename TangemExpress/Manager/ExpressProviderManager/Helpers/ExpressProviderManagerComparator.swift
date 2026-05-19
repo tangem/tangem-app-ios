@@ -17,7 +17,7 @@ public enum ExpressProviderManagerComparator {
     ///   3. `.restriction(.tooBigAmount)`.
     ///   4. `.idle` / `.error`.
     public static func isBetter(_ lhs: ExpressAvailableProvider, _ rhs: ExpressAvailableProvider) -> Bool {
-        switch (lhs.getState(), rhs.getState()) {
+        switch (lhs.state, rhs.state) {
         // 1) Both `.tooSmallAmount`: lower minimum wins.
         case (.restriction(.tooSmallAmount(let lMinimum, _), _), .restriction(.tooSmallAmount(let rMinimum, _), _)):
             return lMinimum < rMinimum
@@ -68,15 +68,13 @@ public enum ExpressProviderManagerComparator {
             return true
 
         // 8) Both eligible (only remaining state combination by elimination).
-        //    Inner switch unwraps the quotes and picks the comparison by rate type.
+        //    Comparators always run within a single-rate-type subset, so `lhs.rateType == rhs.rateType`.
         case (let lState, let rState):
-            let isBothFixed = lhs.rateType == .fixed && rhs.rateType == .fixed
-
             switch (lState.quote, rState.quote) {
-            // Both `.fixed`: lower `fromAmount` wins (cheapest cost for user).
-            case (.some(let lQuote), .some(let rQuote)) where isBothFixed:
+            // `.fixed`: lower `fromAmount` wins (cheapest cost for user).
+            case (.some(let lQuote), .some(let rQuote)) where lhs.rateType == .fixed:
                 return lQuote.fromAmount < rQuote.fromAmount
-            // Otherwise: higher `expectAmount` wins (most received).
+            // `.float`: higher `expectAmount` wins (most received).
             case (.some(let lQuote), .some(let rQuote)):
                 return lQuote.expectAmount > rQuote.expectAmount
             // Defensive — eligible states always carry a quote.

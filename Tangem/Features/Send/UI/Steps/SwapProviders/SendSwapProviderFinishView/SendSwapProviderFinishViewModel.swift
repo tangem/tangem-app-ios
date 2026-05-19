@@ -24,7 +24,7 @@ class SendSwapProviderFinishViewModel: ObservableObject, Identifiable {
         providerIcon = provider.provider.imageURL
 
         let formatted = ExpressProviderFormatter().mapToRateSubtitle(
-            state: provider.getState(),
+            state: provider.state,
             senderTokenItem: sourceTokenItem,
             destinationTokenItem: receiveTokenItem,
             option: .exchangeRate
