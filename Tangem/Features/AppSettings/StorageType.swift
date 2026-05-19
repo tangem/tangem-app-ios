@@ -62,5 +62,5 @@ enum StorageType: String {
     case mobileUpgradeBannerClosed = "mobile_upgrade_banner_closed"
     case mobileUpgradeBannerWalletCreated = "mobile_upgrade_banner_wallet_created"
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
-    case swapDisplayMode = "swap_display_mode"
+    case swapFormVariant = "swap_form_variant"
 }

@@ -1,5 +1,5 @@
 //
-//  SwapDisplayModeResolver.swift
+//  SwapFormVariantResolver.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SwapDisplayModeResolver {
+struct SwapFormVariantResolver {
     @Injected(\.experimentService) private var experimentService: ExperimentService
 
     private let appSettings: AppSettings
@@ -20,19 +20,19 @@ struct SwapDisplayModeResolver {
         FeatureProvider.isAvailable(.swapSimpleMode)
     }
 
-    func currentMode() -> SwapDisplayMode {
+    func currentVariant() -> SwapFormVariant {
         guard isAvailable else { return .detailed }
 
-        if let raw = appSettings.swapDisplayModeOverrideRaw, let override = SwapDisplayMode(rawValue: raw) {
+        if let raw = appSettings.swapFormVariantOverrideRaw, let override = SwapFormVariant(rawValue: raw) {
             return override
         }
 
-        let variantValue = experimentService.variant(.swapDisplayMode)?.value ?? ""
-        return SwapDisplayMode(rawValue: variantValue) ?? .detailed
+        let variantValue = experimentService.variant(.swapFormVariant)?.value ?? ""
+        return SwapFormVariant(rawValue: variantValue) ?? .detailed
     }
 
-    func setMode(_ mode: SwapDisplayMode) {
+    func setVariant(_ variant: SwapFormVariant) {
         guard isAvailable else { return }
-        appSettings.swapDisplayModeOverrideRaw = mode.rawValue
+        appSettings.swapFormVariantOverrideRaw = variant.rawValue
     }
 }
