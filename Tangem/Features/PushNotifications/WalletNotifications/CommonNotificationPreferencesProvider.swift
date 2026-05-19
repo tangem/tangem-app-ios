@@ -10,31 +10,14 @@ import Foundation
 import Combine
 import TangemFoundation
 
-/// All mutable state lives on the main actor, so read-modify-write sequences over
-/// `remoteStatesSubject`, `fetchTask`, `updateTask`, and the in-flight counter cannot race.
-/// The class deliberately keeps two pieces of state in sync:
-///
-/// - `remoteStatesSubject` — the value broadcast to subscribers. May be optimistic.
-/// - `lastConfirmedStates` — the latest snapshot the backend has acknowledged. Used as the
-///   rollback target so that a failing PUT never reverts to a value that was itself only
-///   optimistic.
-@MainActor
+/// Publishes notification preference state updates while keeping mutable state
+/// serialized in a dedicated actor.
 final class CommonNotificationPreferencesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private let userWalletId: String
+    private let stateStore = NotificationPreferencesStateStore()
     private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
-    private var lastConfirmedStates: PushChannelRemoteStates = .allLoading
-
-    private var fetchTask: Task<Void, Never>?
-    private var updateTask: Task<Void, Never>?
-
-    /// Number of `updatePreferences` task bodies that have started but not yet returned.
-    /// A non-zero value tells `fetchPreferences` that the backend snapshot it just received
-    /// is older than the user's pending intent and must not clobber the optimistic state.
-    private var inFlightUpdateCount: Int = 0
-
-    private var hasInFlightUpdate: Bool { inFlightUpdateCount > 0 }
 
     nonisolated init(userWalletId: String) {
         self.userWalletId = userWalletId
@@ -44,23 +27,25 @@ final class CommonNotificationPreferencesProvider {
 // MARK: - NotificationPreferencesProvider
 
 extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider {
+    var remoteStatesPublisher: AnyPublisher<PushChannelRemoteStates, Never> {
+        remoteStatesSubject.eraseToAnyPublisher()
+    }
+
     var remoteStates: PushChannelRemoteStates {
         remoteStatesSubject.value
     }
 
-    func remoteState(for channel: PushChannel) -> RemoteValueState<PushChannelPreference> {
-        remoteStates[channel]
-    }
-
-    func setRemoteState(_ state: RemoteValueState<PushChannelPreference>, for channel: PushChannel) {
-        var states = remoteStatesSubject.value
-        states[channel] = state
-        remoteStatesSubject.send(states)
+    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
+        runTask(in: self) { provider in
+            let states = await provider.stateStore.updateRemoteEnabled(state, for: channel)
+            await provider.publish(states)
+        }
     }
 
     func fetchPreferences() {
-        fetchTask?.cancel()
-        fetchTask = runTask(in: self) { @MainActor provider in
+        runTask(in: self) { provider in
+            let fetchToken = await provider.stateStore.beginFetch()
+
             do {
                 let response = try await provider.tangemApiService.getNotificationPreferences(
                     userWalletId: provider.userWalletId
@@ -68,14 +53,14 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
                 guard !Task.isCancelled else { return }
 
-                // An optimistic write that hasn't reached the backend yet would be lost if we
-                // applied this (now stale) server snapshot. Skip; the in-flight write will
-                // update `lastConfirmedStates` itself, and a subsequent fetch will reconcile.
-                guard !provider.hasInFlightUpdate else { return }
+                guard let newStates = await provider.stateStore.applyFetchResponse(
+                    response,
+                    for: fetchToken
+                ) else {
+                    return
+                }
 
-                let newStates = PushChannelRemoteStates(response: response)
-                provider.lastConfirmedStates = newStates
-                provider.remoteStatesSubject.send(newStates)
+                await provider.publish(newStates)
             } catch is CancellationError {
                 // A newer fetch has taken over; do not turn loading entries into `.failed`.
             } catch {
@@ -84,32 +69,21 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
                 // guard catches that variant.
                 guard !Task.isCancelled else { return }
 
-                var states = provider.remoteStatesSubject.value
-                for channel in PushChannel.allCases where states[channel] == .loading {
-                    states[channel] = .failed
+                guard let failedStates = await provider.stateStore.applyFetchFailure(for: fetchToken) else {
+                    return
                 }
-                provider.remoteStatesSubject.send(states)
+
+                await provider.publish(failedStates)
             }
         }
     }
 
     func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {
-        var optimisticStates = remoteStatesSubject.value
-        for (channel, isEnabled) in preferences {
-            optimisticStates.setEnabled(isEnabled, for: channel)
-        }
-        remoteStatesSubject.send(optimisticStates)
+        runTask(in: self) { provider in
+            let context = await provider.stateStore.beginUpdate(preferences: preferences)
+            await provider.publish(context.optimisticStates)
 
-        let request = NotificationPreferencesDTO.Update.Request(remoteStates: optimisticStates)
-        // Always revert to a server-confirmed snapshot, never to whatever happens to be in
-        // `remoteStatesSubject` right now — that value can already be optimistic from an
-        // earlier rapid toggle whose PUT is still in flight.
-        let rollbackTarget = lastConfirmedStates
-
-        inFlightUpdateCount += 1
-        updateTask?.cancel()
-        updateTask = runTask(in: self) { @MainActor provider in
-            defer { provider.inFlightUpdateCount -= 1 }
+            let request = NotificationPreferencesDTO.Update.Request(remoteStates: context.optimisticStates)
 
             do {
                 try await provider.tangemApiService.updateNotificationPreferences(
@@ -117,17 +91,52 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
                     preferences: request
                 )
 
-                guard !Task.isCancelled else { return }
+                if Task.isCancelled {
+                    _ = await provider.stateStore.finishUpdate(
+                        token: context.token,
+                        completion: .cancelled
+                    )
+                    return
+                }
 
-                provider.lastConfirmedStates = optimisticStates
+                _ = await provider.stateStore.finishUpdate(
+                    token: context.token,
+                    completion: .success(context.optimisticStates)
+                )
             } catch is CancellationError {
                 // A newer write has taken over and captured its own rollback target; leaving
                 // `remoteStatesSubject` on the latest optimistic value is intentional.
+                _ = await provider.stateStore.finishUpdate(
+                    token: context.token,
+                    completion: .cancelled
+                )
             } catch {
-                guard !Task.isCancelled else { return }
+                if Task.isCancelled {
+                    _ = await provider.stateStore.finishUpdate(
+                        token: context.token,
+                        completion: .cancelled
+                    )
+                    return
+                }
 
-                provider.remoteStatesSubject.send(rollbackTarget)
+                guard let rollbackStates = await provider.stateStore.finishUpdate(
+                    token: context.token,
+                    completion: .failure(context.rollbackTarget)
+                ) else {
+                    return
+                }
+
+                await provider.publish(rollbackStates)
             }
         }
+    }
+}
+
+// MARK: - Helpers
+
+private extension CommonNotificationPreferencesProvider {
+    @MainActor
+    func publish(_ states: PushChannelRemoteStates) {
+        remoteStatesSubject.send(states)
     }
 }
