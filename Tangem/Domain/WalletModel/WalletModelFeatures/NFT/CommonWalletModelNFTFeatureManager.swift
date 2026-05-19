@@ -19,7 +19,7 @@ final class CommonWalletModelNFTFeatureManager {
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
 
-    private lazy var _nftNetworkServicePublisher: some Publisher<NFTNetworkService?, Never> = nftAvailabilityProvider
+    private lazy var nftNetworkServicePublisher: some Publisher<NFTNetworkService?, Never> = nftAvailabilityProvider
         .didChangeNFTAvailabilityPublisher
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -27,33 +27,7 @@ final class CommonWalletModelNFTFeatureManager {
             featuresManager.nftNetworkService
         }
 
-    /// Can change its value at runtime.
-    private var isNFTEnabledForWallet: Bool {
-        nftAvailabilityProvider.isNFTEnabled(forUserWalletWithId: userWalletId)
-    }
-
-    /// Can't change its value at runtime.
-    private var isNFTAvailable: Bool {
-        let nftAvailabilityUtil = NFTAvailabilityUtil(userWalletConfig: userWalletConfig)
-
-        return nftAvailabilityProvider.isNFTAvailable(for: userWalletConfig) && nftAvailabilityUtil.isNFTAvailable(for: tokenItem)
-    }
-
-    private var _nftNetworkService: NFTNetworkService?
-
-    init(
-        userWalletId: UserWalletId,
-        userWalletConfig: UserWalletConfig,
-        tokenItem: TokenItem
-    ) {
-        self.userWalletId = userWalletId
-        self.userWalletConfig = userWalletConfig
-        self.tokenItem = tokenItem
-    }
-
-    // MARK: - Feature
-
-    var nftNetworkService: NFTNetworkService? {
+    private var nftNetworkService: NFTNetworkService? {
         guard isNFTAvailable else {
             return nil
         }
@@ -68,8 +42,28 @@ final class CommonWalletModelNFTFeatureManager {
         return _nftNetworkService
     }
 
-    var nftNetworkServicePublisher: AnyPublisher<NFTNetworkService?, Never> {
-        _nftNetworkServicePublisher.eraseToAnyPublisher()
+    private var _nftNetworkService: NFTNetworkService?
+
+    /// Can change its value at runtime.
+    private var isNFTEnabledForWallet: Bool {
+        nftAvailabilityProvider.isNFTEnabled(forUserWalletWithId: userWalletId)
+    }
+
+    /// Can't change its value at runtime.
+    private var isNFTAvailable: Bool {
+        let nftAvailabilityUtil = NFTAvailabilityUtil(userWalletConfig: userWalletConfig)
+
+        return nftAvailabilityProvider.isNFTAvailable(for: userWalletConfig) && nftAvailabilityUtil.isNFTAvailable(for: tokenItem)
+    }
+
+    init(
+        userWalletId: UserWalletId,
+        userWalletConfig: UserWalletConfig,
+        tokenItem: TokenItem
+    ) {
+        self.userWalletId = userWalletId
+        self.userWalletConfig = userWalletConfig
+        self.tokenItem = tokenItem
     }
 }
 
@@ -77,5 +71,8 @@ final class CommonWalletModelNFTFeatureManager {
 
 extension CommonWalletModelNFTFeatureManager: WalletModelFeatureManager {
     var featurePayload: NFTNetworkService? { nftNetworkService }
-    var featurePayloadPublisher: AnyPublisher<NFTNetworkService?, Never> { nftNetworkServicePublisher }
+
+    var featurePayloadPublisher: AnyPublisher<NFTNetworkService?, Never> {
+        nftNetworkServicePublisher.eraseToAnyPublisher()
+    }
 }
