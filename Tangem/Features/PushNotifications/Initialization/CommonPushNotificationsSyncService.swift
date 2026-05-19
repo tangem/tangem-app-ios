@@ -120,7 +120,9 @@ final class CommonPushNotificationsSyncService: NSObject {
                     .syncUserWalletModelState(applicationUid: service.applicationUid)
 
                 for userWalletModel in service.userWalletRepository.models {
-                    userWalletModel.userTokensPushNotificationsManager.dispatch(.walletBindingWithApplicationSynchronized)
+                    userWalletModel
+                        .userTokensPushNotificationsManager
+                        .process(.walletBindingWithApplicationSynchronized)
                 }
 
                 await service.walletNameProvider.restartObserving()

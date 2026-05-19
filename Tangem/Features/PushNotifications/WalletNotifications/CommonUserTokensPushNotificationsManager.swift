@@ -200,11 +200,19 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         _userWalletPushStatusSubject.value
     }
 
-    func dispatch(_ event: UserTokensPushEvent) {
+    var isRemoteStatusEnabled: Bool {
+        if case .ready(let isEnabled) = _userWalletPushRemoteStatusSubject.value {
+            return isEnabled
+        }
+
+        return false
+    }
+
+    func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .didReceiveRemoteStatus(let state):
+        case .handleRemoteStatus(let state):
             applyRemoteStatusUpdate(state)
-        case .didChangeLocalStatus(let value):
+        case .handleUpdateStatus(let value):
             applyLocalStatusUpdate(value)
         case .walletBindingWithApplicationSynchronized:
             updateStatusIfNeeded()
@@ -229,24 +237,6 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
         // For other states, return isActive (true only for .enabled)
         return status.isActive
-    }
-
-    var shouldShowPermissionWarning: Bool {
-        // Warning is relevant only when push notifications are switched on remotely
-        // but the user has revoked (or never granted) the iOS system permission.
-        status == .needSystemPermission && isRemoteStatusEnabled
-    }
-}
-
-// MARK: - Remote Status (Internal)
-
-private extension CommonUserTokensPushNotificationsManager {
-    var isRemoteStatusEnabled: Bool {
-        if case .ready(let isEnabled) = _userWalletPushRemoteStatusSubject.value {
-            return isEnabled
-        }
-
-        return false
     }
 }
 
@@ -279,8 +269,8 @@ private extension CommonUserTokensPushNotificationsManager {
     }
 
     func permissionRequestInitialPushAllowance() {
-        let toUpdateNotifyStatus = allowancePushNotifyStatus()
-        dispatch(.didChangeLocalStatus(toUpdateNotifyStatus))
+        let allowanceValue = allowancePushNotifyStatus()
+        applyLocalStatusUpdate(allowanceValue)
     }
 
     func allowancePushNotifyStatus() -> Bool {

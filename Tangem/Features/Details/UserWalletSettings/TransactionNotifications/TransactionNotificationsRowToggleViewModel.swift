@@ -103,7 +103,11 @@ private extension TransactionNotificationsRowToggleViewModel {
 
 private extension TransactionNotificationsRowToggleViewModel {
     func refreshPermissionWarning() {
-        guard userTokensPushNotificationsManager.shouldShowPermissionWarning else {
+        // Warning is relevant only when push notifications are switched on remotely
+        // but the user has revoked (or never granted) the iOS system permission.
+        let shouldShowPermissionWarning = userTokensPushNotificationsManager.status == .needSystemPermission && userTokensPushNotificationsManager.isRemoteStatusEnabled
+
+        guard shouldShowPermissionWarning else {
             warningPermissionViewModel = nil
             return
         }
@@ -136,7 +140,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         switch userTokensPushNotificationsManager.status {
         case .enabled, .disabledInApp:
-            userTokensPushNotificationsManager.dispatch(.didChangeLocalStatus(toggleValue))
+            userTokensPushNotificationsManager.process(.handleUpdateStatus(toggleValue))
         case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
@@ -155,7 +159,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.dispatch(.didChangeLocalStatus(true))
+                viewModel.userTokensPushNotificationsManager.process(.handleUpdateStatus(true))
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()
