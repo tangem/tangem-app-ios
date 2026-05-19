@@ -42,4 +42,5 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
+    var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
 }

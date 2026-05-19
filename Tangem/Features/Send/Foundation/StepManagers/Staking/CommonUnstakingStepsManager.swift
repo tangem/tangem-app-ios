@@ -15,7 +15,6 @@ class CommonUnstakingStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private let action: UnstakingModel.Action
     private let isPartialUnstakeAllowed: Bool
 
@@ -27,7 +26,6 @@ class CommonUnstakingStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy,
         action: UnstakingModel.Action,
         isPartialUnstakeAllowed: Bool
     ) {
@@ -35,7 +33,6 @@ class CommonUnstakingStepsManager {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.action = action
         self.isPartialUnstakeAllowed = isPartialUnstakeAllowed
 
@@ -127,7 +124,7 @@ extension CommonUnstakingStepsManager: SendStepsManager {
         switch currentStep().type {
         case .amount where isEditAction: return .init(action: .continue)
         case .amount: return .init(action: .next)
-        case .summary: return .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
+        case .summary: return .init(action: .action)
         case .finish: return .init(action: .close)
         default: return .empty
         }

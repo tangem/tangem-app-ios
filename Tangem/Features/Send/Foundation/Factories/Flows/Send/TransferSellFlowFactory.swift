@@ -120,7 +120,6 @@ extension TransferSellFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             summaryStep: summary,
             finishStep: finish,
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
@@ -154,7 +153,7 @@ extension TransferSellFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: transferableToken.tangemIconProvider
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendModel)
         )
     }
 }

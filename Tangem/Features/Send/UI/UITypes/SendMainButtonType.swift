@@ -13,7 +13,7 @@ import TangemUI
 enum SendMainButtonType: Hashable {
     case next
     case `continue`
-    case action(needsHold: Bool)
+    case action
     case close
 }
 
@@ -80,14 +80,6 @@ extension SendMainButtonType {
             action.title
         case .close:
             Localization.commonClose
-        }
-    }
-
-    func icon(action: SendFlowActionType, provider: TangemIconProvider) -> MainButton.Icon? {
-        switch self {
-        case .action where action == .onramp: nil
-        case .action: provider.getMainButtonIcon()
-        default: nil
         }
     }
 }
