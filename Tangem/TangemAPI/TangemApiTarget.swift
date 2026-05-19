@@ -426,7 +426,7 @@ extension TangemApiTarget {
 
         // Notification Preferences
         case getNotificationPreferences(userWalletId: String)
-        case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Body)
+        case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Update.Request)
 
         // Accounts
         case getUserAccounts(userWalletId: String)

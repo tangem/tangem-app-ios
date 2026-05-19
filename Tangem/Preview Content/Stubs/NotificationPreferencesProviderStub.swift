@@ -8,12 +8,21 @@
 
 import Foundation
 
+@MainActor
 final class NotificationPreferencesProviderStub: NotificationPreferencesProvider {
-    var remoteStatus: UserWalletPushNotifyRemoteStatus = .idle
+    var remoteStates: PushChannelRemoteStates = .allLoading
 
-    func setRemoteStatus(_ status: UserWalletPushNotifyRemoteStatus) {
-        remoteStatus = status
+    nonisolated init() {}
+
+    func remoteState(for channel: PushChannel) -> RemoteValueState<PushChannelPreference> {
+        remoteStates[channel]
     }
 
-    func updatePreferences(_ preferences: [(type: PushNotificationsSettingType, isEnabled: Bool)]) throws {}
+    func setRemoteState(_ state: RemoteValueState<PushChannelPreference>, for channel: PushChannel) {
+        remoteStates[channel] = state
+    }
+
+    func fetchPreferences() {}
+
+    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {}
 }
