@@ -63,7 +63,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
         case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
-        case .transactionHistoryV2: return "Transaction History V2"
+        case .transactionHistoryV2: return "13623_Transaction_History_V2"
         }
     }
 
