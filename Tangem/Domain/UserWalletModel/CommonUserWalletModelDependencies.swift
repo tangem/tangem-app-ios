@@ -193,6 +193,7 @@ private extension CommonUserWalletModelDependencies {
         shouldLoadExpressAvailability: Bool
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
+
         let transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry()
 
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
@@ -219,7 +220,7 @@ private extension CommonUserWalletModelDependencies {
             walletModelsFactoryProvider: walletModelsFactoryProvider
         )
 
-        return CommonAccountModelsManager(
+        let accountModelsManager = CommonAccountModelsManager(
             userWalletId: userWalletId,
             cryptoAccountsRepository: cryptoAccountsRepository,
             tangemPayManager: tangemPayManager,
@@ -227,6 +228,10 @@ private extension CommonUserWalletModelDependencies {
             dependenciesFactory: dependenciesFactory,
             areHDWalletsSupported: areHDWalletsSupported
         )
+
+        transactionHistoryProviderRegistry.setup(with: accountModelsManager)
+
+        return accountModelsManager
     }
 
     static func makeUserTokensPushNotificationsManager(
