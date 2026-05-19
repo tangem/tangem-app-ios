@@ -7,19 +7,36 @@
 //
 
 import Foundation
+import Combine
 
 @MainActor
 final class NotificationPreferencesProviderStub: NotificationPreferencesProvider {
-    var remoteStates: PushChannelRemoteStates = .allLoading
+    private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
+
+    var remoteStatesPublisher: AnyPublisher<PushChannelRemoteStates, Never> {
+        remoteStatesSubject.eraseToAnyPublisher()
+    }
+
+    var remoteStates: PushChannelRemoteStates {
+        remoteStatesSubject.value
+    }
 
     nonisolated init() {}
 
-    func remoteState(for channel: PushChannel) -> RemoteValueState<PushChannelPreference> {
-        remoteStates[channel]
-    }
+    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
+        var states = remoteStatesSubject.value
+        let visibility = states.preference(for: channel).isVisible
 
-    func setRemoteState(_ state: RemoteValueState<PushChannelPreference>, for channel: PushChannel) {
-        remoteStates[channel] = state
+        switch state {
+        case .loading:
+            states[channel] = .loading
+        case .failed:
+            states[channel] = .failed
+        case .ready(let isEnabled):
+            states[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+        }
+
+        remoteStatesSubject.send(states)
     }
 
     func fetchPreferences() {}
