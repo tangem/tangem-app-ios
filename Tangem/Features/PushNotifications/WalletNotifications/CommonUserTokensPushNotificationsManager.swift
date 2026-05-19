@@ -41,7 +41,7 @@ final class CommonUserTokensPushNotificationsManager {
         self.accountModelsManager = accountModelsManager
         self.remoteStatusSyncing = remoteStatusSyncing
         self.notificationPreferencesProvider = notificationPreferencesProvider
-        
+
         updateTrigger = UserTokensPushNotificationsUpdateTrigger(accountModelsManager: accountModelsManager)
 
         bind()
