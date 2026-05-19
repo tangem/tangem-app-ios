@@ -29,6 +29,10 @@ enum UserWalletPushNotifyStatus: Equatable {
     var isActive: Bool {
         self == .enabled
     }
+
+    var isNotInitialized: Bool {
+        self == .loading || self == .failed
+    }
 }
 
 extension UserWalletPushNotifyStatus: CustomStringConvertible {

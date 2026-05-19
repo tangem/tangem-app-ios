@@ -119,6 +119,10 @@ final class CommonPushNotificationsSyncService: NSObject {
                 try await service.walletsStateProvider
                     .syncUserWalletModelState(applicationUid: service.applicationUid)
 
+                for userWalletModel in service.userWalletRepository.models {
+                    userWalletModel.userTokensPushNotificationsManager.dispatch(.walletBindingWithApplicationSynchronized)
+                }
+
                 await service.walletNameProvider.restartObserving()
             } catch {
                 PushNotificationsSyncServiceLogger.error("Failed to sync wallets state with remote", error: error)
