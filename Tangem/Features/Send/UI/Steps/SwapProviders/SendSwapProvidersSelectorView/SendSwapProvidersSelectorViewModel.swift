@@ -148,7 +148,7 @@ private extension SendSwapProvidersSelectorViewModel {
     private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, showableProviders: [ExpressAvailableProvider], providerTypeFilter: ProviderTypeFilter, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
         showableProviders
             .filter { providerTypeFilter.matches($0.provider.type) }
-            .sortedByPriorityAndQuotes()
+            .sortedByAttractively()
             .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
     }
 
