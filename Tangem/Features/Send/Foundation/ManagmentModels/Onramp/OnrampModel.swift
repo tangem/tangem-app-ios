@@ -404,9 +404,6 @@ private extension OnrampModel {
         stopTimer()
         _transactionTime.send(Date())
         _expressTransactionId.send(data.txId)
-        // Defer the navigation until PassKit reports the sheet has dismissed
-        // (`applePaySheetDidFinish`); otherwise the parent OnrampSummary view is torn
-        // down mid-animation and the sheet gets orphaned in a stuck state.
         pendingApplePayFinishStep = true
     }
 
