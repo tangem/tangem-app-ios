@@ -91,7 +91,7 @@ private extension TransactionNotificationsRowToggleViewModel {
         // One-time initialization. Because isNotInitialized is non-recoverable
         pushNotifyViewModel = DefaultToggleRowViewModel(
             title: Localization.walletSettingsPushNotificationsTitle,
-            isDisabled: userTokensPushNotificationsManager.status.isInteractionEnabled,
+            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
             isOn: isEnabledPushNotificationStatusBinding
         )
 
@@ -136,7 +136,8 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         switch userTokensPushNotificationsManager.status {
         case .enabled, .disabledInApp:
-            userTokensPushNotificationsManager.dispatch(.localStatusUpdated(toggleValue))
+            let updateEvent: UserTokensPushEvent = .didChangeLocalStatus(toggleValue, channel: .transactionAlerts)
+            userTokensPushNotificationsManager.dispatch(updateEvent)
         case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
@@ -155,7 +156,8 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.dispatch(.localStatusUpdated(true))
+                let updateEvent: UserTokensPushEvent = .didChangeLocalStatus(true, channel: .transactionAlerts)
+                viewModel.userTokensPushNotificationsManager.dispatch(updateEvent)
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()

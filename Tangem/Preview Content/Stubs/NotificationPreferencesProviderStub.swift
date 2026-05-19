@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-@MainActor
 final class NotificationPreferencesProviderStub: NotificationPreferencesProvider {
     private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
 
@@ -21,7 +20,7 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         remoteStatesSubject.value
     }
 
-    nonisolated init() {}
+    init() {}
 
     func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
         var states = remoteStatesSubject.value
@@ -32,6 +31,8 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
             states[channel] = .loading
         case .failed:
             states[channel] = .failed
+        case .pending(let isEnabled):
+            states[channel] = .pending(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
         case .ready(let isEnabled):
             states[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
         }
@@ -41,5 +42,13 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
 
     func fetchPreferences() {}
 
-    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {}
+    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {
+        var states = remoteStatesSubject.value
+
+        for (channel, isEnabled) in preferences {
+            states.setPendingEnabled(isEnabled, for: channel)
+        }
+
+        remoteStatesSubject.send(states.settlingPendingToReady())
+    }
 }

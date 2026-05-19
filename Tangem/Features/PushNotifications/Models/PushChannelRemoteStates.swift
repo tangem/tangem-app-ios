@@ -39,16 +39,31 @@ struct PushChannelRemoteStates: Equatable {
     }
 
     func preference(for channel: PushChannel) -> PushChannelPreference {
-        guard case .ready(let preference) = self[channel] else {
+        switch self[channel] {
+        case .ready(let preference), .pending(let preference):
+            return preference
+        case .loading, .failed:
             return PushChannelPreference(isEnabled: false, isVisible: true)
         }
-
-        return preference
     }
 
-    mutating func setEnabled(_ isEnabled: Bool, for channel: PushChannel) {
-        let current = preference(for: channel)
-        self[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: current.isVisible))
+    mutating func setPendingEnabled(_ isEnabled: Bool, for channel: PushChannel) {
+        let visibility = preference(for: channel).isVisible
+        self[channel] = .pending(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+    }
+
+    func settlingPendingToReady() -> PushChannelRemoteStates {
+        var settled = self
+
+        for channel in PushChannel.allCases {
+            guard case .pending(let preference) = settled[channel] else {
+                continue
+            }
+
+            settled[channel] = .ready(preference)
+        }
+
+        return settled
     }
 }
 
