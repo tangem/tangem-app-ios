@@ -279,8 +279,8 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
         XCTContext.runActivity(named: "Verify Markets search field is empty and clear button hidden") { _ in
             waitAndAssertTrue(searchField, "Markets search field should exist")
             XCTAssertTrue(searchField.value as? String == "" || searchField.label.isEmpty, "Search field should be empty")
-            waitAndAssertTrue(
-                searchFieldClearButton,
+            XCTAssertTrue(
+                searchFieldClearButton.waitForNonExistence(timeout: .robustUIUpdate),
                 "Clear button should not be visible when search field is empty"
             )
 
