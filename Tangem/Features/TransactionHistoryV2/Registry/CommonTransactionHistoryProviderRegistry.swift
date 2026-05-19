@@ -22,7 +22,7 @@ extension CommonTransactionHistoryProviderRegistry: TransactionHistoryProviderRe
             return existing
         }
 
-        let new = TransactionHistoryProvider(key: key)
+        let new = TransactionHistoryProvider()
         providers[key] = new
 
         return new
