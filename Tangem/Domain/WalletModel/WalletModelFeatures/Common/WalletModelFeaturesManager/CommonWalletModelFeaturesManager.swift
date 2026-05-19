@@ -14,7 +14,7 @@ import TangemNFT
 final class CommonWalletModelFeaturesManager<
     NFT: WalletModelFeatureManager<NFTNetworkService>,
     DynamicAddresses: WalletModelFeatureManager<DynamicAddressesManager>,
-    TransactionHistory: WalletModelFeatureManager<any TransactionHistorySyncing>
+    TransactionHistory: WalletModelFeatureManager<TransactionHistorySyncing>
 > {
     private let nftFeatureManager: NFT
     private let dynamicAddressesFeatureManager: DynamicAddresses

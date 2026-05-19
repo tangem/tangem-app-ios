@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol WalletModelFeatureManager<Payload>: AnyObject, Sendable {
+protocol WalletModelFeatureManager<Payload> {
     associatedtype Payload
 
     var featurePayload: Payload? { get }

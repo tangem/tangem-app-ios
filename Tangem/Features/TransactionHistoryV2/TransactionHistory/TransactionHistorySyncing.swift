@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol TransactionHistorySyncing: AnyObject, Sendable {
+protocol TransactionHistorySyncing {
     var state: TransactionHistorySyncState { get async }
     var stateUpdates: AsyncStream<TransactionHistorySyncState> { get }
 
