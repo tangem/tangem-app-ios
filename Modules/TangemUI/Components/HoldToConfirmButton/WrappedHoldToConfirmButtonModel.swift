@@ -312,9 +312,7 @@ extension WrappedHoldToConfirmButtonModel {
             VibrationSegment(count: 2, fraction: 0.20),
             VibrationSegment(count: 3, fraction: 0.20),
             VibrationSegment(count: 3, fraction: 0.15),
-            VibrationSegment(count: 6, fraction: 0.15),
-            VibrationSegment(count: 6, fraction: 0.10),
-            VibrationSegment(count: 16, fraction: 0.20),
+            VibrationSegment(count: 90, fraction: 0.45),
         ]
         static let cancelDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.2)
         static let confirmDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.4)
