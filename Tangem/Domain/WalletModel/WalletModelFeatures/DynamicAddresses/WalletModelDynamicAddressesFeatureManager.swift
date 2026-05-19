@@ -1,5 +1,5 @@
 //
-//  CommonWalletModelDynamicAddressesFeatureManager.swift
+//  WalletModelDynamicAddressesFeatureManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-final class CommonWalletModelDynamicAddressesFeatureManager {
+final class WalletModelDynamicAddressesFeatureManager {
     let dynamicAddressesManager: DynamicAddressesManager?
 
     init(dynamicAddressesManager: DynamicAddressesManager?) {
@@ -19,7 +19,7 @@ final class CommonWalletModelDynamicAddressesFeatureManager {
 
 // MARK: - WalletModelFeatureManager protocol conformance
 
-extension CommonWalletModelDynamicAddressesFeatureManager: WalletModelFeatureManager {
+extension WalletModelDynamicAddressesFeatureManager: WalletModelFeatureManager {
     var featurePayload: DynamicAddressesManager? { dynamicAddressesManager }
 
     var featurePayloadPublisher: AnyPublisher<DynamicAddressesManager?, Never> {
