@@ -11,5 +11,6 @@ import Foundation
 enum RemoteValueState<Value: Equatable>: Equatable {
     case loading
     case failed
+    case pending(Value)
     case ready(Value)
 }
