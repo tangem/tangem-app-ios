@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 
-/// Registry for transaction history providers used, single instance per user wallet model.
+/// Registry for transaction history providers, single instance per user wallet model.
 /// Transaction history providers are keyed by `TransactionHistoryProviderKey`.
 actor CommonTransactionHistoryProviderRegistry {
     private var providers: [TransactionHistoryProviderKey: TransactionHistoryProvider] = [:]
