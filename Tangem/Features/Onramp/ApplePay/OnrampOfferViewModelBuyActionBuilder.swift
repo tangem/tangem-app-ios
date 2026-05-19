@@ -48,7 +48,6 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
-        // No Apple Pay merchant identifier configured for this provider in the current environment.
         guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
