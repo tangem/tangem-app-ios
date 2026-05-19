@@ -13,9 +13,11 @@ class WalletNetworkServiceFactoryProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
 
-    lazy var factory = WalletNetworkServiceFactory(
-        blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig,
-        tangemProviderConfig: .ephemeralConfiguration,
-        apiList: apiListProvider.apiList
-    )
+    var factory: WalletNetworkServiceFactory {
+        WalletNetworkServiceFactory(
+            blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig,
+            tangemProviderConfig: .ephemeralConfiguration,
+            apiList: apiListProvider.apiList
+        )
+    }
 }
