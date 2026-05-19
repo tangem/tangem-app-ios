@@ -14,7 +14,14 @@ import TangemNetworkUtils
 
 /// Documentation: https://github.com/trezor/blockbook/blob/master/docs/api.md
 class BlockBookUTXOProvider {
-    static var rpcRequestId: Int = 0
+    private static let requestIDCounter = OSAllocatedUnfairLock<Int>(initialState: 0)
+
+    private static func nextRequestID() -> Int {
+        requestIDCounter { state in
+            state += 1
+            return state
+        }
+    }
 
     var host: String {
         "\(blockchain.currencySymbol.lowercased()).\(config.host)"
@@ -45,13 +52,19 @@ class BlockBookUTXOProvider {
         executeRequest(.address(address: address, parameters: parameters), responseType: BlockBookAddressResponse.self)
     }
 
+    func addressData(
+        xpub: String,
+        parameters: BlockBookTarget.XPUBRequestParameters
+    ) -> AnyPublisher<BlockBookAddressResponse, Error> {
+        executeRequest(.xpub(xpub: xpub, parameters: parameters), responseType: BlockBookAddressResponse.self)
+    }
+
     func rpcCall<Result: Decodable>(
         method: String,
         params: AnyEncodable,
         resultType: Result.Type
     ) -> AnyPublisher<JSONRPC.DefaultResponse<Result>, Error> {
-        BlockBookUTXOProvider.rpcRequestId += 1
-        let request = JSONRPC.Request(id: BlockBookUTXOProvider.rpcRequestId, method: method, params: params)
+        let request = JSONRPC.Request(id: BlockBookUTXOProvider.nextRequestID(), method: method, params: params)
         return executeRequest(.rpc(request), responseType: JSONRPC.DefaultResponse<Result>.self)
     }
 

@@ -1,5 +1,5 @@
 {
-  "originHash" : "37da98420b119cbc199cb3f7de81a360af20d233f8f04aad68ecc41ce02298b7",
+  "originHash" : "b2a7a0cbe0f04c613c567d4279f5385b193b3c021891502a714ef6db5e69d9a2",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -294,8 +294,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "6f2cbea2363aba3553843c3715ad66e6f61a2b63",
-        "version" : "1.42.0"
+        "revision" : "a05c6305caf5e18008ee6e58648d896bdf5272a4",
+        "version" : "1.44.0"
       }
     },
     {

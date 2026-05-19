@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import TangemFoundation
 import TangemExpress
 
-class CommonPendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker {
+actor CommonPendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker {
     typealias PendingTransactionId = String
 
     private let mapper = PendingExpressTransactionAnalyticsStatusMapper()
-    private var trackedStatuses: ThreadSafeContainer<[PendingTransactionId: Set<Analytics.ParameterValue>]> = .init([:])
+    private var trackedStatuses: [PendingTransactionId: Set<Analytics.ParameterValue>] = [:]
 
     func trackStatusForSwapTransaction(
         transactionId: String,
@@ -55,16 +54,14 @@ class CommonPendingExpressTransactionAnalyticsTracker: PendingExpressTransaction
         provider: ExpressPendingTransactionRecord.Provider
     ) {
         let statusToTrack = mapper.mapToAnalyticsStatus(pendingTxStatus: status)
-        var trackedStatusesSet = trackedStatuses[transactionId] ?? []
-        if trackedStatusesSet.contains(statusToTrack) {
+
+        guard trackedStatuses[transactionId, default: []].insert(statusToTrack).inserted else {
             return
         }
 
         var params = params
         params[.status] = statusToTrack.rawValue
         params[.provider] = provider.name
-
-        trackedStatusesSet.insert(statusToTrack)
 
         Analytics.log(event: event, params: params)
     }

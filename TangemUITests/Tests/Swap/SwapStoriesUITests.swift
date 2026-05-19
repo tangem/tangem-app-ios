@@ -24,17 +24,15 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
-            .assertSwapButtonHasBadge()
 
         tokenScreen
             .tapSwapButton()
             .closeStories()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
-            .assertSwapButtonHasNoBadge()
     }
 
-    func testSwapStories_BadgeIndicatorOnMainScreen() {
+    func testSwapStoriesOnMainScreen() {
         setAllureId(5453)
 
         launchApp(
@@ -46,38 +44,12 @@ final class SwapStoriesUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
-            .assertSwapButtonHasBadge()
 
         mainScreen
             .tapMainSwap()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
-            .tapCloseButton()
-            .assertSwapButtonHasNoBadge()
-    }
-
-    func testSwapStories_BadgeIndicatorOnTokenScreenInMarkets() throws {
-        setAllureId(5455)
-
-        launchApp(
-            tangemApiType: .mock,
-            clearStorage: true
-        )
-
-        let marketsTokenDetailsScreen = CreateWalletSelectorScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .validate(cardType: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
-            .openTokenDetails(ethereumTokenName)
-            .assertSwapButtonHasBadge()
-
-        marketsTokenDetailsScreen
-            .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
-            .tapCloseButtonAndReturnToMarkets()
-            .assertSwapButtonHasNoBadge()
+            .tapCloseButton()
     }
 
     func testSwapStories_StoriesDisplayOnMainScreen() {
@@ -107,10 +79,10 @@ final class SwapStoriesUITests: BaseTestCase {
             .assertCloseButtonVisible()
             .tapStoryForward()
 
-        // Step 3: Close stories → swap token selector opens
+        // Step 3: Close stories → swap screen opens with pre-selected FROM
         storiesScreen
-            .closeStoriesAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
+            .closeStories()
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
 
         // Step 4: Open swap again → stories should not show
@@ -119,8 +91,8 @@ final class SwapStoriesUITests: BaseTestCase {
             .tapMainSwap()
             .assertStoriesNotDisplayed()
 
-        SwapTokenSelectorScreen(app)
-            .waitSwapTokenSelectorDisplayed()
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
     }
 
@@ -264,7 +236,7 @@ final class SwapStoriesUITests: BaseTestCase {
     func testSwapStories_UnavailableStoriesOnMarketsTokenDetailsScreen() throws {
         setAllureId(5470)
 
-        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
+        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap_v2", initialState: "Error")
 
         launchApp(
             tangemApiType: .mock,
@@ -278,7 +250,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .assertSwapButtonHasNoBadge()
 
         marketsTokenDetailsScreen
             .tapSwapButton()
@@ -287,7 +258,7 @@ final class SwapStoriesUITests: BaseTestCase {
             .validateSwapScreenDisplayed()
             .tapCloseButtonAndReturnToMarkets()
 
-        wireMockClient.resetScenarioSync("stories_first_time_swap")
+        wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
 
@@ -297,7 +268,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .assertSwapButtonHasBadge()
 
         marketsTokenDetailsScreenAfterRestart
             .tapSwapButton()
@@ -310,7 +280,7 @@ final class SwapStoriesUITests: BaseTestCase {
     func testSwapStories_UnavailableStoriesOnMainScreen() {
         setAllureId(5469)
 
-        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
+        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap_v2", initialState: "Error")
 
         launchApp(
             tangemApiType: .mock,
@@ -322,18 +292,16 @@ final class SwapStoriesUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
-            .assertSwapButtonHasNoBadge()
 
         mainScreen
             .tapMainSwap()
             .assertStoriesNotDisplayed()
 
-        SwapTokenSelectorScreen(app)
-            .waitSwapTokenSelectorDisplayed()
+        SwapScreen(app)
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
-            .assertSwapButtonHasNoBadge()
 
-        wireMockClient.resetScenarioSync("stories_first_time_swap")
+        wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
 
@@ -341,20 +309,19 @@ final class SwapStoriesUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
-            .assertSwapButtonHasBadge()
 
         mainScreenAfterRestart
             .tapMainSwap()
             .assertStoriesDisplayed()
-            .closeStoriesIfNeededAndReturnToTokenSelector()
-            .waitSwapTokenSelectorDisplayed()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
             .tapCloseButton()
     }
 
     func testSwapStories_UnavailableStoriesOnTokenDetailsScreen() {
         setAllureId(5471)
 
-        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap", initialState: "Error")
+        let storiesErrorScenario = ScenarioConfig(name: "stories_first_time_swap_v2", initialState: "Error")
 
         launchApp(
             tangemApiType: .mock,
@@ -367,7 +334,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
-            .assertSwapButtonHasNoBadge()
 
         tokenScreen
             .tapSwapButton()
@@ -375,9 +341,8 @@ final class SwapStoriesUITests: BaseTestCase {
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
-            .assertSwapButtonHasNoBadge()
 
-        wireMockClient.resetScenarioSync("stories_first_time_swap")
+        wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
 
@@ -386,7 +351,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
-            .assertSwapButtonHasBadge()
 
         tokenScreenAfterRestart
             .tapSwapButton()

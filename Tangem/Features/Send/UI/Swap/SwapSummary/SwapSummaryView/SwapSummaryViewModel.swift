@@ -100,7 +100,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
             .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
     }
@@ -109,8 +109,14 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func userDidTapMaxAmount() {
         interactor.userDidRequestMaxAmount()
+    }
+
+    func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
+        analyticsLogger.logTapAmountFraction(fraction)
+        interactor.userDidRequestSourceAmount(fraction: fraction)
     }
 
     func userDidTapMainActionButton() {

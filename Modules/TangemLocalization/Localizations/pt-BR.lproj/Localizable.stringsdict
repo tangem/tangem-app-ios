@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>dispositivo</string>
+        <string>%li dispositivo</string>
         <key>other</key>
-        <string>dispositivos</string>
+        <string>%li dispositivos</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li hour</string>
+        <string>%li  hora</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li horas</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -381,6 +381,22 @@
         <string>%li Os tokens não são compatíveis com este endereço.</string>
       </dict>
     </dict>
+    <key>tangempay_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li cartão</string>
+        <key>other</key>
+        <string>%li cartões</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -408,9 +424,25 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Use seu Cartão ou Anel para obter o endereço de uma rede.</string>
+        <string>Use seu Cartão ou Anel para obter o endereço de uma rede %li.</string>
         <key>other</key>
-        <string>Use seu Cartão ou Anel para obter endereços de rede.</string>
+        <string>Use seu Cartão ou Anel para obter endereços de redes %li.</string>
+      </dict>
+    </dict>
+    <key>warning_missing_derivation_no_nfc_message</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Sincronizar endereços para obter um endereço de %li rede</string>
+        <key>other</key>
+        <string>Sincronizar endereços para obter endereços para %li rede</string>
       </dict>
     </dict>
   </dict>

@@ -23,7 +23,6 @@ actor CommonExpressManager {
 
     private var _pair: ExpressManagerSwappingPair?
     private var _approvePolicy: ApprovePolicy = .specified
-    private var _feeOption: ExpressFee.Option = .market
     private var _amountType: ExpressAmountType?
 
     private var availableProviders: [ExpressAvailableProvider] = []
@@ -69,7 +68,7 @@ extension CommonExpressManager: ExpressManager {
         return availableProviders
     }
 
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressAvailableProvider? {
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
         pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
 
@@ -81,48 +80,37 @@ extension CommonExpressManager: ExpressManager {
         case .none: availableProviders.removeAll()
         }
 
-        return await bestProvider()
+        let selected = await bestProvider()
+        return makeUpdatingResult(selected: selected)
     }
 
-    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
+    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
         _amountType = amountType
         return try await update(by: source)
     }
 
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressAvailableProvider? {
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult {
         selectedProvider = provider
 
-        return selectedProvider
+        return makeUpdatingResult(selected: selectedProvider)
     }
 
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressAvailableProvider? {
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult {
         guard _approvePolicy != approvePolicy else {
             ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
-            return selectedProvider
+            return makeUpdatingResult(selected: selectedProvider)
         }
 
         _approvePolicy = approvePolicy
 
         let request = try makeRequest(for: selectedProvider)
         await selectedProvider?.manager.update(request: request)
-        return selectedProvider
+        return makeUpdatingResult(selected: selectedProvider)
     }
 
-    func update(feeOption: ExpressFee.Option) async throws -> ExpressAvailableProvider? {
-        guard _feeOption != feeOption else {
-            ExpressLogger.warning(self, "ExpressFeeOption already is \(feeOption)")
-            return selectedProvider
-        }
-
-        _feeOption = feeOption
-
-        let request = try makeRequest(for: selectedProvider)
-        await selectedProvider?.manager.update(request: request)
-        return selectedProvider
-    }
-
-    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
-        try await updateState(by: source)
+    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
+        let selected = try await updateState(by: source)
+        return makeUpdatingResult(selected: selected)
     }
 
     func requestData() async throws -> ExpressTransactionData {
@@ -158,13 +146,6 @@ private extension CommonExpressManager {
         try Task.checkCancellation()
 
         await updateSelectedProvider(pair: pair, by: source)
-
-        return try selectedProviderState()
-    }
-
-    func selectedProviderState() throws -> ExpressAvailableProvider? {
-        let state = selectedProvider?.getState()
-        ExpressLogger.info(self, "Selected provider state: \(state as Any)")
 
         return selectedProvider
     }
@@ -247,7 +228,7 @@ private extension CommonExpressManager {
 
         let eligible = eligibleProviders(from: providers)
 
-        guard !eligible.isEmpty else {
+        guard eligible.isNotEmpty else {
             return nil
         }
 
@@ -282,8 +263,17 @@ private extension CommonExpressManager {
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
         let candidates = candidateProviders
 
+        defer { updateIsBestFlag() }
+
         let providers = candidates.map { $0.provider.name }.joined(separator: ", ")
         ExpressLogger.info(self, "Start a parallel updating in providers: \(providers) with request \(request)")
+
+        guard candidates.isNotEmpty else {
+            return
+        }
+
+        let tracker = ExpressQuotesLoadingPerformanceTracker.started(providersCount: candidates.count)
+        let request = request.with(quotesLoadingPerformanceTracker: tracker)
 
         // Run a parallel asynchronous tasks
         await withTaskGroup(of: Void.self) { taskGroup in
@@ -294,9 +284,6 @@ private extension CommonExpressManager {
                 }
             }
         }
-
-        // Update "isBest" flag after each provider's state updating
-        updateIsBestFlag()
     }
 
     func makeRequest(for provider: ExpressAvailableProvider? = nil) throws -> ExpressManagerSwappingPairRequest {
@@ -318,7 +305,6 @@ private extension CommonExpressManager {
         return ExpressManagerSwappingPairRequest(
             amountType: amountType,
             rateType: rateType,
-            feeOption: _feeOption,
             approvePolicy: _approvePolicy,
             operationType: pair.source.operationType
         )
@@ -333,7 +319,12 @@ private extension CommonExpressManager {
 
     func clearCache() {
         selectedProvider = nil
-        _feeOption = .market
+    }
+
+    func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
+        let result = ExpressManagerUpdatingResult(providers: availableProviders, selected: selected)
+        ExpressLogger.info(self, "Updating result: \(result.description)")
+        return result
     }
 }
 
