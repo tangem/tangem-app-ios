@@ -17,7 +17,7 @@ struct SwapSummaryView: View {
     @ObservedObject var viewModel: SwapSummaryViewModel
     @FocusState.Binding var keyboardActive: Bool
 
-    @State private var didInitialFocus: Bool = false
+    @State private var shouldRestoreKeyboard = true
     @State private var viewGeometryInfo: GeometryInfo = .zero
     @State private var contentSize: CGSize = .zero
     @State private var bottomViewSize: CGSize = .zero
@@ -57,9 +57,9 @@ struct SwapSummaryView: View {
         .ignoresSafeArea(.keyboard)
         .onChange(of: viewModel.swapAmountViewModel.isInputDisabled) { isDisabled in
             if isDisabled {
+                shouldRestoreKeyboard = keyboardActive
                 keyboardActive = false
-            } else if !didInitialFocus {
-                didInitialFocus = true
+            } else if shouldRestoreKeyboard {
                 keyboardActive = true
             }
         }

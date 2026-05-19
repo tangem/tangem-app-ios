@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemNetworkUtils
 
-class CommonTangemApiService {
+final class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
         TimeoutIntervalPlugin(),
@@ -35,7 +35,7 @@ class CommonTangemApiService {
     }()
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("CommonTangemApiService deinit")
     }
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
@@ -292,6 +292,12 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
         return try await request(for: .earnNetworks(requestModel), decoder: decoder)
+    }
+
+    // MARK: - Coins Implementation
+
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
+        try await request(for: .coinsSettings, decoder: decoder)
     }
 
     // MARK: - Action Buttons
