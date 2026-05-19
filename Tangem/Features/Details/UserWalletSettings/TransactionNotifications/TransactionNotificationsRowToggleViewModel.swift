@@ -91,7 +91,7 @@ private extension TransactionNotificationsRowToggleViewModel {
         // One-time initialization. Because isNotInitialized is non-recoverable
         pushNotifyViewModel = DefaultToggleRowViewModel(
             title: Localization.walletSettingsPushNotificationsTitle,
-            isDisabled: userTokensPushNotificationsManager.isNotInitialized,
+            isDisabled: userTokensPushNotificationsManager.status.isInteractionEnabled,
             isOn: isEnabledPushNotificationStatusBinding
         )
 
