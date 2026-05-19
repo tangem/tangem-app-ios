@@ -47,21 +47,14 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
                 }
         }
     }
-
-    // MARK: - Feature
-
-    var transactionHistoryProvider: (any TransactionHistorySyncing)? {
-        transactionHistoryProviderSubject.value
-    }
-
-    var transactionHistoryProviderPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
-        transactionHistoryProviderSubject.eraseToAnyPublisher()
-    }
 }
 
 // MARK: - WalletModelFeatureManager protocol conformance
 
 extension CommonWalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
-    var featurePayload: (any TransactionHistorySyncing)? { transactionHistoryProvider }
-    var featurePayloadPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> { transactionHistoryProviderPublisher }
+    var featurePayload: (any TransactionHistorySyncing)? { transactionHistoryProviderSubject.value }
+
+    var featurePayloadPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
+        transactionHistoryProviderSubject.eraseToAnyPublisher()
+    }
 }

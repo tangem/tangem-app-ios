@@ -15,17 +15,14 @@ final class CommonWalletModelDynamicAddressesFeatureManager {
     init(dynamicAddressesManager: DynamicAddressesManager?) {
         self.dynamicAddressesManager = dynamicAddressesManager
     }
-
-    // MARK: - Feature
-
-    var dynamicAddressesManagerPublisher: AnyPublisher<DynamicAddressesManager?, Never> {
-        .just(output: dynamicAddressesManager)
-    }
 }
 
 // MARK: - WalletModelFeatureManager protocol conformance
 
 extension CommonWalletModelDynamicAddressesFeatureManager: WalletModelFeatureManager {
     var featurePayload: DynamicAddressesManager? { dynamicAddressesManager }
-    var featurePayloadPublisher: AnyPublisher<DynamicAddressesManager?, Never> { dynamicAddressesManagerPublisher }
+
+    var featurePayloadPublisher: AnyPublisher<DynamicAddressesManager?, Never> {
+        .just(output: dynamicAddressesManager)
+    }
 }
