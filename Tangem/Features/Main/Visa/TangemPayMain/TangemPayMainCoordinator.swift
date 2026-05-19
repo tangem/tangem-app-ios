@@ -398,9 +398,12 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
     func openTangemPayReissueSheet(
         userWalletId: UserWalletId,
         tangemPayAccount: TangemPayAccount,
+        onLoadingChange: @escaping (Bool) -> Void,
         onError: @escaping () -> Void
     ) {
         Task { @MainActor in
+            onLoadingChange(true)
+            defer { onLoadingChange(false) }
             do {
                 let feeResponse: TangemPayFeeResponse
                 if let cached = await tangemPayAccount.feeRepository.getFee(for: .cardReplacement) {
