@@ -102,6 +102,9 @@ private extension CommonDeeplinkPresenter {
         case .swap(let userWalletModel):
             return constructSwapViewController(userWalletModel: userWalletModel)
 
+        case .swapWithDeferredPairResolution(let parameters):
+            return constructSwapWithDeferredPairResolutionViewController(parameters: parameters)
+
         case .referral(let input):
             return constructReferralViewController(input: input)
 
@@ -231,6 +234,19 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
+            embedInNavigationStack: false
+        )
+    }
+
+    private func constructSwapWithDeferredPairResolutionViewController(parameters: PredefinedSwapParameters) -> UIViewController {
+        let coordinator = SendCoordinator(
+            dismissAction: { _ in UIApplication.dismissTop() },
+            popToRootAction: { _ in UIApplication.dismissTop() }
+        )
+        coordinator.start(with: .init(type: .swap(parameters), source: .main))
+
+        return makeDeeplinkViewController(
+            view: { SendCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false
         )
     }
