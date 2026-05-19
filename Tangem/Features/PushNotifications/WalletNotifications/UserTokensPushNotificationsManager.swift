@@ -34,7 +34,7 @@ enum UserWalletPushNotificationsEvent: Equatable {
     case walletsBindingInfoUnavailable
     /// Remote status was fetched or refreshed (e.g., during initial sync or after
     /// a backend response).
-    case handleRemoteStatus(RemoteValueState<Bool>)
+    case handleRemoteValue(Bool)
     /// User toggled the local switch (UI intent).
-    case handleUpdateStatus(Bool)
+    case handleUpdateValue(Bool)
 }

@@ -23,7 +23,7 @@ final class CommonUserTokensPushNotificationsManager {
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     private let updateTrigger: UserTokensPushNotificationsUpdateTrigger
 
-    private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<RemoteValueState<Bool>, Never> = .init(.loading)
+    private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<PushRemoteValueState<Bool>, Never> = .init(.loading)
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
 
     private var updateTask: Task<Void, Error>?
@@ -147,8 +147,8 @@ private extension CommonUserTokensPushNotificationsManager {
 // MARK: - Event Handling
 
 private extension CommonUserTokensPushNotificationsManager {
-    func applyRemoteStatusUpdate(_ status: RemoteValueState<Bool>) {
-        _userWalletPushRemoteStatusSubject.send(status)
+    func applyRemoteStatusUpdate(_ value: Bool) {
+        _userWalletPushRemoteStatusSubject.send(.ready(value))
         updateStatusIfNeeded()
     }
 
@@ -210,9 +210,9 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .handleRemoteStatus(let state):
-            applyRemoteStatusUpdate(state)
-        case .handleUpdateStatus(let value):
+        case .handleRemoteValue(let value):
+            applyRemoteStatusUpdate(value)
+        case .handleUpdateValue(let value):
             applyLocalStatusUpdate(value)
         case .walletBindingWithApplicationSynchronized:
             updateStatusIfNeeded()
