@@ -30,7 +30,7 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         if !isFullRefresh {
             // Destination-only change: re-fetch quotes using the existing amountType
             // to preserve rate direction (e.g. .to for fixed-rate mode).
-            let quoteResult: ExpressManagerUpdatingResult = try await expressManager.update(by: .pairChange)
+            let quoteResult: ExpressManagerUpdatingResult = try await expressManager.autoupdate()
             return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: nil)
         }
 
@@ -43,8 +43,11 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
             by: .pairChange
         )
 
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate? = quoteResult.selected?.getState().quote.map {
-            .setReceiveAmount(crypto: $0.expectAmount, currencyId: destination.tokenItem.currencyId)
+        let amountUpdate: SwapPairUpdateResult.AmountUpdate?
+        if let quote = quoteResult.selected?.getState().quote {
+            amountUpdate = .setReceiveAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId)
+        } else {
+            amountUpdate = nil
         }
 
         return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: amountUpdate)
