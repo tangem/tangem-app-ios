@@ -22,9 +22,6 @@ struct OnrampKYCVerificationSheetView: View {
             NavigationBarButton.close(action: viewModel.close)
                 .padding(.all, 16)
         }
-        .floatingSheetConfiguration { configuration in
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 
     private var content: some View {
