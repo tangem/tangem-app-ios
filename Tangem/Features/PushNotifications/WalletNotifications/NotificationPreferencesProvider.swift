@@ -9,17 +9,16 @@
 import Foundation
 import Combine
 
-/// All members are isolated to the main actor so that callers (typically SwiftUI view models)
-/// never have to reason about cross-thread access to the underlying mutable state.
-@MainActor
+/// Abstraction for reading and updating push-notification channel preferences.
 protocol NotificationPreferencesProvider: AnyObject {
+    /// Emits whenever `remoteStates` changes (fetch, optimistic update, or rollback).
+    var remoteStatesPublisher: AnyPublisher<PushChannelRemoteStates, Never> { get }
+
     /// Remote values for each push channel received from or sent to the backend.
     var remoteStates: PushChannelRemoteStates { get }
 
-    func remoteState(for channel: PushChannel) -> RemoteValueState<PushChannelPreference>
-
     /// Updates the stored remote value for a single channel.
-    func setRemote(state: RemoteValueState<Bool>, for channel: PushChannel)
+    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel)
 
     /// Loads notification preferences from the backend and updates `remoteStates`.
     func fetchPreferences()
