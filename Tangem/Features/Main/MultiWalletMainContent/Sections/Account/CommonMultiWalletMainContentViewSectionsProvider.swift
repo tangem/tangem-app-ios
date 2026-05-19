@@ -154,14 +154,19 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
                 switch item {
                 case .default(let walletModel):
                     let cacheKey = ObjectIdentifier(walletModel)
-                    if let cachedViewModel = cache.tokenItemViewModels[cacheKey] {
+                    if let cachedViewModel = cache.tokenItemViewModelsByWalletModel[cacheKey] {
                         return cachedViewModel
                     }
                     let viewModel = itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
-                    cache.mutate { $0.tokenItemViewModels[cacheKey] = viewModel }
+                    cache.mutate { $0.tokenItemViewModelsByWalletModel[cacheKey] = viewModel }
                     return viewModel
-                case .withoutDerivation:
-                    return itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
+                case .withoutDerivation(let cacheKey):
+                    if let cachedViewModel = cache.tokenItemViewModelsByTokenItem[cacheKey] {
+                        return cachedViewModel
+                    }
+                    let viewModel = itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
+                    cache.mutate { $0.tokenItemViewModelsByTokenItem[cacheKey] = viewModel }
+                    return viewModel
                 }
             }
 
@@ -194,17 +199,27 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
     }
 
     private func purgeCache(using sections: [AccountSectionInput]) {
-        // Token item view models are cached per wallet model
-        let actualTokenItemViewModelsCacheKeys = sections
-            .flatMap(\.sections)
-            .flatMap(\.walletModels)
-            .map(ObjectIdentifier.init)
-            .toSet()
+        var actualTokenItemViewModelsByWalletModelKeys: Set<ObjectIdentifier> = []
+        var actualTokenItemViewModelsByTokenItemKeys: Set<TokenItem> = []
 
-        let tokenItemViewModelsCacheKeysToDelete = cache
-            .tokenItemViewModels
+        for sectionItem in sections.flatMap(\.sections).flatMap(\.items) {
+            switch sectionItem {
+            case .default(let walletModel):
+                actualTokenItemViewModelsByWalletModelKeys.insert(ObjectIdentifier(walletModel))
+            case .withoutDerivation(let tokenItem):
+                actualTokenItemViewModelsByTokenItemKeys.insert(tokenItem)
+            }
+        }
+
+        let tokenItemViewModelsByWalletModelKeysToDelete = cache
+            .tokenItemViewModelsByWalletModel
             .keys
-            .filter { !actualTokenItemViewModelsCacheKeys.contains($0) }
+            .filter { !actualTokenItemViewModelsByWalletModelKeys.contains($0) }
+
+        let tokenItemViewModelsByTokenItemKeysToDelete = cache
+            .tokenItemViewModelsByTokenItem
+            .keys
+            .filter { !actualTokenItemViewModelsByTokenItemKeys.contains($0) }
 
         // Section adapters and account item view models are cached per account
         let actualSectionItemViewModelsCacheKeys = sections
@@ -223,18 +238,21 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
             .filter { !actualSectionItemViewModelsCacheKeys.contains($0) }
 
         purgeCacheIfNeeded(
-            tokenItemViewModelsCacheKeysToDelete: tokenItemViewModelsCacheKeysToDelete,
+            tokenItemViewModelsByWalletModelKeysToDelete: tokenItemViewModelsByWalletModelKeysToDelete,
+            tokenItemViewModelsByTokenItemKeysToDelete: tokenItemViewModelsByTokenItemKeysToDelete,
             tokenSectionsAdaptersCacheKeysToDelete: tokenSectionsAdaptersCacheKeysToDelete,
             accountItemViewModelsCacheKeysToDelete: accountItemViewModelsCacheKeysToDelete
         )
     }
 
     private func purgeCacheIfNeeded(
-        tokenItemViewModelsCacheKeysToDelete: [ObjectIdentifier],
+        tokenItemViewModelsByWalletModelKeysToDelete: [ObjectIdentifier],
+        tokenItemViewModelsByTokenItemKeysToDelete: [TokenItem],
         tokenSectionsAdaptersCacheKeysToDelete: [ObjectIdentifier],
         accountItemViewModelsCacheKeysToDelete: [ObjectIdentifier]
     ) {
-        guard tokenItemViewModelsCacheKeysToDelete.isNotEmpty
+        guard tokenItemViewModelsByWalletModelKeysToDelete.isNotEmpty
+            || tokenItemViewModelsByTokenItemKeysToDelete.isNotEmpty
             || tokenSectionsAdaptersCacheKeysToDelete.isNotEmpty
             || accountItemViewModelsCacheKeysToDelete.isNotEmpty
         else {
@@ -242,8 +260,11 @@ final class CommonMultiWalletMainContentViewSectionsProvider {
         }
 
         cache.mutate { cache in
-            for key in tokenItemViewModelsCacheKeysToDelete {
-                cache.tokenItemViewModels.removeValue(forKey: key)
+            for key in tokenItemViewModelsByWalletModelKeysToDelete {
+                cache.tokenItemViewModelsByWalletModel.removeValue(forKey: key)
+            }
+            for key in tokenItemViewModelsByTokenItemKeysToDelete {
+                cache.tokenItemViewModelsByTokenItem.removeValue(forKey: key)
             }
             for key in tokenSectionsAdaptersCacheKeysToDelete {
                 cache.tokenSectionsAdapters.removeValue(forKey: key)
@@ -315,18 +336,6 @@ extension CommonMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
     }
 }
 
-// MARK: - MainScreenUIOrderedTokensProviding
-
-extension CommonMultiWalletMainContentViewSectionsProvider: MainScreenUIOrderedTokensProviding {
-    var uiOrderedWalletModelsPublisher: AnyPublisher<[any WalletModel], Never> {
-        commonSectionsPublisher
-            .map { input in
-                input.accountSections.flatMap { $0.sections.flatMap(\.walletModels) }
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - Auxiliary types
 
 private extension CommonMultiWalletMainContentViewSectionsProvider {
@@ -336,8 +345,10 @@ private extension CommonMultiWalletMainContentViewSectionsProvider {
         var accountItemViewModels: [ObjectIdentifier: ExpandableAccountItemViewModel] = [:]
         /// Keyed by `ObjectIdentifier` of `CryptoAccountModel`.
         var tokenSectionsAdapters: [ObjectIdentifier: TokenSectionsAdapter] = [:]
-        /// Keyed by `ObjectIdentifier` of `WalletModel`.
-        var tokenItemViewModels: [ObjectIdentifier: TokenItemViewModel] = [:]
+        /// Keyed by `ObjectIdentifier` of `WalletModel`, used for `.default` section items (reference semantics).
+        var tokenItemViewModelsByWalletModel: [ObjectIdentifier: TokenItemViewModel] = [:]
+        /// Keyed by `TokenItem`, used for `.withoutDerivation` section items (value semantics).
+        var tokenItemViewModelsByTokenItem: [TokenItem: TokenItemViewModel] = [:]
     }
 
     /// Temporary internal-only type representing account section input.

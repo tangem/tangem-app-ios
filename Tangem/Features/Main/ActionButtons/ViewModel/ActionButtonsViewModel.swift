@@ -53,8 +53,7 @@ final class ActionButtonsViewModel: ObservableObject {
     init(
         coordinator: some ActionButtonsRoutable,
         userWalletModel: some UserWalletModel,
-        swapAvailabilityChecker: SwapAvailabilityChecker,
-        tokensOrderProvider: (any MainScreenUIOrderedTokensProviding)?
+        swapAvailabilityChecker: SwapAvailabilityChecker
     ) {
         self.userWalletModel = userWalletModel
         self.swapAvailabilityChecker = swapAvailabilityChecker
@@ -70,8 +69,7 @@ final class ActionButtonsViewModel: ObservableObject {
             model: .swap,
             coordinator: coordinator,
             lastButtonTapped: lastButtonTapped,
-            userWalletModel: userWalletModel,
-            tokensOrderProvider: tokensOrderProvider
+            userWalletModel: userWalletModel
         )
 
         buyActionButtonViewModel = BuyActionButtonViewModel(

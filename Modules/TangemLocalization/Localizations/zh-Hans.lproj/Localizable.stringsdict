@@ -343,10 +343,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li card</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li卡片</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -388,7 +386,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>Adressen synchronisieren, um eine Adresse für das Netzwerk %li zu erhalten</string>
+        <string>同步地址以获取%li网络地址</string>
       </dict>
     </dict>
   </dict>

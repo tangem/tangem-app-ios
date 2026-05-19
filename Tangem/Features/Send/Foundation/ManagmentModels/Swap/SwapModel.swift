@@ -54,6 +54,7 @@ final class SwapModel {
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
+    private let swapTokenPairResolver: MainSwapPairResolver?
 
     private let balanceConverter = BalanceConverter()
     private var bag: Set<AnyCancellable> = []
@@ -71,7 +72,8 @@ final class SwapModel {
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
-        shouldStartInitialLoading: Bool
+        shouldStartInitialLoading: Bool,
+        swapTokenPairResolver: MainSwapPairResolver? = nil
     ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
@@ -82,6 +84,7 @@ final class SwapModel {
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
+        self.swapTokenPairResolver = swapTokenPairResolver
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
         preselectedTokenChangeAnalyticsLogger = SwapPreselectedTokenChangeAnalyticsLogger(
@@ -107,7 +110,7 @@ final class SwapModel {
 
     deinit {
         updateTask?.cancel()
-        ExpressLogger.debug("deinit SwapModel")
+        ExpressLogger.debug(self, "deinit")
     }
 }
 
@@ -324,7 +327,7 @@ extension SwapModel {
                     await input.updateRateType()
                 }
             } catch is CancellationError {
-                ExpressLogger.debug("updateTask was cancelled")
+                ExpressLogger.info("updateTask was cancelled")
                 // Do nothing
             } catch {
                 input.analyticsLogger.logSwapErrorExpressQuote(
@@ -337,7 +340,7 @@ extension SwapModel {
     }
 
     func update(providersState: ProvidersState) {
-        ExpressLogger.debug(self, "ProvidersState will update to: \(providersState)")
+        ExpressLogger.info(self, "ProvidersState will update to: \(providersState)")
 
         _providersState.send(providersState)
     }
@@ -808,16 +811,23 @@ extension SwapModel {
         }
     }
 
-    /// V2 initial loading: avoids source/destination resolution requests and applies the already resolved token state.
-    /// Nil tokens (not resolved by `SwapTokenPairResolver`) get `.failure(.tokenSelectionRequired)`.
-    /// If both tokens are already resolved, `swappingPairDidChange()` is triggered to validate/refresh pair availability,
-    /// which may update pairs and perform network-backed repository work.
     private func initialLoadingV2() async {
         switch (_sourceToken.value, _receiveToken.value) {
         case (.success, .success):
             swappingPairDidChange()
 
         case (.success, _):
+            let initialSourceTokenItem = _sourceToken.value.value?.tokenItem
+
+            if let swapTokenPairResolver,
+               let resolvedSource = await swapTokenPairResolver.resolve(),
+               let currentSource = _sourceToken.value.value,
+               // if false that means the user has already changed the source and we respect its choice
+               currentSource.tokenItem == initialSourceTokenItem,
+               currentSource.tokenItem != resolvedSource.tokenItem {
+                update(source: resolvedSource)
+            }
+
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
 
         case (_, .success):
