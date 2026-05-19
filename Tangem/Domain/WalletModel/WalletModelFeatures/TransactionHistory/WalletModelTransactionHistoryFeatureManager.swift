@@ -1,5 +1,5 @@
 //
-//  CommonWalletModelTransactionHistoryFeatureManager.swift
+//  WalletModelTransactionHistoryFeatureManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-final class CommonWalletModelTransactionHistoryFeatureManager {
+final class WalletModelTransactionHistoryFeatureManager {
     private let key: TransactionHistoryProviderKey
     private let tokenItem: TokenItem
     private let registry: TransactionHistoryProviderRegistry
@@ -61,7 +61,7 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
 
 // MARK: - WalletModelFeatureManager protocol conformance
 
-extension CommonWalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
+extension WalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
     var featurePayload: TransactionHistorySyncing? { transactionHistoryProviderSubject.value }
 
     var featurePayloadPublisher: AnyPublisher<TransactionHistorySyncing?, Never> {
