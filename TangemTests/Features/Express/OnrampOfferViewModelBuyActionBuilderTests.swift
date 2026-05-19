@@ -290,7 +290,11 @@ private final class StubPKPaymentToken: PKPaymentToken {
 
 private final class StubPKPayment: PKPayment {
     override var token: PKPaymentToken { StubPKPaymentToken() }
-    override var billingContact: PKContact? { nil }
+    override var billingContact: PKContact? {
+        let contact = PKContact()
+        contact.emailAddress = "test@example.com"
+        return contact
+    }
 }
 
 private extension OnrampFiatCurrency {
