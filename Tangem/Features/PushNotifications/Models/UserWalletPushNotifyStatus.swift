@@ -30,13 +30,8 @@ enum UserWalletPushNotifyStatus: Equatable {
         self == .enabled
     }
 
-    var isInteractionEnabled: Bool {
-        switch self {
-        case .loading, .failed:
-            return false
-        default:
-            return true
-        }
+    var isNotInitialized: Bool {
+        self == .loading || self == .failed
     }
 }
 

@@ -80,11 +80,11 @@ class UserWalletModelMock: UserWalletModel {
     }
 
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+        // [REDACTED_TODO_COMMENT]
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
-            notificationPreferencesProvider: NotificationPreferencesProviderStub()
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
         )
     }
 

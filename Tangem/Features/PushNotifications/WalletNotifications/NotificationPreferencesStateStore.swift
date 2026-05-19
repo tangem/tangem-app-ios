@@ -28,6 +28,8 @@ actor NotificationPreferencesStateStore {
             states[channel] = .loading
         case .failed:
             states[channel] = .failed
+        case .pending(let isEnabled):
+            states[channel] = .pending(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
         case .ready(let isEnabled):
             states[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
         }
@@ -82,7 +84,7 @@ actor NotificationPreferencesStateStore {
 
         var optimisticStates = remoteStates
         for (channel, isEnabled) in preferences {
-            optimisticStates.setEnabled(isEnabled, for: channel)
+            optimisticStates.setPendingEnabled(isEnabled, for: channel)
         }
 
         // Always revert to a server-confirmed snapshot, never to whatever happens to be in
@@ -108,9 +110,10 @@ actor NotificationPreferencesStateStore {
 
         switch completion {
         case .success(let optimisticStates):
-            remoteStates = optimisticStates
-            lastConfirmedStates = optimisticStates
-            return nil
+            let settledStates = optimisticStates.settlingPendingToReady()
+            remoteStates = settledStates
+            lastConfirmedStates = settledStates
+            return settledStates
         case .failure(let rollbackTarget):
             remoteStates = rollbackTarget
             return rollbackTarget

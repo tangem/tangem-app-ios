@@ -15,11 +15,11 @@ import TangemFoundation
 final class CommonNotificationPreferencesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let userWalletId: String
+    private let userWalletId: UserWalletId
     private let stateStore = NotificationPreferencesStateStore()
     private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
 
-    nonisolated init(userWalletId: String) {
+    nonisolated init(userWalletId: UserWalletId) {
         self.userWalletId = userWalletId
     }
 }
@@ -48,7 +48,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
             do {
                 let response = try await provider.tangemApiService.getNotificationPreferences(
-                    userWalletId: provider.userWalletId
+                    userWalletId: provider.userWalletId.stringValue
                 )
 
                 guard !Task.isCancelled else { return }
@@ -87,7 +87,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
             do {
                 try await provider.tangemApiService.updateNotificationPreferences(
-                    userWalletId: provider.userWalletId,
+                    userWalletId: provider.userWalletId.stringValue,
                     preferences: request
                 )
 
@@ -99,10 +99,14 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
                     return
                 }
 
-                _ = await provider.stateStore.finishUpdate(
+                guard let settledStates = await provider.stateStore.finishUpdate(
                     token: context.token,
                     completion: .success(context.optimisticStates)
-                )
+                ) else {
+                    return
+                }
+
+                await provider.publish(settledStates)
             } catch is CancellationError {
                 // A newer write has taken over and captured its own rollback target; leaving
                 // `remoteStatesSubject` on the latest optimistic value is intentional.
