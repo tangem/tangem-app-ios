@@ -188,7 +188,6 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
             receiveTokensListBuilder: sendReceiveTokensListBuilder,
             providersSelector: providers.selector,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendWithSwapModel),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             initialStep: predefinedInitialStep,
             router: router
         )
@@ -229,14 +228,14 @@ extension SendWithSwapFlowFactory: SendBaseBuildable {
                 dataProvider: sendWithSwapModel,
                 analyticsLogger: analyticsLogger,
                 output: sendWithSwapModel,
-                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
+                confirmTransactionPolicy: sourceToken.confirmTransactionPolicy
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: sendWithSwapModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: sourceToken.tangemIconProvider
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: sendWithSwapModel)
         )
     }
 }
