@@ -216,7 +216,6 @@
 "common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "Continue";
 "common_convert" = "Convert";
-"common_cookie_policy" = "Cookie Policy";
 "common_copy_address" = "Copy address";
 "common_copy" = "Copy";
 "common_create" = "Create";
@@ -974,10 +973,6 @@
 "onramp_title_available_from" = "Available from";
 "onramp_title_available_up_to" = "Available up to";
 "onramp_title_you_get" = "You get";
-"onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1$@ may require identity verification with %2$@";
-"onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1$@'s %2$@ and %3$@.";
-"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
-"onramp_provider_requirements_title" = "Provider requirements";
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "You can close this screen and check the transaction status on the token details screen.";
 "onramp_up_to_rate" = "Up to";
