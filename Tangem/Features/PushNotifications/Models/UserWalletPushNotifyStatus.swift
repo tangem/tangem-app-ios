@@ -29,6 +29,15 @@ enum UserWalletPushNotifyStatus: Equatable {
     var isActive: Bool {
         self == .enabled
     }
+
+    var isInteractionEnabled: Bool {
+        switch self {
+        case .loading, .failed:
+            return false
+        default:
+            return true
+        }
+    }
 }
 
 extension UserWalletPushNotifyStatus: CustomStringConvertible {

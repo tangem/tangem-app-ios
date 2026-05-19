@@ -9,11 +9,12 @@
 import Foundation
 import Combine
 
+// [REDACTED_TODO_COMMENT]
 protocol UserTokensPushNotificationsManager {
+    @available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications.")
     var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> { get }
+    @available(*, deprecated, message: "Will be removed after full migration to channel-based push notifications.")
     var status: UserWalletPushNotifyStatus { get }
-
-    var isNotInitialized: Bool { get }
 
     /// True when the permission warning row should be visible — i.e., push notifications
     /// are enabled on the backend but the iOS system permission is not granted.
@@ -21,6 +22,7 @@ protocol UserTokensPushNotificationsManager {
 
     func dispatch(_ event: UserTokensPushEvent)
 
+    @available(*, deprecated, message: "Will be removed after full migration to channel-based push notifications.")
     func getInitialPushStatusWithAllowance() async -> Bool
 }
 
