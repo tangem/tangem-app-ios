@@ -41,9 +41,13 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
-        networkService
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
+        return networkService
             .getAccountTransactions(
-                account: request.address,
+                account: address,
                 limit: request.limit,
                 marker: marker
             )
@@ -58,7 +62,7 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
 
                 let records = try mapper.mapToTransactionRecords(
                     response.transactions,
-                    walletAddress: request.address,
+                    walletAddress: address,
                     amountType: request.amountType
                 )
                 .filter { [weak self] record in

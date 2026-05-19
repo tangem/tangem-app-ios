@@ -26,7 +26,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var isLoadingTokenList: Bool = true
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var tokensNotificationInputs: [NotificationViewInput] = []
-    @Published private(set) var bannerNotificationInputs: [NotificationViewInput] = []
 
     @Published private(set) var accountSections: [MultiWalletMainContentAccountSection] = []
     @Published private(set) var plainSections: [MultiWalletMainContentPlainSection] = []
@@ -86,7 +85,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let sectionsProvider: any MultiWalletMainContentViewSectionsProvider
     private let tokensNotificationManager: NotificationManager
-    private let bannerNotificationManager: NotificationManager?
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
     private let tokenRouter: SingleTokenRoutable
@@ -111,7 +109,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         sectionsProvider: any MultiWalletMainContentViewSectionsProvider,
         tokensNotificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
@@ -124,7 +121,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.sectionsProvider = sectionsProvider
         self.tokensNotificationManager = tokensNotificationManager
-        self.bannerNotificationManager = bannerNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.rateAppController = rateAppController
@@ -136,7 +132,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         notificationBannerItemsProvider = NotificationBannerItemsProvider(
             userWalletNotificationManager: userWalletNotificationManager,
             tokensNotificationManager: tokensNotificationManager,
-            bannerNotificationManager: bannerNotificationManager,
             tangemPayNotificationManager: tangemPayNotificationManager
         )
 
@@ -159,7 +154,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     deinit {
-        AppLogger.debug("\(userWalletModel.name) deinit")
+        AppLogger.debug("MultiWalletMainContentViewModel \(userWalletModel.name) deinit")
     }
 
     func onDidAppear() {
@@ -217,7 +212,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel)
+        let analyticsLogger = TokensManagementAnalyticsLogger()
+        analyticsLogger.logButtonAddAndOrganize()
+
+        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel, analyticsLogger: analyticsLogger)
         coordinator?.openAddAndManageTokens(factory: factory)
     }
 
@@ -311,13 +309,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        bannerNotificationManager?
-            .notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         notificationBannerItemsProvider.$items
@@ -832,7 +823,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             delegate?.displayAddressCopiedToast()
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(.init(walletModel: walletModel)),
+                origin: .tokenDetails(walletModel: walletModel),
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
                 return

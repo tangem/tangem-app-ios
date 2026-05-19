@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 import TangemVisa
 
 class TangemPayMainCoordinator: CoordinatorObject {
@@ -140,6 +141,38 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
                 userWalletId: options.userWalletInfo.id,
                 coordinator: self
             )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openMaximumCardsIssuedSheet() {
+        let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(
+            onClose: { [weak self] in
+                Task { @MainActor in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            }
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openIssueAdditionalCardCostPopup(
+        offer: TangemPayCustomerOffer,
+        fee: TangemPayCustomerOffer.Fee,
+        issueCard: @escaping () async throws -> Void
+    ) {
+        guard let options else { return }
+        let viewModel = TangemPayIssueAdditionalCardCostPopupViewModel(
+            offer: offer,
+            fee: fee,
+            userWalletId: options.userWalletInfo.id,
+            tangemPayAccount: options.tangemPayAccount,
+            issueCard: issueCard,
+            coordinator: self
+        )
+        Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -409,10 +442,20 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
         tangemPayDailyLimitViewModel = TangemPayDailyLimitViewModel(tangemPayAccount: tangemPayAccount, coordinator: self)
     }
 
-    func openTangemPayReissueSheet(userWalletId: UserWalletId, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayReissueSheet(
+        userWalletId: UserWalletId,
+        tangemPayAccount: TangemPayAccount,
+        onError: @escaping () -> Void
+    ) {
         Task { @MainActor in
             do {
-                let feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                let feeResponse: TangemPayFeeResponse
+                if let cached = await tangemPayAccount.feeRepository.getFee(for: .cardReplacement) {
+                    feeResponse = cached
+                } else {
+                    feeResponse = try await tangemPayAccount.customerService.getFee(type: .cardReplacement)
+                    await tangemPayAccount.feeRepository.setFee(feeResponse, for: .cardReplacement)
+                }
                 let balance = try await tangemPayAccount.customerService.getBalance()
 
                 let feeText = Self.formatFee(amount: feeResponse.amount, currency: feeResponse.currency)
@@ -423,11 +466,13 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
                     tangemPayAccount: tangemPayAccount,
                     feeText: feeText,
                     isInsufficientFunds: isInsufficientFunds,
-                    coordinator: self
+                    coordinator: self,
+                    onError: onError
                 )
                 floatingSheetPresenter.enqueue(sheet: viewModel)
             } catch {
                 VisaLogger.error("Failed to load reissue fee", error: error)
+                onError()
             }
         }
     }
@@ -463,5 +508,37 @@ extension TangemPayMainCoordinator: TangemPayReissueSheetRoutable {
 extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
     func closeTangemPayDailyLimit() {
         tangemPayDailyLimitViewModel = nil
+    }
+}
+
+// MARK: - TangemPayIssueAdditionalCardCostPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutable {
+    func issueCostPopupDidConfirm() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func issueCostPopupDidRequestAddFunds() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            rootViewModel?.addFunds()
+        }
+    }
+
+    func issueCostPopupDidFail(error: Error) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            rootViewModel?.alert = error.alertBinder
+        }
+    }
+
+    func issueCostPopupDidCancel() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }

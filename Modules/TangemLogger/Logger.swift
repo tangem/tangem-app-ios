@@ -97,8 +97,8 @@ private extension Logger {
         // `.console` is debug-only by design — suppress everywhere (console and file) in non-debug.
         guard checkIfConsoleLogAllowed() else { return }
 
-        let shouldWriteToConsole = Logger.configuration.isLoggable()
-        let shouldWriteToFile = Logger.configuration.isWritable()
+        let shouldWriteToConsole = Logger.configuration.shouldLogMessage(with: level)
+        let shouldWriteToFile = Logger.configuration.shouldWriteMessage(with: level)
 
         // Skip the entire pipeline — including the caller's `@autoclosure` — when nothing will be
         // written.

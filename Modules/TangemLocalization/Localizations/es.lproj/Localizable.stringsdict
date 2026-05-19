@@ -264,9 +264,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <string>Su wallet contiene %li token. Para continuar, por favor sincronice sus direcciones.</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>Su wallet contiene %li tokens. Para continuar, por favor sincronice sus direcciones.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -381,6 +381,22 @@
         <string>Los tokens %li no son compatibles con esta dirección</string>
       </dict>
     </dict>
+    <key>tangempay_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -411,6 +427,22 @@
         <string>Use su tarjeta o anillo para obtener una dirección para la red %li</string>
         <key>other</key>
         <string>Use su tarjeta o anillo para obtener direcciónes para las redes %li</string>
+      </dict>
+    </dict>
+    <key>warning_missing_derivation_no_nfc_message</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Sincronice direcciones para obtener una dirección de la red %li</string>
+        <key>other</key>
+        <string>Sincronice direcciones para obtener direcciones de las redes %li</string>
       </dict>
     </dict>
   </dict>

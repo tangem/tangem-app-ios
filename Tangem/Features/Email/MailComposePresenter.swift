@@ -21,8 +21,7 @@ final class MailComposePresenter: NSObject {
         guard MFMailComposeViewController.canSendMail() else {
             emailInProcess = nil
             completionInProcess = nil
-            let viewController = UIHostingController(rootView: NoMailAccountPlaceholderView())
-            present(viewController: viewController)
+            presentMailFallbackActionSheet(viewModel: viewModel)
             return
         }
 
@@ -57,6 +56,45 @@ extension MailComposePresenter {
 
         presentingViewController?.present(viewController, animated: true)
     }
+
+    private func presentMailFallbackActionSheet(viewModel: MailViewModel) {
+        Analytics.log(.emailNoMailSheetOpened, analyticsSystems: .all)
+
+        let fallbackView = MailFallbackView(
+            openMailAction: { [weak self] in self?.openMail(viewModel: viewModel) },
+            shareLogsAction: { [weak self] in self?.shareLogs(viewModel: viewModel) }
+        )
+
+        let hostingController = UIHostingController(rootView: fallbackView)
+        hostingController.sheetPresentationController?.detents = [.custom { _ in MailFallbackView.preferredHeight }]
+        hostingController.sheetPresentationController?.prefersGrabberVisible = true
+        present(viewController: hostingController)
+    }
+
+    private func openMail(viewModel: MailViewModel) {
+        Analytics.log(.emailOpenMail, analyticsSystems: .all)
+
+        var components = URLComponents(string: "mailto:\(viewModel.recipient)")
+        components?.queryItems = [URLQueryItem(name: "subject", value: viewModel.emailType.emailSubject)]
+        if let preface = viewModel.emailType.emailPreface {
+            components?.queryItems?.append(URLQueryItem(name: "body", value: preface))
+        }
+        if let url = components?.url {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    private func shareLogs(viewModel: MailViewModel) {
+        Analytics.log(.emailShareLogs, analyticsSystems: .all)
+
+        viewModel.logsComposer.getZipLogsData { data in
+            Task { @MainActor in
+                guard let archiveURL = data?.1 else { return }
+                let activityVC = UIActivityViewController(activityItems: [archiveURL], applicationActivities: nil)
+                self.present(viewController: activityVC)
+            }
+        }
+    }
 }
 
 // MARK: - Factory methods
@@ -77,10 +115,6 @@ extension MailComposePresenter {
             messageBody.append("\n")
             messageBody.append(preface)
             messageBody.append("\n\n")
-        }
-
-        if let log = viewModel.logsComposer.getInfoData(), let messageLog = String(data: log, encoding: .utf8) {
-            messageBody.append(messageLog)
         }
 
         viewController.setMessageBody(messageBody, isHTML: false)
