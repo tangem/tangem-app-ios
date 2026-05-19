@@ -22,7 +22,7 @@ final actor TransactionHistoryProvider {
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
 
-    private var hasCompletedInitial: Bool = false
+    private var hasCompletedInitialSync: Bool = false
     private var lastSuccessfulPullToRefreshAt: Date?
 
     /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
@@ -61,7 +61,7 @@ final actor TransactionHistoryProvider {
     private func performInitialSync() async {
         // [REDACTED_TODO_COMMENT]
         emit(.syncing(.initial))
-        hasCompletedInitial = true
+        hasCompletedInitialSync = true
         emit(.idle(.ready))
     }
 
@@ -125,7 +125,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncDelta() async {
-        guard hasCompletedInitial else {
+        guard hasCompletedInitialSync else {
             return
         }
 
@@ -143,7 +143,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
-        guard hasCompletedInitial else {
+        guard hasCompletedInitialSync else {
             return
         }
 
