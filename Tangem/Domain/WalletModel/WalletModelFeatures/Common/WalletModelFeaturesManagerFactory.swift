@@ -33,7 +33,8 @@ struct WalletModelFeaturesManagerFactory {
         )
 
         let transactionHistoryFeatureManager = WalletModelTransactionHistoryFeatureManager(
-            key: TransactionHistoryProviderKey(address: walletManager.wallet.address), // [REDACTED_TODO_COMMENT]
+            // [REDACTED_TODO_COMMENT]
+            key: TransactionHistoryProviderKey(address: walletManager.wallet.address),
             tokenItem: tokenItem,
             registry: transactionHistoryProviderRegistry
         )
