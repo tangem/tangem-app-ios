@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "You only have 1 token added to your portfolio. To use the exchange feature, you need to add at least 2 tokens.";
 "action_buttons_you_want_to_receive" = "Choose the token you want to receive";
 "action_buttons_you_want_to_swap" = "Choose the token you want to swap";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "Send only %1$@ (%2$@) from %3$@ network to this address. Using other tokens and networks may result in loss of funds.";
 "address_type_default" = "Default";
 "address_type_legacy" = "Legacy";
@@ -247,6 +254,7 @@
 "common_hold_to" = "Hold to %@";
 "common_import" = "Import";
 "common_in_progress" = "In progress";
+"common_in" = "in";
 "common_insufficient_balance" = "Insufficient balance";
 "common_later" = "Later";
 "common_learn_and_earn" = "Learn & Earn";
@@ -324,11 +332,13 @@
 "common_to" = "To";
 "common_today" = "Today";
 "common_token_send" = "Token to send";
+"common_token" = "Token";
 "common_transaction_failed" = "Transaction failed";
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
 "common_transferred" = "Transferred";
+"common_try_again_later" = "Please try again later.";
 "common_understand_continue" = "I understand, continue";
 "common_understand" = "I understand";
 "common_unknown_error" = "There was an error. Please try again.";
@@ -433,6 +443,9 @@
 "earn_mostly_used" = "Popular";
 "earn_no_results" = "No results";
 "earn_title" = "Staking & Yield mode";
+"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_open_mail_button" = "Open mail";
+"email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Hi support team, I've encountered an error with code: %@";
 "email_subject_wc_error" = "WalletConnect error";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
@@ -858,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Other options";
 "onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the chip. There is no seed phrase, which means nobody can export or steal it.";
 "onboarding_create_wallet_options_title" = "Generate keys privately";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the \n%@";
 "onboarding_done_body" = "Your card is activated and ready to be used";
 "onboarding_done_header" = "Success!";
 "onboarding_done_wallet" = "Your wallet is set up and ready to use!";
@@ -934,12 +948,16 @@
 "onramp_legal" = "By using onramp functionality, you agree with provider’s %1$@ and %2$@";
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
+"onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
+"onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "No available providers for this currency";
 "onramp_offer_type_fastet" = "Quickest processing";
 "onramp_pay_with" = "Pay with";
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
 "onramp_provider_min_amount" = "Available from %@";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verificatio";
+"onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Providers";
 "onramp_recently_used_title" = "Recently used";
 "onramp_recommended_title" = "Recommended";
@@ -962,6 +980,8 @@
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Group";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
@@ -1211,6 +1231,7 @@
 "staking_details_warmup_period_info" = "The allocated time for activating participation in staking.";
 "staking_details_warmup_period" = "Warmup period";
 "staking_dismiss_message" = "Are you sure you want to close the staking screen?";
+"staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
@@ -1340,7 +1361,7 @@
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Unbeatable Rates";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simply Convenient";
@@ -1450,6 +1471,7 @@
 "tangempay_card_details_reissue_card" = "Replace card";
 "tangempay_card_details_rename_card_invalid_description" = "Only letters and numbers are allowed";
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
+"tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Reveal";
 "tangempay_card_details_show_details" = "Show details";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
@@ -1487,8 +1509,15 @@
 "tangempay_get_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_go_to_support" = "Go to Support";
+"tangempay_issue_additional_card_description" = "It generates a new set of card details";
+"tangempay_issue_additional_card_fee_label" = "Issue fee";
+"tangempay_issue_additional_card_insufficient_funds_subtitle" = "Deposit USDC to payment account to cover the issuing fee";
+"tangempay_issue_additional_card_insufficient_funds_title" = "Unable to cover fee";
+"tangempay_issue_additional_card_title" = "Issue an additional card?";
 "tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
+"tangempay_issue_card" = "Issue card";
+"tangempay_issuing_new_digital_card_title" = "Issuing a new digital card";
 "tangempay_issuing_your_card_description" = "The card is usually issued automatically within 5 minutes. In rare cases, if manual review is required, it may take up to 48 hours.";
 "tangempay_issuing_your_card" = "Issuing your card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
@@ -1505,6 +1534,8 @@
 "tangempay_kyc_rejected_description_span" = "your profile.";
 "tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
 "tangempay_kyc_rejected" = "Rejected";
+"tangempay_maximum_cards_issued_description" = "You can have up to 3 cards. Delete one to add a new card.";
+"tangempay_maximum_cards_issued_title" = "Maximum Cards Issued";
 "tangempay_onboarding_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_onboarding_banner_title" = "Use USDC for everyday payments";
 "tangempay_onboarding_get_card_button_text" = "Get card";
@@ -1536,6 +1567,7 @@
 "tangempay_service_unreachable_try_later" = "Unable to display details. However, card payments are still working.";
 "tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_status_deactivated" = "Card deactivated";
+"tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed" = "Session expired";
 "tangempay_tangem_visa_card" = "Use USDC for everyday payments";
@@ -1565,7 +1597,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choose address";
-"token_details_earn_staking_subtitle" = "Earn up to %@ a year";
+"token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Generate XPUB";
 "token_details_hide_alert_hide" = "Hide";
 "token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime through the manage tokens page.";
@@ -1613,6 +1645,7 @@
 "transaction_history_transaction_validator" = "validator: %@";
 "transaction_notifications_warning_description" = "Notifications are enabled but won't work until you allow notifications in your device settings.";
 "transaction_notifications_warning_title" = "Transaction Notifications";
+"transfer_in_progress_title" = "Transfer in progress";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "The minimum transaction amount is %1$@.";
 "tron_will_be_send_token_fee_description" = "Tron network fees for popular tokens can be higher. Staking TRX may help reduce transaction costs.";
@@ -1642,7 +1675,9 @@
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
 "user_push_notification_agreement_argument_three" = "Get notified of incoming transactions";
+"user_push_notification_agreement_argument_two_subtitle_v2" = "Price change alerts, product news, and exclusive offers";
 "user_push_notification_agreement_argument_two_subtitle" = "Early access to fresh features and exclusive offers.";
+"user_push_notification_agreement_argument_two_title_v2" = "Offers & Updates";
 "user_push_notification_agreement_argument_two_title" = "Feature and News Updates";
 "user_push_notification_agreement_argument_two" = "Be the first to know about new promotions";
 "user_push_notification_agreement_header" = "Would you like to use\nPush-notifications?";

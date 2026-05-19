@@ -186,7 +186,7 @@ struct SendView: View {
     private func bottomActionButton(_ mainButtonType: SendMainButtonType) -> some View {
         if viewModel.mainButtonUpdating {
             bottomAction(type: mainButtonType, isLoading: true)
-        } else if viewModel.needsHoldAction(mainButtonType: mainButtonType) {
+        } else if viewModel.mainButtonNeedsHoldAction(mainButtonType: mainButtonType) {
             bottomHoldAction(mainButtonType)
         } else {
             bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonLoading)
@@ -196,7 +196,7 @@ struct SendView: View {
     private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
         MainButton(
             title: mainButtonType.title(action: viewModel.flowActionType),
-            icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
+            icon: viewModel.mainButtonIcon(mainButtonType: mainButtonType),
             style: .primary,
             size: .default,
             isLoading: isLoading,

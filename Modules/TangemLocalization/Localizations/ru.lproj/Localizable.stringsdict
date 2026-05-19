@@ -328,9 +328,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <string>В вашем кошельке %li токен. Синхронизируйте адреса, чтобы продолжить.</string>
+        <key>few</key>
+        <string>В вашем кошельке %li токена. Синхронизируйте адреса, чтобы продолжить.</string>
+        <key>many</key>
+        <string>В вашем кошельке %li токенов. Синхронизируйте адреса, чтобы продолжить.</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>В вашем кошельке %li токенов. Синхронизируйте адреса, чтобы продолжить.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -473,6 +477,22 @@
         <string>%li tokens aren't compatible with this address</string>
       </dict>
     </dict>
+    <key>tangempay_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -507,6 +527,26 @@
         <string>Используйте вашу карту или кольцо, чтобы получить адреса для %li сетей</string>
         <key>other</key>
         <string>Используйте вашу карту или кольцо, чтобы получить адреса для %li сетей</string>
+      </dict>
+    </dict>
+    <key>warning_missing_derivation_no_nfc_message</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Синхронизируйте адреса, чтобы получить адрес для %li сети</string>
+        <key>few</key>
+        <string>Синхронизируйте адреса, чтобы получить адреса для %li сетей</string>
+        <key>many</key>
+        <string>Синхронизируйте адреса, чтобы получить адреса для %li сетей</string>
+        <key>other</key>
+        <string>Синхронизируйте адреса, чтобы получить адреса для %li сетей</string>
       </dict>
     </dict>
   </dict>

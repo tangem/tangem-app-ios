@@ -29,20 +29,16 @@ struct TangemPayDailyLimitSectionView: View {
         case .loaded(let currentLimit):
             loadedRow(currentLimit: currentLimit)
         case .error:
-            VStack(alignment: .leading) {
-                DefaultHeaderView(Localization.tangempayCardPageDailyLimitTitle)
-                    .padding(.vertical, 12)
+            VStack(alignment: .leading, spacing: 14) {
                 errorRow
                 errorBanner
-                    .padding(.top, 10)
             }
         }
     }
 
     private var loadingRow: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 12) {
             DefaultHeaderView(Localization.tangempayCardPageDailyLimitTitle)
-                .padding(.vertical, 12)
             HStack(spacing: 12) {
                 iconView
 
@@ -67,9 +63,9 @@ struct TangemPayDailyLimitSectionView: View {
     }
 
     private func loadedRow(currentLimit: String) -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             DefaultHeaderView(Localization.tangempayCardPageDailyLimitTitle)
-                .padding(.vertical, 12)
+                .padding(.bottom, 8)
             HStack(spacing: 12) {
                 iconView
 
@@ -96,7 +92,6 @@ struct TangemPayDailyLimitSectionView: View {
                 }
             }
         }
-
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(Colors.Background.primary)
@@ -104,18 +99,21 @@ struct TangemPayDailyLimitSectionView: View {
     }
 
     private var errorRow: some View {
-        HStack(spacing: 12) {
-            iconView
+        VStack(alignment: .leading, spacing: 12) {
+            DefaultHeaderView(Localization.tangempayCardPageDailyLimitTitle)
+            HStack(spacing: 12) {
+                iconView
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text(Localization.tangempayCardPageDailyLimitCurrentLimit)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(Localization.tangempayCardPageDailyLimitCurrentLimit)
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                Text("—")
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    Text("—")
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                }
+
+                Spacer()
             }
-
-            Spacer()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
@@ -125,11 +123,7 @@ struct TangemPayDailyLimitSectionView: View {
 
     private var errorBanner: some View {
         HStack(spacing: 12) {
-            Assets.attention.image
-                .resizable()
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.attention)
-                .frame(width: 20, height: 20)
+            Assets.attention20.image
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(Localization.tangempayCardPageDailyLimitErrorTitle)
@@ -149,4 +143,13 @@ struct TangemPayDailyLimitSectionView: View {
     private var iconView: some View {
         Assets.Visa.dailyLimit.image
     }
+}
+
+#Preview {
+    VStack(spacing: 8) {
+        TangemPayDailyLimitSectionView(state: .loading, isFrozen: false, changeAction: {})
+        TangemPayDailyLimitSectionView(state: .loaded(currentLimit: "50"), isFrozen: false, changeAction: {})
+        TangemPayDailyLimitSectionView(state: .error, isFrozen: false, changeAction: {})
+    }
+    .preferredColorScheme(.dark)
 }
