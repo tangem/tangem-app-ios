@@ -70,7 +70,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
             .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
     }
