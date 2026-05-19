@@ -36,7 +36,7 @@ final class PushNotificationsSyncWalletsProvider {
 
     func handleSyncErrorForAllWallets() {
         for userWalletModel in userWalletRepository.models {
-            userWalletModel.userTokensPushNotificationsManager.dispatch(.walletsBindingInfoUnavailable)
+            userWalletModel.userTokensPushNotificationsManager.process(.walletsBindingInfoUnavailable)
         }
     }
 }
@@ -86,15 +86,15 @@ private extension PushNotificationsSyncWalletsProvider {
     func resolveNewlyConnectedEntry(for model: UserWalletModel) async -> ApplicationWalletEntry {
         let walletId = model.userWalletId.stringValue
 
+        let notifyStatus = await model.userTokensPushNotificationsManager.getInitialPushStatusWithAllowance()
+
         if let remoteWallet = try? await tangemApiService.getUserWallet(userWalletId: walletId) {
             return ApplicationWalletEntry(
                 id: remoteWallet.id,
                 name: remoteWallet.name ?? "",
-                notifyStatus: remoteWallet.notifyStatus
+                notifyStatus: notifyStatus
             )
         }
-
-        let notifyStatus = await model.userTokensPushNotificationsManager.getInitialPushStatusWithAllowance()
 
         return ApplicationWalletEntry(
             id: walletId,
@@ -116,7 +116,7 @@ private extension PushNotificationsSyncWalletsProvider {
 
         findUserWalletModel
             .userTokensPushNotificationsManager
-            .dispatch(.didReceiveRemoteStatus(.ready(entry.notifyStatus)))
+            .process(.handleRemoteStatus(.ready(entry.notifyStatus)))
     }
 
     func connectWallets(walletIds: [String], shouldRetry: Bool = true) async throws {
