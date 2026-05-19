@@ -14,8 +14,8 @@ import TangemFoundation
 final class CommonWalletModelTransactionHistoryFeatureManager {
     private let key: TransactionHistoryProviderKey
     private let tokenItem: TokenItem
-    private let registry: any TransactionHistoryProviderRegistry
-    private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistorySyncing)?, Never>(nil)
+    private let registry: TransactionHistoryProviderRegistry
+    private let transactionHistoryProviderSubject = CurrentValueSubject<TransactionHistorySyncing?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
     private var isAvailable: Bool {
@@ -26,7 +26,7 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
     init(
         key: TransactionHistoryProviderKey,
         tokenItem: TokenItem,
-        registry: any TransactionHistoryProviderRegistry
+        registry: TransactionHistoryProviderRegistry
     ) {
         self.key = key
         self.tokenItem = tokenItem
@@ -52,9 +52,9 @@ final class CommonWalletModelTransactionHistoryFeatureManager {
 // MARK: - WalletModelFeatureManager protocol conformance
 
 extension CommonWalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
-    var featurePayload: (any TransactionHistorySyncing)? { transactionHistoryProviderSubject.value }
+    var featurePayload: TransactionHistorySyncing? { transactionHistoryProviderSubject.value }
 
-    var featurePayloadPublisher: AnyPublisher<(any TransactionHistorySyncing)?, Never> {
+    var featurePayloadPublisher: AnyPublisher<TransactionHistorySyncing?, Never> {
         transactionHistoryProviderSubject.eraseToAnyPublisher()
     }
 }

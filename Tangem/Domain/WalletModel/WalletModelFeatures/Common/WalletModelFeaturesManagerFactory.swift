@@ -13,7 +13,7 @@ struct WalletModelFeaturesManagerFactory {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
     let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
-    let transactionHistoryProviderRegistry: any TransactionHistoryProviderRegistry
+    let transactionHistoryProviderRegistry: TransactionHistoryProviderRegistry
 
     func makeWalletModelFeaturesManager(
         tokenItem: TokenItem,
