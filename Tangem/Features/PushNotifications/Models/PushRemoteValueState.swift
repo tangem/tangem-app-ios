@@ -1,5 +1,5 @@
 //
-//  RemoteValueState.swift
+//  PushRemoteValueState.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum RemoteValueState<Value: Equatable>: Equatable {
+enum PushRemoteValueState<Value: Equatable>: Equatable {
     case loading
     case failed
     case ready(Value)
