@@ -122,7 +122,7 @@ extension WalletNetworkServiceFactory {
         case .tezos:
             return makeTezosNetworkService(for: blockchain)
         case .solana:
-            return makeSolanaNetworkService(for: blockchain)
+            return try makeSolanaNetworkService(for: blockchain)
         case .polkadot:
             return try makeSubstrateNetworkService(for: blockchain)
         case .kusama:
@@ -268,7 +268,7 @@ private extension WalletNetworkServiceFactory {
     }
 
     /// Solana
-    func makeSolanaNetworkService(for blockchain: Blockchain) -> SolanaNetworkService {
+    func makeSolanaNetworkService(for blockchain: Blockchain) throws -> SolanaNetworkService {
         let endpoints: [RPCEndpoint] = if blockchain.isTestnet {
             [.devnetSolana, .devnetGenesysGo]
         } else {
@@ -304,6 +304,10 @@ private extension WalletNetworkServiceFactory {
                         sendSkipPreflight: sendSkipPreflight
                     )
                 }
+        }
+
+        guard !endpoints.isEmpty else {
+            throw BlockchainSdkError.noAPIInfo
         }
 
         let apiLogger = SolanaApiLoggerUtil()
