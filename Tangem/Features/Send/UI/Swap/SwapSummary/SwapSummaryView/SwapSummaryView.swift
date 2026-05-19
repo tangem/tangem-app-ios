@@ -69,8 +69,8 @@ struct SwapSummaryView: View {
 
     @ViewBuilder
     private var providerSectionView: some View {
-        let isDetailed = viewModel.displayMode == .detailed
-        let isSimple = viewModel.displayMode == .simple
+        let isDetailed = viewModel.formVariant == .detailed
+        let isSimple = viewModel.formVariant == .simple
 
         // Both views always rendered. Mode switch flips frame/opacity only — no
         // conditional add/remove, so SwapSummaryProviderView's

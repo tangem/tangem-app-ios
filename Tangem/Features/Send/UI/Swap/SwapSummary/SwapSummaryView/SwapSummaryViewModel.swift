@@ -33,7 +33,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var transactionDescription: AttributedString?
     @Published private(set) var alert: AlertBinder?
 
-    @Published var displayMode: SwapDisplayMode
+    @Published var formVariant: SwapFormVariant
     @Published var shouldAnimateBestRateBadge: Bool = false
 
     var mainButtonIsLoading: Bool { isActionInProcessing }
@@ -41,7 +41,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
-    private let displayModeResolver: SwapDisplayModeResolver
+    private let formVariantResolver: SwapFormVariantResolver
 
     weak var router: SwapSummaryStepRoutable?
 
@@ -53,7 +53,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
         sourceTokenInput: SendSourceTokenInput,
-        displayModeResolver: SwapDisplayModeResolver = SwapDisplayModeResolver()
+        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -61,34 +61,34 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
         self.feeCompactViewModel = feeCompactViewModel
-        self.displayModeResolver = displayModeResolver
-        displayMode = displayModeResolver.currentMode()
+        self.formVariantResolver = formVariantResolver
+        formVariant = formVariantResolver.currentVariant()
 
         bind()
         bind(sourceTokenInput: sourceTokenInput)
-        applyDisplayMode(displayMode)
+        applyFormVariant(formVariant)
     }
 
-    func userDidSelectDisplayMode(_ mode: SwapDisplayMode) {
-        guard mode != displayMode else { return }
-        displayMode = mode
-        applyDisplayMode(mode)
-        displayModeResolver.setMode(mode)
+    func userDidSelectFormVariant(_ variant: SwapFormVariant) {
+        guard variant != formVariant else { return }
+        formVariant = variant
+        applyFormVariant(variant)
+        formVariantResolver.setVariant(variant)
     }
 
-    func makeDisplayModeMenuItems() -> [SendStepNavigationLeadingViewType.DotsMenuItem] {
-        SwapDisplayMode.allCases.map { mode in
+    func makeFormVariantMenuItems() -> [SendStepNavigationLeadingViewType.DotsMenuItem] {
+        SwapFormVariant.allCases.map { variant in
             .init(
-                id: mode.rawValue,
-                title: mode.menuTitle,
-                isSelected: mode == displayMode,
-                action: { [weak self] in self?.userDidSelectDisplayMode(mode) }
+                id: variant.rawValue,
+                title: variant.menuTitle,
+                isSelected: variant == formVariant,
+                action: { [weak self] in self?.userDidSelectFormVariant(variant) }
             )
         }
     }
 
-    private func applyDisplayMode(_ mode: SwapDisplayMode) {
-        swapAmountViewModel.update(isReceiveFiatHidden: mode == .simple)
+    private func applyFormVariant(_ variant: SwapFormVariant) {
+        swapAmountViewModel.update(isReceiveFiatHidden: variant == .simple)
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {

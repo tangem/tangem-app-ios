@@ -1,5 +1,5 @@
 //
-//  SwapDisplayMode.swift
+//  SwapFormVariant.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 import Foundation
 import TangemLocalization
 
-enum SwapDisplayMode: String, CaseIterable, Identifiable {
+enum SwapFormVariant: String, CaseIterable, Identifiable {
     case simple
     case detailed
 

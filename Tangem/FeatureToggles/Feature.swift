@@ -61,7 +61,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
-        case .swapSimpleMode: return "Swap Simple Mode"
+        case .swapSimpleMode: return "13763_Swap_Simple_Mode"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
         case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
         }

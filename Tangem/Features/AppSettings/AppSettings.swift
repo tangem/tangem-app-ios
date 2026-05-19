@@ -159,8 +159,8 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
     var shouldShowMobilePromoWalletSelector: Bool = false
 
-    @AppStorageCompat(StorageType.swapDisplayMode)
-    var swapDisplayModeOverrideRaw: String? = nil
+    @AppStorageCompat(StorageType.swapFormVariant)
+    var swapFormVariantOverrideRaw: String? = nil
 
     static let shared: AppSettings = .init()
 

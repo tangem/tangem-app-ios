@@ -293,7 +293,7 @@ private extension SendViewModel {
 
         navigationBarRefreshSubscription = nil
         if case .swap(let swapViewModel) = step.type {
-            navigationBarRefreshSubscription = swapViewModel.$displayMode
+            navigationBarRefreshSubscription = swapViewModel.$formVariant
                 .dropFirst()
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] _ in self?.objectWillChange.send() }
