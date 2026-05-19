@@ -156,7 +156,7 @@ private extension SendSwapProvidersSelectorViewModel {
         let destinationTokenItem = receiveTokenInput?.receiveToken.value?.tokenItem
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
-        let state = availableProvider.state
+        let state = availableProvider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
@@ -207,8 +207,8 @@ private extension SendSwapProvidersSelectorViewModel {
             return nil
         }
 
-        guard let quote = provider.state.quote,
-              let selectedRate = selectedProvider?.state.quote?.rate else {
+        guard let quote = provider.getState().quote,
+              let selectedRate = selectedProvider?.getState().quote?.rate else {
             return nil
         }
 

@@ -21,7 +21,7 @@ struct ExpressProviderFormatter {
     }
 
     func mapToBadge(availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool = false) -> ProviderBadge? {
-        let state: ExpressProviderManagerState = availableProvider.state
+        let state: ExpressProviderManagerState = availableProvider.getState()
 
         if geoEligibilityService.isUK, ExpressConstants.expressProvidersFCAWarningList.contains(availableProvider.provider.id) {
             return .fcaWarning

@@ -17,7 +17,7 @@ public enum ExpressProviderManagerComparator {
     ///   3. `.restriction(.tooBigAmount)`.
     ///   4. `.idle` / `.error`.
     public static func isBetter(_ lhs: ExpressAvailableProvider, _ rhs: ExpressAvailableProvider) -> Bool {
-        switch (lhs.state, rhs.state) {
+        switch (lhs.getState(), rhs.getState()) {
         // 1) Both `.tooSmallAmount`: lower minimum wins.
         case (.restriction(.tooSmallAmount(let lMinimum, _), _), .restriction(.tooSmallAmount(let rMinimum, _), _)):
             return lMinimum < rMinimum

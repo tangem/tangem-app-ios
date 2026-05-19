@@ -20,7 +20,6 @@ public class ExpressAvailableProvider {
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
     public var isBest: Bool { _isBest { $0 } }
-    public var state: ExpressProviderManagerState { manager.getState() }
 
     // MARK: - Updatable state
 
@@ -34,6 +33,10 @@ public class ExpressAvailableProvider {
 
     deinit {
         ExpressLogger.debug(self, "deinit")
+    }
+
+    public func getState() -> ExpressProviderManagerState {
+        manager.getState()
     }
 }
 
@@ -85,14 +88,14 @@ public extension Array where Element == ExpressAvailableProvider {
     }
 
     func showableProviders() -> [ExpressAvailableProvider] {
-        filter { $0.state.isShowable }
+        filter { $0.getState().isShowable }
     }
 
     func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
         filter { provider in
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
-            let isAvailableToShow = provider.state.isShowable
+            let isAvailableToShow = provider.getState().isShowable
 
             return isSelected || isAvailableToShow
         }
@@ -109,7 +112,7 @@ public extension Array where Element == ExpressAvailableProvider {
 
         forEach { provider in
             switch provider {
-            case best where provider.state.quote != nil:
+            case best where provider.getState().quote != nil:
                 provider.update(isBest: true)
                 provider.pair.source.analyticsLogger.bestProviderSelected(provider)
             default:

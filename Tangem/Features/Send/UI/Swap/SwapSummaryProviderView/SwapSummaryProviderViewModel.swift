@@ -118,7 +118,7 @@ private extension SwapSummaryProviderViewModel {
     ) -> ProviderRowViewModel? {
         // Has more than one `showableProviders` to selection
         let hasAnotherProviders = providers.showableProviders().count > 1
-        let state = selectedProvider.state
+        let state = selectedProvider.getState()
         let selectedProviderNonError = !state.isError
 
         guard hasAnotherProviders || selectedProviderNonError else {

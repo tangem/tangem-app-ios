@@ -53,7 +53,7 @@ extension ExpressManagerUpdatingResult: CustomStringConvertible {
         objectDescription("ExpressManagerUpdatingResult", userInfo: [
             "providers": providers.map { $0.provider.name },
             "selected name": selected.map { $0.provider.name } ?? "no selected provider",
-            "selected state": selected.map { $0.state } ?? "no selected provider",
+            "selected state": selected.map { $0.getState() } ?? "no selected provider",
             "supportedRateTypes": supportedRateTypes,
         ])
     }
