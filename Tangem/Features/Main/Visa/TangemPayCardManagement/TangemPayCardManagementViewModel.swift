@@ -26,6 +26,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState = .loading
     @Published private(set) var isReissuing: Bool = false
+    @Published private(set) var isLoadingReissueFee: Bool = false
     @Published var alert: AlertBinder?
 
     private let userWalletInfo: UserWalletInfo
@@ -191,6 +192,7 @@ private extension TangemPayCardManagementViewModel {
         coordinator?.openTangemPayReissueSheet(
             userWalletId: userWalletInfo.id,
             tangemPayAccount: tangemPayAccount,
+            onLoadingChange: { [weak self] in self?.isLoadingReissueFee = $0 },
             onError: { [weak self] in self?.showReissueError() }
         )
     }
