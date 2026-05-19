@@ -113,8 +113,11 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Notification Preferences
 
-    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Body
-    func updateNotificationPreferences(userWalletId: String, preferences: NotificationPreferencesDTO.Body) async throws
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Update.Request
+    ) async throws
 
     // MARK: - Applications
 

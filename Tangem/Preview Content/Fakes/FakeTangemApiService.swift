@@ -126,11 +126,14 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Body {
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body {
         throw "Not implemented"
     }
 
-    func updateNotificationPreferences(userWalletId: String, preferences: NotificationPreferencesDTO.Body) async throws {
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Update.Request
+    ) async throws {
         throw "Not implemented"
     }
 
