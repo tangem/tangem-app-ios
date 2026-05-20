@@ -42,14 +42,15 @@ final class CommonExperimentService {
     // MARK: - Public Implementation
 
     func configure() {
-        guard !AppEnvironment.current.isDebug, isExperimentEnabled else { return }
+        guard isExperimentEnabled else { return }
 
         let config = ExperimentConfigBuilder()
             .automaticExposureTracking(true)
             .fetchOnStart(false)
+            .exposureTrackingProvider(AmplitudeExposureTrackingProvider())
             .build()
 
-        _client = Experiment.initializeWithAmplitudeAnalytics(apiKey: keysManager.amplitudeApiKey, config: config)
+        _client = Experiment.initialize(apiKey: keysManager.amplitudeApiKey, config: config)
     }
 
     // MARK: - Private Implementation
