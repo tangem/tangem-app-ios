@@ -47,7 +47,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         do {
             let response = try await tangemApiService.getNotificationPreferences(
-                userWalletId: userWalletId
+                userWalletId: userWalletId.stringValue
             )
 
             try Task.checkCancellation()
@@ -82,7 +82,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         do {
             try await tangemApiService.updateNotificationPreferences(
-                userWalletId: userWalletId,
+                userWalletId: userWalletId.stringValue,
                 preferences: request
             )
 
