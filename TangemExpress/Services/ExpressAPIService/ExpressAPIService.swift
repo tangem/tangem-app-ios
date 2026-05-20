@@ -27,4 +27,5 @@ protocol ExpressAPIService {
     func onrampData(request: ExpressDTO.Onramp.Data.Request) async throws -> ExpressDTO.Onramp.Data.Response
     func onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request) async throws -> ExpressDTO.Onramp.NativePaymentData.Response
     func onrampStatus(request: ExpressDTO.Onramp.Status.Request) async throws -> ExpressDTO.Onramp.Status.Response
+    func onrampHistory(request: ExpressDTO.Onramp.History.Request) async throws -> ExpressDTO.Onramp.History.Response
 }

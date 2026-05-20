@@ -32,6 +32,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case onrampData(request: ExpressDTO.Onramp.Data.Request)
         case onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request)
         case onrampStatus(request: ExpressDTO.Onramp.Status.Request)
+        case onrampHistory(request: ExpressDTO.Onramp.History.Request)
     }
 
     var baseURL: URL {
@@ -74,6 +75,7 @@ struct ExpressAPITarget: Moya.TargetType {
         // Same endpoint as .onrampData but uses POST method with JSON body for native payment flow
         case .onrampNativePaymentData: "onramp-data"
         case .onrampStatus: "onramp-status"
+        case .onrampHistory: "history/onramp"
         }
     }
 
@@ -95,7 +97,8 @@ struct ExpressAPITarget: Moya.TargetType {
              .onrampPaymentMethods,
              .onrampQuote,
              .onrampData,
-             .onrampStatus:
+             .onrampStatus,
+             .onrampHistory:
             return .get
         }
     }
@@ -118,6 +121,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .onrampData(let request):.requestParameters(request)
         case .onrampNativePaymentData(let request): .requestJSONEncodable(request)
         case .onrampStatus(let request):.requestParameters(request)
+        case .onrampHistory(let request): .requestParameters(request)
         }
     }
 
