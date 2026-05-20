@@ -948,6 +948,7 @@
 "onramp_legal" = "Використовуючи сервіс покупки, ви погоджуєтесь з %1$@ та %2$@";
 "onramp_max_amount_restriction" = "Сума покупки не може бути більше ніж %@";
 "onramp_min_amount_restriction" = "Сума покупки повинна бути не менше %@";
+"onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "Для данної валюти немає доступних провайдерів";
