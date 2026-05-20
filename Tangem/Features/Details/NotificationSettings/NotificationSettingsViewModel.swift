@@ -16,13 +16,16 @@ final class NotificationSettingsViewModel: ObservableObject {
     // MARK: - Injected
 
     @Injected(\.pushNotificationsPermission) private var pushNotificationsPermission: PushNotificationsPermissionService
-    @Injected(\.pushNotificationsSyncService) private var pushNotificationsSyncService: PushNotificationsSyncService
 
     // MARK: - ViewState
 
     @Published private(set) var allowNotificationsBannerInput: NotificationViewInput?
-    @Published private(set) var transactionNotificationsRowToggleViewModel: TransactionNotificationsRowToggleViewModel?
 
+    @Published var transactionAlertsEnabled: Bool = false
+    @Published var offersUpdatesEnabled: Bool = false
+    @Published var priceAlertsEnabled: Bool = false
+
+    @Published private(set) var transactionAlertsViewModel: DefaultToggleRowViewModel?
     @Published private(set) var offersUpdatesViewModel: DefaultToggleRowViewModel?
     @Published private(set) var priceAlertsViewModel: DefaultToggleRowViewModel?
 
@@ -34,11 +37,47 @@ final class NotificationSettingsViewModel: ObservableObject {
     private weak var coordinator: NotificationSettingsRoutable?
 
     /// `nil` when the wallet is not eligible for transaction push notifications.
-    private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager?
+    private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
     /// In-memory state for non-functional toggles (Offers & Updates, Price Alerts).
     @Published private var isOffersUpdatesEnabled: Bool = false
     @Published private var isPriceAlertsEnabled: Bool = false
+
+    private var isEnabledTransactionAlertsBinding: BindingValue<Bool> {
+        BindingValue<Bool>(
+            root: self,
+            default: false,
+            get: { $0.transactionAlertsEnabled },
+            set: { viewModel, value in
+                viewModel.transactionAlertsEnabled = value
+                // [REDACTED_TODO_COMMENT]
+            }
+        )
+    }
+
+    private var isEnabledOffersUpdatesBinding: BindingValue<Bool> {
+        BindingValue<Bool>(
+            root: self,
+            default: false,
+            get: { $0.offersUpdatesEnabled },
+            set: { viewModel, value in
+                viewModel.offersUpdatesEnabled = value
+                // [REDACTED_TODO_COMMENT]
+            }
+        )
+    }
+
+    private var isEnabledPriceAlertsEnabledBinding: BindingValue<Bool> {
+        BindingValue<Bool>(
+            root: self,
+            default: false,
+            get: { $0.priceAlertsEnabled },
+            set: { viewModel, value in
+                viewModel.priceAlertsEnabled = value
+                // [REDACTED_TODO_COMMENT]
+            }
+        )
+    }
 
     private var requestPermissionTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
@@ -49,6 +88,8 @@ final class NotificationSettingsViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
 
+        userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
+
         setupViewModels()
         bind()
     }
@@ -57,6 +98,10 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     func onAppear() {
         refreshBannerVisibility()
+    }
+
+    func onTapMoreInfoTransactionPushNotifications() {
+        coordinator?.openTransactionNotifications()
     }
 }
 
@@ -71,47 +116,39 @@ private extension NotificationSettingsViewModel {
                 viewModel.refreshBannerVisibility()
             }
             .store(in: &bag)
+
+        // [REDACTED_TODO_COMMENT]
+        userTokensPushNotificationsManager
+            .statusPublisher
+            .dropFirst()
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, status in }
+            .store(in: &bag)
     }
 
     func setupViewModels() {
-        userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
+        let userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
 
-        if let manager = userTokensPushNotificationsManager {
-            transactionNotificationsRowToggleViewModel = TransactionNotificationsRowToggleViewModel(
-                userTokensPushNotificationsManager: manager,
-                coordinator: coordinator,
-                showPushSettingsAlert: weakify(self, forFunction: NotificationSettingsViewModel.displayEnablePushSettingsAlert)
-            )
-        }
+        transactionAlertsEnabled = userTokensPushNotificationsManager.status.isActive
+
+        // One-time initialization. Because isNotInitialized is non-recoverable
+        transactionAlertsViewModel = DefaultToggleRowViewModel(
+            title: Localization.pushTransactionsNotificationsTitle,
+            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
+            isOn: isEnabledTransactionAlertsBinding
+        )
 
         offersUpdatesViewModel = DefaultToggleRowViewModel(
-            title: NotificationSettingsViewModel.Constants.offersUpdatesTitle,
-            isOn: BindingValue<Bool>(
-                root: self,
-                default: false,
-                get: { $0.isOffersUpdatesEnabled },
-                set: { viewModel, newValue in
-                    viewModel.handleInMemoryToggleWithPermission(
-                        newValue: newValue,
-                        setter: { viewModel.isOffersUpdatesEnabled = $0 }
-                    )
-                }
-            )
+            title: Localization.pushNotificationSettingsOffersUpdatesTitle,
+            isOn: isEnabledOffersUpdatesBinding
         )
 
         priceAlertsViewModel = DefaultToggleRowViewModel(
-            title: NotificationSettingsViewModel.Constants.priceAlertsTitle,
-            isOn: BindingValue<Bool>(
-                root: self,
-                default: false,
-                get: { $0.isPriceAlertsEnabled },
-                set: { viewModel, newValue in
-                    viewModel.handleInMemoryToggleWithPermission(
-                        newValue: newValue,
-                        setter: { viewModel.isPriceAlertsEnabled = $0 }
-                    )
-                }
-            )
+            title: Localization.pushNotificationSettingsPriceAlertsTitle,
+            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
+            isOn: isEnabledPriceAlertsEnabledBinding
         )
     }
 
@@ -125,7 +162,7 @@ private extension NotificationSettingsViewModel {
 
     func makeAllowNotificationsBannerInput() -> NotificationViewInput {
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] _, _ in
-            self?.coordinator?.openAppSettings()
+            self?.handleAndCheckUnavailablePushNotifyStatus()
         }
 
         return NotificationViewInput(
@@ -139,6 +176,27 @@ private extension NotificationSettingsViewModel {
             severity: .warning,
             settings: .init(event: PushSettingsNotificationsEvent.allowNotifications, dismissAction: nil)
         )
+    }
+}
+
+// MARK: - Transaction Push Notifications
+
+private extension NotificationSettingsViewModel {
+    func handleAndCheckUnavailablePushNotifyStatus() {
+        requestPermissionTask?.cancel()
+
+        requestPermissionTask = runTask(in: self) { @MainActor viewModel in
+            await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
+
+            if await viewModel.pushNotificationsPermission.isAuthorized {
+                // [REDACTED_TODO_COMMENT]
+            } else {
+                // To display a system message about the need for permission to receive notifications.
+                viewModel.displayEnablePushSettingsAlert()
+            }
+
+            viewModel.refreshBannerVisibility()
+        }
     }
 }
 
@@ -178,14 +236,12 @@ private extension NotificationSettingsViewModel {
             primaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertNegativeButton),
                 action: { [weak self] in
-                    self?.transactionNotificationsRowToggleViewModel?.isPushNotifyEnabled = false
                     self?.coordinator?.onAlertDismiss()
                 }
             ),
             secondaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertPositiveButton),
                 action: { [weak self] in
-                    self?.transactionNotificationsRowToggleViewModel?.isPushNotifyEnabled = false
                     self?.coordinator?.openAppSettings()
                     self?.coordinator?.onAlertDismiss()
                 }
@@ -197,19 +253,5 @@ private extension NotificationSettingsViewModel {
             message: Localization.pushNotificationsPermissionAlertDescription,
             with: buttons
         )
-    }
-}
-
-// MARK: - Constants
-
-extension NotificationSettingsViewModel {
-    enum Constants {
-        static let screenTitle = "Notification Settings"
-
-        static let offersUpdatesTitle = "Offers & Updates"
-        static let offersUpdatesFooter = "Product news, exclusive offers, and activity reminders."
-
-        static let priceAlertsTitle = "Price Alerts"
-        static let priceAlertsFooter = "Get notified about price changes for top market coins."
     }
 }

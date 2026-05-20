@@ -140,7 +140,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         switch userTokensPushNotificationsManager.status {
         case .enabled, .disabledInApp:
-            userTokensPushNotificationsManager.process(.handleUpdateValue(toggleValue))
+            userTokensPushNotificationsManager.tryUpdateEnableState(value: toggleValue)
         case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
@@ -159,7 +159,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.process(.handleUpdateValue(true))
+                viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: true)
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()
