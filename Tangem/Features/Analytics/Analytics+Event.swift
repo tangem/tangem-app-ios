@@ -688,7 +688,7 @@ extension Analytics {
         case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
-        case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"
+        case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"
         case visaScreenTermsAndLimitsClicked = "[Visa Screen] Button - Terms And Limits"
 
         case visaScreenFreezeCardClicked = "[Visa Screen] Button - Freeze Card"
@@ -725,9 +725,9 @@ extension Analytics {
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
-        case visaAddExtraCardClicked = "[Visa Screen] Visa Add Extra Card Clicked"
-        case visaFakedoorPopupDisplayed = "[Visa Screen] Visa Fakedoor Popup Displayed"
-        case visaFakedoorGotitClicked = "[Visa Screen] Visa Fakedoor Gotit Clicked"
+        case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
+        case visaFakedoorPopupDisplayed = "[Visa Card Management] Visa Fakedoor Popup Displayed"
+        case visaFakedoorGotitClicked = "[Visa Card Management] Visa Fakedoor Gotit Clicked"
         case visaExtraCardIssuancePopupDisplayed = "[Visa Screen] Visa Extra Card Issuance Popup Displayed"
         case visaExtraCardIssuanceConfirmed = "[Visa Screen] Visa Extra Card Issuance Confirmed"
 

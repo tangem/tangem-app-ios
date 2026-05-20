@@ -35,103 +35,82 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
         remoteStatesSubject.value
     }
 
-    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
+    func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         runTask(in: self) { provider in
             let states = await provider.stateStore.updateRemoteEnabled(state, for: channel)
             await provider.publish(states)
         }
     }
 
-    func fetchPreferences() {
-        runTask(in: self) { provider in
-            let fetchToken = await provider.stateStore.beginFetch()
+    func fetchPreferences() async throws {
+        let fetchToken = await stateStore.beginFetch()
 
-            do {
-                let response = try await provider.tangemApiService.getNotificationPreferences(
-                    userWalletId: provider.userWalletId.stringValue
-                )
+        do {
+            let response = try await tangemApiService.getNotificationPreferences(
+                userWalletId: userWalletId
+            )
 
-                guard !Task.isCancelled else { return }
+            try Task.checkCancellation()
 
-                guard let newStates = await provider.stateStore.applyFetchResponse(
-                    response,
-                    for: fetchToken
-                ) else {
-                    return
-                }
-
-                await provider.publish(newStates)
-            } catch is CancellationError {
-                // A newer fetch has taken over; do not turn loading entries into `.failed`.
-            } catch {
-                // Some networking stacks surface cooperative cancellation as a plain error
-                // (e.g. `URLError(.cancelled)`) instead of `CancellationError`. The `isCancelled`
-                // guard catches that variant.
-                guard !Task.isCancelled else { return }
-
-                guard let failedStates = await provider.stateStore.applyFetchFailure(for: fetchToken) else {
-                    return
-                }
-
-                await provider.publish(failedStates)
+            guard let newStates = await stateStore.applyFetchResponse(
+                response,
+                for: fetchToken
+            ) else {
+                return
             }
+
+            await publish(newStates)
+        } catch {
+            if error is CancellationError || Task.isCancelled {
+                // A newer fetch has taken over; do not turn loading into `.failed`.
+                throw error
+            }
+
+            if let failedStates = await stateStore.applyFetchFailure(for: fetchToken) {
+                await publish(failedStates)
+            }
+
+            throw error
         }
     }
 
-    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {
-        runTask(in: self) { provider in
-            let context = await provider.stateStore.beginUpdate(preferences: preferences)
-            await provider.publish(context.optimisticStates)
+    func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {
+        let context = await stateStore.beginUpdate(channel: channel, isEnabled: isEnabled)
+        await publish(context.optimisticStates)
 
-            let request = NotificationPreferencesDTO.Update.Request(remoteStates: context.optimisticStates)
+        let request = NotificationPreferencesDTO.Update.Request(remoteStates: context.optimisticStates)
 
-            do {
-                try await provider.tangemApiService.updateNotificationPreferences(
-                    userWalletId: provider.userWalletId.stringValue,
-                    preferences: request
-                )
+        do {
+            try await tangemApiService.updateNotificationPreferences(
+                userWalletId: userWalletId,
+                preferences: request
+            )
 
-                if Task.isCancelled {
-                    _ = await provider.stateStore.finishUpdate(
-                        token: context.token,
-                        completion: .cancelled
-                    )
-                    return
-                }
+            try Task.checkCancellation()
 
-                guard let settledStates = await provider.stateStore.finishUpdate(
-                    token: context.token,
-                    completion: .success(context.optimisticStates)
-                ) else {
-                    return
-                }
-
-                await provider.publish(settledStates)
-            } catch is CancellationError {
+            _ = await stateStore.finishUpdate(
+                token: context.token,
+                completion: .success(context.optimisticStates)
+            )
+        } catch {
+            if error is CancellationError || Task.isCancelled {
                 // A newer write has taken over and captured its own rollback target; leaving
                 // `remoteStatesSubject` on the latest optimistic value is intentional.
-                _ = await provider.stateStore.finishUpdate(
+                _ = await stateStore.finishUpdate(
                     token: context.token,
                     completion: .cancelled
                 )
-            } catch {
-                if Task.isCancelled {
-                    _ = await provider.stateStore.finishUpdate(
-                        token: context.token,
-                        completion: .cancelled
-                    )
-                    return
-                }
-
-                guard let rollbackStates = await provider.stateStore.finishUpdate(
-                    token: context.token,
-                    completion: .failure(context.rollbackTarget)
-                ) else {
-                    return
-                }
-
-                await provider.publish(rollbackStates)
+                throw error
             }
+
+            if let rollbackStates = await stateStore.finishUpdate(
+                token: context.token,
+                completion: .failure(context.rollbackTarget)
+            ) {
+                await publish(rollbackStates)
+            }
+
+            throw error
         }
     }
 }

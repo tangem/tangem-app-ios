@@ -9,61 +9,55 @@
 import Foundation
 
 struct PushChannelRemoteStates: Equatable {
-    private(set) var states: [PushChannel: RemoteValueState<PushChannelPreference>]
+    typealias Preferences = [PushChannel: PushChannelPreference]
 
-    init(states: [PushChannel: RemoteValueState<PushChannelPreference>] = [:]) {
-        self.states = states
+    private(set) var loadState: PushRemoteValueState<Preferences>
+
+    init(loadState: PushRemoteValueState<Preferences> = .loading) {
+        self.loadState = loadState
     }
 
     static var allLoading: PushChannelRemoteStates {
-        PushChannelRemoteStates(
-            states: Dictionary(uniqueKeysWithValues: PushChannel.allCases.map { ($0, .loading) })
-        )
-    }
-
-    subscript(channel: PushChannel) -> RemoteValueState<PushChannelPreference> {
-        get { states[channel] ?? .loading }
-        set { states[channel] = newValue }
-    }
-
-    init(response: NotificationPreferencesDTO.Response.Body) {
-        self.init(
-            states: Dictionary(uniqueKeysWithValues: PushChannel.allCases.map { channel in
-                let preference = response.preference(for: channel)
-                return (
-                    channel,
-                    .ready(PushChannelPreference(isEnabled: preference.isEnabled, isVisible: preference.isVisible))
-                )
-            })
-        )
+        PushChannelRemoteStates(loadState: .loading)
     }
 
     func preference(for channel: PushChannel) -> PushChannelPreference {
-        switch self[channel] {
-        case .ready(let preference), .pending(let preference):
-            return preference
-        case .loading, .failed:
+        guard case .ready(let preferences) = loadState,
+              let preference = preferences[channel] else {
             return PushChannelPreference(isEnabled: false, isVisible: true)
         }
     }
 
-    mutating func setPendingEnabled(_ isEnabled: Bool, for channel: PushChannel) {
-        let visibility = preference(for: channel).isVisible
-        self[channel] = .pending(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+    mutating func setEnabled(_ isEnabled: Bool, for channel: PushChannel) {
+        var preferences = readyPreferences ?? Self.defaultPreferences
+        let current = preferences[channel] ?? PushChannelPreference(isEnabled: false, isVisible: true)
+        preferences[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: current.isVisible)
+        loadState = .ready(preferences)
     }
 
-    func settlingPendingToReady() -> PushChannelRemoteStates {
-        var settled = self
-
-        for channel in PushChannel.allCases {
-            guard case .pending(let preference) = settled[channel] else {
-                continue
-            }
-
-            settled[channel] = .ready(preference)
+    private var readyPreferences: Preferences? {
+        guard case .ready(let preferences) = loadState else {
+            return nil
         }
 
-        return settled
+        return preferences
+    }
+
+    init(response: NotificationPreferencesDTO.Response.Body) {
+        let preferences = Dictionary(uniqueKeysWithValues: PushChannel.allCases.map { channel in
+            let preference = response.preference(for: channel)
+            return (
+                channel,
+                PushChannelPreference(isEnabled: preference.isEnabled, isVisible: preference.isVisible)
+            )
+        })
+        self.init(loadState: .ready(preferences))
+    }
+
+    private static var defaultPreferences: Preferences {
+        Dictionary(uniqueKeysWithValues: PushChannel.allCases.map {
+            ($0, PushChannelPreference(isEnabled: false, isVisible: true))
+        })
     }
 }
 
