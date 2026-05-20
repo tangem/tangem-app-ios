@@ -64,6 +64,9 @@
 "action_buttons_swap_not_enough_tokens_alert_message" = "You only have 1 token added to your portfolio. To use the exchange feature, you need to add at least 2 tokens.";
 "action_buttons_you_want_to_receive" = "Choose the token you want to receive";
 "action_buttons_you_want_to_swap" = "Choose the token you want to swap";
+"actionbutton_addfunds_title" = "Add funds";
+"actionbutton_swap_title" = "Swap";
+"actionbutton_transfer_title" = "Transfer";
 "add_and_manage_sheet_manage_subtitle" = "Add to your portfolio";
 "add_and_manage_sheet_manage_title" = "Add tokens";
 "add_and_manage_sheet_organize_subtitle" = "Sorting and grouping";
@@ -71,6 +74,10 @@
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
+"addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_receive_row_description" = "Share your address or QR-code";
+"addfunds_swap_row_description" = "Between your portfolios";
+"addfunds_you_receive_title" = "You receive";
 "address_qr_code_message_format" = "Send only %1$@ (%2$@) from %3$@ network to this address. Using other tokens and networks may result in loss of funds.";
 "address_type_default" = "Default";
 "address_type_legacy" = "Legacy";
@@ -864,6 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Other options";
 "onboarding_create_wallet_options_message" = "Your keys will be securely generated inside the chip. There is no seed phrase, which means nobody can export or steal it.";
 "onboarding_create_wallet_options_title" = "Generate keys privately";
+"onboarding_create_wallet_term_of_conditions_text" = "By continuing, you agree to the \n%@";
 "onboarding_done_body" = "Your card is activated and ready to be used";
 "onboarding_done_header" = "Success!";
 "onboarding_done_wallet" = "Your wallet is set up and ready to use!";
@@ -940,12 +948,16 @@
 "onramp_legal" = "By using onramp functionality, you agree with provider’s %1$@ and %2$@";
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
+"onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
+"onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "No available providers for this currency";
 "onramp_offer_type_fastet" = "Quickest processing";
 "onramp_pay_with" = "Pay with";
 "onramp_payment_method_subtitle" = "Payment method";
 "onramp_provider_max_amount" = "Available up to %@";
 "onramp_provider_min_amount" = "Available from %@";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
+"onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Providers";
 "onramp_recently_used_title" = "Recently used";
 "onramp_recommended_title" = "Recommended";
@@ -968,10 +980,19 @@
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "You will pay";
 "organize_tokens_group" = "Group";
+"organize_tokens_menu_group_by_networks" = "Group by networks";
+"organize_tokens_menu_sort_by_balance" = "Sort by balance";
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
 "provider_name_support" = "%@ support";
+"push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
+"push_notification_settings_offers_updates_title" = "Offers & Updates";
+"push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
+"push_notification_settings_price_alerts_title" = "Price Alerts";
+"push_notification_settings_title" = "Notification Settings";
+"push_notification_settings_transaction_alerts_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
+"push_notification_settings_transaction_alerts_title" = "Transaction Alerts";
 "push_notifications_more_info" = "More info";
 "push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
 "push_notifications_permission_alert_negative_button" = "Enable Later";
@@ -1347,7 +1368,7 @@
 "swap_story_second_subtitle" = "Maximize your value with rates sourced from a wide network of trusted providers, always choosing the best one";
 "swap_story_second_title_v2" = "Best Available Rate";
 "swap_story_second_title" = "Unbeatable Rates";
-"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
+"swap_story_third_subtitle_v2" = "Swap across major networks and thousands of tokens 0%% fee on stablecoin-to-stablecoin swaps";
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title_v2" = "90+ Blockchains\n16,000+ Assets";
 "swap_story_third_title" = "Simply Convenient";
@@ -1583,6 +1604,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choose address";
+"token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Generate XPUB";
 "token_details_hide_alert_hide" = "Hide";
