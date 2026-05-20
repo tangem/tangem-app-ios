@@ -65,6 +65,22 @@ public extension UIColor {
         UIColor(named: "TextTertiary", in: .module, compatibleWith: nil)!
     }
 
+    @nonobjc static var textSecondary: UIColor {
+        UIColor(named: "TextSecondary", in: .module, compatibleWith: nil)!
+    }
+
+    @nonobjc static var textPrimary2: UIColor {
+        UIColor(named: "TextPrimary2", in: .module, compatibleWith: nil)!
+    }
+
+    @nonobjc static var buttonPositive: UIColor {
+        UIColor(named: "ButtonPositive", in: .module, compatibleWith: nil)!
+    }
+
+    @nonobjc static var buttonSecondary: UIColor {
+        UIColor(named: "ButtonSecondary", in: .module, compatibleWith: nil)!
+    }
+
     // ☝️☝️☝️ End of UIColors from the new palette ☝️☝️☝️
 
     // MARK: Background
@@ -129,6 +145,17 @@ public extension UIColor {
 
     var forcedDark: UIColor {
         resolvedColor(with: .dummyDark)
+    }
+}
+
+public extension UIColor {
+    /// Applies an alpha component while keeping the dynamic light/dark appearance.
+    /// Plain `withAlphaComponent(_:)` resolves a dynamic color against the current
+    /// trait collection and returns a static color.
+    func withDynamicAlphaComponent(_ alpha: CGFloat) -> UIColor {
+        UIColor { traitCollection in
+            self.resolvedColor(with: traitCollection).withAlphaComponent(alpha)
+        }
     }
 }
 
