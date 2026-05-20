@@ -46,17 +46,17 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
         }
 
-        let result: ExpressManagerUpdatingResult = try await expressManager.update(
-            amountType: .from(sourceAmount),
-            by: .pairChange
-        )
+        let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: .from(sourceAmount))
 
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate = result.selected?.getState().quote.map {
-            SwapPairUpdateResult.AmountUpdate.setReceiveAmount(
-                crypto: $0.expectAmount,
+        let amountUpdate: SwapPairUpdateResult.AmountUpdate
+        if let quote = result.selected?.getState().quote {
+            amountUpdate = .setReceiveAmount(
+                crypto: quote.expectAmount,
                 currencyId: destination.tokenItem.currencyId
             )
-        } ?? .clearReceiveAmount
+        } else {
+            amountUpdate = .clearReceiveAmount
+        }
 
         return SwapPairUpdateResult(expressResult: result, amountUpdate: amountUpdate)
     }
