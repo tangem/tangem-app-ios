@@ -224,6 +224,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         }
     }
 
+    var isTosFooterVisible: Bool {
+        switch currentStep {
+        case .createWallet, .createWalletSelector: return true
+        default: return false
+        }
+    }
+
     var isCustomContentVisible: Bool {
         switch currentStep {
         case .saveUserWallet, .pushNotifications, .seedPhraseIntro, .seedPhraseGeneration, .seedPhraseUserValidation, .seedPhraseImport, .addTokens, .mobileUpgradeBiometrics:
@@ -1008,6 +1015,10 @@ extension WalletOnboardingViewModel {
                 self?.logAnalytics(.onboardingSeedScreenCapture)
             }
             .store(in: &bag)
+    }
+
+    func onTosTap() {
+        coordinator?.openBrowser(at: AppConstants.tosURL, onSuccess: { _ in })
     }
 }
 
