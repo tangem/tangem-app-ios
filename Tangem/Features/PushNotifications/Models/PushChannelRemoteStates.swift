@@ -26,6 +26,20 @@ struct PushChannelRemoteStates: Equatable {
               let preference = preferences[channel] else {
             return PushChannelPreference(isEnabled: false, isVisible: true)
         }
+
+        return preference
+    }
+
+    /// Per-channel view of the aggregate fetch/update state.
+    func remoteValueState(for channel: PushChannel) -> PushRemoteValueState<PushChannelPreference> {
+        switch loadState {
+        case .loading:
+            return .loading
+        case .failed:
+            return .failed
+        case .ready:
+            return .ready(preference(for: channel))
+        }
     }
 
     mutating func setEnabled(_ isEnabled: Bool, for channel: PushChannel) {

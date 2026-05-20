@@ -106,7 +106,7 @@ private extension CommonUserTokensPushNotificationsManager {
             return .loading
         case .failed:
             return .failed
-        case .ready(let isEnabled), .pending(let isEnabled):
+        case .ready(let isEnabled):
             return isEnabled ? .enabled : .disabledInApp
         }
     }
@@ -206,7 +206,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .handleRemoteValue(let value):
+        case .handleRemoteValue(let value, _):
             applyRemoteStatusUpdate(value)
         case .walletBindingWithApplicationSynchronized:
             updateStatusIfNeeded()

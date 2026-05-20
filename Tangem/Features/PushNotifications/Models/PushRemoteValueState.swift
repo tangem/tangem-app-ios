@@ -11,6 +11,5 @@ import Foundation
 enum PushRemoteValueState<Value: Equatable>: Equatable {
     case loading
     case failed
-    case pending(Value)
     case ready(Value)
 }
