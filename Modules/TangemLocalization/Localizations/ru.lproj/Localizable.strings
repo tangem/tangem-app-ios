@@ -948,6 +948,7 @@
 "onramp_legal" = "Пользуясь сервисом покупки, вы соглашаетесь с %1$@ и %2$@";
 "onramp_max_amount_restriction" = "Сумма покупки не может быть больше, чем %@";
 "onramp_min_amount_restriction" = "Сумма покупки должна составлять минимум %@";
+"onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "Нет доступных провайдеров для выбранной валюты";
@@ -956,7 +957,7 @@
 "onramp_payment_method_subtitle" = "Платежный метод";
 "onramp_provider_max_amount" = "Доступно до %@";
 "onramp_provider_min_amount" = "Доступно от %@";
-"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verificatio";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
 "onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Провайдеры";
 "onramp_recently_used_title" = "Ранее используемый";
@@ -986,6 +987,13 @@
 "organize_tokens_title" = "Упорядочить токены";
 "organize_tokens_ungroup" = "Список";
 "provider_name_support" = "Поддержка %@";
+"push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
+"push_notification_settings_offers_updates_title" = "Offers & Updates";
+"push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
+"push_notification_settings_price_alerts_title" = "Price Alerts";
+"push_notification_settings_title" = "Notification Settings";
+"push_notification_settings_transaction_alerts_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
+"push_notification_settings_transaction_alerts_title" = "Transaction Alerts";
 "push_notifications_more_info" = "Подробнее";
 "push_notifications_permission_alert_description" = "Вы можете включить нотификации в настройках";
 "push_notifications_permission_alert_negative_button" = "Включить позже";
@@ -1597,6 +1605,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Общий баланс";
 "token_details_choose_address" = "Выберите адрес";
+"token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Сгенерировать XPUB";
 "token_details_hide_alert_hide" = "Скрыть";
@@ -2048,6 +2057,14 @@
 "xtz_withdrawal_message_ignore" = "Нет, отправить все";
 "xtz_withdrawal_message_reduce" = "Уменьшить на %@ XTZ";
 "xtz_withdrawal_message_warning" = "Чтобы не платить повышенную комиссию при следующем пополнении кошелька, уменьшите сумму на %@ XTZ";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_module_alert_description" = "При активном режиме доходности все будущие депозиты на этот адрес будут направляться в Aave. Вы по-прежнему можете свободно управлять своими средствами.";
 "yield_module_alert_title" = "Ваш %@ внесён в Aave";
 "yield_module_amount_not_transfered_to_aave_title" = "Отправка %1$@ %2$@ в Aave";

@@ -161,21 +161,6 @@ extension ExpressDTO {
                 let firstName: String?
                 let lastName: String?
                 let billingAddress: BillingAddress?
-
-                func encode(to encoder: Encoder) throws {
-                    var container = encoder.container(keyedBy: CodingKeys.self)
-                    try container.encode(email, forKey: .email)
-                    try container.encodeIfPresent(firstName, forKey: .firstName)
-                    try container.encodeIfPresent(lastName, forKey: .lastName)
-                    try container.encodeIfPresent(billingAddress, forKey: .billingAddress)
-                }
-
-                private enum CodingKeys: String, CodingKey {
-                    case email
-                    case firstName
-                    case lastName
-                    case billingAddress
-                }
             }
 
             struct BillingAddress: Encodable {
@@ -183,21 +168,6 @@ extension ExpressDTO {
                 let state: String?
                 let postalCode: String?
                 let country: String?
-
-                func encode(to encoder: Encoder) throws {
-                    var container = encoder.container(keyedBy: CodingKeys.self)
-                    try container.encodeIfPresent(city, forKey: .city)
-                    try container.encodeIfPresent(state, forKey: .state)
-                    try container.encodeIfPresent(postalCode, forKey: .postalCode)
-                    try container.encodeIfPresent(country, forKey: .country)
-                }
-
-                private enum CodingKeys: String, CodingKey {
-                    case city
-                    case state
-                    case postalCode
-                    case country
-                }
             }
 
             struct Request: Encodable {
