@@ -193,8 +193,7 @@ extension CommonOnrampSummaryInteractor {
                         && provider.quote?.nativePaymentAvailable == true
                         && provider.quote?.quoteId != nil
                 }
-                .sorted()
-                .first
+                .min()
 
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
                 nativeApplePay.map { .nativeApplePay($0) },
