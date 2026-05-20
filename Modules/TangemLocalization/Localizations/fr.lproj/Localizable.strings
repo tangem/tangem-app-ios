@@ -2056,6 +2056,14 @@
 "xtz_withdrawal_message_ignore" = "Non, envoyer toute la somme";
 "xtz_withdrawal_message_reduce" = "Réduire de %@ XTZ";
 "xtz_withdrawal_message_warning" = "Pour ne pas payer un fraid de commissions élevé la prochaine fois que vous rechargez votre portefeuille, veuillez réduire le montant de %@ XTZ";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_module_alert_description" = "Vos fonds sont actuellement fournis au protocole Aave, mais vous pouvez les gérer à tout moment.";
 "yield_module_alert_title" = "Vos %@ sont fournis à Aave.";
 "yield_module_amount_not_transfered_to_aave_title" = "Le transfert de %1$@ %2$@ vers Aave est en attente.";
