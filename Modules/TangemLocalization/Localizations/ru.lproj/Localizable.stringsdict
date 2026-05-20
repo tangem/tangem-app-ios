@@ -328,9 +328,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <string>В вашем кошельке %li токен. Синхронизируйте адреса, чтобы продолжить.</string>
+        <key>few</key>
+        <string>В вашем кошельке %li токена. Синхронизируйте адреса, чтобы продолжить.</string>
+        <key>many</key>
+        <string>В вашем кошельке %li токенов. Синхронизируйте адреса, чтобы продолжить.</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>В вашем кошельке %li токенов. Синхронизируйте адреса, чтобы продолжить.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -536,9 +540,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
+        <string>Синхронизируйте адреса, чтобы получить адрес для %li сети</string>
+        <key>few</key>
+        <string>Синхронизируйте адреса, чтобы получить адреса для %li сетей</string>
+        <key>many</key>
+        <string>Синхронизируйте адреса, чтобы получить адреса для %li сетей</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>Синхронизируйте адреса, чтобы получить адреса для %li сетей</string>
       </dict>
     </dict>
   </dict>
