@@ -21,7 +21,10 @@ final class CommonUserTokensPushNotificationsManager {
     private let userWalletId: UserWalletId
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
-    private let updateTrigger: UserTokensPushNotificationsUpdateTrigger
+    private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
+        accountModelsManager: accountModelsManager,
+        permissionService: pushNotificationsPermission
+    )
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
     private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<PushRemoteValueState<Bool>, Never> = .init(.loading)
@@ -39,7 +42,6 @@ final class CommonUserTokensPushNotificationsManager {
         self.userWalletId = userWalletId
         self.accountModelsManager = accountModelsManager
         self.remoteStatusSyncing = remoteStatusSyncing
-        updateTrigger = UserTokensPushNotificationsUpdateTrigger(accountModelsManager: accountModelsManager)
 
         bind()
     }
@@ -135,6 +137,10 @@ private extension CommonUserTokensPushNotificationsManager {
         // - Event.didReceiveRemoteStatus: updates from backend
         // - Event.didChangeLocalStatus: updates from user intent
         _userWalletPushStatusSubject.send(status)
+
+        if shouldSyncRemoteStatus(currentStatus: currentStatus, newStatus: status) {
+            syncRemoteStatus()
+        }
 
         await updateAllowanceIfNeeded()
     }

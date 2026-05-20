@@ -22,7 +22,11 @@ final class CommonUserWalletPushNotificationsManager {
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     private let notificationPreferencesProvider: NotificationPreferencesProvider
-    private let updateTrigger: UserTokensPushNotificationsUpdateTrigger
+    private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
+        accountModelsManager: accountModelsManager,
+        notificationPreferencesProvider: notificationPreferencesProvider,
+        permissionService: pushNotificationsPermission
+    )
 
     private var updateTasks: [PushChannel: Task<Void, Error>] = [:]
     private var fetchPreferencesTask: Task<Void, Error>?
@@ -41,8 +45,6 @@ final class CommonUserWalletPushNotificationsManager {
         self.remoteStatusSyncing = remoteStatusSyncing
         self.notificationPreferencesProvider = notificationPreferencesProvider
 
-        updateTrigger = UserTokensPushNotificationsUpdateTrigger(accountModelsManager: accountModelsManager)
-
         bind()
     }
 
@@ -57,28 +59,8 @@ final class CommonUserWalletPushNotificationsManager {
                 case .syncRemoteStatusRequired:
                     manager.syncRemoteStatus()
                 case .updateStatusRequired:
-                    break
+                    manager.fetchNotificationPreferences()
                 }
-            }
-            .store(in: &bag)
-
-        // Backend transactional-push address sync when the settled remote toggle changes.
-        notificationPreferencesProvider
-            .preferencesPublisher
-            .map { $0.remoteValueState(for: .transactionAlerts) }
-            .removeDuplicates()
-            .pairwise()
-            .filter { previous, current in
-                switch (previous, current) {
-                case (.ready(let previousPreference), .ready(let currentPreference)):
-                    return previousPreference.isEnabled != currentPreference.isEnabled
-                default:
-                    return false
-                }
-            }
-            .withWeakCaptureOf(self)
-            .sink { manager, _ in
-                manager.syncRemoteStatus()
             }
             .store(in: &bag)
     }
@@ -89,7 +71,6 @@ final class CommonUserWalletPushNotificationsManager {
         fetchPreferencesTask = runTask(in: self) { manager in
             do {
                 try await manager.notificationPreferencesProvider.fetchPreferences()
-                await manager.updateAllowanceIfNeeded()
             } catch {
                 // Provider publishes `.failed` on fetch error.
             }
@@ -108,7 +89,7 @@ private extension CommonUserWalletPushNotificationsManager {
 // MARK: - Event Handling
 
 private extension CommonUserWalletPushNotificationsManager {
-    func applyLocalStatusUpdate(_ value: Bool, for channel: PushChannel) {
+    func applyRemoteStatusUpdate(_ value: Bool, for channel: PushChannel) {
         notificationPreferencesProvider.updateRemoteEnabled(.ready(value), for: channel)
     }
 
@@ -156,7 +137,7 @@ extension CommonUserWalletPushNotificationsManager: UserTokensPushNotificationsM
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
         case .handleRemoteValue(let value, let channel):
-            applyLocalStatusUpdate(value, for: channel)
+            applyRemoteStatusUpdate(value, for: channel)
         case .walletBindingWithApplicationSynchronized:
             fetchNotificationPreferences()
         case .walletsBindingInfoUnavailable:

@@ -40,6 +40,7 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
     }
 
     private var requestAuthorizationTask: Task<Void, Never>?
+    private var updateEnableStateTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = .init()
 
     // MARK: - Dependencies
@@ -140,7 +141,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         switch userTokensPushNotificationsManager.status {
         case .enabled, .disabledInApp:
-            userTokensPushNotificationsManager.tryUpdateEnableState(value: toggleValue)
+            tryUpdateEnableState(value: toggleValue)
         case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
@@ -152,6 +153,14 @@ private extension TransactionNotificationsRowToggleViewModel {
         }
     }
 
+    func tryUpdateEnableState(value: Bool) {
+        updateEnableStateTask?.cancel()
+
+        updateEnableStateTask = runTask(in: self) { @MainActor viewModel in
+            try await viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: .transactionAlerts)
+        }
+    }
+
     func handleAndCheckUnavailablePushNotifyStatus() {
         requestAuthorizationTask?.cancel()
 
@@ -159,7 +168,11 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: true)
+                do {
+                    try await viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: true, for: .transactionAlerts)
+                } catch {
+                    // Manager handles optimistic-update rollback internally; nothing to do here.
+                }
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()

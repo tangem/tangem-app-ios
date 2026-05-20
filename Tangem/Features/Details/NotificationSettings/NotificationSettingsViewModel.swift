@@ -41,6 +41,7 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     @Published private var isOffersUpdatesEnabled: Bool = false
     @Published private var isPriceAlertsEnabled: Bool = false
+    @Published private var isSystemPermissionGranted: Bool = false
 
     private var isEnabledTransactionAlertsBinding: BindingValue<Bool> {
         BindingValue<Bool>(
@@ -109,11 +110,20 @@ final class NotificationSettingsViewModel: ObservableObject {
 
 private extension NotificationSettingsViewModel {
     func bind() {
-        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+        pushNotificationsPermission.isAuthorizedPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isAuthorized in
+                viewModel.isSystemPermissionGranted = isAuthorized
+                viewModel.allowNotificationsBannerInput = isAuthorized ? nil : viewModel.makeAllowNotificationsBannerInput()
+            }
+            .store(in: &bag)
+
+        $isSystemPermissionGranted
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
-                viewModel.refreshBannerVisibility()
+                viewModel.rebuildToggleViewModels()
             }
             .store(in: &bag)
 
@@ -129,25 +139,28 @@ private extension NotificationSettingsViewModel {
     }
 
     func setupViewModels() {
-        let userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
-
         transactionAlertsEnabled = userTokensPushNotificationsManager.status.isActive
+        rebuildToggleViewModels()
+    }
 
-        // One-time initialization. Because isNotInitialized is non-recoverable
+    func rebuildToggleViewModels() {
+        let isPermissionDenied = !isSystemPermissionGranted
+
         transactionAlertsViewModel = DefaultToggleRowViewModel(
             title: Localization.pushTransactionsNotificationsTitle,
-            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
+            isDisabled: isPermissionDenied,
             isOn: isEnabledTransactionAlertsBinding
         )
 
         offersUpdatesViewModel = DefaultToggleRowViewModel(
             title: Localization.pushNotificationSettingsOffersUpdatesTitle,
+            isDisabled: isPermissionDenied,
             isOn: isEnabledOffersUpdatesBinding
         )
 
         priceAlertsViewModel = DefaultToggleRowViewModel(
             title: Localization.pushNotificationSettingsPriceAlertsTitle,
-            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
+            isDisabled: isPermissionDenied,
             isOn: isEnabledPriceAlertsEnabledBinding
         )
     }
