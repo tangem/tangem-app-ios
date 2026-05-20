@@ -44,7 +44,7 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
-    private var pendingApplePayFinishStep: Bool = false
+    private var hasPendingApplePayFinishStep: Bool = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -404,7 +404,7 @@ private extension OnrampModel {
         stopTimer()
         _transactionTime.send(Date())
         _expressTransactionId.send(data.txId)
-        pendingApplePayFinishStep = true
+        hasPendingApplePayFinishStep = true
     }
 
     func log(_ message: String) {
@@ -552,8 +552,8 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetDidFinish() {
         autoupdatingTimer.resumeTimer()
 
-        if pendingApplePayFinishStep {
-            pendingApplePayFinishStep = false
+        if hasPendingApplePayFinishStep {
+            hasPendingApplePayFinishStep = false
             router?.openFinishStep()
         }
     }
@@ -590,8 +590,8 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 await runOnMain { result.fail(error) }
             } catch {
                 await runOnMain {
-                    result.fail(error)
                     model.alertPresenter?.showAlert(error.alertBinder)
+                    result.fail(error)
                 }
             }
         }

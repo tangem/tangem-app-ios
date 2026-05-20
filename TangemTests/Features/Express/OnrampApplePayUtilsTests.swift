@@ -15,9 +15,10 @@ import Testing
 @Suite("OnrampApplePayUtils")
 struct OnrampApplePayUtilsTests {
     @Test("makePaymentRequest sets the merchant, networks, capabilities, currency, and country")
-    func makePaymentRequestShape() {
+    func makePaymentRequestShape() throws {
+        let amount = try #require(Decimal(string: "99.99"))
         let request = OnrampApplePayUtils.makePaymentRequest(
-            amount: 99.99,
+            amount: amount,
             currencyCode: "EUR",
             countryCode: "DE",
             summaryItemLabel: "1 ETH",
@@ -33,9 +34,10 @@ struct OnrampApplePayUtilsTests {
     }
 
     @Test("makePaymentRequest exposes a single summary item with the supplied label and amount")
-    func makePaymentRequestSummaryItem() {
+    func makePaymentRequestSummaryItem() throws {
+        let amount = try #require(Decimal(string: "12.50"))
         let request = OnrampApplePayUtils.makePaymentRequest(
-            amount: 12.50,
+            amount: amount,
             currencyCode: "USD",
             countryCode: "US",
             summaryItemLabel: "0.005 ETH",
@@ -44,7 +46,7 @@ struct OnrampApplePayUtilsTests {
 
         #expect(request.paymentSummaryItems.count == 1)
         #expect(request.paymentSummaryItems.first?.label == "0.005 ETH")
-        #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: 12.50))
+        #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: amount))
     }
 
     @Test("mapPaymentResult base64-encodes the payment token and forwards billing contact fields")
