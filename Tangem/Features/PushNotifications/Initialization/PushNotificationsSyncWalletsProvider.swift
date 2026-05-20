@@ -86,20 +86,22 @@ private extension PushNotificationsSyncWalletsProvider {
     func resolveNewlyConnectedEntry(for model: UserWalletModel) async -> ApplicationWalletEntry {
         let walletId = model.userWalletId.stringValue
 
-        let notifyStatus = await model.userTokensPushNotificationsManager.getInitialPushStatusWithAllowance()
+        let shouldBootstrapNotifyStatus = await model.userTokensPushNotificationsManager
+            .shouldAllowanceRemoteNotifyStatus()
 
         if let remoteWallet = try? await tangemApiService.getUserWallet(userWalletId: walletId) {
             return ApplicationWalletEntry(
                 id: remoteWallet.id,
                 name: remoteWallet.name ?? "",
-                notifyStatus: notifyStatus
+                notifyStatus: shouldBootstrapNotifyStatus ? true : remoteWallet.notifyStatus
             )
         }
 
+        // Fallback implementation.
         return ApplicationWalletEntry(
             id: walletId,
             name: model.name,
-            notifyStatus: notifyStatus
+            notifyStatus: shouldBootstrapNotifyStatus
         )
     }
 
