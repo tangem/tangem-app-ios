@@ -26,7 +26,7 @@ struct NotificationSettingsView: View {
         }
         .interContentPadding(8)
         .background(Colors.Background.secondary.ignoresSafeArea())
-        .navigationTitle(NotificationSettingsViewModel.Constants.screenTitle)
+        .navigationTitle(Localization.pushNotificationSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
@@ -41,39 +41,28 @@ struct NotificationSettingsView: View {
 
     @ViewBuilder
     private var transactionPushSection: some View {
-        if viewModel.isTransactionPushVisible {
-            VStack(spacing: Layout.transactionSectionSpacing) {
-                GroupedSection(viewModel.warningPermissionViewModel) {
-                    DefaultWarningRow(viewModel: $0)
-                }
-
-                GroupedSection(viewModel.pushNotifyViewModel) {
-                    DefaultToggleRowView(viewModel: $0)
-                } footer: {
-                    Button(action: viewModel.onTapMoreInfoTransactionPushNotifications) {
-                        Group {
-                            Text("\(Localization.walletSettingsPushNotificationsDescription) ")
-                                + readMoreText
-                        }
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .multilineTextAlignment(.leading)
+        VStack(spacing: Layout.transactionSectionSpacing) {
+            GroupedSection(viewModel.transactionAlertsViewModel) {
+                DefaultToggleRowView(viewModel: $0)
+            } footer: {
+                Button(action: viewModel.onTapMoreInfoTransactionPushNotifications) {
+                    Group {
+                        Text("\(Localization.walletSettingsPushNotificationsDescription) ")
+                            + readMoreText
                     }
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
                 }
             }
         }
-    }
-
-    private var readMoreText: Text {
-        let text = Localization.pushNotificationsMoreInfo.replacingOccurrences(of: " ", with: String.unbreakableSpace)
-        return Text(text).foregroundColor(Colors.Text.accent)
     }
 
     private var offersUpdatesSection: some View {
         GroupedSection(viewModel.offersUpdatesViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            DefaultFooterView(NotificationSettingsViewModel.Constants.offersUpdatesFooter)
+            DefaultFooterView(Localization.pushNotificationSettingsOffersUpdatesSubtitle)
         }
     }
 
@@ -81,8 +70,13 @@ struct NotificationSettingsView: View {
         GroupedSection(viewModel.priceAlertsViewModel) {
             DefaultToggleRowView(viewModel: $0)
         } footer: {
-            DefaultFooterView(NotificationSettingsViewModel.Constants.priceAlertsFooter)
+            DefaultFooterView(Localization.pushNotificationSettingsPriceAlertsSubtitle)
         }
+    }
+
+    private var readMoreText: Text {
+        let text = Localization.pushNotificationsMoreInfo.replacingOccurrences(of: " ", with: String.unbreakableSpace)
+        return Text(text).foregroundColor(Colors.Text.accent)
     }
 }
 
