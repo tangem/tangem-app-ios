@@ -9,8 +9,8 @@
 import Foundation
 
 actor NotificationPreferencesStateStore {
-    private(set) var remoteStates: PushChannelRemoteStates = .allLoading
-    private var lastConfirmedStates: PushChannelRemoteStates = .allLoading
+    private(set) var preferences: RemotePushPreferences = .loading
+    private var lastConfirmedPreferences: RemotePushPreferences = .loading
 
     private var inFlightUpdateCount: Int = 0
     private var latestFetchToken: Int = 0
@@ -19,19 +19,19 @@ actor NotificationPreferencesStateStore {
     func updateRemoteEnabled(
         _ state: PushRemoteValueState<Bool>,
         for channel: PushChannel
-    ) -> PushChannelRemoteStates {
+    ) -> RemotePushPreferences {
         switch state {
         case .loading:
-            remoteStates = .allLoading
+            preferences = .loading
         case .failed:
-            remoteStates = PushChannelRemoteStates(loadState: .failed)
+            preferences = RemotePushPreferences(state: .failed)
         case .ready(let isEnabled):
-            var states = remoteStates
-            states.setEnabled(isEnabled, for: channel)
-            remoteStates = states
+            var updated = preferences
+            updated.setEnabled(isEnabled, for: channel)
+            preferences = updated
         }
 
-        return remoteStates
+        return preferences
     }
 
     func beginFetch() -> Int {
@@ -42,60 +42,60 @@ actor NotificationPreferencesStateStore {
     func applyFetchResponse(
         _ response: NotificationPreferencesDTO.Response.Body,
         for token: Int
-    ) -> PushChannelRemoteStates? {
+    ) -> RemotePushPreferences? {
         guard token == latestFetchToken else {
             return nil
         }
 
         // An optimistic write that hasn't reached the backend yet would be lost if we
         // applied this (now stale) server snapshot. Skip; the in-flight write will
-        // update `lastConfirmedStates` itself, and a subsequent fetch will reconcile.
+        // update `lastConfirmedPreferences` itself, and a subsequent fetch will reconcile.
         guard inFlightUpdateCount == 0 else {
             return nil
         }
 
-        let newStates = PushChannelRemoteStates(response: response)
-        remoteStates = newStates
-        lastConfirmedStates = newStates
-        return newStates
+        let newPreferences = RemotePushPreferences(response: response)
+        preferences = newPreferences
+        lastConfirmedPreferences = newPreferences
+        return newPreferences
     }
 
-    func applyFetchFailure(for token: Int) -> PushChannelRemoteStates? {
+    func applyFetchFailure(for token: Int) -> RemotePushPreferences? {
         guard token == latestFetchToken else {
             return nil
         }
 
-        guard case .loading = remoteStates.loadState else {
+        guard case .loading = preferences.state else {
             return nil
         }
 
-        let states = PushChannelRemoteStates(loadState: .failed)
-        remoteStates = states
-        return states
+        let failed = RemotePushPreferences(state: .failed)
+        preferences = failed
+        return failed
     }
 
     func beginUpdate(channel: PushChannel, isEnabled: Bool) -> UpdateContext {
         latestUpdateToken += 1
         inFlightUpdateCount += 1
 
-        var optimisticStates = remoteStates
-        optimisticStates.setEnabled(isEnabled, for: channel)
+        var optimisticPreferences = preferences
+        optimisticPreferences.setEnabled(isEnabled, for: channel)
 
         // Always revert to a server-confirmed snapshot, never to whatever happens to be in
-        // `remoteStates` right now — that value can already be optimistic from an
+        // `preferences` right now — that value can already be optimistic from an
         // earlier rapid toggle whose PUT is still in flight.
-        let rollbackTarget = lastConfirmedStates
+        let rollbackPreferences = lastConfirmedPreferences
 
-        remoteStates = optimisticStates
+        preferences = optimisticPreferences
 
         return .init(
             token: latestUpdateToken,
-            optimisticStates: optimisticStates,
-            rollbackTarget: rollbackTarget
+            optimisticPreferences: optimisticPreferences,
+            rollbackPreferences: rollbackPreferences
         )
     }
 
-    func finishUpdate(token: Int, completion: UpdateCompletion) -> PushChannelRemoteStates? {
+    func finishUpdate(token: Int, completion: UpdateCompletion) -> RemotePushPreferences? {
         inFlightUpdateCount = max(0, inFlightUpdateCount - 1)
 
         guard token == latestUpdateToken else {
@@ -103,13 +103,13 @@ actor NotificationPreferencesStateStore {
         }
 
         switch completion {
-        case .success(let optimisticStates):
-            remoteStates = optimisticStates
-            lastConfirmedStates = optimisticStates
+        case .success(let optimisticPreferences):
+            preferences = optimisticPreferences
+            lastConfirmedPreferences = optimisticPreferences
             return nil
-        case .failure(let rollbackTarget):
-            remoteStates = rollbackTarget
-            return rollbackTarget
+        case .failure(let rollbackPreferences):
+            preferences = rollbackPreferences
+            return rollbackPreferences
         case .cancelled:
             return nil
         }
@@ -119,13 +119,13 @@ actor NotificationPreferencesStateStore {
 extension NotificationPreferencesStateStore {
     struct UpdateContext {
         let token: Int
-        let optimisticStates: PushChannelRemoteStates
-        let rollbackTarget: PushChannelRemoteStates
+        let optimisticPreferences: RemotePushPreferences
+        let rollbackPreferences: RemotePushPreferences
     }
 
     enum UpdateCompletion {
-        case success(PushChannelRemoteStates)
-        case failure(PushChannelRemoteStates)
+        case success(RemotePushPreferences)
+        case failure(RemotePushPreferences)
         case cancelled
     }
 }
