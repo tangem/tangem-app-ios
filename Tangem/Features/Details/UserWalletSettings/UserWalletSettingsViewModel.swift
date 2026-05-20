@@ -265,7 +265,7 @@ private extension UserWalletSettingsViewModel {
 
         if FeatureProvider.isAvailable(.pushNotificationsSettings) {
             notificationSettingsViewModel = DefaultRowViewModel(
-                title: NotificationSettingsViewModel.Constants.screenTitle,
+                title: Localization.pushNotificationSettingsTitle,
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
             )
         } else {
