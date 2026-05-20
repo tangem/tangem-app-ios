@@ -67,7 +67,7 @@ struct ExpressProviderFormatterBadgeTests {
 struct ExpressProviderFormatterRateSubtitleTests {
     @Test("ETH → USDT preserves source-is-base ordering: ETH on the left, USDT on the right")
     func ethToUsdt_sourceIsBase() {
-        let formatter = ExpressProviderFormatter()
+        let formatter = ExpressProviderFormatter(isStablecoinOrderingEnabled: true)
         let eth = TokenItem.blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
         let usdt = TokenItem.token(
             .init(name: "USDT", symbol: "USDT", contractAddress: "0xUSDT", decimalCount: 6, id: "tether"),
@@ -87,7 +87,7 @@ struct ExpressProviderFormatterRateSubtitleTests {
 
     @Test("USDT → ETH flips ordering so ETH is the base, USDT is the quote")
     func usdtToEth_receiveIsBase() {
-        let formatter = ExpressProviderFormatter()
+        let formatter = ExpressProviderFormatter(isStablecoinOrderingEnabled: true)
         let eth = TokenItem.blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
         let usdt = TokenItem.token(
             .init(name: "USDT", symbol: "USDT", contractAddress: "0xUSDT", decimalCount: 6, id: "tether"),
