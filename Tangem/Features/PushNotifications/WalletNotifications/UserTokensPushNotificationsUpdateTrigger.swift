@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 /// Monitors wallet readiness conditions and emits events that drive push-notification
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
@@ -31,13 +32,25 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private let eventsSubject = PassthroughSubject<Event, Never>()
     private var bag: Set<AnyCancellable> = []
 
-    init(accountModelsManager: AccountModelsManager) {
-        bind(accountModelsManager: accountModelsManager)
+    init(
+        accountModelsManager: AccountModelsManager,
+        notificationPreferencesProvider: NotificationPreferencesProvider? = nil,
+        permissionService: PushNotificationsPermissionService
+    ) {
+        bind(
+            accountModelsManager: accountModelsManager,
+            notificationPreferencesProvider: notificationPreferencesProvider,
+            permissionService: permissionService
+        )
     }
 
     // MARK: - Private
 
-    private func bind(accountModelsManager: AccountModelsManager) {
+    private func bind(
+        accountModelsManager: AccountModelsManager,
+        notificationPreferencesProvider: NotificationPreferencesProvider?,
+        permissionService: PushNotificationsPermissionService
+    ) {
         let isUserTokenListReadyPublisher = accountModelsManager
             .cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
@@ -79,11 +92,30 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        NotificationCenter.default
-            .publisher(for: UIApplication.willEnterForegroundNotification)
+        permissionService.isAuthorizedPublisher
             .combineLatest(isUserTokenListReadyPublisher)
             .receiveOnMain()
             .map { _ in Event.updateStatusRequired }
+            .subscribe(eventsSubject)
+            .store(in: &bag)
+
+        // Backend transactional-push address sync when the settled remote toggle changes,
+        // gated on the token list being ready.
+        notificationPreferencesProvider?
+            .preferencesPublisher
+            .map { $0.remoteValueState(for: .transactionAlerts) }
+            .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in
+                switch (previous, current) {
+                case (.ready(let previousPreference), .ready(let currentPreference)):
+                    return previousPreference.isEnabled != currentPreference.isEnabled
+                default:
+                    return false
+                }
+            }
+            .combineLatest(isUserTokenListReadyPublisher)
+            .map { _ in Event.syncRemoteStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
     }
