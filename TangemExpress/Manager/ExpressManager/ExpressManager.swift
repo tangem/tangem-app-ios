@@ -12,13 +12,11 @@ import TangemFoundation
 import BlockchainSdk
 
 public protocol ExpressManager: Actor {
-    func getPair() -> ExpressManagerSwappingPair?
     func getAmountType() -> ExpressAmountType?
     func getRateType() -> ExpressProviderRateType?
-    func getAllProviders() -> [ExpressAvailableProvider]
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult
-    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult
+    func update(amountType: ExpressAmountType?) async throws -> ExpressManagerUpdatingResult
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult
     func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult
     func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult
