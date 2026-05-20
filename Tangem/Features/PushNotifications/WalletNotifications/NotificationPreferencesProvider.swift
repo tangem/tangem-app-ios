@@ -18,12 +18,12 @@ protocol NotificationPreferencesProvider: AnyObject {
     var remoteStates: PushChannelRemoteStates { get }
 
     /// Updates the stored remote value for a single channel.
-    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel)
+    func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel)
 
     /// Loads notification preferences from the backend and updates `remoteStates`.
-    func fetchPreferences()
+    func fetchPreferences() async throws
 
-    /// Optimistically updates the cache and sends a full-replace PUT in a background task.
-    /// Automatically reverts the cache to the last server-confirmed value if the request fails.
-    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)])
+    /// Optimistically updates the cache and sends a full-replace PUT.
+    /// Reverts the cache to the last server-confirmed value if the request fails.
+    func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws
 }

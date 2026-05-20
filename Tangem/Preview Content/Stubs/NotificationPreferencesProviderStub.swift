@@ -22,33 +22,20 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
 
     init() {}
 
-    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
-        var states = remoteStatesSubject.value
-        let visibility = states.preference(for: channel).isVisible
-
+    func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         switch state {
         case .loading:
-            states[channel] = .loading
+            remoteStatesSubject.send(.allLoading)
         case .failed:
-            states[channel] = .failed
-        case .pending(let isEnabled):
-            states[channel] = .pending(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+            remoteStatesSubject.send(PushChannelRemoteStates(loadState: .failed))
         case .ready(let isEnabled):
-            states[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+            var states = remoteStatesSubject.value
+            states.setEnabled(isEnabled, for: channel)
+            remoteStatesSubject.send(states)
         }
-
-        remoteStatesSubject.send(states)
     }
 
-    func fetchPreferences() {}
+    func fetchPreferences() async throws {}
 
-    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {
-        var states = remoteStatesSubject.value
-
-        for (channel, isEnabled) in preferences {
-            states.setPendingEnabled(isEnabled, for: channel)
-        }
-
-        remoteStatesSubject.send(states.settlingPendingToReady())
-    }
+    func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {}
 }
