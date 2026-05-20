@@ -24,8 +24,6 @@ final class CommonUserWalletPushNotificationsManager {
     private let notificationPreferencesProvider: NotificationPreferencesProvider
     private let updateTrigger: UserTokensPushNotificationsUpdateTrigger
 
-    private let _userWalletPushStatusSubject: CurrentValueSubject<[PushChannel: UserWalletPushNotifyStatus], Never> = .init([:])
-
     private var updateTasks: [PushChannel: Task<Void, Error>] = [:]
     private var fetchPreferencesTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
@@ -59,16 +57,14 @@ final class CommonUserWalletPushNotificationsManager {
                 case .syncRemoteStatusRequired:
                     manager.syncRemoteStatus()
                 case .updateStatusRequired:
-                    for channel in PushChannel.allCases {
-                        manager.updateStatusIfNeeded(for: channel)
-                    }
+                    break
                 }
             }
             .store(in: &bag)
 
         // Backend transactional-push address sync when the settled remote toggle changes.
         notificationPreferencesProvider
-            .remoteStatesPublisher
+            .preferencesPublisher
             .map { $0.remoteValueState(for: .transactionAlerts) }
             .removeDuplicates()
             .pairwise()
@@ -85,35 +81,6 @@ final class CommonUserWalletPushNotificationsManager {
                 manager.syncRemoteStatus()
             }
             .store(in: &bag)
-
-        notificationPreferencesProvider
-            .remoteStatesPublisher
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { manager, _ in
-                for channel in PushChannel.allCases {
-                    manager.updateStatusIfNeeded(for: channel)
-                }
-            }
-            .store(in: &bag)
-    }
-
-    private func updateStatusIfNeeded(for channel: PushChannel) {
-        updateTasks[channel]?.cancel()
-
-        updateTasks[channel] = runTask { [weak self] in
-            guard let self else {
-                return
-            }
-
-            let currentPushNotifyStatus = await definePushNotifyStatus(for: channel)
-            let previousChannelStatus = _userWalletPushStatusSubject.value[channel] ?? .loading
-
-            // Checking the deduplication of a status update call
-            if currentPushNotifyStatus != previousChannelStatus {
-                await updateWalletPushNotifyStatus(currentPushNotifyStatus, for: channel)
-            }
-        }
     }
 
     private func fetchNotificationPreferences() {
@@ -122,12 +89,9 @@ final class CommonUserWalletPushNotificationsManager {
         fetchPreferencesTask = runTask(in: self) { manager in
             do {
                 try await manager.notificationPreferencesProvider.fetchPreferences()
+                await manager.updateAllowanceIfNeeded()
             } catch {
                 // Provider publishes `.failed` on fetch error.
-            }
-
-            for channel in PushChannel.allCases {
-                manager.updateStatusIfNeeded(for: channel)
             }
         }
     }
@@ -136,35 +100,6 @@ final class CommonUserWalletPushNotificationsManager {
 // MARK: - Helpers
 
 private extension CommonUserWalletPushNotificationsManager {
-    func definePushNotifyStatus(for channel: PushChannel) async -> UserWalletPushNotifyStatus {
-        switch notificationPreferencesProvider.remoteStates.loadState {
-        case .loading:
-            return .loading
-        case .failed:
-            return .failed
-        case .ready:
-            guard await pushNotificationsPermission.isAuthorized else {
-                return .needSystemPermission
-            }
-
-            let preference = notificationPreferencesProvider.remoteStates.preference(for: channel)
-            return preference.isEnabled ? .enabled : .disabledInApp
-        }
-    }
-
-    private func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus, for channel: PushChannel) async {
-        var toUpdateStatus = _userWalletPushStatusSubject.value
-
-        // Only update the final status subject.
-        // Remote status is managed separately:
-        // - Event.didReceiveRemoteStatus: updates from backend
-        // - Event.didChangeLocalStatus: updates from user intent
-        toUpdateStatus[channel] = status
-        _userWalletPushStatusSubject.send(toUpdateStatus)
-
-        await updateAllowanceIfNeeded()
-    }
-
     private func syncRemoteStatus() {
         remoteStatusSyncing.syncRemoteStatus()
     }
@@ -174,25 +109,11 @@ private extension CommonUserWalletPushNotificationsManager {
 
 private extension CommonUserWalletPushNotificationsManager {
     func applyLocalStatusUpdate(_ value: Bool, for channel: PushChannel) {
-        updateTasks[channel]?.cancel()
-
-        updateTasks[channel] = runTask(in: self) { manager in
-            do {
-                try await manager.notificationPreferencesProvider.updatePreferences(isEnabled: value, for: channel)
-            } catch {
-                // Provider rolls back `remoteStates` and republishes on failure.
-            }
-
-            manager.updateStatusIfNeeded(for: channel)
-        }
+        notificationPreferencesProvider.updateRemoteEnabled(.ready(value), for: channel)
     }
 
     func applySyncFailure() {
-        runTask(in: self) { @MainActor manager in
-            for channel in PushChannel.allCases {
-                await manager.updateWalletPushNotifyStatus(.failed, for: channel)
-            }
-        }
+        notificationPreferencesProvider.updateRemoteEnabled(.failed, for: .transactionAlerts)
     }
 }
 
@@ -200,22 +121,36 @@ private extension CommonUserWalletPushNotificationsManager {
 
 extension CommonUserWalletPushNotificationsManager: UserTokensPushNotificationsManager {
     var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> {
-        _userWalletPushStatusSubject
-            .map { $0[.transactionAlerts] ?? .loading }
+        notificationPreferencesProvider.preferencesPublisher
+            .map { preferences -> UserWalletPushNotifyStatus in
+                switch preferences.remoteValueState(for: .transactionAlerts) {
+                case .loading: return .loading
+                case .failed: return .failed
+                case .ready(let preference): return preference.isEnabled ? .enabled : .disabledInApp
+                }
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
     var status: UserWalletPushNotifyStatus {
-        _userWalletPushStatusSubject.value[.transactionAlerts] ?? .loading
+        switch notificationPreferencesProvider.preferences.remoteValueState(for: .transactionAlerts) {
+        case .loading: return .loading
+        case .failed: return .failed
+        case .ready(let preference): return preference.isEnabled ? .enabled : .disabledInApp
+        }
+    }
+
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> {
+        notificationPreferencesProvider.preferencesPublisher
     }
 
     var isRemoteStatusEnabled: Bool {
-        guard case .ready = notificationPreferencesProvider.remoteStates.loadState else {
+        guard case .ready = notificationPreferencesProvider.preferences.state else {
             return false
         }
 
-        return notificationPreferencesProvider.remoteStates.preference(for: .transactionAlerts).isEnabled
+        return notificationPreferencesProvider.preferences.preference(for: .transactionAlerts).isEnabled
     }
 
     func process(_ event: UserWalletPushNotificationsEvent) {
@@ -229,7 +164,9 @@ extension CommonUserWalletPushNotificationsManager: UserTokensPushNotificationsM
         }
     }
 
-    func tryUpdateEnableState(value: Bool) {}
+    func tryUpdateEnableState(value: Bool, for channel: PushChannel) async throws {
+        try await notificationPreferencesProvider.updatePreferences(isEnabled: value, for: channel)
+    }
 
     func shouldAllowanceRemoteNotifyStatus() async -> Bool {
         let isAuthorizedPushNotifications = await pushNotificationsPermission.isAuthorized
@@ -266,26 +203,5 @@ private extension CommonUserWalletPushNotificationsManager {
         if !AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue) {
             AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
         }
-    }
-
-    func permissionRequestInitialPushAllowance() {
-        let toUpdateNotifyStatus = allowancePushNotifyStatus()
-        applyLocalStatusUpdate(toUpdateNotifyStatus, for: .transactionAlerts)
-    }
-
-    func allowancePushNotifyStatus() -> Bool {
-        let currentRemoteStatus = notificationPreferencesProvider
-            .remoteStates
-            .preference(for: .transactionAlerts)
-            .isEnabled
-
-        let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
-
-        if !allowanceUserWalletIdTransactionsPush {
-            // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
-            return true
-        }
-
-        return currentRemoteStatus
     }
 }
