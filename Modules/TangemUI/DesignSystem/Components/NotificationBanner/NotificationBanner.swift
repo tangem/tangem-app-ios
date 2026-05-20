@@ -37,21 +37,42 @@ public struct NotificationBanner: View, Setupable {
         }
     }
 
+    private var iconIsLeading: Bool {
+        switch bannerType {
+        case .promo:
+            true
+        case .status, .critical, .warning, .survey, .informational:
+            false
+        }
+    }
+
     public var body: some View {
+        bannerContent
+            .overlay(alignment: .topTrailing) {
+                if bannerType.isClosable {
+                    closeButton
+                }
+            }
+            .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
+    @ViewBuilder
+    private var bannerContent: some View {
         switch bannerType.bannerAction {
+        case .buttons(.none):
+            bannerBody()
+                .accessibilityElement(children: .combine)
         case .buttons(let buttons):
             bannerBody {
                 buttonsView(buttons: buttons)
             }
             .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(accessibilityIdentifier)
         case .tappable(let tapAction):
             Button(action: tapAction.action) {
                 bannerBody()
             }
             .buttonStyle(.plain)
             .accessibilityElement(children: .combine)
-            .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 
@@ -65,11 +86,6 @@ public struct NotificationBanner: View, Setupable {
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
-        .overlay(alignment: .topTrailing) {
-            if bannerType.isClosable {
-                closeButton
-            }
-        }
         .glowBorder(effect: bannerType.effect)
     }
 
@@ -94,33 +110,34 @@ public struct NotificationBanner: View, Setupable {
 
     @ViewBuilder
     private var contentView: some View {
-        if bannerType.isClosable {
-            textStack(title: content.text.title, subtitle: content.text.subtitle)
-        } else {
-            switch content {
-            case .text(let textOnly):
-                textStack(title: textOnly.title, subtitle: textOnly.subtitle)
+        switch content {
+        case .text(let textOnly):
+            textStack(title: textOnly.title, subtitle: textOnly.subtitle)
 
-            case .textWithIcon(let data):
-                HStack(
-                    alignment: data.icon.alignment.verticalAlignment,
-                    spacing: SizeUnit.x2.value
-                ) {
+        case .textWithIcon(let data):
+            HStack(
+                alignment: data.icon.alignment.verticalAlignment,
+                spacing: iconIsLeading ? SizeUnit.x1.value : SizeUnit.x2.value
+            ) {
+                if iconIsLeading {
+                    iconImage(for: data.icon)
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
-
+                    Spacer(minLength: 0)
+                } else {
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer()
-
-                    data.icon.imageType.image
-                        .renderingMode(data.icon.renderingMode)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(
-                            width: iconWidth,
-                            height: iconHeight
-                        )
+                    iconImage(for: data.icon)
                 }
             }
         }
+    }
+
+    private func iconImage(for icon: Icon) -> some View {
+        icon.imageType.image
+            .renderingMode(icon.renderingMode)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: iconWidth, height: iconHeight)
     }
 
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {

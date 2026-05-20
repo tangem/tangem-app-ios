@@ -119,6 +119,14 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
             let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
 
+            let getTangemPayBannerNotificationManager = GetTangemPayBannerNotificationManager(
+                userWalletId: model.userWalletId.stringValue,
+                tapAction: { [weak coordinator] availableSelection in
+                    coordinator?.openGetTangemPay(availableSelection: availableSelection)
+                    Analytics.log(.visaOnboardingVisaPermanentBannerClicked)
+                }
+            )
+
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
                 yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
@@ -134,6 +142,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 tokensNotificationManager: multiWalletNotificationManager,
                 promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
+                getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
