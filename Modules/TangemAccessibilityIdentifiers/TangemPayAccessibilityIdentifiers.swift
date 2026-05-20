@@ -14,6 +14,7 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Main screen entry
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
+    public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
 
     // MARK: - Tangem Pay payment account screen
 
