@@ -93,7 +93,6 @@ final class QuickTopUpBannerViewModel: ObservableObject {
 
         var chips: [Chip] = []
         var presets: [Chip.ID: PredefinedOnrampParameters] = [:]
-        chips.reserveCapacity(amounts.count + 1)
 
         for amount in amounts {
             let title = formatter.formatFiatBalance(amount, currencyCode: currencyCode, formattingOptions: options)

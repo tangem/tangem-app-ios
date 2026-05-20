@@ -123,7 +123,7 @@ private extension OnrampOffersSelectorViewModel {
             )
         }
 
-        return offers.sorted { lhs, _ in lhs.isNativePayment }
+        return offers.sorted { lhs, rhs in lhs.isNativePayment && !rhs.isNativePayment }
     }
 }
 
