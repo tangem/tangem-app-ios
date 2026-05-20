@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li hour</string>
+        <string>%li  hora</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li horas</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -392,9 +392,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li cartão</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li cartões</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -440,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
+        <string>Sincronizar endereços para obter um endereço de %li rede</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>Sincronizar endereços para obter endereços para %li rede</string>
       </dict>
     </dict>
   </dict>
