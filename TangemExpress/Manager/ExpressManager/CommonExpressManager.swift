@@ -42,10 +42,6 @@ actor CommonExpressManager {
 // MARK: - ExpressManager
 
 extension CommonExpressManager: ExpressManager {
-    func getPair() -> ExpressManagerSwappingPair? {
-        return _pair
-    }
-
     func getAmountType() -> ExpressAmountType? {
         return _amountType
     }
@@ -58,14 +54,6 @@ extension CommonExpressManager: ExpressManager {
         }
 
         return selected.supportedRateTypes.first
-    }
-
-    func getSelectedProvider() -> ExpressAvailableProvider? {
-        return selectedProvider
-    }
-
-    func getAllProviders() -> [ExpressAvailableProvider] {
-        return availableProviders
     }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
@@ -84,9 +72,9 @@ extension CommonExpressManager: ExpressManager {
         return makeUpdatingResult(selected: selected)
     }
 
-    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
+    func update(amountType: ExpressAmountType?) async throws -> ExpressManagerUpdatingResult {
         _amountType = amountType
-        return try await update(by: source)
+        return try await update(by: .amount)
     }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult {
@@ -192,72 +180,16 @@ private extension CommonExpressManager {
     }
 
     func updateIsBestFlag() {
-        let candidates = candidateProviders
-        let bestRate = bestByRateProvider(from: candidates)
+        let rateType = _amountType?.rateType ?? .float
+        availableProviders.updateIsBestFlag(rateType: rateType)
 
-        let enabledProvidersMoreThanOne = eligibleProviders(from: candidates).count > 1
-
-        availableProviders.forEach { provider in
-            // We set the `isBest` flag only if we have more than one enabled provider
-            let isBest = enabledProvidersMoreThanOne && provider.provider == bestRate?.provider
-            provider.update(isBest: isBest)
-
-            ExpressLogger.info(self, "Update provider \(provider.provider.name) isBest? - \(provider.isBest)")
-        }
+        let summary = availableProviders.map { "\($0.provider.name)=\($0.isBest)" }.joined(separator: ", ")
+        ExpressLogger.info(self, "isBest flags: \(summary)")
     }
 
     func bestProvider() async -> ExpressAvailableProvider? {
-        let candidates = candidateProviders
-
-        // If we have more than one provider then select the best
-        if candidates.count > 1 {
-            // Try to find the best with expectAmount
-            if let bestByRateProvider = bestByRateProvider(from: candidates) {
-                return bestByRateProvider
-            }
-        }
-
-        // If all candidates don't have the quote and the expectAmount
-        // Just select the provider by priority
-        return candidates.sorted(by: { $0.getPriority() > $1.getPriority() }).first
-    }
-
-    func bestByRateProvider(from candidates: [ExpressAvailableProvider]? = nil) -> ExpressAvailableProvider? {
-        let providers = candidates ?? candidateProviders
-        let isFixedRate = _amountType?.rateType == .fixed
-
-        let eligible = eligibleProviders(from: providers)
-
-        guard eligible.isNotEmpty else {
-            return nil
-        }
-
-        return eligible.sorted(by: { lhsProvider, rhsProvider in
-            let lhsQuote = lhsProvider.getState().quote
-            let rhsQuote = rhsProvider.getState().quote
-
-            if isFixedRate {
-                // Fixed mode: lowest fromAmount is best (cheapest cost for user)
-                guard let lhs = lhsQuote?.fromAmount, let rhs = rhsQuote?.fromAmount else { return false }
-                return lhs < rhs
-            } else {
-                // Float mode: highest expectAmount is best (most received)
-                guard let lhs = lhsQuote?.expectAmount, let rhs = rhsQuote?.expectAmount else { return false }
-                return lhs > rhs
-            }
-        }).first
-    }
-
-    func eligibleProviders(from providers: [ExpressAvailableProvider]) -> [ExpressAvailableProvider] {
-        providers.filter { provider in
-            let state = provider.getState()
-            switch state {
-            case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
-                return false
-            default:
-                return state.quote != nil
-            }
-        }
+        let rateType = _amountType?.rateType ?? .float
+        return candidateProviders.best(rateType: rateType)
     }
 
     func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
