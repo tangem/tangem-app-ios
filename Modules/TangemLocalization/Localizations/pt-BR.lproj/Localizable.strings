@@ -2056,6 +2056,14 @@
 "xtz_withdrawal_message_ignore" = "Não, envie tudo";
 "xtz_withdrawal_message_reduce" = "Reduzir por %@ XTZ";
 "xtz_withdrawal_message_warning" = "Para evitar pagar uma comissão maior na próxima vez que recarregar sua carteira, reduza o valor em %@ XTZ";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_module_alert_description" = "Quando o Modo de Rendimento estiver ativo, todas as recargas futuras para este endereço serão fornecidas à Aave. Você ainda poderá gerenciar seus fundos livremente.";
 "yield_module_alert_title" = "Seu %@ é fornecido à Aave";
 "yield_module_amount_not_transfered_to_aave_title" = "Fornecimento %1$@ %2$@ para Aave";
