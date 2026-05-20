@@ -102,6 +102,10 @@ extension CommonExpressAPIService: ExpressAPIService {
     func onrampStatus(request: ExpressDTO.Onramp.Status.Request) async throws -> ExpressDTO.Onramp.Status.Response {
         try await _request(target: .onrampStatus(request: request))
     }
+
+    func onrampHistory(request: ExpressDTO.Onramp.History.Request) async throws -> ExpressDTO.Onramp.History.Response {
+        try await _request(target: .onrampHistory(request: request))
+    }
 }
 
 private extension CommonExpressAPIService {
