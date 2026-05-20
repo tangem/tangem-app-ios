@@ -956,7 +956,7 @@
 "onramp_payment_method_subtitle" = "Mode de paiement";
 "onramp_provider_max_amount" = "Disponible jusqu'à %@";
 "onramp_provider_min_amount" = "Disponible à partir de %@";
-"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verificatio";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
 "onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Fournisseurs";
 "onramp_recently_used_title" = "Récemment utilisé";
@@ -986,6 +986,13 @@
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
 "provider_name_support" = "Assistance %@";
+"push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
+"push_notification_settings_offers_updates_title" = "Offers & Updates";
+"push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
+"push_notification_settings_price_alerts_title" = "Price Alerts";
+"push_notification_settings_title" = "Notification Settings";
+"push_notification_settings_transaction_alerts_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
+"push_notification_settings_transaction_alerts_title" = "Transaction Alerts";
 "push_notifications_more_info" = "Plus d'infos";
 "push_notifications_permission_alert_description" = "Vous pouvez activer les notifications pour Tangem dans les paramètres.";
 "push_notifications_permission_alert_negative_button" = "Activer plus tard";
@@ -1597,6 +1604,7 @@
 "token_details_balance_available" = "Available balance";
 "token_details_balance_total" = "Total balance";
 "token_details_choose_address" = "Choisissez une adresse";
+"token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Up to %@ APR";
 "token_details_generate_xpub" = "Générer XPUB";
 "token_details_hide_alert_hide" = "Masquer";
