@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemMacro
 
@@ -25,6 +26,7 @@ struct TangemPayAddFundsSheetOptionView: View {
             .infinityFrame(axis: .horizontal, alignment: .leading)
             .padding(.vertical, 14)
         }
+        .accessibilityIdentifier(option.accessibilityIdentifier)
     }
 
     private var icon: some View {
@@ -74,6 +76,13 @@ extension TangemPayAddFundsSheetOptionView {
             switch self {
             case .receive: Assets.arrowDownMini
             case .swap: Assets.exchangeMini
+            }
+        }
+
+        var accessibilityIdentifier: String {
+            switch self {
+            case .receive: TangemPayAccessibilityIdentifiers.addFundsSheetReceiveOption
+            case .swap: TangemPayAccessibilityIdentifiers.addFundsSheetSwapOption
             }
         }
     }
