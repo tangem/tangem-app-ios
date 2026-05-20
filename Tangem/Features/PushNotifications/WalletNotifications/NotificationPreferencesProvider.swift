@@ -11,16 +11,16 @@ import Combine
 
 /// Abstraction for reading and updating push-notification channel preferences.
 protocol NotificationPreferencesProvider: AnyObject {
-    /// Emits whenever `remoteStates` changes (fetch, optimistic update, or rollback).
-    var remoteStatesPublisher: AnyPublisher<PushChannelRemoteStates, Never> { get }
+    /// Emits whenever `preferences` changes (fetch, optimistic update, or rollback).
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> { get }
 
-    /// Remote values for each push channel received from or sent to the backend.
-    var remoteStates: PushChannelRemoteStates { get }
+    /// Remote preferences for each push channel received from or sent to the backend.
+    var preferences: RemotePushPreferences { get }
 
     /// Updates the stored remote value for a single channel.
     func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel)
 
-    /// Loads notification preferences from the backend and updates `remoteStates`.
+    /// Loads notification preferences from the backend and updates `preferences`.
     func fetchPreferences() async throws
 
     /// Optimistically updates the cache and sends a full-replace PUT.

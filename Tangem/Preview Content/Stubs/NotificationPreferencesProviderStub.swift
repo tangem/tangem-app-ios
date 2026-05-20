@@ -10,14 +10,14 @@ import Foundation
 import Combine
 
 final class NotificationPreferencesProviderStub: NotificationPreferencesProvider {
-    private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
+    private let preferencesSubject = CurrentValueSubject<RemotePushPreferences, Never>(.loading)
 
-    var remoteStatesPublisher: AnyPublisher<PushChannelRemoteStates, Never> {
-        remoteStatesSubject.eraseToAnyPublisher()
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> {
+        preferencesSubject.eraseToAnyPublisher()
     }
 
-    var remoteStates: PushChannelRemoteStates {
-        remoteStatesSubject.value
+    var preferences: RemotePushPreferences {
+        preferencesSubject.value
     }
 
     nonisolated init() {}
@@ -25,13 +25,13 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
     func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         switch state {
         case .loading:
-            remoteStatesSubject.send(.allLoading)
+            preferencesSubject.send(.loading)
         case .failed:
-            remoteStatesSubject.send(PushChannelRemoteStates(loadState: .failed))
+            preferencesSubject.send(RemotePushPreferences(state: .failed))
         case .ready(let isEnabled):
-            var states = remoteStatesSubject.value
-            states.setEnabled(isEnabled, for: channel)
-            remoteStatesSubject.send(states)
+            var updated = preferencesSubject.value
+            updated.setEnabled(isEnabled, for: channel)
+            preferencesSubject.send(updated)
         }
     }
 
