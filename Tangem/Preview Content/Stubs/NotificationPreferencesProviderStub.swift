@@ -23,22 +23,19 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
     nonisolated init() {}
 
     func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
-        var states = remoteStatesSubject.value
-        let visibility = states.preference(for: channel).isVisible
-
         switch state {
         case .loading:
-            states[channel] = .loading
+            remoteStatesSubject.send(.allLoading)
         case .failed:
-            states[channel] = .failed
+            remoteStatesSubject.send(PushChannelRemoteStates(loadState: .failed))
         case .ready(let isEnabled):
-            states[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+            var states = remoteStatesSubject.value
+            states.setEnabled(isEnabled, for: channel)
+            remoteStatesSubject.send(states)
         }
-
-        remoteStatesSubject.send(states)
     }
 
-    func fetchPreferences() {}
+    func fetchPreferences() async throws {}
 
-    func updatePreferences(_ preferences: [(channel: PushChannel, isEnabled: Bool)]) {}
+    func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {}
 }

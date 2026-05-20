@@ -20,20 +20,18 @@ actor NotificationPreferencesStateStore {
         _ state: PushRemoteValueState<Bool>,
         for channel: PushChannel
     ) -> PushChannelRemoteStates {
-        var states = remoteStates
-        let visibility = states.preference(for: channel).isVisible
-
         switch state {
         case .loading:
-            states[channel] = .loading
+            remoteStates = .allLoading
         case .failed:
-            states[channel] = .failed
+            remoteStates = PushChannelRemoteStates(loadState: .failed)
         case .ready(let isEnabled):
-            states[channel] = .ready(PushChannelPreference(isEnabled: isEnabled, isVisible: visibility))
+            var states = remoteStates
+            states.setEnabled(isEnabled, for: channel)
+            remoteStates = states
         }
 
-        remoteStates = states
-        return states
+        return remoteStates
     }
 
     func beginFetch() -> Int {
@@ -67,23 +65,21 @@ actor NotificationPreferencesStateStore {
             return nil
         }
 
-        var states = remoteStates
-        for channel in PushChannel.allCases where states[channel] == .loading {
-            states[channel] = .failed
+        guard case .loading = remoteStates.loadState else {
+            return nil
         }
 
+        let states = PushChannelRemoteStates(loadState: .failed)
         remoteStates = states
         return states
     }
 
-    func beginUpdate(preferences: [(channel: PushChannel, isEnabled: Bool)]) -> UpdateContext {
+    func beginUpdate(channel: PushChannel, isEnabled: Bool) -> UpdateContext {
         latestUpdateToken += 1
         inFlightUpdateCount += 1
 
         var optimisticStates = remoteStates
-        for (channel, isEnabled) in preferences {
-            optimisticStates.setEnabled(isEnabled, for: channel)
-        }
+        optimisticStates.setEnabled(isEnabled, for: channel)
 
         // Always revert to a server-confirmed snapshot, never to whatever happens to be in
         // `remoteStates` right now — that value can already be optimistic from an
