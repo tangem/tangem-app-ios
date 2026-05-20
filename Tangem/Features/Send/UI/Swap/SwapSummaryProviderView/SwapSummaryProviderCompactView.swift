@@ -15,16 +15,17 @@ struct SwapSummaryProviderCompactView: View {
 
     var body: some View {
         if viewModel.providerState != nil {
-            SendSwapProviderCompactView(
-                data: viewModel.compactData,
-                shouldAnimateBestRateBadge: $shouldAnimateBestRateBadge
-            )
+            Button(action: viewModel.userDidTap) {
+                SendSwapProviderCompactView(
+                    data: viewModel.compactData,
+                    shouldAnimateBestRateBadge: $shouldAnimateBestRateBadge
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(!viewModel.compactData.isTappable)
             .background(Colors.Background.action)
             .cornerRadiusContinuous(14)
             .contentShape(.rect)
-            .onTapGesture {
-                viewModel.userDidTap()
-            }
             .transition(.opacity.animation(.easeInOut))
         }
     }
