@@ -1,5 +1,5 @@
 //
-//  PushChannelRemoteStates.swift
+//  RemotePushPreferences.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,21 +8,21 @@
 
 import Foundation
 
-struct PushChannelRemoteStates: Equatable {
+struct RemotePushPreferences: Equatable {
     typealias Preferences = [PushChannel: PushChannelPreference]
 
-    private(set) var loadState: PushRemoteValueState<Preferences>
+    private(set) var state: PushRemoteValueState<Preferences>
 
-    init(loadState: PushRemoteValueState<Preferences> = .loading) {
-        self.loadState = loadState
+    init(state: PushRemoteValueState<Preferences> = .loading) {
+        self.state = state
     }
 
-    static var allLoading: PushChannelRemoteStates {
-        PushChannelRemoteStates(loadState: .loading)
+    static var loading: RemotePushPreferences {
+        RemotePushPreferences(state: .loading)
     }
 
     func preference(for channel: PushChannel) -> PushChannelPreference {
-        guard case .ready(let preferences) = loadState,
+        guard case .ready(let preferences) = state,
               let preference = preferences[channel] else {
             return PushChannelPreference(isEnabled: false, isVisible: true)
         }
@@ -32,7 +32,7 @@ struct PushChannelRemoteStates: Equatable {
 
     /// Per-channel view of the aggregate fetch/update state.
     func remoteValueState(for channel: PushChannel) -> PushRemoteValueState<PushChannelPreference> {
-        switch loadState {
+        switch state {
         case .loading:
             return .loading
         case .failed:
@@ -46,15 +46,7 @@ struct PushChannelRemoteStates: Equatable {
         var preferences = readyPreferences ?? Self.defaultPreferences
         let current = preferences[channel] ?? PushChannelPreference(isEnabled: false, isVisible: true)
         preferences[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: current.isVisible)
-        loadState = .ready(preferences)
-    }
-
-    private var readyPreferences: Preferences? {
-        guard case .ready(let preferences) = loadState else {
-            return nil
-        }
-
-        return preferences
+        state = .ready(preferences)
     }
 
     init(response: NotificationPreferencesDTO.Response.Body) {
@@ -65,7 +57,15 @@ struct PushChannelRemoteStates: Equatable {
                 PushChannelPreference(isEnabled: preference.isEnabled, isVisible: preference.isVisible)
             )
         })
-        self.init(loadState: .ready(preferences))
+        self.init(state: .ready(preferences))
+    }
+
+    private var readyPreferences: Preferences? {
+        guard case .ready(let preferences) = state else {
+            return nil
+        }
+
+        return preferences
     }
 
     private static var defaultPreferences: Preferences {
@@ -76,9 +76,9 @@ struct PushChannelRemoteStates: Equatable {
 }
 
 extension NotificationPreferencesDTO.Update.Request {
-    init(remoteStates: PushChannelRemoteStates) {
-        transactionAlerts = remoteStates.preference(for: .transactionAlerts).isEnabled
-        offersUpdates = remoteStates.preference(for: .offersUpdates).isEnabled
-        priceAlerts = remoteStates.preference(for: .priceAlerts).isEnabled
+    init(preferences: RemotePushPreferences) {
+        transactionAlerts = preferences.preference(for: .transactionAlerts).isEnabled
+        offersUpdates = preferences.preference(for: .offersUpdates).isEnabled
+        priceAlerts = preferences.preference(for: .priceAlerts).isEnabled
     }
 }

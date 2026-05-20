@@ -17,7 +17,7 @@ final class CommonNotificationPreferencesProvider {
 
     private let userWalletId: UserWalletId
     private let stateStore = NotificationPreferencesStateStore()
-    private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
+    private let preferencesSubject = CurrentValueSubject<RemotePushPreferences, Never>(.loading)
 
     nonisolated init(userWalletId: UserWalletId) {
         self.userWalletId = userWalletId
@@ -27,18 +27,18 @@ final class CommonNotificationPreferencesProvider {
 // MARK: - NotificationPreferencesProvider
 
 extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider {
-    var remoteStatesPublisher: AnyPublisher<PushChannelRemoteStates, Never> {
-        remoteStatesSubject.eraseToAnyPublisher()
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> {
+        preferencesSubject.eraseToAnyPublisher()
     }
 
-    var remoteStates: PushChannelRemoteStates {
-        remoteStatesSubject.value
+    var preferences: RemotePushPreferences {
+        preferencesSubject.value
     }
 
     func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         runTask(in: self) { provider in
-            let states = await provider.stateStore.updateRemoteEnabled(state, for: channel)
-            await provider.publish(states)
+            let updated = await provider.stateStore.updateRemoteEnabled(state, for: channel)
+            await provider.publish(updated)
         }
     }
 
@@ -52,22 +52,22 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
             try Task.checkCancellation()
 
-            guard let newStates = await stateStore.applyFetchResponse(
+            guard let newPreferences = await stateStore.applyFetchResponse(
                 response,
                 for: fetchToken
             ) else {
                 return
             }
 
-            await publish(newStates)
+            await publish(newPreferences)
         } catch {
             if error is CancellationError || Task.isCancelled {
                 // A newer fetch has taken over; do not turn loading into `.failed`.
                 throw error
             }
 
-            if let failedStates = await stateStore.applyFetchFailure(for: fetchToken) {
-                await publish(failedStates)
+            if let failedPreferences = await stateStore.applyFetchFailure(for: fetchToken) {
+                await publish(failedPreferences)
             }
 
             throw error
@@ -76,9 +76,9 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
     func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {
         let context = await stateStore.beginUpdate(channel: channel, isEnabled: isEnabled)
-        await publish(context.optimisticStates)
+        await publish(context.optimisticPreferences)
 
-        let request = NotificationPreferencesDTO.Update.Request(remoteStates: context.optimisticStates)
+        let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
@@ -90,12 +90,12 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
             _ = await stateStore.finishUpdate(
                 token: context.token,
-                completion: .success(context.optimisticStates)
+                completion: .success(context.optimisticPreferences)
             )
         } catch {
             if error is CancellationError || Task.isCancelled {
                 // A newer write has taken over and captured its own rollback target; leaving
-                // `remoteStatesSubject` on the latest optimistic value is intentional.
+                // `preferencesSubject` on the latest optimistic value is intentional.
                 _ = await stateStore.finishUpdate(
                     token: context.token,
                     completion: .cancelled
@@ -103,11 +103,11 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
                 throw error
             }
 
-            if let rollbackStates = await stateStore.finishUpdate(
+            if let rollbackPreferences = await stateStore.finishUpdate(
                 token: context.token,
-                completion: .failure(context.rollbackTarget)
+                completion: .failure(context.rollbackPreferences)
             ) {
-                await publish(rollbackStates)
+                await publish(rollbackPreferences)
             }
 
             throw error
@@ -119,7 +119,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
 private extension CommonNotificationPreferencesProvider {
     @MainActor
-    func publish(_ states: PushChannelRemoteStates) {
-        remoteStatesSubject.send(states)
+    func publish(_ preferences: RemotePushPreferences) {
+        preferencesSubject.send(preferences)
     }
 }
