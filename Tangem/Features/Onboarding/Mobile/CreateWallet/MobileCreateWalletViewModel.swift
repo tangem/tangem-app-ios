@@ -128,6 +128,12 @@ extension MobileCreateWalletViewModel {
             await viewModel.openImportWallet()
         }
     }
+
+    func onTosTap() {
+        runTask(in: self) { viewModel in
+            await viewModel.openTos()
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -146,6 +152,10 @@ private extension MobileCreateWalletViewModel {
 
     func close() {
         coordinator?.closeMobileCreateWallet()
+    }
+
+    func openTos() {
+        coordinator?.openTos(url: AppConstants.tosURL)
     }
 }
 
