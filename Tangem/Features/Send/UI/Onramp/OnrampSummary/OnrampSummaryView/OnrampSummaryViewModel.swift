@@ -167,8 +167,18 @@ private extension OnrampSummaryViewModel {
     }
 
     func makeCumulativeLimitFootnote(for provider: OnrampProvider) -> String {
-        let currencyCode = onrampRepository.preferenceCurrency?.identity.code.uppercased() ?? "EUR"
-        return Localization.onrampNativePaymentCumulativeLimit("700 \(currencyCode)", provider.provider.name)
+        let preferenceCurrencyCode = onrampRepository.preferenceCurrency?.identity.code.uppercased()
+        let providerName = provider.provider.name
+        let limit = Constants.cumulativeLimitAmount
+
+        switch preferenceCurrencyCode {
+        case AppConstants.usdCurrencyCode:
+            return Localization.onrampNativePaymentCumulativeLimit("\(limit) \(AppConstants.usdCurrencyCode)", providerName)
+        case AppConstants.eurCurrencyCode:
+            return Localization.onrampNativePaymentCumulativeLimit("\(limit) \(AppConstants.eurCurrencyCode)", providerName)
+        default:
+            return Localization.onrampNativePaymentCumulativeLimitEquivalent("\(limit) \(AppConstants.usdCurrencyCode)", providerName)
+        }
     }
 
     func openProviderRequirementsSheet() {
@@ -200,5 +210,13 @@ extension OnrampSummaryViewModel {
         let footnote: String?
 
         var id: Int { hashValue }
+    }
+}
+
+// MARK: - Constants
+
+private extension OnrampSummaryViewModel {
+    enum Constants {
+        static let cumulativeLimitAmount = 700
     }
 }
