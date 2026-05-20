@@ -34,6 +34,7 @@ enum Feature: String, Hashable, CaseIterable {
     case manageTokensImprovements
     case swapMaxAmountFractions
     case pushNotificationsSettings
+    case swapExchangeRateDisplay
     case transactionHistoryV2
 
     var name: String {
@@ -62,7 +63,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
-        case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
+        case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
+        case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
         case .transactionHistoryV2: return "13623_Transaction_History_V2"
         }
     }
@@ -94,6 +96,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .manageTokensImprovements: return .unspecified
         case .swapMaxAmountFractions: return .unspecified
         case .pushNotificationsSettings: return .unspecified
+        case .swapExchangeRateDisplay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         }
     }
