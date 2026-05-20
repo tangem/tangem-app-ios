@@ -125,6 +125,11 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
         currentStep.infoText
     }
 
+    var isTosFooterVisible: Bool {
+        if case .intro = currentStep { return true }
+        return false
+    }
+
     private var stackCalculator: StackCalculator = .init()
     private var twinCardSeries: TwinCardSeries
     private var stepUpdatesSubscription: AnyCancellable?
@@ -357,5 +362,11 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
                 secondTwinImage = Image(uiImage: paired)
             }
             .store(in: &bag)
+    }
+}
+
+extension TwinsOnboardingViewModel {
+    func onTosTap() {
+        coordinator?.openBrowser(at: AppConstants.tosURL, onSuccess: { _ in })
     }
 }
