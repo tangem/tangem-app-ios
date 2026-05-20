@@ -118,7 +118,7 @@ private extension PushNotificationsSyncWalletsProvider {
 
         findUserWalletModel
             .userTokensPushNotificationsManager
-            .process(.handleRemoteValue(entry.notifyStatus))
+            .process(.handleRemoteValue(entry.notifyStatus, .transactionAlerts))
     }
 
     func connectWallets(walletIds: [String], shouldRetry: Bool = true) async throws {

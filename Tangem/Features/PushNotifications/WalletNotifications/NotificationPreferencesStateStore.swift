@@ -104,10 +104,9 @@ actor NotificationPreferencesStateStore {
 
         switch completion {
         case .success(let optimisticStates):
-            let settledStates = optimisticStates.settlingPendingToReady()
-            remoteStates = settledStates
-            lastConfirmedStates = settledStates
-            return settledStates
+            remoteStates = optimisticStates
+            lastConfirmedStates = optimisticStates
+            return nil
         case .failure(let rollbackTarget):
             remoteStates = rollbackTarget
             return rollbackTarget
