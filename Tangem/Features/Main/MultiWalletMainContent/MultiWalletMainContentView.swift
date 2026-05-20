@@ -212,6 +212,7 @@ struct MultiWalletMainContentView: View {
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
+            getTangemPayBannerNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),
