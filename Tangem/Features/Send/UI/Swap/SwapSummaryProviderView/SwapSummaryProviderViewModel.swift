@@ -24,6 +24,7 @@ final class SwapSummaryProviderViewModel: ObservableObject, Identifiable {
     weak var router: SwapSummaryProviderRoutable?
 
     private let expressProviderFormatter: ExpressProviderFormatter
+    private var bag: Set<AnyCancellable> = []
 
     init(
         expressProviderFormatter: ExpressProviderFormatter,
@@ -68,7 +69,7 @@ private extension SwapSummaryProviderViewModel {
             swapProvidersInput.expressProvidersPublisher
         ).map { (selected: $0, all: $1) }
 
-        let combined = Publishers.CombineLatest3(tokensPublisher, providersPublisher, highPriceImpactPublisher)
+        Publishers.CombineLatest3(tokensPublisher, providersPublisher, highPriceImpactPublisher)
             .withWeakCaptureOf(self)
             .map { viewModel, swapInput -> (ProviderState?, SendSwapProviderCompactViewData) in
                 let (tokenValues, providerValues, highPriceImpactValue) = swapInput
@@ -87,17 +88,12 @@ private extension SwapSummaryProviderViewModel {
                 )
                 return (providerState, compactData)
             }
-            .share()
-
-        combined
-            .map { $0.0 }
             .receiveOnMain()
-            .assign(to: &$providerState)
-
-        combined
-            .map { $0.1 }
-            .receiveOnMain()
-            .assign(to: &$compactData)
+            .sink { [weak self] providerState, compactData in
+                self?.providerState = providerState
+                self?.compactData = compactData
+            }
+            .store(in: &bag)
     }
 
     func mapToProviderState(
