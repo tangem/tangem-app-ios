@@ -80,7 +80,7 @@ private extension SwapPredefinedParametersHelper {
                 ).makeSwapableToken()
             }
 
-            return .pair(source: sourceToken, receive: destinationToken)
+            return .from(sourceToken, receive: destinationToken)
         }
 
         if let destinationWalletModel = resolved.destination {
