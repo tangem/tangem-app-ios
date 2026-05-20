@@ -16,14 +16,21 @@ protocol UserTokensPushNotificationsManager {
     @available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications.")
     var status: UserWalletPushNotifyStatus { get }
 
+    /// Emits the current per-channel preference state whenever it changes (fetch, optimistic
+    /// update, or rollback). Consumers can use `RemotePushPreferences.remoteValueState(for:)`
+    /// to extract a single channel's `PushRemoteValueState<PushChannelPreference>`.
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> { get }
+
     /// Displayed last synced remote status on backend
     var isRemoteStatusEnabled: Bool { get }
 
     /// Handles a push-status event and updates internal manager state accordingly.
     func process(_ event: UserWalletPushNotificationsEvent)
 
-    /// User toggled the local switch (UI intent).
-    func tryUpdateEnableState(value: Bool)
+    /// User toggled the switch for the given channel (UI intent).
+    /// Optimistically updates the backend preference and throws on failure so
+    /// the caller can revert UI and surface an error.
+    func tryUpdateEnableState(value: Bool, for channel: PushChannel) async throws
 
     /// Whether remote `notifyStatus` should be forced to `true` on first sync because system
     /// push permission is granted and this wallet has not completed allowance onboarding yet.

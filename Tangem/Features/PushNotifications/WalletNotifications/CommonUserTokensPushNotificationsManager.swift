@@ -196,6 +196,23 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         _userWalletPushStatusSubject.value
     }
 
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> {
+        _userWalletPushRemoteStatusSubject
+            .map { state -> RemotePushPreferences in
+                switch state {
+                case .loading:
+                    return .loading
+                case .failed:
+                    return RemotePushPreferences(state: .failed)
+                case .ready(let isEnabled):
+                    var prefs = RemotePushPreferences(state: .ready([:]))
+                    prefs.setEnabled(isEnabled, for: .transactionAlerts)
+                    return prefs
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     var isRemoteStatusEnabled: Bool {
         if case .ready(let isEnabled) = _userWalletPushRemoteStatusSubject.value {
             return isEnabled
@@ -215,7 +232,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         }
     }
 
-    func tryUpdateEnableState(value: Bool) {
+    func tryUpdateEnableState(value: Bool, for channel: PushChannel) async throws {
         applyLocalStatusUpdate(value)
     }
 

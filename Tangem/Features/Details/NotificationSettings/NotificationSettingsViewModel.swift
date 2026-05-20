@@ -49,7 +49,7 @@ final class NotificationSettingsViewModel: ObservableObject {
             get: { $0.transactionAlertsEnabled },
             set: { viewModel, value in
                 viewModel.transactionAlertsEnabled = value
-                // [REDACTED_TODO_COMMENT]
+                viewModel.handleToggle(value: value, for: .transactionAlerts)
             }
         )
     }
@@ -61,7 +61,7 @@ final class NotificationSettingsViewModel: ObservableObject {
             get: { $0.offersUpdatesEnabled },
             set: { viewModel, value in
                 viewModel.offersUpdatesEnabled = value
-                // [REDACTED_TODO_COMMENT]
+                viewModel.handleToggle(value: value, for: .offersUpdates)
             }
         )
     }
@@ -73,11 +73,12 @@ final class NotificationSettingsViewModel: ObservableObject {
             get: { $0.priceAlertsEnabled },
             set: { viewModel, value in
                 viewModel.priceAlertsEnabled = value
-                // [REDACTED_TODO_COMMENT]
+                viewModel.handleToggle(value: value, for: .priceAlerts)
             }
         )
     }
 
+    private var toggleTasks: [PushChannel: Task<Void, Never>] = [:]
     private var requestPermissionTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
@@ -116,14 +117,14 @@ private extension NotificationSettingsViewModel {
             }
             .store(in: &bag)
 
-        // [REDACTED_TODO_COMMENT]
         userTokensPushNotificationsManager
-            .statusPublisher
-            .dropFirst()
+            .preferencesPublisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { viewModel, status in }
+            .sink { viewModel, preferences in
+                viewModel.applyPreferences(preferences)
+            }
             .store(in: &bag)
     }
 
@@ -149,6 +150,12 @@ private extension NotificationSettingsViewModel {
             isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
             isOn: isEnabledPriceAlertsEnabledBinding
         )
+    }
+
+    func applyPreferences(_ preferences: RemotePushPreferences) {
+        transactionAlertsEnabled = preferences.preference(for: .transactionAlerts).isEnabled
+        offersUpdatesEnabled = preferences.preference(for: .offersUpdates).isEnabled
+        priceAlertsEnabled = preferences.preference(for: .priceAlerts).isEnabled
     }
 
     func refreshBannerVisibility() {
@@ -199,6 +206,29 @@ private extension NotificationSettingsViewModel {
     }
 }
 
+// MARK: - Channel Toggle Handling
+
+private extension NotificationSettingsViewModel {
+    /// Optimistically updates the UI (via the binding setter), then sends the request to the
+    /// manager. On failure the `preferencesPublisher` subscription rolls back the toggle
+    /// automatically and we surface a generic error alert.
+    func handleToggle(value: Bool, for channel: PushChannel) {
+        toggleTasks[channel]?.cancel()
+
+        toggleTasks[channel] = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            do {
+                try await userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
+            } catch is CancellationError {
+                return
+            } catch {
+                displayPreferenceUpdateFailedAlert()
+            }
+        }
+    }
+}
+
 // MARK: - In-memory Toggles (Offers / Price Alerts)
 
 private extension NotificationSettingsViewModel {
@@ -230,6 +260,10 @@ private extension NotificationSettingsViewModel {
 // MARK: - Alerts
 
 private extension NotificationSettingsViewModel {
+    func displayPreferenceUpdateFailedAlert() {
+        alert = AlertBinder(title: "Something went wrong", message: "Please try again later.")
+    }
+
     func displayEnablePushSettingsAlert() {
         let buttons: AlertBuilder.Buttons = .init(
             primaryButton: .default(
