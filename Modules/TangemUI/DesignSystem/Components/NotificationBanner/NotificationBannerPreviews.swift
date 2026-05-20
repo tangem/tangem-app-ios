@@ -124,10 +124,10 @@ private extension NotificationBannerShowcase {
             ShowcaseItem(
                 id: ids[4],
                 bannerType: .promo(
-                    .init(
+                    .text(.init(
                         title: "Tangem Visa Card",
                         subtitle: "Join the waitlist and get a payment card unlike any other"
-                    ),
+                    )),
                     .buttons(.one(button("Got it", style: .primary, itemId: ids[4]))),
                     closeAction(itemId: ids[4]),
                     .bannerMagic
@@ -150,10 +150,10 @@ private extension NotificationBannerShowcase {
             ShowcaseItem(
                 id: ids[6],
                 bannerType: .promo(
-                    .init(
+                    .text(.init(
                         title: "Rate your experience",
                         subtitle: "Help us improve by sharing your feedback about the app."
-                    ),
+                    )),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[6]),
                         right: button("Got it", style: .primary, itemId: ids[6])
