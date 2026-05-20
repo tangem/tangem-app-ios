@@ -18,7 +18,7 @@ protocol NotificationPreferencesProvider: AnyObject {
     var remoteStates: PushChannelRemoteStates { get }
 
     /// Updates the stored remote value for a single channel.
-    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel)
+    func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel)
 
     /// Loads notification preferences from the backend and updates `remoteStates`.
     func fetchPreferences()

@@ -25,7 +25,7 @@ final class CommonUserTokensPushNotificationsManager {
     private let notificationPreferencesProvider: NotificationPreferencesProvider
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
-    private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<RemoteValueState<Bool>, Never> = .init(.loading)
+    private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<PushRemoteValueState<Bool>, Never> = .init(.loading)
 
     private var updateTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
@@ -145,8 +145,8 @@ private extension CommonUserTokensPushNotificationsManager {
 // MARK: - Event Handling
 
 private extension CommonUserTokensPushNotificationsManager {
-    func applyRemoteStatusUpdate(_ status: RemoteValueState<Bool>) {
-        _userWalletPushRemoteStatusSubject.send(status)
+    func applyRemoteStatusUpdate(_ value: Bool) {
+        _userWalletPushRemoteStatusSubject.send(.ready(value))
         updateStatusIfNeeded()
     }
 
@@ -208,10 +208,8 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .handleRemoteStatus(let state):
-            applyRemoteStatusUpdate(state)
-        case .handleUpdateStatus(let value):
-            applyLocalStatusUpdate(value)
+        case .handleRemoteValue(let value):
+            applyRemoteStatusUpdate(value)
         case .walletBindingWithApplicationSynchronized:
             updateStatusIfNeeded()
         case .walletsBindingInfoUnavailable:
@@ -219,22 +217,16 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         }
     }
 
-    func getInitialPushStatusWithAllowance() async -> Bool {
-        let currentStatus = status
+    func tryUpdateEnableState(value: Bool) {
+        applyLocalStatusUpdate(value)
+    }
+
+    func shouldAllowanceRemoteNotifyStatus() async -> Bool {
         let isAuthorizedPushNotifications = await pushNotificationsPermission.isAuthorized
+        let hasCompletedAllowanceOnboarding = await AppSettings.shared.allowanceUserWalletIdTransactionsPush
+            .contains(userWalletId.stringValue)
 
-        // For failed state, don't use allowance logic - return false to avoid sending incorrect status
-        if currentStatus == .failed {
-            return false
-        }
-
-        // Force enable Push Notifications if wallet did set status loading and Push Permission service has status isAuthorized
-        if currentStatus == .loading, isAuthorizedPushNotifications {
-            return allowancePushNotifyStatus()
-        }
-
-        // For other states, return isActive (true only for .enabled)
-        return status.isActive
+        return isAuthorizedPushNotifications && !hasCompletedAllowanceOnboarding
     }
 }
 
@@ -264,23 +256,5 @@ private extension CommonUserTokensPushNotificationsManager {
         if !AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue) {
             AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
         }
-    }
-
-    func permissionRequestInitialPushAllowance() {
-        let allowanceValue = allowancePushNotifyStatus()
-        applyLocalStatusUpdate(allowanceValue)
-    }
-
-    func allowancePushNotifyStatus() -> Bool {
-        let currentRemoteStatus = isRemoteStatusEnabled
-
-        let allowanceUserWalletIdTransactionsPush = AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue)
-
-        if !allowanceUserWalletIdTransactionsPush {
-            // We will force the update of the push stats on the backend, provided that the system permissions have been issued in definePushNotifyStatus
-            return true
-        }
-
-        return currentRemoteStatus
     }
 }
