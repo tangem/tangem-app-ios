@@ -956,7 +956,7 @@
 "onramp_payment_method_subtitle" = "Método de pagamento";
 "onramp_provider_max_amount" = "Disponível até %@";
 "onramp_provider_min_amount" = "Disponível em %@";
-"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verificatio";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
 "onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Fornecedores";
 "onramp_recently_used_title" = "Usado recentemente";
@@ -986,6 +986,13 @@
 "organize_tokens_title" = "Organizar tokens";
 "organize_tokens_ungroup" = "Desagrupar";
 "provider_name_support" = "%@ suporte";
+"push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
+"push_notification_settings_offers_updates_title" = "Offers & Updates";
+"push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
+"push_notification_settings_price_alerts_title" = "Price Alerts";
+"push_notification_settings_title" = "Notification Settings";
+"push_notification_settings_transaction_alerts_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
+"push_notification_settings_transaction_alerts_title" = "Transaction Alerts";
 "push_notifications_more_info" = "Mais informações";
 "push_notifications_permission_alert_description" = "Você pode ativar as notificações do Tangem nas Configurações.";
 "push_notifications_permission_alert_negative_button" = "Ativar mais tarde";
@@ -1597,6 +1604,7 @@
 "token_details_balance_available" = "Saldo disponível";
 "token_details_balance_total" = "Saldo total";
 "token_details_choose_address" = "Escolha o endereço";
+"token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Ganhe até %@ um ano";
 "token_details_generate_xpub" = "Gerar XPUB";
 "token_details_hide_alert_hide" = "Ocultar";
