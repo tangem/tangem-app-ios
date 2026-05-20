@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 
 protocol TangemPayCardManagementRoutable: AnyObject {
+    func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
     func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
     func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount)
     func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void)
