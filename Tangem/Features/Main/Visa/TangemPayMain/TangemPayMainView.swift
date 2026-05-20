@@ -171,7 +171,8 @@ struct TangemPayMainView: View {
                         title: Localization.tangempayCardDetailsAddFunds,
                         icon: Assets.plus14,
                         disabled: viewModel.actionButtonsDisabled,
-                        action: viewModel.addFunds
+                        action: viewModel.addFunds,
+                        accessibilityIdentifier: TangemPayAccessibilityIdentifiers.addFundsButton
                     ),
                     FixedSizeButtonWithIconInfo(
                         title: Localization.tangempayCardDetailsWithdraw,
