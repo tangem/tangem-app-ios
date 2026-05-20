@@ -35,6 +35,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapSimpleMode
     case swapMaxAmountFractions
     case pushNotificationsSettings
+    case swapExchangeRateDisplay
 
     var name: String {
         switch self {
@@ -64,6 +65,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapSimpleMode: return "13763_Swap_Simple_Mode"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
         case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
+        case .swapExchangeRateDisplay: return "[REDACTED_INFO]_Swap_Exchange_Rate_Display"
         }
     }
 
@@ -95,6 +97,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapSimpleMode: return .unspecified
         case .swapMaxAmountFractions: return .unspecified
         case .pushNotificationsSettings: return .unspecified
+        case .swapExchangeRateDisplay: return .unspecified
         }
     }
 }
