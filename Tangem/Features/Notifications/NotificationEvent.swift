@@ -96,6 +96,8 @@ extension NotificationEvent {
             default:
                 return nil
             }
+        } else if self is GetTangemPayBannerNotificationEvent {
+            return TangemPayAccessibilityIdentifiers.getTangemPayBanner
         }
         return nil
     }
