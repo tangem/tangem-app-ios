@@ -20,6 +20,7 @@ struct P2PMapper {
     ) throws -> StakingYieldInfo {
         let vaults = response.vaults
             .filter { !$0.isSmoothingPool && !$0.isPrivate }
+            .filter { $0.vaultAddress.lowercased() != Constants.mockVaultAddress }
             .map { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
 
         let rewardRateValues = RewardRateValues(
@@ -197,5 +198,6 @@ private extension P2PMapper {
     enum Constants {
         static let percentMultiplier = Decimal(100)
         static let availabilityThreshold: Decimal = 2
+        static let mockVaultAddress = "0xb72668d6ff7a0e318f83097a754c6aed0f8af034"
     }
 }
