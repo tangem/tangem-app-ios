@@ -9,9 +9,9 @@
 import Foundation
 
 struct PushChannelRemoteStates: Equatable {
-    private(set) var states: [PushChannel: RemoteValueState<PushChannelPreference>]
+    private(set) var states: [PushChannel: PushRemoteValueState<PushChannelPreference>]
 
-    init(states: [PushChannel: RemoteValueState<PushChannelPreference>] = [:]) {
+    init(states: [PushChannel: PushRemoteValueState<PushChannelPreference>] = [:]) {
         self.states = states
     }
 
@@ -21,7 +21,7 @@ struct PushChannelRemoteStates: Equatable {
         )
     }
 
-    subscript(channel: PushChannel) -> RemoteValueState<PushChannelPreference> {
+    subscript(channel: PushChannel) -> PushRemoteValueState<PushChannelPreference> {
         get { states[channel] ?? .loading }
         set { states[channel] = newValue }
     }

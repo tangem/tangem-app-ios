@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-@MainActor
 final class NotificationPreferencesProviderStub: NotificationPreferencesProvider {
     private let remoteStatesSubject = CurrentValueSubject<PushChannelRemoteStates, Never>(.allLoading)
 
@@ -23,7 +22,7 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
 
     nonisolated init() {}
 
-    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
+    func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         var states = remoteStatesSubject.value
         let visibility = states.preference(for: channel).isVisible
 

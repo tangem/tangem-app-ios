@@ -35,7 +35,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
         remoteStatesSubject.value
     }
 
-    func updateRemoteEnabled(_ state: RemoteValueState<Bool>, for channel: PushChannel) {
+    func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         runTask(in: self) { provider in
             let states = await provider.stateStore.updateRemoteEnabled(state, for: channel)
             await provider.publish(states)

@@ -9,16 +9,16 @@
 import Foundation
 import Combine
 
-protocol PushNotificationsSyncService: AnyObject {
+protocol UserTokensPushNotificationsService: AnyObject {
     func initialize()
 }
 
 private struct PushNotificationsSyncServiceKey: InjectionKey {
-    static var currentValue: PushNotificationsSyncService = CommonPushNotificationsSyncService()
+    static var currentValue: UserTokensPushNotificationsService = CommonPushNotificationsSyncService()
 }
 
 extension InjectedValues {
-    var pushNotificationsSyncService: PushNotificationsSyncService {
+    var userTokensPushNotificationsService: UserTokensPushNotificationsService {
         get { Self[PushNotificationsSyncServiceKey.self] }
         set { Self[PushNotificationsSyncServiceKey.self] = newValue }
     }

@@ -19,8 +19,12 @@ protocol UserTokensPushNotificationsManager {
     /// Handles a push-status event and updates internal manager state accordingly.
     func process(_ event: UserWalletPushNotificationsEvent)
 
-    /// Returns the effective initial push-enabled flag with allowance fallback applied.
-    func getInitialPushStatusWithAllowance() async -> Bool
+    /// User toggled the local switch (UI intent).
+    func tryUpdateEnableState(value: Bool)
+
+    /// Whether remote `notifyStatus` should be forced to `true` on first sync because system
+    /// push permission is granted and this wallet has not completed allowance onboarding yet.
+    func shouldAllowanceRemoteNotifyStatus() async -> Bool
 }
 
 /// Events that drive push-notification status transitions. Callers post these
@@ -34,7 +38,5 @@ enum UserWalletPushNotificationsEvent: Equatable {
     case walletsBindingInfoUnavailable
     /// Remote status was fetched or refreshed (e.g., during initial sync or after
     /// a backend response).
-    case handleRemoteStatus(RemoteValueState<Bool>)
-    /// User toggled the local switch (UI intent).
-    case handleUpdateStatus(Bool)
+    case handleRemoteValue(Bool)
 }

@@ -23,7 +23,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
-    @Injected(\.pushNotificationsSyncService) private var pushNotificationsSyncService: PushNotificationsSyncService
 
     // MARK: - ViewState
 
@@ -265,7 +264,7 @@ private extension UserWalletSettingsViewModel {
 
         if FeatureProvider.isAvailable(.pushNotificationsSettings) {
             notificationSettingsViewModel = DefaultRowViewModel(
-                title: NotificationSettingsViewModel.Constants.screenTitle,
+                title: Localization.pushNotificationSettingsTitle,
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
             )
         } else {

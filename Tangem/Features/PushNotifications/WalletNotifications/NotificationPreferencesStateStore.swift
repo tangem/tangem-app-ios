@@ -17,7 +17,7 @@ actor NotificationPreferencesStateStore {
     private var latestUpdateToken: Int = 0
 
     func updateRemoteEnabled(
-        _ state: RemoteValueState<Bool>,
+        _ state: PushRemoteValueState<Bool>,
         for channel: PushChannel
     ) -> PushChannelRemoteStates {
         var states = remoteStates

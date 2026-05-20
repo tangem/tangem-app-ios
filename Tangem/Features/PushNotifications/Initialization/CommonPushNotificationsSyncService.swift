@@ -134,9 +134,9 @@ final class CommonPushNotificationsSyncService: NSObject {
     }
 }
 
-// MARK: - PushNotificationsSyncService
+// MARK: - UserTokensPushNotificationsService
 
-extension CommonPushNotificationsSyncService: PushNotificationsSyncService {
+extension CommonPushNotificationsSyncService: UserTokensPushNotificationsService {
     /// Initializes the push notifications service.
     /// Checks the registration of appUid (creates or updates the application on the server),
     /// fetches the list of wallets linked to the appUid.
