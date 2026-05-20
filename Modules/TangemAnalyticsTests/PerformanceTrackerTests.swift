@@ -8,6 +8,8 @@
 
 import Foundation
 import Testing
+import os
+import TangemFoundation
 @testable import TangemAnalytics
 
 @Suite("PerformanceTracker — Firebase Performance trace lifecycle and idempotency")
