@@ -37,8 +37,23 @@ enum UITestsStorageCleaner {
         }
 
         clearTangemPayState()
+        clearSwapTokenSelectorState()
 
         AppLogger.info("Cached files cleared for UI tests")
+        #endif
+    }
+
+    /// Mirrors `CommonTokenSelectorStateStorage.StorageKeys` for a deterministic initial state.
+    private static func clearSwapTokenSelectorState() {
+        #if DEBUG
+        let keys = [
+            "tangem_expandable_swap_wallet_account_item_state_storage",
+            "tangem_swap_token_selector_selected_wallet_id",
+        ]
+        for key in keys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        AppLogger.info("Swap token selector state cleared for UI tests")
         #endif
     }
 
