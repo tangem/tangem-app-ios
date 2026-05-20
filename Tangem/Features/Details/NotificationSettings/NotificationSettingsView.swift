@@ -41,7 +41,7 @@ struct NotificationSettingsView: View {
 
     @ViewBuilder
     private var transactionPushSection: some View {
-        VStack(spacing: Layout.spacingGroupedSections) {
+        VStack(spacing: Layout.transactionSectionSpacing) {
             GroupedSection(viewModel.transactionAlertsViewModel) {
                 DefaultToggleRowView(viewModel: $0)
             } footer: {
@@ -84,6 +84,6 @@ struct NotificationSettingsView: View {
 
 private extension NotificationSettingsView {
     enum Layout {
-        static let spacingGroupedSections: CGFloat = 14
+        static let transactionSectionSpacing: CGFloat = 14
     }
 }
