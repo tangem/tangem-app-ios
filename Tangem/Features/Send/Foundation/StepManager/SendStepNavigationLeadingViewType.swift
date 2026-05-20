@@ -14,7 +14,15 @@ enum SendStepNavigationLeadingViewType: Hashable {
     case dotsMenu(items: [DotsMenuItem])
 
     static func == (lhs: SendStepNavigationLeadingViewType, rhs: SendStepNavigationLeadingViewType) -> Bool {
-        lhs.hashValue == rhs.hashValue
+        switch (lhs, rhs) {
+        case (.closeButton, .closeButton),
+             (.backButton, .backButton):
+            return true
+        case (.dotsMenu(let lhsItems), .dotsMenu(let rhsItems)):
+            return lhsItems == rhsItems
+        default:
+            return false
+        }
     }
 
     func hash(into hasher: inout Hasher) {
