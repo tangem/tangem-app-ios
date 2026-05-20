@@ -106,7 +106,10 @@ extension P2PStakingManager: StakingManager {
     func transaction(action: StakingAction) async throws -> StakingTransactionAction {
         let newTransaction = try await transactionInfo(action: action)
 
-        if newTransaction.fee > previousFee ?? .zero {
+        let baseline = previousFee ?? .zero
+        previousFee = newTransaction.fee
+
+        if newTransaction.fee > baseline {
             throw P2PStakingError.feeIncreased(newFee: newTransaction.fee)
         }
 
