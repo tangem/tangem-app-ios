@@ -79,6 +79,19 @@ extension CommonPushNotificationsService: PushNotificationsPermissionService {
         }
     }
 
+    var isAuthorizedPublisher: AnyPublisher<Bool, Never> {
+        NotificationCenter.default
+            .publisher(for: UIApplication.didBecomeActiveNotification)
+            .flatMap { [weak self] _ -> AnyPublisher<Bool, Never> in
+                guard let self else { return .just(output: false) }
+                return Future { promise in
+                    Task { promise(.success(await self.isAuthorized)) }
+                }.eraseToAnyPublisher()
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
     func registerIfPossible() async {
         let notificationSettings = await userNotificationCenter.notificationSettings()
         if validAuthorizationStatuses.contains(notificationSettings.authorizationStatus) {
