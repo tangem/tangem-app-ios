@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_INFO]: legacy view model, paired with GetTangemPayBannerView. Delete after redesign cleanup.
 struct GetTangemPayBannerViewModel {
     @Injected(
         \.tangemPayAvailabilityRepository
