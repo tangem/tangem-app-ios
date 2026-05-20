@@ -956,7 +956,7 @@
 "onramp_payment_method_subtitle" = "Zahlungsmethode";
 "onramp_provider_max_amount" = "Verfügbar bis zu %@";
 "onramp_provider_min_amount" = "Erhältlich bei %@";
-"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verificatio";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
 "onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Anbieter";
 "onramp_recently_used_title" = "Kürzlich verwendet";
@@ -986,6 +986,13 @@
 "organize_tokens_title" = "Token organisieren";
 "organize_tokens_ungroup" = "Gruppe löschen";
 "provider_name_support" = "%@ Unterstützung";
+"push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
+"push_notification_settings_offers_updates_title" = "Offers & Updates";
+"push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
+"push_notification_settings_price_alerts_title" = "Price Alerts";
+"push_notification_settings_title" = "Notification Settings";
+"push_notification_settings_transaction_alerts_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
+"push_notification_settings_transaction_alerts_title" = "Transaction Alerts";
 "push_notifications_more_info" = "Mehr Infos";
 "push_notifications_permission_alert_description" = "Du kannst Benachrichtigungen für Tangem in den Einstellungen aktivieren.";
 "push_notifications_permission_alert_negative_button" = "Später aktivieren";
@@ -1445,7 +1452,7 @@
 "tangempay_card_details_change_pin" = "PIN-Code";
 "tangempay_card_details_cvc" = "CVC";
 "tangempay_card_details_error_text" = "Daten konnten nicht geladen werden. Versuche es später noch einmal.";
-"tangempay_card_details_expiry" = "Ablaufdatum";
+"tangempay_card_details_expiry" = "Ablauf";
 "tangempay_card_details_freeze_card" = "Karte einfrieren";
 "tangempay_card_details_hide_details" = "Details ausblenden";
 "tangempay_card_details_hide_text" = "Verstecken";
@@ -1597,6 +1604,7 @@
 "token_details_balance_available" = "Verfügbares Guthaben";
 "token_details_balance_total" = "Gesamtsaldo";
 "token_details_choose_address" = "Adresse wählen";
+"token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Bis zu %@ effektiver Jahreszins";
 "token_details_generate_xpub" = "Generiere XPUB";
 "token_details_hide_alert_hide" = "Ausblenden";
@@ -2048,6 +2056,14 @@
 "xtz_withdrawal_message_ignore" = "Nein, alles senden";
 "xtz_withdrawal_message_reduce" = "Um %@ XTZ reduziert";
 "xtz_withdrawal_message_warning" = "Damit Sie beim nächsten Aufladen Ihrer Brieftasche keine erhöhte Provision zahlen, soll der Betrag um %@ XTZ reduziert werden";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_module_alert_description" = "Wenn der Yield-Modus aktiviert ist, gehen alle zukünftigen Einzahlungen an diese Adresse an Aave. Du kannst über Dein Guthaben weiterhin frei verfügen.";
 "yield_module_alert_title" = "Deine %@ wird an Aave übermittelt";
 "yield_module_amount_not_transfered_to_aave_title" = "Lieferung %1$@ %2$@ nach Aave";
