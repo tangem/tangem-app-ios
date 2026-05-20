@@ -28,6 +28,7 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var isReissuing: Bool = false
     @Published private(set) var isLoadingReissueFee: Bool = false
     @Published var alert: AlertBinder?
+    @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -74,11 +75,12 @@ final class TangemPayCardManagementViewModel: ObservableObject {
 
     func openAddToApplePayGuide() {
         Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openAddToApplePayGuide(
-            viewModel: .init(
+        addToApplePayGuideViewModel = TangemPayAddToAppPayGuideViewModel(
+            tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel(
                 userWalletId: userWalletInfo.id,
                 repository: cardDetailsRepository
-            )
+            ),
+            coordinator: self
         )
     }
 
@@ -288,6 +290,14 @@ private extension TangemPayCardManagementViewModel {
                 self?.cardRenameViewModel = nil
             }
         )
+    }
+}
+
+// MARK: - TangemPayAddToAppPayGuideRoutable
+
+extension TangemPayCardManagementViewModel: TangemPayAddToAppPayGuideRoutable {
+    func closeAddToAppPayGuide() {
+        addToApplePayGuideViewModel = nil
     }
 }
 
