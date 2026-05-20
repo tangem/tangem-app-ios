@@ -103,7 +103,11 @@ private extension TransactionNotificationsRowToggleViewModel {
 
 private extension TransactionNotificationsRowToggleViewModel {
     func refreshPermissionWarning() {
-        guard userTokensPushNotificationsManager.shouldShowPermissionWarning else {
+        // Warning is relevant only when push notifications are switched on remotely
+        // but the user has revoked (or never granted) the iOS system permission.
+        let shouldShowPermissionWarning = userTokensPushNotificationsManager.status == .needSystemPermission && userTokensPushNotificationsManager.isRemoteStatusEnabled
+
+        guard shouldShowPermissionWarning else {
             warningPermissionViewModel = nil
             return
         }
@@ -136,8 +140,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         switch userTokensPushNotificationsManager.status {
         case .enabled, .disabledInApp:
-            let updateEvent: UserTokensPushEvent = .didChangeLocalStatus(toggleValue, channel: .transactionAlerts)
-            userTokensPushNotificationsManager.dispatch(updateEvent)
+            userTokensPushNotificationsManager.tryUpdateEnableState(value: toggleValue)
         case .needSystemPermission where toggleValue:
             handleAndCheckUnavailablePushNotifyStatus()
             return
@@ -156,8 +159,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                let updateEvent: UserTokensPushEvent = .didChangeLocalStatus(true, channel: .transactionAlerts)
-                viewModel.userTokensPushNotificationsManager.dispatch(updateEvent)
+                viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: true)
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.showPushSettingsAlert?()
