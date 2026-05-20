@@ -956,7 +956,7 @@
 "onramp_payment_method_subtitle" = "Zahlungsmethode";
 "onramp_provider_max_amount" = "Verfügbar bis zu %@";
 "onramp_provider_min_amount" = "Erhältlich bei %@";
-"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verificatio";
+"onramp_provider_requirements_body" = "US and UK issued cards can't be processed via this method. Provider may require additional identity verification";
 "onramp_provider_requirements_title" = "Provider requirements";
 "onramp_providers_subtitle" = "Anbieter";
 "onramp_recently_used_title" = "Kürzlich verwendet";
@@ -986,6 +986,13 @@
 "organize_tokens_title" = "Token organisieren";
 "organize_tokens_ungroup" = "Gruppe löschen";
 "provider_name_support" = "%@ Unterstützung";
+"push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
+"push_notification_settings_offers_updates_title" = "Offers & Updates";
+"push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
+"push_notification_settings_price_alerts_title" = "Price Alerts";
+"push_notification_settings_title" = "Notification Settings";
+"push_notification_settings_transaction_alerts_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
+"push_notification_settings_transaction_alerts_title" = "Transaction Alerts";
 "push_notifications_more_info" = "Mehr Infos";
 "push_notifications_permission_alert_description" = "Du kannst Benachrichtigungen für Tangem in den Einstellungen aktivieren.";
 "push_notifications_permission_alert_negative_button" = "Später aktivieren";
@@ -1445,7 +1452,7 @@
 "tangempay_card_details_change_pin" = "PIN-Code";
 "tangempay_card_details_cvc" = "CVC";
 "tangempay_card_details_error_text" = "Daten konnten nicht geladen werden. Versuche es später noch einmal.";
-"tangempay_card_details_expiry" = "Ablaufdatum";
+"tangempay_card_details_expiry" = "Ablauf";
 "tangempay_card_details_freeze_card" = "Karte einfrieren";
 "tangempay_card_details_hide_details" = "Details ausblenden";
 "tangempay_card_details_hide_text" = "Verstecken";
@@ -1597,6 +1604,7 @@
 "token_details_balance_available" = "Verfügbares Guthaben";
 "token_details_balance_total" = "Gesamtsaldo";
 "token_details_choose_address" = "Adresse wählen";
+"token_details_earn_staking_subtitle_apy" = "Up to %@ APY";
 "token_details_earn_staking_subtitle" = "Bis zu %@ effektiver Jahreszins";
 "token_details_generate_xpub" = "Generiere XPUB";
 "token_details_hide_alert_hide" = "Ausblenden";
