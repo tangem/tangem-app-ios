@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 import TangemUI
 
 /// ViewModel for displaying all / available balances in the balance view.
+// [REDACTED_INFO]: Delete when redesign toggle is removed
 final class CommonBalancesViewModel: BalancesViewModel {
     var isRefreshing: Bool { false }
 

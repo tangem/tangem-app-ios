@@ -12,6 +12,7 @@ import TangemAccessibilityIdentifiers
 final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var paymentAccountCardButton = button(.paymentAccountCardButton)
     private lazy var balanceText = staticText(.paymentAccountBalance)
+    private lazy var addFundsButton = button(.addFundsButton)
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
 
     @discardableResult
@@ -70,6 +71,26 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapAddFunds() -> TangemPayAddFundsSheet {
+        XCTContext.runActivity(named: "Tap Add funds button") { _ in
+            addFundsButton.waitAndTap()
+            return TangemPayAddFundsSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyTransactionRowVisible(label: String) -> Self {
+        XCTContext.runActivity(named: "Verify transaction row '\(label)' is visible") { _ in
+            let txCell = app.staticTexts[label].firstMatch
+            XCTAssertTrue(
+                txCell.waitForExistence(timeout: .networkRequest),
+                "Transaction row '\(label)' should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyTransactionVisible(merchantName: String) -> Self {
         XCTContext.runActivity(named: "Verify transaction with merchant '\(merchantName)' is visible") { _ in
             let txCell = app.staticTexts[merchantName].firstMatch
@@ -97,6 +118,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
 enum TangemPayMainScreenElement: String, UIElement {
     case paymentAccountCardButton
     case paymentAccountBalance
+    case addFundsButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -104,6 +126,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.paymentAccountCardButton
         case .paymentAccountBalance:
             TangemPayAccessibilityIdentifiers.paymentAccountBalance
+        case .addFundsButton:
+            TangemPayAccessibilityIdentifiers.addFundsButton
         }
     }
 }
