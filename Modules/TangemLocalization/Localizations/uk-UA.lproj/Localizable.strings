@@ -277,6 +277,7 @@
 "common_now" = "Зараз";
 "common_ok" = "ОК";
 "common_open_in_browser" = "Відкрити в браузері";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "або";
 "common_origin_card" = "Основна картка";
 "common_origin_ring" = "Основне кільце";
@@ -987,6 +988,8 @@
 "organize_tokens_title" = "Сортування токенів";
 "organize_tokens_ungroup" = "Список";
 "provider_name_support" = "Підтримка %@";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -1393,6 +1396,10 @@
 "swapping_insufficient_funds" = "Недостатньо коштів";
 "swapping_permission_header" = "Надати дозвіл";
 "swapping_permit_and_swap" = "Дозволити та обміняти";
+"swapping_rate_experience_title" = "Rate your experience with provider";
+"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_submit" = "Send feedback";
+"swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "Обмін...";
 "swapping_swap_action" = "Обміняти";
 "swapping_to_account_title" = "You receive to";
@@ -1577,7 +1584,7 @@
 "tangempay_status_deactivated" = "Картку деактивовано";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Відновити доступ";
-"tangempay_sync_needed" = "Сесія закінчилася";
+"tangempay_sync_needed" = "Tangem Pay · Сесія закінчилася";
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
 "tangempay_temporarily_unavailable" = "Tangem Pay тимчасово недоступний";
 "tangempay_title" = "Tangem Pay";
@@ -2057,6 +2064,11 @@
 "xtz_withdrawal_message_ignore" = "Ні, відправити все";
 "xtz_withdrawal_message_reduce" = "Зменшити на %@ XTZ";
 "xtz_withdrawal_message_warning" = "Щоб не платити підвищену комісію при наступному поповненні гаманця, зменште суму на %@ XTZ";
+"yield_apy_boost_banner_button_title" = "Explore Yield mode";
+"yield_apy_boost_banner_subtitle" = "First time activation bonus!";
+"yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
+"yield_apy_boost_banner_title" = "Special offer for Yield mode";
+"yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
@@ -2164,4 +2176,6 @@
 "yield_module_unable_to_cover_fee_title" = "Неможливо покрити комісію в %@";
 "yield_module_unavailable_subtitle" = "Сервіс доходності у даний час недоступний. Будь ласка, спробуйте пізніше.";
 "yield_module_unavailable_title" = "Режим дохідності недоступний";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "Не вдалося завантажити графік...";
