@@ -1415,6 +1415,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "无法重命名卡片";
 "tangem_pay_card_frozen" = "卡片已冻结";
 "tangem_pay_card_payment" = "卡片支付";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_deposit" = "存款";
 "tangem_pay_dispute" = "争议";
 "tangem_pay_explore_transaction" = "探索交易";
@@ -1502,6 +1506,8 @@
 "tangempay_card_edit_name_placeholder" = "卡片名称";
 "tangempay_card_limit_setup_amount_subtitle" = "从 %@设定一个限额";
 "tangempay_card_limit_setup_error_message" = "我们无法设置限额，请稍后再试。";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_daily_limit_change" = "改变";
 "tangempay_card_page_daily_limit_current_limit" = "当前限额";
 "tangempay_card_page_daily_limit_error_description" = "我们无法加载您的每日限额。请稍后再试。";

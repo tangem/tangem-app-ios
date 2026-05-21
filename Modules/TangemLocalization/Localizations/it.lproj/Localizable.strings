@@ -1415,6 +1415,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Carta congelata";
 "tangem_pay_card_payment" = "Pagamento con carta";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_deposit" = "Deposito";
 "tangem_pay_dispute" = "Contestazione";
 "tangem_pay_explore_transaction" = "Esplora transazione";
@@ -1502,6 +1506,8 @@
 "tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Imposta un limite da %@";
 "tangempay_card_limit_setup_error_message" = "Impossibile impostare il limite. Riprova.";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_daily_limit_change" = "Modifica";
 "tangempay_card_page_daily_limit_current_limit" = "Limite attuale";
 "tangempay_card_page_daily_limit_error_description" = "Non siamo riusciti a caricare il tuo limite giornaliero. Riprova.";

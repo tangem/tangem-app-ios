@@ -1415,6 +1415,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "カード名を変更できません";
 "tangem_pay_card_frozen" = "カードが凍結されています";
 "tangem_pay_card_payment" = "カード決済";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_deposit" = "入金";
 "tangem_pay_dispute" = "異議申し立て";
 "tangem_pay_explore_transaction" = "取引を表示";
@@ -1502,6 +1506,8 @@
 "tangempay_card_edit_name_placeholder" = "カード名";
 "tangempay_card_limit_setup_amount_subtitle" = "%@以上の金額を設定してください";
 "tangempay_card_limit_setup_error_message" = "限度額を設定できませんでした。もう一度お試しください";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_daily_limit_change" = "変更";
 "tangempay_card_page_daily_limit_current_limit" = "現在の利用限度額";
 "tangempay_card_page_daily_limit_error_description" = "1日の利用限度額を読み込めませんでした。もう一度お試しください。";

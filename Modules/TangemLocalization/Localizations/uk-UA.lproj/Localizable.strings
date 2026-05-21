@@ -1415,6 +1415,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Картку заморожено";
 "tangem_pay_card_payment" = "Оплата карткою";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_deposit" = "Депозит";
 "tangem_pay_dispute" = "Оскаржити";
 "tangem_pay_explore_transaction" = "Переглянути транзакцію";
@@ -1502,6 +1506,8 @@
 "tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "Встановити ліміт від %@";
 "tangempay_card_limit_setup_error_message" = "Не вдалося встановити ліміт. Будь ласка, спробуйте ще раз.";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_daily_limit_change" = "Змінити";
 "tangempay_card_page_daily_limit_current_limit" = "Поточний ліміт";
 "tangempay_card_page_daily_limit_error_description" = "Не вдалося завантажити денний ліміт. Будь ласка, спробуйте ще раз.";
