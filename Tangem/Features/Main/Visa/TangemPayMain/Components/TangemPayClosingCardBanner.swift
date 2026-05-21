@@ -19,10 +19,10 @@ struct TangemPayClosingCardBanner: View {
                 .frame(width: 20, height: 20)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(Localization.tangempayClosingCardInProgress)
+                Text(Localization.tangempayCardPageClosingBannerTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                Text(Localization.tangempayClosingCardInProgressDescription)
+                Text(Localization.tangempayCardPageClosingBannerDescription)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
 
