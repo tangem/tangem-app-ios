@@ -168,5 +168,91 @@ extension ExpressDTO {
                 let status: ExpressTransactionStatus
             }
         }
+
+        // MARK: - History (GET /v1/exchange/history)
+
+        enum History {
+            struct Response: Decodable {
+                let data: [Record]
+                let nextCursor: String
+                let hasMore: Bool
+
+                enum CodingKeys: String, CodingKey {
+                    case data
+                    case nextCursor = "next_cursor"
+                    case hasMore = "has_more"
+                }
+            }
+
+            struct Record: Decodable {
+                let txId: String
+                let status: ExpressTransactionStatus
+                let provider: ExpressDTO.HistoryProvider
+                let from: AssetRef
+                let to: AssetRef
+                let payinHash: String?
+                let payoutHash: String?
+                let externalTxId: String?
+                let externalTxUrl: String?
+                let refund: Refund?
+                let rateType: ExpressProviderRateType
+                // [REDACTED_TODO_COMMENT]
+                // Sticking with ISO8601 String -> Date to match every other Express endpoint until
+                // the new contract is finalized. Flip to `Int` here (and adjust the mapper) when the
+                // backend pins the format.
+                // let createdAt: Int
+                // let updatedAt: Int
+                let createdAt: Date
+                let updatedAt: Date
+
+                enum CodingKeys: String, CodingKey {
+                    case txId = "tx_id"
+                    case status
+                    case provider
+                    case from
+                    case to
+                    case payinHash = "payin_hash"
+                    case payoutHash = "payout_hash"
+                    case externalTxId = "external_tx_id"
+                    case externalTxUrl = "external_tx_url"
+                    case refund
+                    case rateType = "rate_type"
+                    case createdAt = "created_at"
+                    case updatedAt = "updated_at"
+                }
+            }
+
+            struct AssetRef: Decodable {
+                let network: String
+                let tokenId: String?
+                let rawAmount: String
+                let decimals: Int
+                let isActual: Bool?
+
+                enum CodingKeys: String, CodingKey {
+                    case network
+                    case tokenId = "token_id"
+                    case rawAmount = "raw_amount"
+                    case decimals
+                    case isActual = "is_actual"
+                }
+            }
+
+            struct Refund: Decodable {
+                let network: String
+                let tokenId: String?
+                let rawAmount: String
+                let decimals: Int
+                let hash: String?
+
+                enum CodingKeys: String, CodingKey {
+                    case network
+                    case tokenId = "token_id"
+                    case rawAmount = "raw_amount"
+                    case decimals
+                    case hash
+                }
+            }
+        }
     }
 }

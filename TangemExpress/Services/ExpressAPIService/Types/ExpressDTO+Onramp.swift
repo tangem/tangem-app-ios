@@ -247,5 +247,111 @@ extension ExpressDTO {
                 let countryCode: String // Country code
             }
         }
+
+        // MARK: - History (GET /v1/onramp/history)
+
+        enum History {
+            struct Response: Decodable {
+                let data: [Record]
+                let nextCursor: String
+                let hasMore: Bool
+
+                enum CodingKeys: String, CodingKey {
+                    case data
+                    case nextCursor = "next_cursor"
+                    case hasMore = "has_more"
+                }
+            }
+
+            struct Record: Decodable {
+                let txId: String
+                let status: OnrampTransactionStatus
+                let provider: ExpressDTO.HistoryProvider
+                let from: FiatAsset
+                let to: AssetRef
+                let payoutHash: String?
+                let externalTxId: String?
+                let externalTxUrl: String?
+                let refund: Refund?
+                let rate: Rate?
+                let failReason: String?
+                // [REDACTED_TODO_COMMENT]
+                // Sticking with ISO8601 String -> Date to match every other Express endpoint until
+                // the new contract is finalized. Flip to `Int` here (and adjust the mapper) when the
+                // backend pins the format.
+                // let createdAt: Int
+                // let updatedAt: Int
+                let createdAt: Date
+                let updatedAt: Date
+
+                enum CodingKeys: String, CodingKey {
+                    case txId = "tx_id"
+                    case status
+                    case provider
+                    case from
+                    case to
+                    case payoutHash = "payout_hash"
+                    case externalTxId = "external_tx_id"
+                    case externalTxUrl = "external_tx_url"
+                    case refund
+                    case rate
+                    case failReason = "fail_reason"
+                    case createdAt = "created_at"
+                    case updatedAt = "updated_at"
+                }
+            }
+
+            struct FiatAsset: Decodable {
+                let currencyCode: String
+                let amount: String
+
+                enum CodingKeys: String, CodingKey {
+                    case currencyCode = "currency_code"
+                    case amount
+                }
+            }
+
+            struct AssetRef: Decodable {
+                let network: String
+                let tokenId: String?
+                let expectedRawAmount: String
+                let actualRawAmount: String?
+                let decimals: Int
+
+                enum CodingKeys: String, CodingKey {
+                    case network
+                    case tokenId = "token_id"
+                    case expectedRawAmount = "expected_raw_amount"
+                    case actualRawAmount = "actual_raw_amount"
+                    case decimals
+                }
+            }
+
+            struct Refund: Decodable {
+                let network: String
+                let tokenId: String?
+                let rawAmount: String
+                let decimals: Int
+                let hash: String?
+
+                enum CodingKeys: String, CodingKey {
+                    case network
+                    case tokenId = "token_id"
+                    case rawAmount = "raw_amount"
+                    case decimals
+                    case hash
+                }
+            }
+
+            struct Rate: Decodable {
+                let atCreate: Decimal?
+                let atFinish: Decimal?
+
+                enum CodingKeys: String, CodingKey {
+                    case atCreate = "at_create"
+                    case atFinish = "at_finish"
+                }
+            }
+        }
     }
 }
