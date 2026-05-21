@@ -277,6 +277,7 @@
 "common_now" = "Maintenant";
 "common_ok" = "OK";
 "common_open_in_browser" = "Ouvrir dans le navigateur";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "ou";
 "common_origin_card" = "Carte principale";
 "common_origin_ring" = "Bague principale";
@@ -948,6 +949,7 @@
 "onramp_legal" = "En utilisant la fonctionnalité onramp, vous acceptez %1$@ et %2$@ du fournisseur";
 "onramp_max_amount_restriction" = "Le montant de l'achat ne doit pas dépasser %@";
 "onramp_min_amount_restriction" = "Le montant à acheter doit être au moins %@";
+"onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "Aucun fournisseur disponible pour cette devise";
@@ -986,6 +988,8 @@
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
 "provider_name_support" = "Assistance %@";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -1349,7 +1353,7 @@
 "swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
-"swap_in_progress" = "Swap in progress";
+"swap_in_progress" = "Échange en cours";
 "swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
 "swap_search_tooltip_description" = "Recherchez n’importe quel token, même s’il ne figure pas encore dans votre liste.";
 "swap_search_tooltip_title" = "Utilisez la recherche pour trouver ce dont vous avez besoin.";
@@ -1383,7 +1387,7 @@
 "swapping_approve_information_title" = "Approuver";
 "swapping_fee_estimation_error_text" = "Erreur d'estimation des frais. Veuillez envoyer vos commentaires à l'équide de support.";
 "swapping_from_account_title" = "You send from";
-"swapping_from_title_v2" = "You send";
+"swapping_from_title_v2" = "Vous envoyez";
 "swapping_from_title" = "Vous échangez";
 "swapping_high_price_impact_description" = "Échanger ce montant de jetons sélectionnés aura un impact significatif sur les prix et réduira votre résultat.";
 "swapping_high_price_impact_text" = "You may receive significantly less due to low liquidity. Try a smaller amount or another provider.";
@@ -1394,7 +1398,7 @@
 "swapping_permit_and_swap" = "Autoriser et Échanger";
 "swapping_swap_action_in_progress" = "Échange...";
 "swapping_swap_action" = "Échanger";
-"swapping_to_account_title" = "You receive to";
+"swapping_to_account_title" = "Vous recevez à";
 "swapping_to_title" = "Vous recevez";
 "swapping_token_list_title" = "Choisir le jeton";
 "swapping_token_not_available" = "non disponible";
@@ -2056,6 +2060,14 @@
 "xtz_withdrawal_message_ignore" = "Non, envoyer toute la somme";
 "xtz_withdrawal_message_reduce" = "Réduire de %@ XTZ";
 "xtz_withdrawal_message_warning" = "Pour ne pas payer un fraid de commissions élevé la prochaine fois que vous rechargez votre portefeuille, veuillez réduire le montant de %@ XTZ";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_module_alert_description" = "Vos fonds sont actuellement fournis au protocole Aave, mais vous pouvez les gérer à tout moment.";
 "yield_module_alert_title" = "Vos %@ sont fournis à Aave.";
 "yield_module_amount_not_transfered_to_aave_title" = "Le transfert de %1$@ %2$@ vers Aave est en attente.";
@@ -2155,4 +2167,6 @@
 "yield_module_unable_to_cover_fee_title" = "Impossible de couvrir les frais %@";
 "yield_module_unavailable_subtitle" = "Le mode rendement n'est pas disponible pour le moment. Veuillez réessayer plus tard.";
 "yield_module_unavailable_title" = "Le mode Rendement est indisponible";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "Impossible de charger le graphique...";
