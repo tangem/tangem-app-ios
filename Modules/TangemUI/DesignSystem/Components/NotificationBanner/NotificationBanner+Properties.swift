@@ -14,14 +14,14 @@ public extension NotificationBanner {
         case status(Content)
         case critical(Content, BannerAction)
         case warning(Content, BannerAction)
-        case promo(TextOnly, BannerAction, CloseAction, Effect)
+        case promo(Content, BannerAction, CloseAction, Effect)
         case survey(TextOnly, BannerAction, CloseAction)
         case informational(TextOnly, BannerAction, CloseAction)
 
         var content: Content {
             switch self {
-            case .status(let c), .critical(let c, _), .warning(let c, _): c
-            case .promo(let text, _, _, _), .survey(let text, _, _), .informational(let text, _, _): .text(text)
+            case .status(let c), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _): c
+            case .survey(let text, _, _), .informational(let text, _, _): .text(text)
             }
         }
 
