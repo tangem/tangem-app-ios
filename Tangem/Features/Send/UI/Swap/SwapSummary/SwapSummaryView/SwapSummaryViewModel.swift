@@ -33,8 +33,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var transactionDescription: AttributedString?
     @Published private(set) var alert: AlertBinder?
 
-    @Published var formVariant: SwapFormVariant
-    @Published var shouldAnimateBestRateBadge: Bool = false
+    @Published private(set) var formVariant: SwapFormVariant
+    @Published var shouldAnimateBestRateBadge: Bool = true
 
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
