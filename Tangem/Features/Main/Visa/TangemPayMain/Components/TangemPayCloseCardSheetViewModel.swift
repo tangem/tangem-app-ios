@@ -65,6 +65,8 @@ final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetCon
         self.coordinator = coordinator
         self.closeAction = closeAction
         self.onError = onError
+
+        Analytics.log(.visaCloseCardConfirmationPopupOpened, contextParams: .userWallet(userWalletId))
     }
 
     func dismiss() {
@@ -77,6 +79,9 @@ final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetCon
 private extension TangemPayCloseCardSheetViewModel {
     func confirm() {
         guard !isLoading else { return }
+
+        Analytics.log(.visaCloseCardConfirmed, contextParams: .userWallet(userWalletId))
+
         isLoading = true
 
         runTask(in: self) { @MainActor viewModel in

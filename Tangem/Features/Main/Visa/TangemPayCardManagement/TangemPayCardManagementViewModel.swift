@@ -744,6 +744,8 @@ private extension TangemPayCardManagementViewModel {
     func showCloseCardPopup() {
         guard let card = currentCard else { return }
 
+        Analytics.log(.visaCloseCardClicked, contextParams: .userWallet(userWalletInfo.id))
+        
         coordinator?.openTangemPayCloseCardSheet(
             userWalletId: userWalletInfo.id,
             card: card,
