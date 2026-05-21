@@ -9,4 +9,5 @@
 public struct YieldSupplyContractAddresses {
     public let processorContractAddress: String
     public let factoryContractAddress: String
+    public let swapExecutionRegistryContractAddress: String
 }

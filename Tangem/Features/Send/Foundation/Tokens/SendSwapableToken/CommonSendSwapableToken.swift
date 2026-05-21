@@ -17,6 +17,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
     let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
     let expressTransactionValidator: any ExpressTransactionValidator
+    let sendYieldModuleHelper: SendYieldModuleHelper?
 
     let balanceProvider: any TangemExpress.BalanceProvider
     let analyticsLogger: any TangemExpress.AnalyticsLogger
