@@ -287,4 +287,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let response = try await expressAPIService.onrampStatus(request: request)
         return try expressAPIMapper.mapToOnrampTransaction(response: response)
     }
+
+    func onrampHistory(fromAddress: String) async throws -> [OnrampHistoryItem] {
+        let request = ExpressDTO.Onramp.History.Request(fromAddress: fromAddress, afterCursor: nil, limit: nil)
+        let response = try await expressAPIService.onrampHistory(request: request)
+        return expressAPIMapper.mapToOnrampHistoryItems(response: response)
+    }
 }

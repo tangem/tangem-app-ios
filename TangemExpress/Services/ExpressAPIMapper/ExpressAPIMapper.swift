@@ -310,6 +310,69 @@ struct ExpressAPIMapper {
         )
     }
 
+    func mapToOnrampHistoryItems(response: ExpressDTO.Onramp.History.Response) -> [OnrampHistoryItem] {
+        response.items.compactMap { item in
+            do {
+                return try mapToOnrampHistoryItem(response: item)
+            } catch {
+                OnrampLogger.error("Failed to map onramp history item txId=\(item.txId)", error: error)
+                return nil
+            }
+        }
+    }
+
+    func mapToOnrampHistoryItem(response: ExpressDTO.Onramp.History.Item) throws -> OnrampHistoryItem {
+        guard var fromAmount = Decimal(string: response.fromAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
+        }
+
+        fromAmount /= pow(10, response.fromPrecision)
+
+        let toAmount = Decimal(string: response.toAmount)
+            .map { $0 / pow(10, response.toDecimals) }
+
+        let toActualAmount = response.toActualAmount
+            .flatMap(Decimal.init)
+            .map { $0 / pow(10, response.toDecimals) }
+
+        guard let createdAt = Self.parseHistoryDate(response.createdAt) else {
+            throw ExpressAPIMapperError.invalidDate(response.createdAt)
+        }
+
+        return OnrampHistoryItem(
+            txId: response.txId,
+            status: response.status,
+            createdAt: createdAt,
+            fromCurrencyCode: response.fromCurrencyCode,
+            fromAmount: fromAmount,
+            toContractAddress: response.toContractAddress,
+            toNetwork: response.toNetwork,
+            toAmount: toAmount,
+            toActualAmount: toActualAmount,
+            externalTxId: response.externalTxId,
+            externalTxUrl: response.externalTxUrl
+        )
+    }
+
+    private static func parseHistoryDate(_ string: String) -> Date? {
+        if let date = historyDateFormatterFractional.date(from: string) {
+            return date
+        }
+        return historyDateFormatterBasic.date(from: string)
+    }
+
+    private static let historyDateFormatterFractional: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let historyDateFormatterBasic: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
     func mapToOnrampTransaction(response: ExpressDTO.Onramp.Status.Response) throws -> OnrampTransaction {
         guard var fromAmount = Decimal(string: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
@@ -337,6 +400,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
     case widgetUrlMissing
+    case invalidDate(_ string: String)
 
     var errorDescription: String? {
         switch self {
@@ -345,6 +409,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .widgetUrlMissing: "Widget url is missing for a widget transaction"
+        case .invalidDate(let value): "Invalid date format \(value)"
         }
     }
 }

@@ -18,10 +18,13 @@ import TangemFoundation
 final class OnrampModelHandleApplePayAuthorizationTests {
     private let eventLog = EventLog()
     private let pendingTransactionRepositoryStub: StubOnrampPendingTransactionRepository
+    private let unknownStatusRepositoryStub: StubOnrampUnknownStatusRepository
 
     init() {
         pendingTransactionRepositoryStub = StubOnrampPendingTransactionRepository(eventLog: eventLog)
+        unknownStatusRepositoryStub = StubOnrampUnknownStatusRepository()
         InjectedValues[\.onrampPendingTransactionsRepository] = pendingTransactionRepositoryStub
+        InjectedValues[\.onrampUnknownStatusRepository] = unknownStatusRepositoryStub
     }
 
     @Test("Native payment success → result.succeed() once with .success status")
@@ -107,6 +110,53 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect((outcome.lastErrors.first as NSError?)?.domain == "Swift.CancellationError")
     }
 
+    // MARK: - Timeout fallback ([REDACTED_INFO])
+
+    @Test("Express timeout → /history/onramp returns matching tx → result.succeed() and pending tx recorded")
+    func timeoutWithHistoryMatchSucceeds() async {
+        let historyItem = StubFixtures.makeHistoryItem(toContractAddress: ExpressConstants.coinContractAddress, toNetwork: "ETH")
+        let manager = StubOnrampManager(mode: .throwsError(StubFixtures.makeExpressTimeoutError()), historyMode: .returns([historyItem]))
+        let model = makeModel(onrampManager: manager)
+
+        let outcome = await runHandleAndAwaitResult(on: model)
+
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .success)
+        #expect(outcome.lastErrors.isEmpty)
+        #expect(eventLog.events.contains(.transactionDidSend))
+        #expect(unknownStatusRepositoryStub.markedRecords.isEmpty)
+    }
+
+    @Test("Express timeout → /history/onramp empty → result.fail() and no unknown-status record")
+    func timeoutWithEmptyHistoryFails() async {
+        let manager = StubOnrampManager(mode: .throwsError(StubFixtures.makeExpressTimeoutError()), historyMode: .returns([]))
+        let model = makeModel(onrampManager: manager)
+
+        let outcome = await runHandleAndAwaitResult(on: model)
+
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .failure)
+        #expect(!eventLog.events.contains(.transactionDidSend))
+        #expect(unknownStatusRepositoryStub.markedRecords.isEmpty)
+    }
+
+    @Test("Express timeout → /history/onramp throws → result.fail() and unknown-status record persisted")
+    func timeoutWithHistoryFailureMarksUnknown() async {
+        let manager = StubOnrampManager(
+            mode: .throwsError(StubFixtures.makeExpressTimeoutError()),
+            historyMode: .throwsError(URLError(.notConnectedToInternet))
+        )
+        let model = makeModel(onrampManager: manager)
+
+        let outcome = await runHandleAndAwaitResult(on: model)
+
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .failure)
+        #expect(!eventLog.events.contains(.transactionDidSend))
+        #expect(unknownStatusRepositoryStub.markedRecords.count == 1)
+        #expect(unknownStatusRepositoryStub.markedRecords.first?.fromAddress == "0xtest")
+    }
+
     // MARK: - Helpers
 
     private func makeModel(onrampManager: OnrampManager) -> OnrampModel {
@@ -145,6 +195,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
 
 private enum RecordedEvent: Equatable {
     case transactionDidSend
+    case transactionAddedFromHistory
     case resultHandler
     case kycSheetOpened
 }
@@ -220,10 +271,18 @@ private actor StubOnrampManager: OnrampManager {
         case throwsError(Error)
     }
 
-    private let mode: Mode
+    enum HistoryMode {
+        case unused
+        case returns([OnrampHistoryItem])
+        case throwsError(Error)
+    }
 
-    init(mode: Mode) {
+    private let mode: Mode
+    private let historyMode: HistoryMode
+
+    init(mode: Mode, historyMode: HistoryMode = .unused) {
         self.mode = mode
+        self.historyMode = historyMode
     }
 
     func initialSetupCountry() async throws -> OnrampCountry {
@@ -252,6 +311,49 @@ private actor StubOnrampManager: OnrampManager {
         case .widget(let data): return .widget(data)
         case .throwsError(let error): throw error
         }
+    }
+
+    func findRecentOnrampTransaction(
+        fromAddress: String,
+        since: Date,
+        toContractAddress: String,
+        toNetwork: String
+    ) async throws -> OnrampHistoryItem? {
+        switch historyMode {
+        case .unused: return nil
+        case .returns(let items):
+            return OnrampHistoryMatcher.findMatch(
+                in: items,
+                since: since,
+                toContractAddress: toContractAddress,
+                toNetwork: toNetwork
+            )
+        case .throwsError(let error): throw error
+        }
+    }
+}
+
+// MARK: - StubOnrampUnknownStatusRepository
+
+private final class StubOnrampUnknownStatusRepository: OnrampUnknownStatusRepository {
+    private let state = OSAllocatedUnfairLock<[OnrampUnknownStatusRecord]>(initialState: [])
+
+    func markUnknown(_ record: OnrampUnknownStatusRecord) {
+        state.withLock { $0.append(record) }
+    }
+
+    func activeRecords(userWalletId: String, toContractAddress: String, toNetwork: String) -> [OnrampUnknownStatusRecord] {
+        state.withLock { $0 }
+    }
+
+    func markAttempted(recordId: String) {}
+
+    func clear(recordId: String) {
+        state.withLock { $0.removeAll { $0.id == recordId } }
+    }
+
+    var markedRecords: [OnrampUnknownStatusRecord] {
+        state.withLock { $0 }
     }
 }
 
@@ -289,6 +391,10 @@ private final class StubOnrampPendingTransactionRepository: OnrampPendingTransac
     func updateItems(_ items: [OnrampPendingTransactionRecord]) {}
     func onrampTransactionDidSend(_ txData: SentOnrampTransactionData, userWalletId: String) {
         eventLog.append(.transactionDidSend)
+    }
+
+    func addRecordIfNeeded(_ record: OnrampPendingTransactionRecord) {
+        eventLog.append(.transactionAddedFromHistory)
     }
 
     func hideSwapTransaction(with id: String) {}
@@ -378,6 +484,30 @@ private enum StubFixtures {
             fromAmount: 100,
             fromCurrencyCode: "USD",
             externalTxId: nil,
+            externalTxUrl: nil
+        )
+    }
+
+    static func makeExpressTimeoutError() -> ExpressAPIError {
+        ExpressAPIError(
+            code: ExpressAPIError.Code.externalServiceRequestTimeoutError.rawValue,
+            description: "timeout",
+            value: nil
+        )
+    }
+
+    static func makeHistoryItem(toContractAddress: String, toNetwork: String) -> OnrampHistoryItem {
+        OnrampHistoryItem(
+            txId: "history-tx-1",
+            status: .paid,
+            createdAt: Date(),
+            fromCurrencyCode: "USD",
+            fromAmount: 100,
+            toContractAddress: toContractAddress,
+            toNetwork: toNetwork,
+            toAmount: 0.05,
+            toActualAmount: nil,
+            externalTxId: "external-1",
             externalTxUrl: nil
         )
     }

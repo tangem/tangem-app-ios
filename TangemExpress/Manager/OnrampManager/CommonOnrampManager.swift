@@ -93,6 +93,21 @@ extension CommonOnrampManager: OnrampManager {
         }
     }
 
+    public nonisolated func findRecentOnrampTransaction(
+        fromAddress: String,
+        since: Date,
+        toContractAddress: String,
+        toNetwork: String
+    ) async throws -> OnrampHistoryItem? {
+        let items = try await apiProvider.onrampHistory(fromAddress: fromAddress)
+        return OnrampHistoryMatcher.findMatch(
+            in: items,
+            since: since,
+            toContractAddress: toContractAddress,
+            toNetwork: toNetwork
+        )
+    }
+
     public func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult {
         do {
             guard let quoteId = provider.quote?.quoteId else {

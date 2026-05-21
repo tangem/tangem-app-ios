@@ -13,11 +13,14 @@ import TangemFoundation
 
 class CommonPendingOnrampTransactionsManager {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
+    @Injected(\.onrampUnknownStatusRepository) private var onrampUnknownStatusRepository: OnrampUnknownStatusRepository
     @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
     private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
+
+    private var unknownStatusRecoveryTask: Task<Void, Never>?
 
     private let pendingOnrampTransactionFactory = PendingOnrampTransactionFactory()
 
@@ -47,6 +50,7 @@ class CommonPendingOnrampTransactionsManager {
         self.expressAPIProvider = expressAPIProvider
 
         bind()
+        recoverUnknownStatusTransactions()
     }
 
     deinit {
@@ -59,6 +63,96 @@ class CommonPendingOnrampTransactionsManager {
 
         pollingResultTask?.cancel()
         pollingResultTask = nil
+
+        unknownStatusRecoveryTask?.cancel()
+        unknownStatusRecoveryTask = nil
+    }
+
+    private func recoverUnknownStatusTransactions() {
+        unknownStatusRecoveryTask = runTask(in: self) { manager in
+            let currency = manager.tokenItem.expressCurrency
+            let toContractAddress = currency.contractAddress
+            let toNetwork = currency.network
+            let records = manager.onrampUnknownStatusRepository.activeRecords(
+                userWalletId: manager.userWalletId,
+                toContractAddress: toContractAddress,
+                toNetwork: toNetwork
+            )
+            guard !records.isEmpty else { return }
+
+            let recordsByAddress = Dictionary(grouping: records, by: \.fromAddress)
+
+            await withTaskGroup(of: Void.self) { group in
+                for (fromAddress, recordsForAddress) in recordsByAddress {
+                    group.addTask {
+                        await manager.recoverGroup(
+                            fromAddress: fromAddress,
+                            records: recordsForAddress,
+                            toContractAddress: toContractAddress,
+                            toNetwork: toNetwork
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private func recoverGroup(
+        fromAddress: String,
+        records: [OnrampUnknownStatusRecord],
+        toContractAddress: String,
+        toNetwork: String
+    ) async {
+        guard !Task.isCancelled else { return }
+
+        let items: [OnrampHistoryItem]
+        do {
+            items = try await expressAPIProvider.onrampHistory(fromAddress: fromAddress)
+        } catch {
+            return
+        }
+
+        for record in records {
+            guard !Task.isCancelled else { return }
+
+            onrampUnknownStatusRepository.markAttempted(recordId: record.id)
+
+            let match = OnrampHistoryMatcher.findMatch(
+                in: items,
+                since: record.since,
+                toContractAddress: toContractAddress,
+                toNetwork: toNetwork
+            )
+
+            if let match {
+                persistRecovered(historyItem: match, from: record)
+                onrampUnknownStatusRepository.clear(recordId: record.id)
+            }
+        }
+    }
+
+    private func persistRecovered(historyItem: OnrampHistoryItem, from record: OnrampUnknownStatusRecord) {
+        let pendingRecord = OnrampPendingTransactionRecord(
+            userWalletId: record.userWalletId,
+            expressTransactionId: historyItem.txId,
+            fromAmount: historyItem.fromAmount,
+            fromCurrencyCode: historyItem.fromCurrencyCode,
+            destinationTokenTxInfo: .init(
+                userWalletId: record.userWalletId,
+                tokenItem: tokenItem,
+                address: record.fromAddress,
+                amountString: "",
+                isCustom: false
+            ),
+            provider: record.provider,
+            paymentMethod: record.paymentMethod,
+            date: historyItem.createdAt,
+            externalTxId: historyItem.externalTxId,
+            externalTxURL: historyItem.externalTxUrl,
+            isHidden: false,
+            transactionStatus: PendingOnrampTransactionFactory.pendingStatus(from: historyItem.status)
+        )
+        onrampPendingTransactionsRepository.addRecordIfNeeded(pendingRecord)
     }
 
     private func request(pendingTransaction: PendingOnrampTransaction) async -> PendingOnrampTransaction? {

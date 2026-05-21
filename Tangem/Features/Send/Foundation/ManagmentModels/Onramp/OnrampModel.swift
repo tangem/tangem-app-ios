@@ -10,6 +10,7 @@ import Foundation
 import TangemExpress
 import Combine
 import TangemFoundation
+import TangemNetworkUtils
 
 class OnrampModel {
     // MARK: - Data
@@ -26,6 +27,9 @@ class OnrampModel {
 
     @Injected(\.onrampPendingTransactionsRepository)
     private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
+
+    @Injected(\.onrampUnknownStatusRepository)
+    private var onrampUnknownStatusRepository: OnrampUnknownStatusRepository
 
     weak var router: OnrampModelRoutable?
     weak var alertPresenter: SendViewAlertPresenter?
@@ -44,6 +48,7 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
+    private var applePayAuthorizationTask: Task<Void, Never>?
     private var hasPendingApplePayFinishStep: Bool = false
 
     private var bag: Set<AnyCancellable> = []
@@ -401,9 +406,37 @@ private extension OnrampModel {
         onrampPendingTransactionsRepository
             .onrampTransactionDidSend(txData, userWalletId: userWalletId)
 
+        afterNativePaymentRecorded(txId: data.txId)
+    }
+
+    private func recordApplePayHistoryTx(historyItem: OnrampHistoryItem, provider: OnrampProvider) {
+        let pendingRecord = OnrampPendingTransactionRecord(
+            userWalletId: userWalletId,
+            expressTransactionId: historyItem.txId,
+            fromAmount: historyItem.fromAmount,
+            fromCurrencyCode: historyItem.fromCurrencyCode,
+            destinationTokenTxInfo: .init(
+                userWalletId: userWalletId,
+                tokenItem: tokenItem,
+                address: defaultAddressString,
+                amountString: "",
+                isCustom: false
+            ),
+            provider: .init(provider: provider.provider),
+            paymentMethod: .init(id: provider.paymentMethod.id),
+            date: historyItem.createdAt,
+            externalTxId: historyItem.externalTxId,
+            externalTxURL: historyItem.externalTxUrl,
+            isHidden: false,
+            transactionStatus: PendingOnrampTransactionFactory.pendingStatus(from: historyItem.status)
+        )
+        onrampPendingTransactionsRepository.addRecordIfNeeded(pendingRecord)
+    }
+
+    private func afterNativePaymentRecorded(txId: String) {
         stopTimer()
         _transactionTime.send(Date())
-        _expressTransactionId.send(data.txId)
+        _expressTransactionId.send(txId)
         hasPendingApplePayFinishStep = true
     }
 
@@ -552,6 +585,9 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetDidFinish() {
         autoupdatingTimer.resumeTimer()
 
+        applePayAuthorizationTask?.cancel()
+        applePayAuthorizationTask = nil
+
         if hasPendingApplePayFinishStep {
             hasPendingApplePayFinishStep = false
             router?.openFinishStep()
@@ -562,7 +598,9 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         let provider = result.provider
         _selectedOnrampProvider.send(.success(provider))
 
-        runTask(in: self) { model in
+        let applePayStartDate = Date()
+        applePayAuthorizationTask?.cancel()
+        applePayAuthorizationTask = runTask(in: self) { model in
             do {
                 let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
 
@@ -572,9 +610,8 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                     applePayResult: result.applePayResult
                 )
 
-                try Task.checkCancellation()
-
                 await runOnMain {
+                    guard !Task.isCancelled else { return }
                     switch onrampResult {
                     case .nativePayment(let data):
                         model.nativePaymentDataDidLoad(data: data, provider: provider)
@@ -587,14 +624,97 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                     }
                 }
             } catch let error as CancellationError {
-                await runOnMain { result.fail(error) }
+                await runOnMain {
+                    guard !Task.isCancelled else { return }
+                    result.fail(error)
+                }
+            } catch let error where error.networkErrorCode == .timedOut {
+                await model.handleNativePaymentTimeout(
+                    provider: provider,
+                    applePayStartDate: applePayStartDate,
+                    originalError: error,
+                    result: result
+                )
             } catch {
                 await runOnMain {
+                    guard !Task.isCancelled else { return }
                     model.alertPresenter?.showAlert(error.alertBinder)
                     result.fail(error)
                 }
             }
         }
+    }
+
+    private func handleNativePaymentTimeout(
+        provider: OnrampProvider,
+        applePayStartDate: Date,
+        originalError: Error,
+        result: ApplePayAuthorizationResult
+    ) async {
+        let currency = tokenItem.expressCurrency
+        let toContractAddress = currency.contractAddress
+        let toNetwork = currency.network
+
+        guard !Task.isCancelled else {
+            await runOnMain { result.fail(originalError) }
+            return
+        }
+
+        do {
+            let historyItem = try await onrampManager.findRecentOnrampTransaction(
+                fromAddress: defaultAddressString,
+                since: applePayStartDate,
+                toContractAddress: toContractAddress,
+                toNetwork: toNetwork
+            )
+
+            await runOnMain { [weak self] in
+                guard let self else { return }
+                if let historyItem {
+                    recordApplePayHistoryTx(historyItem: historyItem, provider: provider)
+                    guard !Task.isCancelled else { return }
+                    afterNativePaymentRecorded(txId: historyItem.txId)
+                    result.succeed()
+                } else {
+                    guard !Task.isCancelled else { return }
+                    result.fail(originalError)
+                }
+            }
+        } catch {
+            let shouldMark = !(error is CancellationError)
+            await runOnMain { [weak self] in
+                if shouldMark {
+                    self?.markNativePaymentUnknown(
+                        provider: provider,
+                        applePayStartDate: applePayStartDate,
+                        toContractAddress: toContractAddress,
+                        toNetwork: toNetwork
+                    )
+                }
+                guard !Task.isCancelled else { return }
+                result.fail(originalError)
+            }
+        }
+    }
+
+    private func markNativePaymentUnknown(
+        provider: OnrampProvider,
+        applePayStartDate: Date,
+        toContractAddress: String,
+        toNetwork: String
+    ) {
+        let now = Date()
+        let record = OnrampUnknownStatusRecord(
+            userWalletId: userWalletId,
+            fromAddress: defaultAddressString,
+            toContractAddress: toContractAddress,
+            toNetwork: toNetwork,
+            since: applePayStartDate,
+            expiresAt: now.addingTimeInterval(OnrampUnknownStatusRepositoryConstants.ttl),
+            provider: .init(provider: provider.provider),
+            paymentMethod: .init(id: provider.paymentMethod.id)
+        )
+        onrampUnknownStatusRepository.markUnknown(record)
     }
 }
 
