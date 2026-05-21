@@ -210,6 +210,24 @@ struct MyView_Previews: PreviewProvider {
 - `Modules/TangemAssets/Generated/`
 - `Modules/TangemLocalization/Generated/`
 
+**Thread-safe mutable state:** Prefer `OSAllocatedUnfairLock(initialState:)` over hand-rolled `NSLock` + `@unchecked Sendable` for guarding shared state in tests, stubs, and utilities. The `withLock { state in ... }` API encapsulates state ownership and removes the need for the unchecked annotation:
+
+```swift
+import TangemFoundation
+
+private let state = OSAllocatedUnfairLock(initialState: State())
+
+func append(_ event: Event) {
+    state.withLock { $0.events.append(event) }
+}
+
+var events: [Event] {
+    state.withLock { $0.events }
+}
+```
+
+The type is re-exported via `Modules/TangemFoundation/Extensions/Foundation/OSAllocatedUnfairLock+.swift` — `import TangemFoundation` to get it.
+
 ## CI/CD
 
 - **Danger** enforces linting and blocks PRs with compiler warnings/errors
