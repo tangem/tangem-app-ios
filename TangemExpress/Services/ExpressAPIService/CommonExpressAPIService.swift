@@ -102,6 +102,23 @@ extension CommonExpressAPIService: ExpressAPIService {
     func onrampStatus(request: ExpressDTO.Onramp.Status.Request) async throws -> ExpressDTO.Onramp.Status.Response {
         try await _request(target: .onrampStatus(request: request))
     }
+
+    // MARK: - History
+
+    // [REDACTED_TODO_COMMENT]
+    // error envelope for the history endpoints (see Notion: "Express: New Endpoints Walkthrough",
+    // "Gateway: Error Handling & Partial Failure"). Until the backend envelope is finalised, this
+    // method reuses the existing `tryMapErrorFromBody` path, which expects `code: Int?`. New string
+    // codes will surface as un-decoded generic Moya errors; caller branches on HTTP status until
+    // the structured error type is introduced.
+
+    func exchangeHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Swap.History.Response {
+        try await _request(target: .exchangeHistory(request: request))
+    }
+
+    func onrampHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Onramp.History.Response {
+        try await _request(target: .onrampHistory(request: request))
+    }
 }
 
 private extension CommonExpressAPIService {
