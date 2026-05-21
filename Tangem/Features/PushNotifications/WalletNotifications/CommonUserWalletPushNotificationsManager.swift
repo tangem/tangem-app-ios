@@ -136,12 +136,13 @@ extension CommonUserWalletPushNotificationsManager: UserTokensPushNotificationsM
 
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .handleRemoteValue(let value, let channel):
-            applyRemoteStatusUpdate(value, for: channel)
-        case .walletBindingWithApplicationSynchronized:
+        case .walletApplicationBindingSynchronized:
             fetchNotificationPreferences()
-        case .walletsBindingInfoUnavailable:
+        case .walletBindingInfoUnavailable:
             applySyncFailure()
+        case .remoteStatusReceived(let value, let channel):
+            // [REDACTED_TODO_COMMENT]
+            break
         }
     }
 

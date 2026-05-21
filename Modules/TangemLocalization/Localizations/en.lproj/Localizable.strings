@@ -277,6 +277,7 @@
 "common_now" = "Now";
 "common_ok" = "OK";
 "common_open_in_browser" = "Open in Browser";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "or";
 "common_origin_card" = "Primary card";
 "common_origin_ring" = "Primary ring";
@@ -948,6 +949,7 @@
 "onramp_legal" = "By using onramp functionality, you agree with provider’s %1$@ and %2$@";
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
+"onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "No available providers for this currency";
@@ -986,6 +988,8 @@
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
 "provider_name_support" = "%@ support";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -1453,7 +1457,7 @@
 "tangempay_card_details_cvc" = "CVC";
 "tangempay_card_details_error_text" = "Failed to load data. Try again later.";
 "tangempay_card_details_expiry" = "Expiry";
-"tangempay_card_details_freeze_card" = "Freeze Card";
+"tangempay_card_details_freeze_card" = "Freeze card";
 "tangempay_card_details_hide_details" = "Hide details";
 "tangempay_card_details_hide_text" = "Hide";
 "tangempay_card_details_open_wallet_button" = "Open Google Wallet";
@@ -1512,7 +1516,7 @@
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
 "tangempay_failed_to_issue_card" = "Failed to issue card";
 "tangempay_feature_will_be_available_soon_description" = "You will be available to issue additional cards for your payment account";
-"tangempay_feature_will_be_available_soon" = "Feature will be availible soon";
+"tangempay_feature_will_be_available_soon" = "Feature will be available soon";
 "tangempay_get_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_go_to_support" = "Go to Support";
@@ -2056,6 +2060,14 @@
 "xtz_withdrawal_message_ignore" = "No, send all";
 "xtz_withdrawal_message_reduce" = "Reduce by %@ XTZ";
 "xtz_withdrawal_message_warning" = "To avoid paying an increased commission the next time you top up your wallet, reduce the amount by %@ XTZ";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_module_alert_description" = "When Yield Mode is active, all future top-ups to this address will be supplied to Aave. You can still manage your funds freely.";
 "yield_module_alert_title" = "Your %@ is supplied to Aave";
 "yield_module_amount_not_transfered_to_aave_title" = "Supplying %1$@ %2$@ to Aave";
@@ -2155,4 +2167,6 @@
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
 "yield_module_unavailable_subtitle" = "Yield Mode isn't available at the moment. Please try again later.";
 "yield_module_unavailable_title" = "Yield Mode unavailable";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "Unable to load chart...";
