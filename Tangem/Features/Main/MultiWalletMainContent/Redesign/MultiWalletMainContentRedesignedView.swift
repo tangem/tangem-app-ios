@@ -22,6 +22,10 @@ struct MultiWalletMainContentRedesignedView: View {
         VStack(spacing: .unit(.x4)) {
             notificationBanners
 
+            if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
+                TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+            }
+
             listContent
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 

@@ -119,7 +119,7 @@ final class SwapModel {
 extension SwapModel {
     func autoupdatingRates() {
         updateTask(loadingType: .autoupdate) { [weak self] manager in
-            let result: ExpressManagerUpdatingResult = try await manager.update(by: .autoUpdate)
+            let result: ExpressManagerUpdatingResult = try await manager.update(by: .autoupdate)
 
             if let self, let quote = result.selected?.getState().quote {
                 let amountType = await manager.getAmountType()
@@ -187,10 +187,7 @@ extension SwapModel {
             }
 
             let amountType: ExpressAmountType? = sourceAmount?.crypto.map { .from($0) }
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(
-                amountType: amountType,
-                by: .amountChange
-            )
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: amountType)
 
             if let self, let quote = result.selected?.getState().quote {
                 _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
@@ -216,10 +213,7 @@ extension SwapModel {
             }
 
             let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(
-                amountType: amountType,
-                by: .amountChange
-            )
+            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: amountType)
 
             if let self, let quote = result.selected?.getState().quote {
                 _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
@@ -1189,7 +1183,7 @@ extension SwapModel: FeeSelectorOutput {
         tokenFeeProvidersManager?.update(feeOption: feeOption)
 
         updateTask(loadingType: .fee) { manager in
-            try await manager.update(by: .autoUpdate)
+            try await manager.update(by: .autoupdate)
         }
     }
 }
