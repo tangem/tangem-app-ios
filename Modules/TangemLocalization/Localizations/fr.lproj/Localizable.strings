@@ -277,6 +277,7 @@
 "common_now" = "Maintenant";
 "common_ok" = "OK";
 "common_open_in_browser" = "Ouvrir dans le navigateur";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "ou";
 "common_origin_card" = "Carte principale";
 "common_origin_ring" = "Bague principale";
@@ -987,6 +988,8 @@
 "organize_tokens_title" = "Organiser les jetons";
 "organize_tokens_ungroup" = "Dégrouper";
 "provider_name_support" = "Assistance %@";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -1393,6 +1396,10 @@
 "swapping_insufficient_funds" = "Fonds insuffisants";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
+"swapping_rate_experience_title" = "Rate your experience with provider";
+"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_submit" = "Send feedback";
+"swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "Échange...";
 "swapping_swap_action" = "Échanger";
 "swapping_to_account_title" = "Vous recevez à";
@@ -1577,7 +1584,7 @@
 "tangempay_status_deactivated" = "Carte désactivée";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Restaurer l'accès";
-"tangempay_sync_needed" = "Session expirée";
+"tangempay_sync_needed" = "Tangem Pay session expirée";
 "tangempay_tangem_visa_card" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
@@ -2057,6 +2064,11 @@
 "xtz_withdrawal_message_ignore" = "Non, envoyer toute la somme";
 "xtz_withdrawal_message_reduce" = "Réduire de %@ XTZ";
 "xtz_withdrawal_message_warning" = "Pour ne pas payer un fraid de commissions élevé la prochaine fois que vous rechargez votre portefeuille, veuillez réduire le montant de %@ XTZ";
+"yield_apy_boost_banner_button_title" = "Explore Yield mode";
+"yield_apy_boost_banner_subtitle" = "First time activation bonus!";
+"yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
+"yield_apy_boost_banner_title" = "Special offer for Yield mode";
+"yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
@@ -2164,4 +2176,6 @@
 "yield_module_unable_to_cover_fee_title" = "Impossible de couvrir les frais %@";
 "yield_module_unavailable_subtitle" = "Le mode rendement n'est pas disponible pour le moment. Veuillez réessayer plus tard.";
 "yield_module_unavailable_title" = "Le mode Rendement est indisponible";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "Impossible de charger le graphique...";
