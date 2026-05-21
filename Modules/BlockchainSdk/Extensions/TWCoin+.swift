@@ -144,7 +144,8 @@ extension CoinType {
              .linea,
              .monad,
              .arbitrumNova,
-             .plasma:
+             .plasma,
+             .adi:
             // Blockchains that are not in WalletCore yet
             return nil
         }
