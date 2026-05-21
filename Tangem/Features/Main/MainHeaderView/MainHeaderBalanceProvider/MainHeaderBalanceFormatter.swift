@@ -26,6 +26,7 @@ struct CommonMainHeaderBalanceFormatter: MainHeaderBalanceFormatter {
 
     func formatBalance(balance: Decimal?, currencyCode: String) -> AttributedString {
         let formattedBalance = balanceFormatter.formatFiatBalance(balance)
-        return balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance, formattingOptions: .defaultOptions)
+        let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign) ? .defaultOptionsRedesign : .defaultOptions
+        return balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance, formattingOptions: formattingOptions)
     }
 }
