@@ -39,15 +39,21 @@ struct NewsListView: View {
 
                 contentView
             }
-            .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
+            .opacity(viewModel.overlayContentHidingProgress)
         }
-        .background(Color.Tangem.Surface.level2.ignoresSafeArea())
+        .ignoresSafeArea(.container, edges: .bottom)
+        .background(Color.Tangem.Surface.level2)
         .onFirstAppear { viewModel.handleViewAction(.onFirstAppear) }
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
         .injectMarketsNavigationConfigurator()
+    }
+
+    private var newsListBottomFadeOverlay: some View {
+        BottomFadeWithBlur(backgroundColor: Color.Tangem.Surface.level2)
+            .allowsHitTesting(false)
     }
 
     @ViewBuilder
@@ -75,6 +81,9 @@ struct NewsListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
+        }
+        .safeAreaInset(edge: .bottom) {
+            newsListBottomFadeOverlay
         }
     }
 

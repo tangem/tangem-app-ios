@@ -76,13 +76,14 @@ private extension WCServiceV2 {
 
             for await dApps in stream {
                 guard !Task.isCancelled else { return }
-                handleConnectedDAppsRepositoryYield(dApps)
+                await handleConnectedDAppsRepositoryYield(dApps)
             }
         }
 
         AnyCancellable { task.cancel() }.store(in: &bag)
     }
 
+    @MainActor
     func handleConnectedDAppsRepositoryYield(_ dApps: [WalletConnectConnectedDApp]) {
         lastConnectedDAppsSnapshot = dApps
         walletConnectEventsService?.handle(event: .dappConnected(dApps))
@@ -143,6 +144,7 @@ private extension WCServiceV2 {
                 .balanceTypePublisher
                 .map(\.value)
                 .removeDuplicates()
+                .receiveOnMain()
                 .sink { [weak self] _ in
                     guard let self else { return }
                     let dAppsForWallet = lastConnectedDAppsSnapshot.filter { $0.userWalletID == walletId }
@@ -186,6 +188,7 @@ private extension WCServiceV2 {
     func subscribeToUserWalletEvents() {
         userWalletRepository
             .eventProvider
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { wcService, event in
                 switch event {

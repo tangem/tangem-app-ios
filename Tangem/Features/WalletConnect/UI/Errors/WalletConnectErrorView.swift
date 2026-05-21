@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -22,10 +23,12 @@ struct WalletConnectErrorView: View {
                 Text(viewModel.state.title)
                     .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
                     .lineLimit(2)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorViewTitle)
 
                 Text(LocalizedStringKey(viewModel.state.subtitle))
                     .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
                     .lineLimit(6)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorViewSubtitle)
             }
             .multilineTextAlignment(.center)
         }

@@ -224,6 +224,7 @@ struct WalletConnectDAppConnectionView: View {
             style: viewModel.state.button.style.toMainButtonStyle,
             action: { viewModel.handle(viewEvent: .buttonTapped) }
         )
+        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorViewGotItButton)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
         .transformEffect(.identity)

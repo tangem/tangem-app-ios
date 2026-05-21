@@ -127,8 +127,8 @@ private extension SwapSummaryProviderViewModel {
 
         let subtitle = expressProviderFormatter.mapToRateSubtitle(
             state: state,
-            senderCurrencyCode: sourceToken.tokenItem.currencySymbol,
-            destinationCurrencyCode: receiveToken.tokenItem.currencySymbol,
+            senderTokenItem: sourceToken.tokenItem,
+            destinationTokenItem: receiveToken.tokenItem,
             option: .exchangeRate
         )
 

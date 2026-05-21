@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol P2PAPIProvider {
-    func yield() async throws -> StakingYieldInfo
+    func yield(targetAmountLimitProvider: StakingTargetAmountLimitProvider?) async throws -> StakingYieldInfo
     func balances(walletAddress: String, vaults: [String]) async throws -> [StakingBalanceInfo]
     func stakeTransaction(
         walletAddress: String,

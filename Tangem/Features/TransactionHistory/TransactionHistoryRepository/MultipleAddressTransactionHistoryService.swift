@@ -20,7 +20,7 @@ class MultipleAddressTransactionHistoryService {
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private let pageSize: Int = 100
     private var cancellable: AnyCancellable?
-    private var storage: ThreadSafeContainer<[TransactionRecord]> = []
+    private let storage = TransactionRecordsStorage()
 
     init(
         tokenItem: TokenItem,
@@ -47,7 +47,7 @@ extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
     }
 
     var items: [TransactionRecord] {
-        return storage.read()
+        get async { await storage.records }
     }
 
     var canFetchHistory: Bool {
@@ -56,10 +56,10 @@ extension MultipleAddressTransactionHistoryService: TransactionHistoryService {
         }
     }
 
-    func clearHistory() {
+    func clearHistory() async {
         cancellable = nil
         transactionHistoryProviders.forEach { _, provider in provider.reset() }
-        cleanStorage()
+        await cleanStorage()
         AppLogger.info(self, "was reset")
     }
 
@@ -114,23 +114,21 @@ private extension MultipleAddressTransactionHistoryService {
         cancellable = Publishers
             .MergeMany(publishers)
             .collect()
-            .receive(on: DispatchQueue.global())
             .withWeakCaptureOf(self)
-            .sink { [weak self] completion in
+            .asyncMap { service, responses in
+                for response in responses {
+                    await service.addToStorage(records: response.response.records)
+                    AppLogger.info(service, "loaded")
+                }
+            }
+            .receiveCompletion { [weak self] completion in
                 switch completion {
                 case .failure(let error):
                     self?._state.send(.failedToLoad(error))
                     AppLogger.error(self, error: error)
-                    result(.success(()))
                 case .finished:
                     self?._state.send(.loaded)
                 }
-            } receiveValue: { [weak self] service, responses in
-                for response in responses {
-                    service.addToStorage(records: response.response.records)
-                    AppLogger.info(self, "loaded")
-                }
-
                 result(.success(()))
             }
     }
@@ -150,41 +148,57 @@ private extension MultipleAddressTransactionHistoryService {
             .eraseToAnyPublisher()
     }
 
-    func append(newRecords: [TransactionRecord], in records: inout [TransactionRecord]) {
-        for record in newRecords {
-            // If we already have the transaction record
-            // Just append new sources and new destinations in the record
-            if let index = records.firstIndex(where: { $0.hash == record.hash && $0.index == record.index }) {
-                let oldRecord = records[index]
-                records[index] = TransactionRecord(
-                    hash: record.hash,
-                    index: record.index,
-                    source: oldRecord.source + record.source,
-                    destination: oldRecord.destination + record.destination,
-                    fee: oldRecord.fee,
-                    status: oldRecord.status,
-                    isOutgoing: oldRecord.isOutgoing,
-                    type: oldRecord.type,
-                    date: oldRecord.date,
-                    tokenTransfers: oldRecord.tokenTransfers
-                )
+    func cleanStorage() async {
+        await storage.clear()
+    }
 
-                AppLogger.info(self, "TransactionRecord with hash: \(record.hash) was zipped")
-            } else {
-                records.append(record)
+    func addToStorage(records: [TransactionRecord]) async {
+        let zippedHashes = await storage.merge(records)
+        for hash in zippedHashes {
+            AppLogger.info(self, "TransactionRecord with hash: \(hash) was zipped")
+        }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension MultipleAddressTransactionHistoryService {
+    actor TransactionRecordsStorage {
+        private(set) var records: [TransactionRecord] = []
+
+        func clear() {
+            records.removeAll()
+        }
+
+        /// Merges `newRecords` into the existing collection. For records sharing `(hash, index)`
+        /// with an existing entry, sources and destinations are zipped; otherwise the record is appended.
+        ///
+        /// - Returns: The hashes of records that were zipped with existing entries (for caller-side logging).
+        func merge(_ newRecords: [TransactionRecord]) -> [String] {
+            var zippedHashes: [String] = []
+
+            for record in newRecords {
+                if let index = records.firstIndex(where: { $0.hash == record.hash && $0.index == record.index }) {
+                    let oldRecord = records[index]
+                    records[index] = TransactionRecord(
+                        hash: record.hash,
+                        index: record.index,
+                        source: oldRecord.source + record.source,
+                        destination: oldRecord.destination + record.destination,
+                        fee: oldRecord.fee,
+                        status: oldRecord.status,
+                        isOutgoing: oldRecord.isOutgoing,
+                        type: oldRecord.type,
+                        date: oldRecord.date,
+                        tokenTransfers: oldRecord.tokenTransfers
+                    )
+                    zippedHashes.append(record.hash)
+                } else {
+                    records.append(record)
+                }
             }
-        }
-    }
 
-    func cleanStorage() {
-        storage.mutate { value in
-            value.removeAll()
-        }
-    }
-
-    func addToStorage(records: [TransactionRecord]) {
-        storage.mutate { [weak self] value in
-            self?.append(newRecords: records, in: &value)
+            return zippedHashes
         }
     }
 }
@@ -207,65 +221,5 @@ extension MultipleAddressTransactionHistoryService: CustomStringConvertible {
                 "requests": transactionHistoryProviders.map { $1.description }.joined(separator: ", "),
             ]
         )
-    }
-}
-
-private extension TransactionRecord.SourceType {
-    static func + (lhs: Self, rhs: Self) -> Self {
-        let lhsList: [TransactionRecord.Source] = {
-            switch lhs {
-            case .single(let source):
-                return [source]
-            case .multiple(let sources):
-                return sources
-            }
-        }()
-
-        let rhsList: [TransactionRecord.Source] = {
-            switch rhs {
-            case .single(let source):
-                return [source]
-            case .multiple(let sources):
-                return sources
-            }
-        }()
-
-        // We add the "unique" here because the input may exist twice
-        let list = (lhsList + rhsList).unique()
-        if let first = list.singleElement {
-            return .single(first)
-        }
-
-        return .multiple(list)
-    }
-}
-
-private extension TransactionRecord.DestinationType {
-    static func + (lhs: Self, rhs: Self) -> Self {
-        let lhsList: [TransactionRecord.Destination] = {
-            switch lhs {
-            case .single(let source):
-                return [source]
-            case .multiple(let sources):
-                return sources
-            }
-        }()
-
-        let rhsList: [TransactionRecord.Destination] = {
-            switch rhs {
-            case .single(let source):
-                return [source]
-            case .multiple(let sources):
-                return sources
-            }
-        }()
-
-        // We add the "unique" here because the change may exist twice
-        let list = (lhsList + rhsList).unique()
-        if let first = list.singleElement {
-            return .single(first)
-        }
-
-        return .multiple(list)
     }
 }

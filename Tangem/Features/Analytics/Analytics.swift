@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import FirebaseAnalytics
-import FirebaseCrashlytics
 import BlockchainSdk
 import TangemSdk
 import TangemFoundation
+import TangemFirebaseDynamicShim
 
 class Analytics {
     @Injected(\.analyticsContext) private static var analyticsContext: AnalyticsSessionContext

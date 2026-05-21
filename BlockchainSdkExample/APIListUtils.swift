@@ -48,6 +48,7 @@ struct ConfigUtils {
             chiaTangemApiKeys: .init(mainnetApiKey: keys.chiaTangemApiKey),
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            quickNodeXrpCredentials: .init(apiKey: keys.quiknodeXRPLApiKey, subdomain: keys.quiknodeXRPLSubdomain),
             quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
             quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
@@ -180,6 +181,8 @@ struct Keys: Decodable {
     let hederaArkhiaKey: String
     let quiknodeApiKey: String
     let quiknodeSubdomain: String
+    let quiknodeXRPLApiKey: String
+    let quiknodeXRPLSubdomain: String
     let quiknodePlasmaApiKey: String
     let quiknodePlasmaSubdomain: String
     let bscQuiknodeApiKey: String

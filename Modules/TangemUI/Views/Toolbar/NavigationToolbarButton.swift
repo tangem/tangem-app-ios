@@ -97,6 +97,10 @@ public extension NavigationToolbarButton {
         navigationToolbarButton(for: .close, placement: placement, action: action)
     }
 
+    static func add(placement: ToolbarItemPlacement, action: @escaping () -> Void) -> NavigationToolbarButton {
+        navigationToolbarButton(for: .add, placement: placement, action: action)
+    }
+
     private static func navigationToolbarButton(
         for role: NavigationBarButtonRole,
         placement: ToolbarItemPlacement,

@@ -16,4 +16,12 @@ public extension OSAllocatedUnfairLock {
             return try body()
         }
     }
+
+    @inlinable
+    @inline(__always)
+    func callAsFunction<R>(_ body: (_ state: inout State) throws -> R) rethrows -> R {
+        return try withLockUnchecked { state in
+            return try body(&state)
+        }
+    }
 }
