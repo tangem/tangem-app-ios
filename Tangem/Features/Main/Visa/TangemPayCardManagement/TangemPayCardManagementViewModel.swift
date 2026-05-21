@@ -281,13 +281,17 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func openCardRename() {
-        cardRenameViewModel = TangemPayCardRenameViewModel(
+        let renameViewModel = TangemPayCardRenameViewModel(
             userWalletId: userWalletInfo.id,
             repository: cardDetailsRepository,
             onDismiss: { [weak self] in
                 self?.cardRenameViewModel = nil
             }
         )
+
+        renameViewModel.$alert.assign(to: &$alert)
+
+        cardRenameViewModel = renameViewModel
     }
 }
 
