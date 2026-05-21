@@ -52,6 +52,7 @@ struct CommonSendWithSwapToken: SendWithSwapToken {
     var transactionDispatcherProvider: any TransactionDispatcherProvider { transferableToken.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { transferableToken.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { transferableToken.tangemIconProvider }
+    var confirmTransactionPolicy: any ConfirmTransactionPolicy { transferableToken.confirmTransactionPolicy }
 
     var tokenItem: TokenItem { transferableToken.tokenItem }
     var fiatItem: FiatItem { transferableToken.fiatItem }

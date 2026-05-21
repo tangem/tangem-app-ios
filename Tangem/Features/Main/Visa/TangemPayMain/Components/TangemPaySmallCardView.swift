@@ -11,7 +11,8 @@ import TangemAssets
 
 struct TangemPaySmallCardView: View {
     enum State {
-        case active(cardNumberEnd: String)
+        case issued(cardNumberEnd: String)
+        case issuing
         case replacing
     }
 
@@ -19,21 +20,7 @@ struct TangemPaySmallCardView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            switch state {
-            case .active:
-                Color.Tangem.Visa.cardDetailBackground
-
-                LinearGradient(
-                    colors: [
-                        .clear,
-                        Color.Tangem.Button.backgroundAccent.opacity(0.5),
-                    ],
-                    startPoint: UnitPoint(x: 0.1, y: 0.85),
-                    endPoint: UnitPoint(x: 0.95, y: 0.0)
-                )
-            case .replacing:
-                Color.Tangem.Graphic.Neutral.quaternary
-            }
+            background
 
             Text("VISA")
                 .font(.system(size: 7, weight: .bold))
@@ -43,8 +30,6 @@ struct TangemPaySmallCardView: View {
                 .padding(.top, 3)
 
             bottomLeadingContent
-                .padding(.leading, 3)
-                .padding(.top, 20)
         }
         .frame(width: 48, height: 32)
         .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -65,17 +50,58 @@ struct TangemPaySmallCardView: View {
     }
 
     @ViewBuilder
+    private var background: some View {
+        switch state {
+        case .issued:
+            ZStack {
+                Color.Tangem.Visa.cardDetailBackground
+
+                LinearGradient(
+                    colors: [
+                        .clear,
+                        Color.Tangem.Button.backgroundAccent.opacity(0.5),
+                    ],
+                    startPoint: UnitPoint(x: 0.1, y: 0.85),
+                    endPoint: UnitPoint(x: 0.95, y: 0.0)
+                )
+            }
+        case .issuing, .replacing:
+            Color.Tangem.Graphic.Neutral.quaternary
+        }
+    }
+
+    @ViewBuilder
     private var bottomLeadingContent: some View {
         switch state {
-        case .active(let cardNumberEnd):
+        case .issued(let cardNumberEnd):
             Text(cardNumberEnd)
                 .font(.system(size: 8, weight: .semibold))
                 .foregroundColor(.white)
                 .tracking(0.06)
+                .padding(.leading, 3)
+                .padding(.top, 20)
+        case .issuing:
+            bottomLeftIssuingIcon
         case .replacing:
             Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 8, weight: .semibold))
                 .foregroundColor(.white)
+                .padding(.leading, 3)
+                .padding(.top, 20)
         }
+    }
+
+    private var bottomLeftIssuingIcon: some View {
+        VStack {
+            Spacer(minLength: 0)
+            HStack {
+                Assets.Visa.cardInProgressInactive.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 16, height: 16)
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(3)
     }
 }

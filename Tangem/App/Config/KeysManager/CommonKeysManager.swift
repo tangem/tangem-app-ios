@@ -62,6 +62,7 @@ extension CommonKeysManager: KeysManager {
             // [REDACTED_TODO_COMMENT]
             quickNodeSolanaCredentials: .init(apiKey: keys.quiknodeApiKey, subdomain: keys.quiknodeSubdomain),
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
+            quickNodeXrpCredentials: .init(apiKey: keys.quiknodeXRPLApiKey, subdomain: keys.quiknodeXRPLSubdomain),
             quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
             quickNodeMonadCredentials: .init(apiKey: keys.quiknodeMonadApiKey, subdomain: keys.quiknodeMonadSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
@@ -190,6 +191,8 @@ extension CommonKeysManager {
         let hederaArkhiaKey: String
         let quiknodeApiKey: String
         let quiknodeSubdomain: String
+        let quiknodeXRPLApiKey: String
+        let quiknodeXRPLSubdomain: String
         let bscQuiknodeApiKey: String
         let bscQuiknodeSubdomain: String
         let quiknodePlasmaApiKey: String
