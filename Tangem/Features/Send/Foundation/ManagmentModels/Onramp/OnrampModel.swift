@@ -44,6 +44,7 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
+    private var hasPendingApplePayFinishStep: Bool = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -383,14 +384,6 @@ private extension OnrampModel {
         _onrampProviders.resend()
     }
 
-    func nativePaymentDataDidLoad(data: OnrampNativePaymentData) {
-        guard let provider = selectedOnrampProvider else {
-            assertionFailure("selectedOnrampProvider is unexpectedly nil")
-            return
-        }
-        nativePaymentDataDidLoad(data: data, provider: provider)
-    }
-
     func nativePaymentDataDidLoad(data: OnrampNativePaymentData, provider: OnrampProvider) {
         let txData = SentOnrampTransactionData(
             txId: data.txId,
@@ -411,9 +404,7 @@ private extension OnrampModel {
         stopTimer()
         _transactionTime.send(Date())
         _expressTransactionId.send(data.txId)
-        DispatchQueue.main.async {
-            self.router?.openFinishStep()
-        }
+        hasPendingApplePayFinishStep = true
     }
 
     func log(_ message: String) {
@@ -554,11 +545,24 @@ extension OnrampModel: OnrampSummaryOutput {
 // MARK: - ApplePayButtonPaymentAuthorizationHandler
 
 extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
+    func applePaySheetWillPresent() {
+        autoupdatingTimer.pauseTimer()
+    }
+
+    func applePaySheetDidFinish() {
+        autoupdatingTimer.resumeTimer()
+
+        if hasPendingApplePayFinishStep {
+            hasPendingApplePayFinishStep = false
+            router?.openFinishStep()
+        }
+    }
+
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
         let provider = result.provider
         _selectedOnrampProvider.send(.success(provider))
 
-        mainTask { model in
+        runTask(in: self) { model in
             do {
                 let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
 
@@ -570,19 +574,25 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
 
                 try Task.checkCancellation()
 
-                switch onrampResult {
-                case .nativePayment(let data):
-                    result.succeed()
-                    model.nativePaymentDataDidLoad(data: data, provider: provider)
-                case .widget(let data):
-                    model.redirectDataDidLoad(data: data, provider: provider)
-                    result.fail()
+                await runOnMain {
+                    switch onrampResult {
+                    case .nativePayment(let data):
+                        model.nativePaymentDataDidLoad(data: data, provider: provider)
+                        result.succeed()
+                    case .widget(let data):
+                        model.router?.openOnrampKYCVerification(provider: provider) { [weak model] in
+                            model?.redirectDataDidLoad(data: data, provider: provider)
+                        }
+                        result.fail()
+                    }
                 }
+            } catch let error as CancellationError {
+                await runOnMain { result.fail(error) }
             } catch {
-                // PassKit must always hear back; surface the failure before letting `mainTask`
-                // handle alert presentation / CancellationError swallowing.
-                result.fail(error)
-                throw error
+                await runOnMain {
+                    model.alertPresenter?.showAlert(error.alertBinder)
+                    result.fail(error)
+                }
             }
         }
     }
