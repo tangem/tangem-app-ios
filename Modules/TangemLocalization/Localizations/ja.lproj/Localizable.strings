@@ -277,6 +277,7 @@
 "common_now" = "今";
 "common_ok" = "わかりました";
 "common_open_in_browser" = "ブラウザで開く";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "または";
 "common_origin_card" = "プライマリーカード";
 "common_origin_ring" = "プライマリーリング";
@@ -871,7 +872,7 @@
 "onboarding_create_wallet_options_button_options" = "その他のオプション";
 "onboarding_create_wallet_options_message" = "秘密鍵はチップ内で安全に生成されます。シードフレーズは存在しないので、誰もエクスポートしたり盗んだりすることはできません。";
 "onboarding_create_wallet_options_title" = "秘密鍵を非公開で生成する";
-"onboarding_create_wallet_term_of_conditions_text" = "続行すると、以下に同意したものとみなされます。%@";
+"onboarding_create_wallet_term_of_conditions_text" = "続行すると、以下に同意したものとみなされます。\n%@";
 "onboarding_done_body" = "カードは有効化され、使用可能になりました";
 "onboarding_done_header" = "成功！";
 "onboarding_done_wallet" = "ウォレットの設定が完了し、使用できるようになりました。";
@@ -987,6 +988,8 @@
 "organize_tokens_title" = "トークンを整理する";
 "organize_tokens_ungroup" = "グループ解除";
 "provider_name_support" = "%@サポート";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -2164,4 +2167,6 @@
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
 "yield_module_unavailable_subtitle" = "現在、利息モードはご利用いただけません。しばらくしてからもう一度お試しください。";
 "yield_module_unavailable_title" = "利息モードは利用できません";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "チャートを読み込めません・・";

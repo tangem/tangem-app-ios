@@ -277,6 +277,7 @@
 "common_now" = "Now";
 "common_ok" = "OK";
 "common_open_in_browser" = "Open in Browser";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "or";
 "common_origin_card" = "Primary card";
 "common_origin_ring" = "Primary ring";
@@ -987,6 +988,8 @@
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
 "provider_name_support" = "%@ support";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -2164,4 +2167,6 @@
 "yield_module_unable_to_cover_fee_title" = "Unable to cover %@ fee";
 "yield_module_unavailable_subtitle" = "Yield Mode isn't available at the moment. Please try again later.";
 "yield_module_unavailable_title" = "Yield Mode unavailable";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "Unable to load chart...";
