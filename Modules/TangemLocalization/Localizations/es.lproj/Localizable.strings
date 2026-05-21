@@ -1396,6 +1396,10 @@
 "swapping_insufficient_funds" = "Fondos insuficientes";
 "swapping_permission_header" = "Dar autorización";
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
+"swapping_rate_experience_title" = "Rate your experience with provider";
+"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_submit" = "Send feedback";
+"swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "Intercambiando...";
 "swapping_swap_action" = "Intercambiar";
 "swapping_to_account_title" = "Usted recibe";
@@ -1580,7 +1584,7 @@
 "tangempay_status_deactivated" = "Tarjeta desactivada";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Restablecer acceso";
-"tangempay_sync_needed" = "Sesión expirada";
+"tangempay_sync_needed" = "Tangem Pay sesión expirada";
 "tangempay_tangem_visa_card" = "Usa USDC para pagos cotidianos";
 "tangempay_temporarily_unavailable" = "Tangem Pay no está disponible temporalmente.";
 "tangempay_title" = "Tangem Pay";
@@ -2060,6 +2064,11 @@
 "xtz_withdrawal_message_ignore" = "No, enviar todo";
 "xtz_withdrawal_message_reduce" = "Reducir en %@ XTZ";
 "xtz_withdrawal_message_warning" = "Para evitar pagar una comisión mayor la próxima vez que recargue su billetera, reduzca el importe en %@ XTZ";
+"yield_apy_boost_banner_button_title" = "Explore Yield mode";
+"yield_apy_boost_banner_subtitle" = "First time activation bonus!";
+"yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
+"yield_apy_boost_banner_title" = "Special offer for Yield mode";
+"yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
