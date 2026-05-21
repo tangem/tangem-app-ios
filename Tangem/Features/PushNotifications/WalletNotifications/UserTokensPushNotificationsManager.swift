@@ -33,10 +33,10 @@ protocol UserTokensPushNotificationsManager {
 /// downstream backend resync.
 enum UserWalletPushNotificationsEvent: Equatable {
     /// Triggers manager-side status synchronization after wallet binding with application sync.
-    case walletBindingWithApplicationSynchronized
+    case walletApplicationBindingSynchronized
     /// Push sync cannot proceed because wallet/application binding info is unavailable.
-    case walletsBindingInfoUnavailable
+    case walletBindingInfoUnavailable
     /// Remote status was fetched or refreshed (e.g., during initial sync or after
     /// a backend response).
-    case handleRemoteValue(Bool)
+    case remoteStatusReceived(Bool)
 }

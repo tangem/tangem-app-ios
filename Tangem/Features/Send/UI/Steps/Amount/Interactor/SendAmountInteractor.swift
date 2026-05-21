@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
 
-protocol SendAmountInteractor {
+protocol SendAmountInteractor: AnyObject {
     var isReceiveTokenSelectionAvailable: Bool { get }
     var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
     var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { get }
