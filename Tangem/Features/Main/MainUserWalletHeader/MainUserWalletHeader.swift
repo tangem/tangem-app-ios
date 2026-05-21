@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct MainUserWalletHeader: View {
@@ -29,7 +30,12 @@ struct MainUserWalletHeader: View {
         VStack(spacing: SizeUnit.x4.value) {
             balance
 
-            walletNameWithThumbnail
+            switch headerViewModel.subtitleViewState {
+            case .progress(let value):
+                RestoreProgressChip(progress: value)
+            case .text:
+                walletNameWithThumbnail
+            }
 
             if let paginationState = model.paginationState {
                 TangemPagination(
@@ -46,6 +52,19 @@ struct MainUserWalletHeader: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .animation(.easeInOut(duration: 0.2), value: subtitleAnimationKey)
+    }
+
+    private var subtitleAnimationKey: SubtitleAnimationKey {
+        switch headerViewModel.subtitleViewState {
+        case .text: .text
+        case .progress: .progress
+        }
+    }
+
+    private enum SubtitleAnimationKey {
+        case text
+        case progress
     }
 
     @ViewBuilder
@@ -77,6 +96,112 @@ struct MainUserWalletHeader: View {
         .lineLimit(1)
         .minimumScaleFactor(0.7)
         .frame(height: height)
+    }
+}
+
+// MARK: - RestoreProgressChip
+
+private extension MainUserWalletHeader {
+    enum ProgressChipConstants {
+        static let smoothingTickMs = 100
+        static let maxSmoothingStep = 8
+        static let progressStepDivisor = 4
+        static let iconSize: CGFloat = 24
+    }
+
+    struct RestoreProgressChip: View {
+        let progress: Int
+
+        var body: some View {
+            HStack(spacing: SizeUnit.x1.value) {
+                SmoothProgressText(progress: progress)
+
+                RotatingSyncIcon()
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    struct SmoothProgressText: View {
+        let progress: Int
+
+        @State private var displayedProgress = 0
+        @State private var progressSmoothingTask: Task<Void, Never>?
+
+        var body: some View {
+            Text(Localization.initialWalletSyncRestoreProgress(displayedProgress))
+                .monospacedDigit()
+                .style(Font.Tangem.Caption13.regular, color: Color.Tangem.Text.Neutral.tertiary)
+                .onAppear {
+                    displayedProgress = progress
+                }
+                .onChange(of: progress) { newValue in
+                    startSmoothProgress(to: newValue)
+                }
+                .onDisappear {
+                    cancelSmoothingTask()
+                    displayedProgress = 0
+                }
+        }
+
+        private func startSmoothProgress(to target: Int) {
+            guard target != displayedProgress else {
+                return
+            }
+
+            cancelSmoothingTask()
+
+            progressSmoothingTask = Task { @MainActor in
+                if target < displayedProgress {
+                    displayedProgress = target
+                    return
+                }
+
+                while displayedProgress < target {
+                    guard !Task.isCancelled else {
+                        return
+                    }
+
+                    let delta = target - displayedProgress
+                    let step = min(
+                        ProgressChipConstants.maxSmoothingStep,
+                        max(1, delta / ProgressChipConstants.progressStepDivisor)
+                    )
+                    displayedProgress = min(displayedProgress + step, target)
+
+                    try? await Task.sleep(for: .milliseconds(ProgressChipConstants.smoothingTickMs))
+                }
+            }
+        }
+
+        private func cancelSmoothingTask() {
+            progressSmoothingTask?.cancel()
+            progressSmoothingTask = nil
+        }
+    }
+
+    struct RotatingSyncIcon: View {
+        @State private var isRotating = false
+
+        var body: some View {
+            Assets.Glyphs.load.image
+                .resizable()
+                .frame(
+                    width: ProgressChipConstants.iconSize,
+                    height: ProgressChipConstants.iconSize
+                )
+                .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                .rotationEffect(.degrees(isRotating ? 360 : 0))
+                .onAppear {
+                    isRotating = false
+                    withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
+                        isRotating = true
+                    }
+                }
+                .onDisappear {
+                    isRotating = false
+                }
+        }
     }
 }
 
