@@ -86,6 +86,8 @@ private extension EthereumTarget {
             return AnyEncodable([AnyEncodable(5), AnyEncodable("latest"), AnyEncodable([25, 50, 75])])
         case .getTransactionByHash(let hash):
             return AnyEncodable([AnyEncodable(hash)])
+        case .getStorageAt(let address, let slot):
+            return AnyEncodable([AnyEncodable(address), AnyEncodable(slot), AnyEncodable("latest")])
         }
     }
 }
@@ -101,6 +103,7 @@ extension EthereumTarget {
         case call(params: CallParams)
         case priorityFee
         case getTransactionByHash(_ hash: String)
+        case getStorageAt(address: String, slot: String)
 
         /// https://www.quicknode.com/docs/ethereum/eth_feeHistory
         case feeHistory
@@ -127,6 +130,8 @@ extension EthereumTarget {
                 return "feeHistory"
             case .getTransactionByHash:
                 return "getTransactionByHash"
+            case .getStorageAt:
+                return "getStorageAt"
             }
         }
     }
