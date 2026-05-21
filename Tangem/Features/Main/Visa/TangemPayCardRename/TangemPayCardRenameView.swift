@@ -17,6 +17,5 @@ struct TangemPayCardRenameView: View {
 
     var body: some View {
         TangemPayCardDetailsView(viewModel: viewModel.renameCardDetailsViewModel)
-            .alert(item: $viewModel.alert) { $0.alert }
     }
 }
