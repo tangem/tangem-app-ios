@@ -390,7 +390,7 @@ extension CommonWalletModel: WalletModelUpdater {
 
         async let transactionHistoryUpdate: () = {
             if features.contains(.transactionHistory) {
-                _transactionHistoryService?.clearHistory()
+                await _transactionHistoryService?.clearHistory()
 
                 await updateTransactionsHistory()
             }
@@ -708,15 +708,16 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             _transactionHistoryService.statePublisher,
             pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
-        .map { [weak self] state -> WalletModelTransactionHistoryState in
+        .withWeakCaptureOf(self)
+        .asyncMap { walletModel, state -> WalletModelTransactionHistoryState in
             switch state {
             case .initial:
                 return .notLoaded
             case .loading:
                 return .loading
             case .loaded:
-                var items = self?._transactionHistoryService?.items ?? []
-                self?.insertPendingTransactionRecordIfNeeded(into: &items)
+                var items = await walletModel._transactionHistoryService?.items ?? []
+                walletModel.insertPendingTransactionRecordIfNeeded(into: &items)
                 return .loaded(items: items)
             case .failedToLoad(let error):
                 return .error(error)
@@ -790,6 +791,12 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         dynamicAddressesManager?.disablingRequirements
     }
 
+    @MainActor
+    func hasDynamicAddressesBalancesFlag() async -> Bool {
+        await dynamicAddressesManager?.hasDynamicAddressesBalancesFlag() ?? false
+    }
+
+    @MainActor
     func enableDynamicAddresses() async throws {
         guard let dynamicAddressesManager else {
             throw DynamicAddressesManagerError.dynamicAddressesNotSupported
@@ -801,6 +808,7 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         await update(silent: false, features: .full)
     }
 
+    @MainActor
     func disableDynamicAddresses() async throws {
         guard let dynamicAddressesManager else {
             throw DynamicAddressesManagerError.dynamicAddressesNotSupported
@@ -842,8 +850,8 @@ extension CommonWalletModel: TransactionHistoryFetcher {
         _transactionHistoryService?.canFetchHistory ?? false
     }
 
-    func clearHistory() {
-        _transactionHistoryService?.clearHistory()
+    func clearHistory() async {
+        await _transactionHistoryService?.clearHistory()
     }
 }
 
