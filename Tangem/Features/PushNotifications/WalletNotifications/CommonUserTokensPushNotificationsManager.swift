@@ -22,6 +22,7 @@ final class CommonUserTokensPushNotificationsManager {
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
+        userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
         permissionService: pushNotificationsPermission
     )
@@ -58,6 +59,8 @@ final class CommonUserTokensPushNotificationsManager {
                     manager.syncRemoteStatus()
                 case .updateStatusRequired:
                     manager.updateStatusIfNeeded()
+                case .autoEnablePreferencesRequired:
+                    break
                 }
             }
             .store(in: &bag)

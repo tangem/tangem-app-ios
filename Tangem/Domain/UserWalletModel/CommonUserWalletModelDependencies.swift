@@ -236,7 +236,7 @@ private extension CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             remoteStatusSyncing: remoteStatusSyncing,
-            notificationPreferencesProvider: CommonNotificationPreferencesProvider(userWalletId: userWalletId)
+            notificationPreferencesProvider: NotificationPreferencesProviderStub()
         )
     }
 

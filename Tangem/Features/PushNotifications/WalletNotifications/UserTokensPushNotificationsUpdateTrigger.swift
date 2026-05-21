@@ -21,22 +21,29 @@ final class UserTokensPushNotificationsUpdateTrigger {
         /// push status should be re-synced with the backend.
         case syncRemoteStatusRequired
         /// The app returned to foreground while the token list is ready — the local
-        /// push status should be recalculated.
-        case updateStatusRequired
+        /// push status should be recalculated with the current system authorization state.
+        case updateStatusRequired(isAuthorized: Bool)
+        /// System push permission was granted (`false` → `true`) while the token list is
+        /// ready — wallet-level preferences may be auto-enabled for allowance onboarding.
+        case autoEnablePreferencesRequired
     }
 
     var eventsPublisher: AnyPublisher<Event, Never> {
         eventsSubject.eraseToAnyPublisher()
     }
 
+    private let userWalletId: UserWalletId
     private let eventsSubject = PassthroughSubject<Event, Never>()
     private var bag: Set<AnyCancellable> = []
 
     init(
+        userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         notificationPreferencesProvider: NotificationPreferencesProvider? = nil,
         permissionService: PushNotificationsPermissionService
     ) {
+        self.userWalletId = userWalletId
+
         bind(
             accountModelsManager: accountModelsManager,
             notificationPreferencesProvider: notificationPreferencesProvider,
@@ -96,7 +103,38 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .combineLatest(isUserTokenListReadyPublisher)
             .dropFirst()
             .receiveOnMain()
-            .map { _ in Event.updateStatusRequired }
+            .map { isAuthorized, _ in Event.updateStatusRequired(isAuthorized: isAuthorized) }
+            .subscribe(eventsSubject)
+            .store(in: &bag)
+
+        let hasNotCompletedAllowanceOnboardingPublisher = AppSettings.shared
+            .$allowanceUserWalletIdTransactionsPush
+            .map { [userWalletId] allowanceWalletIds in
+                !allowanceWalletIds.contains(userWalletId.stringValue)
+            }
+            .removeDuplicates()
+
+        let isPreferencesReadyPublisher: AnyPublisher<Bool, Never> = notificationPreferencesProvider?
+            .preferencesPublisher
+            .map { preferences -> Bool in
+                guard case .ready = preferences.state else { return false }
+                return true
+            }
+            .eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher()
+
+        permissionService
+            .isAuthorizedPublisher
+            .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in
+                previous == false && current == true
+            }
+            .combineLatest(isUserTokenListReadyPublisher, hasNotCompletedAllowanceOnboardingPublisher, isPreferencesReadyPublisher)
+            .filter { _, isUserTokenListReady, hasNotCompletedAllowanceOnboarding, isPreferencesReady in
+                isUserTokenListReady && hasNotCompletedAllowanceOnboarding && isPreferencesReady
+            }
+            .receiveOnMain()
+            .map { _ in Event.autoEnablePreferencesRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 

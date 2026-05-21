@@ -36,11 +36,8 @@ final class NotificationSettingsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: NotificationSettingsRoutable?
 
-    /// `nil` when the wallet is not eligible for transaction push notifications.
     private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager
 
-    @Published private var isOffersUpdatesEnabled: Bool = false
-    @Published private var isPriceAlertsEnabled: Bool = false
     @Published private var isSystemPermissionGranted: Bool = false
 
     private var isEnabledTransactionAlertsBinding: BindingValue<Bool> {
@@ -80,7 +77,7 @@ final class NotificationSettingsViewModel: ObservableObject {
     }
 
     private var toggleTasks: [PushChannel: Task<Void, Never>] = [:]
-    private var requestPermissionTask: Task<Void, Never>?
+    private var bannerActionTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -98,7 +95,7 @@ final class NotificationSettingsViewModel: ObservableObject {
     // MARK: - Lifecycle
 
     func onAppear() {
-        refreshBannerVisibility()
+        refreshSystemPermissionState()
     }
 
     func onTapMoreInfoTransactionPushNotifications() {
@@ -110,27 +107,33 @@ final class NotificationSettingsViewModel: ObservableObject {
 
 private extension NotificationSettingsViewModel {
     func bind() {
+        // `isAuthorizedPublisher` only emits on `UIApplication.didBecomeActive`, so this branch
+        // covers the case when the user returns from system Settings. The initial state on screen
+        // open is primed by `refreshSystemPermissionState()` from `onAppear()`.
         pushNotificationsPermission.isAuthorizedPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, isAuthorized in
                 viewModel.isSystemPermissionGranted = isAuthorized
-                viewModel.allowNotificationsBannerInput = isAuthorized ? nil : viewModel.makeAllowNotificationsBannerInput()
             }
             .store(in: &bag)
 
+        // Single source of truth: any change to the system permission flag drives both the toggle
+        // disabled state and the "Allow notifications" banner visibility.
         $isSystemPermissionGranted
+            .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
+            .sink { viewModel, isAuthorized in
                 viewModel.rebuildToggleViewModels()
+                viewModel.allowNotificationsBannerInput = isAuthorized ? nil : viewModel.makeAllowNotificationsBannerInput()
             }
             .store(in: &bag)
 
         userTokensPushNotificationsManager
             .preferencesPublisher
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, preferences in
                 viewModel.applyPreferences(preferences)
@@ -144,23 +147,18 @@ private extension NotificationSettingsViewModel {
     }
 
     func rebuildToggleViewModels() {
-        let isPermissionDenied = !isSystemPermissionGranted
-
         transactionAlertsViewModel = DefaultToggleRowViewModel(
             title: Localization.pushTransactionsNotificationsTitle,
-            isDisabled: isPermissionDenied,
             isOn: isEnabledTransactionAlertsBinding
         )
 
         offersUpdatesViewModel = DefaultToggleRowViewModel(
             title: Localization.pushNotificationSettingsOffersUpdatesTitle,
-            isDisabled: isPermissionDenied,
             isOn: isEnabledOffersUpdatesBinding
         )
 
         priceAlertsViewModel = DefaultToggleRowViewModel(
             title: Localization.pushNotificationSettingsPriceAlertsTitle,
-            isDisabled: isPermissionDenied,
             isOn: isEnabledPriceAlertsEnabledBinding
         )
     }
@@ -171,17 +169,19 @@ private extension NotificationSettingsViewModel {
         priceAlertsEnabled = preferences.preference(for: .priceAlerts).isEnabled
     }
 
-    func refreshBannerVisibility() {
+    /// Pulls the current system authorization status and writes it into `isSystemPermissionGranted`,
+    /// which in turn drives `rebuildToggleViewModels()` and `allowNotificationsBannerInput` through
+    /// the `$isSystemPermissionGranted` subscription in `bind()`.
+    func refreshSystemPermissionState() {
         Task { @MainActor [weak self] in
             guard let self else { return }
-            let isAuthorized = await pushNotificationsPermission.isAuthorized
-            allowNotificationsBannerInput = isAuthorized ? nil : makeAllowNotificationsBannerInput()
+            isSystemPermissionGranted = await pushNotificationsPermission.isAuthorized
         }
     }
 
     func makeAllowNotificationsBannerInput() -> NotificationViewInput {
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] _, _ in
-            self?.handleAndCheckUnavailablePushNotifyStatus()
+            self?.handleBannerOpenSettingsTap()
         }
 
         return NotificationViewInput(
@@ -198,34 +198,23 @@ private extension NotificationSettingsViewModel {
     }
 }
 
-// MARK: - Transaction Push Notifications
-
-private extension NotificationSettingsViewModel {
-    func handleAndCheckUnavailablePushNotifyStatus() {
-        requestPermissionTask?.cancel()
-
-        requestPermissionTask = runTask(in: self) { @MainActor viewModel in
-            await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
-
-            if await viewModel.pushNotificationsPermission.isAuthorized {
-                // Do nothing.
-            } else {
-                // To display a system message about the need for permission to receive notifications.
-                viewModel.displayEnablePushSettingsAlert()
-            }
-
-            viewModel.refreshBannerVisibility()
-        }
-    }
-}
-
 // MARK: - Channel Toggle Handling
 
 private extension NotificationSettingsViewModel {
     /// Optimistically updates the UI (via the binding setter), then sends the request to the
     /// manager. On failure the `preferencesPublisher` subscription rolls back the toggle
     /// automatically and we surface a generic error alert.
+    ///
+    /// When trying to enable while system permission is denied the toggle is reverted immediately
+    /// and an alert guides the user to system Settings — mirroring the legacy
+    /// `TransactionNotificationsRowToggleViewModel` approach.
     func handleToggle(value: Bool, for channel: PushChannel) {
+        if value, !isSystemPermissionGranted {
+            revertToggle(for: channel)
+            displayEnablePushSettingsAlert()
+            return
+        }
+
         toggleTasks[channel]?.cancel()
 
         toggleTasks[channel] = Task { @MainActor [weak self] in
@@ -240,32 +229,35 @@ private extension NotificationSettingsViewModel {
             }
         }
     }
+
+    func revertToggle(for channel: PushChannel) {
+        switch channel {
+        case .transactionAlerts: transactionAlertsEnabled = false
+        case .offersUpdates: offersUpdatesEnabled = false
+        case .priceAlerts: priceAlertsEnabled = false
+        }
+    }
 }
 
-// MARK: - In-memory Toggles (Offers / Price Alerts)
+// MARK: - Banner Action
 
 private extension NotificationSettingsViewModel {
-    /// Handles a toggle change for Offers & Updates or Price Alerts:
-    /// - Disabling: sends PUT immediately (optimistic, reverts on error).
-    /// - Enabling: requests system permission first, then sends PUT.
-    func handlePreferenceToggle(newValue: Bool, setter: @escaping (Bool) -> Void) {
-        if !newValue {
-            setter(false)
-            return
-        }
+    /// Handles the «Open Settings» tap on the allow-notifications banner:
+    /// 1. Requests system authorization (shows the iOS prompt if not yet decided).
+    /// 2. If authorization is still denied after the prompt, opens the app's system Settings page.
+    /// 3. No toggles are flipped — the `$isSystemPermissionGranted` pipeline reacts automatically
+    ///    when the user returns from Settings via `isAuthorizedPublisher`.
+    func handleBannerOpenSettingsTap() {
+        bannerActionTask?.cancel()
 
-        requestPermissionTask?.cancel()
-        requestPermissionTask = runTask(in: self) { @MainActor viewModel in
+        bannerActionTask = runTask(in: self) { @MainActor viewModel in
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
-            if await viewModel.pushNotificationsPermission.isAuthorized {
-                setter(true)
-            } else {
-                setter(false)
-                viewModel.displayEnablePushSettingsAlert()
+            if await !viewModel.pushNotificationsPermission.isAuthorized {
+                viewModel.coordinator?.openAppSettings()
             }
 
-            viewModel.refreshBannerVisibility()
+            viewModel.refreshSystemPermissionState()
         }
     }
 }
