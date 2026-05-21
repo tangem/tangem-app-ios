@@ -871,11 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "その他のオプション";
 "onboarding_create_wallet_options_message" = "秘密鍵はチップ内で安全に生成されます。シードフレーズは存在しないので、誰もエクスポートしたり盗んだりすることはできません。";
 "onboarding_create_wallet_options_title" = "秘密鍵を非公開で生成する";
-<<<<<<< merge/releases/5.38_to_develop
-"onboarding_create_wallet_term_of_conditions_text" = "続行すると、以下に同意したものとみなされます。";
-=======
 "onboarding_create_wallet_term_of_conditions_text" = "続行すると、以下に同意したものとみなされます。%@";
->>>>>>> develop
 "onboarding_done_body" = "カードは有効化され、使用可能になりました";
 "onboarding_done_header" = "成功！";
 "onboarding_done_wallet" = "ウォレットの設定が完了し、使用できるようになりました。";
@@ -952,10 +948,7 @@
 "onramp_legal" = "オンランプ機能を使用することにより、プロバイダの%1$@および%2$@に同意するものとします";
 "onramp_max_amount_restriction" = "買付金額は%@以下にしてください";
 "onramp_min_amount_restriction" = "買付金額は少なくとも%@である必要があります";
-<<<<<<< merge/releases/5.38_to_develop
-=======
 "onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
->>>>>>> develop
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "この通貨で利用可能なプロバイダーはありません";
@@ -2066,11 +2059,7 @@
 "xtz_withdrawal_message_warning" = "次回ウォレットにチャージするときに手数料の増加を避けるには、金額を%@ XTZ減らしてください。";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
-<<<<<<< merge/releases/5.38_to_develop
-"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts";
-=======
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
->>>>>>> develop
 "yield_apy_boost_story_fourth_title" = "Summary";
 "yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
 "yield_apy_boost_story_second_title" = "How to qualify";
