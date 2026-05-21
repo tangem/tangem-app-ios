@@ -117,10 +117,13 @@ private extension OnrampOffersSelectorViewModel {
                 }
             )
 
-            return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(provider: provider, buyAction: buyAction)
+            return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
+                provider: provider,
+                buyAction: buyAction
+            )
         }
 
-        return offers
+        return offers.sorted { lhs, rhs in lhs.isNativePayment && !rhs.isNativePayment }
     }
 }
 

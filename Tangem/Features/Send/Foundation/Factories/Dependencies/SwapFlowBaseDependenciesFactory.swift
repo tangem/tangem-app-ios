@@ -36,6 +36,7 @@ extension SwapFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
+            sendYieldModuleHelper: sourceToken?.sendYieldModuleHelper,
             shouldStartInitialLoading: shouldStartInitialLoading,
             swapTokenPairResolver: swapTokenPairResolver
         )
