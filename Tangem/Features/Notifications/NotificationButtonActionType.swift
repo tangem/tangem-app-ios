@@ -41,6 +41,7 @@ enum NotificationButtonActionType: Identifiable {
     case retryKaspaTokenTransaction(icon: MainButton.Icon?)
     case stake
     case openCloreMigration
+    case openDynamicAddressesEnter
     /// Rate the app
     case openFeedbackMail
     /// Rate the app.
@@ -50,6 +51,7 @@ enum NotificationButtonActionType: Identifiable {
     case support
     case openCurrency
     case unlock(icon: MainButton.Icon?)
+    case renewTangemPaySession(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
     case closeMobileUpgrade
@@ -78,12 +80,14 @@ enum NotificationButtonActionType: Identifiable {
         case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
         case .stake: "stake".hashValue
         case .openCloreMigration: "openCloreMigration".hashValue
+        case .openDynamicAddressesEnter: "openDynamicAddressesEnter".hashValue
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
         case .support: "support".hashValue
         case .openCurrency: "openCurrency".hashValue
         case .unlock: "unlock".hashValue
+        case .renewTangemPaySession: "renewTangemPaySession".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
@@ -135,6 +139,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonGoToToken
         case .unlock:
             return Localization.visaUnlockNotificationButton
+        case .renewTangemPaySession:
+            return Localization.tangempaySyncNeededRestoreAccess
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
@@ -153,6 +159,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.givePermissionTitle
         case .openCloreMigration:
             return Localization.warningCloreMigrationButton
+        case .openDynamicAddressesEnter:
+            return Localization.commonLearnMore
         case .openManageTokensAfterWalletSuccessImport:
             return Localization.mainManageTokens
         }
@@ -162,7 +170,8 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses(let icon),
              .retryKaspaTokenTransaction(let icon),
-             .unlock(let icon):
+             .unlock(let icon),
+             .renewTangemPaySession(let icon):
             return icon
         case .swap:
             return .leading(Assets.exchangeMini)
@@ -192,6 +201,7 @@ enum NotificationButtonActionType: Identifiable {
              .activate,
              .givePermission,
              .openCloreMigration,
+             .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport:
             return nil
         }
@@ -203,6 +213,7 @@ enum NotificationButtonActionType: Identifiable {
              .openAppStoreReview,
              .empty,
              .unlock,
+             .renewTangemPaySession,
              .openMobileUpgrade,
              .allowPushPermissionRequest,
              .activate:
@@ -227,6 +238,7 @@ enum NotificationButtonActionType: Identifiable {
              .postponePushPermissionRequest,
              .givePermission,
              .openCloreMigration,
+             .openDynamicAddressesEnter,
              .closeMobileUpgrade,
              .openManageTokensAfterWalletSuccessImport:
             return .secondary

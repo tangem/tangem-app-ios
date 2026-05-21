@@ -1,0 +1,20 @@
+{
+  "shadow": {
+    "button": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Shadows.sm"
+        }
+      },
+      "$type": "boxShadow",
+      "$value": {
+        "x": "{dimension.0}",
+        "y": "{dimension.100}",
+        "blur": "{dimension.500}",
+        "spread": "{dimension.0}",
+        "color": "rgba({palette.base.black}, {opacity.10})",
+        "type": "dropShadow"
+      }
+    }
+  }
+}
