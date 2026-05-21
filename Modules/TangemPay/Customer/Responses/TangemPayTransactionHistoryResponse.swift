@@ -8,12 +8,12 @@
 
 import Foundation
 
-public struct TangemPayTransactionHistoryResponse: Decodable {
+public struct TangemPayTransactionHistoryResponse: Codable {
     public let transactions: [Transaction]
 }
 
 public extension TangemPayTransactionHistoryResponse {
-    struct Transaction: Decodable, Equatable {
+    struct Transaction: Codable, Equatable {
         public let id: String
         public let transactionType: TransactionType
         public let record: Record
@@ -36,6 +36,22 @@ public extension TangemPayTransactionHistoryResponse {
             }
         }
 
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encode(transactionType, forKey: .type)
+            switch record {
+            case .spend(let spend):
+                try container.encode(spend, forKey: .spend)
+            case .collateral(let collateral):
+                try container.encode(collateral, forKey: .collateral)
+            case .payment(let payment):
+                try container.encode(payment, forKey: .payment)
+            case .fee(let fee):
+                try container.encode(fee, forKey: .fee)
+            }
+        }
+
         enum CodingKeys: CodingKey {
             case id
             case type
@@ -53,7 +69,7 @@ public extension TangemPayTransactionHistoryResponse {
         case fee(Fee)
     }
 
-    enum TransactionType: String, Decodable, Equatable {
+    enum TransactionType: String, Codable, Equatable {
         case spend
         case collateral
         case payment
