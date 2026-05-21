@@ -740,6 +740,21 @@ private extension TangemPayCardManagementViewModel {
 
         cardRenameViewModel = renameViewModel
     }
+
+    func showCloseCardPopup() {
+        guard let card = currentCard else { return }
+
+        coordinator?.openTangemPayCloseCardSheet(
+            userWalletId: userWalletInfo.id,
+            card: card,
+            onError: { [weak self] in self?.showCloseCardErrorToast() }
+        )
+    }
+
+    func showCloseCardErrorToast() {
+        Toast(view: WarningToast(text: Localization.tangemPayCloseCardFailed))
+            .present(layout: .top(padding: 20), type: .temporary())
+    }
 }
 
 // MARK: - Shared private
