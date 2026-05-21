@@ -153,6 +153,12 @@ struct SingleCardOnboardingView: View {
                     ) {
                         viewModel.closeOnboarding()
                     }
+
+                    if viewModel.isTosFooterVisible {
+                        OnboardingTermsOfServiceFooter(onTap: viewModel.onTosTap)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 8)
+                    }
                 }
             }
         }
