@@ -18,6 +18,8 @@ protocol YieldModuleManager {
 
     var blockchain: Blockchain { get }
     var tokenId: String { get }
+    var versionChecker: YieldModuleVersionChecker? { get }
+    var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { get }
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
@@ -141,6 +143,14 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         _state
             .receiveOnMain()
             .eraseToAnyPublisher()
+    }
+
+    var versionChecker: YieldModuleVersionChecker? {
+        yieldSupplyService.makeVersionChecker()
+    }
+
+    var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? {
+        yieldSupplyService.makeSwapExecutionRegistryProvider()
     }
 
     func updateState(
