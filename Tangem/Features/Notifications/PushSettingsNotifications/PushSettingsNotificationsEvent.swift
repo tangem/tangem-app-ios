@@ -9,6 +9,7 @@
 import Foundation
 import TangemAssets
 import TangemUI
+import TangemLocalization
 
 enum PushSettingsNotificationsEvent: Hashable {
     case allowNotifications
@@ -18,14 +19,14 @@ extension PushSettingsNotificationsEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
         case .allowNotifications:
-            return .string("Allow notifications")
+            return .string(Localization.pushNotificationSettingsBannerTitle)
         }
     }
 
     var description: String? {
         switch self {
         case .allowNotifications:
-            return "Push Notifications are enabled but won\u{2019}t work until you allow notifications in your device settings."
+            return Localization.pushNotificationSettingsBannerDescription
         }
     }
 
