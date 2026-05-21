@@ -10,10 +10,11 @@ import Foundation
 
 protocol TransactionHistoryMapper {
     associatedtype Response
+    associatedtype WalletAddress
 
     func mapToTransactionRecords(
         _ response: Response,
-        walletAddress: String,
+        walletAddress: WalletAddress,
         amountType: Amount.AmountType
     ) throws -> [TransactionRecord]
 

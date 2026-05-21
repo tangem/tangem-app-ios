@@ -18,7 +18,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     private lazy var moreButton = otherElement(.moreButton)
     private lazy var hideTokenButton = button(.hideTokenButton)
-    private lazy var actionButtons = otherElement(.tokenActionButtons)
     private lazy var stakeNotificationButton = button(.stakeNotificationButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
     private lazy var notEnoughFeeForTransactionBanner = otherElement(.notEnoughFeeForTransactionBanner)
@@ -29,9 +28,10 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var receiveButton = button(.receiveButton)
     private lazy var sendButton = button(.sendButton)
     private lazy var swapButton = button(.swapButton)
-    private lazy var swapButtonBadge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
     private lazy var buyButton = button(.buyButton)
     private lazy var sellButton = button(.sellButton)
+    private lazy var addFundsButton = button(.addFundsButton)
+    private lazy var transferButton = button(.transferButton)
 
     // Staking elements
     private lazy var nativeStakingBlock = button(.nativeStakingBlock)
@@ -39,6 +39,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var nativeStakingChevron = image(.nativeStakingChevron)
 
     private lazy var availableSegment = button(.availableSegment)
+    private lazy var balanceModePicker = button(.balanceModePicker)
 
     // Balance elements
     private lazy var totalBalance = staticText(.totalBalance)
@@ -58,11 +59,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func tapActionButton(_ action: TokenAction) -> Self {
         XCTContext.runActivity(named: "Tap token action button: \(action.rawValue)") { _ in
-            waitAndAssertTrue(actionButtons, "Action buttons container should exist")
-
-            let button = actionButtons.buttons[action.rawValue]
-
-            button.waitAndTap()
+            switch action {
+            case .buy:
+                resolveActionButton(buyButton, viaGroup: addFundsButton)
+            case .swap:
+                swapButton.waitAndTap()
+            case .send:
+                resolveActionButton(sendButton, viaGroup: transferButton)
+            }
             return self
         }
     }
@@ -88,7 +92,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     @discardableResult
     func tapReceiveButton() -> NetworkSelectionWarningSheet {
         XCTContext.runActivity(named: "Tap Receive action button") { _ in
-            receiveButton.waitAndTap()
+            resolveActionButton(receiveButton, viaGroup: addFundsButton)
         }
         return NetworkSelectionWarningSheet(app)
     }
@@ -172,8 +176,13 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     @discardableResult
     func tapAvailableSegment() -> Self {
-        XCTContext.runActivity(named: "Tap Available segment") { _ in
-            availableSegment.waitAndTap()
+        XCTContext.runActivity(named: "Switch to Available balance") { _ in
+            // Temporary fallback to support both the legacy and redesigned token screen layouts.
+            if availableSegment.exists {
+                availableSegment.waitAndTap()
+            } else {
+                balanceModePicker.waitAndTap()
+            }
             return self
         }
     }
@@ -205,17 +214,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 
     @discardableResult
     func waitForActionButtons() -> Self {
-        XCTContext.runActivity(named: "Wait for action buttons buttons") { _ in
-            waitAndAssertTrue(receiveButton, "Receive button should exist")
-            XCTAssertTrue(receiveButton.isEnabled, "Receive button should be enabled")
+        XCTContext.runActivity(named: "Wait for action buttons") { _ in
+            // Swap is direct in every layout (legacy, inlineList, buttonsRow).
             waitAndAssertTrue(swapButton, "Swap button should exist")
             XCTAssertTrue(swapButton.isEnabled, "Swap button should be enabled")
-            waitAndAssertTrue(buyButton, "Buy button should exist")
-            XCTAssertTrue(buyButton.isEnabled, "Buy button should be enabled")
-            waitAndAssertTrue(sendButton, "Send button should exist")
-            XCTAssertTrue(sendButton.isEnabled, "Send button should be enabled")
-            waitAndAssertTrue(sellButton, "Sell button should exist")
-            XCTAssertTrue(sellButton.isEnabled, "Sell button should be enabled")
+            // Legacy/inlineList: direct Buy/Receive/Send; buttonsRow: Buy/Receive under `Add Funds`, Send under `Transfer`.
+            waitForEither(buyButton, or: addFundsButton, "Buy or Add Funds entry should be visible")
+            waitForEither(receiveButton, or: addFundsButton, "Receive or Add Funds entry should be visible")
+            waitForEither(sendButton, or: transferButton, "Send or Transfer entry should be visible")
             return self
         }
     }
@@ -226,26 +232,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func waitForNotEnoughFeeForTransactionBanner() -> Self {
         XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification banner exists") { _ in
             waitAndAssertTrue(notEnoughFeeForTransactionBanner, "'Not enough fee for transaction' notification banner should be displayed")
-            return self
-        }
-    }
-
-    // MARK: - Badge Validation Methods
-
-    @discardableResult
-    func assertSwapButtonHasBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has badge indicator") { _ in
-            waitAndAssertTrue(swapButton, "Swap button should exist")
-            waitAndAssertTrue(swapButtonBadge, "Swap button badge should be displayed")
-            return self
-        }
-    }
-
-    @discardableResult
-    func assertSwapButtonHasNoBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has no badge indicator") { _ in
-            waitAndAssertTrue(swapButton, "Swap button should exist")
-            XCTAssertFalse(swapButtonBadge.exists, "Swap button badge should not be displayed")
             return self
         }
     }
@@ -277,12 +263,38 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             return self
         }
     }
+
+    /// Direct button first (legacy/inlineList); otherwise tap the group (buttonsRow) and its bottom sheet.
+    private func resolveActionButton(_ direct: XCUIElement, viaGroup group: XCUIElement) {
+        waitForEither(direct, or: group, "Neither direct nor grouped action button appeared")
+        if direct.exists {
+            direct.waitAndTap()
+            return
+        }
+        group.waitAndTap()
+        // Single-option groups navigate directly without a bottom sheet, so `direct` may not reappear.
+        if direct.waitForExistence(timeout: .shortUIUpdate) {
+            direct.waitAndTap()
+        }
+    }
+
+    private func waitForEither(
+        _ a: XCUIElement,
+        or b: XCUIElement,
+        timeout: TimeInterval = .robustUIUpdate,
+        _ message: String
+    ) {
+        let predicate = NSPredicate { _, _ in a.exists || b.exists }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        if XCTWaiter().wait(for: [expectation], timeout: timeout) != .completed {
+            XCTFail(message)
+        }
+    }
 }
 
 enum TokenScreenElement: String, UIElement {
     case moreButton
     case hideTokenButton
-    case tokenActionButtons
     case stakeNotificationButton
     case nativeStakingBlock
     case nativeStakingTitle
@@ -292,6 +304,7 @@ enum TokenScreenElement: String, UIElement {
     case tokenNameLabel
     case notEnoughFeeForTransactionBanner
     case availableSegment
+    case balanceModePicker
     case totalBalance
     case availableBalance
     case stakingBalance
@@ -300,6 +313,8 @@ enum TokenScreenElement: String, UIElement {
     case swapButton
     case buyButton
     case sellButton
+    case addFundsButton
+    case transferButton
     case pendingExpressTransaction
 
     var accessibilityIdentifier: String {
@@ -308,8 +323,6 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.moreButton
         case .hideTokenButton:
             return TokenAccessibilityIdentifiers.hideTokenButton
-        case .tokenActionButtons:
-            return TokenAccessibilityIdentifiers.actionButtonsList
         case .stakeNotificationButton:
             return CommonUIAccessibilityIdentifiers.notificationButton
         case .nativeStakingBlock:
@@ -328,6 +341,8 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
         case .availableSegment:
             return "Available"
+        case .balanceModePicker:
+            return TokenAccessibilityIdentifiers.balanceModePicker
         case .totalBalance:
             return TokenAccessibilityIdentifiers.totalBalance
         case .availableBalance:
@@ -344,6 +359,10 @@ enum TokenScreenElement: String, UIElement {
             return ActionButtonsAccessibilityIdentifiers.buyButton
         case .sellButton:
             return ActionButtonsAccessibilityIdentifiers.sellButton
+        case .addFundsButton:
+            return ActionButtonsAccessibilityIdentifiers.addFundsButton
+        case .transferButton:
+            return ActionButtonsAccessibilityIdentifiers.transferButton
         case .pendingExpressTransaction:
             return TokenAccessibilityIdentifiers.pendingExpressTransaction
         }
