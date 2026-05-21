@@ -18,6 +18,10 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
     @Published var onboardingCoordinator: OnboardingCoordinator?
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
 
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     required init(
         dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -71,6 +75,10 @@ extension CreateWalletSelectorCoordinator: MobileCreateWalletRoutable {
 
     func closeMobileCreateWallet() {
         mobileCreateWalletCoordinator = nil
+    }
+
+    func openTos(url: URL) {
+        safariManager.openURL(url)
     }
 }
 
