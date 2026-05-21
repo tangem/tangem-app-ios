@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MainUserWalletHeader: View {
     let model: MainUserWalletHeaderModel
@@ -20,6 +21,7 @@ struct MainUserWalletHeader: View {
         headerViewModel = model.headerViewModel
     }
 
+    @ScaledMetric private var height: CGFloat = 84
     @ScaledSize private var loaderSize: CGSize = .init(width: 222, height: 36)
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
@@ -69,11 +71,12 @@ struct MainUserWalletHeader: View {
             loader: .init(
                 size: loaderSize,
                 cornerRadiusStyle: .capsule
-            )
+            ),
+            accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
         )
         .lineLimit(1)
         .minimumScaleFactor(0.7)
-        .frame(height: loaderSize.height)
+        .frame(height: height)
     }
 }
 

@@ -487,7 +487,9 @@ extension TransferModel: NotificationTapDelegate {
              .postponePushPermissionRequest,
              .activate,
              .openCloreMigration,
-             .openManageTokensAfterWalletSuccessImport:
+             .openDynamicAddressesEnter,
+             .openManageTokensAfterWalletSuccessImport,
+             .renewTangemPaySession:
             assertionFailure("Notification tap not handled")
         }
     }
