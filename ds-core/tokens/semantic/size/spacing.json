@@ -1,0 +1,264 @@
+{
+  "spacing": {
+    "100": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s100",
+          "iOS": "DesignSystem.Tokens.Spacing.s100"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.100}"
+    },
+    "125": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s125",
+          "iOS": "DesignSystem.Tokens.Spacing.s125"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.125}"
+    },
+    "150": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s150",
+          "iOS": "DesignSystem.Tokens.Spacing.s150"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.150}"
+    },
+    "200": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s200",
+          "iOS": "DesignSystem.Tokens.Spacing.s200"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.200}"
+    },
+    "250": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s250",
+          "iOS": "DesignSystem.Tokens.Spacing.s250"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.250}"
+    },
+    "300": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s300",
+          "iOS": "DesignSystem.Tokens.Spacing.s300"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.300}"
+    },
+    "350": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s350",
+          "iOS": "DesignSystem.Tokens.Spacing.s350"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.350}"
+    },
+    "400": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s400",
+          "iOS": "DesignSystem.Tokens.Spacing.s400"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.400}"
+    },
+    "450": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s450",
+          "iOS": "DesignSystem.Tokens.Spacing.s450"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.450}"
+    },
+    "500": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s500",
+          "iOS": "DesignSystem.Tokens.Spacing.s500"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.500}"
+    },
+    "550": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s550",
+          "iOS": "DesignSystem.Tokens.Spacing.s550"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.550}"
+    },
+    "600": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s600",
+          "iOS": "DesignSystem.Tokens.Spacing.s600"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.600}"
+    },
+    "700": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s700",
+          "iOS": "DesignSystem.Tokens.Spacing.s700"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.700}"
+    },
+    "800": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s800",
+          "iOS": "DesignSystem.Tokens.Spacing.s800"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.800}"
+    },
+    "900": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s900",
+          "iOS": "DesignSystem.Tokens.Spacing.s900"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.900}"
+    },
+    "1000": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s1000",
+          "iOS": "DesignSystem.Tokens.Spacing.s1000"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.1000}"
+    },
+    "025": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s025",
+          "iOS": "DesignSystem.Tokens.Spacing.s025"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.025}"
+    },
+    "050": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s050",
+          "iOS": "DesignSystem.Tokens.Spacing.s050"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.050}"
+    },
+    "075": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.s075",
+          "iOS": "DesignSystem.Tokens.Spacing.s075"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.075}"
+    },
+    "none": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.spacing.none",
+          "iOS": "DesignSystem.Tokens.Spacing.none"
+        },
+        "com.figma.scopes": [
+          "GAP"
+        ]
+      },
+      "$type": "spacing",
+      "$value": "{dimension.0}"
+    }
+  }
+}

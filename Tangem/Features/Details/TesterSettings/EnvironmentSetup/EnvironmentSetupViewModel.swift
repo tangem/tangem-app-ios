@@ -9,12 +9,12 @@
 import Combine
 import SwiftUI
 import TangemExpress
-import FirebaseMessaging
 import TangemVisa
-import struct TangemUIUtils.AlertBinder
-import TangemStaking
-import TangemAccessibilityIdentifiers
 import TangemPay
+import TangemStaking
+import TangemFirebaseDynamicShim
+import TangemAccessibilityIdentifiers
+import struct TangemUIUtils.AlertBinder
 
 final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState

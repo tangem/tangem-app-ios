@@ -17,7 +17,7 @@ class DecimalNumberTextFieldViewModel: ObservableObject {
         root: self,
         default: "",
         get: { $0.textFieldText },
-        set: { $0.textFieldTextDidChanged(newValue: $1) }
+        set: { $0.textFieldText = $1 }
     )
 
     let maximumTextLength: Int?
@@ -69,6 +69,14 @@ extension DecimalNumberTextFieldViewModel {
         decimalNumberFormatter.update(maximumFractionDigits: maximumFractionDigits)
     }
 
+    /// Must be called from `.onChange`, not the binding setter: `TextField` won't refresh
+    /// its buffer if the binding's post-set value matches its pre-set value, so we let the
+    /// setter write the raw input and clean it up here on the next pass.
+    func sanitize() {
+        let decimal = updateTextFieldText(with: textFieldText)
+        decimalValue.send(decimal.map { .internal($0) })
+    }
+
     /// Use this method for `external` update the `decimalValue`
     func update(value: Decimal?) {
         switch value {
@@ -90,11 +98,6 @@ extension DecimalNumberTextFieldViewModel {
 // MARK: - Private
 
 private extension DecimalNumberTextFieldViewModel {
-    func textFieldTextDidChanged(newValue: String) {
-        let decimal = updateTextFieldText(with: newValue)
-        decimalValue.send(decimal.map { .internal($0) })
-    }
-
     @discardableResult
     func updateTextFieldText(with newValue: String) -> Decimal? {
         let decimalSeparator = decimalNumberFormatter.decimalSeparator
@@ -112,10 +115,13 @@ private extension DecimalNumberTextFieldViewModel {
                 numberString.insert(decimalSeparator, at: numberString.index(before: numberString.endIndex))
             }
 
-            // If text already have `decimalSeparator` remove last one
-            if numberString.last == decimalSeparator,
-               numberString.prefix(numberString.count - 1).contains(decimalSeparator) {
-                numberString.removeLast()
+            // Keep only the first `decimalSeparator`; strip any subsequent ones.
+            // Catches paste, middle-insertion, and selection-replacement.
+            if let firstIndex = numberString.firstIndex(of: decimalSeparator) {
+                let afterFirst = numberString.index(after: firstIndex)
+                let tail = numberString[afterFirst...]
+                    .filter { $0 != decimalSeparator }
+                numberString = String(numberString[...firstIndex]) + tail
             }
         }
 

@@ -21,9 +21,7 @@ struct BlockBookTransactionTransactionRecordMapper {
 
 extension BlockBookTransactionTransactionRecordMapper: TransactionRecordMapper {
     func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, address: String) throws -> TransactionRecord {
-        // [REDACTED_TODO_COMMENT]
-        // Maybe need to user other way
         try UTXOTransactionHistoryMapper(blockchain: blockchain)
-            .mapToTransactionRecord(transaction: transaction, walletAddress: address)
+            .mapToTransactionRecord(transaction: transaction, walletAddress: [address])
     }
 }

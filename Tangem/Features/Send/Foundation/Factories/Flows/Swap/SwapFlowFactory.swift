@@ -144,7 +144,7 @@ extension SwapFlowFactory: SendBaseBuildable {
                 dataProvider: swapModel,
                 analyticsLogger: analyticsLogger,
                 output: swapModel,
-                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: expressDependenciesFactory.userWalletInfo)
+                confirmTransactionPolicy: SwapConfirmTransactionPolicy(sourceTokenInput: swapModel)
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: swapModel
@@ -153,8 +153,7 @@ extension SwapFlowFactory: SendBaseBuildable {
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(
                 tokenItem: initialTokenItem
             ),
-            // Will not use in `swap`
-            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: swapModel)
         )
     }
 }
@@ -256,7 +255,7 @@ extension SwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
+        SendFinishStepBuilder.Types(tokenItem: initialTokenItem, isSwapFlow: true)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {

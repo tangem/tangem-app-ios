@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 import TangemNetworkUtils
 
 struct EthereumTarget: TargetType {
@@ -28,8 +29,7 @@ struct EthereumTarget: TargetType {
     }
 
     var task: Task {
-        EthereumTarget.id += 1
-        let request = JSONRPC.Request(id: EthereumTarget.id, method: rpcMethod, params: params)
+        let request = JSONRPC.Request(id: EthereumTarget.nextRequestID(), method: rpcMethod, params: params)
         return .requestJSONEncodable(request)
     }
 
@@ -51,7 +51,14 @@ struct EthereumTarget: TargetType {
 }
 
 private extension EthereumTarget {
-    static var id: Int = 0
+    static let requestIDCounter = OSAllocatedUnfairLock<Int>(initialState: 0)
+
+    static func nextRequestID() -> Int {
+        requestIDCounter { state in
+            state += 1
+            return state
+        }
+    }
 
     var rpcMethod: String {
         networkPrefix.makeRPC(method: targetType.rpcMethod)

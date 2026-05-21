@@ -1,0 +1,194 @@
+{
+  "opacity": {
+    "0": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`0`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0"
+    },
+    "5": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`05`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.05"
+    },
+    "10": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`10`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.1"
+    },
+    "15": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`15`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.15"
+    },
+    "20": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`20`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.2"
+    },
+    "25": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`25`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.25"
+    },
+    "30": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`30`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.3"
+    },
+    "40": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`40`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.4"
+    },
+    "50": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`50`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.5"
+    },
+    "60": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`60`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.6"
+    },
+    "70": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`70`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.7"
+    },
+    "80": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`80`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.8"
+    },
+    "90": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`90`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.9"
+    },
+    "95": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`95`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "0.95"
+    },
+    "100": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "Opacity.`100`"
+        },
+        "com.figma.scopes": [
+          "OPACITY"
+        ]
+      },
+      "$type": "opacity",
+      "$value": "1"
+    },
+    "disabled": {
+      "$extensions": {
+        "com.figma.codeSyntax": {
+          "Android": "TangemTheme.dimens3.opacity.disabled",
+          "iOS": "DesignSystem.Tokens.Opacity.disabled"
+        }
+      },
+      "$type": "opacity",
+      "$value": "{opacity.40}"
+    }
+  }
+}

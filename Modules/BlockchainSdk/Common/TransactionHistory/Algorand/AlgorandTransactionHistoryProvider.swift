@@ -13,7 +13,8 @@ import TangemNetworkUtils
 
 final class AlgorandTransactionHistoryProvider<Mapper> where
     Mapper: TransactionHistoryMapper,
-    Mapper.Response == [AlgorandTransactionHistory.Response.Item] {
+    Mapper.Response == [AlgorandTransactionHistory.Response.Item],
+    Mapper.WalletAddress == String {
     /// Configuration connection node for provider
     private let node: NodeInfo
 
@@ -59,9 +60,13 @@ extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
         let target = AlgorandIndexProviderTarget(
             node: node,
-            targetType: .getTransactions(address: request.address, limit: request.limit, next: page?.next)
+            targetType: .getTransactions(address: address, limit: request.limit, next: page?.next)
         )
 
         let decoder = JSONDecoder()
@@ -74,7 +79,7 @@ extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
             .tryMap { provider, response in
                 let records = try provider.mapper.mapToTransactionRecords(
                     response.transactions,
-                    walletAddress: request.address,
+                    walletAddress: address,
                     amountType: .coin
                 )
                 .filter { record in
