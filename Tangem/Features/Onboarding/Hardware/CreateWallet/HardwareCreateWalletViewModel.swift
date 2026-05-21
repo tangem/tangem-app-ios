@@ -64,6 +64,10 @@ extension HardwareCreateWalletViewModel {
     func onBuyTap() {
         openBuyCard()
     }
+
+    func onTosTap() {
+        openTos()
+    }
 }
 
 // MARK: - Private methods
@@ -243,6 +247,10 @@ private extension HardwareCreateWalletViewModel {
 
     func openMail() {
         coordinator?.openMail(dataCollector: BaseDataCollector(), recipient: EmailConfig.default.recipient)
+    }
+
+    func openTos() {
+        safariManager.openURL(AppConstants.tosURL)
     }
 }
 
