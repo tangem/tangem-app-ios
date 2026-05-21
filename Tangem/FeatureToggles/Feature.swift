@@ -23,6 +23,7 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaScaledUIEnabled
     case dynamicAddresses
     case usdtRevokeGaslessFee
+    case yieldModuleUpdate
     case swapPipelineV2
     case onrampNativePayment
     case xrplTransactionHistory
@@ -53,6 +54,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
+        case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
         case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
@@ -85,6 +87,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
+        case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
         case .onrampNativePayment: return .unspecified
         case .xrplTransactionHistory: return .unspecified
