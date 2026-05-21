@@ -36,7 +36,7 @@ final class PushNotificationsSyncWalletsProvider {
 
     func handleSyncErrorForAllWallets() {
         for userWalletModel in userWalletRepository.models {
-            userWalletModel.userTokensPushNotificationsManager.process(.walletsBindingInfoUnavailable)
+            userWalletModel.userTokensPushNotificationsManager.process(.walletBindingInfoUnavailable)
         }
     }
 }
@@ -118,7 +118,7 @@ private extension PushNotificationsSyncWalletsProvider {
 
         findUserWalletModel
             .userTokensPushNotificationsManager
-            .process(.handleRemoteValue(entry.notifyStatus))
+            .process(.remoteStatusReceived(entry.notifyStatus))
     }
 
     func connectWallets(walletIds: [String], shouldRetry: Bool = true) async throws {

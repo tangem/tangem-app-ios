@@ -156,7 +156,7 @@ enum NotificationButtonActionType: Identifiable {
         case .postponePushPermissionRequest:
             return Localization.commonLater
         case .openPushNotificationsSystemSettings:
-            return "Open Settings"
+            return Localization.commonOpenSettingsButtonTitle
         case .activate:
             return Localization.commonActivate
         case .givePermission:
