@@ -133,7 +133,7 @@ extension ExpressDTO {
                 let requestId: String
                 let externalTxId: String?
                 let externalTxUrl: String?
-                let widgetUrl: URL
+                let widgetUrl: URL?
             }
         }
 
@@ -157,20 +157,17 @@ extension ExpressDTO {
             }
 
             struct UserData: Encodable {
-                let email: String?
+                let email: String
                 let firstName: String?
                 let lastName: String?
                 let billingAddress: BillingAddress?
             }
 
             struct BillingAddress: Encodable {
-                let street: String?
                 let city: String?
-                let subAdministrativeArea: String?
                 let state: String?
                 let postalCode: String?
                 let country: String?
-                let isoCountryCode: String?
             }
 
             struct Request: Encodable {
