@@ -353,6 +353,17 @@ extension SendCoordinator: OnrampRoutable {
 
         dismissOnrampRedirecting()
     }
+
+    func openOnrampKYCVerification(providerName: String, routable: OnrampKYCVerificationSheetRoutable) {
+        let viewModel = OnrampKYCVerificationSheetViewModel(
+            providerName: providerName,
+            routable: routable
+        )
+        Task { @MainActor in
+            UIApplication.shared.endEditing()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
 }
 
 // MARK: - ApproveRoutable
