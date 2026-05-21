@@ -69,6 +69,11 @@ class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingSte
         currentStep.infoText
     }
 
+    var isTosFooterVisible: Bool {
+        if case .createWallet = currentStep { return true }
+        return false
+    }
+
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
 
@@ -174,5 +179,11 @@ class SingleCardOnboardingViewModel: OnboardingViewModel<SingleCardOnboardingSte
 
             isMainButtonBusy = false
         }
+    }
+}
+
+extension SingleCardOnboardingViewModel {
+    func onTosTap() {
+        coordinator?.openBrowser(at: AppConstants.tosURL, onSuccess: { _ in })
     }
 }
