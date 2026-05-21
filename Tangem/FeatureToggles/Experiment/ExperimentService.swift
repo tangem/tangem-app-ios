@@ -42,7 +42,7 @@ final class CommonExperimentService {
     // MARK: - Public Implementation
 
     func configure() {
-        guard isExperimentEnabled else { return }
+        guard !AppEnvironment.current.isDebug, isExperimentEnabled else { return }
 
         let config = ExperimentConfigBuilder()
             .automaticExposureTracking(true)
