@@ -22,16 +22,16 @@ final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetCon
     }
 
     var title: AttributedString {
-        .init(Localization.tangemPayCloseCardAlertTitle)
+        .init(Localization.tangemPayCloseCardPopupTitle)
     }
 
     var description: AttributedString {
-        .init(Localization.tangemPayCloseCardAlertBody)
+        .init(Localization.tangemPayCloseCardPopupDescription)
     }
 
     var primaryButton: MainButton.Settings {
         MainButton.Settings(
-            title: Localization.tangemPayCloseCardClose,
+            title: Localization.tangemPayCloseCardPopupPrimaryButtonTitle,
             style: .primary,
             size: .default,
             isLoading: isLoading,
@@ -41,7 +41,7 @@ final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetCon
 
     var secondaryButton: MainButton.Settings {
         MainButton.Settings(
-            title: Localization.tangemPayCloseCardGoBack,
+            title: Localization.tangemPayCloseCardPopupSecondaryButtonTitle,
             style: .secondary,
             size: .default,
             action: dismiss
