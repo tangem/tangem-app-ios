@@ -104,6 +104,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
         let nilCurrencyInput = StubOnrampAmountInput(fiatCurrency: nil)
         let builder = OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: true),
+            tokenItem: Self.testTokenItem,
             amountInput: nilCurrencyInput,
             authorizationHandler: nil
         )
@@ -157,7 +158,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             return
         }
 
-        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier)
+        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier(forProviderId: "mercuryo"))
         #expect(request.currencyCode == "USD")
         #expect(request.countryCode == (Locale.current.region?.identifier ?? "US"))
     }
@@ -243,10 +244,13 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
     ) -> OnrampOfferViewModelBuyActionBuilder {
         OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: isApplePayAllowed),
+            tokenItem: Self.testTokenItem,
             amountInput: amountInput,
             authorizationHandler: authorizationHandler
         )
     }
+
+    fileprivate static let testTokenItem: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
 }
 
 // MARK: - Spies / Stubs
@@ -286,7 +290,11 @@ private final class StubPKPaymentToken: PKPaymentToken {
 
 private final class StubPKPayment: PKPayment {
     override var token: PKPaymentToken { StubPKPaymentToken() }
-    override var billingContact: PKContact? { nil }
+    override var billingContact: PKContact? {
+        let contact = PKContact()
+        contact.emailAddress = "test@example.com"
+        return contact
+    }
 }
 
 private extension OnrampFiatCurrency {
