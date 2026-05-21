@@ -66,6 +66,17 @@ final class TangemPayCard: Identifiable {
         inflightLifecycleOperationSubject.value == .reissue
     }
 
+    var isClosingPublisher: AnyPublisher<Bool, Never> {
+        inflightLifecycleOperationSubject
+            .map { $0 == .close }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var isClosing: Bool {
+        inflightLifecycleOperationSubject.value == .close
+    }
+
     var cardLimit: Int {
         productInstance.actualCardLimit?.amount ?? 0
     }
@@ -271,6 +282,7 @@ extension TangemPayCard {
         case freeze
         case unfreeze
         case reissue
+        case close
     }
 
     struct Snapshot {
