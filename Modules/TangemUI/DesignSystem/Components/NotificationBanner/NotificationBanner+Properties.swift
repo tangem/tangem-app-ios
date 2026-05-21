@@ -16,12 +16,12 @@ public extension NotificationBanner {
         case warning(Content, BannerAction)
         case promo(Content, BannerAction, CloseAction, Effect)
         case survey(TextOnly, BannerAction, CloseAction)
-        case informational(TextOnly, BannerAction, CloseAction)
+        case informational(TextOnly, BannerAction, CloseAction, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
             case .status(let c), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _): c
-            case .survey(let text, _, _), .informational(let text, _, _): .text(text)
+            case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
             }
         }
 
@@ -29,14 +29,21 @@ public extension NotificationBanner {
             switch self {
             case .status: .buttons(.none)
             case .critical(_, let a), .warning(_, let a),
-                 .promo(_, let a, _, _), .survey(_, let a, _), .informational(_, let a, _): a
+                 .promo(_, let a, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
             }
         }
 
         var closeAction: CloseAction? {
             switch self {
             case .status, .critical, .warning: nil
-            case .promo(_, _, let a, _), .survey(_, _, let a), .informational(_, _, let a): a
+            case .promo(_, _, let a, _), .survey(_, _, let a), .informational(_, _, let a, _): a
+            }
+        }
+
+        var textAlignment: BannerTextAlignment {
+            switch self {
+            case .status, .critical, .warning, .promo, .survey: .center
+            case .informational(_, _, _, let alignment): alignment
             }
         }
 
@@ -173,6 +180,13 @@ public extension NotificationBanner {
 
 public extension NotificationBanner {
     typealias Effect = GlowBorderEffect
+}
+
+public extension NotificationBanner {
+    enum BannerTextAlignment: Equatable, Sendable {
+        case leading
+        case center
+    }
 }
 
 public extension NotificationBanner {
