@@ -122,7 +122,7 @@ final class CommonPushNotificationsSyncService: NSObject {
                 for userWalletModel in service.userWalletRepository.models {
                     userWalletModel
                         .userTokensPushNotificationsManager
-                        .process(.walletBindingWithApplicationSynchronized)
+                        .process(.walletApplicationBindingSynchronized)
                 }
 
                 await service.walletNameProvider.restartObserving()

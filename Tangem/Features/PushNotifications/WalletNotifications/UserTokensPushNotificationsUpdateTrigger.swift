@@ -94,6 +94,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
 
         permissionService.isAuthorizedPublisher
             .combineLatest(isUserTokenListReadyPublisher)
+            .dropFirst()
             .receiveOnMain()
             .map { _ in Event.updateStatusRequired }
             .subscribe(eventsSubject)

@@ -208,7 +208,7 @@ private extension NotificationSettingsViewModel {
             await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
 
             if await viewModel.pushNotificationsPermission.isAuthorized {
-                // [REDACTED_TODO_COMMENT]
+                // Do nothing.
             } else {
                 // To display a system message about the need for permission to receive notifications.
                 viewModel.displayEnablePushSettingsAlert()
