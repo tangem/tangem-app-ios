@@ -754,7 +754,7 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func showCloseCardErrorToast() {
-        Toast(view: WarningToast(text: Localization.tangemPayCloseCardFailed))
+        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
             .present(layout: .top(padding: 20), type: .temporary())
     }
 }
