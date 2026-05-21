@@ -56,9 +56,11 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp:
             return .survey
 
-        case .pushNotificationsPermissionRequest,
-             .initialWalletTokenSyncCompleted:
-            return .informational
+        case .pushNotificationsPermissionRequest:
+            return .informational()
+
+        case .initialWalletTokenSyncCompleted:
+            return .informational(.leading)
 
         default:
             return nil
