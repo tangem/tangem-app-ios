@@ -75,11 +75,20 @@ actor NotificationPreferencesStateStore {
     }
 
     func beginUpdate(channel: PushChannel, isEnabled: Bool) -> UpdateContext {
-        latestUpdateToken += 1
-        inFlightUpdateCount += 1
-
         var optimisticPreferences = preferences
         optimisticPreferences.setEnabled(isEnabled, for: channel)
+        return beginUpdate(optimisticPreferences: optimisticPreferences)
+    }
+
+    func beginEnableAllUpdate() -> UpdateContext {
+        var optimisticPreferences = preferences
+        PushChannel.allCases.forEach { optimisticPreferences.setEnabled(true, for: $0) }
+        return beginUpdate(optimisticPreferences: optimisticPreferences)
+    }
+
+    private func beginUpdate(optimisticPreferences: RemotePushPreferences) -> UpdateContext {
+        latestUpdateToken += 1
+        inFlightUpdateCount += 1
 
         // Always revert to a server-confirmed snapshot, never to whatever happens to be in
         // `preferences` right now — that value can already be optimistic from an

@@ -76,6 +76,20 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
     func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {
         let context = await stateStore.beginUpdate(channel: channel, isEnabled: isEnabled)
+        try await performPreferencesUpdate(context: context)
+    }
+
+    func enableAll() async throws {
+        let context = await stateStore.beginEnableAllUpdate()
+        try await performPreferencesUpdate(context: context)
+        try await fetchPreferences()
+    }
+}
+
+// MARK: - Helpers
+
+private extension CommonNotificationPreferencesProvider {
+    func performPreferencesUpdate(context: NotificationPreferencesStateStore.UpdateContext) async throws {
         await publish(context.optimisticPreferences)
 
         let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
@@ -113,11 +127,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
             throw error
         }
     }
-}
 
-// MARK: - Helpers
-
-private extension CommonNotificationPreferencesProvider {
     @MainActor
     func publish(_ preferences: RemotePushPreferences) {
         preferencesSubject.send(preferences)

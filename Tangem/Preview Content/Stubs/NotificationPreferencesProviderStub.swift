@@ -73,6 +73,28 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
             throw error
         }
     }
+
+    func enableAll() async throws {
+        let snapshot = preferencesSubject.value
+
+        var optimistic = snapshot
+        for channel in PushChannel.allCases {
+            optimistic.setEnabled(true, for: channel)
+        }
+        preferencesSubject.send(optimistic)
+
+        for channel in PushChannel.allCases {
+            let current = serverPreferences?[channel] ?? PushChannelPreference(isEnabled: false, isVisible: true)
+            serverPreferences?[channel] = PushChannelPreference(isEnabled: true, isVisible: current.isVisible)
+        }
+
+        do {
+            try await Task.sleep(for: Self.simulatedNetworkDelay)
+        } catch {
+            preferencesSubject.send(snapshot)
+            throw error
+        }
+    }
 }
 
 // MARK: - Private Helpers

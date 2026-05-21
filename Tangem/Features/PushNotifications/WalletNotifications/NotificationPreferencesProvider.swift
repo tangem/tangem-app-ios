@@ -26,4 +26,8 @@ protocol NotificationPreferencesProvider: AnyObject {
     /// Optimistically updates the cache and sends a full-replace PUT.
     /// Reverts the cache to the last server-confirmed value if the request fails.
     func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws
+
+    /// Enables every push channel optimistically, sends a full-replace PUT, then fetches
+    /// the confirmed server state. Reverts to the last server-confirmed snapshot if the PUT fails.
+    func enableAll() async throws
 }

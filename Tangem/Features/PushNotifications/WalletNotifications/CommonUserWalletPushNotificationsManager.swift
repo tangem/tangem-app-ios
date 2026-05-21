@@ -22,14 +22,15 @@ final class CommonUserWalletPushNotificationsManager {
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     private let notificationPreferencesProvider: NotificationPreferencesProvider
+
     private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
+        userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
         notificationPreferencesProvider: notificationPreferencesProvider,
         permissionService: pushNotificationsPermission
     )
 
-    private var updateTasks: [PushChannel: Task<Void, Error>] = [:]
-    private var fetchPreferencesTask: Task<Void, Error>?
+    private var preferencesWorkflowTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: Init
@@ -59,22 +60,12 @@ final class CommonUserWalletPushNotificationsManager {
                 case .syncRemoteStatusRequired:
                     manager.syncRemoteStatus()
                 case .updateStatusRequired:
-                    manager.fetchNotificationPreferences()
+                    break
+                case .autoEnablePreferencesRequired:
+                    manager.performAllowanceOnboardingIfNeeded()
                 }
             }
             .store(in: &bag)
-    }
-
-    private func fetchNotificationPreferences() {
-        fetchPreferencesTask?.cancel()
-
-        fetchPreferencesTask = runTask(in: self) { manager in
-            do {
-                try await manager.notificationPreferencesProvider.fetchPreferences()
-            } catch {
-                // Provider publishes `.failed` on fetch error.
-            }
-        }
     }
 }
 
@@ -84,15 +75,19 @@ private extension CommonUserWalletPushNotificationsManager {
     private func syncRemoteStatus() {
         remoteStatusSyncing.syncRemoteStatus()
     }
+
+    private func fetchPreferences() {
+        preferencesWorkflowTask?.cancel()
+
+        preferencesWorkflowTask = runTask(in: self) { manager in
+            try await manager.notificationPreferencesProvider.fetchPreferences()
+        }
+    }
 }
 
 // MARK: - Event Handling
 
 private extension CommonUserWalletPushNotificationsManager {
-    func applyRemoteStatusUpdate(_ value: Bool, for channel: PushChannel) {
-        notificationPreferencesProvider.updateRemoteEnabled(.ready(value), for: channel)
-    }
-
     func applySyncFailure() {
         notificationPreferencesProvider.updateRemoteEnabled(.failed, for: .transactionAlerts)
     }
@@ -137,10 +132,10 @@ extension CommonUserWalletPushNotificationsManager: UserTokensPushNotificationsM
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
         case .walletApplicationBindingSynchronized:
-            fetchNotificationPreferences()
+            fetchPreferences()
         case .walletBindingInfoUnavailable:
             applySyncFailure()
-        case .remoteStatusReceived(let value, let channel):
+        case .remoteStatusReceived:
             // [REDACTED_TODO_COMMENT]
             break
         }
@@ -177,11 +172,34 @@ extension CommonUserWalletPushNotificationsManager: UserTokenListExternalParamet
     }
 }
 
-// MARK: - Allowance Implementation
+// MARK: - Allowance Onboarding
 
 private extension CommonUserWalletPushNotificationsManager {
+    func performAllowanceOnboardingIfNeeded() {
+        preferencesWorkflowTask?.cancel()
+
+        preferencesWorkflowTask = runTask(in: self) { manager in
+            await manager.enableAllForOnboardingIfNeeded()
+        }
+    }
+
+    func enableAllForOnboardingIfNeeded() async {
+        guard await shouldAllowanceRemoteNotifyStatus() else {
+            return
+        }
+
+        do {
+            try await notificationPreferencesProvider.enableAll()
+        } catch {
+            // Provider rolls back and publishes the previous value on failure.
+            return
+        }
+
+        await updateAllowanceIfNeeded()
+    }
+
     @MainActor
-    private func updateAllowanceIfNeeded() {
+    func updateAllowanceIfNeeded() {
         if !AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue) {
             AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
         }
