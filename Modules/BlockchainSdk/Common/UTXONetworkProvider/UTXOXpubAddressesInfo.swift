@@ -23,7 +23,14 @@ extension UTXOXpubAddressesInfo {
     }
 }
 
-struct UTXOUsedAddress: Hashable {
-    let address: String
-    let derivationPath: DerivationPath
+public struct UTXOUsedAddress: Hashable {
+    public let address: String
+    public let derivationPath: DerivationPath
+    public let scriptType: UTXOXpubScriptType
+
+    init(address: String, derivationPath: DerivationPath, scriptType: UTXOXpubScriptType) {
+        self.address = address
+        self.derivationPath = derivationPath
+        self.scriptType = scriptType
+    }
 }

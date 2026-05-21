@@ -131,8 +131,8 @@ public struct Wallet {
         addressesProvider.update(address: address)
     }
 
-    mutating func update(userDerivations: [DerivationPath]) {
-        addressesProvider.update(userDerivations: userDerivations)
+    mutating func update(usedAddresses: [UTXOUsedAddress]) {
+        addressesProvider.update(usedAddresses: usedAddresses)
     }
 
     private func feeAmountType(transactionAmountType: Amount.AmountType) -> Amount.AmountType {

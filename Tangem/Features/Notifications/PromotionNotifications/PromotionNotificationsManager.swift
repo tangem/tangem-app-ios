@@ -111,7 +111,7 @@ extension CommonPromotionNotificationsManager: NotificationTapDelegate {
         switch action {
         case .openDeeplink(let url, _):
             let handled = incomingActionHandler.handleIncomingURL(url)
-            PromotionLogger.info("Promotion deeplink handled: \(handled)")
+            PromotionsLogger.info("Promotion deeplink handled: \(handled)")
         default:
             break
         }

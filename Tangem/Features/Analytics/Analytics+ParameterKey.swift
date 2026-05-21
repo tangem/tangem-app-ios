@@ -174,5 +174,6 @@ extension Analytics {
 
         case preselectedToken = "Pre-selected Token"
         case selectedToken = "Selected Token"
+        case percentage = "Percentage"
     }
 }
