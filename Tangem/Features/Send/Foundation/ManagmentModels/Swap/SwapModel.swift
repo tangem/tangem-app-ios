@@ -54,6 +54,7 @@ final class SwapModel {
     private let analyticsLogger: SendAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
+    private let sendYieldModuleHelper: SendYieldModuleHelper?
     private let swapTokenPairResolver: MainSwapPairResolver?
 
     private let balanceConverter = BalanceConverter()
@@ -72,6 +73,7 @@ final class SwapModel {
         analyticsLogger: SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
+        sendYieldModuleHelper: SendYieldModuleHelper?,
         shouldStartInitialLoading: Bool,
         swapTokenPairResolver: MainSwapPairResolver? = nil
     ) {
@@ -84,6 +86,7 @@ final class SwapModel {
         self.analyticsLogger = analyticsLogger
         self.autoupdatingTimer = autoupdatingTimer
         self.pairUpdateHandler = pairUpdateHandler
+        self.sendYieldModuleHelper = sendYieldModuleHelper
         self.swapTokenPairResolver = swapTokenPairResolver
         _sourceToken = .init(sourceToken.map { .success($0) } ?? .loading)
         _receiveToken = .init(receiveToken.map { .success($0) } ?? .loading)
@@ -676,10 +679,16 @@ extension SwapModel {
 
             case .loaded(_, .some(let selected), state: .readyToSwap(let readyToSwap)):
                 let data = readyToSwap.data
+                let didUpgrade = sendYieldModuleHelper?.isUpgradeWrapped(data) == true
+
                 let dispatcher = source.transactionDispatcherProvider.makeDEXTransactionDispatcher()
                 let result = try await dispatcher.send(transaction: .dex(data: data, fee: readyToSwap.fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+
+                if didUpgrade {
+                    try? await sendYieldModuleHelper?.refreshVersionAfterUpgrade()
+                }
 
                 addTransactionToPendingRepository(
                     source: source,

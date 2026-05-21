@@ -259,9 +259,13 @@ struct ExpressAPIMapper {
                 externalTxUrl: codedData.externalTxUrl
             ))
         case .widget, .none:
+            guard let widgetUrl = codedData.widgetUrl else {
+                throw ExpressAPIMapperError.widgetUrlMissing
+            }
+
             return .widget(OnrampRedirectData(
                 txId: response.txId,
-                widgetUrl: codedData.widgetUrl,
+                widgetUrl: widgetUrl,
                 redirectUrl: codedData.redirectUrl,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
@@ -291,9 +295,13 @@ struct ExpressAPIMapper {
 
         fromAmount /= pow(10, codedData.fromPrecision)
 
+        guard let widgetUrl = codedData.widgetUrl else {
+            throw ExpressAPIMapperError.widgetUrlMissing
+        }
+
         return OnrampRedirectData(
             txId: response.txId,
-            widgetUrl: codedData.widgetUrl,
+            widgetUrl: widgetUrl,
             redirectUrl: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
@@ -328,6 +336,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case requestIdNotEqual
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
+    case widgetUrlMissing
 
     var errorDescription: String? {
         switch self {
@@ -335,6 +344,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
+        case .widgetUrlMissing: "Widget url is missing for a widget transaction"
         }
     }
 }

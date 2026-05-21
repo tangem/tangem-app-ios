@@ -199,6 +199,12 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
+    func getStorageAt(address: String, slot: String) -> AnyPublisher<String, Error> {
+        providerPublisher {
+            $0.getStorageAt(address: address, slot: slot)
+        }
+    }
+
     func resolveAddress(hash: Data, encode name: Data) -> AnyPublisher<String, Error> {
         let method = ReadEthereumAddressEIP137TokenMethod(nameBytes: name, hashBytes: hash)
 
