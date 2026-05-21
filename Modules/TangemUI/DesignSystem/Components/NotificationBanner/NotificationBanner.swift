@@ -31,9 +31,13 @@ public struct NotificationBanner: View, Setupable {
     private var content: Content { bannerType.content }
 
     private var isCentered: Bool {
-        switch content {
-        case .text: return true
-        case .textWithIcon: return false
+        switch bannerType.textAlignment {
+        case .leading: return false
+        case .center:
+            switch content {
+            case .text: return true
+            case .textWithIcon: return false
+            }
         }
     }
 
@@ -80,7 +84,7 @@ public struct NotificationBanner: View, Setupable {
     private func bannerBody<Buttons: View>(
         @ViewBuilder buttons: () -> Buttons = { EmptyView() }
     ) -> some View {
-        VStack(spacing: SizeUnit.x4.value) {
+        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x4.value) {
             contentView
             buttons()
         }
