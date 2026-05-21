@@ -115,7 +115,13 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
             providersInput.onrampProvidersPublisher,
         )
         .withWeakCaptureOf(self)
-        .map { $0.mapToSuggestedOffers(selectedProvider: $1.0, providers: $1.1) }
+        .map { interactor, args in
+            CommonOnrampSummaryInteractor.mapToSuggestedOffers(
+                selectedProvider: args.0,
+                providers: args.1,
+                recentOnrampTransaction: interactor.recentFinder?.recentOnrampTransaction
+            )
+        }
         .eraseToAnyPublisher()
     }
 
@@ -148,12 +154,13 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
     }
 }
 
-// MARK: - Private
+// MARK: - Mapping
 
-private extension CommonOnrampSummaryInteractor {
-    func mapToSuggestedOffers(
+extension CommonOnrampSummaryInteractor {
+    static func mapToSuggestedOffers(
         selectedProvider: LoadingResult<OnrampProvider, Never>?,
-        providers: LoadingResult<ProvidersList, Error>?
+        providers: LoadingResult<ProvidersList, Error>?,
+        recentOnrampTransaction: RecentOnrampTransactionParameters?
     ) -> LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never> {
         switch (selectedProvider, providers) {
         case (.none, _), (_, .none), (.failure, _), (_, .failure):
@@ -162,7 +169,7 @@ private extension CommonOnrampSummaryInteractor {
             return .loading
         case (.success, .success(let list)):
             let recent: OnrampProvider? = {
-                guard let recentOnrampTransaction = recentFinder?.recentOnrampTransaction else {
+                guard let recentOnrampTransaction else {
                     return nil
                 }
 
@@ -180,8 +187,16 @@ private extension CommonOnrampSummaryInteractor {
             let great = list.great() ?? list.best()
             let fastest = list.fastest()
             let successfullyLoadedProviders = list.successfullyLoadedProviders()
+            let nativeApplePay: OnrampProvider? = successfullyLoadedProviders
+                .filter { provider in
+                    provider.paymentMethod.type == .applePay
+                        && provider.quote?.nativePaymentAvailable == true
+                        && provider.quote?.quoteId != nil
+                }
+                .min()
 
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
+                nativeApplePay.map { .nativeApplePay($0) },
                 recent.map { .recent($0) },
                 great.map { .great($0) },
                 fastest.map { .fastest($0) },

@@ -10,7 +10,7 @@ import Foundation
 
 enum OnrampTestFixtures {
     static func makeProvider(
-        providerId: String = "test-provider",
+        providerId: String = "mercuryo",
         paymentMethodId: String = "apple-pay",
         amount: Decimal? = 100,
         state: OnrampProviderManagerState = .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "quote-id"))

@@ -15,10 +15,17 @@ import Testing
 @Suite("OnrampApplePayUtils")
 struct OnrampApplePayUtilsTests {
     @Test("makePaymentRequest sets the merchant, networks, capabilities, currency, and country")
-    func makePaymentRequestShape() {
-        let request = OnrampApplePayUtils.makePaymentRequest(amount: 99.99, currencyCode: "EUR", countryCode: "DE")
+    func makePaymentRequestShape() throws {
+        let amount = try #require(Decimal(string: "99.99"))
+        let request = OnrampApplePayUtils.makePaymentRequest(
+            amount: amount,
+            currencyCode: "EUR",
+            countryCode: "DE",
+            summaryItemLabel: "1 ETH",
+            merchantIdentifier: "merchant.example.tangem"
+        )
 
-        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier)
+        #expect(request.merchantIdentifier == "merchant.example.tangem")
         #expect(request.supportedNetworks == [.visa, .masterCard])
         #expect(request.merchantCapabilities == .threeDSecure)
         #expect(request.currencyCode == "EUR")
@@ -26,17 +33,24 @@ struct OnrampApplePayUtilsTests {
         #expect(Set(request.requiredBillingContactFields) == Set([.postalAddress, .name, .emailAddress]))
     }
 
-    @Test("makePaymentRequest exposes a single Tangem summary item with the requested amount")
-    func makePaymentRequestSummaryItem() {
-        let request = OnrampApplePayUtils.makePaymentRequest(amount: 12.50, currencyCode: "USD", countryCode: "US")
+    @Test("makePaymentRequest exposes a single summary item with the supplied label and amount")
+    func makePaymentRequestSummaryItem() throws {
+        let amount = try #require(Decimal(string: "12.50"))
+        let request = OnrampApplePayUtils.makePaymentRequest(
+            amount: amount,
+            currencyCode: "USD",
+            countryCode: "US",
+            summaryItemLabel: "0.005 ETH",
+            merchantIdentifier: "merchant.example.tangem"
+        )
 
         #expect(request.paymentSummaryItems.count == 1)
-        #expect(request.paymentSummaryItems.first?.label == "Tangem")
-        #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: 12.50))
+        #expect(request.paymentSummaryItems.first?.label == "0.005 ETH")
+        #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: amount))
     }
 
     @Test("mapPaymentResult base64-encodes the payment token and forwards billing contact fields")
-    func mapPaymentResultMapping() {
+    func mapPaymentResultMapping() throws {
         let tokenBytes = Data([0xDE, 0xAD, 0xBE, 0xEF])
         let payment = StubPKPayment(
             tokenData: tokenBytes,
@@ -44,55 +58,47 @@ struct OnrampApplePayUtilsTests {
             firstName: "Ada",
             lastName: "Lovelace",
             postalAddress: PostalAddress(
-                street: "1 Infinite Loop",
                 city: "Cupertino",
                 state: "CA",
                 postalCode: "95014",
-                country: "United States",
-                isoCountryCode: "US",
-                subAdministrativeArea: "Santa Clara"
+                country: "United States"
             )
         )
 
-        let result = OnrampApplePayUtils.mapPaymentResult(payment)
+        let result = try #require(OnrampApplePayUtils.mapPaymentResult(payment))
 
         #expect(result.paymentToken == tokenBytes.base64EncodedString())
         #expect(result.userData.email == "user@example.com")
         #expect(result.userData.firstName == "Ada")
         #expect(result.userData.lastName == "Lovelace")
-        #expect(result.userData.billingAddress?.street == "1 Infinite Loop")
         #expect(result.userData.billingAddress?.city == "Cupertino")
         #expect(result.userData.billingAddress?.state == "CA")
         #expect(result.userData.billingAddress?.postalCode == "95014")
         #expect(result.userData.billingAddress?.country == "United States")
-        #expect(result.userData.billingAddress?.isoCountryCode == "US")
-        #expect(result.userData.billingAddress?.subAdministrativeArea == "Santa Clara")
     }
 
-    @Test("mapPaymentResult returns nil billing address and user data fields when no billing contact is present")
-    func mapPaymentResultNoBillingContact() {
+    @Test("mapPaymentResult returns nil when billing contact has no email")
+    func mapPaymentResultNoEmail() {
         let payment = StubPKPayment(tokenData: Data())
 
-        let result = OnrampApplePayUtils.mapPaymentResult(payment)
+        #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
+    }
 
-        #expect(result.paymentToken == "")
-        #expect(result.userData.email == nil)
-        #expect(result.userData.firstName == nil)
-        #expect(result.userData.lastName == nil)
-        #expect(result.userData.billingAddress == nil)
+    @Test("mapPaymentResult returns nil when email is empty")
+    func mapPaymentResultEmptyEmail() {
+        let payment = StubPKPayment(tokenData: Data(), email: "")
+
+        #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
     }
 }
 
 // MARK: - Stubs
 
 private struct PostalAddress {
-    let street: String
     let city: String
     let state: String
     let postalCode: String
     let country: String
-    let isoCountryCode: String
-    let subAdministrativeArea: String
 }
 
 private final class StubPKPaymentToken: PKPaymentToken {
@@ -132,13 +138,10 @@ private final class StubPKPayment: PKPayment {
             }
             if let address = postalAddress {
                 let postal = CNMutablePostalAddress()
-                postal.street = address.street
                 postal.city = address.city
                 postal.state = address.state
                 postal.postalCode = address.postalCode
                 postal.country = address.country
-                postal.isoCountryCode = address.isoCountryCode
-                postal.subAdministrativeArea = address.subAdministrativeArea
                 contact.postalAddress = postal
             }
             _billingContact = contact
