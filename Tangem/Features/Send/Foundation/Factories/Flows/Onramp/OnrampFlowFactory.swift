@@ -37,6 +37,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 
     lazy var buyActionBuilder = OnrampOfferViewModelBuyActionBuilder(
         geoEligibilityService: geoEligibilityService,
+        tokenItem: tokenItem,
         amountInput: onrampModel,
         authorizationHandler: onrampModel
     )
