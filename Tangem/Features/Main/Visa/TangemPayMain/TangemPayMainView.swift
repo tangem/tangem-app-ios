@@ -211,11 +211,7 @@ struct TangemPayMainView: View {
             Button {
                 viewModel.openCardManagement(entry: entry)
             } label: {
-                TangemPaySmallCardView(
-                    state: card.isReissuing
-                        ? .replacing
-                        : .issued(cardNumberEnd: card.cardNumberEnd)
-                )
+                TangemPaySmallCardView(state: smallCardState(for: card))
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
             .disabled(viewModel.isStale)
@@ -227,6 +223,12 @@ struct TangemPayMainView: View {
                 TangemPaySmallCardView(state: .issuing)
             }
         }
+    }
+
+    private func smallCardState(for card: TangemPayCard) -> TangemPaySmallCardView.State {
+        if card.isClosing { return .closing }
+        if card.isReissuing { return .replacing }
+        return .issued(cardNumberEnd: card.cardNumberEnd)
     }
 }
 
