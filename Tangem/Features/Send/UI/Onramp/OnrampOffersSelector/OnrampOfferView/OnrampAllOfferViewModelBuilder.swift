@@ -16,14 +16,25 @@ struct OnrampAllOfferViewModelBuilder {
     private let amountBadgeBuilder: OnrampAmountBadgeBuilder = .init()
     private let processingTimeFormatter: OnrampProviderProcessingTimeFormatter = .init()
 
-    func mapToOnrampOfferViewModel(provider: OnrampProvider, buyAction: OnrampOfferViewModel.BuyAction) -> OnrampOfferViewModel {
-        let title: OnrampOfferViewModel.Title = switch provider.state {
-        case .loaded where provider.globalAttractiveType == .best: .bestRate
-        case .loaded where provider.processingTimeType == .fastest: .fastest
-        case .restriction(.tooSmallAmount): .text(Localization.onrampProviderMinAmount(""))
-        case .restriction(.tooBigAmount): .text(Localization.onrampProviderMaxAmount(""))
-        default: .text(Localization.onrampTitleYouGet)
-        }
+    func mapToOnrampOfferViewModel(
+        provider: OnrampProvider,
+        buyAction: OnrampOfferViewModel.BuyAction,
+        infoAction: (() -> Void)? = nil
+    ) -> OnrampOfferViewModel {
+        let isNativeApplePay = buyAction.isNativeApplePay
+
+        let title: OnrampOfferViewModel.Title = {
+            if isNativeApplePay {
+                return .text(Localization.onrampTitleYouGet)
+            }
+            switch provider.state {
+            case .loaded where provider.globalAttractiveType == .best: return .bestRate
+            case .loaded where provider.processingTimeType == .fastest: return .fastest
+            case .restriction(.tooSmallAmount): return .text(Localization.onrampProviderMinAmount(""))
+            case .restriction(.tooBigAmount): return .text(Localization.onrampProviderMaxAmount(""))
+            default: return .text(Localization.onrampTitleYouGet)
+            }
+        }()
 
         let amount: OnrampOfferViewModel.Amount = {
             let formattedAmount = switch provider.state {
@@ -37,8 +48,8 @@ struct OnrampAllOfferViewModelBuilder {
                 BalanceFormatter.defaultEmptyBalanceString
             }
 
-            let badge = amountBadgeBuilder.mapToOnrampAmountBadge(provider: provider)
-            return .init(formatted: formattedAmount, badge: badge)
+            let badge = isNativeApplePay ? nil : amountBadgeBuilder.mapToOnrampAmountBadge(provider: provider)
+            return OnrampOfferViewModel.Amount(formatted: formattedAmount, badge: badge, infoAction: infoAction)
         }()
 
         let timeFormatted = processingTimeFormatter.format(provider.paymentMethod.type.processingTime)
@@ -48,12 +59,15 @@ struct OnrampAllOfferViewModelBuilder {
             timeFormatted: timeFormatted
         )
 
+        let legalNotice = isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
+
         return OnrampOfferViewModel(
             title: title,
             amount: amount,
             provider: offerProvider,
             isAvailable: provider.isSuccessfullyLoaded,
-            buyAction: buyAction
+            buyAction: buyAction,
+            legalNotice: legalNotice
         )
     }
 }
