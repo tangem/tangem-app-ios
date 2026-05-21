@@ -1396,6 +1396,10 @@
 "swapping_insufficient_funds" = "资金不足";
 "swapping_permission_header" = "给予许可";
 "swapping_permit_and_swap" = "许可和兑换";
+"swapping_rate_experience_title" = "Rate your experience with provider";
+"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_submit" = "Send feedback";
+"swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "互换...";
 "swapping_swap_action" = "兑换";
 "swapping_to_account_title" = "您收到";
@@ -1580,7 +1584,7 @@
 "tangempay_status_deactivated" = "卡片已停用";
 "tangempay_status_replacing" = "更换您的卡片";
 "tangempay_sync_needed_restore_access" = "恢复访问权限";
-"tangempay_sync_needed" = "会话已过期";
+"tangempay_sync_needed" = "Tangem Pay 会话已过期";
 "tangempay_tangem_visa_card" = "使用 USDC 进行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时无法使用。";
 "tangempay_title" = "Tangem Pay";
@@ -2060,6 +2064,11 @@
 "xtz_withdrawal_message_ignore" = "不，全部发送";
 "xtz_withdrawal_message_reduce" = "减少 %@ XTZ";
 "xtz_withdrawal_message_warning" = "为避免下次充值时支付更高的手续费，请按 %@ XTZ减少充值金额。";
+"yield_apy_boost_banner_button_title" = "Explore Yield mode";
+"yield_apy_boost_banner_subtitle" = "First time activation bonus!";
+"yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
+"yield_apy_boost_banner_title" = "Special offer for Yield mode";
+"yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
 "yield_apy_boost_story_first_subtitle" = "首次激活收益模式，即可在前 30 天内获得高达 3 倍的收益。";
 "yield_apy_boost_story_first_title" = "首月年利率奖励";
 "yield_apy_boost_story_fourth_subtitle" = "您将获得市场收益 + 奖励。奖励将在 30 天期限结束后 14 天内以 USDT 或 USDC 形式一次性发放。活动额度有限，售完即止。须遵守相关条款和条件。";
