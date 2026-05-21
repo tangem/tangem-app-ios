@@ -264,9 +264,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <string>Su wallet contiene %li token. Para continuar, por favor sincronice sus direcciones.</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>Su wallet contiene %li tokens. Para continuar, por favor sincronice sus direcciones.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -440,9 +440,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
+        <string>Sincronice direcciones para obtener una dirección de la red %li</string>
         <key>other</key>
-        <string>Sync addresses to get an addresses for %li networks</string>
+        <string>Sincronice direcciones para obtener direcciones de las redes %li</string>
       </dict>
     </dict>
   </dict>
