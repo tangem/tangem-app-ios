@@ -83,12 +83,19 @@ private extension MultiWalletNotificationBannerMapper {
             return .critical(content, bannerAction)
         case .warning:
             return .warning(content, bannerAction)
-        case .informational:
-            return .informational(textOnly, bannerAction, closeAction)
+        case .informational(let alignment):
+            return .informational(textOnly, bannerAction, closeAction, mapTextAlignment(alignment))
         case .promo(let effect):
             return .promo(content, bannerAction, closeAction, mapEffect(effect))
         case .survey:
             return .survey(textOnly, bannerAction, closeAction)
+        }
+    }
+
+    func mapTextAlignment(_ alignment: NotificationBannerKind.TextAlignment) -> NotificationBanner.BannerTextAlignment {
+        switch alignment {
+        case .leading: .leading
+        case .center: .center
         }
     }
 

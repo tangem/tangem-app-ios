@@ -13,9 +13,11 @@ import TangemExpress
 
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
+    let tokenItem: TokenItem
     weak var amountInput: OnrampAmountInput?
     weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
 
+    private let balanceFormatter = BalanceFormatter()
     private var countryCode: String { Locale.current.region?.identifier ?? "US" }
 
     func make(
@@ -46,10 +48,21 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
+        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
+        let summaryItemLabel = balanceFormatter.formatCryptoBalance(
+            quote.expectedAmount,
+            currencyCode: tokenItem.currencySymbol
+        )
+
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: currencyCode,
-            countryCode: countryCode
+            countryCode: countryCode,
+            summaryItemLabel: summaryItemLabel,
+            merchantIdentifier: merchantIdentifier
         )
 
         return .nativeApplePay(request: request) { [self, onWillBuy] phase in
@@ -65,9 +78,17 @@ struct OnrampOfferViewModelBuyActionBuilder {
         switch phase {
         case .willAuthorize:
             onWillBuy()
+            authorizationHandler?.applePaySheetWillPresent()
 
         case .didAuthorize(let payment, let resultHandler):
-            let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
+            guard let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment) else {
+                let error = PKPaymentRequest.paymentContactInvalidError(
+                    withContactField: .emailAddress,
+                    localizedDescription: nil
+                )
+                resultHandler(.init(status: .failure, errors: [error]))
+                return
+            }
             let authorization = ApplePayAuthorizationResult(
                 provider: provider,
                 applePayResult: applePayResult,
@@ -80,7 +101,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
             authorizationHandler.handleApplePayAuthorization(authorization)
 
         case .didFinish:
-            break
+            authorizationHandler?.applePaySheetDidFinish()
 
         @unknown default:
             break
