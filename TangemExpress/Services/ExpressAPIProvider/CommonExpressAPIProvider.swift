@@ -114,10 +114,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         case .fixed: .fixed
         }
 
+        let fromAddress = item.dexFromAddress
+
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
             quoteId: item.quoteId,
-            fromAddress: item.source.address,
+            fromAddress: fromAddress,
             fromContractAddress: item.source.currency.contractAddress,
             fromNetwork: item.source.currency.network,
             toContractAddress: item.destination.currency.contractAddress,
