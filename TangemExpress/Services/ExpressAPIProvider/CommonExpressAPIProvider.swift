@@ -265,13 +265,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
                     lastName: item.userData.lastName,
                     billingAddress: item.userData.billingAddress.map { address in
                         .init(
-                            street: address.street,
                             city: address.city,
-                            subAdministrativeArea: address.subAdministrativeArea,
                             state: address.state,
                             postalCode: address.postalCode,
-                            country: address.country,
-                            isoCountryCode: address.isoCountryCode
+                            country: address.country
                         )
                     }
                 )
