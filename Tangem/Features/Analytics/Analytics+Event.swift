@@ -78,6 +78,9 @@ extension Analytics {
         case onboardingButtonChat = "[Onboarding] Button - Chat"
 
         case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
+        case buttonAddAndOrganize = "[Portfolio] Button - Add & Organize"
+        case buttonAddTokens = "[Portfolio] Button - Add tokens"
+        case buttonOrganizeTokens = "[Portfolio] Button - Organize Tokens"
         case organizeTokensScreenOpened = "[Portfolio / Organize Tokens] Organize Tokens Screen Opened"
         case organizeTokensButtonSortByBalance = "[Portfolio / Organize Tokens] Button - By Balance"
         case organizeTokensButtonGroup = "[Portfolio / Organize Tokens] Button - Group"
@@ -348,6 +351,7 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFastAmountInput = "[Swap] Fast amount input"
 
         // MARK: - Seed phrase
 
