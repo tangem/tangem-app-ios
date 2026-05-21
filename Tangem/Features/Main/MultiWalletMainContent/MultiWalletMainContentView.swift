@@ -32,10 +32,6 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
-            ForEach(viewModel.bannerNotificationInputs) { input in
-                NotificationView(input: input)
-            }
-
             PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
             if let viewModel = viewModel.tangemPayBannerViewModel {
@@ -60,7 +56,7 @@ struct MultiWalletMainContentView: View {
 
             if viewModel.isOrganizeTokensVisible {
                 FixedSizeButtonWithLeadingIcon(
-                    title: Localization.organizeTokensTitle,
+                    title: viewModel.organizeTokensButtonTitle,
                     icon: Assets.OrganizeTokens.filterIcon.image,
                     style: .default,
                     action: viewModel.onOpenOrganizeTokensButtonTap
@@ -214,9 +210,9 @@ struct MultiWalletMainContentView: View {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             sectionsProvider: sectionsProvider,
             tokensNotificationManager: FakeUserWalletNotificationManager(),
-            bannerNotificationManager: nil,
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
+            getTangemPayBannerNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),

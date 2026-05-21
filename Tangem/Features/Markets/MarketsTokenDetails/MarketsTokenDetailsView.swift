@@ -22,6 +22,7 @@ struct MarketsTokenDetailsView: View {
 
     @State private var headerHeight: CGFloat = .zero
     @State private var isListContentObscured = false
+    @State private var addToPortfolioPromoReservedHeight = Constants.addToPortfolioPromoReservedHeight
 
     @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.marketTokenDetails(
         initialState: MarketsNavigationBarTitle.State(priceOpacity: nil, titleOffset: 0),
@@ -74,6 +75,17 @@ struct MarketsTokenDetailsView: View {
 
             if viewModel.isMarketsSheetStyle {
                 navigationBar
+            }
+
+            if viewModel.isRedesignEnabled, viewModel.shouldShowAddToPortfolioPromo {
+                AddToPortfolioPromoView(
+                    iconURL: viewModel.iconURL,
+                    action: viewModel.onTapAddToPortfolioPromo
+                )
+                .padding(.horizontal, Constants.addToPortfolioPromoHorizontalPadding)
+                .padding(.bottom, Constants.addToPortfolioPromoBottomPadding)
+                .readGeometry(\.size.height, onChange: updateAddToPortfolioPromoReservedHeight(height:))
+                .frame(maxHeight: .infinity, alignment: .bottom)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -203,6 +215,11 @@ struct MarketsTokenDetailsView: View {
                 content
                     .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
+
+                if viewModel.isRedesignEnabled, viewModel.shouldShowAddToPortfolioPromo {
+                    Color.clear
+                        .frame(height: addToPortfolioPromoReservedHeight)
+                }
             }
             .padding(.top, Constants.scrollViewContentTopInset)
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
@@ -357,6 +374,14 @@ struct MarketsTokenDetailsView: View {
 
         return Color(uiColor: uiColor)
     }
+
+    private func updateAddToPortfolioPromoReservedHeight(height: CGFloat) {
+        guard abs(addToPortfolioPromoReservedHeight - height) > 0.5 else {
+            return
+        }
+
+        addToPortfolioPromoReservedHeight = height
+    }
 }
 
 // MARK: - Constants
@@ -365,6 +390,9 @@ private extension MarketsTokenDetailsView {
     enum Constants {
         static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
+        static let addToPortfolioPromoHorizontalPadding = 16.0
+        static let addToPortfolioPromoBottomPadding = 8.0
+        static let addToPortfolioPromoReservedHeight = 96.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
     }
