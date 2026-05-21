@@ -24,6 +24,7 @@ enum Feature: String, Hashable, CaseIterable {
     case dynamicAddresses
     case usdtRevokeGaslessFee
     case swapPipelineV2
+    case onrampNativePayment
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
@@ -54,6 +55,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
+        case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
         case .swapProviderTypeFilter: return "13675_Swap_Provider_Type_Filter"
@@ -84,9 +86,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
         case .swapPipelineV2: return .version("5.38")
-        case .swapStoriesV2: return .version("5.38")
+        case .onrampNativePayment: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
+        case .swapStoriesV2: return .version("5.38")
         case .swapProviderTypeFilter: return .unspecified
         case .swapInProgressV2: return .unspecified
         case .swapPendingTxStateDate: return .unspecified
