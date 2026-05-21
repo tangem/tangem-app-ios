@@ -229,11 +229,11 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .handleRemoteValue(let value, _):
+        case .remoteStatusReceived(let value, _):
             applyRemoteStatusUpdate(value)
-        case .walletBindingWithApplicationSynchronized:
+        case .walletApplicationBindingSynchronized:
             updateStatusIfNeeded()
-        case .walletsBindingInfoUnavailable:
+        case .walletBindingInfoUnavailable:
             applySyncFailure()
         }
     }
