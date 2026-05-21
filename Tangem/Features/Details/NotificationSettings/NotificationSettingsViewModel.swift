@@ -47,7 +47,7 @@ final class NotificationSettingsViewModel: ObservableObject {
             get: { $0.transactionAlertsEnabled },
             set: { viewModel, value in
                 viewModel.transactionAlertsEnabled = value
-//                viewModel.handleToggle(value: value, for: .transactionAlerts)
+                // [REDACTED_TODO_COMMENT]
             }
         )
     }
@@ -59,7 +59,7 @@ final class NotificationSettingsViewModel: ObservableObject {
             get: { $0.offersUpdatesEnabled },
             set: { viewModel, value in
                 viewModel.offersUpdatesEnabled = value
-//                viewModel.handleToggle(value: value, for: .offersUpdates)
+                // [REDACTED_TODO_COMMENT]
             }
         )
     }
@@ -71,7 +71,7 @@ final class NotificationSettingsViewModel: ObservableObject {
             get: { $0.priceAlertsEnabled },
             set: { viewModel, value in
                 viewModel.priceAlertsEnabled = value
-//                viewModel.handleToggle(value: value, for: .priceAlerts)
+                // [REDACTED_TODO_COMMENT]
             }
         )
     }
