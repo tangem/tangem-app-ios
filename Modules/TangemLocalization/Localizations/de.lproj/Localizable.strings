@@ -871,7 +871,7 @@
 "onboarding_create_wallet_options_button_options" = "Andere Optionen";
 "onboarding_create_wallet_options_message" = "Deine Schlüssel(private-keys) werden sicher im Inneren der Karte oder Ring generiert. Es gibt keine Seed-Phrase, d. h. niemand kann sie exportieren oder stehlen.";
 "onboarding_create_wallet_options_title" = "Schlüssel anonym generieren";
-"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:";
+"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:%@";
 "onboarding_done_body" = "Deine Karte oder Ring ist aktiviert und einsatzbereit";
 "onboarding_done_header" = "Erfolgreich!";
 "onboarding_done_wallet" = "Deine Wallet ist eingerichtet und einsatzbereit!";
@@ -948,6 +948,7 @@
 "onramp_legal" = "Durch die Nutzung der Onramp-Funktionalität stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "onramp_max_amount_restriction" = "Der Kaufbetrag sollte nicht höher sein als %@";
 "onramp_min_amount_restriction" = "Der zu kaufende Betrag muss mindestens %@ betragen";
+"onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "Keine verfügbaren Anbieter für diese Währung";
