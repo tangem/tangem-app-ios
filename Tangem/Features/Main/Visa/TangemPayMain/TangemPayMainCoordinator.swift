@@ -285,6 +285,16 @@ extension TangemPayMainCoordinator: TangemPayFreezeSheetRoutable {
     }
 }
 
+// MARK: - TangemPayCloseCardSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayCloseCardSheetRoutable {
+    func closeCloseCardSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
 // MARK: - TangemPayAddToAppPayGuideRoutable
 
 extension TangemPayMainCoordinator: TangemPayAddToAppPayGuideRoutable {
@@ -458,6 +468,22 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
                 VisaLogger.error("Failed to load reissue fee", error: error)
                 onError()
             }
+        }
+    }
+
+    func openTangemPayCloseCardSheet(
+        userWalletId: UserWalletId,
+        card: TangemPayCard,
+        onError: @escaping () -> Void
+    ) {
+        Task { @MainActor in
+            let viewModel = TangemPayCloseCardSheetViewModel(
+                userWalletId: userWalletId,
+                coordinator: self,
+                closeAction: { try await card.close() },
+                onError: onError
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
