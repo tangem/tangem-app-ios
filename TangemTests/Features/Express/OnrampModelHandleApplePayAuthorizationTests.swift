@@ -48,18 +48,34 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(outcome.lastErrors.isEmpty)
     }
 
-    /// Regression test for B1: in the widget-fallback branch the redirect navigation
-    /// (and its pending-transaction record) must be scheduled *before* PassKit is
-    /// told the payment failed, so the webview is queued onto main before the
-    /// PassKit sheet starts dismissing.
-    @Test("Widget fallback schedules redirect navigation before calling result.fail()")
-    func widgetFallbackOrdersRedirectBeforeFail() async {
+    /// Widget fallback now opens the KYC sheet (giving the user a chance to opt
+    /// out of the widget). Pending-tx + WebView fire only when the user taps
+    /// Verify, which calls back through the `onProceedToWidget` closure.
+    @Test("Widget fallback opens KYC sheet before calling result.fail()")
+    func widgetFallbackOpensSheetBeforeFail() async {
         let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
+        let router = StubOnrampModelRoutable(eventLog: eventLog)
         let model = makeModel(onrampManager: manager)
+        model.router = router
 
         _ = await runHandleAndAwaitResult(on: model)
 
-        #expect(eventLog.events == [.transactionDidSend, .resultHandler])
+        #expect(eventLog.events == [.kycSheetOpened, .resultHandler])
+        #expect(router.openKYCCallCount == 1)
+    }
+
+    @Test("Verify tap fires redirect → transactionDidSend recorded")
+    func verifyTapRecordsTransaction() async {
+        let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
+        let router = StubOnrampModelRoutable(eventLog: eventLog)
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+
+        _ = await runHandleAndAwaitResult(on: model)
+
+        await runOnMain { router.lastOnProceedToWidget?() }
+
+        #expect(eventLog.events.contains(.transactionDidSend))
     }
 
     @Test("Thrown error → result.fail(error) once with the wrapped error")
@@ -130,66 +146,69 @@ final class OnrampModelHandleApplePayAuthorizationTests {
 private enum RecordedEvent: Equatable {
     case transactionDidSend
     case resultHandler
+    case kycSheetOpened
 }
 
-private final class EventLog: @unchecked Sendable {
-    private let criticalSection = OSAllocatedUnfairLock()
-    private var _events: [RecordedEvent] = []
+private final class EventLog: Sendable {
+    private let state = OSAllocatedUnfairLock<[RecordedEvent]>(initialState: [])
 
     func append(_ event: RecordedEvent) {
-        criticalSection { _events.append(event) }
+        state.withLock { $0.append(event) }
     }
 
     var events: [RecordedEvent] {
-        criticalSection { _events }
+        state.withLock { $0 }
     }
 }
 
 // MARK: - ResultHandlerRecorder
 
-private final class ResultHandlerRecorder: @unchecked Sendable {
-    private let criticalSection = OSAllocatedUnfairLock()
+private struct ResultOutcome {
+    let callCount: Int
+    let lastStatus: PKPaymentAuthorizationStatus?
+    let lastErrors: [Error]
+}
+
+private final class ResultHandlerRecorder: Sendable {
+    private struct State {
+        var callCount: Int = 0
+        var lastStatus: PKPaymentAuthorizationStatus?
+        var lastErrors: [Error] = []
+        var onFirstCall: (() -> Void)?
+    }
+
+    private let state = OSAllocatedUnfairLock<State>(initialState: State())
     private let eventLog: EventLog
-    private var _callCount: Int = 0
-    private var _lastStatus: PKPaymentAuthorizationStatus?
-    private var _lastErrors: [Error] = []
-    private var _onFirstCall: (() -> Void)?
 
     init(eventLog: EventLog) {
         self.eventLog = eventLog
     }
 
     var onFirstCall: (() -> Void)? {
-        get { criticalSection { _onFirstCall } }
-        set { criticalSection { _onFirstCall = newValue } }
+        get { state.withLock { $0.onFirstCall } }
+        set { state.withLock { $0.onFirstCall = newValue } }
     }
 
     func record(_ result: PKPaymentAuthorizationResult) {
         eventLog.append(.resultHandler)
-        let onFirst: (() -> Void)? = criticalSection {
-            _callCount += 1
-            _lastStatus = result.status
-            _lastErrors = result.errors
-            return _callCount == 1 ? _onFirstCall : nil
+        let onFirst: (() -> Void)? = state.withLock { state in
+            state.callCount += 1
+            state.lastStatus = result.status
+            state.lastErrors = result.errors
+            return state.callCount == 1 ? state.onFirstCall : nil
         }
         onFirst?()
     }
 
     var snapshot: ResultOutcome {
-        criticalSection {
+        state.withLock { state in
             ResultOutcome(
-                callCount: _callCount,
-                lastStatus: _lastStatus,
-                lastErrors: _lastErrors
+                callCount: state.callCount,
+                lastStatus: state.lastStatus,
+                lastErrors: state.lastErrors
             )
         }
     }
-}
-
-private struct ResultOutcome {
-    let callCount: Int
-    let lastStatus: PKPaymentAuthorizationStatus?
-    let lastErrors: [Error]
 }
 
 // MARK: - StubOnrampManager
@@ -275,6 +294,37 @@ private final class StubOnrampPendingTransactionRepository: OnrampPendingTransac
     func hideSwapTransaction(with id: String) {}
 }
 
+private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
+    private struct State {
+        var openKYCCallCount: Int = 0
+        var lastOnProceedToWidget: (() -> Void)?
+    }
+
+    private let state = OSAllocatedUnfairLock<State>(initialState: State())
+    private let eventLog: EventLog
+
+    init(eventLog: EventLog) {
+        self.eventLog = eventLog
+    }
+
+    var openKYCCallCount: Int { state.withLock { $0.openKYCCallCount } }
+    var lastOnProceedToWidget: (() -> Void)? { state.withLock { $0.lastOnProceedToWidget } }
+
+    func openOnrampCountryBottomSheet(country: OnrampCountry) {}
+    func openOnrampCountrySelectorView() {}
+    func openOnrampRedirecting() {}
+    func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
+    func openFinishStep() {}
+
+    func openOnrampKYCVerification(provider: OnrampProvider, onProceedToWidget: @escaping () -> Void) {
+        eventLog.append(.kycSheetOpened)
+        state.withLock { state in
+            state.openKYCCallCount += 1
+            state.lastOnProceedToWidget = onProceedToWidget
+        }
+    }
+}
+
 private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     // SendBaseViewAnalyticsLogger
     func logSendBaseViewOpened() {}
@@ -336,7 +386,7 @@ private enum StubFixtures {
         OnrampApplePayResult(
             paymentToken: "token",
             userData: OnrampNativePaymentRequestItem.UserData(
-                email: nil,
+                email: "user@example.com",
                 firstName: nil,
                 lastName: nil,
                 billingAddress: nil
