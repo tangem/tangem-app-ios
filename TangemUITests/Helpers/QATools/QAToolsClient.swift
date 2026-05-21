@@ -28,12 +28,21 @@ final class QAToolsClient {
 
     func getWCURI(
         network: WCNetwork = .ethereum,
-        uriScheme: WCURIScheme = .tangem
+        uriScheme: WCURIScheme = .tangem,
+        dAppURL: String? = nil,
+        dAppName: String? = nil
     ) async throws -> String {
         var urlComponents = URLComponents(string: "\(baseURL)/wc_uri")!
-        urlComponents.queryItems = [
-            URLQueryItem(name: "network", value: network.rawValue),
-        ]
+        var queryItems = [URLQueryItem(name: "network", value: network.rawValue)]
+
+        if let dAppURL {
+            queryItems.append(URLQueryItem(name: "dappUrl", value: dAppURL))
+        }
+        if let dAppName {
+            queryItems.append(URLQueryItem(name: "dappName", value: dAppName))
+        }
+
+        urlComponents.queryItems = queryItems
 
         guard let url = urlComponents.url else {
             throw URLError(.badURL)
@@ -112,6 +121,8 @@ final class QAToolsClient {
     func getWCURISync(
         network: WCNetwork = .ethereum,
         uriScheme: WCURIScheme,
+        dAppURL: String? = nil,
+        dAppName: String? = nil,
         timeout: TimeInterval = .networkRequest
     ) -> String {
         let expectation = XCTestExpectation(description: "Get WC URI")
@@ -119,7 +130,12 @@ final class QAToolsClient {
 
         Task {
             do {
-                result = try await getWCURI(network: network, uriScheme: uriScheme)
+                result = try await getWCURI(
+                    network: network,
+                    uriScheme: uriScheme,
+                    dAppURL: dAppURL,
+                    dAppName: dAppName
+                )
                 print("Received deeplink: \(result)")
                 expectation.fulfill()
             } catch {

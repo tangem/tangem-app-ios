@@ -18,6 +18,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var priorityFeeOption = button(.priorityFeeOption)
     private lazy var swapTokensButton = button(.swapTokensButton)
     private lazy var confirmButton = button(.confirmButton)
+    private lazy var holdConfirmButton = otherElement(.confirmButton)
     private lazy var chooseSpeedTitle = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle]
     private lazy var closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
     private lazy var fromTokenSelector = app.buttons.matching(
@@ -237,6 +238,29 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         }
     }
 
+    /// Picks a token via the empty "Choose token" pill, expanding the hosting account group if collapsed.
+    @discardableResult
+    func chooseTokenFromEmptySelector(_ tokenName: String, accountHeaderLabelPrefix: String = "Main account") -> Self {
+        XCTContext.runActivity(named: "Choose token '\(tokenName)' via empty selector") { _ in
+            let emptyPill = app.buttons.matching(NSPredicate(format: "label == %@", "Choose token")).firstMatch
+            waitAndAssertTrue(emptyPill, "Empty 'Choose token' pill should exist")
+            emptyPill.waitAndTap()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            if !tokenButton.waitForExistence(timeout: .quick) {
+                let accountHeader = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", accountHeaderLabelPrefix)).firstMatch
+                XCTAssertTrue(
+                    accountHeader.waitForExistence(timeout: .robustUIUpdate),
+                    "Account header '\(accountHeaderLabelPrefix)' should be displayed in token selector"
+                )
+                accountHeader.waitAndTap()
+            }
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in token selector")
+            tokenButton.waitAndTap()
+            return self
+        }
+    }
+
     @discardableResult
     func waitToTokenDisplayed(tokenSymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate 'You receive' section displays token '\(tokenSymbol)'") { _ in
@@ -302,6 +326,39 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             closeButton.waitAndTap()
             return MarketsTokenDetailsScreen(app)
         }
+    }
+
+    @discardableResult
+    func tapConfirmButton() -> Self {
+        XCTContext.runActivity(named: "Tap Swap (confirm) button") { _ in
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            confirmButton.waitAndTap()
+        }
+        return self
+    }
+
+    /// Confirms the swap by tap (cold wallet) or press-and-hold (hot wallet); dismisses the number-pad first.
+    @discardableResult
+    func confirmSwap() -> Self {
+        XCTContext.runActivity(named: "Confirm swap (tap or hold)") { _ in
+            let hideKeyboardButton = app.buttons["Hide Keyboard"].firstMatch
+            if hideKeyboardButton.waitForExistence(timeout: .quick) {
+                hideKeyboardButton.tap()
+            }
+
+            let buttonReady = confirmButton.waitForExistence(timeout: .quick)
+            if buttonReady, confirmButton.isEnabled {
+                confirmButton.waitAndTap()
+                return
+            }
+            waitAndAssertTrue(
+                holdConfirmButton,
+                timeout: .networkRequest,
+                "Confirm button (regular or hold-to-confirm) should exist and be ready"
+            )
+            holdConfirmButton.press(forDuration: 4.0)
+        }
+        return self
     }
 
     @discardableResult
