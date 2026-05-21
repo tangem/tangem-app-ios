@@ -34,7 +34,7 @@ public final class TangemPayOperationGate {
 
     public func release(_ operation: Operation) {
         criticalSection {
-            inFlight.remove(operation)
+            _ = inFlight.remove(operation)
         }
     }
 
