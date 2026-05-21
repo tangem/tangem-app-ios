@@ -948,6 +948,7 @@
 "onramp_legal" = "By using onramp functionality, you agree with provider’s %1$@ and %2$@";
 "onramp_max_amount_restriction" = "The purchase amount should be no more than %@";
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
+"onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "No available providers for this currency";
