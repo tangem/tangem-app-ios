@@ -329,6 +329,155 @@ struct ExpressAPIMapper {
             externalTxURL: response.externalTxUrl
         )
     }
+
+    // MARK: - History
+
+    func mapToExchangeHistoryPage(response: ExpressDTO.Swap.History.Response) throws -> ExchangeHistoryPage {
+        let records = try response.data.map(mapToExchangeHistoryRecord(record:))
+        return ExchangeHistoryPage(
+            records: records,
+            nextCursor: response.nextCursor,
+            hasMore: response.hasMore
+        )
+    }
+
+    func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.History.Response) throws -> OnrampHistoryPage {
+        let records = try response.data.map(mapToOnrampHistoryRecord(record:))
+        return OnrampHistoryPage(
+            records: records,
+            nextCursor: response.nextCursor,
+            hasMore: response.hasMore
+        )
+    }
+
+    private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
+        try ExchangeHistoryRecord(
+            txId: record.txId,
+            status: record.status,
+            provider: mapToExpressHistoryProvider(provider: record.provider),
+            from: mapToExchangeHistoryAsset(asset: record.from),
+            to: mapToExchangeHistoryAsset(asset: record.to),
+            payinHash: record.payinHash,
+            payoutHash: record.payoutHash,
+            externalTxId: record.externalTxId,
+            externalTxUrl: record.externalTxUrl,
+            refund: record.refund.map(mapToExpressHistoryRefund(refund:)),
+            rateType: record.rateType,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt
+        )
+    }
+
+    private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
+        try OnrampHistoryRecord(
+            txId: record.txId,
+            status: record.status,
+            provider: mapToExpressHistoryProvider(provider: record.provider),
+            from: mapToOnrampHistoryFiatAsset(asset: record.from),
+            to: mapToOnrampHistoryAsset(asset: record.to),
+            payoutHash: record.payoutHash,
+            externalTxId: record.externalTxId,
+            externalTxUrl: record.externalTxUrl,
+            refund: record.refund.map(mapToOnrampHistoryRefund(refund:)),
+            rate: record.rate.map(mapToOnrampHistoryRate(rate:)),
+            failReason: record.failReason,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt
+        )
+    }
+
+    private func mapToExpressHistoryProvider(provider: ExpressDTO.HistoryProvider) -> ExpressHistoryProvider {
+        ExpressHistoryProvider(
+            id: provider.id,
+            name: provider.name,
+            iconURL: URL(string: provider.iconUrl),
+            providerURL: URL(string: provider.providerUrl)
+        )
+    }
+
+    private func mapToExchangeHistoryAsset(asset: ExpressDTO.Swap.History.AssetRef) throws -> ExchangeHistoryAsset {
+        guard let raw = Decimal(string: asset.rawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(asset.rawAmount)
+        }
+
+        let amount = raw / pow(10, asset.decimals)
+
+        return ExchangeHistoryAsset(
+            network: asset.network,
+            tokenId: asset.tokenId,
+            amount: amount,
+            decimals: asset.decimals,
+            isActual: asset.isActual
+        )
+    }
+
+    private func mapToExpressHistoryRefund(refund: ExpressDTO.Swap.History.Refund) throws -> ExpressHistoryRefund {
+        guard let raw = Decimal(string: refund.rawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(refund.rawAmount)
+        }
+
+        let amount = raw / pow(10, refund.decimals)
+
+        return ExpressHistoryRefund(
+            network: refund.network,
+            tokenId: refund.tokenId,
+            amount: amount,
+            decimals: refund.decimals,
+            hash: refund.hash
+        )
+    }
+
+    private func mapToOnrampHistoryFiatAsset(asset: ExpressDTO.Onramp.History.FiatAsset) throws -> OnrampHistoryFiatAsset {
+        // Fiat amount arrives as a decimal string (e.g. "100.00") — no decimals scaling needed.
+        guard let amount = Decimal(string: asset.amount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(asset.amount)
+        }
+
+        return OnrampHistoryFiatAsset(currencyCode: asset.currencyCode, amount: amount)
+    }
+
+    private func mapToOnrampHistoryAsset(asset: ExpressDTO.Onramp.History.AssetRef) throws -> OnrampHistoryAsset {
+        guard let expectedRaw = Decimal(string: asset.expectedRawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(asset.expectedRawAmount)
+        }
+
+        let expected = expectedRaw / pow(10, asset.decimals)
+
+        let actual: Decimal? = try asset.actualRawAmount.map {
+            guard let raw = Decimal(string: $0) else {
+                throw ExpressAPIMapperError.mapToDecimalError($0)
+            }
+            return raw / pow(10, asset.decimals)
+        }
+
+        return OnrampHistoryAsset(
+            network: asset.network,
+            tokenId: asset.tokenId,
+            expectedAmount: expected,
+            actualAmount: actual,
+            decimals: asset.decimals
+        )
+    }
+
+    private func mapToOnrampHistoryRefund(refund: ExpressDTO.Onramp.History.Refund) throws -> ExpressHistoryRefund {
+        guard let raw = Decimal(string: refund.rawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(refund.rawAmount)
+        }
+
+        let amount = raw / pow(10, refund.decimals)
+
+        return ExpressHistoryRefund(
+            network: refund.network,
+            tokenId: refund.tokenId,
+            amount: amount,
+            decimals: refund.decimals,
+            hash: refund.hash
+        )
+    }
+
+    private func mapToOnrampHistoryRate(rate: ExpressDTO.Onramp.History.Rate) -> OnrampHistoryRate {
+        OnrampHistoryRate(atCreate: rate.atCreate, atFinish: rate.atFinish)
+    }
 }
 
 enum ExpressAPIMapperError: LocalizedError {
