@@ -95,10 +95,17 @@ final class AppOverlaysManager {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { manager, activeSheet in
-                guard activeSheet == nil else { return }
-                manager.restoreMainWindowKeyboardIfNeeded()
+                manager.updateOverlayAccessibility(hasActiveSheet: activeSheet != nil)
+                if activeSheet == nil {
+                    manager.restoreMainWindowKeyboardIfNeeded()
+                }
             }
             .store(in: &cancellables)
+    }
+
+    /// Bridges the overlay window into Maestro's accessibility snapshot.
+    private func updateOverlayAccessibility(hasActiveSheet: Bool) {
+        overlayWindow?.rootViewController?.view.accessibilityViewIsModal = hasActiveSheet
     }
 
     private func bindAppTheme() {

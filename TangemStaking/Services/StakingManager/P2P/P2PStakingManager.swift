@@ -49,7 +49,7 @@ extension P2PStakingManager: StakingManager {
         do {
             let yield = try await yieldInfoProvider.yieldInfo(for: integrationId)
 
-            guard !yield.preferredTargets.isEmpty else {
+            guard !yield.targets.isEmpty else {
                 // Empty vaults should show as temporarily unavailable, not disabled
                 updateState(.temporaryUnavailable(yield, cached: stateRepository.state()))
                 return
@@ -57,10 +57,13 @@ extension P2PStakingManager: StakingManager {
 
             let balances = try await apiProvider.balances(
                 walletAddress: wallet.address,
-                vaults: yield.preferredTargets.map(\.address)
+                vaults: yield.targets.map(\.address)
             )
             let state = state(balances: balances, yield: yield)
             updateState(state)
+        } catch is CancellationError {
+            // Ignored intentionally
+            return
         } catch {
             updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
@@ -103,7 +106,10 @@ extension P2PStakingManager: StakingManager {
     func transaction(action: StakingAction) async throws -> StakingTransactionAction {
         let newTransaction = try await transactionInfo(action: action)
 
-        if newTransaction.fee > previousFee ?? .zero {
+        let baseline = previousFee ?? .zero
+        previousFee = newTransaction.fee
+
+        if newTransaction.fee > baseline {
             throw P2PStakingError.feeIncreased(newFee: newTransaction.fee)
         }
 
@@ -136,20 +142,20 @@ private extension P2PStakingManager {
             return .notEnabled
         }
 
-        // Empty validators or unavailable yield means temporarily unavailable
-        guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
-            return .temporaryUnavailable(yield, cached: stateRepository.state())
-        }
-
         let stakingBalances = balances?.map { balance in
             mapToStakingBalance(balance: balance, yield: yield)
         }
 
-        guard let stakingBalances, !stakingBalances.isEmpty else {
-            return .availableToStake(yield)
+        // Preserve .staked UI for users with existing positions even when no vault accepts new stakes.
+        if let stakingBalances, !stakingBalances.isEmpty {
+            return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: yield.isAvailable))
         }
 
-        return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: true))
+        guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
+            return .temporaryUnavailable(yield, cached: stateRepository.state())
+        }
+
+        return .availableToStake(yield)
     }
 
     func transactionInfo(action: StakingAction) async throws -> StakingTransactionInfo {
