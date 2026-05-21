@@ -277,6 +277,7 @@
 "common_now" = "Ahora";
 "common_ok" = "OK";
 "common_open_in_browser" = "Abrir en el navegador";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "o";
 "common_origin_card" = "Tarjeta principal";
 "common_origin_ring" = "Anillo primario";
@@ -987,6 +988,8 @@
 "organize_tokens_title" = "Organizar tokens";
 "organize_tokens_ungroup" = "Desagrupar";
 "provider_name_support" = "Soporte de %@";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
 "push_notification_settings_price_alerts_subtitle" = "Get notified about price changes for top market coins.";
@@ -1350,7 +1353,7 @@
 "swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Tasa Fija";
 "swap_give_permission_fee_footer" = "La red cobrará una tasa de aprobación del token para verificar que usted autoriza el uso de su token para el intercambio.";
-"swap_in_progress" = "Swap in progress";
+"swap_in_progress" = "Intercambio en curso";
 "swap_search_suggestion_hint" = "¿Busca algo más?\n¡Intente buscar o explorar otra criptomoneda!";
 "swap_search_tooltip_description" = "Busque cualquier token, incluso si aún no está en su lista.";
 "swap_search_tooltip_title" = "Utilice la búsqueda para encontrar lo que necesite";
@@ -1384,7 +1387,7 @@
 "swapping_approve_information_title" = "Aprobar";
 "swapping_fee_estimation_error_text" = "Error en la estimación de la tarifa. Envíe sus comentarios al servicio de asistencia.";
 "swapping_from_account_title" = "You send from";
-"swapping_from_title_v2" = "You send";
+"swapping_from_title_v2" = "Usted envía";
 "swapping_from_title" = "Usted intercambia";
 "swapping_high_price_impact_description" = "Hacer un intercambio de esta cantidad del token seleccionado causará un impacto significativo en el precio y reducirá su resultado.";
 "swapping_high_price_impact_text" = "Es posible que reciba una cantidad significativamente menor debido a la baja liquidez. Pruebe con una cantidad menor o con otro proveedor.";
@@ -1395,7 +1398,7 @@
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
 "swapping_swap_action_in_progress" = "Intercambiando...";
 "swapping_swap_action" = "Intercambiar";
-"swapping_to_account_title" = "You receive to";
+"swapping_to_account_title" = "Usted recibe";
 "swapping_to_title" = "Usted recibe";
 "swapping_token_list_title" = "Elige token";
 "swapping_token_not_available" = "no disponible";
@@ -2164,4 +2167,6 @@
 "yield_module_unable_to_cover_fee_title" = "No se puede cubrir la tarifa %@";
 "yield_module_unavailable_subtitle" = "El Modo de Rendimiento no está disponible en este momento. Vuelva a intentarlo más tarde.";
 "yield_module_unavailable_title" = "Modo de rendimiento no disponible";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "No se puede cargar el gráfico...";

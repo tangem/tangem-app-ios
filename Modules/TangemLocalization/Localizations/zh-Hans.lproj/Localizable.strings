@@ -277,6 +277,7 @@
 "common_now" = "现在";
 "common_ok" = "好的";
 "common_open_in_browser" = "在浏览器中打开";
+"common_open_settings_button_title" = "Open Settings";
 "common_or" = "或者";
 "common_origin_card" = "主卡";
 "common_origin_ring" = "主指环";
@@ -987,6 +988,8 @@
 "organize_tokens_title" = "整理代币";
 "organize_tokens_ungroup" = "取消分组";
 "provider_name_support" = "%@ 支持";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "产品资讯、独家优惠和活动提醒。";
 "push_notification_settings_offers_updates_title" = "优惠与更新";
 "push_notification_settings_price_alerts_subtitle" = "获取热门市场加密货币价格变动的通知。";
@@ -2164,4 +2167,6 @@
 "yield_module_unable_to_cover_fee_title" = "无法覆盖 %@ 费用";
 "yield_module_unavailable_subtitle" = "收益模式暂时不可用。请稍后再试。";
 "yield_module_unavailable_title" = "收益模式不可用";
+"yield_promo_completed" = "Bonus payout eligibility is assessed";
+"yield_promo_left_title" = "left to unlock your bonus";
 "yield_supply_chart_loading_error" = "无法加载图表...";
