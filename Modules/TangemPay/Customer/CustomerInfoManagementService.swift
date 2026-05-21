@@ -18,6 +18,7 @@ public protocol CustomerInfoManagementService: AnyObject {
     func getCardDetails(cardId: String, sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayCardDetailsResponse
     func freeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse
     func unfreeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse
+    func closeCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayCloseCardResponse
     func getPin(cardId: String, sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayGetPinResponse
     func setPin(cardId: String, pin: String, sessionId: String, iv: String) async throws(TangemPayAPIServiceError) -> TangemPaySetPinResponse
 
@@ -118,6 +119,10 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
 
     public func unfreeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse {
         try await request(for: .unfreeze(cardId: cardId))
+    }
+
+    public func closeCard(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayCloseCardResponse {
+        try await request(for: .closeCard(cardId: cardId))
     }
 
     public func setPin(cardId: String, pin: String, sessionId: String, iv: String) async throws(TangemPayAPIServiceError) -> TangemPaySetPinResponse {
