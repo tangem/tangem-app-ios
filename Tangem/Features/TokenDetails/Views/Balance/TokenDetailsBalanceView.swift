@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsBalanceView: View {
     @ObservedObject var viewModel: TokenDetailsBalanceViewModel
@@ -70,10 +71,23 @@ private extension TokenDetailsBalanceView {
         .contentShape(.rect)
         .onTapGesture(perform: viewModel.onBalancePickerTap)
         .allowsHitTesting(viewModel.canChangeBalanceMode)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(viewModel.canChangeBalanceMode ? .isButton : [])
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.balanceModePicker)
     }
 
     var fiatBalance: some View {
         balanceState(viewModel.fiatBalanceState, skeletonSize: fiatBalanceSkeletonSize)
+            .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
+    }
+
+    var fiatBalanceAccessibilityIdentifier: String {
+        switch viewModel.balanceMode {
+        case .total:
+            return TokenAccessibilityIdentifiers.totalBalance
+        case .available:
+            return TokenAccessibilityIdentifiers.availableBalance
+        }
     }
 
     var cryptoBalance: some View {

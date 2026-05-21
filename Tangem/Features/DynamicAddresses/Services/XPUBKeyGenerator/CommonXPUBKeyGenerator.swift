@@ -84,7 +84,10 @@ private extension CommonXPUBKeyGenerator {
     }
 
     func masterKey() throws -> KeyInfo {
-        guard let masterKey = keysRepository.keys.first(where: { $0.curve == tokenItem.blockchain.curve }) else {
+        // Use the last key for the selected curve because there may be multiple `KeyInfo`
+        // entries with the same curve. The XPUB public key factories use `reduce(into:)`
+        // and keep the last `KeyInfo` for a given curve, so `last(where:)` matches that behavior.
+        guard let masterKey = keysRepository.keys.last(where: { $0.curve == tokenItem.blockchain.curve }) else {
             throw Error.masterKeyNotFound
         }
 
