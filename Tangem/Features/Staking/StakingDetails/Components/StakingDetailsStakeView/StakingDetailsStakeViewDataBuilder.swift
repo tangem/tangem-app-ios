@@ -59,7 +59,7 @@ class StakingDetailsStakeViewDataBuilder {
                     Assets.stakingIconFilled,
                     colors: .init(foreground: Colors.Icon.inactive, background: Colors.Icon.primary1)
                 )
-                : .image(url: target?.iconURL)
+                : .image(StakingTargetIconViewData(target?.image))
         case .locked:
             .icon(
                 inProgress ? Assets.stakingUnlockingIcon : Assets.stakingLockIcon,
