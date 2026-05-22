@@ -20,13 +20,7 @@ public actor InMemoryStoryDataCache: StoryDataCache {
 
     public func store(story: TangemStory) {
         cache[story.id] = story
-
-        switch story {
-        case .swap(let data):
-            cacheSwapStoryImagesInKingfisher(data)
-        case .swapLegacy(let data):
-            cacheSwapStoryImagesInKingfisher(data)
-        }
+        cacheStoryImagesInKingfisher(story.pages)
     }
 
     public func retrieveStory(with storyId: TangemStory.ID) -> TangemStory? {
@@ -35,22 +29,15 @@ public actor InMemoryStoryDataCache: StoryDataCache {
 
     public func removeStory(with storyId: TangemStory.ID) async {
         guard let storyToClean = cache.removeValue(forKey: storyId) else { return }
-
-        switch storyToClean {
-        case .swap(let data):
-            removeSwapStoryImagesFromKingfisher(data)
-        case .swapLegacy(let data):
-            removeSwapStoryImagesFromKingfisher(data)
-        }
+        removeStoryImagesFromKingfisher(storyToClean.pages)
     }
 
     // MARK: - Kingfisher
 
-    private func cacheSwapStoryImagesInKingfisher(_ swapStoryData: some SwapStoryDataPagesContainer) {
-        for pageKeyPath in swapStoryData.pagesKeyPaths {
-            guard
-                let backgroundImage = swapStoryData[keyPath: pageKeyPath].image,
-                let uiImage = UIImage(data: backgroundImage.rawData)
+    private func cacheStoryImagesInKingfisher(_ pages: [TangemStory.Page]) {
+        for page in pages {
+            guard let backgroundImage = page.image,
+                  let uiImage = UIImage(data: backgroundImage.rawData)
             else {
                 continue
             }
@@ -59,9 +46,9 @@ public actor InMemoryStoryDataCache: StoryDataCache {
         }
     }
 
-    private func removeSwapStoryImagesFromKingfisher(_ swapStoryData: some SwapStoryDataPagesContainer) {
-        for pageKeyPath in swapStoryData.pagesKeyPaths {
-            guard let backgroundImage = swapStoryData[keyPath: pageKeyPath].image else { continue }
+    private func removeStoryImagesFromKingfisher(_ pages: [TangemStory.Page]) {
+        for page in pages {
+            guard let backgroundImage = page.image else { continue }
             kingfisherCache.removeImage(forKey: backgroundImage.url.absoluteString)
         }
     }

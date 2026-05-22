@@ -13,11 +13,12 @@ import TangemUI
 struct EarnDeeplinkContainerView: View {
     @StateObject private var coordinator: EarnDeeplinkCoordinator
 
-    init(earnType: EarnFilterType?, networkId: String?) {
+    init(earnType: EarnFilterType?, networkId: String?, dismissAction: @escaping () -> Void) {
         _coordinator = StateObject(
             wrappedValue: EarnDeeplinkCoordinator(
                 earnType: earnType,
-                networkId: networkId
+                networkId: networkId,
+                dismissAction: dismissAction
             )
         )
     }

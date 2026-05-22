@@ -57,9 +57,11 @@ enum NotificationButtonActionType: Identifiable {
     case closeMobileUpgrade
     case allowPushPermissionRequest
     case postponePushPermissionRequest
+    case openPushNotificationsSystemSettings
     case activate
     case givePermission
     case openManageTokensAfterWalletSuccessImport
+    case openYieldBoostPromo(buttonTitle: String)
 
     var id: Int {
         switch self {
@@ -93,9 +95,11 @@ enum NotificationButtonActionType: Identifiable {
         case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
+        case .openPushNotificationsSystemSettings: "openPushNotificationsSystemSettings".hashValue
         case .activate: "activate".hashValue
         case .givePermission: "givePermission".hashValue
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
+        case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
         }
     }
 
@@ -153,6 +157,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonEnable
         case .postponePushPermissionRequest:
             return Localization.commonLater
+        case .openPushNotificationsSystemSettings:
+            return Localization.commonOpenSettingsButtonTitle
         case .activate:
             return Localization.commonActivate
         case .givePermission:
@@ -163,6 +169,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonLearnMore
         case .openManageTokensAfterWalletSuccessImport:
             return Localization.mainManageTokens
+        case .openYieldBoostPromo(let buttonTitle):
+            return buttonTitle
         }
     }
 
@@ -198,11 +206,13 @@ enum NotificationButtonActionType: Identifiable {
              .closeMobileUpgrade,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
+             .openPushNotificationsSystemSettings,
              .activate,
              .givePermission,
              .openCloreMigration,
              .openDynamicAddressesEnter,
-             .openManageTokensAfterWalletSuccessImport:
+             .openManageTokensAfterWalletSuccessImport,
+             .openYieldBoostPromo:
             return nil
         }
     }
@@ -216,7 +226,8 @@ enum NotificationButtonActionType: Identifiable {
              .renewTangemPaySession,
              .openMobileUpgrade,
              .allowPushPermissionRequest,
-             .activate:
+             .activate,
+             .openYieldBoostPromo:
             return .primary
         case .backupCard,
              .openFeeCurrency,
@@ -236,6 +247,7 @@ enum NotificationButtonActionType: Identifiable {
              .swap,
              .addTokenTrustline,
              .postponePushPermissionRequest,
+             .openPushNotificationsSystemSettings,
              .givePermission,
              .openCloreMigration,
              .openDynamicAddressesEnter,
