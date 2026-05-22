@@ -15,7 +15,7 @@ class CommonTransactionHistoryService {
     private let tokenItem: TokenItem
     private let address: String
 
-    private let transactionHistoryProvider: TransactionHistoryProvider
+    private let transactionHistoryProvider: BlockchainSdk.TransactionHistoryProvider
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private let pageSize: Int = 100
@@ -25,7 +25,7 @@ class CommonTransactionHistoryService {
     init(
         tokenItem: TokenItem,
         address: String,
-        transactionHistoryProvider: TransactionHistoryProvider
+        transactionHistoryProvider: BlockchainSdk.TransactionHistoryProvider
     ) {
         self.tokenItem = tokenItem
         self.address = address
