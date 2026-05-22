@@ -20,7 +20,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
         /// push status should be re-synced with the backend.
         case syncRemoteStatusRequired
         /// The app returned to foreground while the token list is ready — the local
-        /// push status should be recalculated.
+        /// push status should be recalculated with the current system authorization state.
         case updateStatusRequired
     }
 
@@ -31,13 +31,22 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private let eventsSubject = PassthroughSubject<Event, Never>()
     private var bag: Set<AnyCancellable> = []
 
-    init(accountModelsManager: AccountModelsManager) {
-        bind(accountModelsManager: accountModelsManager)
+    init(
+        accountModelsManager: AccountModelsManager,
+        permissionService: PushNotificationsPermissionService
+    ) {
+        bind(
+            accountModelsManager: accountModelsManager,
+            permissionService: permissionService
+        )
     }
 
     // MARK: - Private
 
-    private func bind(accountModelsManager: AccountModelsManager) {
+    private func bind(
+        accountModelsManager: AccountModelsManager,
+        permissionService: PushNotificationsPermissionService
+    ) {
         let isUserTokenListReadyPublisher = accountModelsManager
             .cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
@@ -79,11 +88,11 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        NotificationCenter.default
-            .publisher(for: UIApplication.willEnterForegroundNotification)
+        permissionService.isAuthorizedPublisher
             .combineLatest(isUserTokenListReadyPublisher)
+            .dropFirst()
             .receiveOnMain()
-            .map { _ in Event.updateStatusRequired }
+            .map { _, _ in Event.updateStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
     }

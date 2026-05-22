@@ -1396,6 +1396,10 @@
 "swapping_insufficient_funds" = "Fundos insuficientes";
 "swapping_permission_header" = "Conceder permissão";
 "swapping_permit_and_swap" = "Permissão e troca";
+"swapping_rate_experience_title" = "Rate your experience with provider";
+"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_submit" = "Send feedback";
+"swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "Trocar...";
 "swapping_swap_action" = "Trocar";
 "swapping_to_account_title" = "Você recebe para";
@@ -1580,7 +1584,7 @@
 "tangempay_status_deactivated" = "Cartão desativado";
 "tangempay_status_replacing" = "Substituindo seu cartão";
 "tangempay_sync_needed_restore_access" = "Restaurar acesso";
-"tangempay_sync_needed" = "Sessão expirada";
+"tangempay_sync_needed" = "Tangem Pay sessão expirada";
 "tangempay_tangem_visa_card" = "Use USDC para pagamentos do dia a dia.";
 "tangempay_temporarily_unavailable" = "O serviço Tangem Pay está temporariamente inacessível.";
 "tangempay_title" = "Tangem Pay";
@@ -2060,6 +2064,11 @@
 "xtz_withdrawal_message_ignore" = "Não, envie tudo";
 "xtz_withdrawal_message_reduce" = "Reduzir por %@ XTZ";
 "xtz_withdrawal_message_warning" = "Para evitar pagar uma comissão maior na próxima vez que recarregar sua carteira, reduza o valor em %@ XTZ";
+"yield_apy_boost_banner_button_title" = "Explore Yield mode";
+"yield_apy_boost_banner_subtitle" = "First time activation bonus!";
+"yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
+"yield_apy_boost_banner_title" = "Special offer for Yield mode";
+"yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
 "yield_apy_boost_story_first_subtitle" = "Ative o Modo de Rendimento pela primeira vez e obtenha até 3 vezes mais rendimento nos seus primeiros 30 dias.";
 "yield_apy_boost_story_first_title" = "Bônus de APR no primeiro mês";
 "yield_apy_boost_story_fourth_subtitle" = "Você recebe rendimento de mercado + bônus. O bônus é pago uma única vez em USDT ou USDC dentro de 14 dias após o término do período de 30 dias. Disponível enquanto durar o orçamento promocional. Aplicam-se os termos e condições.";

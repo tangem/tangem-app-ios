@@ -114,10 +114,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         case .fixed: .fixed
         }
 
+        let fromAddress = item.dexFromAddress
+
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
             quoteId: item.quoteId,
-            fromAddress: item.source.address,
+            fromAddress: fromAddress,
             fromContractAddress: item.source.currency.contractAddress,
             fromNetwork: item.source.currency.network,
             toContractAddress: item.destination.currency.contractAddress,
@@ -265,13 +267,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
                     lastName: item.userData.lastName,
                     billingAddress: item.userData.billingAddress.map { address in
                         .init(
-                            street: address.street,
                             city: address.city,
-                            subAdministrativeArea: address.subAdministrativeArea,
                             state: address.state,
                             postalCode: address.postalCode,
-                            country: address.country,
-                            isoCountryCode: address.isoCountryCode
+                            country: address.country
                         )
                     }
                 )
