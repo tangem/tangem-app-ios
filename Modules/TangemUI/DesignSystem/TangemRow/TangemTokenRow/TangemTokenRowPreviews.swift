@@ -59,7 +59,8 @@ public struct TangemTokenRowShowcase: View {
     @State private var cryptoFailed = false
     @State private var hasPriceInfo = true
     @State private var priceChangeType: PriceChangeView.ChangeType = .positive
-    @State private var hasCompactPrice = true
+    @State private var hasCompactSubtitle = true
+    @State private var hasCompactTrailingIcon = false
     @State private var rewardsActive = true
     @State private var rewardsUpdating = false
     @State private var rowDynamicTypeSize: DynamicTypeSize = .large
@@ -222,7 +223,8 @@ public struct TangemTokenRowShowcase: View {
             Text("Compact State")
                 .font(.headline)
 
-            Toggle("Show Price", isOn: $hasCompactPrice)
+            Toggle("Show Subtitle", isOn: $hasCompactSubtitle)
+            Toggle("Trailing Drag Handle", isOn: $hasCompactTrailingIcon)
         }
     }
 
@@ -282,7 +284,10 @@ public struct TangemTokenRowShowcase: View {
         case .error:
             .error(message: "Network error")
         case .compact:
-            .compact(price: hasCompactPrice ? "$45,000.00" : nil)
+            .compact(
+                subtitle: hasCompactSubtitle ? .loaded(text: "$45,000.00") : .empty,
+                trailingIcon: hasCompactTrailingIcon ? Assets.OrganizeTokens.itemDragAndDropIcon : nil
+            )
         }
     }
 
@@ -522,7 +527,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Dogecoin",
                     badge: nil,
-                    content: .compact(price: "$0.12"),
+                    content: .compact(subtitle: .loaded(text: "$0.12"), trailingIcon: nil),
                     hasMonochromeIcon: false
                 )
             )
@@ -543,7 +548,7 @@ private extension DynamicTypeSize {
                     ),
                     name: "Custom Token",
                     badge: nil,
-                    content: .compact(price: nil),
+                    content: .compact(subtitle: .empty, trailingIcon: Assets.OrganizeTokens.itemDragAndDropIcon),
                     hasMonochromeIcon: false
                 )
             )
