@@ -13,10 +13,6 @@ final class ShareActivitiesViewModel: ObservableObject {
 
     @MainActor
     @Published var activityItems: [Any]?
-
-    // MARK: - Init
-
-    init() {}
 }
 
 // MARK: - ShareActivitiesPresenter
