@@ -40,7 +40,7 @@ class StakingTargetsCompactViewModel: ObservableObject, Identifiable {
         StakingTargetCompactViewData(
             address: target.address,
             name: target.name,
-            imageURL: target.iconURL,
+            image: StakingTargetIconViewData(target.image),
             aprFormatted: rewardRateFormatter.format(target: target, type: .short)
         )
     }
