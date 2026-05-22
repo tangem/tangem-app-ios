@@ -1544,7 +1544,8 @@ extension SwapModel: NotificationTapDelegate {
              .openCloreMigration,
              .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport,
-             .renewTangemPaySession:
+             .renewTangemPaySession,
+             .openPushNotificationsSystemSettings:
             assertionFailure("Notification tap not handled")
         }
     }
