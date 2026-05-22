@@ -28,6 +28,7 @@ final class CommonDeeplinkPresenter {
 // MARK: - Deeplink Presenter
 
 extension CommonDeeplinkPresenter: DeeplinkPresenter {
+    @MainActor
     public func present(deepLink: DeepLinkDestination) {
         guard let viewController = constructViewControllerForDeepLink(deepLink) else {
             return
@@ -146,7 +147,14 @@ private extension CommonDeeplinkPresenter {
 private extension CommonDeeplinkPresenter {
     private func constructPromoViewController(promoCode: String, refcode: String?, campaign: String?) -> UIViewController {
         let viewController = makeDeeplinkViewController(
-            view: { PromocodeActivationView(promoCode: promoCode, refcode: refcode, campaign: campaign) },
+            view: {
+                PromocodeActivationView(
+                    promoCode: promoCode,
+                    refcode: refcode,
+                    campaign: campaign,
+                    dismissAction: { UIApplication.dismissTop(animated: false) }
+                )
+            },
             embedInNavigationStack: false
         )
 
@@ -266,7 +274,13 @@ private extension CommonDeeplinkPresenter {
 
     private func constructEarnViewController(earnType: EarnFilterType?, networkId: String?) -> UIViewController {
         return makeDeeplinkViewController(
-            view: { EarnDeeplinkContainerView(earnType: earnType, networkId: networkId) },
+            view: {
+                EarnDeeplinkContainerView(
+                    earnType: earnType,
+                    networkId: networkId,
+                    dismissAction: { UIApplication.dismissTop() }
+                )
+            },
             embedInNavigationStack: false
         )
     }
@@ -363,7 +377,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: {
-                NewsDeeplinkContainerView(newsId: newsId)
+                NewsDeeplinkContainerView(newsId: newsId, dismissAction: { UIApplication.dismissTop() })
                     .environment(\.mainWindowSize, windowSize)
             },
             embedInNavigationStack: true
