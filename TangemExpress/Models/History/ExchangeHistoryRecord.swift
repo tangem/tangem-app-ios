@@ -22,34 +22,4 @@ public struct ExchangeHistoryRecord: Hashable {
     public let rateType: ExpressProviderRateType
     public let createdAt: Date
     public let updatedAt: Date
-
-    public init(
-        txId: String,
-        status: ExpressTransactionStatus,
-        provider: ExpressHistoryProvider,
-        from: ExchangeHistoryAsset,
-        to: ExchangeHistoryAsset,
-        payinHash: String?,
-        payoutHash: String?,
-        externalTxId: String?,
-        externalTxUrl: String?,
-        refund: ExpressHistoryRefund?,
-        rateType: ExpressProviderRateType,
-        createdAt: Date,
-        updatedAt: Date
-    ) {
-        self.txId = txId
-        self.status = status
-        self.provider = provider
-        self.from = from
-        self.to = to
-        self.payinHash = payinHash
-        self.payoutHash = payoutHash
-        self.externalTxId = externalTxId
-        self.externalTxUrl = externalTxUrl
-        self.refund = refund
-        self.rateType = rateType
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-    }
 }

@@ -16,12 +16,4 @@ public struct ExchangeHistoryAsset: Hashable {
     /// Only meaningful on the `to` side of a swap. `true` — finalised amount,
     /// `false`/`nil` — estimate that may still change.
     public let isActual: Bool?
-
-    public init(network: String, tokenId: String?, amount: Decimal, decimals: Int, isActual: Bool?) {
-        self.network = network
-        self.tokenId = tokenId
-        self.amount = amount
-        self.decimals = decimals
-        self.isActual = isActual
-    }
 }
