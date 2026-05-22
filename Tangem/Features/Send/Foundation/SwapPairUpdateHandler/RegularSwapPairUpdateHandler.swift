@@ -20,44 +20,22 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressPairsRepository = expressPairsRepository
     }
 
-    func handlePairChange(
-        pair: ExpressManagerSwappingPair,
-        source: SendSwapableToken,
-        destination: SendReceiveToken,
-        sourceAmount: Decimal?,
-        isFullRefresh: Bool
+    func updatePair(
+        source: any SendSwapableToken,
+        destination: any SendReceiveToken,
+        selectedAmountType: ExpressAmountType?
     ) async throws -> SwapPairUpdateResult {
         if FeatureProvider.isAvailable(.swapPipelineV2) {
             let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 
             if !isPairCached {
-                try await expressPairsRepository.updatePairs(
-                    for: source.currency,
-                    userWalletInfo: source.userWalletInfo
-                )
+                try await expressPairsRepository.updatePairs(for: source.currency, userWalletInfo: source.userWalletInfo)
             }
         }
 
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
         let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
-
-        guard let sourceAmount else {
-            // No source amount — clear stale receive amount and return pair result
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
-        }
-
-        let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: .from(sourceAmount))
-
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate
-        if let quote = result.selected?.getState().quote {
-            amountUpdate = .setReceiveAmount(
-                crypto: quote.expectAmount,
-                currencyId: destination.tokenItem.currencyId
-            )
-        } else {
-            amountUpdate = .clearReceiveAmount
-        }
-
-        return SwapPairUpdateResult(expressResult: result, amountUpdate: amountUpdate)
+        return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
     }
 }

@@ -20,7 +20,11 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
         self.mapper = mapper
     }
 
-    func makeExpressProviderManager(provider: ExpressProvider, pair: ExpressManagerSwappingPair) -> ExpressProviderManager? {
+    func makeExpressProviderManager(
+        provider: ExpressProvider,
+        pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType
+    ) throws -> ExpressAvailableProvider {
         switch provider.type {
         case .dex, .dexBridge, .cex:
             let context = ExpressProviderFlowContext(
@@ -30,12 +34,15 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
                 expressAPIProvider: expressAPIProvider,
                 mapper: mapper
             )
-            return CommonExpressProviderManager(
+
+            let manager = CommonExpressProviderManager(
                 context: context,
                 flowTypeResolver: CommonExpressFlowTypeResolver()
             )
+
+            return ExpressAvailableProvider(context: context, manager: manager, rateType: rateType)
         case .onramp, .unknown:
-            return nil
+            throw ExpressManagerError.unsupportedProviderType
         }
     }
 }

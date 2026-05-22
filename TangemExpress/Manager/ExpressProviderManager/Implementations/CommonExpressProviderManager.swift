@@ -44,17 +44,19 @@ final class CommonExpressProviderManager {
 // MARK: - ExpressProviderManager
 
 extension CommonExpressProviderManager: ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair { context.pair }
-    var feeProvider: any ExpressFeeProvider { context.expressFeeProvider }
-
     func getState() -> ExpressProviderManagerState {
         _state { $0 }
     }
 
+    func reset() {
+        update(state: .idle)
+    }
+
     func update(request: ExpressManagerSwappingPairRequest) async {
+        ExpressLogger.info(self, "Start updating state with request - \(request)")
         let state = await getState(request: request)
-        ExpressLogger.info(self, "Update to \(state)")
-        _state { $0 = state }
+
+        update(state: state)
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
@@ -80,26 +82,35 @@ extension CommonExpressProviderManager: ExpressProviderManager {
 // MARK: - Private
 
 private extension CommonExpressProviderManager {
+    func update(state: ExpressProviderManagerState) {
+        ExpressLogger.info(self, "Update state to \(state)")
+        _state { $0 = state }
+    }
+
     /// Fetches a quote, resolves the flow type, and delegates to the appropriate helper.
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
             let quote = try await fetchQuote(request: request)
             request.quotesLoadingPerformanceTracker?.fulfill(hasError: false)
 
+            try Task.checkCancellation()
             let flowType = flowTypeResolver.resolveFlowType(quote: quote, provider: context.provider)
 
-            switch flowType {
-            case .send:
-                return await cexHelper.processAfterQuote(quote: quote, request: request)
-            case .swap:
-                return await dexHelper.processAfterQuote(quote: quote, request: request)
+            let state: ExpressProviderManagerState = switch flowType {
+            case .send: await cexHelper.processAfterQuote(quote: quote, request: request)
+            case .swap: await dexHelper.processAfterQuote(quote: quote, request: request)
             }
+
+            try Task.checkCancellation()
+            return state
+
         } catch let error as ExpressAPIError {
             request.quotesLoadingPerformanceTracker?.fulfill(hasError: true)
             let currencySymbol = context.pair.currencySymbol(for: request.amountType)
             return .mapError(error, currencySymbol: currencySymbol)
         } catch let error as CancellationError {
-            // Skip fulfilling the performance tracker: it ends the trace with `.unspecified` on deinit
+            // Don't fulfill again here: if cancellation fires after `fetchQuote`, the success
+            // fulfill above has already run. Otherwise the trace closes on tracker `deinit`.
             return .error(error, quote: .none)
         } catch {
             request.quotesLoadingPerformanceTracker?.fulfill(hasError: true)
@@ -133,6 +144,6 @@ private extension CommonExpressProviderManager {
 
 extension CommonExpressProviderManager: CustomStringConvertible {
     var description: String {
-        objectDescription(self)
+        objectDescription(self, userInfo: ["provider": context.provider.name])
     }
 }
