@@ -42,7 +42,6 @@ final class UserTokensPushNotificationsUpdateTrigger {
         notificationPreferencesProvider: NotificationPreferencesProvider? = nil,
         permissionService: PushNotificationsPermissionService
     ) {
-
         self.userWalletId = userWalletId
         bind(
             accountModelsManager: accountModelsManager,
@@ -103,7 +102,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .combineLatest(isUserTokenListReadyPublisher)
             .dropFirst()
             .receiveOnMain()
-            .map { isAuthorized, _ in Event.updateStatusRequired(isAuthorized: isAuthorized) }
+            .map { isAuthorized, _ in Event.updateStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 

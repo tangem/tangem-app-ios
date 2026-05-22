@@ -40,7 +40,8 @@ final class CommonUserTokensPushNotificationsManager {
     init(
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
-        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
+        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing,
+        notificationPreferencesProvider: NotificationPreferencesProvider
     ) {
         self.userWalletId = userWalletId
         self.accountModelsManager = accountModelsManager
