@@ -13,60 +13,55 @@ import TangemUI
 final class NotificationBannerItemsProvider {
     @Published private(set) var items: [NotificationBannerItem] = []
 
-    private var bag = Set<AnyCancellable>()
+    private let bannerMapper = MultiWalletNotificationBannerMapper()
 
     init(
         userWalletNotificationManager: NotificationManager,
         tokensNotificationManager: NotificationManager,
         tangemPayNotificationManager: NotificationManager,
-        getTangemPayBannerNotificationManager: NotificationManager
+        getTangemPayBannerNotificationManager: NotificationManager,
+        yieldApyBoostBannerNotificationManager: NotificationManager
     ) {
-        bind(
-            userWalletNotificationManager: userWalletNotificationManager,
-            tokensNotificationManager: tokensNotificationManager,
-            tangemPayNotificationManager: tangemPayNotificationManager,
-            getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager
-        )
-    }
-}
-
-private extension NotificationBannerItemsProvider {
-    func bind(
-        userWalletNotificationManager: NotificationManager,
-        tokensNotificationManager: NotificationManager,
-        tangemPayNotificationManager: NotificationManager,
-        getTangemPayBannerNotificationManager: NotificationManager
-    ) {
-        let userWalletPublisher = userWalletNotificationManager
+        let userWalletNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = userWalletNotificationManager
             .notificationPublisher
             .removeDuplicates()
+            .eraseToAnyPublisher()
 
-        let tokensPublisher = tokensNotificationManager
+        let tokensNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = tokensNotificationManager
             .notificationPublisher
             .removeDuplicates()
+            .eraseToAnyPublisher()
 
-        let tangemPayPublisher = tangemPayNotificationManager
+        let tangemPayNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = tangemPayNotificationManager
             .notificationPublisher
             .removeDuplicates()
+            .eraseToAnyPublisher()
 
-        let getTangemPayBannerPublisher = getTangemPayBannerNotificationManager
+        let tangemPayBannerNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = getTangemPayBannerNotificationManager
             .notificationPublisher
             .removeDuplicates()
+            .eraseToAnyPublisher()
 
-        Publishers
-            .CombineLatest4(
-                userWalletPublisher,
-                tokensPublisher,
-                tangemPayPublisher,
-                getTangemPayBannerPublisher
-            )
-            .map {
-                MultiWalletNotificationBannerMapper().mapItems(
-                    $0.0, $0.1, $0.2, $0.3
-                )
+        let yieldApyBoostBannerNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = yieldApyBoostBannerNotificationManager
+            .notificationPublisher
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+
+        let publishers = [
+            userWalletNotificationInputPublisher,
+            yieldApyBoostBannerNotificationInputPublisher,
+            tokensNotificationInputPublisher,
+            tangemPayNotificationInputPublisher,
+            tangemPayBannerNotificationInputPublisher,
+        ]
+
+        publishers
+            .combineLatest()
+            .map { [bannerMapper] inputs in
+                bannerMapper.mapItems(inputs)
             }
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .assign(to: &$items)
     }
 }
