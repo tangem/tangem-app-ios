@@ -157,6 +157,12 @@ struct TwinsOnboardingView: View {
                         checkmarkText: currentStep.checkmarkText,
                         isCheckmarkChecked: $viewModel.alertAccepted
                     )
+
+                    if viewModel.isTosFooterVisible {
+                        OnboardingTermsOfServiceFooter(onTap: viewModel.onTosTap)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 8)
+                    }
                 }
             }
         }
