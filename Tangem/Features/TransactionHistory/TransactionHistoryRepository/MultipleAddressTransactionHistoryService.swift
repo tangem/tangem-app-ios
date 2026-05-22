@@ -15,7 +15,7 @@ class MultipleAddressTransactionHistoryService {
     private let tokenItem: TokenItem
     private let addresses: [String]
 
-    private let transactionHistoryProviders: [String: TransactionHistoryProvider]
+    private let transactionHistoryProviders: [String: BlockchainSdk.TransactionHistoryProvider]
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private let pageSize: Int = 100
@@ -25,9 +25,9 @@ class MultipleAddressTransactionHistoryService {
     init(
         tokenItem: TokenItem,
         addresses: [String],
-        transactionHistoryProviders: [String: TransactionHistoryProvider]
+        transactionHistoryProviders: [String: BlockchainSdk.TransactionHistoryProvider]
     ) {
-        assert(!transactionHistoryProviders.isEmpty, "TransactionHistoryProviders can't be empty")
+        assert(!transactionHistoryProviders.isEmpty, "BlockchainSdk.TransactionHistoryProviders can't be empty")
 
         self.tokenItem = tokenItem
         self.addresses = addresses

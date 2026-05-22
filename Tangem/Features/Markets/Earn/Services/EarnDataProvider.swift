@@ -69,8 +69,6 @@ final class CommonEarnDataService: EarnDataProvider {
 
     // MARK: - Init
 
-    init() {}
-
     deinit {
         mostlyUsedUpdateTask?.cancel()
     }
