@@ -24,14 +24,6 @@ enum ExpressDTO {
         let limit: Int?
         let network: String?
         let tokenId: String?
-
-        enum CodingKeys: String, CodingKey {
-            case walletAddress = "wallet_address"
-            case cursor
-            case limit
-            case network
-            case tokenId = "token_id"
-        }
     }
 
     struct HistoryProvider: Decodable {
@@ -39,13 +31,6 @@ enum ExpressDTO {
         let name: String
         let iconUrl: String
         let providerUrl: String
-
-        enum CodingKeys: String, CodingKey {
-            case id
-            case name
-            case iconUrl = "icon_url"
-            case providerUrl = "provider_url"
-        }
     }
 
     // MARK: - Error

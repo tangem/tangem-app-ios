@@ -176,12 +176,6 @@ extension ExpressDTO {
                 let data: [Record]
                 let nextCursor: String
                 let hasMore: Bool
-
-                enum CodingKeys: String, CodingKey {
-                    case data
-                    case nextCursor = "next_cursor"
-                    case hasMore = "has_more"
-                }
             }
 
             struct Record: Decodable {
@@ -204,22 +198,6 @@ extension ExpressDTO {
                 // let updatedAt: Int
                 let createdAt: Date
                 let updatedAt: Date
-
-                enum CodingKeys: String, CodingKey {
-                    case txId = "tx_id"
-                    case status
-                    case provider
-                    case from
-                    case to
-                    case payinHash = "payin_hash"
-                    case payoutHash = "payout_hash"
-                    case externalTxId = "external_tx_id"
-                    case externalTxUrl = "external_tx_url"
-                    case refund
-                    case rateType = "rate_type"
-                    case createdAt = "created_at"
-                    case updatedAt = "updated_at"
-                }
             }
 
             struct AssetRef: Decodable {
@@ -228,14 +206,6 @@ extension ExpressDTO {
                 let rawAmount: String
                 let decimals: Int
                 let isActual: Bool?
-
-                enum CodingKeys: String, CodingKey {
-                    case network
-                    case tokenId = "token_id"
-                    case rawAmount = "raw_amount"
-                    case decimals
-                    case isActual = "is_actual"
-                }
             }
 
             struct Refund: Decodable {
@@ -244,14 +214,6 @@ extension ExpressDTO {
                 let rawAmount: String
                 let decimals: Int
                 let hash: String?
-
-                enum CodingKeys: String, CodingKey {
-                    case network
-                    case tokenId = "token_id"
-                    case rawAmount = "raw_amount"
-                    case decimals
-                    case hash
-                }
             }
         }
     }
