@@ -40,6 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapExchangeRateDisplay
     case yieldApyBoostPromo
     case deeplinkPresentationWay
+    case transactionHistoryV2
 
     var name: String {
         switch self {
@@ -70,10 +71,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
-        case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
-        case .swapExchangeRateDisplay: return "[REDACTED_INFO]_Swap_Exchange_Rate_Display"
-        case .yieldApyBoostPromo: return "[REDACTED_INFO]_Referral_programm._Yield_promotion_V2"
+        case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
+        case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
+        case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
+        case .transactionHistoryV2: return "139_Transaction_History_V2"
         }
     }
 
@@ -110,6 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapExchangeRateDisplay: return .unspecified
         case .yieldApyBoostPromo: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
+        case .transactionHistoryV2: return .unspecified
         }
     }
 }
