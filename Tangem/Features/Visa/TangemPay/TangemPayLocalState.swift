@@ -28,10 +28,15 @@ enum TangemPayCachedLocalState: Codable {
     case kycDeclined
     case issuingCard
     case failedToIssueCard
-    /// Superset payload: the legacy single-card flow reads `cardNumberEnd`, the multi-card flow
-    /// reads `cardCount`. Persisting both keeps one on-disk format valid for either flow.
-    case tangemPayAccount(cardNumberEnd: String?, cardCount: Int)
-    case cardDeactivated(cardNumberEnd: String?, cardCount: Int)
+    case tangemPayAccount(CardsSummary)
+    case cardDeactivated(CardsSummary)
+}
+
+extension TangemPayCachedLocalState {
+    enum CardsSummary: Codable {
+        case single(cardNumberEnd: String)
+        case multiple(count: Int)
+    }
 }
 
 extension TangemPayLocalState {
@@ -69,11 +74,23 @@ extension TangemPayLocalState {
         case .failedToIssueCard:
             .failedToIssueCard
         case .tangemPayAccount(let account):
-            .tangemPayAccount(cardNumberEnd: account.card?.cardNumberEnd, cardCount: account.cards.count)
+            account.cardsSummary.map(TangemPayCachedLocalState.tangemPayAccount)
         case .cardDeactivated(let account):
-            .cardDeactivated(cardNumberEnd: account.card?.cardNumberEnd, cardCount: account.cards.count)
+            account.cardsSummary.map(TangemPayCachedLocalState.cardDeactivated)
         case .loading, .syncNeeded, .syncInProgress, .unavailable:
             nil
         }
+    }
+}
+
+private extension TangemPayAccount {
+    var cardsSummary: TangemPayCachedLocalState.CardsSummary? {
+        if cards.count > 1 {
+            return .multiple(count: cards.count)
+        }
+        if let cardNumberEnd = card?.cardNumberEnd {
+            return .single(cardNumberEnd: cardNumberEnd)
+        }
+        return nil
     }
 }

@@ -198,9 +198,9 @@ private extension TangemPayAccountViewModel {
                 trailing: .warningIcon
             )
 
-        case .tangemPayAccount(let cardNumberEnd, let cardCount):
+        case .tangemPayAccount(let cardsSummary):
             CachedDisplayData(
-                subtitle: cachedAccountSubtitle(cardNumberEnd: cardNumberEnd, cardCount: cardCount),
+                subtitle: cachedAccountSubtitle(cardsSummary),
                 trailing: .balance(cachedBalanceState())
             )
 
@@ -215,11 +215,13 @@ private extension TangemPayAccountViewModel {
         }
     }
 
-    func cachedAccountSubtitle(cardNumberEnd: String?, cardCount: Int) -> String? {
-        if multipleCardsEnabled {
-            return cardCount > 0 ? Localization.tangempayCardsCount(cardCount) : nil
+    func cachedAccountSubtitle(_ summary: TangemPayCachedLocalState.CardsSummary) -> String {
+        switch summary {
+        case .single(let cardNumberEnd):
+            "*" + cardNumberEnd
+        case .multiple(let count):
+            Localization.tangempayCardsCount(count)
         }
-        return cardNumberEnd.map { "*" + $0 }
     }
 
     func cachedBalanceState() -> LoadableBalanceView.State {

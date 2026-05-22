@@ -259,6 +259,7 @@ final class TangemPayCard: Identifiable {
         pendingFreezingResetCancellable = snapshotSubject
             .dropFirst()
             .first()
+            .receiveOnMain()
             .sink { [weak self] _ in
                 self?.inflightLifecycleOperationSubject.send(nil)
             }
