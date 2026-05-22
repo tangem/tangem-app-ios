@@ -11,7 +11,7 @@ import Combine
 import SwiftUI
 
 class SwapSummaryStep {
-    let viewModel: SwapSummaryViewModel
+    private let viewModel: SwapSummaryViewModel
     private let interactor: SwapSummaryInteractor
     private let autoupdatingTimer: AutoupdatingTimer
     private let analyticsLogger: SendSummaryAnalyticsLogger
@@ -30,6 +30,10 @@ class SwapSummaryStep {
 
     func set(router: SwapSummaryStepRoutable) {
         viewModel.router = router
+    }
+
+    func makeFormVariantMenuItems() -> [SendStepNavigationLeadingViewType.DotsMenuItem] {
+        viewModel.makeFormVariantMenuItems()
     }
 }
 
