@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import AnyCodable
+
 extension ExpressDTO {
     enum Swap {
         // MARK: - Common
@@ -174,7 +176,7 @@ extension ExpressDTO {
         enum History {
             struct Response: Decodable {
                 let data: [Record]
-                let nextCursor: String
+                let nextCursor: AnyDecodable
                 let hasMore: Bool
             }
 

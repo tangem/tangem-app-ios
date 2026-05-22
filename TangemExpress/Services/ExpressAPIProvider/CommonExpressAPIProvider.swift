@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AnyCodable
 
 class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
@@ -292,14 +293,14 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func exchangeHistory(
         walletAddress: String,
-        cursor: String?,
+        cursor: Any?,
         limit: Int?,
         network: String?,
         tokenId: String?
     ) async throws -> ExchangeHistoryPage {
         let request = ExpressDTO.HistoryRequest(
             walletAddress: walletAddress,
-            cursor: cursor,
+            cursor: cursor.map { AnyEncodable($0) },
             limit: limit,
             network: network,
             tokenId: tokenId
@@ -311,14 +312,14 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     func onrampHistory(
         walletAddress: String,
-        cursor: String?,
+        cursor: Any?,
         limit: Int?,
         network: String?,
         tokenId: String?
     ) async throws -> OnrampHistoryPage {
         let request = ExpressDTO.HistoryRequest(
             walletAddress: walletAddress,
-            cursor: cursor,
+            cursor: cursor.map { AnyEncodable($0) },
             limit: limit,
             network: network,
             tokenId: tokenId

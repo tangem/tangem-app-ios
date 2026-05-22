@@ -7,10 +7,21 @@
 //
 
 import Foundation
+import struct TangemFoundation.IgnoredEquatable
 
 public struct ExchangeHistoryPage: Hashable {
     public let records: [ExchangeHistoryRecord]
-    public let nextCursor: String
+
     /// Opaque cursor for the next page.
+    @IgnoredEquatable
+    public private(set) var nextCursor: Any
+
     public let hasMore: Bool
+
+    /// Needed because `private(set)` on `nextCursor` makes the synthesized memberwise init private.
+    init(records: [ExchangeHistoryRecord], nextCursor: Any, hasMore: Bool) {
+        self.records = records
+        self.nextCursor = nextCursor
+        self.hasMore = hasMore
+    }
 }
