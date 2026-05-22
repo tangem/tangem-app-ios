@@ -1,5 +1,5 @@
 //
-//  TangemPayTopUpUITests.swift
+//  TangemPayWithdrawUITests.swift
 //  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,14 @@
 
 import XCTest
 
-final class TangemPayTopUpUITests: BaseTestCase {
-    func testTopUpFromTangemPay_SwapsBitcoinToUSDC_AppendsDepositToHistory() {
-        setAllureId(4973)
+final class TangemPayWithdrawUITests: BaseTestCase {
+    func testWithdrawFromTangemPay_SwapsUSDCToBitcoin_AppendsWithdrawalToHistory() {
+        setAllureId(4972)
 
         let mainScreen = launchAndImportHotWallet(scenarios: [
-            ScenarioConfig(name: "bitcoin_utxo", initialState: "Balance"),
+            ScenarioConfig(name: "bitcoin_utxo", initialState: "Started"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
+            ScenarioConfig(name: "exchange_status_provider", initialState: "Changelly"),
             ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
         ])
@@ -23,26 +24,27 @@ final class TangemPayTopUpUITests: BaseTestCase {
             .openTangemPay()
             .waitForScreen()
             .verifyBalanceContains("$10.00")
-            .tapAddFunds()
+            .tapWithdraw()
             .waitForScreen()
-            .tapSwap()
+            .tapGotIt()
             .validateSwapScreenDisplayed()
             .chooseTokenFromEmptySelector("Bitcoin")
-            .enterFromAmount("0.001")
+            .enterFromAmount("5")
             .confirmSwap()
 
         SendFinishScreen(app)
             .waitForDisplay()
             .tapCloseButton()
 
-        wireMockClient.setScenarioStateSync("tangem_pay_balance_update", state: "AfterDeposit")
-        wireMockClient.setScenarioStateSync("tangem_pay_transaction_history", state: "AfterDeposit")
+        wireMockClient.setScenarioStateSync("tangem_pay_balance_update", state: "AfterWithdraw")
+        wireMockClient.setScenarioStateSync("tangem_pay_transaction_history", state: "AfterWithdraw")
 
         TangemPayMainScreen(app).waitForScreen()
         pullToRefresh()
         TangemPayMainScreen(app)
-            .verifyBalanceContains("$110.00")
-            .verifyTransactionRowVisible(label: "Deposit")
+            .verifyBalanceContains("$5.00")
+            .verifyTransactionRowVisible(label: "Withdrawal")
+            .verifyPendingExpressTransactionVisible()
     }
 
     private func launchAndImportHotWallet(scenarios: [ScenarioConfig] = []) -> MainScreen {
