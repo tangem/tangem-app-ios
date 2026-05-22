@@ -176,7 +176,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .postponePushPermissionRequest,
              .givePermission,
              .openManageTokensAfterWalletSuccessImport,
-             .renewTangemPaySession:
+             .renewTangemPaySession,
+             .openPushNotificationsSystemSettings:
             super.didTapNotification(with: id, action: action)
         }
     }
