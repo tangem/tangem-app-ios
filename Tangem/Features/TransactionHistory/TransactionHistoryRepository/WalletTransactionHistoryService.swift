@@ -15,7 +15,7 @@ import os
 final class WalletTransactionHistoryService {
     private let tokenItem: TokenItem
     private let walletProvider: WalletProvider
-    private let transactionHistoryProviderFactory: TransactionHistoryProviderFactory
+    private let transactionHistoryProviderFactory: BlockchainSdk.TransactionHistoryProviderFactory
 
     private let _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private let pageSize: Int = 100
@@ -26,7 +26,7 @@ final class WalletTransactionHistoryService {
     init(
         tokenItem: TokenItem,
         walletProvider: WalletProvider,
-        transactionHistoryProviderFactory: TransactionHistoryProviderFactory
+        transactionHistoryProviderFactory: BlockchainSdk.TransactionHistoryProviderFactory
     ) {
         self.tokenItem = tokenItem
         self.walletProvider = walletProvider
@@ -126,7 +126,7 @@ private extension WalletTransactionHistoryService {
         AppLogger.info(self, "providers rebuilt for \(newProviders.count) key(s)")
     }
 
-    func makeProvider() -> TransactionHistoryProvider? {
+    func makeProvider() -> BlockchainSdk.TransactionHistoryProvider? {
         transactionHistoryProviderFactory.makeProvider(
             for: tokenItem.blockchain,
             isToken: tokenItem.isToken
@@ -256,7 +256,7 @@ extension WalletTransactionHistoryService {
     struct Entry {
         let key: TransactionHistory.Request.Key
         let walletAddressType: TransactionHistory.Request.WalletAddressType
-        let provider: TransactionHistoryProvider
+        let provider: BlockchainSdk.TransactionHistoryProvider
     }
 
     private struct SyncState {
