@@ -37,6 +37,13 @@ struct TransactionViewModel: Hashable, Identifiable {
     }
 
     func getTransactionDescription() -> String? {
+        let base = baseTransactionDescription()
+        guard let cardName else { return base }
+        guard let base else { return cardName }
+        return "\(base) \(AppConstants.dotSign) \(cardName)"
+    }
+
+    private func baseTransactionDescription() -> String? {
         switch transactionType {
         case .yieldEnter:
             return Localization.yieldModuleTransactionEnterSubtitle(amount.amount)
@@ -129,6 +136,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     private let isFromYieldContract: Bool
     private let transactionType: TransactionType
     private let status: Status
+    private let cardName: String?
 
     init(
         hash: String,
@@ -141,7 +149,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         isOutgoing: Bool,
         transactionType: TransactionViewModel.TransactionType,
         status: TransactionViewModel.Status,
-        isFromYieldContract: Bool
+        isFromYieldContract: Bool,
+        cardName: String? = nil
     ) {
         id = ViewModelId(hash: hash, index: index, statusRawValue: status.rawValue)
         self.hash = hash
@@ -160,6 +169,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         self.isFromYieldContract = isFromYieldContract
         self.transactionType = transactionType
         self.status = status
+        self.cardName = cardName
     }
 }
 

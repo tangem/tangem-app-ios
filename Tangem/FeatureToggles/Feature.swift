@@ -40,6 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapExchangeRateDisplay
     case yieldApyBoostPromo
     case deeplinkPresentationWay
+    case tangemPayMultipleCards
 
     var name: String {
         switch self {
@@ -74,6 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapExchangeRateDisplay: return "[REDACTED_INFO]_Swap_Exchange_Rate_Display"
         case .yieldApyBoostPromo: return "[REDACTED_INFO]_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
+        case .tangemPayMultipleCards: return "[REDACTED_INFO]_TangemPay_Multiple_Cards"
         }
     }
 
@@ -110,6 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapExchangeRateDisplay: return .unspecified
         case .yieldApyBoostPromo: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
+        case .tangemPayMultipleCards: return .unspecified
         }
     }
 }

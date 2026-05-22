@@ -107,7 +107,7 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         switch order.status {
         case .new, .processing:
             return true
-        case .completed, .canceled:
+        case .completed, .canceled, .failed, .undefined:
             if activeWithdrawOrderID == orderId {
                 activeWithdrawOrderID = nil
             }
