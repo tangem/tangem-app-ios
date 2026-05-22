@@ -195,6 +195,7 @@ extension CommonServicesManager: ServicesManager {
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storyDataPrefetchService.prefetchStoryIfNeeded(.initialSwapStoryBasedOnToggle)
+        storyDataPrefetchService.prefetchStoryIfNeeded(.yieldFirstActivationAPYBoostStory)
         geoEligibilityService.initialize()
         wcService.initialize()
         eTagStorage.initialize()
