@@ -20,8 +20,11 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
+    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
+    @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
@@ -382,9 +385,40 @@ private extension TokenDetailsViewModel {
             let tokenNotificationInputs = await viewModel.notificationManager.notificationInputs
             await MainActor.run { viewModel.tokenNotificationInputs = tokenNotificationInputs }
         }
+        setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
 
         bind()
+    }
+
+    private func setupQuickTopUpBanner() {
+        guard FeatureProvider.isAvailable(.onrampNativePayment) else { return }
+
+        expressAvailabilityProvider.availabilityDidChangePublisher
+            .receiveOnMain()
+            .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
+            .assign(to: &$quickTopUpBannerViewModel)
+    }
+
+    private func mapToQuickTopUpBannerViewModel() -> QuickTopUpBannerViewModel? {
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: userWalletInfo.config,
+            walletModel: walletModel
+        )
+        guard availabilityProvider.isBuyAvailable else { return nil }
+        if let existing = quickTopUpBannerViewModel { return existing }
+
+        let sourceToken = CommonSendSourceTokenFactory(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        ).makeSourceToken()
+
+        return QuickTopUpBannerViewModel(
+            sourceToken: sourceToken,
+            onOpenOnramp: { [weak self] parameters in
+                self?.openOnramp(parameters: parameters)
+            }
+        )
     }
 
     private func makeDotsMenuItems() -> [DotsMenuItem] {
