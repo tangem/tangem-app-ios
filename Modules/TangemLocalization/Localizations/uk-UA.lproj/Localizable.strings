@@ -1396,6 +1396,10 @@
 "swapping_insufficient_funds" = "Недостатньо коштів";
 "swapping_permission_header" = "Надати дозвіл";
 "swapping_permit_and_swap" = "Дозволити та обміняти";
+"swapping_rate_experience_title" = "Rate your experience with provider";
+"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_submit" = "Send feedback";
+"swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "Обмін...";
 "swapping_swap_action" = "Обміняти";
 "swapping_to_account_title" = "You receive to";
@@ -1580,7 +1584,7 @@
 "tangempay_status_deactivated" = "Картку деактивовано";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_restore_access" = "Відновити доступ";
-"tangempay_sync_needed" = "Сесія закінчилася";
+"tangempay_sync_needed" = "Tangem Pay · Сесія закінчилася";
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
 "tangempay_temporarily_unavailable" = "Tangem Pay тимчасово недоступний";
 "tangempay_title" = "Tangem Pay";
@@ -2060,6 +2064,11 @@
 "xtz_withdrawal_message_ignore" = "Ні, відправити все";
 "xtz_withdrawal_message_reduce" = "Зменшити на %@ XTZ";
 "xtz_withdrawal_message_warning" = "Щоб не платити підвищену комісію при наступному поповненні гаманця, зменште суму на %@ XTZ";
+"yield_apy_boost_banner_button_title" = "Explore Yield mode";
+"yield_apy_boost_banner_subtitle" = "First time activation bonus!";
+"yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
+"yield_apy_boost_banner_title" = "Special offer for Yield mode";
+"yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";

@@ -82,13 +82,13 @@ extension CommonPushNotificationsService: PushNotificationsPermissionService {
     var isAuthorizedPublisher: AnyPublisher<Bool, Never> {
         NotificationCenter.default
             .publisher(for: UIApplication.didBecomeActiveNotification)
-            .flatMap { [weak self] _ -> AnyPublisher<Bool, Never> in
-                guard let self else { return .just(output: false) }
+            .withWeakCaptureOf(self)
+            .flatMap { service, _ -> AnyPublisher<Bool, Never> in
                 return Future { promise in
-                    Task { promise(.success(await self.isAuthorized)) }
+                    Task { promise(.success(await service.isAuthorized)) }
                 }.eraseToAnyPublisher()
             }
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .eraseToAnyPublisher()
     }
 
