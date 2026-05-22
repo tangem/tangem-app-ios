@@ -36,7 +36,8 @@ final class MobileOnboardingViewModel: ObservableObject {
 extension MobileOnboardingViewModel {
     func onDismissalAttempt() {
         switch input.flow {
-        case .walletActivate(let userWalletModel, _):
+        case .walletActivate(let userWalletModel, _),
+             .tangemPayActivate(let userWalletModel, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -74,6 +75,8 @@ private extension MobileOnboardingViewModel {
             MobileOnboardingImportWalletFlowBuilder(source: source, coordinator: self)
         case .walletActivate(let userWalletModel, let source):
             MobileOnboardingActivateWalletFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+        case .tangemPayActivate(let userWalletModel, let source):
+            MobileOnboardingTangemPayFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
         case .accessCode(let userWalletModel, let source, let context):
             MobileOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
