@@ -9,9 +9,7 @@
 import Foundation
 import TangemLocalization
 
-struct NFTSendTransactionSummaryDescriptionBuilder {
-    init() {}
-}
+struct NFTSendTransactionSummaryDescriptionBuilder {}
 
 // MARK: - SendTransactionSummaryDescriptionBuilder protocol conformance
 
