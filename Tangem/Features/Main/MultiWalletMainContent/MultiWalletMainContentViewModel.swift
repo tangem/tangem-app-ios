@@ -89,6 +89,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
     private let getTangemPayBannerNotificationManager: NotificationManager
+    private let yieldApyBoostBannerNotificationManager: NotificationManager
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
@@ -114,6 +115,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
         getTangemPayBannerNotificationManager: NotificationManager,
+        yieldApyBoostBannerNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
@@ -127,6 +129,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.promotionNotificationsManager = promotionNotificationsManager
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.getTangemPayBannerNotificationManager = getTangemPayBannerNotificationManager
+        self.yieldApyBoostBannerNotificationManager = yieldApyBoostBannerNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
@@ -137,7 +140,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletNotificationManager: userWalletNotificationManager,
             tokensNotificationManager: tokensNotificationManager,
             tangemPayNotificationManager: tangemPayNotificationManager,
-            getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager
+            getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
+            yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager
         )
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
@@ -309,8 +313,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tokensNotificationManager
-            .notificationPublisher
+        Publishers
+            .CombineLatest(
+                tokensNotificationManager.notificationPublisher.removeDuplicates(),
+                yieldApyBoostBannerNotificationManager.notificationPublisher.removeDuplicates()
+            )
+            .map { $0 + $1 }
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
