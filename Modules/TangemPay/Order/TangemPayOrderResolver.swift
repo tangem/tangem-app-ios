@@ -28,7 +28,7 @@ public struct TangemPayOrderResolver {
     ) async throws -> TangemPayOrderResponse {
         do {
             return try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
-        } catch let serviceError as TangemPayAPIServiceError {
+        } catch let serviceError {
             if case .apiError(let apiError) = serviceError,
                apiError.code == TangemPayAPIError.Code.cardIssueInsufficientBalance {
                 throw TangemPayOrderResolverError.insufficientBalance
