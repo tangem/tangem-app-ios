@@ -9,6 +9,7 @@
 import UIKit
 import TangemUI
 import TangemStaking
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class MarketsTokenDetailsCoordinator: CoordinatorObject {
@@ -100,13 +101,60 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             coordinator: self
         )
 
-        let viewModel = AddTokenFlowViewModel(
+        if FeatureProvider.isAvailable(.redesign) {
+            openRedesignedAddTokenFlow(
+                inputData: inputData,
+                configuration: configuration,
+                walletDataProvider: walletDataProvider
+            )
+        } else {
+            openLegacyAddTokenFlow(
+                configuration: configuration,
+                walletDataProvider: walletDataProvider
+            )
+        }
+    }
+
+    private func openRedesignedAddTokenFlow(
+        inputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        configuration: AddTokenFlowConfiguration,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        guard let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
+            inputData: inputData,
             userWalletModels: walletDataProvider.userWalletModels,
-            configuration: configuration,
-            coordinator: self
-        )
+            isTokenAdded: configuration.isTokenAdded
+        ) else {
+            Task { @MainActor in
+                self.presentErrorToast(with: Localization.commonSomethingWentWrong)
+            }
+            return
+        }
 
         Task { @MainActor in
+            guard let viewModel = AddTokenFlowRedesignedViewModel(
+                tokenItem: tokenItem,
+                userWalletModels: walletDataProvider.userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            ) else {
+                self.presentErrorToast(with: Localization.commonSomethingWentWrong)
+                return
+            }
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    private func openLegacyAddTokenFlow(
+        configuration: AddTokenFlowConfiguration,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        Task { @MainActor in
+            let viewModel = AddTokenFlowViewModel(
+                userWalletModels: walletDataProvider.userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -414,6 +462,10 @@ private extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
+
+// MARK: - AddTokenFlowRedesignedRoutable
+
+extension MarketsTokenDetailsCoordinator: AddTokenFlowRedesignedRoutable {}
 
 // MARK: - NewsDetailsRoutable
 
