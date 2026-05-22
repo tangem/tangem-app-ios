@@ -10,13 +10,13 @@ import Foundation
 
 public enum ExpressProviderManagerComparator {
     /// `.min(by:)` / `.sorted(by:)` returns the best provider first.
-    /// Callers must pre-filter the array to providers whose `supportedRateTypes`
-    /// contain the active `rateType` (e.g. via `filteredByRateType`).
-    public static func isBetter(
-        _ lhs: ExpressAvailableProvider,
-        _ rhs: ExpressAvailableProvider,
-        rateType: ExpressProviderRateType
-    ) -> Bool {
+    ///
+    /// Tiers (from most to least preferred):
+    ///   1. eligible — `.permissionRequired`, `.revokeAndPermissionRequired`, `.cexPreview`, `.dexPreview`.
+    ///   2. `.restriction(.tooSmallAmount)` — lower minimum (closer to user's amount) wins.
+    ///   3. `.restriction(.tooBigAmount)`.
+    ///   4. `.idle` / `.error`.
+    public static func isBetter(lhs: ExpressAvailableProvider, rhs: ExpressAvailableProvider) -> Bool {
         switch (lhs.getState(), rhs.getState()) {
         case (.restriction(.tooSmallAmount(let lMinimum, _), _), .restriction(.tooSmallAmount(let rMinimum, _), _)):
             return lMinimum < rMinimum
