@@ -248,6 +248,23 @@ extension CommonTangemApiService: TangemApiService {
         try await self.request(for: .hidePromotion(request: request))
     }
 
+    // MARK: - Yield Boost Promotion
+
+    func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {
+        let response: BannerPromotion.Response = try await request(
+            for: .promotion(request: BannerPromotion.Request(walletId: userWalletId)),
+            decoder: decoder
+        )
+        return response.promotions
+    }
+
+    func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
+        try await request(
+            for: .yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request(walletId: userWalletId)),
+            decoder: decoder
+        )
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
