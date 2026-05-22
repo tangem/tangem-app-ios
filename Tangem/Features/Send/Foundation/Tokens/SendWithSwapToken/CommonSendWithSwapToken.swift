@@ -27,6 +27,7 @@ struct CommonSendWithSwapToken: SendWithSwapToken {
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { swapableToken.receivingRestrictionsProvider }
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { swapableToken.tokenFeeProvidersManagerProvider }
     var expressTransactionValidator: any ExpressTransactionValidator { swapableToken.expressTransactionValidator }
+    var sendYieldModuleHelper: SendYieldModuleHelper? { swapableToken.sendYieldModuleHelper }
 
     var balanceProvider: any TangemExpress.BalanceProvider { swapableToken.balanceProvider }
     var analyticsLogger: any TangemExpress.AnalyticsLogger { swapableToken.analyticsLogger }
