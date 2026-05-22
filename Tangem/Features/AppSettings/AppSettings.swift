@@ -159,6 +159,8 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
     var shouldShowMobilePromoWalletSelector: Bool = false
 
+    @AppStorageCompat(StorageType.yieldApyBoostHiddenPromos)
+    var yieldApyBoostHiddenPromos: [String] = []
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
 

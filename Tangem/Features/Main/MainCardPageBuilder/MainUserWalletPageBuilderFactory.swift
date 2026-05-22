@@ -127,6 +127,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 }
             )
 
+            let yieldApyBoostBannerNotificationManager = YieldAPYBoostBannerService(userWalletId: model.userWalletId)
+
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
                 yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
@@ -143,6 +145,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
+                yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
