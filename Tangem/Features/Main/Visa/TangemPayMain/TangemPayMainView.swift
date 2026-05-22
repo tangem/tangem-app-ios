@@ -179,7 +179,8 @@ struct TangemPayMainView: View {
                         icon: Assets.arrowUpMini,
                         loading: viewModel.isWithdrawButtonLoading,
                         disabled: viewModel.actionButtonsDisabled,
-                        action: viewModel.withdraw
+                        action: viewModel.withdraw,
+                        accessibilityIdentifier: TangemPayAccessibilityIdentifiers.withdrawButton
                     ),
                 ]
             )

@@ -9,8 +9,6 @@
 import XCTest
 
 final class TangemPayTopUpUITests: BaseTestCase {
-    private let hotWalletSeedPhrase = "diagram thunder merit soup muscle amused refuse usual ring couch popular wash"
-
     func testTopUpFromTangemPay_SwapsBitcoinToUSDC_AppendsDepositToHistory() {
         setAllureId(4973)
 
@@ -65,7 +63,7 @@ final class TangemPayTopUpUITests: BaseTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
-            .enterSeedPhrase(hotWalletSeedPhrase)
+            .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
             .skipAccessCode()
