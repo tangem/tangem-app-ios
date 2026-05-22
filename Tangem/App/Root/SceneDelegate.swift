@@ -96,6 +96,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         sheetRegistry.registerWalletConnectFloatingSheets()
         sheetRegistry.registerAddTokenFlowFloatingSheets()
+        sheetRegistry.registerAddTokenFlowRedesignedFloatingSheets()
         sheetRegistry.registerTangemPayWalletSelectorSheets()
         sheetRegistry.registerCloreMigrationFloatingSheets()
         sheetRegistry.registerYieldModuleFloatingSheets()
