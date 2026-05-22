@@ -90,19 +90,16 @@ struct NewsPagerView: View {
         ZStack(alignment: .bottom) {
             VStack(spacing: .zero) {
                 Spacer()
-
                 LinearGradient(
                     colors: [
                         Color.Tangem.Surface.level2.opacity(0),
-                        Color.Tangem.Surface.level2.opacity(0.25),
+                        Color.Tangem.Surface.level2,
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 24)
-
-                BottomFadeWithBlur(backgroundColor: Color.Tangem.Surface.level2)
-                    .ignoresSafeArea(.container, edges: .bottom)
+                .frame(height: 200)
+                .ignoresSafeArea(.container, edges: .bottom)
             }
         }
         .allowsHitTesting(false)
