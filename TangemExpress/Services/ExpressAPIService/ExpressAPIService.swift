@@ -17,6 +17,7 @@ protocol ExpressAPIService {
     func exchangeData(request: ExpressDTO.Swap.ExchangeData.Request) async throws -> ExpressDTO.Swap.ExchangeData.Response
     func exchangeStatus(request: ExpressDTO.Swap.ExchangeStatus.Request) async throws -> ExpressDTO.Swap.ExchangeStatus.Response
     func exchangeSent(request: ExpressDTO.Swap.ExchangeSent.Request) async throws -> ExpressDTO.Swap.ExchangeSent.Response
+    func exchangeHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Swap.History.Response
 
     func onrampCurrencies() async throws -> [ExpressDTO.Onramp.FiatCurrency]
     func onrampCountries() async throws -> [ExpressDTO.Onramp.Country]
@@ -27,7 +28,5 @@ protocol ExpressAPIService {
     func onrampData(request: ExpressDTO.Onramp.Data.Request) async throws -> ExpressDTO.Onramp.Data.Response
     func onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request) async throws -> ExpressDTO.Onramp.NativePaymentData.Response
     func onrampStatus(request: ExpressDTO.Onramp.Status.Request) async throws -> ExpressDTO.Onramp.Status.Response
-
-    func exchangeHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Swap.History.Response
     func onrampHistory(request: ExpressDTO.HistoryRequest) async throws -> ExpressDTO.Onramp.History.Response
 }

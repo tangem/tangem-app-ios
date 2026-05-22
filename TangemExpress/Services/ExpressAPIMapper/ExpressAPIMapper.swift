@@ -334,6 +334,7 @@ struct ExpressAPIMapper {
 
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.History.Response) throws -> ExchangeHistoryPage {
         let records = try response.data.map(mapToExchangeHistoryRecord(record:))
+
         return ExchangeHistoryPage(
             records: records,
             nextCursor: response.nextCursor,
@@ -343,6 +344,7 @@ struct ExpressAPIMapper {
 
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.History.Response) throws -> OnrampHistoryPage {
         let records = try response.data.map(mapToOnrampHistoryRecord(record:))
+
         return OnrampHistoryPage(
             records: records,
             nextCursor: response.nextCursor,
@@ -428,7 +430,6 @@ struct ExpressAPIMapper {
     }
 
     private func mapToOnrampHistoryFiatAsset(asset: ExpressDTO.Onramp.History.FiatAsset) throws -> OnrampHistoryFiatAsset {
-        // Fiat amount arrives as a decimal string (e.g. "100.00") — no decimals scaling needed.
         guard let amount = Decimal(string: asset.amount) else {
             throw ExpressAPIMapperError.mapToDecimalError(asset.amount)
         }
@@ -443,10 +444,11 @@ struct ExpressAPIMapper {
 
         let expected = expectedRaw / pow(10, asset.decimals)
 
-        let actual: Decimal? = try asset.actualRawAmount.map {
-            guard let raw = Decimal(string: $0) else {
-                throw ExpressAPIMapperError.mapToDecimalError($0)
+        let actual: Decimal? = try asset.actualRawAmount.map { amount in
+            guard let raw = Decimal(string: amount) else {
+                throw ExpressAPIMapperError.mapToDecimalError(amount)
             }
+
             return raw / pow(10, asset.decimals)
         }
 
@@ -476,7 +478,10 @@ struct ExpressAPIMapper {
     }
 
     private func mapToOnrampHistoryRate(rate: ExpressDTO.Onramp.History.Rate) -> OnrampHistoryRate {
-        OnrampHistoryRate(atCreate: rate.atCreate, atFinish: rate.atFinish)
+        OnrampHistoryRate(
+            atCreate: rate.atCreate.flatMap { Decimal(string: $0) },
+            atFinish: rate.atFinish.flatMap { Decimal(string: $0) }
+        )
     }
 }
 
