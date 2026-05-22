@@ -38,6 +38,7 @@ final class WrappedHoldToConfirmButtonModel: ObservableObject {
     private let touchesSubject = PassthroughSubject<TouchesItem, Never>()
 
     private let loadingGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private let holdGenerator = UIImpactFeedbackGenerator(style: .rigid)
     private let notificationGenerator = UINotificationFeedbackGenerator()
 
     @Published private var title: String
@@ -108,6 +109,7 @@ extension WrappedHoldToConfirmButtonModel {
 private extension WrappedHoldToConfirmButtonModel {
     func setup() {
         loadingGenerator.prepare()
+        holdGenerator.prepare()
         notificationGenerator.prepare()
 
         if state == .loading {
@@ -163,7 +165,7 @@ private extension WrappedHoldToConfirmButtonModel {
         setup(state: .holding)
         vibrate(
             duration: holdDuration,
-            generator: loadingGenerator,
+            generator: holdGenerator,
             onComplete: { [weak self] in
                 self?.confirm()
             }
@@ -307,12 +309,15 @@ extension WrappedHoldToConfirmButtonModel {
         }
 
         /// Vibration schedule for the hold gesture. Fractions must sum to 1.0.
-        /// With holdDuration = 2.0s: 5Hz → ~7.5Hz → 10Hz → 20Hz → 30Hz → 40Hz.
+        /// With holdDuration = 3.0s and rigid generator: 2Hz → 4Hz → 6Hz → 10Hz → 14Hz → 20Hz.
+        /// Each segment is 0.5s.
         static let holdVibrationSchedule: [VibrationSegment] = [
-            VibrationSegment(count: 2, fraction: 0.20),
-            VibrationSegment(count: 3, fraction: 0.20),
-            VibrationSegment(count: 3, fraction: 0.15),
-            VibrationSegment(count: 90, fraction: 0.45),
+            VibrationSegment(count: 1, fraction: 1.0 / 6.0),
+            VibrationSegment(count: 2, fraction: 1.0 / 6.0),
+            VibrationSegment(count: 3, fraction: 1.0 / 6.0),
+            VibrationSegment(count: 5, fraction: 1.0 / 6.0),
+            VibrationSegment(count: 7, fraction: 1.0 / 6.0),
+            VibrationSegment(count: 10, fraction: 1.0 / 6.0),
         ]
         static let cancelDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.2)
         static let confirmDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.4)
