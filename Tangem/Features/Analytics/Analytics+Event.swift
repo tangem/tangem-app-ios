@@ -782,6 +782,7 @@ extension Analytics {
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
+        case mainScreenButtonExploreYieldMode = "[Main Screen] Button - Explore Yield mode"
 
         // MARK: - News
 
