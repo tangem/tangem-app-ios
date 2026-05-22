@@ -157,7 +157,7 @@ struct P2PMapper {
             name: vault.displayName,
             preferred: isAvailable,
             partner: false,
-            iconURL: nil,
+            image: .local(.p2pVault),
             rewardType: rewardType,
             rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
             status: isAvailable ? .active : .full,
