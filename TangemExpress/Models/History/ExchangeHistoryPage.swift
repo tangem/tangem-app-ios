@@ -15,10 +15,4 @@ public struct ExchangeHistoryPage: Hashable {
     /// `true` when more pages are immediately available; `false` means caller should stop paginating
     /// in this sync (but keep `nextCursor` for the next delta).
     public let hasMore: Bool
-
-    public init(records: [ExchangeHistoryRecord], nextCursor: String, hasMore: Bool) {
-        self.records = records
-        self.nextCursor = nextCursor
-        self.hasMore = hasMore
-    }
 }
