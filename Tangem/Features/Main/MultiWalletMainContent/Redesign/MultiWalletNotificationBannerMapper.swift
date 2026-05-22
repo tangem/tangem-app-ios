@@ -21,6 +21,10 @@ struct MultiWalletNotificationBannerMapper {
     func mapItems(
         _ inputs: [NotificationViewInput]...
     ) -> [NotificationBannerItem] {
+        mapItems(inputs)
+    }
+
+    func mapItems(_ inputs: [[NotificationViewInput]]) -> [NotificationBannerItem] {
         inputs.flatMap { $0.map { mapItem($0) } }
     }
 }

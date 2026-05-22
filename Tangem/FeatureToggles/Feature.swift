@@ -38,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapMaxAmountFractions
     case pushNotificationsSettings
     case swapExchangeRateDisplay
+    case yieldApyBoostPromo
     case deeplinkPresentationWay
 
     var name: String {
@@ -71,6 +72,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
         case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
         case .swapExchangeRateDisplay: return "[REDACTED_INFO]_Swap_Exchange_Rate_Display"
+        case .yieldApyBoostPromo: return "[REDACTED_INFO]_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         }
     }
@@ -106,6 +108,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapMaxAmountFractions: return .unspecified
         case .pushNotificationsSettings: return .unspecified
         case .swapExchangeRateDisplay: return .unspecified
+        case .yieldApyBoostPromo: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         }
     }
