@@ -16,12 +16,4 @@ public struct OnrampHistoryAsset: Hashable {
     /// Final delivered amount. `nil` until the order finalises.
     public let actualAmount: Decimal?
     public let decimals: Int
-
-    public init(network: String, tokenId: String?, expectedAmount: Decimal, actualAmount: Decimal?, decimals: Int) {
-        self.network = network
-        self.tokenId = tokenId
-        self.expectedAmount = expectedAmount
-        self.actualAmount = actualAmount
-        self.decimals = decimals
-    }
 }

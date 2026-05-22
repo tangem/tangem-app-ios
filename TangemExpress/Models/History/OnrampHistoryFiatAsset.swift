@@ -11,9 +11,4 @@ import Foundation
 public struct OnrampHistoryFiatAsset: Hashable {
     public let currencyCode: String
     public let amount: Decimal
-
-    public init(currencyCode: String, amount: Decimal) {
-        self.currencyCode = currencyCode
-        self.amount = amount
-    }
 }

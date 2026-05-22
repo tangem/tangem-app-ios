@@ -14,12 +14,4 @@ public struct ExpressHistoryRefund: Hashable {
     public let amount: Decimal
     public let decimals: Int
     public let hash: String?
-
-    public init(network: String, tokenId: String?, amount: Decimal, decimals: Int, hash: String?) {
-        self.network = network
-        self.tokenId = tokenId
-        self.amount = amount
-        self.decimals = decimals
-        self.hash = hash
-    }
 }

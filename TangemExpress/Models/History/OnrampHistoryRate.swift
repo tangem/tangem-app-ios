@@ -13,9 +13,4 @@ public struct OnrampHistoryRate: Hashable {
     public let atCreate: Decimal?
     /// Crypto rate (in fiat) recorded once the order completed.
     public let atFinish: Decimal?
-
-    public init(atCreate: Decimal?, atFinish: Decimal?) {
-        self.atCreate = atCreate
-        self.atFinish = atFinish
-    }
 }
