@@ -56,12 +56,7 @@ struct TokenDetailsView: View {
 
                 yieldStatusView
 
-                if let activeStakingViewData = viewModel.activeStakingViewData {
-                    ActiveStakingView(data: activeStakingViewData)
-                        .padding(14)
-                        .background(Colors.Background.primary)
-                        .cornerRadiusContinuous(14)
-                }
+                stakingView
 
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
@@ -71,6 +66,10 @@ struct TokenDetailsView: View {
                     items: viewModel.pendingTransactionViews,
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
+
+                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                    QuickTopUpBannerView(viewModel: quickTopUpVM)
+                }
 
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
@@ -154,6 +153,35 @@ struct TokenDetailsView: View {
             } label: {
                 NavbarDotsImage()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var stakingView: some View {
+        if viewModel.isRedesign {
+            redesignStakingView
+        } else {
+            legacyStakingView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignStakingView: some View {
+        switch viewModel.stakingState {
+        case .some(let state):
+            TokenDetailsStakingView(state: state)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var legacyStakingView: some View {
+        if let activeStakingViewData = viewModel.activeStakingViewData {
+            ActiveStakingView(data: activeStakingViewData)
+                .padding(14)
+                .background(Colors.Background.primary)
+                .cornerRadiusContinuous(14)
         }
     }
 
