@@ -31,6 +31,7 @@ final class AccountSelectorViewModel: ObservableObject {
     private let cryptoAccountModelsFilter: (AccountSelectorItem) -> Bool
     private let availabilityProvider: (AccountSelectorItem) -> AccountAvailability
     private let onSelect: (AccountSelectorCellModel) -> Void
+    private let dropsLockedAccountSections: Bool
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Initialization
@@ -40,12 +41,14 @@ final class AccountSelectorViewModel: ObservableObject {
         userWalletModels: [any UserWalletModel],
         cryptoAccountModelsFilter: @escaping (AccountSelectorItem) -> Bool = { _ in true },
         availabilityProvider: @escaping (AccountSelectorItem) -> AccountAvailability = { _ in .available },
+        dropsLockedAccountSections: Bool = false,
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
         self.selectedItem = selectedItem
         self.userWalletModels = userWalletModels
         self.cryptoAccountModelsFilter = cryptoAccountModelsFilter
         self.availabilityProvider = availabilityProvider
+        self.dropsLockedAccountSections = dropsLockedAccountSections
         self.onSelect = onSelect
 
         let hasMultipleAccounts = userWalletModels.contains { userWalletModel in
@@ -69,6 +72,7 @@ final class AccountSelectorViewModel: ObservableObject {
         userWalletModel: any UserWalletModel,
         cryptoAccountModelsFilter: @escaping (AccountSelectorItem) -> Bool = { _ in true },
         availabilityProvider: @escaping (AccountSelectorItem) -> AccountAvailability = { _ in .available },
+        dropsLockedAccountSections: Bool = false,
         onSelect: @escaping (AccountSelectorCellModel) -> Void
     ) {
         self.init(
@@ -76,6 +80,7 @@ final class AccountSelectorViewModel: ObservableObject {
             userWalletModels: [userWalletModel],
             cryptoAccountModelsFilter: cryptoAccountModelsFilter,
             availabilityProvider: availabilityProvider,
+            dropsLockedAccountSections: dropsLockedAccountSections,
             onSelect: onSelect
         )
     }
@@ -123,9 +128,10 @@ final class AccountSelectorViewModel: ObservableObject {
                     .receiveOnMain()
                     .withWeakCaptureOf(self)
                     .sink { viewModel, accountModels in
-
-                        viewModel.walletItems.removeAll(where: { $0.id == userWallet.userWalletId.stringValue })
-                        viewModel.accountsSections.removeAll(where: { $0.walletId == userWallet.userWalletId.stringValue })
+                        let walletId = userWallet.userWalletId.stringValue
+                        viewModel.walletItems.removeAll(where: { $0.id == walletId })
+                        viewModel.lockedWalletItems.removeAll(where: { $0.id == walletId })
+                        viewModel.accountsSections.removeAll(where: { $0.walletId == walletId })
 
                         let (wallets, accountsSections) = viewModel.makeUpdatedSelectorData(
                             userWallet: userWallet, from: accountModels
@@ -133,11 +139,13 @@ final class AccountSelectorViewModel: ObservableObject {
 
                         if userWallet.isUserWalletLocked {
                             viewModel.lockedWalletItems.append(contentsOf: wallets)
+                            if !viewModel.dropsLockedAccountSections {
+                                viewModel.accountsSections.append(contentsOf: accountsSections)
+                            }
                         } else {
                             viewModel.walletItems.append(contentsOf: wallets)
+                            viewModel.accountsSections.append(contentsOf: accountsSections)
                         }
-
-                        viewModel.accountsSections.append(contentsOf: accountsSections)
                     }
                     .store(in: &bag)
             }
@@ -301,3 +309,11 @@ extension AccountSelectorViewModel {
 // MARK: - FloatingSheetContentViewModel protocol conformance
 
 extension AccountSelectorViewModel: FloatingSheetContentViewModel {}
+
+// MARK: - Equatable
+
+extension AccountSelectorViewModel: Equatable {
+    nonisolated static func == (lhs: AccountSelectorViewModel, rhs: AccountSelectorViewModel) -> Bool {
+        lhs === rhs
+    }
+}
