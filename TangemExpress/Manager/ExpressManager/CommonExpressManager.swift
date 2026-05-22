@@ -90,10 +90,10 @@ extension CommonExpressManager: ExpressManager {
         return currentResult()
     }
 
-    func autoupdate(source: ExpressProviderUpdateSource) async -> ExpressManagerUpdatingResult {
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult {
         let providers = await reloadQuotesInProviders()
 
-        if source.isRequiredUpdateSelectedProvider {
+        if type.isRequiredUpdateSelectedProvider {
             selectedProvider = providers.best()
             logBestProviderSelected()
         }

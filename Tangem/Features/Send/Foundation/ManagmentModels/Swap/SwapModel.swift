@@ -122,7 +122,7 @@ final class SwapModel {
 private extension SwapModel {
     func autoupdatingRates() {
         updateTask(loadingType: .autoupdate) { [weak self] manager in
-            let result: ExpressManagerUpdatingResult = await manager.autoupdate(source: .autoupdate)
+            let result: ExpressManagerUpdatingResult = await manager.update(type: .autoupdate)
 
             if let self, let quote = result.selected?.getState().quote {
                 sendComplementaryAmount(for: result.selected?.rateType, quote: quote)
@@ -1240,7 +1240,7 @@ extension SwapModel: FeeSelectorOutput {
         tokenFeeProvidersManager?.update(feeOption: feeOption)
 
         updateTask(loadingType: .fee) { manager in
-            await manager.autoupdate(source: .autoupdate)
+            await manager.update(type: .autoupdate)
         }
     }
 }
