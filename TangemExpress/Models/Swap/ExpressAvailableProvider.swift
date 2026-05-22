@@ -103,6 +103,7 @@ public extension Array where Element == ExpressAvailableProvider {
 
     func updateIsBestFlag(activeRateType: ExpressProviderRateType?) {
         let candidates = filter { provider in
+            guard provider.rateType == activeRateType else { return false }
             switch provider.getState() {
             case .permissionRequired, .revokeAndPermissionRequired, .cexPreview, .dexPreview:
                 return provider.rateType == activeRateType
