@@ -55,9 +55,9 @@ struct DetailsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .fullScreenCover(item: $coordinator.supportChatViewModel) {
+            .sheet(item: $coordinator.supportChatViewModel) {
                 SupportChatView(viewModel: $0)
-                    .edgesIgnoringSafeArea(.vertical)
+                    .presentationDetents([.large, .medium])
             }
             .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)

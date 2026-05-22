@@ -124,7 +124,7 @@ private extension DetailsViewModel {
         switch (hasVisaCards, hasTangemCards) {
         case (true, true):
             let contactTangemSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactTangemSupport) { [weak self] in
-                self?.openTangemSupport(models: tangemUserWalletModels)
+                self?.openSupportChat()
             }
 
             let contactVisaSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactVisaSupport) { [weak self] in
@@ -144,7 +144,7 @@ private extension DetailsViewModel {
             openVisaSupport(models: visaUserWalletModels)
 
         case (false, true), (false, false):
-            openTangemSupport(models: tangemUserWalletModels)
+            openSupportChat()
         }
     }
 
@@ -196,10 +196,6 @@ private extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        guard selectedUserWalletModel != nil else {
-            return
-        }
-
         Analytics.log(.settingsButtonChat)
 
         let data = userWalletRepository.models.map {
@@ -209,9 +205,7 @@ private extension DetailsViewModel {
             )
         }
 
-        let dataCollector = DetailsFeedbackDataCollector(
-            data: data
-        )
+        let dataCollector = DetailsFeedbackDataCollector(data: data)
 
         coordinator?.openSupportChat(input: .init(
             logsComposer: .init(infoProvider: dataCollector)
