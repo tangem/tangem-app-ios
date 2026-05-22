@@ -21,11 +21,16 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let paymentAccountCardButton = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
+    public static let withdrawButton = "\(prefix)WithdrawButton"
 
     // MARK: - Add funds flow
 
     public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
+
+    // MARK: - Withdraw flow
+
+    public static let withdrawNoteSheetPrimaryButton = "\(prefix)WithdrawNoteSheetPrimaryButton"
 
     // MARK: - Card details (reveal + copy)
 
