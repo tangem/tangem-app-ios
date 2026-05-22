@@ -305,13 +305,7 @@ private extension AddTokenFlowViewModel {
         accountSelectorCell: AccountSelectorCellModel,
         tokenItem: TokenItem
     ) -> AddTokenAccountWalletSelectorDataProvider {
-        let isSelectionAvailable: Bool
-        switch configuration.accountSelectionAvailability {
-        case .disabled:
-            isSelectionAvailable = false
-        case .enabledWhenNotSingleAccount:
-            isSelectionAvailable = oneAndOnlyAccount == nil
-        }
+        let isSelectionAvailable = oneAndOnlyAccount == nil
 
         return AddTokenAccountDataProvider(
             isSelectionAvailable: isSelectionAvailable,
