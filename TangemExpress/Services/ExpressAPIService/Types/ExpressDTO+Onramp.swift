@@ -255,12 +255,6 @@ extension ExpressDTO {
                 let data: [Record]
                 let nextCursor: String
                 let hasMore: Bool
-
-                enum CodingKeys: String, CodingKey {
-                    case data
-                    case nextCursor = "next_cursor"
-                    case hasMore = "has_more"
-                }
             }
 
             struct Record: Decodable {
@@ -283,32 +277,11 @@ extension ExpressDTO {
                 // let updatedAt: Int
                 let createdAt: Date
                 let updatedAt: Date
-
-                enum CodingKeys: String, CodingKey {
-                    case txId = "tx_id"
-                    case status
-                    case provider
-                    case from
-                    case to
-                    case payoutHash = "payout_hash"
-                    case externalTxId = "external_tx_id"
-                    case externalTxUrl = "external_tx_url"
-                    case refund
-                    case rate
-                    case failReason = "fail_reason"
-                    case createdAt = "created_at"
-                    case updatedAt = "updated_at"
-                }
             }
 
             struct FiatAsset: Decodable {
                 let currencyCode: String
                 let amount: String
-
-                enum CodingKeys: String, CodingKey {
-                    case currencyCode = "currency_code"
-                    case amount
-                }
             }
 
             struct AssetRef: Decodable {
@@ -317,14 +290,6 @@ extension ExpressDTO {
                 let expectedRawAmount: String
                 let actualRawAmount: String?
                 let decimals: Int
-
-                enum CodingKeys: String, CodingKey {
-                    case network
-                    case tokenId = "token_id"
-                    case expectedRawAmount = "expected_raw_amount"
-                    case actualRawAmount = "actual_raw_amount"
-                    case decimals
-                }
             }
 
             struct Refund: Decodable {
@@ -333,24 +298,11 @@ extension ExpressDTO {
                 let rawAmount: String
                 let decimals: Int
                 let hash: String?
-
-                enum CodingKeys: String, CodingKey {
-                    case network
-                    case tokenId = "token_id"
-                    case rawAmount = "raw_amount"
-                    case decimals
-                    case hash
-                }
             }
 
             struct Rate: Decodable {
                 let atCreate: Decimal?
                 let atFinish: Decimal?
-
-                enum CodingKeys: String, CodingKey {
-                    case atCreate = "at_create"
-                    case atFinish = "at_finish"
-                }
             }
         }
     }
