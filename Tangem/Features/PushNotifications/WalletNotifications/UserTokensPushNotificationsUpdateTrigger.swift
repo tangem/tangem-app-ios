@@ -22,7 +22,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
         case syncRemoteStatusRequired
         /// The app returned to foreground while the token list is ready — the local
         /// push status should be recalculated with the current system authorization state.
-        case updateStatusRequired(isAuthorized: Bool)
+        case updateStatusRequired
         /// System push permission was granted (`false` → `true`) while the token list is
         /// ready — wallet-level preferences may be auto-enabled for allowance onboarding.
         case autoEnablePreferencesRequired
@@ -42,8 +42,8 @@ final class UserTokensPushNotificationsUpdateTrigger {
         notificationPreferencesProvider: NotificationPreferencesProvider? = nil,
         permissionService: PushNotificationsPermissionService
     ) {
-        self.userWalletId = userWalletId
 
+        self.userWalletId = userWalletId
         bind(
             accountModelsManager: accountModelsManager,
             notificationPreferencesProvider: notificationPreferencesProvider,

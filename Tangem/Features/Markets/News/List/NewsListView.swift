@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemFoundation
 
 struct NewsListView: View {
@@ -31,13 +32,18 @@ struct NewsListView: View {
             )
             .padding(.top, 12)
 
-            Group {
+            VStack(spacing: 12) {
                 NewsCategoryChipsView(
                     categories: viewModel.categories,
                     selectedCategoryId: $viewModel.selectedCategoryId
                 )
 
                 contentView
+                    .overlay(alignment: .bottom) {
+                        ListFooterOverlayShadowView(color: Color.Tangem.Surface.level3)
+                            .frame(height: 100)
+                            .allowsHitTesting(false)
+                    }
             }
             .opacity(viewModel.overlayContentHidingProgress)
         }
@@ -119,7 +125,11 @@ struct NewsListView: View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 12) {
                 ForEach(0 ..< 10, id: \.self) { _ in
-                    NewsSkeletonItemView()
+                    if FeatureProvider.isAvailable(.redesign) {
+                        RedesignNewsSkeletonItemView()
+                    } else {
+                        NewsSkeletonItemView()
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -135,13 +145,23 @@ struct NewsListView: View {
         }
     }
 
+    @ViewBuilder
     private var errorView: some View {
-        UnableToLoadDataView(
-            isButtonBusy: false,
-            retryButtonAction: { viewModel.handleViewAction(.retry) }
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal, 16)
+        if FeatureProvider.isAvailable(.redesign) {
+            TangemUnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: { viewModel.handleViewAction(.retry) }
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, 16)
+        } else {
+            UnableToLoadDataView(
+                isButtonBusy: false,
+                retryButtonAction: { viewModel.handleViewAction(.retry) }
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, 16)
+        }
     }
 }
 
@@ -179,5 +199,56 @@ private struct NewsSkeletonItemView: View {
         .padding(16)
         .background(Color.Tangem.Surface.level3)
         .cornerRadius(14)
+    }
+}
+
+// MARK: - RedesignNewsSkeletonItemView
+
+private struct RedesignNewsSkeletonItemView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: .zero) {
+            Text(Constants.ratingPlaceholder)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .skeletonable(isShown: true, cornerStyle: .capsule)
+
+            FixedSpacer(height: .unit(.x2))
+
+            Text(Constants.titlePlaceholder)
+                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .skeletonable(isShown: true, cornerStyle: .capsule)
+
+            Spacer(minLength: .unit(.x2))
+
+            Text(Constants.timePlaceholder)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .skeletonable(isShown: true, cornerStyle: .capsule)
+
+            FixedSpacer(height: .unit(.x2))
+
+            HStack(spacing: .unit(.x1)) {
+                ForEach(Constants.chipPlaceholders, id: \.self) { placeholder in
+                    InfoChipView(
+                        item: InfoChipItem(title: placeholder),
+                        style: .redesign
+                    )
+                    .skeletonable(isShown: true, cornerStyle: .capsule)
+                }
+            }
+        }
+        .padding(.unit(.x4))
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .frame(height: Constants.cardHeight)
+        .background(Color.Tangem.Surface.level3)
+        .cornerRadiusContinuous(.unit(.x5))
+    }
+
+    private enum Constants {
+        static let cardHeight: CGFloat = 152
+        static let ratingPlaceholder = "----"
+        static let titlePlaceholder = "-------------------------"
+        static let timePlaceholder = "------"
+        static let chipPlaceholders = ["----------", "-----", "---"]
     }
 }

@@ -23,7 +23,9 @@ enum Feature: String, Hashable, CaseIterable {
     case solanaScaledUIEnabled
     case dynamicAddresses
     case usdtRevokeGaslessFee
+    case yieldModuleUpdate
     case swapPipelineV2
+    case onrampNativePayment
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
@@ -52,8 +54,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
+        case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
+        case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
         case .swapProviderTypeFilter: return "13675_Swap_Provider_Type_Filter"
@@ -83,10 +87,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .solanaScaledUIEnabled: return .unspecified
         case .dynamicAddresses: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
+        case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
-        case .swapStoriesV2: return .version("5.38")
+        case .onrampNativePayment: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
+        case .swapStoriesV2: return .version("5.38")
         case .swapProviderTypeFilter: return .unspecified
         case .swapInProgressV2: return .unspecified
         case .swapPendingTxStateDate: return .unspecified
