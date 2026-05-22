@@ -82,6 +82,14 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {
+        throw "Not implemented"
+    }
+
+    func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
+        throw "Not implemented"
+    }
+
     func loadStory(storyId: String) async throws -> StoryDTO.Response {
         throw "Not implemented"
     }
