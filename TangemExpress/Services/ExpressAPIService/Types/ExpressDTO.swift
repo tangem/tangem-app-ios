@@ -17,7 +17,7 @@ enum ExpressDTO {
         let network: String
     }
 
-    // MARK: - History (shared primitives — same shape in /v1/exchange/history and /v1/onramp/history)
+    // MARK: - History (shared DTOs for both exchange & onramp)
 
     struct HistoryRequest: Encodable {
         let walletAddress: String

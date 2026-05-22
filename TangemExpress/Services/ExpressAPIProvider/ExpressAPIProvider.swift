@@ -50,6 +50,7 @@ public protocol ExpressAPIProvider {
 // MARK: - Convenience extensions
 
 public extension ExpressAPIProvider {
+    /// History w/o network and tokenId filters.
     func exchangeHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> ExchangeHistoryPage {
         try await exchangeHistory(
             walletAddress: walletAddress,
@@ -60,6 +61,7 @@ public extension ExpressAPIProvider {
         )
     }
 
+    /// History w/o network and tokenId filters.
     func onrampHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> OnrampHistoryPage {
         try await onrampHistory(
             walletAddress: walletAddress,
