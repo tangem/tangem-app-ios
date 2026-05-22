@@ -83,7 +83,8 @@ final class LockedUserWalletModel: UserWalletModel {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
+            notificationPreferencesProvider: NotificationPreferencesProviderStub()
         )
     }
 
