@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
     private weak var coordinator: TangemPayWithdrawNoteSheetRoutable?
@@ -24,6 +25,10 @@ final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
     }
 
     var secondaryButton: MainButton.Settings? = nil
+
+    var primaryButtonAccessibilityIdentifier: String? {
+        TangemPayAccessibilityIdentifiers.withdrawNoteSheetPrimaryButton
+    }
 
     var title: AttributedString {
         .init(Localization.tangempayWithdrawalNoteTitle)
