@@ -58,8 +58,17 @@ struct NewsListView: View {
     }
 
     private var newsListBottomFadeOverlay: some View {
-        BottomFadeWithBlur(backgroundColor: Color.Tangem.Surface.level2)
-            .allowsHitTesting(false)
+        LinearGradient(
+            colors: [
+                Color.Tangem.Surface.level2.opacity(0),
+                Color.Tangem.Surface.level2,
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: 200)
+        .ignoresSafeArea(.container, edges: .bottom)
+        .allowsHitTesting(false)
     }
 
     @ViewBuilder
