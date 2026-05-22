@@ -52,14 +52,21 @@ struct ExpressProviderFormatterBadgeTests {
             slippage: nil
         )
 
-        let manager = StubExpressProviderManager()
-
-        return ExpressAvailableProvider(
+        let context = ExpressProviderFlowContext(
             provider: provider,
-            manager: manager,
-            supportedRateTypes: [.float],
-            isBest: isBest
+            pair: ExpressManagerSwappingPair(source: StubExpressWallet(), destination: StubExpressWallet()),
+            expressFeeProvider: StubExpressFeeProvider(),
+            expressAPIProvider: StubExpressAPIProvider(),
+            mapper: ExpressManagerMapper()
         )
+
+        let available = ExpressAvailableProvider(
+            context: context,
+            manager: StubExpressProviderManager(),
+            rateType: .float
+        )
+        available.update(isBest: isBest)
+        return available
     }
 }
 
@@ -139,21 +146,56 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
 }
 
 private final class StubExpressProviderManager: ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair {
-        fatalError("Not used in tests")
-    }
-
-    var feeProvider: ExpressFeeProvider {
-        fatalError("Not used in tests")
-    }
-
-    func getState() -> ExpressProviderManagerState {
-        .idle
-    }
-
+    func getState() -> ExpressProviderManagerState { .idle }
+    func reset() {}
     func update(request: ExpressManagerSwappingPairRequest) async {}
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
         fatalError("Not used in tests")
     }
+}
+
+private struct StubExpressWallet: ExpressSourceWallet {
+    var currency: ExpressWalletCurrency { fatalError("Not used in tests") }
+    var coinCurrency: ExpressWalletCurrency { fatalError("Not used in tests") }
+    var address: String? { nil }
+    var extraId: String? { nil }
+
+    var allowanceProvider: AllowanceProvider? { nil }
+    var yieldModuleTransactionHelper: YieldModuleTransactionHelper? { nil }
+    var balanceProvider: BalanceProvider { fatalError("Not used in tests") }
+    var analyticsLogger: AnalyticsLogger { fatalError("Not used in tests") }
+    var providerTransactionValidator: ExpressProviderTransactionValidator { fatalError("Not used in tests") }
+    var operationType: ExpressOperationType { fatalError("Not used in tests") }
+    var supportedProvidersFilter: SupportedProvidersFilter { fatalError("Not used in tests") }
+    var expressFeeProviderFactory: ExpressFeeProviderFactory { fatalError("Not used in tests") }
+}
+
+private struct StubExpressFeeProvider: ExpressFeeProvider {
+    func feeCurrency() -> ExpressWalletCurrency { fatalError("Not used in tests") }
+    func feeCurrencyBalance() throws -> Decimal { fatalError("Not used in tests") }
+    func estimatedFee(amount: Decimal) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee { fatalError("Not used in tests") }
+}
+
+private final class StubExpressAPIProvider: ExpressAPIProvider {
+    func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { fatalError("Not used in tests") }
+    func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { fatalError("Not used in tests") }
+    func providers(branch: ExpressBranch) async throws -> [ExpressProvider] { fatalError("Not used in tests") }
+    func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote { fatalError("Not used in tests") }
+    func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData { fatalError("Not used in tests") }
+    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction { fatalError("Not used in tests") }
+    func exchangeSent(result: ExpressTransactionSentResult) async throws { fatalError("Not used in tests") }
+    func onrampCurrencies() async throws -> [OnrampFiatCurrency] { fatalError("Not used in tests") }
+    func onrampCountries() async throws -> [OnrampCountry] { fatalError("Not used in tests") }
+    func onrampCountryByIP() async throws -> OnrampCountry { fatalError("Not used in tests") }
+    func onrampPaymentMethods() async throws -> [OnrampPaymentMethod] { fatalError("Not used in tests") }
+    func onrampPairs(from: OnrampFiatCurrency, to: [ExpressWalletCurrency], country: OnrampCountry) async throws -> [OnrampPair] { fatalError("Not used in tests") }
+    func onrampQuote(item: OnrampQuotesRequestItem) async throws -> OnrampQuote { fatalError("Not used in tests") }
+    func onrampData(item: OnrampRedirectDataRequestItem) async throws -> OnrampRedirectData { fatalError("Not used in tests") }
+    func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult { fatalError("Not used in tests") }
+    func onrampStatus(transactionId: String) async throws -> OnrampTransaction { fatalError("Not used in tests") }
 }
