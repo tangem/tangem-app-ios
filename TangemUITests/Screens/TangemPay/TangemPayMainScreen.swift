@@ -13,6 +13,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     private lazy var paymentAccountCardButton = button(.paymentAccountCardButton)
     private lazy var balanceText = staticText(.paymentAccountBalance)
     private lazy var addFundsButton = button(.addFundsButton)
+    private lazy var withdrawButton = button(.withdrawButton)
     private lazy var backButton = app.navigationBars.buttons.element(boundBy: 0)
 
     @discardableResult
@@ -79,6 +80,26 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func tapWithdraw() -> TangemPayWithdrawNoteSheet {
+        XCTContext.runActivity(named: "Tap Withdraw button") { _ in
+            withdrawButton.waitAndTap()
+            return TangemPayWithdrawNoteSheet(app)
+        }
+    }
+
+    @discardableResult
+    func verifyPendingExpressTransactionVisible() -> Self {
+        XCTContext.runActivity(named: "Verify pending express transaction row is visible") { _ in
+            let row = app.buttons[TokenAccessibilityIdentifiers.pendingExpressTransaction].firstMatch
+            XCTAssertTrue(
+                row.waitForExistence(timeout: .networkRequest),
+                "Pending express transaction row should be displayed"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyTransactionRowVisible(label: String) -> Self {
         XCTContext.runActivity(named: "Verify transaction row '\(label)' is visible") { _ in
             let txCell = app.staticTexts[label].firstMatch
@@ -119,6 +140,7 @@ enum TangemPayMainScreenElement: String, UIElement {
     case paymentAccountCardButton
     case paymentAccountBalance
     case addFundsButton
+    case withdrawButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -128,6 +150,8 @@ enum TangemPayMainScreenElement: String, UIElement {
             TangemPayAccessibilityIdentifiers.paymentAccountBalance
         case .addFundsButton:
             TangemPayAccessibilityIdentifiers.addFundsButton
+        case .withdrawButton:
+            TangemPayAccessibilityIdentifiers.withdrawButton
         }
     }
 }
