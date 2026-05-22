@@ -1,5 +1,5 @@
 //
-//  CommonWalletModelNFTFeatureManager.swift
+//  WalletModelNFTFeatureManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,27 +12,37 @@ import CombineExt
 import TangemNFT
 import TangemFoundation
 
-final class CommonWalletModelNFTFeatureManager {
+final class WalletModelNFTFeatureManager {
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
 
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
     private let tokenItem: TokenItem
 
-    private lazy var _nftFeaturePublisher: some Publisher<WalletModelFeature?, Never> = nftAvailabilityProvider
+    private lazy var nftNetworkServicePublisher: some Publisher<NFTNetworkService?, Never> = nftAvailabilityProvider
         .didChangeNFTAvailabilityPublisher
         .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { featuresManager, _ in
-            guard
-                featuresManager.isNFTAvailable,
-                let networkService = featuresManager.nftNetworkService
-            else {
-                return nil
-            }
-
-            return .nft(networkService: networkService)
+            featuresManager.nftNetworkService
         }
+
+    private var nftNetworkService: NFTNetworkService? {
+        guard isNFTAvailable else {
+            return nil
+        }
+
+        if isNFTEnabledForWallet {
+            let service = _nftNetworkService ?? NFTNetworkServiceFactory().makeNetworkService(for: tokenItem)
+            _nftNetworkService = service
+        } else {
+            _nftNetworkService = nil
+        }
+
+        return _nftNetworkService
+    }
+
+    private var _nftNetworkService: NFTNetworkService?
 
     /// Can change its value at runtime.
     private var isNFTEnabledForWallet: Bool {
@@ -46,19 +56,6 @@ final class CommonWalletModelNFTFeatureManager {
         return nftAvailabilityProvider.isNFTAvailable(for: userWalletConfig) && nftAvailabilityUtil.isNFTAvailable(for: tokenItem)
     }
 
-    private var _nftNetworkService: NFTNetworkService?
-
-    private var nftNetworkService: NFTNetworkService? {
-        if isNFTEnabledForWallet {
-            let service = _nftNetworkService ?? NFTNetworkServiceFactory().makeNetworkService(for: tokenItem)
-            _nftNetworkService = service
-        } else {
-            _nftNetworkService = nil
-        }
-
-        return _nftNetworkService
-    }
-
     init(
         userWalletId: UserWalletId,
         userWalletConfig: UserWalletConfig,
@@ -70,17 +67,12 @@ final class CommonWalletModelNFTFeatureManager {
     }
 }
 
-// MARK: - WalletModelNFTFeatureManager protocol conformance
+// MARK: - WalletModelFeatureManager protocol conformance
 
-extension CommonWalletModelNFTFeatureManager: WalletModelNFTFeatureManager {
-    var nftFeature: WalletModelFeature? {
-        guard isNFTAvailable, let networkService = nftNetworkService else {
-            return nil
-        }
-        return .nft(networkService: networkService)
-    }
+extension WalletModelNFTFeatureManager: WalletModelFeatureManager {
+    var featurePayload: NFTNetworkService? { nftNetworkService }
 
-    var nftFeaturePublisher: AnyPublisher<WalletModelFeature?, Never> {
-        _nftFeaturePublisher.eraseToAnyPublisher()
+    var featurePayloadPublisher: AnyPublisher<NFTNetworkService?, Never> {
+        nftNetworkServicePublisher.eraseToAnyPublisher()
     }
 }
