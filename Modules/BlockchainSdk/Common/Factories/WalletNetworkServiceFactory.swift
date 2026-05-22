@@ -109,6 +109,7 @@ extension WalletNetworkServiceFactory {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .decimal,
              .xdc,
              .rsk:
