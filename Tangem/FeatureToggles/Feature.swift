@@ -75,7 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapExchangeRateDisplay: return "[REDACTED_INFO]_Swap_Exchange_Rate_Display"
         case .yieldApyBoostPromo: return "[REDACTED_INFO]_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
-        case .tangemPayMultipleCards: return "[REDACTED_INFO]_TangemPay_Multiple_Cards"
+        case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         }
     }
 
