@@ -241,7 +241,11 @@ extension SwapModel {
         _receiveToken.send(.success(wallet))
         swappingPairDidChange()
     }
+}
 
+// MARK: - Updating
+
+private extension SwapModel {
     func swappingPairDidChange() {
         let currentPair = selectedExpressProvider?.value?.pair
         let shouldReloadProviders = {
@@ -315,7 +319,7 @@ extension SwapModel {
                 input.update(providersState: providersState)
 
             } catch is CancellationError {
-                ExpressLogger.info("updateTask was cancelled")
+                ExpressLogger.info(input, "UpdateTask was cancelled")
                 // Do nothing
             } catch {
                 input.update(providersState: .failure(error))
@@ -323,14 +327,14 @@ extension SwapModel {
         }
     }
 
-    private func update(providersState: ProvidersState) {
+    func update(providersState: ProvidersState) {
         ExpressLogger.info(self, "ProvidersState will update to: \(providersState)")
 
         logErrorIfNeeded(providersState: providersState)
         _providersState.send(providersState)
     }
 
-    private func hasSwapBalanceRestriction() async throws -> RestrictionType? {
+    func hasSwapBalanceRestriction() async throws -> RestrictionType? {
         guard let sourceAmount = sourceAmount.value?.crypto, sourceAmount > 0 else {
             return nil
         }
@@ -343,7 +347,7 @@ extension SwapModel {
         return hasRestriction ? .notEnoughBalanceForSwapping : nil
     }
 
-    private func logErrorIfNeeded(providersState: ProvidersState) {
+    func logErrorIfNeeded(providersState: ProvidersState) {
         // The screen name is derived from the in-flight LoadingType, which only lives on the
         // outgoing `.loading` state. If we're not transitioning from `.loading`, there's nothing to log.
         guard case .loading(let loadingType) = _providersState.value else {
@@ -378,7 +382,7 @@ extension SwapModel {
         }
     }
 
-    private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
+    func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
         switch update {
         case .setReceiveAmount(let crypto, let currencyId):
             _receiveAmount.send(makeSendAmount(crypto: crypto, currencyId: currencyId))
