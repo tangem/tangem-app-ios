@@ -10,9 +10,7 @@ import Foundation
 
 public struct ExchangeHistoryPage: Hashable {
     public let records: [ExchangeHistoryRecord]
-    /// Opaque cursor for the next sync. Persist as-is, do not parse.
     public let nextCursor: String
-    /// `true` when more pages are immediately available; `false` means caller should stop paginating
-    /// in this sync (but keep `nextCursor` for the next delta).
+    /// Opaque cursor for the next page.
     public let hasMore: Bool
 }

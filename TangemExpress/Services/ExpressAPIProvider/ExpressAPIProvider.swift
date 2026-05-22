@@ -30,10 +30,6 @@ public protocol ExpressAPIProvider {
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction
 
-    /// Fetches a delta page of swap-history records for `walletAddress`. Pass `nil` `cursor` for an
-    /// initial sync; pass the previously persisted opaque cursor otherwise. `network` and `tokenId`
-    /// scope the result to a specific asset (foreground-sync only) — non-foreground callers should
-    /// use the 3-arg convenience overload below.
     func exchangeHistory(
         walletAddress: String,
         cursor: String?,
@@ -42,8 +38,6 @@ public protocol ExpressAPIProvider {
         tokenId: String?
     ) async throws -> ExchangeHistoryPage
 
-    /// Fetches a delta page of onramp-history records for `walletAddress`. Pagination/filter contract
-    /// mirrors `exchangeHistory(walletAddress:cursor:limit:network:tokenId:)`.
     func onrampHistory(
         walletAddress: String,
         cursor: String?,
@@ -53,12 +47,8 @@ public protocol ExpressAPIProvider {
     ) async throws -> OnrampHistoryPage
 }
 
-// MARK: - Convenience overloads
+// MARK: - Convenience extensions
 
-/// Most callers (initial sync, delta sync, post-broadcast sync, pagination) don't scope to a specific
-/// asset — only foreground sync from an asset detail screen passes `network`/`tokenId`. These 3-arg
-/// overloads keep those common call sites tidy. Default-value syntax on the protocol method itself
-/// isn't supported in Swift, hence the explicit extension.
 public extension ExpressAPIProvider {
     func exchangeHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> ExchangeHistoryPage {
         try await exchangeHistory(

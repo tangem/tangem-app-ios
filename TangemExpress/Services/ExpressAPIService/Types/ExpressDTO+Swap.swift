@@ -169,7 +169,7 @@ extension ExpressDTO {
             }
         }
 
-        // MARK: - History (GET /v1/exchange/history)
+        // MARK: - History
 
         enum History {
             struct Response: Decodable {
@@ -191,11 +191,10 @@ extension ExpressDTO {
                 let refund: Refund?
                 let rateType: ExpressProviderRateType
                 // [REDACTED_TODO_COMMENT]
-                // Sticking with ISO8601 String -> Date to match every other Express endpoint until
-                // the new contract is finalized. Flip to `Int` here (and adjust the mapper) when the
-                // backend pins the format.
-                // let createdAt: Int
-                // let updatedAt: Int
+                /*
+                 let createdAt: Int
+                 let updatedAt: Int
+                  */
                 let createdAt: Date
                 let updatedAt: Date
             }
