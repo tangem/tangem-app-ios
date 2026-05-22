@@ -25,7 +25,7 @@ public protocol ExpressManager: Actor {
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerUpdatingResult
 
     /// Refreshes quotes for the currently selected provider without changing the selection.
-    func autoupdate(source: ExpressProviderUpdateSource) async -> ExpressManagerUpdatingResult
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult
 
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
