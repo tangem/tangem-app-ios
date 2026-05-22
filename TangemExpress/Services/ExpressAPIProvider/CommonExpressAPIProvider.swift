@@ -305,6 +305,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             tokenId: tokenId
         )
         let response = try await expressAPIService.exchangeHistory(request: request)
+
         return try expressAPIMapper.mapToExchangeHistoryPage(response: response)
     }
 
@@ -323,6 +324,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             tokenId: tokenId
         )
         let response = try await expressAPIService.onrampHistory(request: request)
+
         return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
     }
 }
