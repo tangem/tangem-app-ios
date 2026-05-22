@@ -18,7 +18,7 @@ struct FakeStakingValidatorsInteractor: StakingTargetsInteractor {
                 name: "InfStones",
                 preferred: true,
                 partner: false,
-                iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png")!,
+                image: .url(URL(string: "https://assets.stakek.it/validators/infstones.png")!),
                 rewardType: .apr,
                 rewardRate: Decimal(0.008),
                 status: .active
@@ -28,7 +28,7 @@ struct FakeStakingValidatorsInteractor: StakingTargetsInteractor {
                 name: "Aconcagua",
                 preferred: true,
                 partner: false,
-                iconURL: URL(string: "https://assets.stakek.it/validators/coinbase.png")!,
+                image: .url(URL(string: "https://assets.stakek.it/validators/coinbase.png")!),
                 rewardType: .apr,
                 rewardRate: Decimal(0.023),
                 status: .active
