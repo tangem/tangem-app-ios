@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AnyCodable
 
 enum ExpressDTO {
     // MARK: - Common
@@ -20,7 +21,7 @@ enum ExpressDTO {
 
     struct HistoryRequest: Encodable {
         let walletAddress: String
-        let cursor: String?
+        let cursor: AnyEncodable?
         let limit: Int?
         let network: String?
         let tokenId: String?

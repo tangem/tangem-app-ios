@@ -337,7 +337,7 @@ struct ExpressAPIMapper {
 
         return ExchangeHistoryPage(
             records: records,
-            nextCursor: response.nextCursor,
+            nextCursor: response.nextCursor.value,
             hasMore: response.hasMore
         )
     }
@@ -347,7 +347,7 @@ struct ExpressAPIMapper {
 
         return OnrampHistoryPage(
             records: records,
-            nextCursor: response.nextCursor,
+            nextCursor: response.nextCursor.value,
             hasMore: response.hasMore
         )
     }
