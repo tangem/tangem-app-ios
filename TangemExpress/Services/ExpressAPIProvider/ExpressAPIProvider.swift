@@ -32,7 +32,7 @@ public protocol ExpressAPIProvider {
 
     func exchangeHistory(
         walletAddress: String,
-        cursor: String?,
+        cursor: Any?,
         limit: Int?,
         network: String?,
         tokenId: String?
@@ -40,7 +40,7 @@ public protocol ExpressAPIProvider {
 
     func onrampHistory(
         walletAddress: String,
-        cursor: String?,
+        cursor: Any?,
         limit: Int?,
         network: String?,
         tokenId: String?
@@ -50,7 +50,7 @@ public protocol ExpressAPIProvider {
 // MARK: - Convenience extensions
 
 public extension ExpressAPIProvider {
-    func exchangeHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> ExchangeHistoryPage {
+    func exchangeHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> ExchangeHistoryPage {
         try await exchangeHistory(
             walletAddress: walletAddress,
             cursor: cursor,
@@ -60,7 +60,7 @@ public extension ExpressAPIProvider {
         )
     }
 
-    func onrampHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> OnrampHistoryPage {
+    func onrampHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> OnrampHistoryPage {
         try await onrampHistory(
             walletAddress: walletAddress,
             cursor: cursor,
