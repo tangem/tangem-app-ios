@@ -33,8 +33,6 @@ final class CommonSwapNotificationManager {
     private var setupCancellable: AnyCancellable?
     private var analyticsServiceCancellable: AnyCancellable?
 
-    init() {}
-
     private func analyticsService(for userWalletId: UserWalletId) -> NotificationsAnalyticsService {
         if let analyticsService = analyticsServices.read()[userWalletId] {
             return analyticsService

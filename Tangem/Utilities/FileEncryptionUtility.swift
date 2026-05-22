@@ -11,10 +11,8 @@ import CryptoKit
 import TangemSdk
 import TangemFoundation
 
-class FileEncryptionUtility {
+final class FileEncryptionUtility {
     private let keychain: SecureStorage = .init()
-
-    init() {}
 
     private var keychainKey: String { "tangem_files_symmetric_key" }
 

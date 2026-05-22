@@ -40,7 +40,7 @@ struct TransactionHistoryServiceProvider {
             )
         }
 
-        let multiAddressProviders: [String: TransactionHistoryProvider] = addresses.reduce(into: [:]) { result, address in
+        let multiAddressProviders: [String: BlockchainSdk.TransactionHistoryProvider] = addresses.reduce(into: [:]) { result, address in
             let factory = TransactionHistoryFactoryProvider().factory
             if let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) {
                 result[address] = provider

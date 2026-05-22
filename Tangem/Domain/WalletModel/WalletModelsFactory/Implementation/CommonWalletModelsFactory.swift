@@ -15,18 +15,18 @@ import TangemFoundation
 struct CommonWalletModelsFactory {
     private let config: UserWalletConfig
     private let userWalletId: UserWalletId
-    private let walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider
+    private let walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory
     private let transactionHistoryServiceProvider: TransactionHistoryServiceProvider
 
     init(
         config: UserWalletConfig,
         userWalletId: UserWalletId,
-        walletModelFeaturesManagerProvider: WalletModelFeaturesManagerProvider,
+        walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory,
         transactionHistoryServiceProvider: TransactionHistoryServiceProvider
     ) {
         self.config = config
         self.userWalletId = userWalletId
-        self.walletModelFeaturesManagerProvider = walletModelFeaturesManagerProvider
+        self.walletModelFeaturesManagerFactory = walletModelFeaturesManagerFactory
         self.transactionHistoryServiceProvider = transactionHistoryServiceProvider
     }
 
@@ -100,7 +100,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 addresses: walletManager.wallet.addresses
             )
 
-            let featureManager = walletModelFeaturesManagerProvider.makeWalletModelFeaturesManager(
+            let featureManager = walletModelFeaturesManagerFactory.makeWalletModelFeaturesManager(
                 tokenItem: tokenItem,
                 walletManager: walletManager
             )
@@ -139,11 +139,10 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     tokenItem: tokenItem,
                     addresses: walletManager.wallet.addresses
                 )
-                let featureManager = walletModelFeaturesManagerProvider.makeWalletModelFeaturesManager(
+                let featureManager = walletModelFeaturesManagerFactory.makeWalletModelFeaturesManager(
                     tokenItem: tokenItem,
                     walletManager: walletManager
                 )
-
                 let tokenModel = CommonWalletModel(
                     userWalletId: userWalletId,
                     tokenItem: tokenItem,
