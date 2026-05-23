@@ -14,18 +14,6 @@ public struct OnrampQuotesRequestItem {
     public let providerInfo: ProviderInfo
     public let amount: Decimal
 
-    public init(
-        pairItem: OnrampPairRequestItem,
-        paymentMethod: PaymentMethodInfo,
-        providerInfo: ProviderInfo,
-        amount: Decimal
-    ) {
-        self.pairItem = pairItem
-        self.paymentMethod = paymentMethod
-        self.providerInfo = providerInfo
-        self.amount = amount
-    }
-
     func sourceAmountWEI() -> String {
         let wei = (amount * pow(10, pairItem.fiatCurrency.precision)) as NSDecimalNumber
         return wei.stringValue
