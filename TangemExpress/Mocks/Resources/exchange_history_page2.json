@@ -1,0 +1,108 @@
+{
+  "data": [
+    {
+      "txId": "tx_004_refunded_eth_to_dai",
+      "status": "refunded",
+      "provider": {
+        "id": "changelly",
+        "name": "Changelly",
+        "iconUrl": "https://s3.eu-central-1.amazonaws.com/tangem.api/express/providers/changelly.png",
+        "providerUrl": "https://changelly.com"
+      },
+      "from": {
+        "network": "ethereum",
+        "tokenId": null,
+        "rawAmount": "250000000000000000",
+        "decimals": 18,
+        "isActual": true
+      },
+      "to": {
+        "network": "ethereum",
+        "tokenId": "0x6b175474e89094c44da98b954eedeac495271d0f",
+        "rawAmount": "0",
+        "decimals": 18,
+        "isActual": false
+      },
+      "payinHash": "0xe5a7c9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7",
+      "payoutHash": null,
+      "externalTxId": "ext_changelly_004",
+      "externalTxUrl": "https://changelly.com/track/ext_changelly_004",
+      "refund": {
+        "network": "ethereum",
+        "tokenId": null,
+        "rawAmount": "249500000000000000",
+        "decimals": 18,
+        "hash": "0xf6b8c0d2e4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8"
+      },
+      "rateType": "float",
+      "createdAt": "2026-05-15T11:08:31.000Z",
+      "updatedAt": "2026-05-15T12:14:55.500Z"
+    },
+    {
+      "txId": "tx_005_waiting_usdc_to_eth",
+      "status": "waiting",
+      "provider": {
+        "id": "1inch",
+        "name": "1inch",
+        "iconUrl": "https://s3.eu-central-1.amazonaws.com/tangem.api/express/providers/1inch.png",
+        "providerUrl": "https://1inch.io"
+      },
+      "from": {
+        "network": "ethereum",
+        "tokenId": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "rawAmount": "1000000000",
+        "decimals": 6,
+        "isActual": true
+      },
+      "to": {
+        "network": "ethereum",
+        "tokenId": null,
+        "rawAmount": "320000000000000000",
+        "decimals": 18,
+        "isActual": false
+      },
+      "payinHash": null,
+      "payoutHash": null,
+      "externalTxId": "ext_1inch_005",
+      "externalTxUrl": "https://1inch.io/swap/ext_1inch_005",
+      "refund": null,
+      "rateType": "float",
+      "createdAt": "2026-05-17T09:45:00.000Z",
+      "updatedAt": "2026-05-17T09:45:00.000Z"
+    },
+    {
+      "txId": "tx_006_finished_usdt_to_usdc",
+      "status": "finished",
+      "provider": {
+        "id": "changenow",
+        "name": "ChangeNOW",
+        "iconUrl": "https://s3.eu-central-1.amazonaws.com/tangem.api/express/providers/changenow.png",
+        "providerUrl": "https://changenow.io"
+      },
+      "from": {
+        "network": "ethereum",
+        "tokenId": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        "rawAmount": "200000000",
+        "decimals": 6,
+        "isActual": true
+      },
+      "to": {
+        "network": "ethereum",
+        "tokenId": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "rawAmount": "199820000",
+        "decimals": 6,
+        "isActual": true
+      },
+      "payinHash": "0xa7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9",
+      "payoutHash": "0xb8d0f2a4c6e8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0",
+      "externalTxId": "ext_changenow_006",
+      "externalTxUrl": "https://changenow.io/exchange/txs/ext_changenow_006",
+      "refund": null,
+      "rateType": "fixed",
+      "createdAt": "2026-05-18T13:51:42.750Z",
+      "updatedAt": "2026-05-18T13:55:08.250Z"
+    }
+  ],
+  "nextCursor": "p3",
+  "hasMore": true
+}
