@@ -13,5 +13,5 @@ public struct OnrampNativePaymentData {
     public let fromAmount: Decimal
     public let fromCurrencyCode: String
     public let externalTxId: String?
-    public let externalTxUrl: String?
+    public let externalTxURL: URL?
 }
