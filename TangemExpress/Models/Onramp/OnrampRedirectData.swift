@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct OnrampRedirectData: Codable, Equatable {
+public struct OnrampRedirectData: Equatable {
     public let txId: String
     public let widgetURL: URL
     public let redirectURL: URL
