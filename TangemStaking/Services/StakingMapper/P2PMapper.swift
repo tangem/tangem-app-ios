@@ -99,7 +99,7 @@ struct P2PMapper {
             )
         }
 
-        if let rewards = response.stake.totalEarnedAssets, rewards > .zero {
+        if let rewards = response.stake.totalEarnedAssets, rewards > .zero, !balances.isEmpty {
             balances.append(
                 StakingBalanceInfo(
                     item: .ethereum,
