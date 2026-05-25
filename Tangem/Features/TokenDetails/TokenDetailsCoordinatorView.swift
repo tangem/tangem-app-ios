@@ -13,10 +13,6 @@ import TangemUI
 struct TokenDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TokenDetailsCoordinator
 
-    init(coordinator: TokenDetailsCoordinator) {
-        self.coordinator = coordinator
-    }
-
     var body: some View {
         ZStack {
             if let viewModel = coordinator.tokenDetailsViewModel {
@@ -28,7 +24,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
@@ -37,11 +32,19 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.stakingDetailsCoordinator) {
                 StakingDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
-                MarketsTokenDetailsCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
+            }
+            .modifyView { view in
+                if coordinator.isRedesign {
+                    view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
+                        MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
+                    }
+                } else {
+                    view.navigation(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
+                        MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
+                    }
+                }
             }
     }
 

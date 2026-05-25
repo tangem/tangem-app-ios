@@ -54,24 +54,7 @@ struct MarketsTokenDetailsExchangesListView: View {
                 .opacity(viewModel.overlayContentHidingProgress)
 
             VStack(spacing: 0) {
-                if FeatureProvider.isAvailable(.redesign) {
-                    NavigationHeader(
-                        leadingContent: {
-                            TangemButton(
-                                content: .icon(Assets.Glyphs.chevron20LeftButtonNew),
-                                action: viewModel.onBackButtonAction
-                            )
-                            .setStyleType(.secondary)
-                            .setCornerStyle(.rounded)
-                            .setSize(.x11)
-                        },
-                        principalContent: {
-                            Text(navigationBarTitle)
-                                .style(.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
-                        },
-                        trailingContent: { EmptyView() }
-                    )
-                } else if viewModel.isMarketsSheetStyle {
+                if viewModel.isMarketsSheetStyle {
                     MarketsNavigationBar(
                         title: navigationBarTitle,
                         onBackButtonAction: viewModel.onBackButtonAction
