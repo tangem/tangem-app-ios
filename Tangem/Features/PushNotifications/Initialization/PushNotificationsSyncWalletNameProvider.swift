@@ -9,6 +9,7 @@
 import Foundation
 import TangemFoundation
 import Combine
+import CombineExt
 
 final class PushNotificationsSyncWalletNameProvider {
     // MARK: - Private Properties
