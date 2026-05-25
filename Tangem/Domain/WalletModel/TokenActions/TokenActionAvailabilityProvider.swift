@@ -209,7 +209,7 @@ extension TokenActionAvailabilityProvider {
             return .customToken
         }
 
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -277,7 +277,7 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -337,7 +337,7 @@ extension TokenActionAvailabilityProvider {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
         }
 
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 

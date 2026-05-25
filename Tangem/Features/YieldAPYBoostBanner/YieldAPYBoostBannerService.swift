@@ -13,6 +13,7 @@ import TangemFoundation
 final class YieldAPYBoostBannerService {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.yieldAPYBoostPromoRepository) private var promoRepository: YieldAPYBoostPromoRepository
+    @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
 
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private let userWalletId: UserWalletId
@@ -29,17 +30,16 @@ final class YieldAPYBoostBannerService {
             AppSettings.shared.yieldApyBoostHiddenPromos.contains(YieldAPYBoostPromoRepository.campaignName)
         }
 
-        guard
-            FeatureProvider.isAvailable(.yieldApyBoostPromo),
-            !FeatureProvider.isAvailable(.redesign),
-            !isDismissed
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
+              !FeatureProvider.isAvailable(.redesign),
+              !isDismissed
         else {
             notificationInputsSubject.send([])
             return
         }
 
         guard
-            let campaign = await promoRepository.campaign(userWalletId: userWalletId),
+            let campaign = await promoRepository.campaign(userWalletId: userWalletId.stringValue),
             (campaign.startDate ... campaign.endDate).contains(Date()),
             campaign.promoEnrollmentStatus == .notStarted
         else {
@@ -79,10 +79,18 @@ extension YieldAPYBoostBannerService: NotificationManager {
 
 private extension YieldAPYBoostBannerService {
     func makeNotificationInput() -> NotificationViewInput {
-        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] _, _ in
-            guard let self else { return }
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [tangemStoriesPresenter, incomingActionHandler] _, _ in
             Analytics.log(.mainScreenButtonExploreYieldMode)
-            _ = incomingActionHandler.handleIncomingURL(YieldAPYBoostBannerNotificationEvent.deeplink)
+
+            Task { @MainActor in
+                tangemStoriesPresenter.present(
+                    story: .yieldFirstActivationAPYBoostStory,
+                    analyticsSource: .main,
+                    presentCompletion: {
+                        _ = incomingActionHandler.handleIncomingURL(YieldAPYBoostBannerNotificationEvent.deeplink)
+                    }
+                )
+            }
         }
 
         let dismissAction: NotificationView.NotificationAction = { [weak self] id in
