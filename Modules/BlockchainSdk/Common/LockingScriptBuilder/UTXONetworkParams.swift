@@ -10,8 +10,8 @@ protocol UTXONetworkParams {
     var p2pkhPrefix: UInt8 { get }
     var p2shPrefix: UInt8 { get }
     var bech32Prefix: String { get }
-    var dustRelayTxFee: Int { get }
     var signHashType: UTXONetworkParamsSignHashType { get }
+    var dustCalculator: UTXONetworkParamsDustCalculator { get }
 }
 
 enum UTXONetworkParamsSignHashType: Hashable {
