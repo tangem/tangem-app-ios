@@ -57,6 +57,8 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         !isMarketsSheetFlow && !isDeeplinkMode
     }
 
+    let isRedesign = FeatureProvider.isAvailable(.redesign)
+
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
