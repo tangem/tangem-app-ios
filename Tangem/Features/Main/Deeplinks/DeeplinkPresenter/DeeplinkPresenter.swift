@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 protocol DeeplinkPresenter {
     func present(deepLink: MainCoordinator.DeepLinkDestination)
 }
