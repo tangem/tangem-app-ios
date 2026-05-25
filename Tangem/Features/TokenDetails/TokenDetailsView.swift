@@ -39,20 +39,9 @@ struct TokenDetailsView: View {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
                 }
 
-                ForEach(viewModel.tokenNotificationInputs) { input in
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
-                }
+                notifications
 
-                if viewModel.isMarketsDetailsAvailable {
-                    MarketPriceView(
-                        currencySymbol: viewModel.currencySymbol,
-                        price: viewModel.rateFormatted,
-                        priceChangeState: viewModel.priceChangeState,
-                        miniChartData: viewModel.miniChartData,
-                        tapAction: viewModel.openMarketsTokenDetails
-                    )
-                }
+                marketPriceLegacy
 
                 yieldStatusView
 
@@ -71,16 +60,30 @@ struct TokenDetailsView: View {
                     QuickTopUpBannerView(viewModel: quickTopUpVM)
                 }
 
-                TransactionsListView(
-                    state: viewModel.transactionHistoryState,
-                    exploreAction: viewModel.openExplorer,
-                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                    exploreTransactionAction: viewModel.openTransactionExplorer,
-                    reloadButtonAction: viewModel.onButtonReloadHistory,
-                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    fetchMore: viewModel.fetchMoreHistory()
-                )
-                .padding(.bottom, 40)
+                if FeatureProvider.isAvailable(.redesign) {
+                    TransactionsListViewRedesigned(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                    .padding(.bottom, 40)
+                } else {
+                    // [REDACTED_INFO]: remove legacy transactions list after redesign rollout.
+                    TransactionsListView(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                    .padding(.bottom, 40)
+                }
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
@@ -89,9 +92,10 @@ struct TokenDetailsView: View {
             )
         }
         .padding(.horizontal, 16)
-        .edgesIgnoringSafeArea(.bottom)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .ignoresSafeArea(.keyboard)
+        .background {
+            backgroundColor
+                .edgesIgnoringSafeArea(.all)
+        }
         .onAppear {
             viewModel.onAppear()
             scrollOffsetHandler.onViewAppear()
@@ -99,18 +103,24 @@ struct TokenDetailsView: View {
         .onFirstAppear {
             viewModel.onFirstAppear()
         }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            marketPriceRedesign
+        }
+        .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
         .toolbar {
             principalToolbarContent
-
-            ToolbarItem(placement: .navigationBarTrailing) {
-                navbarTrailingButton
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
-            }
+            trailingToolbarButton
         }
         .navigationBarTitleDisplayMode(.inline)
+        .modifyView { view in
+            if #unavailable(iOS 26.0), viewModel.isRedesign {
+                view.backportTranslucentNavigationBar()
+            } else {
+                view
+            }
+        }
     }
 
     @ToolbarContentBuilder
@@ -142,8 +152,22 @@ struct TokenDetailsView: View {
         .opacity(scrollOffsetHandler.state)
     }
 
+    private var trailingToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Group {
+                if viewModel.isRedesign {
+                    redesignTrailingToolbarButton
+                } else {
+                    legacyTrailingToolbarButton
+                }
+            }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
+        }
+    }
+
     @ViewBuilder
-    private var navbarTrailingButton: some View {
+    private var legacyTrailingToolbarButton: some View {
         if !viewModel.dotsMenuItems.isEmpty {
             Menu {
                 ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
@@ -186,6 +210,60 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
+    private var redesignTrailingToolbarButton: some View {
+        if !viewModel.dotsMenuItems.isEmpty {
+            Menu("", systemImage: "ellipsis") {
+                ForEach(viewModel.dotsMenuItems) { menuItem in
+                    Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                        .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var notifications: some View {
+        if viewModel.isRedesign {
+            VStack(spacing: .unit(.x2)) {
+                ForEach(viewModel.notifications) { notification in
+                    NotificationBanner(
+                        bannerType: notification.bannerType,
+                        accessibilityIdentifier: notification.accessibilityIdentifier
+                    )
+                }
+            }
+        } else {
+            ForEach(viewModel.tokenNotificationInputs) { input in
+                NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var marketPriceLegacy: some View {
+        if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
+            MarketPriceView(
+                currencySymbol: viewModel.currencySymbol,
+                price: viewModel.rateFormatted,
+                priceChangeState: viewModel.priceChangeState,
+                miniChartData: viewModel.miniChartData,
+                tapAction: viewModel.openMarketsTokenDetails
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var marketPriceRedesign: some View {
+        if let viewModel = viewModel.marketPriceViewModel {
+            TokenDetailsMarketPriceView(viewModel: viewModel)
+                .padding(.horizontal, .unit(.x4))
+                .padding(.vertical, .unit(.x2))
+                .ignoresSafeArea(.keyboard)
+        }
+    }
+
+    @ViewBuilder
     private var yieldStatusView: some View {
         switch viewModel.yieldModuleAvailability {
         case .checking, .notApplicable:
@@ -197,6 +275,12 @@ struct TokenDetailsView: View {
         case .enter(let vm), .exit(let vm), .active(let vm):
             YieldStatusView(viewModel: vm)
         }
+    }
+
+    private var backgroundColor: Color {
+        viewModel.isRedesign
+            ? Color.Tangem.Surface.level2
+            : Colors.Background.secondary
     }
 }
 
@@ -259,18 +343,20 @@ private extension TokenDetailsView {
     )
     let coordinator = TokenDetailsCoordinator()
 
-    TokenDetailsView(viewModel: .init(
-        userWalletInfo: userWalletModel.userWalletInfo,
-        walletModel: walletModel,
-        notificationManager: notifManager,
-        userTokensManager: cryptoAccountModel.userTokensManager,
-        pendingExpressTransactionsManager: pendingTxsManager,
-        xpubGenerator: nil,
-        coordinator: coordinator,
-        tokenRouter: SingleTokenRouter(
+    TokenDetailsView(
+        viewModel: .init(
             userWalletInfo: userWalletModel.userWalletInfo,
-            coordinator: coordinator
-        ),
-        pendingTransactionDetails: nil
-    ))
+            walletModel: walletModel,
+            notificationManager: notifManager,
+            userTokensManager: cryptoAccountModel.userTokensManager,
+            pendingExpressTransactionsManager: pendingTxsManager,
+            xpubGenerator: nil,
+            coordinator: coordinator,
+            tokenRouter: SingleTokenRouter(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                coordinator: coordinator
+            ),
+            pendingTransactionDetails: nil
+        )
+    )
 }

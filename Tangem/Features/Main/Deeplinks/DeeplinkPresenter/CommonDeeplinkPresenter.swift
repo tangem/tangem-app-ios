@@ -224,7 +224,10 @@ private extension CommonDeeplinkPresenter {
             dismissAction: { _ in UIApplication.dismissTop() }
         )
 
-        let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .sell())
+        let tokenSelectorViewModel = TokenSelectorViewModel.common(
+            walletsProvider: .standardAccountsOnly(),
+            availabilityProvider: .sell()
+        )
         coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
@@ -302,7 +305,7 @@ private extension CommonDeeplinkPresenter {
         )
 
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
 
         let windowSize = makeFirstWindowSceneSize()
 
@@ -361,7 +364,7 @@ private extension CommonDeeplinkPresenter {
         let viewModel = MarketsTokenDetailsExchangesListViewModel(
             tokenId: tokenId,
             numberOfExchangesListedOn: DeeplinkMarketsConstants.deeplinkExchangesSkeletonCount,
-            presentationStyle: .defaultNavigationStack,
+            presentationStyle: .navigationStack,
             exchangesListLoader: MarketsTokenDetailsDataProvider(),
             onBackButtonAction: {}
         )
