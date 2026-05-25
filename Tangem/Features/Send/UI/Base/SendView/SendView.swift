@@ -81,7 +81,7 @@ struct SendView: View {
                             HStack {
                                 Text(item.title)
                                 if item.isSelected {
-                                    Image(systemName: "checkmark")
+                                    Assets.checkmark20.image
                                 }
                             }
                         }
