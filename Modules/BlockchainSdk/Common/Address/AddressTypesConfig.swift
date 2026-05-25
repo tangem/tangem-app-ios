@@ -114,7 +114,8 @@ struct AddressTypesConfig {
              .monad,
              .arbitrumNova,
              .plasma,
-             .adi:
+             .adi,
+             .seiEvm:
             return [.default]
         }
     }
