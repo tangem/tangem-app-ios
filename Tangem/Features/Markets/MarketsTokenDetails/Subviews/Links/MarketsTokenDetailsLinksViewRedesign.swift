@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 struct MarketsTokenDetailsLinksViewRedesign: View {
@@ -40,7 +41,7 @@ private extension MarketsTokenDetailsLinksViewRedesign {
             .padding(.horizontal, sectionHorizontalPadding)
 
             Text(item.section.title)
-                .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .padding(.horizontal, sectionHorizontalPadding)
                 .padding(.top, titleTopPadding)
 
@@ -50,17 +51,29 @@ private extension MarketsTokenDetailsLinksViewRedesign {
                 horizontalSpacing: linkListSpacing,
                 verticalSpacing: linkListSpacing,
                 itemContent: { item in
-                    TangemBadge(text: item.data.text, size: .x9)
-                        .icon(item.icon)
-                        .iconPosition(.leading)
-                        .type(.tinted)
-                        .color(.gray)
-                        .shape(.rounded)
-                        .onTapGesture(perform: item.data.action)
+                    linkButton(for: item)
                 }
             )
             .padding(.top, linkListTopPadding)
         }
+    }
+
+    func linkButton(for item: LinkItem) -> some View {
+        let content: TangemButton.Content = {
+            if let imageType = item.iconImageType {
+                return .combined(
+                    text: AttributedString(item.data.text),
+                    icon: imageType,
+                    iconPosition: .left
+                )
+            }
+            return .text(AttributedString(item.data.text))
+        }()
+
+        return TangemButton(content: content, action: item.data.action)
+            .setStyleType(.secondary)
+            .setSize(.x9)
+            .setCornerStyle(.rounded)
     }
 }
 
@@ -74,6 +87,13 @@ private extension MarketsTokenDetailsLinksViewRedesign {
             switch data.icon {
             case .leading(let imageType): imageType.image
             case .trailing(let imageType): imageType.image
+            case .none: nil
+            }
+        }
+
+        var iconImageType: ImageType? {
+            switch data.icon {
+            case .leading(let imageType), .trailing(let imageType): imageType
             case .none: nil
             }
         }

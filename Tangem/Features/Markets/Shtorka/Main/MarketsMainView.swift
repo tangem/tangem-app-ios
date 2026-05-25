@@ -206,6 +206,8 @@ struct MarketsMainView: View {
     }
 
     private var redesignTitleView: some View {
+        // `Heading28.regular` is the DS alias for the SF Pro semibold 28pt token; latest design
+        // review keeps the same visual weight, so no change is required here.
         titleView(
             titleFont: Font.Tangem.Heading28.regular, titleColor: Color.Tangem.Text.Neutral.primary,
             dateFont: Font.Tangem.Heading28.regular, dateColor: Color.Tangem.Text.Neutral.tertiary
@@ -355,7 +357,7 @@ private extension MarketsMainView {
         }
 
         enum Widgets {
-            static let verticalContentSpacing: CGFloat = 40.0
+            static let verticalContentSpacing: CGFloat = 32.0
             static let topPadding: CGFloat = 32.0
         }
     }
