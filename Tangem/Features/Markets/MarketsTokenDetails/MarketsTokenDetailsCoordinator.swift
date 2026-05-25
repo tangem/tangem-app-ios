@@ -23,6 +23,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    @Published private(set) var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
+
     // MARK: - Root ViewModels
 
     @Published var rootViewModel: MarketsTokenDetailsViewModel? = nil
@@ -43,7 +45,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-    private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
+
     private var isDeeplinkMode: Bool = false
 
     var isMarketsSheetFlow: Bool {
@@ -70,6 +72,17 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
             marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             coordinator: self
         )
+    }
+
+    private func resolvePresentationStyleForInnerFlow() -> MarketsTokenDetailsPresentationStyle {
+        switch presentationStyle {
+        case .marketsSheet:
+            return .marketsSheet
+
+        // [REDACTED_USERNAME], if we're already in a fullScreenCover, navigationStack should be used for inner flows.
+        case .navigationStack, .fullScreenCover:
+            return .navigationStack
+        }
     }
 }
 
@@ -177,11 +190,11 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         dismiss()
     }
 
-    func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int, presentationStyle: MarketsTokenDetailsPresentationStyle) {
+    func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int) {
         exchangesListViewModel = MarketsTokenDetailsExchangesListViewModel(
             tokenId: tokenId,
             numberOfExchangesListedOn: numberOfExchangesListedOn,
-            presentationStyle: presentationStyle,
+            presentationStyle: resolvePresentationStyleForInnerFlow(),
             exchangesListLoader: MarketsTokenDetailsDataProvider()
         ) { [weak self] in
             self?.exchangesListViewModel = nil
@@ -487,7 +500,7 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(info: token, style: presentationStyle, isDeeplinkMode: isDeeplinkMode))
+        coordinator.start(with: .init(info: token, style: resolvePresentationStyleForInnerFlow(), isDeeplinkMode: isDeeplinkMode))
         newsRelatedTokenDetailsCoordinator = coordinator
     }
 }
