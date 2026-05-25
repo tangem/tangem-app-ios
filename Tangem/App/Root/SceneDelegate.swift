@@ -122,14 +122,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.makeKeyAndVisible()
 
-        // DEBUG: Haptic playground overlay (remove when done tuning).
-        if let scene = scene as? UIWindowScene {
-            let hapticWindow = UIWindow(windowScene: scene)
-            hapticWindow.rootViewController = UIHostingController(rootView: HapticPlaygroundView())
-            hapticWindow.windowLevel = .alert + 1
-            hapticWindow.makeKeyAndVisible()
-            hapticPlaygroundWindow = hapticWindow
-        }
+//        // DEBUG: Haptic playground overlay (remove when done tuning).
+//        if let scene = scene as? UIWindowScene {
+//            let hapticWindow = UIWindow(windowScene: scene)
+//            hapticWindow.rootViewController = UIHostingController(rootView: HapticPlaygroundView())
+//            hapticWindow.windowLevel = .alert + 1
+//            hapticWindow.makeKeyAndVisible()
+//            hapticPlaygroundWindow = hapticWindow
+//        }
     }
 
     private func hideLockView() {
