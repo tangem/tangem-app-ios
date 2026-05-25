@@ -178,7 +178,11 @@ struct DefaultIncomingLinkParserTests {
         "Parses valid external links from Tangem domains",
         arguments: [
             URL(string: "https://tangem.com/some/page")!,
+            URL(string: "https://www.tangem.com/some/page")!,
             URL(string: "https://app.tangem.com/anything")!,
+            URL(string: "https://buy.tangem.com/?promocode=PROMO")!,
+            URL(string: "https://tangem.surveysparrow.com/s/tangem-pay/tt-F8XXX")!,
+            URL(string: "https://feedback.tangem.com/anything")!,
             URL(string: "https://tangem.com/pay-app?id=something")!,
         ]
     )
