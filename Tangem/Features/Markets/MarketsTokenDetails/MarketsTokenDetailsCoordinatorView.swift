@@ -60,7 +60,9 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     YieldModulePromoCoordinatorView(coordinator: coordinator)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
-                                backButton
+                                backButton {
+                                    self.coordinator.yieldModulePromoCoordinator = nil
+                                }
                             }
                         }
                 }
@@ -70,20 +72,22 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
-                                backButton
+                                backButton {
+                                    coordinator.tokenDetailsCoordinator = nil
+                                }
                             }
                         }
                 }
             }
     }
 
-    private var backButton: some View {
+    private func backButton(action: @escaping () -> Void) -> some View {
         BackButton(
             height: Constants.backButtonHeight,
             isVisible: true,
             isEnabled: true,
             hPadding: Constants.backButtonHorizontalPadding,
-            action: { UIApplication.dismissTop() }
+            action: action
         )
     }
 

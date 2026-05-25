@@ -59,7 +59,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     let actionsViewModel: TokenDetailsActionsViewModel?
 
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
+
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
+    @Published private(set) var stakingState: TokenDetailsStakingState?
 
     var iconUrl: URL? {
         guard let id = walletModel.tokenItem.id else {
@@ -177,7 +179,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .givePermission,
              .openManageTokensAfterWalletSuccessImport,
              .renewTangemPaySession,
-             .openPushNotificationsSystemSettings:
+             .openPushNotificationsSystemSettings,
+             .openYieldBoostPromo:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -491,6 +494,101 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateStaking(state: StakingManagerState) {
+        if isRedesign {
+            updateRedesignStaking(state: state)
+        } else {
+            updateLegacyStaking(state: state)
+        }
+    }
+
+    private func updateRedesignStaking(state: StakingManagerState) {
+        switch state {
+        case .loading:
+            stakingState = .loading
+        case .availableToStake(let info):
+            stakingState = makeAvailableStakingState(info: info)
+        case .staked(let staked):
+            stakingState = makeEnableStakingState(staked: staked)
+        case .loadingError, .temporaryUnavailable:
+            stakingState = makeUnavailableStakingState()
+        case .notEnabled:
+            stakingState = nil
+        }
+    }
+
+    private func makeAvailableStakingState(info: StakingYieldInfo) -> TokenDetailsStakingState {
+        let rewardPercent = PercentFormatter().format(info.rewardRateValues.max, option: .staking)
+
+        let description = switch info.rewardType {
+        case .apr: Localization.tokenDetailsEarnStakingSubtitle(rewardPercent)
+        case .apy: Localization.tokenDetailsEarnStakingSubtitleApy(rewardPercent)
+        }
+
+        let item = TokenDetailsStakingState.AvailableItem(
+            title: Localization.tokenDetailsStakingBlockTitle,
+            description: description,
+            actionTitle: Localization.commonStake,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
+        )
+
+        return .available(item: item)
+    }
+
+    private func makeEnableStakingState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState {
+        let rewardsState = makeStakingRewardsState(staked: staked)
+
+        let balance = staked.balances.stakes().sum()
+
+        let cryptoBalance = balanceFormatter.formatCryptoBalance(
+            balance,
+            currencyCode: walletModel.tokenItem.currencySymbol
+        )
+
+        let fiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
+            balanceConverter.convertToFiat(balance, currencyId: currencyId)
+        }
+        let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
+        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+            formattedFiatBalance,
+            font: .Tangem.Body16.medium,
+            integerColor: .Tangem.Text.Neutral.primary,
+            decimalColor: .Tangem.Text.Neutral.secondary
+        )
+
+        let item = TokenDetailsStakingState.EnableItem(
+            title: Localization.stakingEnabled,
+            rewardsState: rewardsState,
+            fiatBalance: attributedFiatBalance,
+            cryptoBalance: cryptoBalance,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
+        )
+        return .enable(item: item)
+    }
+
+    private func makeUnavailableStakingState() -> TokenDetailsStakingState {
+        let item = TokenDetailsStakingState.UnavailableItem(
+            title: Localization.commonStaking,
+            description: Localization.stakingNotificationNetworkErrorText
+        )
+        return .unavailable(item: item)
+    }
+
+    private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
+        switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, _):
+            return .auto
+        case (.manual, .zero):
+            return .empty(Localization.stakingDetailsNoRewardsToClaim)
+        case (.manual, let rewards):
+            let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(rewards, currencyId: currencyId)
+            }
+            let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
+            return .claimed(formattedFiat)
+        }
+    }
+
+    private func updateLegacyStaking(state: StakingManagerState) {
         switch state {
         case .loading:
             // Do nothing
