@@ -116,11 +116,11 @@ struct DefaultIncomingLinkParser {
 
 extension DefaultIncomingLinkParser: IncomingActionURLParser {
     func parse(_ url: URL) -> IncomingAction? {
-        let urlString = url.absoluteString
-
-        if urlString.starts(with: IncomingActionConstants.tangemDomain) || urlString.starts(with: IncomingActionConstants.appTangemDomain) {
+        if url.scheme == "https",
+           let host = url.host,
+           IncomingActionConstants.supportedExternalLinkHosts.contains(host.lowercased()) {
             return parseExternalLink(url)
-        } else if urlString.starts(with: IncomingActionConstants.universalLinkScheme) {
+        } else if url.absoluteString.starts(with: IncomingActionConstants.universalLinkScheme) {
             return parseDeeplink(url)
         }
 
