@@ -28,7 +28,7 @@ final class WrappedHoldToConfirmButtonModel: ObservableObject {
     }
 
     var holdDuration: TimeInterval {
-        configuration.holdDuration
+        Constants.holdVibrationSchedule.reduce(0.0) { $0 + $1.duration }
     }
 
     var shakeDuration: TimeInterval {
@@ -37,8 +37,9 @@ final class WrappedHoldToConfirmButtonModel: ObservableObject {
 
     private let touchesSubject = PassthroughSubject<TouchesItem, Never>()
 
-    private let loadingGenerator = UIImpactFeedbackGenerator(style: .heavy)
-    private let holdGenerator = UIImpactFeedbackGenerator(style: .rigid)
+    private let lightGenerator = UIImpactFeedbackGenerator(style: .light)
+    private let mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
     private let notificationGenerator = UINotificationFeedbackGenerator()
 
     @Published private var title: String
@@ -108,8 +109,9 @@ extension WrappedHoldToConfirmButtonModel {
 
 private extension WrappedHoldToConfirmButtonModel {
     func setup() {
-        loadingGenerator.prepare()
-        holdGenerator.prepare()
+        lightGenerator.prepare()
+        mediumGenerator.prepare()
+        heavyGenerator.prepare()
         notificationGenerator.prepare()
 
         if state == .loading {
@@ -164,8 +166,7 @@ private extension WrappedHoldToConfirmButtonModel {
     func startHolding() {
         setup(state: .holding)
         vibrate(
-            duration: holdDuration,
-            generator: holdGenerator,
+            schedule: Constants.holdVibrationSchedule,
             onComplete: { [weak self] in
                 self?.confirm()
             }
@@ -191,19 +192,19 @@ private extension WrappedHoldToConfirmButtonModel {
             .delay(for: Constants.confirmDelay, scheduler: DispatchQueue.main)
             .handleEvents(receiveOutput: { [weak self] _ in
                 guard let self else { return }
-                singleVibration(generator: loadingGenerator)
+                singleVibration(generator: heavyGenerator)
             })
             .delay(for: Constants.confirmHitInterval, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
-                singleVibration(generator: loadingGenerator)
+                singleVibration(generator: heavyGenerator)
                 action()
             }
     }
 
     func startLoading() {
         setup(state: .loading)
-        singleVibration(generator: loadingGenerator)
+        singleVibration(generator: heavyGenerator)
     }
 
     func stopLoading() {
@@ -229,49 +230,72 @@ private extension WrappedHoldToConfirmButtonModel {
 
 private extension WrappedHoldToConfirmButtonModel {
     func vibrate(
-        duration: TimeInterval,
-        generator: UIImpactFeedbackGenerator,
+        schedule: [Constants.VibrationSegment],
         onComplete: @escaping () -> Void
     ) {
-        // Each segment fires `count` vibrations evenly over `fraction * duration`.
-        // Frequency grows step-wise: few hits at start, many at the end.
-        // One hit immediately so the touch feels responsive.
-        singleVibration(generator: generator)
-        let timestamps = makeVibrationTimestamps(duration: duration, schedule: Constants.holdVibrationSchedule)
-
-        let publishers = timestamps.map { timestamp in
-            Just(()).delay(for: .seconds(timestamp), scheduler: DispatchQueue.main).eraseToAnyPublisher()
+        // Fire the first event immediately so the touch feels responsive.
+        if let first = schedule.first(where: { !$0.isEmpty }) {
+            singleVibration(generator: generator(for: first.style), intensity: CGFloat(first.intensity))
         }
 
-        pendingSubscription = Publishers.MergeMany(publishers)
+        let events = makeVibrationEvents(schedule: schedule)
+        let totalDuration = schedule.reduce(0.0) { $0 + $1.duration }
+
+        // Each event becomes a Just publisher delayed to its absolute timestamp.
+        // A final no-op event at totalDuration guarantees MergeMany completes at the right time,
+        // even when the schedule ends with a silence segment.
+        let eventPublishers = events.map { event in
+            Just<VibrationEvent?>(event)
+                .delay(for: .seconds(event.time), scheduler: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }
+        let endMarker = Just<VibrationEvent?>(nil)
+            .delay(for: .seconds(totalDuration), scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
+
+        pendingSubscription = Publishers.MergeMany(eventPublishers + [endMarker])
             .sink(
                 receiveCompletion: { _ in
                     onComplete()
                 },
-                receiveValue: { [weak self] _ in
-                    self?.singleVibration(generator: generator)
+                receiveValue: { [weak self] event in
+                    guard let self, let event else { return }
+                    singleVibration(generator: generator(for: event.style), intensity: CGFloat(event.intensity))
                 }
             )
     }
 
-    func makeVibrationTimestamps(duration: TimeInterval, schedule: [Constants.VibrationSegment]) -> [TimeInterval] {
-        var timestamps: [TimeInterval] = []
+    func makeVibrationEvents(schedule: [Constants.VibrationSegment]) -> [VibrationEvent] {
+        var events: [VibrationEvent] = []
         var offset: TimeInterval = 0
         for segment in schedule {
-            let segmentDuration = duration * segment.fraction
             if !segment.isEmpty {
-                let interval = segmentDuration / Double(segment.count)
+                let interval = segment.duration / Double(segment.count)
                 for i in 1 ... segment.count {
-                    timestamps.append(offset + Double(i) * interval)
+                    events.append(VibrationEvent(
+                        time: offset + Double(i) * interval,
+                        style: segment.style,
+                        intensity: segment.intensity
+                    ))
                 }
             }
-            offset += segmentDuration
+            offset += segment.duration
         }
-        return timestamps
+        return events
     }
 
-    func singleVibration(generator: UIImpactFeedbackGenerator) {
-        generator.impactOccurred()
+    func generator(for style: UIImpactFeedbackGenerator.FeedbackStyle) -> UIImpactFeedbackGenerator {
+        switch style {
+        case .light: return lightGenerator
+        case .medium: return mediumGenerator
+        case .heavy: return heavyGenerator
+        case .soft, .rigid: return mediumGenerator
+        @unknown default: return mediumGenerator
+        }
+    }
+
+    func singleVibration(generator: UIImpactFeedbackGenerator, intensity: CGFloat = 1.0) {
+        generator.impactOccurred(intensity: intensity)
     }
 
     func shake() {
@@ -295,6 +319,12 @@ extension WrappedHoldToConfirmButtonModel {
         let touches: Set<UITouch>?
         let event: UIEvent?
     }
+
+    struct VibrationEvent {
+        let time: TimeInterval
+        let style: UIImpactFeedbackGenerator.FeedbackStyle
+        let intensity: Double
+    }
 }
 
 // MARK: - Constants
@@ -302,22 +332,24 @@ extension WrappedHoldToConfirmButtonModel {
 extension WrappedHoldToConfirmButtonModel {
     enum Constants {
         struct VibrationSegment {
-            let count: Int
-            let fraction: Double
+            let style: UIImpactFeedbackGenerator.FeedbackStyle
+            let duration: TimeInterval
+            let frequency: Double
+            let intensity: Double
 
+            var count: Int { max(0, Int((frequency * duration).rounded())) }
             var isEmpty: Bool { count == 0 }
         }
 
-        /// Vibration schedule for the hold gesture. Fractions must sum to 1.0.
-        /// With holdDuration = 3.0s and rigid generator: 2Hz → 4Hz → 6Hz → 10Hz → 14Hz → 20Hz.
-        /// Each segment is 0.5s.
+        /// Vibration schedule for the hold gesture. Sum of segment durations defines total hold time.
+        /// Pattern: light 5Hz → medium 10Hz → silence 100ms → heavy 20Hz → heavy 30Hz.
+        /// Silence segment resets sensory adaptation before the strong finale.
         static let holdVibrationSchedule: [VibrationSegment] = [
-            VibrationSegment(count: 1, fraction: 1.0 / 6.0),
-            VibrationSegment(count: 2, fraction: 1.0 / 6.0),
-            VibrationSegment(count: 3, fraction: 1.0 / 6.0),
-            VibrationSegment(count: 5, fraction: 1.0 / 6.0),
-            VibrationSegment(count: 7, fraction: 1.0 / 6.0),
-            VibrationSegment(count: 10, fraction: 1.0 / 6.0),
+            VibrationSegment(style: .light, duration: 0.5, frequency: 2, intensity: 1.0),
+            VibrationSegment(style: .medium, duration: 0.5, frequency: 5, intensity: 1.0),
+            VibrationSegment(style: .heavy, duration: 0.1, frequency: 0, intensity: 1.0),
+            VibrationSegment(style: .heavy, duration: 0.5, frequency: 10, intensity: 1.0),
+            VibrationSegment(style: .heavy, duration: 0.5, frequency: 20, intensity: 1.0),
         ]
         static let cancelDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.2)
         static let confirmDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.4)
