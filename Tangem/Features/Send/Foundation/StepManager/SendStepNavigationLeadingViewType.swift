@@ -12,7 +12,7 @@ import struct TangemFoundation.IgnoredEquatable
 enum SendStepNavigationLeadingViewType: Hashable {
     case closeButton
     case backButton
-    case dotsMenu(selectedId: String, items: [DotsMenuItem])
+    case dotsMenu(selectedId: String, items: [DotsMenuItem], onOpen: IgnoredEquatable<() -> Void>)
 }
 
 extension SendStepNavigationLeadingViewType {
