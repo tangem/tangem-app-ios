@@ -1,5 +1,5 @@
 {
-  "originHash" : "1d8c61d3dc4a5d3b4ec75c5db387c795ec78bd45879ed502350958f41e6d1d33",
+  "originHash" : "e0d6cdb2a0e1c31d0e0a523241501cdf2683bc587149915324a128594a010120",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -276,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/hiero-sdk-swift.git",
       "state" : {
-        "revision" : "22b17059949bdf0c3429cfedee2eecb448fe3ce9",
-        "version" : "0.49.0-tangem2"
+        "revision" : "abb02e8e0808c78e154274c12b7f4cc90ba29401",
+        "version" : "0.49.0-tangem3"
       }
     },
     {
