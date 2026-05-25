@@ -60,7 +60,7 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
         self.coordinator = coordinator
         self.showPushSettingsAlert = showPushSettingsAlert
 
-        isPushNotifyEnabled = userTokensPushNotificationsManager.status.isActive
+        isPushNotifyEnabled = userTokensPushNotificationsManager.isRemoteStatusEnabled
 
         bind()
         setupViewModels()
@@ -82,21 +82,31 @@ private extension TransactionNotificationsRowToggleViewModel {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, status in
-                viewModel.isPushNotifyEnabled = status.isActive
-                viewModel.refreshPermissionWarning()
+                viewModel.applyPushNotifyStatus(status)
             }
             .store(in: &bag)
     }
 
     func setupViewModels() {
-        // One-time initialization. Because isNotInitialized is non-recoverable
+        applyPushNotifyStatus(userTokensPushNotificationsManager.status)
+    }
+
+    func applyPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {
+        isPushNotifyEnabled = userTokensPushNotificationsManager.isRemoteStatusEnabled
+        updatePushNotifyViewModel(isDisabled: status.isNotInitialized)
+        refreshPermissionWarning()
+    }
+
+    func updatePushNotifyViewModel(isDisabled: Bool) {
+        guard pushNotifyViewModel?.isDisabled != isDisabled else {
+            return
+        }
+
         pushNotifyViewModel = DefaultToggleRowViewModel(
             title: Localization.walletSettingsPushNotificationsTitle,
-            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
+            isDisabled: isDisabled,
             isOn: isEnabledPushNotificationStatusBinding
         )
-
-        refreshPermissionWarning()
     }
 }
 
@@ -129,10 +139,10 @@ private extension TransactionNotificationsRowToggleViewModel {
     /// - Parameter value: The new desired state of push notifications (true for enabled, false for disabled)
     ///
     /// The method follows these rules:
-    /// - For .enabled or .disabledInApp states: Simply switches between these states based on the remote server value
+    /// - For .enabled or .disabledInApp states: Updates remote preference via the manager
     /// - For .needSystemPermission state:
-    ///   - If enabling: Shows an alert to guide user to system settings
-    ///   - If disabling: No action needed (already disabled)
+    ///   - If enabling: Requests system permission, then enables remote when granted
+    ///   - If disabling: Turns off remote preference even without system permission
     /// - For other states (`.loading`, `.failed`): Maintains current status and UI shows toggle as disabled
     ///
     /// The actual status update is delegated to the userTokensPushNotificationsManager.
@@ -140,17 +150,21 @@ private extension TransactionNotificationsRowToggleViewModel {
         Analytics.log(.pushToggleClicked, params: [.state: toggleValue ? .on : .off])
 
         switch userTokensPushNotificationsManager.status {
-        case .enabled, .disabledInApp:
-            tryUpdateEnableState(value: toggleValue)
-        case .needSystemPermission where toggleValue:
+            userTokensPushNotificationsManager.tryUpdateEnableState(value: toggleValue)
+        case .disabledInApp where toggleValue:
+        case .enabled:
             handleAndCheckUnavailablePushNotifyStatus()
-            return
+        case .disabledInApp:
+            userTokensPushNotificationsManager.tryUpdateEnableState(value: false)
         case .needSystemPermission where !toggleValue:
+            userTokensPushNotificationsManager.tryUpdateEnableState(value: false)
+        case .loading, .failed:
             break
-        default:
-            // DefaultToggleRowViewModel did at disabled state. The status does not need to be updated
-            break
+        case .needSystemPermission:
+            handleAndCheckUnavailablePushNotifyStatus()
         }
+
+        applyPushNotifyStatus(userTokensPushNotificationsManager.status)
     }
 
     func tryUpdateEnableState(value: Bool) {
