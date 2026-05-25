@@ -51,20 +51,14 @@ struct NewsPagerView: View {
             view
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { viewModel.handleViewAction(.share) }) {
-                            Assets.Glyphs.moreVertical.image
-                                .foregroundColor(shareButtonColor)
-                        }
-                        .disabled(viewModel.isCurrentArticleLoading)
-                    }
+                    trailingToolbarContent
                 }
         }
     }
 
     @ViewBuilder
     private var pageIndicator: some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             PageIndicatorViewRedesign(
                 totalPages: viewModel.newsIds.count,
                 currentIndex: viewModel.currentIndex
@@ -79,7 +73,7 @@ struct NewsPagerView: View {
 
     @ViewBuilder
     private var pageIndicatorOverlay: some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             redesignPageIndicatorOverlay
         } else {
             legacyPageIndicatorOverlay
@@ -154,6 +148,25 @@ struct NewsPagerView: View {
         .padding(.top, 12)
     }
 
+    @ToolbarContentBuilder
+    private var trailingToolbarContent: some ToolbarContent {
+        if viewModel.isRedesign {
+            NavigationToolbarButton.share(placement: .topBarTrailing) {
+                viewModel.handleViewAction(.share)
+            }
+            .redesigned()
+            .customizationBehavior(viewModel.isCurrentArticleLoading ? .disabled : .default)
+        } else {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { viewModel.handleViewAction(.share) }) {
+                    Assets.Glyphs.moreVertical.image
+                        .foregroundColor(shareButtonColor)
+                }
+                .disabled(viewModel.isCurrentArticleLoading)
+            }
+        }
+    }
+
     // MARK: - Pager Content
 
     private var currentIndexBinding: Binding<Int> {
@@ -210,7 +223,7 @@ private struct NewsPageContentView: View {
 
     @ViewBuilder
     private var errorView: some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             TangemUnableToLoadDataView(
                 isButtonBusy: false,
                 retryButtonAction: { viewModel.handleViewAction(.retry) }
@@ -251,7 +264,7 @@ private struct NewsPageContentView: View {
 
     @ViewBuilder
     private func likeButton(for newsId: Int) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if viewModel.isRedesign {
             redesignLikeButton(for: newsId)
         } else {
             legacyLikeButton(for: newsId)
