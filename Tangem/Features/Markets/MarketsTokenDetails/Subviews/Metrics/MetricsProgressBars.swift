@@ -20,13 +20,13 @@ struct MetricsCardContainer<Content: View>: View {
             .padding(.unit(.x4))
             .frame(
                 maxWidth: .infinity,
-                minHeight: 120,
+                minHeight: 104,
                 alignment: .leading
             )
             .background(
                 backgroundColor
             )
-            .cornerRadiusContinuous(.unit(.x5))
+            .cornerRadiusContinuous(.unit(.x6))
     }
 }
 
