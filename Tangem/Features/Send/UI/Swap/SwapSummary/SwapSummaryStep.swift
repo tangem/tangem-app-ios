@@ -32,7 +32,11 @@ class SwapSummaryStep {
         viewModel.router = router
     }
 
-    func makeFormVariantMenu() -> (selectedId: String, items: [SendStepNavigationLeadingViewType.DotsMenuItem]) {
+    func makeFormVariantMenu() -> (
+        selectedId: String,
+        items: [SendStepNavigationLeadingViewType.DotsMenuItem],
+        onOpen: () -> Void
+    ) {
         viewModel.makeFormVariantMenu()
     }
 }
@@ -52,15 +56,22 @@ extension SwapSummaryStep: SendStep {
 
     func initialAppear() {
         analyticsLogger.logSummaryStepOpened()
+        logSwapTypeScreenOpenedIfNeeded()
         autoupdatingTimer.resumeTimer()
     }
 
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
+        logSwapTypeScreenOpenedIfNeeded()
         autoupdatingTimer.resumeTimer()
     }
 
     func willDisappear(next step: any SendStep) {
         autoupdatingTimer.pauseTimer()
+    }
+
+    private func logSwapTypeScreenOpenedIfNeeded() {
+        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
+        viewModel.logScreenOpened()
     }
 }

@@ -73,7 +73,7 @@ struct SendView: View {
         case .backButton:
             NavigationToolbarButton.back(placement: placement, action: viewModel.userDidTapBackButton)
 
-        case .dotsMenu(let selectedId, let items):
+        case .dotsMenu(let selectedId, let items, let onOpen):
             ToolbarItem(placement: placement) {
                 Menu {
                     Picker(selection: dotsMenuSelectionBinding(selectedId: selectedId, items: items)) {
@@ -87,6 +87,7 @@ struct SendView: View {
                 } label: {
                     NavbarDotsImage()
                 }
+                .simultaneousGesture(TapGesture().onEnded { onOpen.wrappedValue() })
             }
         }
     }
