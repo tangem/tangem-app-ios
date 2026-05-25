@@ -4,8 +4,6 @@ import MetalKit
 struct NorthernLightsView: UIViewRepresentable {
     let backgroundColor: Color
 
-    @Environment(\.colorScheme) private var colorScheme
-
     func makeUIView(context: Context) -> MTKView {
         guard let device = MTLCreateSystemDefaultDevice(),
               let renderer = try? NorthernLightsRenderer(device: device) else {

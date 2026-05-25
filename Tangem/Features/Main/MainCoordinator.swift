@@ -701,7 +701,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         mainBottomSheetUIManager.hide()
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
         marketsTokenDetailsCoordinator = coordinator
     }
 

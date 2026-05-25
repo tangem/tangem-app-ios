@@ -15,6 +15,28 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MarketsTokenDetailsCoordinator
 
     var body: some View {
+        switch coordinator.presentationStyle {
+        case .marketsSheet, .navigationStack:
+            content
+
+        case .fullScreenCover:
+            NavigationStack {
+                content
+                    .toolbar {
+                        NavigationToolbarButton.close(placement: .topBarLeading, action: coordinator.dismiss)
+                            .redesigned()
+
+                        NavigationToolbarButton.share(
+                            placement: .topBarTrailing,
+                            action: { coordinator.rootViewModel?.shareTokenDetails() }
+                        )
+                        .redesigned()
+                    }
+            }
+        }
+    }
+
+    private var content: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
                 MarketsTokenDetailsView(viewModel: viewModel)
@@ -26,7 +48,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
         .bindAlert($coordinator.error)
     }
 
-    @ViewBuilder
     var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
@@ -83,10 +104,10 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
 
     private func backButton(action: @escaping () -> Void) -> some View {
         BackButton(
-            height: Constants.backButtonHeight,
+            height: 44.0,
             isVisible: true,
             isEnabled: true,
-            hPadding: Constants.backButtonHorizontalPadding,
+            hPadding: -6,
             action: action
         )
     }
@@ -99,14 +120,5 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                         view.ignoresSafeArea(.container, edges: .top)
                     }
             }
-    }
-}
-
-// MARK: - Constants
-
-private extension MarketsTokenDetailsCoordinatorView {
-    enum Constants {
-        static let backButtonHorizontalPadding: CGFloat = -6
-        static let backButtonHeight: CGFloat = 44.0
     }
 }
