@@ -51,7 +51,7 @@ struct MetricsTradingVolumeCard: View {
     }
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: color.opacity(0.2)) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
             VStack(alignment: .leading, spacing: .zero) {
                 titleRow
 
@@ -68,7 +68,7 @@ struct MetricsTradingVolumeCard: View {
 
             Text(Localization.marketsTokenDetailsTradingInterval)
                 .style(
-                    .Tangem.Caption11.semibold,
+                    .Tangem.Caption11.medium,
                     color: MetricsValueText.color(
                         hasData: viewModel.record(for: .tradingVolume) != nil
                     )
@@ -116,6 +116,8 @@ struct MetricsFDVCard: View {
                         Text(Localization.marketsTokenDetailsValuationValueInTotal(fdvRecord.recordData))
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
+                            // `.Tangem.Caption12.semibold` resolves to `.caption.weight(.medium)` in the
+                            // DS — keeping the alias for parity, the visual is already medium-weight.
                             .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     }
 
@@ -155,7 +157,7 @@ struct MetricsCirculatingSupplyCard: View {
         .roundedBackground(
             with: .Tangem.Surface.level3,
             padding: .unit(.x4),
-            radius: .unit(.x5)
+            radius: .unit(.x6)
         )
         .onTapGesture {
             viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.circulatingSupply)
