@@ -61,12 +61,15 @@ struct TangemPayTransactionHistoryMapper {
         index: Int
     ) -> TransactionViewModel? {
         let mapper = TangemPayTransactionRecordMapper(transaction: transaction)
+        let amount = mapper.amount()
         return TransactionViewModel(
             hash: transaction.id,
             index: index,
             interactionAddress: .custom(message: mapper.categoryName(detailed: false)),
             timeFormatted: mapper.time(),
-            amount: mapper.amount(),
+            amount: amount,
+            value: amount,
+            currencyCode: "",
             isOutgoing: mapper.isOutgoing(),
             transactionType: mapper.type(),
             status: mapper.status(),

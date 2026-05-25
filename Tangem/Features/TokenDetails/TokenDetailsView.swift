@@ -60,15 +60,30 @@ struct TokenDetailsView: View {
                     QuickTopUpBannerView(viewModel: quickTopUpVM)
                 }
 
-                TransactionsListView(
-                    state: viewModel.transactionHistoryState,
-                    exploreAction: viewModel.openExplorer,
-                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                    exploreTransactionAction: viewModel.openTransactionExplorer,
-                    reloadButtonAction: viewModel.onButtonReloadHistory,
-                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    fetchMore: viewModel.fetchMoreHistory()
-                )
+                if FeatureProvider.isAvailable(.redesign) {
+                    TransactionsListViewRedesigned(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                    .padding(.bottom, 40)
+                } else {
+                    // [REDACTED_INFO]: remove legacy transactions list after redesign rollout.
+                    TransactionsListView(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                    .padding(.bottom, 40)
+                }
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
