@@ -73,19 +73,17 @@ struct SendView: View {
         case .backButton:
             NavigationToolbarButton.back(placement: placement, action: viewModel.userDidTapBackButton)
 
-        case .dotsMenu(let items):
+        case .dotsMenu(let selectedId, let items):
             ToolbarItem(placement: placement) {
                 Menu {
-                    ForEach(items, id: \.id) { item in
-                        Button(action: item.action) {
-                            HStack {
-                                Text(item.title)
-                                if item.isSelected {
-                                    Assets.checkmark20.image
-                                }
-                            }
+                    Picker(selection: dotsMenuSelectionBinding(selectedId: selectedId, items: items)) {
+                        ForEach(items, id: \.id) { item in
+                            Text(item.title).tag(item.id)
                         }
+                    } label: {
+                        EmptyView()
                     }
+                    .pickerStyle(.inline)
                 } label: {
                     NavbarDotsImage()
                 }
@@ -222,5 +220,15 @@ struct SendView: View {
         ListFooterOverlayShadowView(opacities: [0, 0.95, 1])
             .frame(height: bottomGradientHeight)
             .visible(viewModel.shouldShowBottomOverlay)
+    }
+
+    private func dotsMenuSelectionBinding(
+        selectedId: String,
+        items: [SendStepNavigationLeadingViewType.DotsMenuItem]
+    ) -> Binding<String> {
+        Binding(
+            get: { selectedId },
+            set: { newId in items.first(where: { $0.id == newId })?.action() }
+        )
     }
 }
