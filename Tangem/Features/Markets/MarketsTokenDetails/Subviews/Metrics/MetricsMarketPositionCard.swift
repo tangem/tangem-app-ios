@@ -23,7 +23,9 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        MetricsCardContainer(backgroundColor: rankCardBackground(for: state.rankType)) {
+        // Latest design review unified card background to Surface.level3 across all rank tiers;
+        // accent color now only paints the value/icons, not the card itself.
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
                     marketPositionValue(state: state, rankColor: color)
