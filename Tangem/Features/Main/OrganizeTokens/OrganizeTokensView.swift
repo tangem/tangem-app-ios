@@ -134,12 +134,23 @@ struct OrganizeTokensView: View {
             tokenListFooter
         }
         .background(backgroundColor.ignoresSafeArea(edges: .vertical))
+        .toolbar { redesignedToolbarContent }
         .onWillAppear {
             dragAndDropController.dataSource = viewModel
             viewModel.onViewWillAppear()
         }
         .onAppear {
             scrollState.onViewAppear()
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var redesignedToolbarContent: some ToolbarContent {
+        // Standalone-sheet path (no custom `BottomSheetHeaderView`): host the sort menu in the native nav bar.
+        if FeatureProvider.isAvailable(.redesign), onCloseTap == nil, let headerViewModel = viewModel.headerViewModel {
+            ToolbarItem(placement: .topBarTrailing) {
+                OrganizeTokensSortMenuView(viewModel: headerViewModel)
+            }
         }
     }
 
@@ -361,7 +372,7 @@ struct OrganizeTokensView: View {
         if let onCloseTap {
             BottomSheetHeaderView(
                 title: Localization.organizeTokensTitle,
-                trailing: { NavigationBarButton.close(action: onCloseTap) }
+                trailing: { headerTrailing(onCloseTap: onCloseTap) }
             )
             .padding(.top, 4)
             .padding(.horizontal, contentHorizontalInset)
@@ -369,8 +380,21 @@ struct OrganizeTokensView: View {
     }
 
     @ViewBuilder
+    private func headerTrailing(onCloseTap: @escaping () -> Void) -> some View {
+        if FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
+            HStack(spacing: .unit(.x2)) {
+                OrganizeTokensSortMenuView(viewModel: headerViewModel)
+                NavigationBarButton.close(action: onCloseTap)
+            }
+        } else {
+            NavigationBarButton.close(action: onCloseTap)
+        }
+    }
+
+    @ViewBuilder
     private var tokenListHeader: some View {
-        if let headerViewModel = viewModel.headerViewModel {
+        // [REDACTED_INFO]: legacy inline sort/group header — hidden under `.redesign` because controls moved into the navbar dropdown
+        if !FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
             OrganizeTokensListHeader(
                 viewModel: headerViewModel,
                 horizontalInset: contentHorizontalInset,
@@ -380,23 +404,37 @@ struct OrganizeTokensView: View {
     }
 
     private var tokenListFooter: some View {
-        OrganizeTokensListFooter(
-            actionsHandler: viewModel,
-            isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
-            cornerRadius: contentCornerRadius,
-            contentInsets: EdgeInsets(
-                top: Constants.contentVerticalInset,
-                leading: contentHorizontalInset,
-                bottom: 0.0,
-                trailing: contentHorizontalInset
-            )
-        )
+        Group {
+            if FeatureProvider.isAvailable(.redesign) {
+                OrganizeTokensListFooterRedesigned(
+                    actionsHandler: viewModel,
+                    isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
+                    contentInsets: footerContentInsets
+                )
+            } else {
+                OrganizeTokensListFooter(
+                    actionsHandler: viewModel,
+                    isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
+                    cornerRadius: contentCornerRadius,
+                    contentInsets: footerContentInsets
+                )
+            }
+        }
         .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
             scrollState.tokenListFooterFrameMinYSubject.send(geometryInfo.frame.minY + Constants.contentVerticalInset)
             $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
         }
         .infinityFrame(alignment: .bottom)
+    }
+
+    private var footerContentInsets: EdgeInsets {
+        EdgeInsets(
+            top: Constants.contentVerticalInset,
+            leading: contentHorizontalInset,
+            bottom: 0.0,
+            trailing: contentHorizontalInset
+        )
     }
 
     init(
