@@ -17,13 +17,15 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
         CommonTangemPayCardDetailsRepository(tangemPayAccount: tangemPayAccount)
     }
 
-    func makeExpressCEXTransactionDispatcher(
+    func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         walletPublicKey: Wallet.PublicKey?
     ) -> TransactionDispatcher {
-        TangemPayExpressCEXTransactionDispatcher(
-            withdrawTransactionService: withdrawTransactionService,
-            walletPublicKey: walletPublicKey
+        TangemPayTransactionDispatcher(
+            sender: TangemPayWithdrawSender(
+                withdrawTransactionService: withdrawTransactionService,
+                walletPublicKey: walletPublicKey
+            )
         )
     }
 }
