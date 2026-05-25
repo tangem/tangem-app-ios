@@ -161,6 +161,7 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.yieldApyBoostHiddenPromos)
     var yieldApyBoostHiddenPromos: [String] = []
+
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
 
