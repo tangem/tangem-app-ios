@@ -49,6 +49,8 @@ final class TangemPayAccountViewModel: ObservableObject {
     }
 
     func userDidTapView() {
+        guard !RTCUtil.isRootedDevice else { return }
+
         switch tangemPayLocalState {
         case .loading, .syncInProgress:
             break
@@ -77,7 +79,7 @@ private extension TangemPayAccountViewModel {
         Just(tangemPayLocalState)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, state -> AnyPublisher<ViewState, Never> in
-                guard !RTCUtil().checkStatus().hasIssues else {
+                guard !RTCUtil.isRootedDevice else {
                     return .just(output: .rootedDevice)
                 }
 
