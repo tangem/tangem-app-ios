@@ -10,10 +10,14 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemFoundation
+import TangemUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
+
+    @State private var headerHeightRatio: CGFloat = 1
 
     var body: some View {
         content
@@ -29,7 +33,11 @@ struct MainView: View {
     private var content: some View {
         if viewModel.isRedesignEnabled {
             fullPagePagerContent
-                .modifier(RedesignedBackgroundModifier(headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher))
+                .northernLightsBackground(
+                    backgroundColor: .Tangem.Surface.level2,
+                    opacity: clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
+                )
+                .animation(.default, value: headerHeightRatio)
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -41,23 +49,28 @@ struct MainView: View {
             data: viewModel.pages,
             refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
             selectedIndex: $viewModel.selectedCardIndex,
-            navigationFactory: makeRedesignedNavigation,
+            headerHeightRatio: $headerHeightRatio,
+            navigationFactory: redesignToolbar,
             headerFactory: makeRedesignedHeader,
             bodyFactory: makeRedesignedBody,
             bottomOverlayFactory: makeRedesignedBottomOverlay
         )
         .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
-        .onHeaderHeightRatioChange(viewModel.onHeaderHeightRatioChange)
         .onPageChange(viewModel.onPageChange(dueTo:))
     }
 
-    private func makeRedesignedNavigation(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
-        RedesignedNavigationModifier(
-            openDetailsAction: viewModel.openDetails,
-            openQRScanAction: viewModel.openQRScan,
-            headerHeightRatioPublisher: viewModel.headerHeightRatioPublisher,
-            pageBuilder: pageBuilder
+    private func redesignToolbar(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
+        MainViewRedesignToolbar(
+            principalContent: redesignPrincipalContent(pageBuilder),
+            scanQRCodeAction: viewModel.openQRScan,
+            detailsAction: viewModel.openDetails
         )
+    }
+
+    private func redesignPrincipalContent(_ pageBuilder: MainUserWalletPageBuilder) -> some View {
+        pageBuilder.navigation
+            .opacity(clamp(3 - 5 * headerHeightRatio, min: 0, max: 1))
+            .animation(.default, value: headerHeightRatio)
     }
 
     private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
