@@ -90,10 +90,8 @@ private extension TangemElasticContainerModel {
                     return 0
                 case .expanded:
                     return 1
-                case .collapsing(let item):
-                    return item.heightRatio
-                case .expanding(let item):
-                    return item.heightRatio
+                case .collapsing(let heightRatio), .expanding(let heightRatio):
+                    return heightRatio
                 }
             }
             .removeDuplicates()
@@ -124,11 +122,9 @@ private extension TangemElasticContainerModel {
 
         switch state {
         case .expanded, .collapsing:
-            let item = CollapsingItem(heightRatio: heightRatio)
-            return .collapsing(item)
+            return .collapsing(heightRatio: heightRatio)
         case .collapsed, .expanding:
-            let item = ExpandingItem(heightRatio: heightRatio)
-            return .expanding(item)
+            return .expanding(heightRatio: heightRatio)
         }
     }
 
@@ -137,11 +133,11 @@ private extension TangemElasticContainerModel {
         let targetState: State
 
         switch state {
-        case .collapsing(let item):
-            let collapseRatio = 1 - item.heightRatio
+        case .collapsing(let heightRatio):
+            let collapseRatio = 1 - heightRatio
             targetState = collapseRatio > collapseThreshold ? .collapsed : .expanded
-        case .expanding(let item):
-            let expandRatio = item.heightRatio
+        case .expanding(let heightRatio):
+            let expandRatio = heightRatio
             targetState = expandRatio > expandThreshold ? .expanded : .collapsed
         case .expanded, .collapsed:
             targetState = state
@@ -189,16 +185,8 @@ private extension TangemElasticContainerModel {
 
     enum State: Equatable {
         case expanded
-        case collapsing(CollapsingItem)
+        case collapsing(heightRatio: CGFloat)
         case collapsed
-        case expanding(ExpandingItem)
-    }
-
-    struct CollapsingItem: Equatable {
-        let heightRatio: CGFloat
-    }
-
-    struct ExpandingItem: Equatable {
-        let heightRatio: CGFloat
+        case expanding(heightRatio: CGFloat)
     }
 }
