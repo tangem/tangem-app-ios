@@ -27,6 +27,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
+    @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
+
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
 
     // [REDACTED_INFO]: Remove when the redesign feature toggle is removed
@@ -74,8 +76,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     var customTokenColor: Color? {
         walletModel.tokenItem.token?.customTokenColor
     }
-
-    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     private weak var coordinator: (any TokenDetailsRoutable)?
     private let xpubGenerator: XPUBGenerator?
@@ -384,12 +384,20 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        runTask(in: self) { viewModel in
-            let tokenNotificationInputs = await viewModel.notificationManager.notificationInputs
-            await MainActor.run { viewModel.tokenNotificationInputs = tokenNotificationInputs }
+        Task { @MainActor [notificationManager, weak self] in
+            let tokenNotificationInputs = await notificationManager.notificationInputs
+
+            guard self?.isRedesign == true else {
+                self?.tokenNotificationInputs = tokenNotificationInputs
+                return
+            }
+
+            self?.notifications = MultiWalletNotificationBannerMapper().mapItems(tokenNotificationInputs)
         }
+
         setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
+        marketPriceViewModel = makeMarketPriceViewModel()
 
         bind()
     }
@@ -489,6 +497,15 @@ private extension TokenDetailsViewModel {
             .sink { [weak self] state in
                 AppLogger.info("Token details receive new StakingManager state: \(state)")
                 self?.updateStaking(state: state)
+            }
+            .store(in: &bag)
+
+        $miniChartData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] chartData in
+                MainActor.assumeIsolated {
+                    self?.updateMarketPrice(miniChartData: chartData)
+                }
             }
             .store(in: &bag)
     }
@@ -605,6 +622,17 @@ private extension TokenDetailsViewModel {
                 balance: .balance(balance) { [weak self] in self?.openStaking() },
                 rewards: rewards
             )
+        }
+    }
+
+    @MainActor
+    private func updateMarketPrice(miniChartData: LoadingResult<[Double], any Error>) {
+        switch miniChartData {
+        case .success(let chartPoints):
+            marketPriceViewModel?.miniChartPoints = LoadingResult.success(chartPoints)
+
+        case .loading, .failure:
+            marketPriceViewModel?.miniChartPoints = LoadingResult.loading
         }
     }
 
@@ -738,6 +766,21 @@ private extension TokenDetailsViewModel {
         }
 
         return TokenDetailsNavigationBarViewModel(title: title, subtitle: subtitle)
+    }
+
+    private func makeMarketPriceViewModel() -> TokenDetailsMarketPriceViewModel? {
+        guard isRedesign, walletModel.tokenItem.id != nil else {
+            return nil
+        }
+
+        return TokenDetailsMarketPriceViewModel(
+            subtitle: rateFormatted,
+            priceChange: priceChangeState,
+            miniChartPoints: .loading,
+            action: { [weak self] in
+                self?.openMarketsTokenDetails()
+            }
+        )
     }
 }
 
