@@ -22,21 +22,39 @@ struct TransactionHistoryMapper {
     private let isToken: Bool
 
     private let balanceFormatter = BalanceFormatter()
-    private let dateFormatter: DateFormatter = {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
         formatter.dateStyle = .short
         formatter.doesRelativeDateFormatting = true
         return formatter
     }()
 
-    private let timeFormatter: DateFormatter = {
+    private static let longDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.setLocalizedDateFormatFromTemplate("MMMMdy")
+        formatter.doesRelativeDateFormatting = true
+        return formatter
+    }()
+
+    private static let monthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.setLocalizedDateFormatFromTemplate("MMMM, y")
+        return formatter
+    }()
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
         formatter.timeStyle = .short
         return formatter
     }()
 
-    private let dateTimeFormatter: DateFormatter = {
+    private static let dateTimeFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = .autoupdatingCurrent
         dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .short
         dateFormatter.doesRelativeDateFormatting = true
@@ -50,24 +68,63 @@ struct TransactionHistoryMapper {
         self.isToken = isToken
     }
 
-    func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
-        let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
+    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `groupingStyle` parameter,
+    // delete the `.day` branch, and inline `.dayThenMonth` as the only behaviour.
+    func mapTransactionListItem(
+        from records: [TransactionRecord],
+        groupingStyle: GroupingStyle = .day
+    ) -> [TransactionListItem] {
+        switch groupingStyle {
+        case .day:
+            let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
 
-        return grouped.sorted(by: { $0.key > $1.key }).reduce([]) { result, args in
-            let (key, value) = args
-            let item = TransactionListItem(
-                header: dateFormatter.string(from: key),
-                items: value.map(mapTransactionViewModel)
-            )
+            return grouped.sorted(by: { $0.key > $1.key }).map { key, value in
+                TransactionListItem(header: Self.dateFormatter.string(from: key), items: value.map(mapTransactionViewModel))
+            }
 
-            return result + [item]
+        case .dayThenMonth:
+            let calendar = Calendar.current
+            let currentMonthStart = calendar.dateInterval(of: .month, for: Date())?.start ?? Date()
+
+            let grouped = Dictionary(grouping: records) { record -> GroupingKey in
+                let date = record.date ?? Date()
+                if date >= currentMonthStart {
+                    return .day(calendar.startOfDay(for: date))
+                } else {
+                    return .month(calendar.dateInterval(of: .month, for: date)?.start ?? date)
+                }
+            }
+
+            return grouped.sorted(by: { $0.key.sortDate > $1.key.sortDate }).map { key, value in
+                let header: String = switch key {
+                case .day(let date): Self.longDateFormatter.string(from: date)
+                case .month(let date): Self.monthFormatter.string(from: date)
+                }
+                return TransactionListItem(header: header, items: value.map(mapTransactionViewModel))
+            }
+        }
+    }
+
+    enum GroupingStyle {
+        case day
+        case dayThenMonth
+    }
+
+    private enum GroupingKey: Hashable {
+        case day(Date)
+        case month(Date)
+
+        var sortDate: Date {
+            switch self {
+            case .day(let date), .month(let date): date
+            }
         }
     }
 
     func mapTransactionViewModel(_ record: TransactionRecord) -> TransactionViewModel {
         var timeFormatted: String?
         if let date = record.date {
-            timeFormatted = timeFormatter.string(from: date)
+            timeFormatted = Self.timeFormatter.string(from: date)
         }
 
         return TransactionViewModel(
@@ -101,7 +158,7 @@ struct TransactionHistoryMapper {
 
         let amountFormatted = transferAmount(from: record)
         let date = record.date ?? Date()
-        let dateFormatted = dateTimeFormatter.string(from: date)
+        let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
         return SendDestinationSuggestedTransactionRecord(
             id: record.hash,
