@@ -1,5 +1,5 @@
 //
-//  WalletModelFeaturesManagerProvider.swift
+//  WalletModelFeaturesManagerFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,31 +9,40 @@
 import BlockchainSdk
 import TangemFoundation
 
-struct WalletModelFeaturesManagerProvider {
+struct WalletModelFeaturesManagerFactory {
     let userWalletId: UserWalletId
     let userWalletConfig: UserWalletConfig
     let dynamicAddressesManagerProvider: DynamicAddressesManagerProvider
+    let transactionHistoryProviderRegistry: TransactionHistoryProviderRegistry
 
     func makeWalletModelFeaturesManager(
         tokenItem: TokenItem,
         walletManager: any WalletManager
     ) -> any WalletModelFeaturesManager {
-        let nftFeatureManager = CommonWalletModelNFTFeatureManager(
+        let nftFeatureManager = WalletModelNFTFeatureManager(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
             tokenItem: tokenItem
         )
 
-        let dynamicAddressesFeatureManager = CommonWalletModelDynamicAddressesFeatureManager(
+        let dynamicAddressesFeatureManager = WalletModelDynamicAddressesFeatureManager(
             dynamicAddressesManager: dynamicAddressesManagerProvider.makeDynamicAddressesManager(
                 tokenItem: tokenItem,
                 walletManager: walletManager
             )
         )
 
+        let transactionHistoryFeatureManager = WalletModelTransactionHistoryFeatureManager(
+            // [REDACTED_TODO_COMMENT]
+            key: TransactionHistoryProviderKey(address: walletManager.wallet.address),
+            tokenItem: tokenItem,
+            registry: transactionHistoryProviderRegistry
+        )
+
         return CommonWalletModelFeaturesManager(
             nftFeatureManager: nftFeatureManager,
-            dynamicAddressesFeatureManager: dynamicAddressesFeatureManager
+            dynamicAddressesFeatureManager: dynamicAddressesFeatureManager,
+            transactionHistoryFeatureManager: transactionHistoryFeatureManager
         )
     }
 }

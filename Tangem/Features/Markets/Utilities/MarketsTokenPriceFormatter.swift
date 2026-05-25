@@ -92,8 +92,8 @@ final class MarketsTokenPriceFormatter {
         )
 
         let formattingOptions = TotalBalanceFormattingOptions(
-            integerPartFont: .Tangem.Custom.titleRegular40,
-            fractionalPartFont: .Tangem.Custom.titleRegular40,
+            integerPartFont: .Tangem.Custom.titleRegular44,
+            fractionalPartFont: .Tangem.Custom.titleRegular44,
             integerPartColor: .Tangem.Text.Neutral.primary,
             fractionalPartColor: .Tangem.Text.Neutral.tertiary,
             fractionalPartIncludesDecimalSeparator: true

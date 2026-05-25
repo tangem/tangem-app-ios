@@ -48,7 +48,7 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
                 Text(article.content)
                     .style(
                         FeatureProvider.isAvailable(.redesign)
-                            ? .Tangem.Body16.regular
+                            ? .Tangem.Body16.medium
                             : Fonts.Regular.body,
                         color: Color.Tangem.Text.Neutral.primary
                     )
