@@ -26,10 +26,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published final var isReloadingTransactionHistory: Bool = false
     @Published final var isFulfillingAssetRequirements = false
     @Published final var actionButtons: [FixedSizeButtonWithIconInfo] = []
+
     @Published final var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published final var notifications = [NotificationBannerItem]()
+
     @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
-    @Published private(set) final var miniChartData: LoadingResult<[Double]?, any Error> = .loading
+    @Published private(set) final var miniChartData: LoadingResult<[Double], any Error> = .loading
 
     private(set) final lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: 0.2),
@@ -85,6 +88,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
+
+    final let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -345,13 +350,22 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
+        let notificationsMapper = MultiWalletNotificationBannerMapper()
+
         notificationManager.notificationPublisher
             .receiveOnMain()
             .removeDuplicates()
             // Fix for reappearing banner notifications.
             // [REDACTED_TODO_COMMENT]
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
+            .sink { [weak self] notificationViewInput in
+                guard self?.isRedesign == true else {
+                    self?.tokenNotificationInputs = notificationViewInput
+                    return
+                }
+
+                self?.notifications = notificationsMapper.mapItems(notificationViewInput)
+            }
             .store(in: &bag)
 
         walletModel.actionsUpdatePublisher
@@ -478,7 +492,7 @@ extension SingleTokenBaseViewModel {
         do {
             let mapper = MarketsTokenHistoryChartMapper()
 
-            let chartPoints = try mapper
+            let chartPoints: [Double] = try mapper
                 .mapAndSortValues(from: data)
                 .map(\.price.doubleValue)
             miniChartData = .success(chartPoints)
