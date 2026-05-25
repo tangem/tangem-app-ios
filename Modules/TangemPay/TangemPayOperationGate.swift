@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public final class TangemPayOperationGate {
     public enum Operation: Hashable {
@@ -19,31 +20,31 @@ public final class TangemPayOperationGate {
     }
 
     private var inFlight: Set<Operation> = []
-    private let lock = NSLock()
+    private let criticalSection = OSAllocatedUnfairLock()
 
     public init() {}
 
     public func acquire(_ operation: Operation) -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        guard !isBlocked(operation) else { return false }
-        inFlight.insert(operation)
-        return true
+        criticalSection {
+            guard !isBlocked(operation) else { return false }
+            inFlight.insert(operation)
+            return true
+        }
     }
 
     public func release(_ operation: Operation) {
-        lock.lock()
-        defer { lock.unlock() }
-        inFlight.remove(operation)
+        criticalSection {
+            _ = inFlight.remove(operation)
+        }
     }
 
     public func isBusy(_ operation: Operation) -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        return isBlocked(operation)
+        criticalSection {
+            isBlocked(operation)
+        }
     }
 
-    /// Caller must hold `lock`.
+    /// Must be accessed inside `criticalSection`.
     private func isBlocked(_ operation: Operation) -> Bool {
         // Self-conflict: the identical operation is already in flight.
         if inFlight.contains(operation) { return true }
