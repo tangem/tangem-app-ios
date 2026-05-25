@@ -81,10 +81,17 @@ struct TangemPayTransactionHistoryMapper {
 extension TangemPayTransactionRecord {
     var transactionDate: Date {
         switch record {
-        case .spend(let spend): spend.authorizedAt
+        case .spend(let spend): spend.transactionDate
         case .collateral(let collateral): collateral.postedAt
         case .payment(let payment): payment.postedAt
         case .fee(let fee): fee.postedAt
         }
+    }
+}
+
+extension TangemPayTransactionHistoryResponse.Spend {
+    /// Refunds (negative-amount spends) are dated by when they posted, not when they were authorized.
+    var transactionDate: Date {
+        amount < 0 ? (postedAt ?? authorizedAt) : authorizedAt
     }
 }
