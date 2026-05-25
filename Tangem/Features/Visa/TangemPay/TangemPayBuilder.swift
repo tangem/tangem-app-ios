@@ -10,6 +10,9 @@ import TangemFoundation
 import TangemPay
 
 final class TangemPayBuilder {
+    @Injected(\.tangemPayAssembly)
+    private var tangemPayAssembly: TangemPayAssembly
+
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let signer: any TangemSigner
@@ -48,7 +51,7 @@ final class TangemPayBuilder {
         signer: signer
     )
 
-    private lazy var expressCEXTransactionDispatcher = TangemPayExpressCEXTransactionDispatcher(
+    private lazy var expressCEXTransactionDispatcher = tangemPayAssembly.makeExpressCEXTransactionDispatcher(
         withdrawTransactionService: withdrawTransactionService,
         walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
     )

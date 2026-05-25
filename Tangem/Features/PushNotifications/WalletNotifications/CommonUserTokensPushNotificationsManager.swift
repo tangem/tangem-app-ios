@@ -106,6 +106,10 @@ private extension CommonUserTokensPushNotificationsManager {
 
         // If system permission is not granted
         guard isAuthorized else {
+            if case .ready(let isEnabled) = currentRemoteStatus, !isEnabled {
+                return .disabledInApp
+            }
+
             return .needSystemPermission
         }
 
@@ -120,34 +124,28 @@ private extension CommonUserTokensPushNotificationsManager {
         }
     }
 
+    /// Sync only when the remote preference changes, not when the effective UI status
+    /// changes due to system permission (e.g. `.enabled` → `.needSystemPermission`).
     private func shouldSyncRemoteStatus(
-        currentStatus: UserWalletPushNotifyStatus,
-        newStatus: UserWalletPushNotifyStatus,
+        previousRemote: PushRemoteValueState<Bool>,
+        newRemote: PushRemoteValueState<Bool>,
     ) -> Bool {
-        // Don't sync if still loading or failed
-        guard newStatus != .loading, newStatus != .failed else {
+        guard
+            case .ready(let newValue) = newRemote,
+            case .ready(let previousValue) = previousRemote
+        else {
             return false
         }
 
-        guard currentStatus != .loading, currentStatus != .failed else {
-            return false
-        }
-
-        return newStatus.isActive != currentStatus.isActive
+        return previousValue != newValue
     }
 
     private func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) async {
-        let currentStatus = _userWalletPushStatusSubject.value
-
         // Only update the final status subject.
         // Remote status is managed separately:
-        // - Event.didReceiveRemoteStatus: updates from backend
-        // - Event.didChangeLocalStatus: updates from user intent
+        // - remoteStatusReceived: updates from backend
+        // - tryUpdateEnableState: updates from user intent (syncs when remote changes)
         _userWalletPushStatusSubject.send(status)
-
-        if shouldSyncRemoteStatus(currentStatus: currentStatus, newStatus: status) {
-            syncRemoteStatus()
-        }
 
         await updateAllowanceIfNeeded()
     }
@@ -166,6 +164,7 @@ private extension CommonUserTokensPushNotificationsManager {
 
         updateTask = runTask(in: self) { @MainActor manager in
             let isAuthorized = await manager.pushNotificationsPermission.isAuthorized
+            let previousRemote = manager._userWalletPushRemoteStatusSubject.value
 
             // Only update remote status if system permissions are granted.
             // We shouldn't set remote = enabled if permissions are not granted.
@@ -181,13 +180,21 @@ private extension CommonUserTokensPushNotificationsManager {
             // If permissions are not granted and user wants to enable,
             // we don't update remote status (it stays as is).
 
+            let newRemote = manager._userWalletPushRemoteStatusSubject.value
+            let shouldSync = manager.shouldSyncRemoteStatus(previousRemote: previousRemote, newRemote: newRemote)
+
             // Step 2: Recalculate final status based on:
             // - System permissions
             // - Remote status
             let newStatus = await manager.definePushNotifyStatus()
 
-            // Step 3: Update final status (doesn't touch remote status).
+            // Step 3: Publish final status before backend sync so UI and observers update immediately.
             await manager.updateWalletPushNotifyStatus(newStatus)
+
+            // Step 4: Sync remote preference after local state is committed.
+            if shouldSync {
+                manager.syncRemoteStatus()
+            }
         }
     }
 

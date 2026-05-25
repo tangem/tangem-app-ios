@@ -91,7 +91,7 @@ final class SingleTokenNotificationManager {
 
         var events = [TokenNotificationEvent]()
 
-        if let event = makeStakingNotificationEvent() {
+        if !FeatureProvider.isAvailable(.redesign), let event = makeStakingNotificationEvent() {
             events.append(event)
         }
 
