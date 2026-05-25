@@ -646,6 +646,12 @@ private extension TokenDetailsViewModel {
 
     func mapToRewardsState(staked: StakingManagerState.Staked) -> ActiveStakingViewData.RewardsState? {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, let rewards) where staked.yieldInfo.item.network == .ethereum && rewards > 0:
+            let formatted = balanceFormatter.formatCryptoBalance(
+                rewards,
+                currencyCode: walletModel.tokenItem.currencySymbol
+            )
+            return .compoundedRewardsEarned(formatted)
         case (.auto, _):
             return nil
         case (.manual, .zero):
