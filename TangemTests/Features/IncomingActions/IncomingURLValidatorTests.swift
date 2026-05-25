@@ -17,7 +17,12 @@ struct IncomingURLValidatorTests {
         "Validate correct URLs",
         arguments: [
             URL(string: "https://tangem.com")!,
+            URL(string: "https://www.tangem.com/some/page")!,
             URL(string: "https://app.tangem.com")!,
+            URL(string: "https://buy.tangem.com/?promocode=PROMO")!,
+            URL(string: "https://tangem.surveysparrow.com/s/tangem-pay/tt-F8XXX")!,
+            URL(string: "https://feedback.tangem.com/anything")!,
+            URL(string: "https://TANGEM.com/some/page")!,
             URL(string: "https://tangem.com/redirect")!,
             URL(string: "tangem://buy")!,
             URL(string: "https://app.tangem.com/ndef")!,
