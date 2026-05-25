@@ -23,7 +23,9 @@ final class EarnCoordinator: CoordinatorObject {
 
     // MARK: - Data
 
-    private let earnDataProvider: EarnDataProvider = CommonEarnDataService()
+    private let earnDataProvider: EarnDataProvider = CommonEarnDataService(
+        ethereumP2PFilter: CommonEarnEthereumP2PFilter()
+    )
 
     // MARK: - Root ViewModels
 
