@@ -25,6 +25,7 @@ enum Feature: String, Hashable, CaseIterable {
     case usdtRevokeGaslessFee
     case yieldModuleUpdate
     case swapPipelineV2
+    case tangemPayMobileOnboarding
     case onrampNativePayment
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
@@ -38,6 +39,9 @@ enum Feature: String, Hashable, CaseIterable {
     case swapMaxAmountFractions
     case pushNotificationsSettings
     case swapExchangeRateDisplay
+    case yieldApyBoostPromo
+    case deeplinkPresentationWay
+    case transactionHistoryV2
 
     var name: String {
         switch self {
@@ -58,6 +62,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
         case .swapPipelineV2: return "Swap Pipeline V2"
+        case .tangemPayMobileOnboarding: return "1489_TangemPayNewMobileOnboarding"
         case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .swapStoriesV2: return "Swap Stories V2"
@@ -68,8 +73,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .manageTokensImprovements: return "Manage Tokens Improvements"
         case .swapSimpleMode: return "13763_Swap_Simple_Mode"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
-        case .pushNotificationsSettings: return "[REDACTED_INFO]_Push_Notifications_Settings"
-        case .swapExchangeRateDisplay: return "[REDACTED_INFO]_Swap_Exchange_Rate_Display"
+        case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
+        case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
+        case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
+        case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
+        case .transactionHistoryV2: return "139_Transaction_History_V2"
         }
     }
 
@@ -91,6 +99,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
+        case .tangemPayMobileOnboarding: return .version("5.39")
         case .onrampNativePayment: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .unspecified
@@ -104,6 +113,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapMaxAmountFractions: return .unspecified
         case .pushNotificationsSettings: return .unspecified
         case .swapExchangeRateDisplay: return .unspecified
+        case .yieldApyBoostPromo: return .unspecified
+        case .deeplinkPresentationWay: return .unspecified
+        case .transactionHistoryV2: return .unspecified
         }
     }
 }

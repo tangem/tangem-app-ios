@@ -162,6 +162,12 @@ final class AppSettings {
     @AppStorageCompat(StorageType.swapFormVariant)
     var swapFormVariantOverrideRaw: String? = nil
 
+    @AppStorageCompat(StorageType.yieldApyBoostHiddenPromos)
+    var yieldApyBoostHiddenPromos: [String] = []
+
+    @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
+    var needsTangemPayMobileOnboarding: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

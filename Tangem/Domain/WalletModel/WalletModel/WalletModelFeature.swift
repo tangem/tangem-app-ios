@@ -19,8 +19,8 @@ enum WalletModelFeature {
     @available(*, unavailable, message: "This feature is not implemented yet")
     case staking
 
-    @available(*, unavailable, message: "This feature is not implemented yet")
-    case transactionHistory
+    /// - Note: This is a **V2** transaction history, do not confuse with the legacy one (`TransactionHistoryService`).
+    case transactionHistory(provider: TransactionHistorySyncing)
 }
 
 // MARK: - Convenience accessors
@@ -29,6 +29,13 @@ extension Array where Element == WalletModelFeature {
     var dynamicAddressesManager: DynamicAddressesManager? {
         for case .dynamicAddresses(let manager) in self {
             return manager
+        }
+        return nil
+    }
+
+    var transactionHistoryProvider: TransactionHistorySyncing? {
+        for case .transactionHistory(let provider) in self {
+            return provider
         }
         return nil
     }
