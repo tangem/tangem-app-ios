@@ -239,6 +239,63 @@ class BranchAndBoundPreImageTransactionBuilderTests {
             )
         }
     }
+
+    // MARK: - Dogecoin Core fork hard dust limits
+
+    /// Regression for [REDACTED_INFO]: change that clears the Bitcoin dust floor (546) but
+    /// sits below Dogecoin Core's `nHardDustLimit` (100_000) must be rejected by the
+    /// selector. Otherwise we hand the user a tx the network drops as non-standard.
+    @Test
+    func testBranchAndBoundRejectsChangeBelowDogecoinHardDustLimit() async throws {
+        // given
+        let p2pkhScript: UTXOLockingScript = .init(
+            data: Data(),
+            type: .p2pkh,
+            spendable: .publicKey(.init(publicKey: Keys.Secp256k1.publicKey, derivationPath: nil))
+        )
+        let singleUTXO: [ScriptUnspentOutput] = [
+            .init(output: .init(blockId: 1, txId: "", index: 0, amount: 500_000), script: p2pkhScript),
+        ]
+        let calculator = CommonUTXOTransactionSizeCalculator(network: DogecoinNetworkParams())
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
+
+        // when / then
+        // change = 500_000 - 450_000 - 1000 = 49_000 → in the (0, 100_000) dust hole.
+        await #expect(throws: UTXOPreImageTransactionBuilderError.unableToFindSuitableUTXOs) {
+            try await selector.preImage(
+                outputs: singleUTXO,
+                changeScript: .p2pkh,
+                destination: .init(amount: 450_000, script: .p2pkh),
+                fee: .exactly(fee: 1000)
+            )
+        }
+    }
+
+    /// Pepecoin Core inherits the DOGE policy verbatim; the same dust-hole guard applies.
+    @Test
+    func testBranchAndBoundRejectsChangeBelowPepecoinHardDustLimit() async throws {
+        // given
+        let p2pkhScript: UTXOLockingScript = .init(
+            data: Data(),
+            type: .p2pkh,
+            spendable: .publicKey(.init(publicKey: Keys.Secp256k1.publicKey, derivationPath: nil))
+        )
+        let singleUTXO: [ScriptUnspentOutput] = [
+            .init(output: .init(blockId: 1, txId: "", index: 0, amount: 500_000), script: p2pkhScript),
+        ]
+        let calculator = CommonUTXOTransactionSizeCalculator(network: PepecoinMainnetNetworkParams())
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: calculator)
+
+        // when / then
+        await #expect(throws: UTXOPreImageTransactionBuilderError.unableToFindSuitableUTXOs) {
+            try await selector.preImage(
+                outputs: singleUTXO,
+                changeScript: .p2pkh,
+                destination: .init(amount: 450_000, script: .p2pkh),
+                fee: .exactly(fee: 1000)
+            )
+        }
+    }
 }
 
 extension BranchAndBoundPreImageTransactionBuilderTests {
