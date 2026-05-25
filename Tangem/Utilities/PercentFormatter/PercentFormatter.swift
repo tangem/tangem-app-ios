@@ -90,6 +90,7 @@ extension PercentFormatter.Option {
 
     static let yield = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .yield)
     static let yieldEmptySuffix = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .empty)
+    static let yieldPromo = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .yield)
 }
 
 // MARK: Options
