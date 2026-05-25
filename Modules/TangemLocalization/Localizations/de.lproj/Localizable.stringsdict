@@ -392,9 +392,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>Karte</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>Karten</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
