@@ -149,15 +149,13 @@ private extension TransactionNotificationsRowToggleViewModel {
     func handleTogglePushNotifyStatus(toggleValue: Bool) {
         Analytics.log(.pushToggleClicked, params: [.state: toggleValue ? .on : .off])
 
+        let channel: PushChannel = .transactionAlerts
+
         switch userTokensPushNotificationsManager.status {
-            userTokensPushNotificationsManager.tryUpdateEnableState(value: toggleValue)
-        case .disabledInApp where toggleValue:
-        case .enabled:
-            handleAndCheckUnavailablePushNotifyStatus()
-        case .disabledInApp:
-            userTokensPushNotificationsManager.tryUpdateEnableState(value: false)
+        case .enabled, .disabledInApp:
+            tryUpdateEnableState(value: toggleValue)
         case .needSystemPermission where !toggleValue:
-            userTokensPushNotificationsManager.tryUpdateEnableState(value: false)
+            tryUpdateEnableState(value: false)
         case .loading, .failed:
             break
         case .needSystemPermission:
