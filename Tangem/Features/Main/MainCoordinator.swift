@@ -307,7 +307,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, isApyBoostPromo: false, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 

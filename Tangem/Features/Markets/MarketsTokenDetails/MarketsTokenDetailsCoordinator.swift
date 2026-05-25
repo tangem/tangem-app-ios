@@ -234,7 +234,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, isApyBoostPromo: false, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
