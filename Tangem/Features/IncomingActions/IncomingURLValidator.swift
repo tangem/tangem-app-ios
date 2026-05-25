@@ -18,10 +18,7 @@ public struct CommonIncomingURLValidator {
 
 extension CommonIncomingURLValidator: IncomingURLValidator {
     public func validate(_ url: URL) -> Bool {
-        guard
-            let scheme = url.scheme,
-            let host = url.host
-        else {
+        guard let scheme = url.scheme, let host = url.host else {
             return false
         }
 
@@ -35,8 +32,7 @@ extension CommonIncomingURLValidator: IncomingURLValidator {
         }
 
         if scheme == "https" {
-            return host == IncomingActionConstants.tangemHost
-                || host == IncomingActionConstants.appTangemHost
+            return IncomingActionConstants.supportedExternalLinkHosts.contains(host.lowercased())
         }
 
         return false
