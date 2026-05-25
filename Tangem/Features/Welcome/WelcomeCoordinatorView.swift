@@ -28,6 +28,13 @@ struct WelcomeCoordinatorView: CoordinatorView {
             sheets
 
             ZStack { // for transition animation
+                if let tangemPayMobileOnboardingCoordinator = coordinator.tangemPayMobileOnboardingCoordinator {
+                    TangemPayMobileOnboardingCoordinatorView(coordinator: tangemPayMobileOnboardingCoordinator)
+                        .transition(.opacity)
+                }
+            }
+
+            ZStack { // for transition animation
                 if let onboardingCoordinator = coordinator.welcomeOnboardingCoordinator {
                     WelcomeOnboardingCoordinatorView(coordinator: onboardingCoordinator)
                         .transition(.opacity)
