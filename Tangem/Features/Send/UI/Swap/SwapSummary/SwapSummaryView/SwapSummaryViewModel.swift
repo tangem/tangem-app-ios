@@ -76,15 +76,15 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         formVariantResolver.setVariant(variant)
     }
 
-    func makeFormVariantMenuItems() -> [SendStepNavigationLeadingViewType.DotsMenuItem] {
-        SwapFormVariant.allCases.map { variant in
-            .init(
+    func makeFormVariantMenu() -> (selectedId: String, items: [SendStepNavigationLeadingViewType.DotsMenuItem]) {
+        let items = SwapFormVariant.allCases.map { variant in
+            SendStepNavigationLeadingViewType.DotsMenuItem(
                 id: variant.rawValue,
                 title: variant.menuTitle,
-                isSelected: variant == formVariant,
                 action: { [weak self] in self?.userDidSelectFormVariant(variant) }
             )
         }
+        return (selectedId: formVariant.rawValue, items: items)
     }
 
     private func applyFormVariant(_ variant: SwapFormVariant) {

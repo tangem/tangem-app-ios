@@ -32,8 +32,8 @@ class SwapSummaryStep {
         viewModel.router = router
     }
 
-    func makeFormVariantMenuItems() -> [SendStepNavigationLeadingViewType.DotsMenuItem] {
-        viewModel.makeFormVariantMenuItems()
+    func makeFormVariantMenu() -> (selectedId: String, items: [SendStepNavigationLeadingViewType.DotsMenuItem]) {
+        viewModel.makeFormVariantMenu()
     }
 }
 
