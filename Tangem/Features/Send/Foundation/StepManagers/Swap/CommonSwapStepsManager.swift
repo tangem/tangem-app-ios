@@ -58,9 +58,11 @@ extension CommonSwapStepsManager: SendStepsManager {
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
         case .swap:
-            let leading: SendStepNavigationLeadingViewType? = FeatureProvider.isAvailable(.swapSimpleMode)
-                ? .dotsMenu(items: summaryStep.makeFormVariantMenuItems())
-                : nil
+            let leading: SendStepNavigationLeadingViewType? = {
+                guard FeatureProvider.isAvailable(.swapSimpleMode) else { return nil }
+                let menu = summaryStep.makeFormVariantMenu()
+                return .dotsMenu(selectedId: menu.selectedId, items: menu.items)
+            }()
             return .init(
                 title: Localization.commonSwap,
                 leadingViewType: leading,
