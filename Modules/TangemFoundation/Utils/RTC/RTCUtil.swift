@@ -28,6 +28,14 @@ public class RTCUtil {
     }
 }
 
+// MARK: - RTCUtil + isRootedDevice
+
+public extension RTCUtil {
+    static var isRootedDevice: Bool {
+        RTCUtil().checkStatus().hasIssues
+    }
+}
+
 // MARK: - RTCUtil + Constants
 
 private extension RTCUtil {
