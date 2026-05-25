@@ -199,7 +199,7 @@ struct MarketsTokenDetailsView: View {
                     header
 
                     picker
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 12)
                         .disabled(viewModel.isLoading)
                 }
                 .padding(.horizontal, 16.0)
