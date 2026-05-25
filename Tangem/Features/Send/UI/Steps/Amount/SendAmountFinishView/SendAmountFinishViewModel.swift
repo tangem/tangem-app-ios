@@ -130,13 +130,14 @@ private extension SendAmountFinishViewModel {
         }
         .store(in: &bag)
 
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
+            receiveTokenInput.receiveTokenPublisher.compactMap { $0.value },
             swapProvidersInput.selectedExpressProviderPublisher.map { $0?.value },
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateView(sourceToken: $1.0, provider: $1.1) }
+        .sink { $0.updateView(sourceToken: $1.0, receiveToken: $1.1, provider: $1.2) }
         .store(in: &bag)
     }
 
@@ -209,13 +210,17 @@ private extension SendAmountFinishViewModel {
         }
     }
 
-    private func updateView(sourceToken: SendSourceToken, provider: ExpressAvailableProvider?) {
+    private func updateView(sourceToken: SendSourceToken, receiveToken: SendReceiveToken, provider: ExpressAvailableProvider?) {
         guard let provider else {
             sendSwapProviderFinishViewModel = nil
             return
         }
 
-        sendSwapProviderFinishViewModel = .init(tokenItem: sourceToken.tokenItem, provider: provider)
+        sendSwapProviderFinishViewModel = .init(
+            sourceTokenItem: sourceToken.tokenItem,
+            receiveTokenItem: receiveToken.tokenItem,
+            provider: provider
+        )
     }
 }
 

@@ -67,18 +67,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
-        let bannerNotificationManager: BannerNotificationManager? = {
-            guard !FeatureProvider.isAvailable(.newPromotionBanners),
-                  options.userWalletInfo.config.hasFeature(.multiCurrency) else {
-                return nil
-            }
-
-            return BannerNotificationManager(
-                userWalletInfo: options.userWalletInfo,
-                placement: .tokenDetails(options.walletModel.tokenItem),
-            )
-        }()
-
         let factory = XPUBGeneratorFactory(cardInteractor: options.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
             for: options.walletModel.tokenItem.blockchain,
@@ -89,7 +77,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
             userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
             notificationManager: notificationManager,
-            bannerNotificationManager: bannerNotificationManager,
             userTokensManager: options.userTokensManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             xpubGenerator: xpubGenerator,

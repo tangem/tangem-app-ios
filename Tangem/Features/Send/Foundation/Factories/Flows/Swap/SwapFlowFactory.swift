@@ -14,6 +14,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     let initialTokenItem: TokenItem
     let expressDependenciesFactory: ExpressDependenciesFactory
+    private let swapTokenPairResolver: MainSwapPairResolver?
 
     var tokenItem: TokenItem { initialTokenItem }
 
@@ -27,14 +28,20 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
             expressManager: expressDependenciesFactory.expressManager,
             expressPairsRepository: expressDependenciesFactory.expressPairsRepository
         ),
-        shouldStartInitialLoading: true
+        shouldStartInitialLoading: true,
+        swapTokenPairResolver: swapTokenPairResolver
     )
     lazy var notificationManager = makeSwapNotificationManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
-    init(sourceToken: SendSwapableToken, receiveToken: SendReceiveToken?) {
+    init(
+        sourceToken: SendSwapableToken,
+        receiveToken: SendReceiveToken?,
+        swapTokenPairResolver: MainSwapPairResolver? = nil
+    ) {
         self.sourceToken = sourceToken
         self.receiveToken = receiveToken
+        self.swapTokenPairResolver = swapTokenPairResolver
         initialTokenItem = sourceToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
@@ -42,9 +49,13 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         )
     }
 
-    init(receiveToken: SendSwapableToken) {
+    init(
+        receiveToken: SendSwapableToken,
+        swapTokenPairResolver: MainSwapPairResolver? = nil
+    ) {
         sourceToken = nil
         self.receiveToken = receiveToken
+        self.swapTokenPairResolver = swapTokenPairResolver
         initialTokenItem = receiveToken.tokenItem
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(
@@ -133,7 +144,7 @@ extension SwapFlowFactory: SendBaseBuildable {
                 dataProvider: swapModel,
                 analyticsLogger: analyticsLogger,
                 output: swapModel,
-                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: expressDependenciesFactory.userWalletInfo)
+                confirmTransactionPolicy: SwapConfirmTransactionPolicy(sourceTokenInput: swapModel)
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: swapModel
@@ -142,8 +153,7 @@ extension SwapFlowFactory: SendBaseBuildable {
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(
                 tokenItem: initialTokenItem
             ),
-            // Will not use in `swap`
-            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: swapModel)
         )
     }
 }
@@ -194,7 +204,7 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             notificationManager: notificationManager,
             autoupdatingTimer: autoupdatingTimer,
             analyticsLogger: analyticsLogger,
-            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
         )
     }
 }

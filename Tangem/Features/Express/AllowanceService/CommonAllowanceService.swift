@@ -40,7 +40,7 @@ extension CommonAllowanceService: AllowanceService {
             if spendersAwaitingApprove.contains(spender) {
                 return .approveTransactionInProgress
             }
-            ExpressLogger.debug("Revoke+approve required for spender: \(spender)")
+            ExpressLogger.info("Revoke+approve required for spender: \(spender)")
             return .revokeAndPermissionRequired(revoke: revoke, approve: approve)
         }
     }

@@ -21,6 +21,10 @@ struct MultiWalletNotificationBannerMapper {
     func mapItems(
         _ inputs: [NotificationViewInput]...
     ) -> [NotificationBannerItem] {
+        mapItems(inputs)
+    }
+
+    func mapItems(_ inputs: [[NotificationViewInput]]) -> [NotificationBannerItem] {
         inputs.flatMap { $0.map { mapItem($0) } }
     }
 }
@@ -83,12 +87,19 @@ private extension MultiWalletNotificationBannerMapper {
             return .critical(content, bannerAction)
         case .warning:
             return .warning(content, bannerAction)
-        case .informational:
-            return .informational(textOnly, bannerAction, closeAction)
+        case .informational(let alignment):
+            return .informational(textOnly, bannerAction, closeAction, mapTextAlignment(alignment))
         case .promo(let effect):
-            return .promo(textOnly, bannerAction, closeAction, mapEffect(effect))
+            return .promo(content, bannerAction, closeAction, mapEffect(effect))
         case .survey:
             return .survey(textOnly, bannerAction, closeAction)
+        }
+    }
+
+    func mapTextAlignment(_ alignment: NotificationBannerKind.TextAlignment) -> NotificationBanner.BannerTextAlignment {
+        switch alignment {
+        case .leading: .leading
+        case .center: .center
         }
     }
 
@@ -175,7 +186,8 @@ private extension MultiWalletNotificationBannerMapper {
         case 15: return .x15
         case 16: return .x16
         case 17: return .x17
-        default: return .x7
+        case 18: return .x18
+        default: return .x18
         }
     }
 

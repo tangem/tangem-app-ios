@@ -49,7 +49,8 @@ class FakeWalletManager: WalletManager {
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
-            keysDerivingInteractor: KeysDerivingMock()
+            keysDerivingInteractor: KeysDerivingMock(),
+            transactionHistoryProviderRegistry: CommonTransactionHistoryProviderRegistry()
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
@@ -77,6 +78,7 @@ class FakeWalletManager: WalletManager {
     }
 
     func setNeedsUpdate() {}
+
     func update() async {
         AppLogger.debug("Receive update request")
         try? await Task.sleep(for: .seconds(5))

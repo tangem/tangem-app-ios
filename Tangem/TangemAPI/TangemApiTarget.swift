@@ -22,7 +22,7 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion:
+        case .promotion, .yieldBoostPromotionStatus:
             AppEnvironment.current.apiBaseUrlv2
         default:
             AppEnvironment.current.apiBaseUrl
@@ -53,6 +53,8 @@ struct TangemApiTarget: TargetType {
             return "/referral"
         case .promotion:
             return "/promotion"
+        case .yieldBoostPromotionStatus:
+            return "/promotion/yield-apr-boost/status"
         case .loadPromotions:
             return "/banner/displays"
         case .hidePromotion(let request):
@@ -145,6 +147,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .yieldBoostPromotionStatus,
              .loadPromotions,
              .apiList,
              .features,
@@ -206,6 +209,8 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram(let requestData):
             return .requestParameters(requestData)
         case .promotion(let request):
+            return .requestParameters(request)
+        case .yieldBoostPromotionStatus(let request):
             return .requestParameters(request)
         case .loadPromotions(let request):
             return .requestParameters(request)
@@ -328,6 +333,7 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .yieldBoostPromotionStatus,
              .loadPromotions,
              .hidePromotion,
              .activatePromoCode,
@@ -377,9 +383,10 @@ extension TangemApiTarget {
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
 
-        // Promotion
-        case promotion(request: BannerPromotion.Request)
         case activatePromoCode(requestModel: PromoCodeActivationDTO.Request)
+
+        case promotion(request: BannerPromotion.Request)
+        case yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request)
 
         // Promotions
         case loadPromotions(request: PromotionsDTO.Load.Request)
@@ -483,6 +490,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .newsCategories,
              .newsDetails,
              .trendingNews,
+             .yieldBoostPromotionStatus,
              .bindWalletsByCode:
             return false
         case .geo,

@@ -42,6 +42,7 @@ let package = Package(
         // even if it is not explicitly specified as a dependency.
         // The workaround for this issue is to place the Swift macros target (`TangemMacro`) in a separate local package (`TangemMacro`).
         .package(path: "../TangemMacro"),
+        .package(path: "../TangemFirebaseDynamicShim"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.44.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
         // BSDK only dependencies:
@@ -67,7 +68,6 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/ton-swift.git", exact: "1.0.17-tangem1"),
         .package(url: "https://github.com/attaswift/BigInt.git", .upToNextMajor(from: "5.3.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.3.0")),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "12.12.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -122,7 +122,7 @@ var serviceModules: [PackageDescription.Target] {
         .tangemTarget(
             name: "TangemAnalytics",
             dependencies: [
-                .product(name: "FirebasePerformance", package: "firebase-ios-sdk"),
+                .product(name: "TangemFirebaseDynamicShim", package: "TangemFirebaseDynamicShim"),
                 "TangemFoundation",
                 "TangemLogger",
             ],

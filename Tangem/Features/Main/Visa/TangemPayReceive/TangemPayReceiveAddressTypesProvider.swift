@@ -13,15 +13,12 @@ struct TangemPayReceiveAddressTypesProvider {
     let colorScheme: ReceiveAddressInfoUtils.ColorScheme
 
     private var receiveAddressInfo: ReceiveAddressInfo {
-        .init(
+        ReceiveAddressInfo(
             address: address,
             type: .default,
             localizedName: "",
-            addressQRImage: QrCodeGenerator.generateQRCode(
-                from: address,
-                backgroundColor: colorScheme.backgroundColor,
-                foregroundColor: colorScheme.foregroundColor
-            )
+            qrBackgroundColor: colorScheme.backgroundColor,
+            qrForegroundColor: colorScheme.foregroundColor
         )
     }
 }

@@ -13,7 +13,7 @@ public class RTCUtil {
 
     public func checkStatus() -> RTCStatus {
         guard let status: NSObject.Type = NSClassFromString(Constants.rtcStatusClassName) as? NSObject.Type else {
-            return RTCStatus(hasRoot: nil, hasCustomFirmware: nil)
+            return RTCStatus(hasRoot: nil)
         }
 
         let hasRoot: Bool
@@ -24,15 +24,7 @@ public class RTCUtil {
             hasRoot = false
         }
 
-        let hasCustomFirmware: Bool
-        let customFirmwareSelector = Selector(Constants.customFirmwareSelectorName)
-        if status.responds(to: customFirmwareSelector), let boolValue = status.value(forKey: Constants.customFirmwareSelectorName) as? Bool {
-            hasCustomFirmware = boolValue
-        } else {
-            hasCustomFirmware = false
-        }
-
-        return RTCStatus(hasRoot: hasRoot, hasCustomFirmware: hasCustomFirmware)
+        return RTCStatus(hasRoot: hasRoot)
     }
 }
 
@@ -42,7 +34,6 @@ private extension RTCUtil {
     enum Constants {
         static let rtcStatusClassName = "RtcStatus"
         static let rootSelectorName = "root"
-        static let customFirmwareSelectorName = "customFirmware"
     }
 }
 
@@ -50,11 +41,10 @@ private extension RTCUtil {
 
 public struct RTCStatus {
     public var hasIssues: Bool {
-        hasRoot == true || hasCustomFirmware == true
+        hasRoot == true
     }
 
     let hasRoot: Bool?
-    let hasCustomFirmware: Bool?
 }
 
 // MARK: - RTCStatus + CustomStringConvertible
@@ -62,7 +52,6 @@ public struct RTCStatus {
 extension RTCStatus: CustomStringConvertible {
     public var description: String {
         let hasRootDescription = hasRoot.map { String($0) } ?? "unknown"
-        let hasCustomFirmwareDescription = hasCustomFirmware.map { String($0) } ?? "unknown"
-        return "RTCStatus(hasRoot: \(hasRootDescription), hasCustomFirmware: \(hasCustomFirmwareDescription))"
+        return "RTCStatus(hasRoot: \(hasRootDescription))"
     }
 }

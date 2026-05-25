@@ -11,6 +11,7 @@ import TangemPay
 
 protocol TangemPayCardDetailsRepository: AnyObject {
     var lastFourDigits: String { get }
+    var lastFourDigitsPublisher: AnyPublisher<String, Never> { get }
     var cardNamePublisher: AnyPublisher<String, Never> { get }
 
     func updateCardDisplayName(_ name: String) async throws

@@ -37,7 +37,7 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": String(describing: page?.number),
+                "pageNumber": page?.number ?? "nil",
                 "hasReachedEnd": hasReachedEnd,
             ]
         )
@@ -49,6 +49,10 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
 
     // [REDACTED_TODO_COMMENT]
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, any Error> {
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
         // if indexing is created, load the next page
         let requestPage: Int = if let page {
             page.number + 1
@@ -60,7 +64,7 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
 
         let target = KaspaTransactionHistoryTarget(
             type: .getCoinTransactionHistory(
-                address: request.address,
+                address: address,
                 page: requestPage,
                 limit: limit
             )
@@ -77,7 +81,7 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
             .tryMap { historyProvider, result in
                 let transactionRecords = try historyProvider
                     .mapper
-                    .mapToTransactionRecords(result, walletAddress: request.address, amountType: request.amountType)
+                    .mapToTransactionRecords(result, walletAddress: address, amountType: request.amountType)
                     .filter { record in
                         historyProvider.shouldBeIncludedInHistory(
                             amountType: request.amountType,

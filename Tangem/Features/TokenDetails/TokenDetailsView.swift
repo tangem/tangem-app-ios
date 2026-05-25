@@ -22,7 +22,10 @@ struct TokenDetailsView: View {
     )
 
     var body: some View {
-        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
+        // This scroll view must use non-lazy content settings because the transactions list view
+        // and other subviews already contain inner lazy stacks.
+        // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
@@ -34,10 +37,6 @@ struct TokenDetailsView: View {
                     }
                 } else {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
-                }
-
-                ForEach(viewModel.bannerNotificationInputs) { input in
-                    NotificationView(input: input)
                 }
 
                 ForEach(viewModel.tokenNotificationInputs) { input in
@@ -57,12 +56,7 @@ struct TokenDetailsView: View {
 
                 yieldStatusView
 
-                if let activeStakingViewData = viewModel.activeStakingViewData {
-                    ActiveStakingView(data: activeStakingViewData)
-                        .padding(14)
-                        .background(Colors.Background.primary)
-                        .cornerRadiusContinuous(14)
-                }
+                stakingView
 
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
@@ -72,6 +66,10 @@ struct TokenDetailsView: View {
                     items: viewModel.pendingTransactionViews,
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
+
+                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                    QuickTopUpBannerView(viewModel: quickTopUpVM)
+                }
 
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
@@ -159,6 +157,35 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
+    private var stakingView: some View {
+        if viewModel.isRedesign {
+            redesignStakingView
+        } else {
+            legacyStakingView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignStakingView: some View {
+        switch viewModel.stakingState {
+        case .some(let state):
+            TokenDetailsStakingView(state: state)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var legacyStakingView: some View {
+        if let activeStakingViewData = viewModel.activeStakingViewData {
+            ActiveStakingView(data: activeStakingViewData)
+                .padding(14)
+                .background(Colors.Background.primary)
+                .cornerRadiusContinuous(14)
+        }
+    }
+
+    @ViewBuilder
     private var yieldStatusView: some View {
         switch viewModel.yieldModuleAvailability {
         case .checking, .notApplicable:
@@ -232,16 +259,10 @@ private extension TokenDetailsView {
     )
     let coordinator = TokenDetailsCoordinator()
 
-    let bannerNotificationManager = BannerNotificationManager(
-        userWalletInfo: userWalletModel.userWalletInfo,
-        placement: .tokenDetails(walletModel.tokenItem),
-    )
-
     TokenDetailsView(viewModel: .init(
         userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         notificationManager: notifManager,
-        bannerNotificationManager: bannerNotificationManager,
         userTokensManager: cryptoAccountModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,

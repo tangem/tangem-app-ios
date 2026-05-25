@@ -20,4 +20,4 @@ protocol CryptoAccountsGlobalStateProvider {
 // MARK: - Auxiliary types
 
 @available(iOS, deprecated: 100000.0, message: "Temporary logger for troubleshooting, will be removed in future ([REDACTED_INFO])")
-let cryptoAccountsGlobalStateProviderLogger = AccountsLogger.tag(#fileID)
+let CryptoAccountsGlobalStateProviderLogger = AccountsLogger.tag(#fileID)

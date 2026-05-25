@@ -103,7 +103,7 @@ class CommonWalletModel {
 
     deinit {
         assetRequirementsTaskCancellable?.cancel()
-        AppLogger.debug(self)
+        AppLogger.debug(self, "deinit")
     }
 
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
@@ -384,13 +384,13 @@ extension CommonWalletModel: WalletModelUpdater {
                 await _receiveAddressService.update(with: wallet.addresses)
 
                 await walletManagerDidUpdate()
-                logger.debug(self, "Update method finished with state '\(walletManager.state)'")
+                logger.info(self, "Update method finished with state '\(walletManager.state)'")
             }
         }()
 
         async let transactionHistoryUpdate: () = {
             if features.contains(.transactionHistory) {
-                _transactionHistoryService?.clearHistory()
+                await _transactionHistoryService?.clearHistory()
 
                 await updateTransactionsHistory()
             }
@@ -708,15 +708,16 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             _transactionHistoryService.statePublisher,
             pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
-        .map { [weak self] state -> WalletModelTransactionHistoryState in
+        .withWeakCaptureOf(self)
+        .asyncMap { walletModel, state -> WalletModelTransactionHistoryState in
             switch state {
             case .initial:
                 return .notLoaded
             case .loading:
                 return .loading
             case .loaded:
-                var items = self?._transactionHistoryService?.items ?? []
-                self?.insertPendingTransactionRecordIfNeeded(into: &items)
+                var items = await walletModel._transactionHistoryService?.items ?? []
+                walletModel.insertPendingTransactionRecordIfNeeded(into: &items)
                 return .loaded(items: items)
             case .failedToLoad(let error):
                 return .error(error)
@@ -849,8 +850,8 @@ extension CommonWalletModel: TransactionHistoryFetcher {
         _transactionHistoryService?.canFetchHistory ?? false
     }
 
-    func clearHistory() {
-        _transactionHistoryService?.clearHistory()
+    func clearHistory() async {
+        await _transactionHistoryService?.clearHistory()
     }
 }
 

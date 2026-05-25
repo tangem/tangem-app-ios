@@ -85,7 +85,9 @@ private extension SendSwapProvidersSelectorViewModel {
             input.currentRateTypePublisher
         )
         .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
-            let showable = providers.showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
+            let showable = providers
+                .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
+                .sortedByAttractively(rateType: currentRateType ?? .float)
             return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
         }
 
@@ -148,21 +150,19 @@ private extension SendSwapProvidersSelectorViewModel {
     private func prepareProviderRows(selectedProvider: ExpressAvailableProvider?, showableProviders: [ExpressAvailableProvider], providerTypeFilter: ProviderTypeFilter, hasHighPriceImpactWarning: Bool) -> [SendSwapProvidersSelectorProviderViewData] {
         showableProviders
             .filter { providerTypeFilter.matches($0.provider.type) }
-            .sortedByPriorityAndQuotes()
             .map { mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: selectedProvider, availableProvider: $0, hasHighPriceImpactWarning: hasHighPriceImpactWarning) }
     }
 
     func mapToSendSwapProvidersSelectorProviderViewData(selectedProvider: ExpressAvailableProvider?, availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool) -> SendSwapProvidersSelectorProviderViewData {
-        let senderCurrencyCode = tokenItem.currencySymbol
-        let destinationCurrencyCode = receiveTokenInput?.receiveToken.value?.tokenItem.currencySymbol
+        let destinationTokenItem = receiveTokenInput?.receiveToken.value?.tokenItem
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
         let state = availableProvider.getState()
         subtitles.append(
             expressProviderFormatter.mapToRateSubtitle(
                 state: state,
-                senderCurrencyCode: senderCurrencyCode,
-                destinationCurrencyCode: destinationCurrencyCode,
+                senderTokenItem: tokenItem,
+                destinationTokenItem: destinationTokenItem,
                 option: .exchangeReceivedAmount
             )
         )

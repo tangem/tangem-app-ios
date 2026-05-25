@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import FirebasePerformance
 import TangemFoundation
 import TangemLogger
+import TangemFirebaseDynamicShim
 
 public enum PerformanceTracker {
     public static func startTracking(metric: PerformanceTracker.Metric) -> PerformanceMetricToken? {

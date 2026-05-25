@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemNetworkUtils
 
-class CommonTangemApiService {
+final class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
         TimeoutIntervalPlugin(),
@@ -35,7 +35,7 @@ class CommonTangemApiService {
     }()
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("CommonTangemApiService deinit")
     }
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {
@@ -223,10 +223,6 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func promotion(request requestModel: BannerPromotion.Request) async throws -> BannerPromotion.Response {
-        try await request(for: .promotion(request: requestModel), decoder: decoder)
-    }
-
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
         let target = TangemApiTarget(type: .activatePromoCode(requestModel: model))
 
@@ -250,6 +246,23 @@ extension CommonTangemApiService: TangemApiService {
 
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
         try await self.request(for: .hidePromotion(request: request))
+    }
+
+    // MARK: - Yield Boost Promotion
+
+    func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {
+        let response: BannerPromotion.Response = try await request(
+            for: .promotion(request: BannerPromotion.Request(walletId: userWalletId)),
+            decoder: decoder
+        )
+        return response.promotions
+    }
+
+    func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
+        try await request(
+            for: .yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request(walletId: userWalletId)),
+            decoder: decoder
+        )
     }
 
     func loadAPIList() async throws -> APIListDTO {

@@ -72,12 +72,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.userDidSwipeWalletsOnMainScreen)
     var userDidSwipeWalletsOnMainScreen: Bool = false
 
-    @AppStorageCompat(StorageType.mainPromotionDismissed)
-    var mainPromotionDismissed: [String] = []
-
-    @AppStorageCompat(StorageType.tokenPromotionDismissed)
-    var tokenPromotionDismissed: [String] = []
-
     @AppStorageCompat(StorageType.userDidTapSendScreenSummary)
     var userDidTapSendScreenSummary: Bool = false
 
@@ -165,12 +159,17 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
     var shouldShowMobilePromoWalletSelector: Bool = false
 
+    @AppStorageCompat(StorageType.yieldApyBoostHiddenPromos)
+    var yieldApyBoostHiddenPromos: [String] = []
+    @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
+    var needsTangemPayMobileOnboarding: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("AppSettings deinit")
     }
 }
 

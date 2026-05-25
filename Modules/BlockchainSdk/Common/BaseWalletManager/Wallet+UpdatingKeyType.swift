@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum WalletUpdatingKeyType {
+public enum WalletUpdatingKeyType {
     case address(any Address)
     case addresses([any Address])
     case xpub(UTXOXpubScriptType)
@@ -15,7 +15,7 @@ enum WalletUpdatingKeyType {
 
 // MARK: - Wallet + WalletUpdatingKeyType
 
-extension Wallet {
+public extension Wallet {
     func updatingKeyType() throws -> WalletUpdatingKeyType {
         switch publicKey.derivationType {
         case .xpub(_, let xpub):

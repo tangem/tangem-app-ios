@@ -55,7 +55,7 @@ struct ApplePayAuthorizationResultTests {
         let applePayResult = OnrampApplePayResult(
             paymentToken: "token",
             userData: OnrampNativePaymentRequestItem.UserData(
-                email: nil, firstName: nil, lastName: nil, billingAddress: nil
+                email: "user@example.com", firstName: nil, lastName: nil, billingAddress: nil
             )
         )
         let result = ApplePayAuthorizationResult(
@@ -78,7 +78,7 @@ struct ApplePayAuthorizationResultTests {
             applePayResult: OnrampApplePayResult(
                 paymentToken: "",
                 userData: OnrampNativePaymentRequestItem.UserData(
-                    email: nil, firstName: nil, lastName: nil, billingAddress: nil
+                    email: "user@example.com", firstName: nil, lastName: nil, billingAddress: nil
                 )
             ),
             resultHandler: resultHandler

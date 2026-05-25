@@ -23,7 +23,7 @@ extension StakingYieldInfo {
                 name: "InfStones",
                 preferred: true,
                 partner: false,
-                iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
+                image: URL(string: "https://assets.stakek.it/validators/infstones.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.08,
                 status: .active
@@ -33,7 +33,7 @@ extension StakingYieldInfo {
                 name: "Aconcagua",
                 preferred: true,
                 partner: false,
-                iconURL: URL(string: "https://assets.stakek.it/validators/aconcagua.png"),
+                image: URL(string: "https://assets.stakek.it/validators/aconcagua.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.032,
                 status: .active
@@ -45,7 +45,7 @@ extension StakingYieldInfo {
                 name: "InfStones",
                 preferred: true,
                 partner: false,
-                iconURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
+                image: URL(string: "https://assets.stakek.it/validators/infstones.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.08,
                 status: .active
@@ -55,7 +55,7 @@ extension StakingYieldInfo {
                 name: "Aconcagua",
                 preferred: true,
                 partner: false,
-                iconURL: URL(string: "https://assets.stakek.it/validators/aconcagua.png"),
+                image: URL(string: "https://assets.stakek.it/validators/aconcagua.png").map(StakingTargetImage.url),
                 rewardType: .apr,
                 rewardRate: 0.032,
                 status: .active

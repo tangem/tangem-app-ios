@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MarketsTokenSearchView: View {
     typealias ViewModel = MarketsTokenSearchViewModel
@@ -129,6 +130,7 @@ private extension MarketsTokenSearchView {
             .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
             .frame(maxWidth: .infinity)
             .padding(.top, searchEmptyTopPadding)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)
     }
 
     var searchResultView: some View {

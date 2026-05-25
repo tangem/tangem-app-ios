@@ -16,7 +16,6 @@ import TangemNFT
 import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
-import struct TangemUIUtils.AlertBinder
 import TangemPay
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
@@ -137,7 +136,9 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             .compactMap { $0 }
             .receiveOnMain()
             .sink { [weak self] deepLink in
-                self?.deeplinkPresenter.present(deepLink: deepLink)
+                MainActor.assumeIsolated {
+                    self?.deeplinkPresenter.present(deepLink: deepLink)
+                }
             }
 
         if pushNotificationsViewModelSubscription == nil {
@@ -219,6 +220,7 @@ extension MainCoordinator: MainRoutable {
              .buy,
              .sell,
              .swap,
+             .swapWithDeferredPairResolution,
              .referral,
              .staking,
              .marketsTokenDetails,
@@ -367,7 +369,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         organizeTokensViewModel = OrganizeTokensViewModel(
             userWalletModel: userWalletModel,
-            coordinator: self
+            coordinator: self,
+            analyticsLogger: TokensManagementAnalyticsLogger()
         )
     }
 
@@ -992,32 +995,6 @@ extension MainCoordinator: WCTransactionRoutable {
     }
 }
 
-// MARK: - MainCoordinator
-
-extension MainCoordinator {
-    enum DeepLinkDestination {
-        case expressTransactionStatus(walletModel: any WalletModel, userWalletModel: UserWalletModel, transactionDetails: PendingTransactionDetails)
-        case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-        case buy(userWalletModel: UserWalletModel)
-        case sell(userWalletModel: UserWalletModel)
-        case swap(userWalletModel: UserWalletModel)
-        case referral(input: ReferralInputModel)
-        case staking(options: StakingDetailsCoordinator.Options)
-        case yield(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-        case marketsTokenDetails(tokenId: String)
-        case tokenExchanges(tokenId: String)
-        case externalLink(url: URL)
-        case markets(filter: MarketsDeeplinkFilter)
-        case onboardVisa(deeplinkString: String)
-        case tangemPayMain(customerWalletId: String)
-        case tangemPayTransactionDetails(payload: TangemPayPushPayload)
-        case newsDetails(newsId: Int)
-        case newsList(initialCategoryId: Int?)
-        case promo(code: String, refcode: String?, campaign: String?)
-        case earn(earnType: EarnFilterType?, networkId: String?)
-    }
-}
-
 // MARK: - MobileFinishActivationNeededRoutable
 
 extension MainCoordinator: MobileFinishActivationNeededRoutable {
@@ -1057,7 +1034,10 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
 // MARK: - Swap Flow Helper
 
 private extension MainCoordinator {
-    func openSwapFlow(parameters: PredefinedSwapParameters, source: SendCoordinator.Source) {
+    func openSwapFlow(
+        parameters: PredefinedSwapParameters,
+        source: SendCoordinator.Source
+    ) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .swap(parameters), source: source)
 

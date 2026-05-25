@@ -13,6 +13,10 @@ import TangemPay
 final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
     let lastFourDigits: String = "4242"
 
+    var lastFourDigitsPublisher: AnyPublisher<String, Never> {
+        Just(lastFourDigits).eraseToAnyPublisher()
+    }
+
     var cardNamePublisher: AnyPublisher<String, Never> {
         Just("My Card").eraseToAnyPublisher()
     }

@@ -9,9 +9,10 @@
 enum OSLogConstants {
     static let subsystem = "com.tangem.os.logger"
     static let fileName = "oslog.csv"
-    static let zipFileName = "log"
+    static let zipFileName = "log.zip"
     static let separator = ","
     static let cedilla = "¸"
     static let enter = "↵"
     static let numberOfDaysUntilExpiration = 7
+    static let infoLogs = "infoLogs.txt"
 }

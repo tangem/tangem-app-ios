@@ -26,8 +26,6 @@ enum StorageType: String {
     case shouldHidingSensitiveInformationSheetShowing = "should_hiding_sensitive_information_sheet_showing"
     case appTheme = "app_theme"
     case userDidSwipeWalletsOnMainScreen = "user_did_swipe_wallets_on_main_screen"
-    case mainPromotionDismissed = "main_promotion_dismissed"
-    case tokenPromotionDismissed = "token_promotion_dismissed"
     case userDidTapSendScreenSummary = "user_did_tap_send_screen_summary"
     case pendingBackups = "pending_backups"
     case pendingBackupsCurrentID = "pending_backups_current_id"
@@ -61,7 +59,9 @@ enum StorageType: String {
     case referralCampaign = "referral_campaign"
     case hasReferralBindingRequest = "has_referral_binding_request"
     case shouldShowMobilePromoWalletSelector = "should_show_mobile_promo_wallet_selector"
+    case needsTangemPayMobileOnboarding = "needs_tangem_pay_mobile_onboarding"
     case mobileUpgradeBannerClosed = "mobile_upgrade_banner_closed"
     case mobileUpgradeBannerWalletCreated = "mobile_upgrade_banner_wallet_created"
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
+    case yieldApyBoostHiddenPromos = "yield_apy_boost_hidden_promos"
 }

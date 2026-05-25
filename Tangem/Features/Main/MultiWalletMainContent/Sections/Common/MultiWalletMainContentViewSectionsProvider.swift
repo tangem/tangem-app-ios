@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol MultiWalletMainContentViewSectionsProvider: MainScreenUIOrderedTokensProviding {
+protocol MultiWalletMainContentViewSectionsProvider {
     associatedtype PlainSectionsPublisher: Publisher<[MultiWalletMainContentPlainSection], Never>
     associatedtype AccountsSectionsPublisher: Publisher<[MultiWalletMainContentAccountSection], Never>
 
@@ -20,8 +20,4 @@ protocol MultiWalletMainContentViewSectionsProvider: MainScreenUIOrderedTokensPr
     func makeAccountSectionsPublisher() -> AccountsSectionsPublisher
 
     func configure(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory)
-}
-
-protocol MainScreenUIOrderedTokensProviding: AnyObject {
-    var uiOrderedWalletModelsPublisher: AnyPublisher<[any WalletModel], Never> { get }
 }

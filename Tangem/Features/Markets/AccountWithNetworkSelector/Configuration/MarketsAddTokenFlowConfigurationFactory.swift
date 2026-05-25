@@ -140,7 +140,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 analyticsLogger.logExchangeTapped()
                 let helper = SwapPredefinedParametersHelper()
                 guard let parameters = helper.makeParameters(
-                    origin: .markets(.init(walletModel: walletModel)),
+                    origin: .markets(walletModel: walletModel),
                     userWalletInfo: userWalletInfo
                 ) else {
                     break
@@ -219,5 +219,43 @@ private extension MarketsAddTokenFlowConfigurationFactory {
             supportedBlockchains: supportedBlockchains,
             cryptoAccount: cryptoAccount
         )
+    }
+
+    private static func candidateWalletAccounts(
+        in userWalletModels: [any UserWalletModel]
+    ) -> [AddTokenEligibleAccountsResolver.EligibleAccount] {
+        if let oneAndOnly = OneAndOnlyAccountFinder.find(in: userWalletModels) {
+            return [(oneAndOnly.userWalletModel, oneAndOnly.cryptoAccountModel)]
+        }
+        return AddTokenEligibleAccountsResolver.resolveAll(in: userWalletModels)
+    }
+}
+
+// MARK: - Preselected token
+
+extension MarketsAddTokenFlowConfigurationFactory {
+    /// Prefers the first not-yet-added network in the wallet/account that
+    /// `AddTokenFlowRedesignedViewModel` will pick as its initial — so the user lands on a
+    /// network they can actually add, and the preselected token stays consistent with the
+    /// chosen account. Falls back to the first available network when every supported one
+    /// is already added. `isTokenAdded` should match the predicate used by the surrounding
+    /// flow's configuration so preselect and confirm agree on what's addable.
+    static func makePreselectedTokenItem(
+        inputData: InputData,
+        userWalletModels: [any UserWalletModel],
+        isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool
+    ) -> TokenItem? {
+        guard let (userWallet, cryptoAccount) = candidateWalletAccounts(in: userWalletModels).first else {
+            return nil
+        }
+
+        let tokenItems = makeTokenItems(
+            inputData: inputData,
+            supportedBlockchains: userWallet.config.supportedBlockchains,
+            cryptoAccount: cryptoAccount
+        )
+
+        let firstNotAdded = tokenItems.first { !isTokenAdded($0, cryptoAccount) }
+        return firstNotAdded ?? tokenItems.first
     }
 }

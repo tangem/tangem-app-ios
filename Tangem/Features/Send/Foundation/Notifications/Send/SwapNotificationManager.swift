@@ -28,12 +28,10 @@ final class CommonSwapNotificationManager {
     private let balanceFormatter = BalanceFormatter()
 
     private weak var delegate: NotificationTapDelegate?
-    private var analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
+    private let analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
 
     private var setupCancellable: AnyCancellable?
     private var analyticsServiceCancellable: AnyCancellable?
-
-    init() {}
 
     private func analyticsService(for userWalletId: UserWalletId) -> NotificationsAnalyticsService {
         if let analyticsService = analyticsServices.read()[userWalletId] {
@@ -149,6 +147,8 @@ private extension CommonSwapNotificationManager {
             // For only a express error we use "Service temporary unavailable"
             // or "Selected pair temporarily unavailable" depending on the error code.
             analyticsParams[.errorCode] = "\(occurredError.errorCode.rawValue)"
+            analyticsParams[.sendBlockchain] = source.tokenItem.blockchain.displayName
+            analyticsParams[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
 
             return [
                 .refreshRequired(

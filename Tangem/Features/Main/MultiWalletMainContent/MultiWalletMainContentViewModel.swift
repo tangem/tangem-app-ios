@@ -26,7 +26,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var isLoadingTokenList: Bool = true
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var tokensNotificationInputs: [NotificationViewInput] = []
-    @Published private(set) var bannerNotificationInputs: [NotificationViewInput] = []
 
     @Published private(set) var accountSections: [MultiWalletMainContentAccountSection] = []
     @Published private(set) var plainSections: [MultiWalletMainContentPlainSection] = []
@@ -53,6 +52,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    // [REDACTED_INFO]: legacy banner; redesign surfaces the same banner through `getTangemPayBannerNotificationManager`.
     @Published private(set) var tangemPayBannerViewModel: GetTangemPayBannerViewModel?
 
     var isOrganizeTokensVisible: Bool {
@@ -86,9 +86,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let userWalletNotificationManager: NotificationManager
     private let sectionsProvider: any MultiWalletMainContentViewSectionsProvider
     private let tokensNotificationManager: NotificationManager
-    private let bannerNotificationManager: NotificationManager?
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
+    private let getTangemPayBannerNotificationManager: NotificationManager
+    private let yieldApyBoostBannerNotificationManager: NotificationManager
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
@@ -111,9 +112,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         userWalletNotificationManager: NotificationManager,
         sectionsProvider: any MultiWalletMainContentViewSectionsProvider,
         tokensNotificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
+        getTangemPayBannerNotificationManager: NotificationManager,
+        yieldApyBoostBannerNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
@@ -124,9 +126,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.sectionsProvider = sectionsProvider
         self.tokensNotificationManager = tokensNotificationManager
-        self.bannerNotificationManager = bannerNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
         self.tangemPayNotificationManager = tangemPayNotificationManager
+        self.getTangemPayBannerNotificationManager = getTangemPayBannerNotificationManager
+        self.yieldApyBoostBannerNotificationManager = yieldApyBoostBannerNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
@@ -136,8 +139,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         notificationBannerItemsProvider = NotificationBannerItemsProvider(
             userWalletNotificationManager: userWalletNotificationManager,
             tokensNotificationManager: tokensNotificationManager,
-            bannerNotificationManager: bannerNotificationManager,
-            tangemPayNotificationManager: tangemPayNotificationManager
+            tangemPayNotificationManager: tangemPayNotificationManager,
+            getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
+            yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager
         )
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
@@ -159,7 +163,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     deinit {
-        AppLogger.debug("\(userWalletModel.name) deinit")
+        AppLogger.debug("MultiWalletMainContentViewModel \(userWalletModel.name) deinit")
     }
 
     func onDidAppear() {
@@ -217,7 +221,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel)
+        let analyticsLogger = TokensManagementAnalyticsLogger()
+        analyticsLogger.logButtonAddAndOrganize()
+
+        let factory = TokensManagementFlowFactory(userWalletModel: userWalletModel, analyticsLogger: analyticsLogger)
         coordinator?.openAddAndManageTokens(factory: factory)
     }
 
@@ -306,18 +313,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tokensNotificationManager
-            .notificationPublisher
+        Publishers
+            .CombineLatest(
+                tokensNotificationManager.notificationPublisher.removeDuplicates(),
+                yieldApyBoostBannerNotificationManager.notificationPublisher.removeDuplicates()
+            )
+            .map { $0 + $1 }
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.tokensNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        bannerNotificationManager?
-            .notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         notificationBannerItemsProvider.$items
@@ -362,6 +366,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
 
+        // [REDACTED_INFO]: legacy banner; redesign uses `getTangemPayBannerNotificationManager`.
         tangemPayAvailabilityRepository
             .tangemPayBannerEntrypointEligibleWalletSelectionPublisher(for: userWalletModel.userWalletId.stringValue)
             .withWeakCaptureOf(self)
@@ -832,7 +837,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             delegate?.displayAddressCopiedToast()
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(.init(walletModel: walletModel)),
+                origin: .tokenDetails(walletModel: walletModel),
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
                 return
@@ -877,8 +882,7 @@ private extension MultiWalletMainContentViewModel {
         return .init(
             coordinator: coordinator,
             userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo),
-            tokensOrderProvider: sectionsProvider
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
         )
     }
 }
