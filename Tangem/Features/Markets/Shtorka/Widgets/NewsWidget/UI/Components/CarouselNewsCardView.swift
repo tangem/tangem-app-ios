@@ -108,26 +108,20 @@ struct CarouselNewsCardView: View {
 
     private func contentView(for item: CarouselNewsItem) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
-            NewsRatingViewRedesign(rating: item.rating, isHighlighted: false)
+            NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: false)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
 
             FixedSpacer(height: .unit(.x2))
 
             Text(item.title)
                 .multilineTextAlignment(.leading)
-                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(Layout.RedesignCard.titleLineLimit)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
 
             Spacer(minLength: .unit(.x2))
-
-            Text(item.timeAgo)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
-
-            FixedSpacer(height: .unit(.x2))
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
@@ -155,8 +149,9 @@ extension CarouselNewsCardView {
 
         enum RedesignCard {
             static let padding: CGFloat = .unit(.x4)
-            static let cornerRadius: CGFloat = .unit(.x5)
-            static let width: CGFloat = 228
+            static let cornerRadius: CGFloat = .unit(.x6)
+            static let allNewsCornerRadius: CGFloat = .unit(.x5)
+            static let width: CGFloat = 280
             static let height: CGFloat = 172
             static let titleLineLimit: Int = 3
         }
@@ -185,11 +180,13 @@ extension CarouselNewsCardView {
 // MARK: - Shared Redesign Card Background
 
 extension View {
-    /// Applies the shared redesign "pill card" shell used by both news cards
-    /// and the "All news" card in `CarouselNewsView`: fixed 228×172 frame with
-    /// inner padding, `Surface.level3` background, `x5` continuous corner
-    /// radius and a 1pt inset border.
-    func redesignNewsCarouselCardBackground() -> some View {
+    /// Applies the shared redesign "pill card" shell used by news cards in `CarouselNewsView`.
+    /// Regular news cards now use `x6` continuous corners and no border (per latest design review).
+    /// The "All news" tile passes `showBorder: true` with `x5` corners to keep its differentiated look.
+    func redesignNewsCarouselCardBackground(
+        cornerRadius: CGFloat = CarouselNewsCardView.Layout.RedesignCard.cornerRadius,
+        showBorder: Bool = false
+    ) -> some View {
         padding(CarouselNewsCardView.Layout.RedesignCard.padding)
             .frame(
                 width: CarouselNewsCardView.Layout.RedesignCard.width,
@@ -197,14 +194,15 @@ extension View {
                 alignment: .topLeading
             )
             .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(CarouselNewsCardView.Layout.RedesignCard.cornerRadius)
+            .cornerRadiusContinuous(cornerRadius)
             .overlay(
-                RoundedRectangle(
-                    cornerRadius: CarouselNewsCardView.Layout.RedesignCard.cornerRadius,
-                    style: .continuous
-                )
-                .inset(by: 0.5)
-                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+                Group {
+                    if showBorder {
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .inset(by: 0.5)
+                            .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+                    }
+                }
             )
     }
 }
