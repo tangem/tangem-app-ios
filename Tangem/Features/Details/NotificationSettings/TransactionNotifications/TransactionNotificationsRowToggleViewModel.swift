@@ -81,21 +81,31 @@ private extension TransactionNotificationsRowToggleViewModel {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, status in
-                viewModel.isPushNotifyEnabled = status.isActive
-                viewModel.refreshPermissionWarning()
+                viewModel.applyPushNotifyStatus(status)
             }
             .store(in: &bag)
     }
 
     func setupViewModels() {
-        // One-time initialization. Because isNotInitialized is non-recoverable
+        applyPushNotifyStatus(userTokensPushNotificationsManager.status)
+    }
+
+    func applyPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {
+        isPushNotifyEnabled = status.isActive
+        updatePushNotifyViewModel(isDisabled: status.isNotInitialized)
+        refreshPermissionWarning()
+    }
+
+    func updatePushNotifyViewModel(isDisabled: Bool) {
+        guard pushNotifyViewModel?.isDisabled != isDisabled else {
+            return
+        }
+
         pushNotifyViewModel = DefaultToggleRowViewModel(
             title: Localization.walletSettingsPushNotificationsTitle,
-            isDisabled: userTokensPushNotificationsManager.status.isNotInitialized,
+            isDisabled: isDisabled,
             isOn: isEnabledPushNotificationStatusBinding
         )
-
-        refreshPermissionWarning()
     }
 }
 
@@ -146,8 +156,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             return
         case .needSystemPermission where !toggleValue:
             break
-        default:
-            // DefaultToggleRowViewModel did at disabled state. The status does not need to be updated
+        case .loading, .failed:
             break
         }
     }
