@@ -20,6 +20,7 @@ extension RewardViewData {
     enum State: Hashable {
         case noRewards
         case automaticRewards
+        case compoundedRewardsEarned(cryptoFormatted: String)
         case rewards(claimable: Bool, fiatFormatted: String, cryptoFormatted: String, action: () -> Void)
 
         static func == (lhs: RewardViewData.State, rhs: RewardViewData.State) -> Bool {
@@ -32,6 +33,9 @@ extension RewardViewData {
                 hasher.combine("noRewards")
             case .automaticRewards:
                 hasher.combine("automaticRewards")
+            case .compoundedRewardsEarned(let cryptoFormatted):
+                hasher.combine("compoundedRewardsEarned")
+                hasher.combine(cryptoFormatted)
             case .rewards(let claimable, let fiatFormatted, let cryptoFormatted, _):
                 hasher.combine(claimable)
                 hasher.combine(fiatFormatted)
