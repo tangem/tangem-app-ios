@@ -305,7 +305,7 @@ private extension CommonDeeplinkPresenter {
         )
 
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
 
         let windowSize = makeFirstWindowSceneSize()
 
@@ -364,7 +364,7 @@ private extension CommonDeeplinkPresenter {
         let viewModel = MarketsTokenDetailsExchangesListViewModel(
             tokenId: tokenId,
             numberOfExchangesListedOn: DeeplinkMarketsConstants.deeplinkExchangesSkeletonCount,
-            presentationStyle: .defaultNavigationStack,
+            presentationStyle: .navigationStack,
             exchangesListLoader: MarketsTokenDetailsDataProvider(),
             onBackButtonAction: {}
         )
