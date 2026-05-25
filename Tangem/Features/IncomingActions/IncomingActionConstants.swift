@@ -13,6 +13,16 @@ enum IncomingActionConstants {
     static let appTangemHost = "app.tangem.com"
     static let appTangemDomain = "https://app.tangem.com"
     static let tangemDomain = "https://tangem.com"
+
+    static let supportedExternalLinkHosts: Set<String> = [
+        "tangem.com",
+        "www.tangem.com",
+        "buy.tangem.com",
+        "app.tangem.com",
+        "tangem.surveysparrow.com",
+        "feedback.tangem.com",
+    ]
+
     static let newsPath = "/news"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
