@@ -40,7 +40,7 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
             stateToCache = .notActive
         case .processing(let action):
             stateToCache = .processing(isEnter: action == .enter)
-        case .active(let yieldSupplyInfo):
+        case .active(let yieldSupplyInfo, _):
             stateToCache = .active(
                 supply: CachedYieldSupplyInfo(
                     yieldContractAddress: yieldSupplyInfo.yieldContractAddress,
@@ -66,12 +66,12 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
         return cachedState.flatMap { cachedState in
             switch cachedState {
             case .notActive:
-                return .notActive
+                return .notActive(promoStatus: .undefined)
             case .processing(let isEnter):
                 return .processing(action: isEnter ? .enter : .exit)
             case .active(let supply):
                 return .active(
-                    YieldSupplyInfo(
+                    info: YieldSupplyInfo(
                         yieldContractAddress: supply.yieldContractAddress,
                         balance: Amount(
                             with: supply.blockchain,
@@ -80,7 +80,8 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
                         ),
                         isAllowancePermissionRequired: supply.isAllowancePermissionRequired,
                         yieldModuleBalanceValue: supply.yieldModuleBalanceValue
-                    )
+                    ),
+                    promoStatus: .undefined
                 )
             }
         }
