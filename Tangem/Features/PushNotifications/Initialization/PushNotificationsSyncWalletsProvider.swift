@@ -13,6 +13,7 @@ import TangemFoundation
 final class PushNotificationsSyncWalletsProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.pushNotificationsPermission) private var pushNotificationsPermission: PushNotificationsPermissionService
 
     func syncUserWalletModelState(applicationUid: String) async throws {
         let response = try await tangemApiService.getUserWallets(applicationUid: applicationUid)
@@ -86,8 +87,11 @@ private extension PushNotificationsSyncWalletsProvider {
     func resolveNewlyConnectedEntry(for model: UserWalletModel) async -> ApplicationWalletEntry {
         let walletId = model.userWalletId.stringValue
 
-        let shouldBootstrapNotifyStatus = await model.userTokensPushNotificationsManager
-            .shouldAllowanceRemoteNotifyStatus()
+        let isAuthorized = await pushNotificationsPermission.isAuthorized
+        let shouldBootstrapNotifyStatus = PushNotificationsAllowanceBootstrapPolicy.isEligibleForBootstrap(
+            userWalletId: model.userWalletId,
+            isSystemPushAuthorized: isAuthorized
+        )
 
         if let remoteWallet = try? await tangemApiService.getUserWallet(userWalletId: walletId) {
             return ApplicationWalletEntry(

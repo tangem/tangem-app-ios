@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 /// Monitors wallet readiness conditions and emits events that drive push-notification
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
@@ -22,22 +23,30 @@ final class UserTokensPushNotificationsUpdateTrigger {
         /// The app returned to foreground while the token list is ready — the local
         /// push status should be recalculated with the current system authorization state.
         case updateStatusRequired
+        /// System push permission was granted (`false` → `true`) while the token list is
+        /// ready — wallet-level preferences may be auto-enabled for allowance onboarding.
+        case autoEnablePreferencesRequired
     }
 
     var eventsPublisher: AnyPublisher<Event, Never> {
         eventsSubject.eraseToAnyPublisher()
     }
 
+    private let userWalletId: UserWalletId
     private let eventsSubject = PassthroughSubject<Event, Never>()
     private var bag: Set<AnyCancellable> = []
 
     init(
+        userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
-        permissionService: PushNotificationsPermissionService
+        permissionService: PushNotificationsPermissionService,
+        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>? = nil
     ) {
+        self.userWalletId = userWalletId
         bind(
             accountModelsManager: accountModelsManager,
-            permissionService: permissionService
+            permissionService: permissionService,
+            remoteTransactionAlertsStatePublisher: remoteTransactionAlertsStatePublisher
         )
     }
 
@@ -45,7 +54,8 @@ final class UserTokensPushNotificationsUpdateTrigger {
 
     private func bind(
         accountModelsManager: AccountModelsManager,
-        permissionService: PushNotificationsPermissionService
+        permissionService: PushNotificationsPermissionService,
+        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>?
     ) {
         let isUserTokenListReadyPublisher = accountModelsManager
             .cryptoAccountModelsPublisher
@@ -92,6 +102,54 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .combineLatest(isUserTokenListReadyPublisher)
             .receiveOnMain()
             .map { _, _ in Event.updateStatusRequired }
+            .subscribe(eventsSubject)
+            .store(in: &bag)
+
+        let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
+            .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
+
+        let isPreferencesReadyPublisher = remoteTransactionAlertsStatePublisher?
+            .map { remoteState -> Bool in
+                guard case .ready = remoteState else { return false }
+                return true
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher()
+
+        permissionService
+            .isAuthorizedPublisher
+            .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in
+                previous == false && current == true
+            }
+            .combineLatest(
+                isUserTokenListReadyPublisher,
+                hasNotCompletedAllowanceOnboardingPublisher,
+                isPreferencesReadyPublisher
+            )
+            .filter { _, isUserTokenListReady, hasNotCompletedAllowanceOnboarding, isPreferencesReady in
+                isUserTokenListReady && hasNotCompletedAllowanceOnboarding && isPreferencesReady
+            }
+            .receiveOnMain()
+            .map { _ in Event.autoEnablePreferencesRequired }
+            .subscribe(eventsSubject)
+            .store(in: &bag)
+
+        // Backend transactional-push address sync when the settled remote toggle changes,
+        // gated on the token list being ready.
+        remoteTransactionAlertsStatePublisher?
+            .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in
+                guard case .ready(let previousValue) = previous, case .ready(let currentValue) = current else {
+                    return false
+                }
+
+                return previousValue != currentValue
+            }
+            .combineLatest(isUserTokenListReadyPublisher)
+            .map { _ in Event.syncRemoteStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
     }

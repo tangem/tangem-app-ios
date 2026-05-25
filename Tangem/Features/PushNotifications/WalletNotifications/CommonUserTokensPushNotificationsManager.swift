@@ -24,8 +24,10 @@ final class CommonUserTokensPushNotificationsManager {
     private let notificationPreferencesProvider: NotificationPreferencesProvider
 
     private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
+        userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
-        permissionService: pushNotificationsPermission
+        permissionService: pushNotificationsPermission,
+        remoteTransactionAlertsStatePublisher: _userWalletPushRemoteStatusSubject.eraseToAnyPublisher()
     )
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
@@ -62,6 +64,8 @@ final class CommonUserTokensPushNotificationsManager {
                     manager.syncRemoteStatus()
                 case .updateStatusRequired:
                     manager.updateStatusIfNeeded()
+                case .autoEnablePreferencesRequired:
+                    manager.tryUpdateEnableState(value: true)
                 }
             }
             .store(in: &bag)
@@ -138,8 +142,6 @@ private extension CommonUserTokensPushNotificationsManager {
         // - remoteStatusReceived: updates from backend
         // - tryUpdateEnableState: updates from user intent (syncs when remote changes)
         _userWalletPushStatusSubject.send(status)
-
-        await updateAllowanceIfNeeded()
     }
 }
 
@@ -187,6 +189,12 @@ private extension CommonUserTokensPushNotificationsManager {
             if shouldSync {
                 manager.syncRemoteStatus()
             }
+
+            // Mark allowance only after an explicit enable intent succeeded (user toggle or auto-enable),
+            // not on passive status recalculation — otherwise autoEnablePreferencesRequired never fires again.
+            if isAuthorized, value {
+                manager.markAllowanceOnboardingCompletedIfNeeded()
+            }
         }
     }
 
@@ -230,14 +238,6 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
     func tryUpdateEnableState(value: Bool) {
         applyLocalStatusUpdate(value)
     }
-
-    func shouldAllowanceRemoteNotifyStatus() async -> Bool {
-        let isAuthorizedPushNotifications = await pushNotificationsPermission.isAuthorized
-        let hasCompletedAllowanceOnboarding = await AppSettings.shared.allowanceUserWalletIdTransactionsPush
-            .contains(userWalletId.stringValue)
-
-        return isAuthorizedPushNotifications && !hasCompletedAllowanceOnboarding
-    }
 }
 
 // MARK: - UserTokenListExternalParametersProvider
@@ -262,9 +262,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParamet
 
 private extension CommonUserTokensPushNotificationsManager {
     @MainActor
-    private func updateAllowanceIfNeeded() {
-        if !AppSettings.shared.allowanceUserWalletIdTransactionsPush.contains(userWalletId.stringValue) {
-            AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
-        }
+    func markAllowanceOnboardingCompletedIfNeeded() {
+        PushNotificationsAllowanceBootstrapPolicy.markOnboardingCompleted(userWalletId: userWalletId)
     }
 }
