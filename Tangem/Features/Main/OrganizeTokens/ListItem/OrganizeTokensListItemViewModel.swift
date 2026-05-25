@@ -20,6 +20,7 @@ struct OrganizeTokensListItemViewModel: Hashable, Identifiable {
     var imageURL: URL? { tokenIcon.imageURL }
     var customTokenColor: Color? { tokenIcon.customTokenColor }
     var blockchainIconAsset: ImageType? { tokenIcon.blockchainIconAsset }
+    var tokenIconInfo: TokenIconInfo { tokenIcon }
     var hasMonochromeIcon: Bool { isNetworkUnreachable || !hasDerivation || isTestnet }
     var isCustom: Bool { tokenIcon.isCustom }
 
