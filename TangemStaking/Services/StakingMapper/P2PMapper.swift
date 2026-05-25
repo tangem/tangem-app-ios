@@ -144,14 +144,15 @@ struct P2PMapper {
         targetAmountInfos: [String: StakingTargetAmountLimitInfo]
     ) -> StakingTargetInfo {
         let info = targetAmountInfos[vault.vaultAddress.lowercased()]
-        let hasCapacity: Bool = {
-            guard let capacity = vault.capacity,
-                  let totalAssets = vault.totalAssets else {
-                return false
+        let remaining: Decimal? = {
+            guard let limit = info?.limit,
+                  let totalAssets = vault.totalAssets,
+                  limit - totalAssets > Constants.availabilityThreshold else {
+                return nil
             }
-            return capacity - totalAssets > Constants.availabilityThreshold
+            return limit - totalAssets
         }()
-        let isAvailable = info != nil && hasCapacity
+        let isAvailable = remaining != nil
         return StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
@@ -161,7 +162,7 @@ struct P2PMapper {
             rewardType: rewardType,
             rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
             status: isAvailable ? .active : .full,
-            maximumStakeAmount: isAvailable ? info?.limit : nil
+            maximumStakeAmount: remaining
         )
     }
 
@@ -197,7 +198,7 @@ public extension StakingTokenItem {
 private extension P2PMapper {
     enum Constants {
         static let percentMultiplier = Decimal(100)
-        static let availabilityThreshold: Decimal = 2
+        static let availabilityThreshold = Decimal(stringValue: "0.1")!
         static let mockVaultAddress = "0xb72668d6ff7a0e318f83097a754c6aed0f8af034"
     }
 }
