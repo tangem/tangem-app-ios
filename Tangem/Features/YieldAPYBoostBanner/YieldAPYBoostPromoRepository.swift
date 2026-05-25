@@ -17,18 +17,25 @@ struct YieldAPYBoostCampaign {
     let promoEnrollmentStatus: YieldBoostPromotionDTO.PromoEnrollmentStatus
     let contractAddress: String?
     let networkId: String?
+    let activationDate: Date?
 }
 
-private typealias Cache = [UserWalletId: YieldAPYBoostCampaign?]
+private typealias Cache = [String: YieldAPYBoostCampaign?]
 
 /// Singleton — token details screens read the cache to gate the per-token promo / active campaign UI.
 actor YieldAPYBoostPromoRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private var campaignsCache: Cache = [:]
-    private var inflight: [UserWalletId: Task<YieldAPYBoostCampaign?, Never>] = [:]
+    private var inflight: [String: Task<YieldAPYBoostCampaign?, Never>] = [:]
 
-    func campaign(userWalletId: UserWalletId) async -> YieldAPYBoostCampaign? {
+    func campaign(userWalletId: String) async -> YieldAPYBoostCampaign? {
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
+              !FeatureProvider.isAvailable(.redesign)
+        else {
+            return nil
+        }
+
         if let cached = campaignsCache[userWalletId] {
             return cached
         }
@@ -38,9 +45,8 @@ actor YieldAPYBoostPromoRepository {
         }
 
         let task = Task<YieldAPYBoostCampaign?, Never> {
-            let walletIdString = userWalletId.stringValue
-            async let promotionsTask = tangemApiService.loadPromotionCampaigns(userWalletId: walletIdString)
-            async let statusTask = tangemApiService.loadYieldBoostPromotionStatus(userWalletId: walletIdString)
+            async let promotionsTask = tangemApiService.loadPromotionCampaigns(userWalletId: userWalletId)
+            async let statusTask = tangemApiService.loadYieldBoostPromotionStatus(userWalletId: userWalletId)
 
             do {
                 let (promotions, status) = try await (promotionsTask, statusTask)
@@ -55,7 +61,8 @@ actor YieldAPYBoostPromoRepository {
                     campaignStatus: promotion.all.status,
                     promoEnrollmentStatus: status.promoEnrollmentStatus,
                     contractAddress: status.contractAddress,
-                    networkId: status.networkId
+                    networkId: status.networkId,
+                    activationDate: status.activationDate
                 )
             } catch {
                 return nil
