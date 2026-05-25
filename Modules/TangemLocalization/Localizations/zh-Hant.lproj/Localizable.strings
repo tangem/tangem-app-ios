@@ -988,6 +988,8 @@
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
 "provider_name_support" = "%@ support";
+"push_notification_settings_banner_button_grant_permission" = "Grant permission";
+"push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
 "push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
@@ -1415,6 +1417,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "卡片已凍結";
 "tangem_pay_card_payment" = "信用卡支付";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_deposit" = "充值";
 "tangem_pay_dispute" = "爭議";
 "tangem_pay_explore_transaction" = "探索交易";
@@ -1502,6 +1508,8 @@
 "tangempay_card_edit_name_placeholder" = "Card name";
 "tangempay_card_limit_setup_amount_subtitle" = "從 %@ 設定限額";
 "tangempay_card_limit_setup_error_message" = "我们无法设置限额，请稍后再试。";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
 "tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
@@ -1564,7 +1572,7 @@
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "在幾分鐘內獲得免費的 Tangem Pay 卡";
 "tangempay_pay_support" = "Pay Support";
-"tangempay_payment_account_sync_needed" = "付款帳戶未同步";
+"tangempay_payment_account_sync_needed" = "Tangem Pay 工作階段已過期";
 "tangempay_payment_account" = "付款帳戶";
 "tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
 "tangempay_reissue_card_confirm" = "Replace card";
@@ -1583,8 +1591,11 @@
 "tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_status_deactivated" = "卡片已停用";
 "tangempay_status_replacing" = "Replacing your card";
+"tangempay_sync_needed_body" = "用卡或戒指續期會話";
+"tangempay_sync_needed_button" = "Renew session";
 "tangempay_sync_needed_restore_access" = "Renew session";
-"tangempay_sync_needed" = "Tangem Pay 工作階段已過期";
+"tangempay_sync_needed_title" = "Tangem Pay 工作階段已過期";
+"tangempay_sync_needed" = "用卡或戒指續期會話";
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
@@ -1909,6 +1920,8 @@
 "warning_old_card_title" = "iOS restriction for older cards";
 "warning_old_device_old_card_message" = "Some iPhone 7/7+ models may have NFC issues during certain operations.";
 "warning_old_device_old_card_title" = "Device incompatibility detected";
+"warning_outdated_data_message" = "Will be updated as soon as possible";
+"warning_outdated_data_title" = "Missing some token balances";
 "warning_rate_app_message" = "Your review keeps us motivated to make Tangem Wallet even better";
 "warning_rate_app_title" = "Enjoying Tangem?";
 "warning_receive_blocked_hedera_token_association_required_message" = "You must associate your token before receiving tokens";
@@ -2069,6 +2082,11 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
 "yield_apy_boost_banner_title" = "Special offer for Yield mode";
 "yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
+"yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
+"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
+"yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
+"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
+"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
