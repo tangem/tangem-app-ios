@@ -71,12 +71,22 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidSelectFormVariant(_ variant: SwapFormVariant) {
         guard variant != formVariant else { return }
+        let previous = formVariant
         formVariant = variant
         applyFormVariant(variant)
         formVariantResolver.setVariant(variant)
+        analyticsLogger.logSwapTypeReselection(from: previous, to: variant)
     }
 
-    func makeFormVariantMenu() -> (selectedId: String, items: [SendStepNavigationLeadingViewType.DotsMenuItem]) {
+    func logScreenOpened() {
+        analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
+    }
+
+    func makeFormVariantMenu() -> (
+        selectedId: String,
+        items: [SendStepNavigationLeadingViewType.DotsMenuItem],
+        onOpen: () -> Void
+    ) {
         let items = SwapFormVariant.allCases.map { variant in
             SendStepNavigationLeadingViewType.DotsMenuItem(
                 id: variant.rawValue,
@@ -84,7 +94,11 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
                 action: { [weak self] in self?.userDidSelectFormVariant(variant) }
             )
         }
-        return (selectedId: formVariant.rawValue, items: items)
+        return (
+            selectedId: formVariant.rawValue,
+            items: items,
+            onOpen: { [weak self] in self?.analyticsLogger.logSwapTypeSelectMenuOpened() }
+        )
     }
 
     private func applyFormVariant(_ variant: SwapFormVariant) {

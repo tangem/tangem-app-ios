@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 
 class CommonSwapStepsManager {
@@ -61,7 +62,11 @@ extension CommonSwapStepsManager: SendStepsManager {
             let leading: SendStepNavigationLeadingViewType? = {
                 guard FeatureProvider.isAvailable(.swapSimpleMode) else { return nil }
                 let menu = summaryStep.makeFormVariantMenu()
-                return .dotsMenu(selectedId: menu.selectedId, items: menu.items)
+                return .dotsMenu(
+                    selectedId: menu.selectedId,
+                    items: menu.items,
+                    onOpen: IgnoredEquatable(wrappedValue: menu.onOpen)
+                )
             }()
             return .init(
                 title: Localization.commonSwap,
