@@ -151,7 +151,11 @@ private extension P2PStakingManager {
             return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: yield.isAvailable))
         }
 
-        guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
+        guard !yield.preferredTargets.isEmpty else {
+            return .notEnabled
+        }
+
+        guard yield.isAvailable else {
             return .temporaryUnavailable(yield, cached: stateRepository.state())
         }
 
