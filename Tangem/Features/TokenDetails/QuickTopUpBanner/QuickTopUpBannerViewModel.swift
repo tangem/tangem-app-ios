@@ -42,14 +42,18 @@ final class QuickTopUpBannerViewModel: ObservableObject {
     private func bind() {
         let currencyCodePublisher = onrampRepository.preferencePublisher
             .map { preference -> String? in
-                guard let country = preference.country, country.onrampAvailable else {
-                    return nil
+                let currencyCode: String
+
+                if let country = preference.country {
+                    guard country.onrampAvailable else { return nil }
+                    currencyCode = preference.currency?.identity.code ?? AppSettings.shared.selectedCurrencyCode
+                } else {
+                    currencyCode = AppSettings.shared.selectedCurrencyCode
                 }
 
-                let code = (preference.currency ?? country.currency).identity.code.uppercased()
-                switch code {
+                switch currencyCode.uppercased() {
                 case AppConstants.usdCurrencyCode, AppConstants.eurCurrencyCode:
-                    return code
+                    return currencyCode.uppercased()
                 default:
                     return nil
                 }
