@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import UIKit
 
-class TokenDetailsCoordinator: CoordinatorObject {
+final class TokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -40,6 +40,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     private var safariHandle: SafariHandle?
+
+    let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -122,14 +124,30 @@ extension TokenDetailsCoordinator {
 // MARK: - TokenDetailsRoutable
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
-    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
+    func openYieldModulePromoView(apy: Decimal, isApyBoostPromo: Bool, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
             self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(
+            apy: apy,
+            isApyBoostPromo: isApyBoostPromo,
+            dismissAction: dismissAction
+        )
         yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldApyBoostStory(apy: Decimal, factory: YieldModuleFlowFactory) {
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .yieldFirstActivationAPYBoostStory,
+                analyticsSource: .token,
+                presentCompletion: { [weak self] in
+                    self?.openYieldModulePromoView(apy: apy, isApyBoostPromo: true, factory: factory)
+                }
+            )
+        }
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
@@ -354,8 +372,15 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
-        let coordinator = MarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsTokenDetailsCoordinator = nil
+            }
+        )
+
+        let presentationStyle: MarketsTokenDetailsPresentationStyle = isRedesign ? .fullScreenCover : .navigationStack
+
+        coordinator.start(with: .init(info: tokenModel, style: presentationStyle))
         marketsTokenDetailsCoordinator = coordinator
     }
 

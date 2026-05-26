@@ -113,7 +113,66 @@ struct YieldModuleActiveContentView: View {
                 .padding(.horizontal, -16)
 
             YieldModuleEarnInfoChartContainer(state: viewModel.chartState)
+
+            if let promoBonusText = viewModel.promoBonusText {
+                Separator(color: Colors.Stroke.primary)
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, -16)
+
+                promoBonusButton(text: promoBonusText)
+            }
         }
+        .defaultRoundedBackground(with: Colors.Background.action)
+    }
+
+    private func promoBonusButton(text: String) -> some View {
+        Button(action: viewModel.onPromoBonusTap) {
+            HStack(spacing: 12) {
+                Assets.Accounts.gift.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.accent)
+
+                Text(text)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.leading)
+
+                Spacer()
+
+                Assets.chevronRight.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.informative)
+            }
+        }
+    }
+
+    private var bonusPaidOutBanner: some View {
+        HStack(spacing: 12) {
+            Assets.Send.arrowDown.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(Colors.Icon.accent)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(Localization.yieldApyBoostPromoBonusPaidOutTitle)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.leading)
+
+                Text(Localization.yieldApyBoostPromoBonusPaidOutSubtitle)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .multilineTextAlignment(.leading)
+            }
+
+            Spacer()
+
+            Button(action: viewModel.onBonusPaidOutBannerDismiss) {
+                Assets.crossBig.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Colors.Icon.inactive)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
+        }
+        .padding(8)
         .defaultRoundedBackground(with: Colors.Background.action)
     }
 

@@ -25,8 +25,8 @@ struct MarketsRatingHeaderViewRedesign: View {
 
     private var orderButtonView: some View {
         TangemDropDown(
-            data: viewModel.marketListOrderTypeOptions,
-            selection: $viewModel.marketListOrderType
+            singleSelection: $viewModel.marketListOrderType,
+            in: viewModel.marketListOrderTypeOptions
         )
         .accessibilityIdentifier { order in
             MarketsAccessibilityIdentifiers.marketsSortOption(order.rawValue)

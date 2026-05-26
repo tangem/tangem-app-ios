@@ -16,7 +16,6 @@ import TangemNFT
 import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
-import struct TangemUIUtils.AlertBinder
 import TangemPay
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
@@ -137,7 +136,9 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             .compactMap { $0 }
             .receiveOnMain()
             .sink { [weak self] deepLink in
-                self?.deeplinkPresenter.present(deepLink: deepLink)
+                MainActor.assumeIsolated {
+                    self?.deeplinkPresenter.present(deepLink: deepLink)
+                }
             }
 
         if pushNotificationsViewModelSubscription == nil {
@@ -306,7 +307,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, isApyBoostPromo: false, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
@@ -498,6 +499,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
+        guard !RTCUtil.isRootedDevice else {
+            incomingActionManager.discardIncomingAction()
+            return
+        }
+
         guard let userWalletModel = findUserWalletModel(byCustomerWalletId: customerWalletId) else {
             incomingActionManager.discardIncomingAction()
             return
@@ -700,7 +706,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         mainBottomSheetUIManager.hide()
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
         marketsTokenDetailsCoordinator = coordinator
     }
 
@@ -991,33 +997,6 @@ extension MainCoordinator: WCTransactionRoutable {
 
     func show(toast: Toast<WarningToast>) {
         toast.present(layout: .top(padding: 20), type: .temporary())
-    }
-}
-
-// MARK: - MainCoordinator
-
-extension MainCoordinator {
-    enum DeepLinkDestination {
-        case expressTransactionStatus(walletModel: any WalletModel, userWalletModel: UserWalletModel, transactionDetails: PendingTransactionDetails)
-        case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-        case buy(userWalletModel: UserWalletModel)
-        case sell(userWalletModel: UserWalletModel)
-        case swap(userWalletModel: UserWalletModel)
-        case swapWithDeferredPairResolution(parameters: PredefinedSwapParameters)
-        case referral(input: ReferralInputModel)
-        case staking(options: StakingDetailsCoordinator.Options)
-        case yield(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-        case marketsTokenDetails(tokenId: String)
-        case tokenExchanges(tokenId: String)
-        case externalLink(url: URL)
-        case markets(filter: MarketsDeeplinkFilter)
-        case onboardVisa(deeplinkString: String)
-        case tangemPayMain(customerWalletId: String)
-        case tangemPayTransactionDetails(payload: TangemPayPushPayload)
-        case newsDetails(newsId: Int)
-        case newsList(initialCategoryId: Int?)
-        case promo(code: String, refcode: String?, campaign: String?)
-        case earn(earnType: EarnFilterType?, networkId: String?)
     }
 }
 

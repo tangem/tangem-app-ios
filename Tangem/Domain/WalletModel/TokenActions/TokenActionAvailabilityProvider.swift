@@ -13,8 +13,6 @@ import enum BlockchainSdk.Blockchain
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    private let userWalletsActionButtonsAvailabilityProvider = UserWalletsActionButtonsAvailabilityProvider()
-
     private let userWalletConfig: UserWalletConfig
     private let walletModel: any WalletModel
     private let sellCryptoUtility: SellCryptoUtility
@@ -211,7 +209,7 @@ extension TokenActionAvailabilityProvider {
             return .customToken
         }
 
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -233,14 +231,9 @@ extension TokenActionAvailabilityProvider {
              .oldCard,
              .zeroFeeCurrencyBalance,
              .noAccount,
+             .zeroWalletBalance,
              .none:
             break
-        case .zeroWalletBalance:
-            if userWalletConfig.hasFeature(.isBalanceRestrictionActive) {
-                return userWalletsActionButtonsAvailabilityProvider.isActionButtonsAvailable(walletModel: walletModel) ? .available : .hidden
-            } else {
-                break
-            }
         }
 
         let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
@@ -284,7 +277,7 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -344,7 +337,7 @@ extension TokenActionAvailabilityProvider {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
         }
 
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 

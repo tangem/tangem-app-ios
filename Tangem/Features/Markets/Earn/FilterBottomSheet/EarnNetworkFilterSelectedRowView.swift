@@ -27,7 +27,7 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
         self.data = data
         self.selection = selection
 
-        _verticalPadding = ScaledMetric(wrappedValue: .unit(.x3))
+        _verticalPadding = ScaledMetric(wrappedValue: .unit(.x3) + .unit(.half))
         _horizontalMinLength = ScaledMetric(wrappedValue: .unit(.x1))
         _iconSize = ScaledSize(wrappedValue: CGSize(bothDimensions: .unit(.x5)))
     }

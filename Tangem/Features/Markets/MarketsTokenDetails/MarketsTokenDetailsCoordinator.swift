@@ -9,6 +9,7 @@
 import UIKit
 import TangemUI
 import TangemStaking
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class MarketsTokenDetailsCoordinator: CoordinatorObject {
@@ -21,6 +22,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    @Published private(set) var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
 
     // MARK: - Root ViewModels
 
@@ -42,7 +45,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-    private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
+
     private var isDeeplinkMode: Bool = false
 
     var isMarketsSheetFlow: Bool {
@@ -69,6 +72,17 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
             marketsQuotesUpdateHelper: CommonMarketsQuotesUpdateHelper(),
             coordinator: self
         )
+    }
+
+    private func resolvePresentationStyleForInnerFlow() -> MarketsTokenDetailsPresentationStyle {
+        switch presentationStyle {
+        case .marketsSheet:
+            return .marketsSheet
+
+        // [REDACTED_USERNAME], if we're already in a fullScreenCover, navigationStack should be used for inner flows.
+        case .navigationStack, .fullScreenCover:
+            return .navigationStack
+        }
     }
 }
 
@@ -100,13 +114,60 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             coordinator: self
         )
 
-        let viewModel = AddTokenFlowViewModel(
+        if FeatureProvider.isAvailable(.redesign) {
+            openRedesignedAddTokenFlow(
+                inputData: inputData,
+                configuration: configuration,
+                walletDataProvider: walletDataProvider
+            )
+        } else {
+            openLegacyAddTokenFlow(
+                configuration: configuration,
+                walletDataProvider: walletDataProvider
+            )
+        }
+    }
+
+    private func openRedesignedAddTokenFlow(
+        inputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        configuration: AddTokenFlowConfiguration,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        guard let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
+            inputData: inputData,
             userWalletModels: walletDataProvider.userWalletModels,
-            configuration: configuration,
-            coordinator: self
-        )
+            isTokenAdded: configuration.isTokenAdded
+        ) else {
+            Task { @MainActor in
+                self.presentErrorToast(with: Localization.commonSomethingWentWrong)
+            }
+            return
+        }
 
         Task { @MainActor in
+            guard let viewModel = AddTokenFlowRedesignedViewModel(
+                tokenItem: tokenItem,
+                userWalletModels: walletDataProvider.userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            ) else {
+                self.presentErrorToast(with: Localization.commonSomethingWentWrong)
+                return
+            }
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    private func openLegacyAddTokenFlow(
+        configuration: AddTokenFlowConfiguration,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        Task { @MainActor in
+            let viewModel = AddTokenFlowViewModel(
+                userWalletModels: walletDataProvider.userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -129,11 +190,11 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         dismiss()
     }
 
-    func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int, presentationStyle: MarketsTokenDetailsPresentationStyle) {
+    func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int) {
         exchangesListViewModel = MarketsTokenDetailsExchangesListViewModel(
             tokenId: tokenId,
             numberOfExchangesListedOn: numberOfExchangesListedOn,
-            presentationStyle: presentationStyle,
+            presentationStyle: resolvePresentationStyleForInnerFlow(),
             exchangesListLoader: MarketsTokenDetailsDataProvider()
         ) { [weak self] in
             self?.exchangesListViewModel = nil
@@ -173,7 +234,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, isApyBoostPromo: false, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
@@ -415,6 +476,10 @@ private extension MarketsTokenDetailsCoordinator {
 
 extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
 
+// MARK: - AddTokenFlowRedesignedRoutable
+
+extension MarketsTokenDetailsCoordinator: AddTokenFlowRedesignedRoutable {}
+
 // MARK: - NewsDetailsRoutable
 
 extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
@@ -435,7 +500,7 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(info: token, style: presentationStyle, isDeeplinkMode: isDeeplinkMode))
+        coordinator.start(with: .init(info: token, style: resolvePresentationStyleForInnerFlow(), isDeeplinkMode: isDeeplinkMode))
         newsRelatedTokenDetailsCoordinator = coordinator
     }
 }
