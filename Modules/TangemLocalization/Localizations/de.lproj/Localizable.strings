@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Token anlegen";
 "add_tokens_title" = "Token verwalten";
 "addfunds_buy_row_description" = "Kreditkarte oder Bankkonto";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Teile deine Adresse oder dein QR-Code";
 "addfunds_swap_row_description" = "Zwische deinen Portfolios";
 "addfunds_you_receive_title" = "Empfangen";
@@ -875,7 +876,7 @@
 "onboarding_create_wallet_options_button_options" = "Andere Optionen";
 "onboarding_create_wallet_options_message" = "Deine Schlüssel(private-keys) werden sicher im Inneren der Karte oder Ring generiert. Es gibt keine Seed-Phrase, d. h. niemand kann sie exportieren oder stehlen.";
 "onboarding_create_wallet_options_title" = "Schlüssel anonym generieren";
-"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu: \n%@";
+"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:\n%@";
 "onboarding_done_body" = "Deine Karte oder Ring ist aktiviert und einsatzbereit";
 "onboarding_done_header" = "Erfolgreich!";
 "onboarding_done_wallet" = "Deine Wallet ist eingerichtet und einsatzbereit!";
