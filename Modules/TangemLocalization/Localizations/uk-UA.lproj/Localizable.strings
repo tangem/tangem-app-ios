@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Додати токен";
 "add_tokens_title" = "Токени";
 "addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Share your address or QR-code";
 "addfunds_swap_row_description" = "Between your portfolios";
 "addfunds_you_receive_title" = "You receive";
@@ -445,7 +446,7 @@
 "earn_mostly_used" = "Часто використовані";
 "earn_no_results" = "Немає результатів";
 "earn_title" = "Заробляйте";
-"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_description" = "Підтримка доступна 24/7. Відповідь може зайняти до 24 годин. Ми можемо запросити діагностичні дані.";
 "email_fallback_alert_open_mail_button" = "Open mail";
 "email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
@@ -993,7 +994,7 @@
 "provider_name_support" = "Підтримка %@";
 "push_notification_settings_banner_button_grant_permission" = "Grant permission";
 "push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
-"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
