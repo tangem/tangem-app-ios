@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import enum BlockchainSdk.Blockchain
+import struct BlockchainSdk.EIP712TypedData
 import struct Commons.AnyCodable
 import enum JSONRPC.RPCResult
 
