@@ -18,7 +18,6 @@ enum OnrampApplePayConstants {
     ]
 
     static func merchantIdentifier(forProviderId providerId: String) -> String? {
-        let table = AppEnvironment.current.isProduction ? productionIdentifiers : sandboxIdentifiers
-        return table[providerId.lowercased()]
+        return productionIdentifiers[providerId.lowercased()]
     }
 }
