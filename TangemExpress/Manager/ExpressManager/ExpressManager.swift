@@ -12,35 +12,72 @@ import TangemFoundation
 import BlockchainSdk
 
 public protocol ExpressManager: Actor {
-    func getAmountType() -> ExpressAmountType?
-    func getRateType() -> ExpressProviderRateType?
+    /// Recreates providers. Does not update quotes.
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState
 
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult
-    func update(amountType: ExpressAmountType?) async throws -> ExpressManagerUpdatingResult
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult
-    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult
+    /// Updates quotes for providers eligible for the current `ExpressAmountType`.
+    func update(amountType: ExpressAmountType?) async -> ExpressManagerState
+
+    /// Updates state (fee) for the selected provider with a new `ApprovePolicy`.
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState
+
+    /// Preserves the selected provider across autoupdate cycles.
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState
+
+    /// Refreshes quotes for the currently selected provider without changing the selection.
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState
 
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
 }
 
-public struct ExpressManagerUpdatingResult {
-    public let providers: [ExpressAvailableProvider]
+public struct ExpressManagerState {
+    public let rate: ExpressProviderRateType
     public let selected: ExpressAvailableProvider?
+    public let providers: Providers
 
-    public init(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?) {
-        self.providers = providers
+    public init(
+        rate: ExpressProviderRateType = .float,
+        selected: ExpressAvailableProvider? = nil,
+        providers: Providers = Providers()
+    ) {
+        self.rate = rate
         self.selected = selected
+        self.providers = providers
+    }
+
+    public struct Providers {
+        public let float: [ExpressAvailableProvider]
+        public let fixed: [ExpressAvailableProvider]
+
+        public var all: [ExpressAvailableProvider] { float + fixed }
+
+        public var supportedRateTypes: Set<ExpressProviderRateType> {
+            all.map(\.rateType).toSet()
+        }
+
+        public init(float: [ExpressAvailableProvider] = [], fixed: [ExpressAvailableProvider] = []) {
+            self.float = float
+            self.fixed = fixed
+        }
+
+        public func availableProviders(rate: ExpressProviderRateType) -> [ExpressAvailableProvider] {
+            switch rate {
+            case .float: float
+            case .fixed: fixed
+            }
+        }
     }
 }
 
-extension ExpressManagerUpdatingResult: CustomStringConvertible {
+extension ExpressManagerState: CustomStringConvertible {
     public var description: String {
-        objectDescription("ExpressManagerUpdatingResult", userInfo: [
-            "providers": providers.map { $0.provider.name },
+        objectDescription("ExpressManagerState", userInfo: [
+            "rate": rate,
             "selected name": selected.map { $0.provider.name } ?? "no selected provider",
             "selected state": selected.map { $0.getState() } ?? "no selected provider",
+            "providers": providers.all.map { $0.provider.name },
+            "allSupportedRateTypes": providers.supportedRateTypes,
         ])
     }
 }
