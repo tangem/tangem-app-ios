@@ -309,6 +309,7 @@
 "common_sending" = "Sending";
 "common_sent" = "Sent";
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
+"common_session_expired" = "Session expired";
 "common_share_link" = "Поделиться ссылкой";
 "common_share" = "Поделиться";
 "common_sign" = "Подписать";
@@ -1599,6 +1600,10 @@
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_temporarily_unavailable" = "Tangem Pay временно недоступен";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_receive_body" = "Отправьте USDC Polygon на адрес вашего аккаунта";
+"tangempay_topup_receive_title" = "С другого кошелька или биржи";
+"tangempay_topup_swap_body" = "Обменяйте любой актив на USDC Polygon";
+"tangempay_topup_swap_title" = "Из вашего кошелька Tangem";
 "tangempay_usdc_on_polygon_network" = "USDC в сети Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Нажмите на кнопку ниже, чтобы восстановить доступ";
 "tangempay_withdrawal_note_description" = "При возвратах покупок средства не возвращаются на ончейн-баланс Polygon и недоступны для вывода, но отображаются на карте и могут быть использованы для покупок";
