@@ -75,6 +75,7 @@
 "add_custom_token_title" = "カスタムトークンの追加";
 "add_tokens_title" = "トークンの管理";
 "addfunds_buy_row_description" = "クレジットカードまたは銀行口座";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "アドレスまたはQRコードを共有";
 "addfunds_swap_row_description" = "自分のポートフォリオ間で";
 "addfunds_you_receive_title" = "受け取る";
@@ -309,7 +310,7 @@
 "common_sending" = "送金中";
 "common_sent" = "送金済み";
 "common_server_unavailable" = "サーバーが利用できません。しばらくしてからもう一度お試しください。";
-"common_session_expired" = "Session expired";
+"common_session_expired" = "セッションの有効期限が切れました";
 "common_share_link" = "リンクを共有";
 "common_share" = "共有";
 "common_sign" = "署名";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "メールを送信するにはアカウントを設定してください";
 "mail_error_no_accounts_title" = "メールアカウントなし";
 "main_add_and_manage_tokens" = "追加・管理";
+"main_add_funds_promo_description" = "暗号資産を入金またはカードで購入";
+"main_add_funds_promo_title" = "入金して、運用や取引を始めましょう。";
 "main_empty_tokens_list_message" = "暗号資産および取引の追跡を開始するには、トークンを追加してください";
 "main_manage_tokens" = "トークンの管理";
 "main_qr_scan_hint" = "QRコードをスキャンして送金するか、アプリに接続します。";
@@ -991,7 +994,7 @@
 "provider_name_support" = "%@サポート";
 "push_notification_settings_banner_button_grant_permission" = "許可する";
 "push_notification_settings_banner_description_grant_permission" = "プッシュ通知は有効になっていますが、許可するまで機能しません";
-"push_notification_settings_banner_description" = "プッシュ通知は有効になっていますが、端末の設定で通知を許可するまで動作しません。";
+"push_notification_settings_banner_description" = "プッシュ通知は有効ですが、許可するまで動作しません";
 "push_notification_settings_banner_title" = "通知を許可する";
 "push_notification_settings_offers_updates_subtitle" = "製品ニュース、限定オファー、アクティビティのリマインダー。";
 "push_notification_settings_offers_updates_title" = "オファー・最新情報";
@@ -1402,7 +1405,7 @@
 "swapping_rate_experience_title" = "プロバイダーの利用体験を評価してください";
 "swapping_rate_feedback_placeholder" = "フィードバックを入力してください";
 "swapping_rate_feedback_submit" = "フィードバックを送信";
-"swapping_rate_feedback_title" = "ご利用体験に影響した点は\n何ですか？";
+"swapping_rate_feedback_title" = "ご利用中に気になった点を\n教えてください";
 "swapping_swap_action_in_progress" = "スワップ中…";
 "swapping_swap_action" = "スワップ";
 "swapping_to_account_title" = "受け取り先";
@@ -1602,8 +1605,8 @@
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "USDC Polygon をアカウントのアドレスに送信";
 "tangempay_topup_receive_title" = "別のウォレットまたは取引所から";
-"tangempay_topup_swap_body" = "任意の資産を USDC Polygon にスワップ";
-"tangempay_topup_swap_title" = "Tangem ウォレットから";
+"tangempay_topup_swap_body" = "ウォレットの暗号資産を使って、決済アカウントにチャージできます";
+"tangempay_topup_swap_title" = "Tangemウォレットからスワップ";
 "tangempay_usdc_on_polygon_network" = "Polygonネットワーク上のUSDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
 "tangempay_withdrawal_note_description" = "返金分はオンチェーンのPolygon残高には戻らず、出金にも利用できません。ただし、カード残高として残り、支払いに利用できます。";
@@ -2087,10 +2090,10 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY 3倍";
 "yield_apy_boost_banner_title" = "利息モード限定オファー";
 "yield_apy_boost_block_activate" = "APYブーストを有効にする";
-"yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
-"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
-"yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
-"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
+"yield_apy_boost_promo_activate_bonus" = "ボーナスを有効にする";
+"yield_apy_boost_promo_bonus_paid_out_subtitle" = "詳細は取引履歴をご確認ください";
+"yield_apy_boost_promo_bonus_paid_out_title" = "利息モードのボーナスが支払われました";
+"yield_apy_boost_promo_days_left_to_unlock" = "ボーナス獲得まであと%1$@日";
 "yield_apy_boost_promo_eligibility_text" = "30日間APYブーストの対象です。利用規約が適用されます。詳細はこちら。";
 "yield_apy_boost_story_first_subtitle" = "初めて利息モードを有効にすると、最初の30日間は最大3倍の利回りを獲得できます。";
 "yield_apy_boost_story_first_title" = "初月APRボーナス";

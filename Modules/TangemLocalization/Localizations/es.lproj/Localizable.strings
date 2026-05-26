@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Agregue un token personalizado";
 "add_tokens_title" = "Gestionar tokens";
 "addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Share your address or QR-code";
 "addfunds_swap_row_description" = "Between your portfolios";
 "addfunds_you_receive_title" = "You receive";
@@ -445,7 +446,7 @@
 "earn_mostly_used" = "Popular";
 "earn_no_results" = "Sin resultados";
 "earn_title" = "Modo Staking & Rendimiento";
-"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_description" = "El soporte está disponible 24/7. La respuesta puede tardar hasta 24 horas. Podemos solicitar datos de diagnóstico.";
 "email_fallback_alert_open_mail_button" = "Open mail";
 "email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Hola equipo de soporte, he encontrado un error con el código: %@";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "Por favor, configure una cuenta para enviar correo electrónico";
 "mail_error_no_accounts_title" = "No hay cuentas de correo";
 "main_add_and_manage_tokens" = "Añadir y Gestionar";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "Para hacer un seguimiento de sus criptomonedas y transacciones, agregue tokens";
 "main_manage_tokens" = "Gestionar tokens";
 "main_qr_scan_hint" = "Escanee el código QR para enviar fondos o conectarse a una aplicación";
@@ -991,7 +994,7 @@
 "provider_name_support" = "Soporte de %@";
 "push_notification_settings_banner_button_grant_permission" = "Grant permission";
 "push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
-"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
@@ -1399,10 +1402,10 @@
 "swapping_insufficient_funds" = "Fondos insuficientes";
 "swapping_permission_header" = "Dar autorización";
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
-"swapping_rate_experience_title" = "Rate your experience with provider";
-"swapping_rate_feedback_placeholder" = "Type your feedback";
-"swapping_rate_feedback_submit" = "Send feedback";
-"swapping_rate_feedback_title" = "What affected your \nexperience?";
+"swapping_rate_experience_title" = "Valore su experiencia con el proveedor";
+"swapping_rate_feedback_placeholder" = "Escriba sus comentarios";
+"swapping_rate_feedback_submit" = "Enviar comentarios";
+"swapping_rate_feedback_title" = "¿Qué influyó en su \nexperiencia?";
 "swapping_swap_action_in_progress" = "Intercambiando...";
 "swapping_swap_action" = "Intercambiar";
 "swapping_to_account_title" = "Usted recibe";
