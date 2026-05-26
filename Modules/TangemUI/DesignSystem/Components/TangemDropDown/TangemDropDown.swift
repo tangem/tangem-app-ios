@@ -94,6 +94,7 @@ public struct TangemDropDownItem: Identifiable {
     public let text: String
     public let isChecked: Bool?
     public let isEnabled: Bool
+    public let accessibilityIdentifier: String?
     public let action: () -> Void
 
     public init(
@@ -101,12 +102,14 @@ public struct TangemDropDownItem: Identifiable {
         text: String,
         isChecked: Bool? = nil,
         isEnabled: Bool = true,
+        accessibilityIdentifier: String? = nil,
         action: @escaping () -> Void
     ) {
         self.id = id
         self.text = text
         self.isChecked = isChecked
         self.isEnabled = isEnabled
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
 }
@@ -200,6 +203,7 @@ public struct TangemDropDownItems: View {
                 }
             }
             .disabled(!item.isEnabled)
+            .accessibilityIdentifier(item.accessibilityIdentifier)
         }
     }
 }
