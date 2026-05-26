@@ -39,6 +39,10 @@ struct RewardView: View {
             Text(Localization.stakingDetailsAutoClaimingRewardsDailyText)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
 
+        case .compoundedRewardsEarned(let cryptoFormatted):
+            SensitiveText(builder: Localization.stakingDetailsAutocompoundRewardsEarned, sensitive: cryptoFormatted)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
         case .rewards(let claimable, let fiatFormatted, let cryptoFormatted, let action):
             Button(action: action) {
                 HStack(spacing: 4) {

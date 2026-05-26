@@ -14,7 +14,7 @@ import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.AlertBinder
 
-class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
+final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
@@ -84,7 +84,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
-    var isRedesignEnabled: Bool { FeatureProvider.isAvailable(.redesign) }
+    let presentationStyle: MarketsTokenDetailsPresentationStyle
+    let isRedesignEnabled = FeatureProvider.isAvailable(.redesign)
 
     private var priceInfo: MarketsTokenDetailsPriceInfoHelper.PriceInfo? {
         guard let currentPrice = priceFromQuoteRepository else {
@@ -147,7 +148,6 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let initialDate = Date()
 
     private let tokenInfo: MarketsTokenModel
-    private let presentationStyle: MarketsTokenDetailsPresentationStyle
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
     private let walletDataProvider = MarketsWalletDataProvider()
@@ -284,7 +284,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
         Analytics.log(event: .marketsChartExchangesScreenOpened, params: [.token: tokenInfo.symbol.uppercased()])
 
-        coordinator?.openExchangesList(tokenId: tokenInfo.id, numberOfExchangesListedOn: numberOfExchangesListedOn, presentationStyle: presentationStyle)
+        coordinator?.openExchangesList(tokenId: tokenInfo.id, numberOfExchangesListedOn: numberOfExchangesListedOn)
     }
 
     func onGenerateAITapAction() {
@@ -732,5 +732,6 @@ extension MarketsTokenDetailsViewModel {
 
 enum MarketsTokenDetailsPresentationStyle {
     case marketsSheet
-    case defaultNavigationStack
+    case navigationStack
+    case fullScreenCover
 }

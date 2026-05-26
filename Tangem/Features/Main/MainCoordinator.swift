@@ -307,7 +307,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, isApyBoostPromo: false, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
@@ -499,6 +499,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
+        guard !RTCUtil.isRootedDevice else {
+            incomingActionManager.discardIncomingAction()
+            return
+        }
+
         guard let userWalletModel = findUserWalletModel(byCustomerWalletId: customerWalletId) else {
             incomingActionManager.discardIncomingAction()
             return
@@ -701,7 +706,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         mainBottomSheetUIManager.hide()
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
         marketsTokenDetailsCoordinator = coordinator
     }
 
