@@ -206,7 +206,7 @@ private extension CommonDeeplinkPresenter {
     }
 
     private func constructBuyViewController(userWalletModel: UserWalletModel) -> UIViewController {
-        let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { UIApplication.dismissTop() })
+        let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in UIApplication.dismissTop() })
 
         coordinator.start(
             with: .init(userWalletModels: [userWalletModel])

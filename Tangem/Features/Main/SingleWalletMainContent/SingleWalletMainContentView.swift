@@ -17,19 +17,7 @@ struct SingleWalletMainContentView: View {
         VStack(spacing: 14) {
             ScrollableButtonsView(itemsHorizontalOffset: 16, buttonsInfo: viewModel.actionButtons)
 
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-            }
-
-            ForEach(viewModel.tokenNotificationInputs) { input in
-                NotificationView(input: input)
-            }
-
-            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
-                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
-            }
-
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+            bannersSection
 
             MarketPriceView(
                 currencySymbol: viewModel.currencySymbol,
@@ -60,6 +48,28 @@ struct SingleWalletMainContentView: View {
         }
         .padding(.horizontal, 16)
         .bindAlert($viewModel.alert)
+    }
+
+    /// Add funds banner takes priority over every other banner while it is visible.
+    @ViewBuilder
+    private var bannersSection: some View {
+        if viewModel.isAddFundsBannerVisible {
+            NotificationView(input: viewModel.addFundsNotificationInput)
+        } else {
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+            }
+
+            ForEach(viewModel.tokenNotificationInputs) { input in
+                NotificationView(input: input)
+            }
+
+            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
+                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
+            }
+
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+        }
     }
 }
 

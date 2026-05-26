@@ -46,10 +46,15 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var promotionNotificationsViewModel: PromotionNotificationsViewModel
 
     @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
+    @Published private(set) var isAddFundsBannerVisible: Bool = false
 
     weak var delegate: MultiWalletMainContentDelegate?
 
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
+    private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
+        for: AddFundsNotificationEvent(),
+        buttonAction: { [weak self] _, _ in self?.openAddFunds() }
+    )
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
     // [REDACTED_INFO]: legacy banner; redesign surfaces the same banner through `getTangemPayBannerNotificationManager`.
@@ -79,6 +84,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
+    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let notificationBannerItemsProvider: NotificationBannerItemsProvider
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
@@ -326,6 +333,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         notificationBannerItemsProvider.$items
             .assign(to: &$notificationBannerItems)
+
+        addFundsBannerVisibilityProvider
+            .shouldShowPublisher
+            .receiveOnMain()
+            .assign(to: \.isAddFundsBannerVisible, on: self, ownership: .weak)
+            .store(in: &bag)
 
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
@@ -616,6 +629,11 @@ extension MultiWalletMainContentViewModel {
         }
 
         coordinator?.openManageTokens(for: mainAccount, in: userWalletModel)
+    }
+
+    private func openAddFunds() {
+        let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+        coordinator?.openBuy(userWalletModels: userWalletModels)
     }
 
     private func openSupport() {

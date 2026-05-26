@@ -7,33 +7,36 @@
 //
 
 import TangemAssets
-import TangemLocalization
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
 enum ActionButtonModel: Hashable {
     case buy
     case swap
+    /// The `.sell` case now semantically represents "Transfer" — see `title`. Not renamed to avoid a wider refactor.
     case sell
 
     var title: String {
+        let isAddFundsStage1Enabled = FeatureProvider.isAvailable(.addFundsStage1)
         switch self {
         case .buy:
-            Localization.commonBuy
+            return isAddFundsStage1Enabled ? Localization.commonAddFunds : Localization.commonBuy
         case .swap:
-            Localization.commonSwap
+            return Localization.commonSwap
         case .sell:
-            Localization.commonSell
+            return isAddFundsStage1Enabled ? Localization.commonTransfer : Localization.commonSell
         }
     }
 
     var icon: ImageType {
+        let isAddFundsStage1Enabled = FeatureProvider.isAvailable(.addFundsStage1)
         switch self {
         case .buy:
-            Assets.plusMini
+            return isAddFundsStage1Enabled ? Assets.arrowDownMini : Assets.plusMini
         case .swap:
-            Assets.exchangeMini
+            return isAddFundsStage1Enabled ? Assets.refreshWarningIcon : Assets.exchangeMini
         case .sell:
-            Assets.dollarMini
+            return isAddFundsStage1Enabled ? Assets.arrowUpMini : Assets.dollarMini
         }
     }
 
