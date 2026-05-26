@@ -75,6 +75,7 @@
 "add_custom_token_title" = "添加自定义代币";
 "add_tokens_title" = "管理代币";
 "addfunds_buy_row_description" = "信用卡或银行账户";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "分享您的地址或二维码";
 "addfunds_swap_row_description" = "在您的投资组合之间";
 "addfunds_you_receive_title" = "您将收到";
