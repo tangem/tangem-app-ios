@@ -159,6 +159,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
     var shouldShowMobilePromoWalletSelector: Bool = false
 
+    @AppStorageCompat(StorageType.swapFormVariant)
+    var swapFormVariantOverrideRaw: String? = nil
+
     @AppStorageCompat(StorageType.yieldApyBoostHiddenPromos)
     var yieldApyBoostHiddenPromos: [String] = []
 
