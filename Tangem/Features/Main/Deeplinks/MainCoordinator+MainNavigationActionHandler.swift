@@ -123,8 +123,8 @@ extension MainCoordinator {
             return true
         }
 
-        /// Custom-scheme deeplink: `tangem://news[?id=…|?category_id=…]`.
-        /// Routes to article details if `id` is provided, otherwise to the news list
+        /// Custom-scheme deeplink: `tangem://news[?news_id=…|?category_id=…]`.
+        /// Routes to article details if `news_id` is provided, otherwise to the news list
         /// (optionally pre-selecting a category).
         private func routeNewsDeeplinkAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
             guard let coordinator else {
