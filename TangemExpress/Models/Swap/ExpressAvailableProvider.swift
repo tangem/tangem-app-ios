@@ -20,10 +20,14 @@ public class ExpressAvailableProvider {
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
     public var isBest: Bool { _isBest { $0 } }
+    public var amountType: ExpressAmountType? { _amountType { $0 } }
+    public var approvePolicy: ApprovePolicy { _approvePolicy { $0 } }
 
     // MARK: - Updatable state
 
     private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
+    private let _amountType = OSAllocatedUnfairLock<ExpressAmountType?>(initialState: nil)
+    private let _approvePolicy = OSAllocatedUnfairLock<ApprovePolicy>(initialState: .specified)
 
     init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, rateType: ExpressProviderRateType) {
         self.context = context
@@ -47,16 +51,51 @@ extension ExpressAvailableProvider {
         _isBest { $0 = isBest }
     }
 
-    func updateState(request: ExpressManagerSwappingPairRequest) async {
+    func update(amountType: ExpressAmountType?) {
+        _amountType { $0 = amountType }
+    }
+
+    func update(approvePolicy: ApprovePolicy) {
+        _approvePolicy { $0 = approvePolicy }
+    }
+
+    func updateState(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker? = nil) async {
+        guard let request = makeRequest(quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker) else {
+            ExpressLogger.info(self, "Skip updateState: amount is empty (nil or zero)")
+            return
+        }
+
         await manager.update(request: request)
     }
 
-    func requestData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        try await manager.sendData(request: request)
+    func requestData() async throws -> ExpressTransactionData {
+        guard let request = makeRequest(quotesLoadingPerformanceTracker: nil) else {
+            throw ExpressManagerError.amountNotFound
+        }
+
+        return try await manager.sendData(request: request)
     }
 
     func reset() {
         manager.reset()
+    }
+}
+
+// MARK: - Private
+
+private extension ExpressAvailableProvider {
+    func makeRequest(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) -> ExpressManagerSwappingPairRequest? {
+        guard let amountType, amountType.amount > 0 else {
+            return nil
+        }
+
+        return ExpressManagerSwappingPairRequest(
+            amountType: amountType,
+            rateType: rateType,
+            approvePolicy: approvePolicy,
+            operationType: pair.source.operationType,
+            quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker
+        )
     }
 }
 
@@ -101,12 +140,11 @@ public extension Array where Element == ExpressAvailableProvider {
         }
     }
 
-    func updateIsBestFlag(activeRateType: ExpressProviderRateType?) {
+    func updateIsBestFlag() {
         let candidates = filter { provider in
-            guard provider.rateType == activeRateType else { return false }
             switch provider.getState() {
             case .permissionRequired, .revokeAndPermissionRequired, .cexPreview, .dexPreview:
-                return provider.rateType == activeRateType
+                return true
             case .idle, .error, .restriction:
                 return false
             }
