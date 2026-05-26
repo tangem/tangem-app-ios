@@ -17,7 +17,9 @@ final class HederaConsensusNetworkProvider {
     private let timeout: TimeInterval
     private let callbackQueue: DispatchQueue
 
-    private lazy var client: Client = isTestnet ? Client.forTestnetWithImmediateUpdate() : Client.forMainnetWithImmediateUpdate()
+    private lazy var client: Client = isTestnet
+        ? Client.forTestnetWithImmediateUpdate(plaintextOnly: true)
+        : Client.forMainnetWithImmediateUpdate(plaintextOnly: true)
 
     init(isTestnet: Bool, timeout: TimeInterval = 60, callbackQueue: DispatchQueue = .main) {
         self.isTestnet = isTestnet
