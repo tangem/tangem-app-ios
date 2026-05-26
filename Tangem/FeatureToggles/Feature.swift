@@ -30,9 +30,10 @@ enum Feature: String, Hashable, CaseIterable {
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
     case swapStoriesV2
+    case addFundsStage1
     case swapProviderTypeFilter
-    case swapInProgressV2
     case swapPendingTxStateDate
+    case swapInProgressV2
     case dexApproveNotificationV2
     case manageTokensImprovements
     case swapSimpleMode
@@ -77,6 +78,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
         case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
+        case .addFundsStage1: return "[REDACTED_INFO]_ADDFUNDS_STAGE_1"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         }
     }
@@ -116,6 +118,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
+        case .addFundsStage1: return .unspecified
         }
     }
 }
