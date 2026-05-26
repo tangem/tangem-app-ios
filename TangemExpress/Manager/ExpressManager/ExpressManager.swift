@@ -58,6 +58,8 @@ public enum ExpressManagerState {
 extension ExpressManagerState: CustomStringConvertible {
     public var description: String {
         switch self {
+        case .idle:
+            return objectDescription("ExpressManagerState", userInfo: ["mode": "idle"])
         case .transfer:
             return objectDescription("ExpressManagerState", userInfo: ["mode": "transfer"])
         case .swap(let rate, let selected, let providers):
