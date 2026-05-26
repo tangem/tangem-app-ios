@@ -63,10 +63,10 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         var optimistic = snapshot
         optimistic.setEnabled(isEnabled, for: channel)
         preferencesSubject.send(optimistic)
-        serverPreferences?[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: true)
 
         do {
             try await Task.sleep(for: Self.simulatedNetworkDelay)
+            serverPreferences?[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: true)
         } catch {
             // Rollback on cancellation
             preferencesSubject.send(snapshot)
@@ -83,13 +83,13 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         }
         preferencesSubject.send(optimistic)
 
-        for channel in PushChannel.allCases {
-            let current = serverPreferences?[channel] ?? PushChannelPreference(isEnabled: false, isVisible: true)
-            serverPreferences?[channel] = PushChannelPreference(isEnabled: true, isVisible: current.isVisible)
-        }
-
         do {
             try await Task.sleep(for: Self.simulatedNetworkDelay)
+
+            for channel in PushChannel.allCases {
+                let current = serverPreferences?[channel] ?? PushChannelPreference(isEnabled: false, isVisible: true)
+                serverPreferences?[channel] = PushChannelPreference(isEnabled: true, isVisible: current.isVisible)
+            }
         } catch {
             preferencesSubject.send(snapshot)
             throw error

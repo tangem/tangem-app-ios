@@ -60,6 +60,7 @@ final class CommonUserWalletPushNotificationsManager {
                 case .syncRemoteStatusRequired:
                     manager.syncRemoteStatus()
                 case .updateStatusRequired:
+                    // [REDACTED_TODO_COMMENT]
                     break
                 case .autoEnablePreferencesRequired:
                     manager.performAllowanceOnboardingIfNeeded()
