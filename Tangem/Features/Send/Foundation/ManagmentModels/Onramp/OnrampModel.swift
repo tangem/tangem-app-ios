@@ -44,7 +44,7 @@ class OnrampModel {
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
-    private var hasPendingApplePayFinishStep: Bool = false
+    private var pendingApplePayCompletion: PendingApplePayCompletion?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -404,7 +404,7 @@ private extension OnrampModel {
         stopTimer()
         _transactionTime.send(Date())
         _expressTransactionId.send(data.txId)
-        hasPendingApplePayFinishStep = true
+        pendingApplePayCompletion = .finishStep
     }
 
     func log(_ message: String) {
@@ -552,10 +552,15 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetDidFinish() {
         autoupdatingTimer.resumeTimer()
 
-        if hasPendingApplePayFinishStep {
-            hasPendingApplePayFinishStep = false
+        switch pendingApplePayCompletion {
+        case .finishStep:
             router?.openFinishStep()
+        case .error(let error):
+            alertPresenter?.showAlert(error.alertBinder)
+        case .none:
+            break
         }
+        pendingApplePayCompletion = nil
     }
 
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
@@ -586,11 +591,13 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                         result.fail()
                     }
                 }
-            } catch let error as CancellationError {
-                await runOnMain { result.fail(error) }
+            } catch is CancellationError {
+                await runOnMain { result.fail() }
             } catch {
                 await runOnMain {
-                    model.alertPresenter?.showAlert(error.alertBinder)
+                    if !error.isPassKitError {
+                        model.pendingApplePayCompletion = .error(error)
+                    }
                     result.fail(error)
                 }
             }
@@ -737,5 +744,12 @@ extension OnrampModel {
 extension OnrampModel {
     struct PredefinedValues: Hashable {
         let amount: Decimal?
+    }
+}
+
+private extension OnrampModel {
+    enum PendingApplePayCompletion {
+        case finishStep
+        case error(Error)
     }
 }
