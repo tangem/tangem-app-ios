@@ -26,8 +26,8 @@ final class CommonUserWalletPushNotificationsManager {
     private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
         userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
-        notificationPreferencesProvider: notificationPreferencesProvider,
-        permissionService: pushNotificationsPermission
+        permissionService: pushNotificationsPermission,
+        notificationPreferencesProvider: notificationPreferencesProvider
     )
 
     private var preferencesWorkflowTask: Task<Void, Error>?
