@@ -290,7 +290,7 @@ private final class StubPKPaymentToken: PKPaymentToken {
 
 private final class StubPKPayment: PKPayment {
     override var token: PKPaymentToken { StubPKPaymentToken() }
-    override var billingContact: PKContact? {
+    override var shippingContact: PKContact? {
         let contact = PKContact()
         contact.emailAddress = "test@example.com"
         return contact
