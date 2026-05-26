@@ -169,7 +169,8 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         return TangemPayWithdrawPreSignature(
             sender: response.senderAddress,
             hash: Data(hexString: response.hash),
-            salt: Data(hexString: response.salt)
+            salt: Data(hexString: response.salt),
+            structuredData: response.structuredData
         )
     }
 

@@ -11,13 +11,13 @@ import CryptoSwift
 /// Encodes fields according to Ethereum's Application Binary Interface Specification
 ///
 /// - SeeAlso: https://solidity.readthedocs.io/en/develop/abi-spec.html
-public final class ABIEncoder {
+public final class EIP712ABIEncoder {
     static let encodedIntSize = 32
 
     /// Encoded data
     public var data = Data()
 
-    /// Creates an `ABIEncoder`.
+    /// Creates an `EIP712ABIEncoder`.
     public init() {}
 
     /// Encodes an `ABIValue`
@@ -43,7 +43,7 @@ public final class ABIEncoder {
     }
 
     public func encode(array: [ABIValue]) throws {
-        let encoder = ABIEncoder()
+        let encoder = EIP712ABIEncoder()
         try encoder.encode(tuple: array)
         let hash = encoder.data.sha3(.keccak256)
         data.append(hash)
@@ -77,7 +77,7 @@ public final class ABIEncoder {
 
     /// Encodes a boolean field.
     public func encode(_ value: Bool) throws {
-        data.append(Data(repeating: 0, count: ABIEncoder.encodedIntSize - 1))
+        data.append(Data(repeating: 0, count: EIP712ABIEncoder.encodedIntSize - 1))
         data.append(value ? 1 : 0)
     }
 
@@ -91,11 +91,11 @@ public final class ABIEncoder {
     /// - Throws: `ABIError.integerOverflow` if the value has more than 256 bits.
     public func encode(_ value: BigUInt) throws {
         let valueData = value.serialize()
-        if valueData.count > ABIEncoder.encodedIntSize {
+        if valueData.count > EIP712ABIEncoder.encodedIntSize {
             throw ABIError.integerOverflow
         }
 
-        data.append(Data(repeating: 0, count: ABIEncoder.encodedIntSize - valueData.count))
+        data.append(Data(repeating: 0, count: EIP712ABIEncoder.encodedIntSize - valueData.count))
         data.append(valueData)
     }
 
@@ -108,7 +108,7 @@ public final class ABIEncoder {
     ///
     /// - Throws: `ABIError.integerOverflow` if the value has more than 256 bits.
     public func encode(_ value: BigInt) throws {
-        guard let serialized = value.serialize(bitWidth: ABIEncoder.encodedIntSize) else {
+        guard let serialized = value.serialize(bitWidth: EIP712ABIEncoder.encodedIntSize) else {
             throw ABIError.integerOverflow
         }
         data.append(serialized)
@@ -144,7 +144,7 @@ public final class ABIEncoder {
 
     /// Encodes a function signature
     public func encode(signature: String) throws {
-        data.append(try ABIEncoder.encode(signature: signature))
+        data.append(try EIP712ABIEncoder.encode(signature: signature))
     }
 
     /// Encodes a function signature
