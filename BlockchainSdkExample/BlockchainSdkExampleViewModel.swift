@@ -69,9 +69,11 @@ class BlockchainSdkExampleViewModel: ObservableObject {
             blockchainSdkKeysConfig: utils.parseKeysJson(),
             dependencies: .init(
                 accountCreator: SimpleAccountCreator { [weak self] in self?.card },
-                dataStorage: InMemoryBlockchainDataStorage { return nil }
+                dataStorage: InMemoryBlockchainDataStorage { return nil },
+                isSolanaScaledUIEnabled: true,
+                isYieldModuleUpdateEnabled: true
             ),
-            apiList: apiList
+            apiList: apiList,
         )
     }()
 
