@@ -289,6 +289,7 @@ var featureModules: [PackageDescription.Target] {
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .product(name: "IdensicMobileSDK", package: "idensicmobilesdk-ios"),
+                "BlockchainSdk",
                 "CryptoSwift",
                 "TangemAssets",
                 "TangemFoundation",
