@@ -28,13 +28,9 @@ protocol UserTokensPushNotificationsManager {
     func process(_ event: UserWalletPushNotificationsEvent)
 
     /// User toggled the switch for the given channel (UI intent).
-    /// Optimistically updates the backend preference and throws on failure so
     /// the caller can revert UI and surface an error.
+    /// Optimistically updates the backend preference and throws on failure so
     func tryUpdateEnableState(value: Bool, for channel: PushChannel) async throws
-
-    /// Whether remote `notifyStatus` should be forced to `true` on first sync because system
-    /// push permission is granted and this wallet has not completed allowance onboarding yet.
-    func shouldAllowanceRemoteNotifyStatus() async -> Bool
 }
 
 /// Events that drive push-notification status transitions. Callers post these

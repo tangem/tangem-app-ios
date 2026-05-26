@@ -343,7 +343,7 @@ private extension CommonDeeplinkPresenterV2 {
         )
 
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
 
         return AnyView(
             makeDeeplinkView(
@@ -399,7 +399,7 @@ private extension CommonDeeplinkPresenterV2 {
         let viewModel = MarketsTokenDetailsExchangesListViewModel(
             tokenId: tokenId,
             numberOfExchangesListedOn: DeeplinkMarketsConstants.deeplinkExchangesSkeletonCount,
-            presentationStyle: .defaultNavigationStack,
+            presentationStyle: .navigationStack,
             exchangesListLoader: MarketsTokenDetailsDataProvider(),
             onBackButtonAction: {}
         )

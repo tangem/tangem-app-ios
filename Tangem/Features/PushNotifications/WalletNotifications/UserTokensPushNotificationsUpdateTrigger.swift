@@ -15,7 +15,7 @@ import TangemFoundation
 /// Monitors wallet readiness conditions and emits events that drive push-notification
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
 /// independently from the manager that acts on those events.
-final class UserTokensPushNotificationsUpdateTrigger {
+final class UserWalletPushNotificationsUpdateTrigger {
     enum Event {
         /// Pending derivations just finished and the token list is ready — the remote
         /// push status should be re-synced with the backend.
@@ -39,14 +39,14 @@ final class UserTokensPushNotificationsUpdateTrigger {
     init(
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
+        permissionService: PushNotificationsPermissionService,
         notificationPreferencesProvider: NotificationPreferencesProvider? = nil,
-        permissionService: PushNotificationsPermissionService
     ) {
         self.userWalletId = userWalletId
         bind(
             accountModelsManager: accountModelsManager,
+            permissionService: permissionService,
             notificationPreferencesProvider: notificationPreferencesProvider,
-            permissionService: permissionService
         )
     }
 
@@ -54,9 +54,12 @@ final class UserTokensPushNotificationsUpdateTrigger {
 
     private func bind(
         accountModelsManager: AccountModelsManager,
+        permissionService: PushNotificationsPermissionService,
         notificationPreferencesProvider: NotificationPreferencesProvider?,
-        permissionService: PushNotificationsPermissionService
     ) {
+        let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
+            .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
+
         let isUserTokenListReadyPublisher = accountModelsManager
             .cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
@@ -105,19 +108,13 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        let hasNotCompletedAllowanceOnboardingPublisher = AppSettings.shared
-            .$allowanceUserWalletIdTransactionsPush
-            .map { [userWalletId] allowanceWalletIds in
-                !allowanceWalletIds.contains(userWalletId.stringValue)
-            }
-            .removeDuplicates()
-
         let isPreferencesReadyPublisher: AnyPublisher<Bool, Never> = notificationPreferencesProvider?
             .preferencesPublisher
             .map { preferences -> Bool in
                 guard case .ready = preferences.state else { return false }
                 return true
             }
+            .removeDuplicates()
             .eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher()
 
         permissionService
