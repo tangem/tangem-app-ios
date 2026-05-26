@@ -309,6 +309,7 @@
 "common_sending" = "送金中";
 "common_sent" = "送金済み";
 "common_server_unavailable" = "サーバーが利用できません。しばらくしてからもう一度お試しください。";
+"common_session_expired" = "Session expired";
 "common_share_link" = "リンクを共有";
 "common_share" = "共有";
 "common_sign" = "署名";
@@ -1599,6 +1600,10 @@
 "tangempay_tangem_visa_card" = "日常の支払いにUSDCを利用";
 "tangempay_temporarily_unavailable" = "Tangem Payは現在一時的に利用できません。";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_receive_body" = "USDC Polygon をアカウントのアドレスに送信";
+"tangempay_topup_receive_title" = "別のウォレットまたは取引所から";
+"tangempay_topup_swap_body" = "任意の資産を USDC Polygon にスワップ";
+"tangempay_topup_swap_title" = "Tangem ウォレットから";
 "tangempay_usdc_on_polygon_network" = "Polygonネットワーク上のUSDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
 "tangempay_withdrawal_note_description" = "返金分はオンチェーンのPolygon残高には戻らず、出金にも利用できません。ただし、カード残高として残り、支払いに利用できます。";
