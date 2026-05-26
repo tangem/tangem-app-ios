@@ -102,18 +102,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayMobileOnboarding: return .version("5.39")
         case .onrampNativePayment: return .unspecified
         case .xrplTransactionHistory: return .unspecified
-        case .sendBalanceSendSplitRows: return .unspecified
+        case .sendBalanceSendSplitRows: return .version("5.39")
         case .swapStoriesV2: return .version("5.38")
         case .swapProviderTypeFilter: return .unspecified
-        case .swapInProgressV2: return .unspecified
+        case .swapInProgressV2: return .version("5.39")
         case .swapPendingTxStateDate: return .unspecified
-        case .dexApproveNotificationV2: return .unspecified
-        case .manageTokensImprovements: return .unspecified
+        case .dexApproveNotificationV2: return .version("5.39")
+        case .manageTokensImprovements: return .version("5.39")
         case .swapSimpleMode: return .unspecified
         case .swapMaxAmountFractions: return .unspecified
         case .pushNotificationsSettings: return .unspecified
         case .swapExchangeRateDisplay: return .unspecified
-        case .yieldApyBoostPromo: return .unspecified
+        case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         }
