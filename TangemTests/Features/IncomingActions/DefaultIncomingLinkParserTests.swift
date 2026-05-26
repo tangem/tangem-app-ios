@@ -115,7 +115,10 @@ struct DefaultIncomingLinkParserTests {
         case .payApp:
             urlString = "https://tangem.com/\(rawValue)?id=some-id"
         case .news:
-            urlString = "tangem://\(rawValue)"
+            // `.news` deeplinks are owned exclusively by `NewsIncomingLinkParser`.
+            // `DefaultIncomingLinkParser` intentionally rejects `tangem://news` to prevent
+            // silently accepting links with invalid news_id as "open news list" actions.
+            return
         case .newsArticle:
             // `.newsArticle` is not a deeplink host. Falls through to generic external link handling.
             urlString = "https://tangem.com/news/markets/190801-polygon"
