@@ -53,6 +53,10 @@ struct SwapSummaryView: View {
             .scrollDismissesKeyboard(.immediately)
         }
         .keyboardToolbar(toolbarContent)
+        .keyboardAutoHide(
+            isActive: $keyboardActive,
+            onInput: viewModel.swapAmountViewModel.sourceDecimalNumberTextFieldViewModel.valuePublisher
+        )
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
         .onChange(of: viewModel.swapAmountViewModel.isInputDisabled) { isDisabled in
