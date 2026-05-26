@@ -12,7 +12,9 @@ import Hiero
 final class HederaAddressService: AddressService {
     private let isTestnet: Bool
 
-    private lazy var client: Client = isTestnet ? Client.forTestnetWithImmediateUpdate() : Client.forMainnetWithImmediateUpdate()
+    private lazy var client: Client = isTestnet
+        ? Client.forTestnetWithImmediateUpdate(plaintextOnly: true)
+        : Client.forMainnetWithImmediateUpdate(plaintextOnly: true)
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
