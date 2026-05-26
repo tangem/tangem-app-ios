@@ -18,7 +18,7 @@ import TangemFoundation
 /// 2. Tangem scheme (app-style):
 ///    `tangem://news`                          — all categories
 ///    `tangem://news?category_id={categoryId}` — specific category
-///    `tangem://news?id={articleId}`           — specific article
+///    `tangem://news?news_id={articleId}`      — specific article
 struct NewsIncomingLinkParser: IncomingActionURLParser {
     private let deeplinkValidator: DeeplinkValidator
 
@@ -91,8 +91,9 @@ private extension NewsIncomingLinkParser {
 private extension NewsIncomingLinkParser {
     func parseDeepLink(_ url: URL) -> IncomingAction? {
         let queryItems = url.getKeyedQueryItems()
-        let id = queryItems[IncomingActionConstants.DeeplinkParams.id]
-        let categoryId = queryItems[IncomingActionConstants.DeeplinkParams.categoryId]
+        let newsParams = IncomingActionConstants.DeeplinkParams.self
+        let id = queryItems[newsParams.newsId]
+        let categoryId = queryItems[newsParams.categoryId]
 
         return makeAction(url: url, destination: .news, id: id, categoryId: categoryId)
     }
