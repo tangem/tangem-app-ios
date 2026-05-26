@@ -57,8 +57,10 @@ extension ExpressAvailableProvider {
         await updateState(quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker)
     }
 
-    func update(approvePolicy: ApprovePolicy) {
+    func update(approvePolicy: ApprovePolicy) async {
         _approvePolicy { $0 = approvePolicy }
+
+        await updateState()
     }
 
     func updateState(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker? = nil) async {

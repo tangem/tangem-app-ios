@@ -103,7 +103,7 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
-        guard case .swap(_, .some(let selectedProvider), let providers) = currentState else {
+        guard case .swap(_, .some(let selectedProvider), _) = currentState else {
             return currentState
         }
 
@@ -112,8 +112,7 @@ extension CommonExpressManager: ExpressManager {
             return currentState
         }
 
-        providers.all.forEach { $0.update(approvePolicy: approvePolicy) }
-        await selectedProvider.updateState()
+        await selectedProvider.update(approvePolicy: approvePolicy)
 
         return currentState
     }
