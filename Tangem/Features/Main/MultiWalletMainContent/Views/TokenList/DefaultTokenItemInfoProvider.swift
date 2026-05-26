@@ -96,7 +96,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
         yieldModuleStatePublisher
             .filter { !($0?.state.isLoading ?? false) }
             .map { state -> TokenItemViewModel.TrailingBadge? in
-                guard case .active(let supply) = state?.state else { return nil }
+                guard case .active(let supply, _) = state?.state else { return nil }
                 return supply.isAllowancePermissionRequired ? .isApproveNeeded : nil
             }
             .eraseToAnyPublisher()
