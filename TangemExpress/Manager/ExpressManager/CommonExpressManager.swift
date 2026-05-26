@@ -62,34 +62,22 @@ extension CommonExpressManager: ExpressManager {
         case (.none, _):
             // Reset all providers to idle
             providers.all.forEach { $0.reset() }
-
+          
             update(state: .idle(providers: providers))
             return currentState
 
         case (.from(let amount), .float), (.to(let amount), .fixed):
-            return await state(amount: amount)
+            return await reloadQuotes(amount: amount)
 
         case (.from(let amount), .fixed):
             update(state: .swap(rate: .float, providers: providers))
 
-            return await state(amount: amount)
+            return await reloadQuotes(amount: amount)
 
         case (.to(let amount), .float):
             update(state: .swap(rate: .fixed, providers: providers))
 
-            return await state(amount: amount)
-        }
-
-        func state(amount: Decimal) async -> ExpressManagerState {
-            let candidates = providers.availableProviders(rate: rate)
-            await reloadQuotes(amount: amount, in: candidates)
-
-            if Task.isCancelled {
-                return currentState
-            }
-
-            let newState = stateWithBestProvider(from: candidates)
-            return update(state: newState)
+            return await reloadQuotes(amount: amount)
         }
     }
 
@@ -167,10 +155,22 @@ private extension CommonExpressManager {
         return ExpressManagerState.Providers(float: float, fixed: fixed)
     }
 
-    func reloadQuotes(amount: Decimal, in candidates: [ExpressAvailableProvider]) async {
+    func reloadQuotes(amount: Decimal) async -> ExpressManagerState {
+        guard case .swap(let rate, _, let providers) = currentState else {
+            return currentState
+        }
+
+        let candidates = providers.availableProviders(rate: rate)
         await update(candidates: candidates) { provider, tracker in
             await provider.update(amount: amount, quotesLoadingPerformanceTracker: tracker)
         }
+
+        if Task.isCancelled {
+            return currentState
+        }
+
+        let newState = stateWithBestProvider(from: candidates)
+        return update(state: newState)
     }
 
     func reloadQuotes(candidates: [ExpressAvailableProvider]) async {
@@ -179,7 +179,10 @@ private extension CommonExpressManager {
         }
     }
 
-    func update(candidates: [ExpressAvailableProvider], action: @escaping (ExpressAvailableProvider, ExpressQuotesLoadingPerformanceTracker) async -> Void) async {
+    func update(
+        candidates: [ExpressAvailableProvider],
+        action: @escaping (ExpressAvailableProvider, ExpressQuotesLoadingPerformanceTracker) async -> Void
+    ) async {
         defer { candidates.updateIsBestFlag() }
 
         let names = candidates.map { $0.provider.name }.joined(separator: ", ")
