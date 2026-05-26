@@ -39,7 +39,7 @@ struct SwapSummaryView: View {
                 VStack(spacing: 14) {
                     SwapAmountView(viewModel: viewModel.swapAmountViewModel)
 
-                    SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
+                    providerSectionView
 
                     feeSectionView
 
@@ -53,6 +53,10 @@ struct SwapSummaryView: View {
             .scrollDismissesKeyboard(.immediately)
         }
         .keyboardToolbar(toolbarContent)
+        .keyboardAutoHide(
+            isActive: $keyboardActive,
+            onInput: viewModel.swapAmountViewModel.sourceDecimalNumberTextFieldViewModel.valuePublisher
+        )
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
         .onChange(of: viewModel.swapAmountViewModel.isInputDisabled) { isDisabled in
@@ -62,6 +66,34 @@ struct SwapSummaryView: View {
             } else if shouldRestoreKeyboard {
                 keyboardActive = true
             }
+        }
+    }
+
+    // MARK: - Provider
+
+    @ViewBuilder
+    private var providerSectionView: some View {
+        let isDetailed = viewModel.formVariant == .detailed
+        let isSimple = viewModel.formVariant == .simple
+
+        // Both views always rendered. Mode switch flips frame/opacity only — no
+        // conditional add/remove, so SwapSummaryProviderView's
+        // `.transition(.opacity.animation(.easeInOut))` does not fire on toggle.
+        VStack(spacing: 0) {
+            SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
+                .frame(maxHeight: isDetailed ? .infinity : 0)
+                .opacity(isDetailed ? 1 : 0)
+                .clipped()
+                .accessibilityHidden(!isDetailed)
+
+            SwapSummaryProviderCompactView(
+                viewModel: viewModel.swapSummaryProviderViewModel,
+                shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge
+            )
+            .frame(maxHeight: isSimple ? .infinity : 0)
+            .opacity(isSimple ? 1 : 0)
+            .clipped()
+            .accessibilityHidden(!isSimple)
         }
     }
 

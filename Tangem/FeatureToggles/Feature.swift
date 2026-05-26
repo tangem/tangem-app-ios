@@ -35,6 +35,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapPendingTxStateDate
     case dexApproveNotificationV2
     case manageTokensImprovements
+    case swapSimpleMode
     case swapMaxAmountFractions
     case pushNotificationsSettings
     case swapExchangeRateDisplay
@@ -70,6 +71,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
         case .dexApproveNotificationV2: return "DEX Approve Notification V2"
         case .manageTokensImprovements: return "Manage Tokens Improvements"
+        case .swapSimpleMode: return "13763_Swap_Simple_Mode"
         case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
         case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
@@ -98,19 +100,20 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
         case .tangemPayMobileOnboarding: return .version("5.39")
-        case .onrampNativePayment: return .unspecified
+        case .onrampNativePayment: return .version("5.39")
         case .xrplTransactionHistory: return .unspecified
-        case .sendBalanceSendSplitRows: return .unspecified
+        case .sendBalanceSendSplitRows: return .version("5.39")
         case .swapStoriesV2: return .version("5.38")
         case .swapProviderTypeFilter: return .unspecified
-        case .swapInProgressV2: return .unspecified
-        case .swapPendingTxStateDate: return .unspecified
-        case .dexApproveNotificationV2: return .unspecified
-        case .manageTokensImprovements: return .unspecified
-        case .swapMaxAmountFractions: return .unspecified
+        case .swapInProgressV2: return .version("5.39")
+        case .swapPendingTxStateDate: return .version("5.39")
+        case .dexApproveNotificationV2: return .version("5.39")
+        case .manageTokensImprovements: return .version("5.39")
+        case .swapSimpleMode: return .version("5.39")
+        case .swapMaxAmountFractions: return .version("5.39")
         case .pushNotificationsSettings: return .unspecified
-        case .swapExchangeRateDisplay: return .unspecified
-        case .yieldApyBoostPromo: return .unspecified
+        case .swapExchangeRateDisplay: return .version("5.39")
+        case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         }
