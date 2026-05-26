@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// A storage for the opaque (hence `Any`) cursor for the next page.
 public protocol HistoryCursorStorage: Sendable {
     var cursor: Any? { get async }
 

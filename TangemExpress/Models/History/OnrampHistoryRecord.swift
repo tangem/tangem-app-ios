@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct OnrampHistoryRecord: Hashable {
+public struct OnrampHistoryRecord: HistoryRecord, Hashable, @unchecked Sendable {
     public let txId: String
     public let status: OnrampTransactionStatus
     public let provider: ExpressHistoryProvider
@@ -23,7 +23,3 @@ public struct OnrampHistoryRecord: Hashable {
     public let createdAt: Date
     public let updatedAt: Date
 }
-
-// MARK: - HistoryRecord protocol conformance
-
-extension OnrampHistoryRecord: HistoryRecord, @unchecked Sendable {}
