@@ -11,14 +11,23 @@ import BigInt
 final class YieldSupplyServiceFactory {
     let wallet: Wallet
     let dataStorage: BlockchainDataStorage
+    let isYieldModuleUpdateEnabled: Bool
 
-    init(wallet: Wallet, dataStorage: BlockchainDataStorage) {
+    init(
+        wallet: Wallet,
+        dataStorage: BlockchainDataStorage,
+        isYieldModuleUpdateEnabled: Bool
+    ) {
         self.wallet = wallet
         self.dataStorage = dataStorage
+        self.isYieldModuleUpdateEnabled = isYieldModuleUpdateEnabled
     }
 
     func makeProvider(networkService: EthereumNetworkService) -> YieldSupplyService? {
-        let contractAddressFactory = YieldSupplyContractAddressFactory(blockchain: wallet.blockchain)
+        let contractAddressFactory = YieldSupplyContractAddressFactory(
+            blockchain: wallet.blockchain,
+            isYieldModuleUpdateEnabled: isYieldModuleUpdateEnabled
+        )
 
         guard contractAddressFactory.isSupported, wallet.blockchain.isEvm else { return nil }
 
