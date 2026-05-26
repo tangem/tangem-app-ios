@@ -230,7 +230,7 @@ private extension CommonDeeplinkPresenterV2 {
 
     private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView {
         let presenter = overlayViewPresenter
-        let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { Task { @MainActor in presenter.dismiss() } })
+        let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in Task { @MainActor in presenter.dismiss() } })
 
         coordinator.start(
             with: .init(userWalletModels: [userWalletModel])
