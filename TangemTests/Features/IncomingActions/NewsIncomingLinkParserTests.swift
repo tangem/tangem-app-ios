@@ -135,9 +135,9 @@ struct NewsIncomingLinkParserTests {
         #expect(deeplink.params.id == nil)
     }
 
-    @Test("Parses tangem://news with id")
-    func customSchemeNewsWithId() throws {
-        let url = try #require(URL(string: "tangem://news?id=1001"))
+    @Test("Parses tangem://news with news_id")
+    func customSchemeNewsWithNewsId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=1001"))
 
         let action = try parser.parse(url)
 
@@ -151,9 +151,9 @@ struct NewsIncomingLinkParserTests {
         #expect(deeplink.params.categoryId == nil)
     }
 
-    @Test("Parses tangem://news with both id and category_id (id takes precedence downstream)")
-    func customSchemeNewsWithIdAndCategoryId() throws {
-        let url = try #require(URL(string: "tangem://news?id=1001&category_id=42"))
+    @Test("Parses tangem://news with both news_id and category_id (news_id takes precedence downstream)")
+    func customSchemeNewsWithNewsIdAndCategoryId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=1001&category_id=42"))
 
         let action = try parser.parse(url)
 
@@ -167,9 +167,9 @@ struct NewsIncomingLinkParserTests {
         #expect(deeplink.params.categoryId == "42")
     }
 
-    @Test("Rejects tangem://news with non-numeric id")
-    func customSchemeNewsRejectsNonNumericId() throws {
-        let url = try #require(URL(string: "tangem://news?id=not-a-number"))
+    @Test("Rejects tangem://news with non-numeric news_id")
+    func customSchemeNewsRejectsNonNumericNewsId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=not-a-number"))
 
         let action = try parser.parse(url)
 
@@ -235,5 +235,15 @@ struct NewsIncomingLinkParserTests {
 
         #expect(deeplink.destination == .news)
         #expect(deeplink.params.categoryId == "7")
+    }
+
+    @Test("IncomingActionParser rejects tangem://news with invalid news_id and does not fall back to news list")
+    func incomingActionParserRejectsInvalidNewsId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=not-a-number"))
+
+        let incomingParser = IncomingActionParser()
+        let action = incomingParser.parseIncomingURL(url)
+
+        #expect(action == nil)
     }
 }
