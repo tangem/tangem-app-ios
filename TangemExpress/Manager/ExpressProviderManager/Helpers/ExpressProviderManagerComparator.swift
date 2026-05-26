@@ -66,6 +66,9 @@ public enum ExpressProviderManagerComparator {
             case (.some(let lQuote), .some(let rQuote)):
                 return lQuote.expectAmount > rQuote.expectAmount
 
+            case (.some, .none):
+                return true
+
             default:
                 return false
             }
