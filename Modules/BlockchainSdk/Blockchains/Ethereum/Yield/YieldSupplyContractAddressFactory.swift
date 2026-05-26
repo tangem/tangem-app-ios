@@ -10,9 +10,11 @@ import Foundation
 
 class YieldSupplyContractAddressFactory {
     private let blockchain: Blockchain
+    private let isYieldModuleUpdateEnabled: Bool
 
-    init(blockchain: Blockchain) {
+    init(blockchain: Blockchain, isYieldModuleUpdateEnabled: Bool) {
         self.blockchain = blockchain
+        self.isYieldModuleUpdateEnabled = isYieldModuleUpdateEnabled
     }
 
     var isSupported: Bool {
@@ -38,7 +40,7 @@ class YieldSupplyContractAddressFactory {
         case .zkSync(false):
             AaveV3Constants.zkSyncAddresses
         case .polygon(false):
-            AaveV3Constants.polygonAddresses
+            AaveV3Constants.polygonAddresses(isYieldModuleUpdateEnabled: isYieldModuleUpdateEnabled)
         case .sonic(false):
             AaveV3Constants.sonicAddresses
         default:
@@ -112,11 +114,21 @@ extension YieldSupplyContractAddressFactory {
             swapExecutionRegistryContractAddress: swapExecutionRegistryContractAddress,
         )
 
-        static let polygonAddresses = YieldSupplyContractAddresses(
-            processorContractAddress: "0xD021F1D410aCB895aB110a0CbB740a33db209bDD",
-            factoryContractAddress: "0x1bE509C2fF23dF065E15A6d37b0eFe4c839c62fE",
-            swapExecutionRegistryContractAddress: swapExecutionRegistryContractAddress,
-        )
+        static func polygonAddresses(isYieldModuleUpdateEnabled: Bool) -> YieldSupplyContractAddresses {
+            if isYieldModuleUpdateEnabled {
+                YieldSupplyContractAddresses(
+                    processorContractAddress: "0xD021F1D410aCB895aB110a0CbB740a33db209bDD",
+                    factoryContractAddress: "0x1bE509C2fF23dF065E15A6d37b0eFe4c839c62fE",
+                    swapExecutionRegistryContractAddress: swapExecutionRegistryContractAddress,
+                )
+            } else {
+                YieldSupplyContractAddresses(
+                    processorContractAddress: "0xB04aFaA060097C4a2c9e45FE611BB5db682C9aD6",
+                    factoryContractAddress: "0xb49CF4ba3c821560b5A4E6474D28f547368346CF",
+                    swapExecutionRegistryContractAddress: swapExecutionRegistryContractAddress,
+                )
+            }
+        }
 
         static let sonicAddresses = YieldSupplyContractAddresses(
             processorContractAddress: "0x7255BFf778243f58B53777878B931Df596e1816A",
