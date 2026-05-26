@@ -28,8 +28,7 @@ final class CommonEarnEthereumP2PFilter: EarnEthereumP2PFilter {
         let shouldHide: Bool
         do {
             let yield = try await stakingYieldInfoProvider.yieldInfo(for: StakingIntegrationId.ethereumP2P.rawValue)
-            let maxLimit = yield.targets.compactMap(\.maximumStakeAmount).max() ?? .zero
-            shouldHide = maxLimit <= Constants.minVisibleLimit
+            shouldHide = !yield.isAvailable
         } catch let error as CancellationError {
             throw error
         } catch {
@@ -50,7 +49,6 @@ final class CommonEarnEthereumP2PFilter: EarnEthereumP2PFilter {
 
 private extension CommonEarnEthereumP2PFilter {
     enum Constants {
-        static let minVisibleLimit: Decimal = 0.1
         static let ethereumNetworkId = "ethereum"
         static let ethSymbol = "ETH"
         static let stakingType = "staking"

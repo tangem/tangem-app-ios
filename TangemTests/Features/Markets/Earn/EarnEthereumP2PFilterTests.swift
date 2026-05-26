@@ -30,8 +30,8 @@ struct EarnEthereumP2PFilterTests {
         #expect(provider.callCount == 0)
     }
 
-    @Test("All vault limits nil — drop ETH (max defaults to 0)")
-    func allVaultLimitsNilDropsEth() async throws {
+    @Test("All vaults full (no active target) — drop ETH")
+    func noActiveVaultsDropsEth() async throws {
         let yield = StakingYieldInfo.makeEthereumP2P(targetLimits: [nil, nil])
         let provider = StubStakingYieldInfoProvider(.success(yield))
         let filter = CommonEarnEthereumP2PFilter(stakingYieldInfoProvider: provider)
@@ -41,43 +41,9 @@ struct EarnEthereumP2PFilterTests {
         #expect(result.isEmpty)
     }
 
-    @Test("Max vault limit = 0.05 — drop ETH")
-    func belowThresholdDropsEth() async throws {
-        let yield = StakingYieldInfo.makeEthereumP2P(targetLimits: [0.05])
-        let provider = StubStakingYieldInfoProvider(.success(yield))
-        let filter = CommonEarnEthereumP2PFilter(stakingYieldInfoProvider: provider)
-
-        let result = try await filter.filter([.makeEthereumP2P()])
-
-        #expect(result.isEmpty)
-    }
-
-    @Test("Max vault limit = 0.1 — drop ETH (boundary inclusive)")
-    func boundaryThresholdDropsEth() async throws {
-        let yield = StakingYieldInfo.makeEthereumP2P(targetLimits: [0.1])
-        let provider = StubStakingYieldInfoProvider(.success(yield))
-        let filter = CommonEarnEthereumP2PFilter(stakingYieldInfoProvider: provider)
-
-        let result = try await filter.filter([.makeEthereumP2P()])
-
-        #expect(result.isEmpty)
-    }
-
-    @Test("Max vault limit > 0.1 — keep ETH")
-    func aboveThresholdKeepsEth() async throws {
-        let yield = StakingYieldInfo.makeEthereumP2P(targetLimits: [0.5])
-        let provider = StubStakingYieldInfoProvider(.success(yield))
-        let filter = CommonEarnEthereumP2PFilter(stakingYieldInfoProvider: provider)
-
-        let ethItem = EarnDTO.List.Item.makeEthereumP2P()
-        let result = try await filter.filter([ethItem])
-
-        #expect(result.count == 1)
-    }
-
-    @Test("Mixed vault limits [0.05, 0.5] — keep ETH (max wins)")
-    func mixedVaultLimitsKeepsEth() async throws {
-        let yield = StakingYieldInfo.makeEthereumP2P(targetLimits: [0.05, 0.5])
+    @Test("At least one active vault — keep ETH")
+    func anyActiveVaultKeepsEth() async throws {
+        let yield = StakingYieldInfo.makeEthereumP2P(targetLimits: [nil, 0.5])
         let provider = StubStakingYieldInfoProvider(.success(yield))
         let filter = CommonEarnEthereumP2PFilter(stakingYieldInfoProvider: provider)
 
