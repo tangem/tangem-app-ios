@@ -83,10 +83,11 @@ extension Wallet2Config: UserWalletConfig {
         }
 
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [
+        var blockchains: [Blockchain] = [
             .bitcoin(testnet: isTestnet),
             .ethereum(testnet: isTestnet),
         ]
+        blockchains.append(contentsOf: extraDefaultBlockchains(isTestnet: isTestnet, card: card))
 
         let entries: [TokenItem] = blockchains.map {
             if let derivationStyle = derivationStyle {
@@ -835,6 +836,16 @@ extension Wallet2Config: WalletOnboardingStepsBuilderFactory {}
 // MARK: - Private extensions
 
 private extension Wallet2Config {
+    /// Return extra default blockchains for certain cards/promo campaigns
+    func extraDefaultBlockchains(isTestnet: Bool, card: CardDTO) -> [Blockchain] {
+        switch card.batchId {
+        case "BB000053" where FeatureProvider.isAvailable(.adiMainScreenDefault):
+            return [.adi(testnet: isTestnet)]
+        default:
+            return []
+        }
+    }
+
     func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
         if case .quai = blockchain {
             return hasFeature(.hdWallets)
