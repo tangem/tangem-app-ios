@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Adicionar token personalizado";
 "add_tokens_title" = "Gerenciar tokens";
 "addfunds_buy_row_description" = "Cartão de crédito ou conta bancária";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Compartilhe seu endereço ou código QR.";
 "addfunds_swap_row_description" = "Entre seus portfólios";
 "addfunds_you_receive_title" = "Você recebe";
@@ -875,7 +876,7 @@
 "onboarding_create_wallet_options_button_options" = "Outras opções";
 "onboarding_create_wallet_options_message" = "Suas chaves serão geradas com segurança dentro do chip. Não há frase mnemônica, o que significa que ninguém pode exportá-las ou roubá-las.";
 "onboarding_create_wallet_options_title" = "Gere chaves de forma privada";
-"onboarding_create_wallet_term_of_conditions_text" = "Ao continuar, você concorda com os termos. \n%@";
+"onboarding_create_wallet_term_of_conditions_text" = "Ao continuar, você concorda com os termos.\n%@";
 "onboarding_done_body" = "Seu cartão está ativado e pronto para uso.";
 "onboarding_done_header" = "Sucesso!";
 "onboarding_done_wallet" = "Sua carteira está configurada e pronta para uso!";
