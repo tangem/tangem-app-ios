@@ -23,3 +23,7 @@ public struct ExchangeHistoryRecord: Hashable {
     public let createdAt: Date
     public let updatedAt: Date
 }
+
+// MARK: - HistoryRecord protocol conformance
+
+extension ExchangeHistoryRecord: HistoryRecord, @unchecked Sendable {}
