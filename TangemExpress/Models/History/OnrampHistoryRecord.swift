@@ -23,3 +23,7 @@ public struct OnrampHistoryRecord: Hashable {
     public let createdAt: Date
     public let updatedAt: Date
 }
+
+// MARK: - HistoryRecord protocol conformance
+
+extension OnrampHistoryRecord: HistoryRecord, @unchecked Sendable {}
