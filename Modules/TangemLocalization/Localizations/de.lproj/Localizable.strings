@@ -309,6 +309,7 @@
 "common_sending" = "Senden";
 "common_sent" = "Gesendet";
 "common_server_unavailable" = "Der Server ist nicht verfügbar. Bitte versuche es später erneut.";
+"common_session_expired" = "Session expired";
 "common_share_link" = "Link teilen";
 "common_share" = "Teilen";
 "common_sign" = "Signieren";
@@ -1599,6 +1600,10 @@
 "tangempay_tangem_visa_card" = "Nutzen Sie USDC für alltägliche Zahlungen";
 "tangempay_temporarily_unavailable" = "Tangem Pay ist vorübergehend nicht erreichbar.";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_receive_body" = "Senden Sie USDC Polygon an die Adresse Ihres Kontos";
+"tangempay_topup_receive_title" = "Von einer anderen Wallet oder Börse";
+"tangempay_topup_swap_body" = "Tauschen Sie beliebige Assets in USDC Polygon um";
+"tangempay_topup_swap_title" = "Aus Ihrer Tangem Wallet";
 "tangempay_usdc_on_polygon_network" = "USDC im Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Klicken Sie auf die Schaltfläche unten, um den Zugriff wiederherzustellen";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
