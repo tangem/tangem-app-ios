@@ -11,16 +11,28 @@ import CryptoSwift
 
 /// A struct represents EIP712 type tuple
 public struct EIP712Type: Codable {
-    let name: String
-    let type: String
+    public let name: String
+    public let type: String
+
+    public init(name: String, type: String) {
+        self.name = name
+        self.type = type
+    }
 }
 
 /// A struct represents EIP712 Domain
 public struct EIP712Domain: Codable {
-    let name: String
-    let version: String
-    let chainId: Int
-    let verifyingContract: String
+    public let name: String
+    public let version: String
+    public let chainId: Int
+    public let verifyingContract: String
+
+    public init(name: String, version: String, chainId: Int, verifyingContract: String) {
+        self.name = name
+        self.version = version
+        self.chainId = chainId
+        self.verifyingContract = verifyingContract
+    }
 }
 
 /// A struct represents EIP712 TypedData
@@ -29,6 +41,13 @@ public struct EIP712TypedData: Codable {
     public let primaryType: String
     public let domain: JSON
     public let message: JSON
+
+    public init(types: [String: [EIP712Type]], primaryType: String, domain: JSON, message: JSON) {
+        self.types = types
+        self.primaryType = primaryType
+        self.domain = domain
+        self.message = message
+    }
 }
 
 public extension EIP712TypedData {
@@ -53,7 +72,7 @@ public extension EIP712TypedData {
         let sorted = [primaryType] + Array(depSet).sorted()
         let fullType = sorted.compactMap { searchingType -> String? in
             guard let type = types[searchingType] else {
-                WCLogger.error(error: "EIP712TypedData type: \(searchingType) not found in \(types)")
+                BSDKLogger.error(error: "EIP712TypedData type: \(searchingType) not found in \(types)")
                 return nil
             }
 
@@ -66,7 +85,7 @@ public extension EIP712TypedData {
 
     /// Encode a type of struct
     func encodeType(primaryType: String) throws -> Data {
-        let encoder = ABIEncoder()
+        let encoder = EIP712ABIEncoder()
         let typeHash = makeTypeData(primaryType: primaryType).sha3(.keccak256)
         let typeHashValue = try ABIValue(typeHash, type: .bytes(32))
         try encoder.encode(typeHashValue)
@@ -75,7 +94,7 @@ public extension EIP712TypedData {
 
     /// Encode an instance of struct
     ///
-    /// Implemented with `ABIEncoder` and `ABIValue`
+    /// Implemented with `EIP712ABIEncoder` and `ABIValue`
     func encodeData(data: JSON, type: String) -> Data {
         var encodedData = Data()
         do {
@@ -100,7 +119,7 @@ public extension EIP712TypedData {
                 }
             }
         } catch {
-            WCLogger.error(error: error)
+            BSDKLogger.error(error: error)
         }
         return encodedData
     }
@@ -224,7 +243,7 @@ private extension EIP712TypedData {
             return nil
         }
 
-        let encoder = ABIEncoder()
+        let encoder = EIP712ABIEncoder()
         try encoder.encode(value)
         return encoder.data
     }

@@ -6,6 +6,10 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import struct BlockchainSdk.EIP712TypedData
+import struct BlockchainSdk.EIP712Type
+import enum BlockchainSdk.JSON
+
 extension GaslessTransactionBuilder {
     struct GaslessTransactionsEIP712Util {
         let domainName = "Tangem7702GaslessExecutor"

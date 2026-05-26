@@ -327,7 +327,7 @@ private extension TangemPayPushPayload.Spend {
 
 private extension TangemPayPushPayload.Collateral {
     func displayInput(isOutgoing: Bool) -> TangemPayCollateralDisplayInput {
-        .init(postedAt: postedAt, amount: amount, isOutgoing: isOutgoing)
+        .init(postedAt: postedAt, amount: isOutgoing ? -amount : amount, isOutgoing: isOutgoing)
     }
 }
 
