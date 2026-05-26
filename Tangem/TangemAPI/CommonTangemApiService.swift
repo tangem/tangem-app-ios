@@ -259,10 +259,10 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
-        let response: YieldBoostPromotionDTO.Response = try await request(
-            for: .yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request(walletId: userWalletId))
+        return try await request(
+            for: .yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request(walletId: userWalletId)),
+            decoder: decoder
         )
-        return response
     }
 
     func loadAPIList() async throws -> APIListDTO {
