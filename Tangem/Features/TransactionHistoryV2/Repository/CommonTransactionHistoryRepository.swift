@@ -10,20 +10,17 @@ import Foundation
 import TangemExpress
 
 final class CommonTransactionHistoryRepository: Sendable {
-    private let walletAddress: String
     private let exchangeStorage: any HistoryRecordsStorage<ExchangeHistoryRecord>
     private let onrampStorage: any HistoryRecordsStorage<OnrampHistoryRecord>
     private let exchangeNetworkService: any HistoryNetworkService
     private let onrampNetworkService: any HistoryNetworkService
 
     init(
-        walletAddress: String,
         exchangeStorage: any HistoryRecordsStorage<ExchangeHistoryRecord>,
         onrampStorage: any HistoryRecordsStorage<OnrampHistoryRecord>,
         exchangeNetworkService: any HistoryNetworkService,
         onrampNetworkService: any HistoryNetworkService
     ) {
-        self.walletAddress = walletAddress
         self.exchangeStorage = exchangeStorage
         self.onrampStorage = onrampStorage
         self.exchangeNetworkService = exchangeNetworkService

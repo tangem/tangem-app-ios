@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExchangeHistoryRecord: Hashable {
+public struct ExchangeHistoryRecord: HistoryRecord, Hashable, @unchecked Sendable {
     public let txId: String
     public let status: ExpressTransactionStatus
     public let provider: ExpressHistoryProvider
@@ -23,7 +23,3 @@ public struct ExchangeHistoryRecord: Hashable {
     public let createdAt: Date
     public let updatedAt: Date
 }
-
-// MARK: - HistoryRecord protocol conformance
-
-extension ExchangeHistoryRecord: HistoryRecord, @unchecked Sendable {}
