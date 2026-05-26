@@ -34,7 +34,7 @@ public protocol ExpressManager: Actor {
 public enum ExpressManagerState {
     case idle
     case transfer
-    case swap(rate: ExpressProviderRateType, selected: ExpressAvailableProvider?, providers: Providers)
+    case swap(rate: ExpressProviderRateType, selected: ExpressAvailableProvider? = .none, providers: Providers)
 
     public struct Providers {
         public let float: [ExpressAvailableProvider]

@@ -61,26 +61,35 @@ extension CommonExpressManager: ExpressManager {
         switch (amountType, rate) {
         case (.none, _):
             // Reset all providers to idle
-            providers.all.forEach {
-                $0.update(amountType: amountType)
-                $0.reset()
-            }
+            providers.all.forEach { $0.reset() }
 
             update(state: .idle(providers: providers))
             return currentState
 
-        case (.from, .float), (.to, .fixed):
-            // All good, just update quotes
-            return await update(type: .amount)
+        case (.from(let amount), .float), (.to(let amount), .fixed):
+            return await state(amount: amount)
 
-        case (.from, .fixed):
-            // Need to update current rate
-            update(state: .swap(rate: .float, selected: .none, providers: providers))
-            return await update(type: .amount)
+        case (.from(let amount), .fixed):
+            update(state: .swap(rate: .float, providers: providers))
 
-        case (.to, .float):
-            update(state: .swap(rate: .fixed, selected: .none, providers: providers))
-            return await update(type: .amount)
+            return await state(amount: amount)
+
+        case (.to(let amount), .float):
+            update(state: .swap(rate: .fixed, providers: providers))
+
+            return await state(amount: amount)
+        }
+
+        func state(amount: Decimal) async -> ExpressManagerState {
+            let candidates = providers.availableProviders(rate: rate)
+            await reloadQuotes(amount: amount, in: candidates)
+
+            if Task.isCancelled {
+                return currentState
+            }
+
+            let newState = stateWithBestProvider(from: candidates)
+            return update(state: newState)
         }
     }
 
@@ -115,12 +124,10 @@ extension CommonExpressManager: ExpressManager {
         }
 
         let candidates = providers.availableProviders(rate: rate)
-        await reloadQuotesInProviders(candidates: candidates)
+        await reloadQuotes(candidates: candidates)
 
         if type.isRequiredUpdateSelectedProvider {
-            let best = candidates.best()
-            logBestProviderSelected(selectedProvider: best)
-            update(state: .swap(rate: rate, selected: best, providers: providers))
+            update(state: stateWithBestProvider(from: candidates))
         }
 
         return currentState
@@ -161,7 +168,19 @@ private extension CommonExpressManager {
         return ExpressManagerState.Providers(float: float, fixed: fixed)
     }
 
-    func reloadQuotesInProviders(candidates: [ExpressAvailableProvider]) async {
+    func reloadQuotes(amount: Decimal, in candidates: [ExpressAvailableProvider]) async {
+        await update(candidates: candidates) { provider, tracker in
+            await provider.update(amount: amount, quotesLoadingPerformanceTracker: tracker)
+        }
+    }
+
+    func reloadQuotes(candidates: [ExpressAvailableProvider]) async {
+        await update(candidates: candidates) { provider, tracker in
+            await provider.updateState(quotesLoadingPerformanceTracker: tracker)
+        }
+    }
+
+    func update(candidates: [ExpressAvailableProvider], action: @escaping (ExpressAvailableProvider, ExpressQuotesLoadingPerformanceTracker) async -> Void) async {
         defer { candidates.updateIsBestFlag() }
 
         let names = candidates.map { $0.provider.name }.joined(separator: ", ")
@@ -170,21 +189,29 @@ private extension CommonExpressManager {
         let tracker = ExpressQuotesLoadingPerformanceTracker.started(providersCount: candidates.count)
 
         await TaskGroup.executeKeepingOrder(items: candidates) { provider in
-            await provider.updateState(quotesLoadingPerformanceTracker: tracker)
+            await action(provider, tracker)
         }
     }
 
-    func update(state: ExpressManagerState) {
+    @discardableResult
+    func update(state: ExpressManagerState) -> ExpressManagerState {
         currentState = state
         ExpressLogger.info(self, "Updated state: \(state.description)")
+
+        return state
     }
 
-    func logBestProviderSelected(selectedProvider: ExpressAvailableProvider?) {
-        guard let selectedProvider else {
-            return
+    func stateWithBestProvider(from candidates: [ExpressAvailableProvider]) -> ExpressManagerState {
+        guard case .swap(let rate, _, let providers) = currentState else {
+            return currentState
         }
 
-        selectedProvider.pair.source.analyticsLogger.bestProviderSelected(selectedProvider)
+        let best = candidates.best()
+        if let best {
+            best.pair.source.analyticsLogger.bestProviderSelected(best)
+        }
+
+        return .swap(rate: rate, selected: best, providers: providers)
     }
 }
 
