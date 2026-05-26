@@ -9,20 +9,17 @@
 import Foundation
 
 final class CommonHistoryNetworkService<Record: HistoryRecord>: @unchecked Sendable {
-    typealias PageFetcher = @Sendable (_ walletAddress: String, _ cursor: Any?) async throws -> Page
+    typealias PageFetcher = @Sendable (_ cursor: Any?) async throws -> Page
 
-    private let walletAddress: String
     private let cursorStorage: any HistoryCursorStorage
     private let recordsStorage: any HistoryRecordsStorage<Record>
     private let pageFetcher: PageFetcher
 
     init(
-        walletAddress: String,
         cursorStorage: any HistoryCursorStorage,
         recordsStorage: any HistoryRecordsStorage<Record>,
         pageFetcher: @escaping PageFetcher
     ) {
-        self.walletAddress = walletAddress
         self.cursorStorage = cursorStorage
         self.recordsStorage = recordsStorage
         self.pageFetcher = pageFetcher
@@ -32,7 +29,7 @@ final class CommonHistoryNetworkService<Record: HistoryRecord>: @unchecked Senda
         var cursor: Any? = await cursorStorage.cursor
 
         while !Task.isCancelled {
-            let page = try await pageFetcher(walletAddress, cursor)
+            let page = try await pageFetcher(cursor)
 
             await recordsStorage.updateOrAppend(page.records)
             await cursorStorage.setCursor(page.nextCursor)
@@ -61,6 +58,7 @@ extension CommonHistoryNetworkService: HistoryNetworkService {
 extension CommonHistoryNetworkService {
     struct Page: @unchecked Sendable {
         let records: [Record]
+        /// Opaque cursor for the next page.
         let nextCursor: Any
         let hasMore: Bool
     }

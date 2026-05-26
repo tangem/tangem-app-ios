@@ -11,10 +11,6 @@ import Foundation
 // [REDACTED_TODO_COMMENT]
 actor InMemoryHistoryCursorStorage {
     private var stored: Any?
-
-    init(walletAddress: String) {
-        _ = walletAddress
-    }
 }
 
 // MARK: - HistoryCursorStorage protocol conformance

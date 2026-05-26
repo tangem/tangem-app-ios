@@ -13,10 +13,6 @@ actor InMemoryHistoryRecordsStorage<Record: HistoryRecord> {
     private var byId: [String: Record] = [:]
     private var subscribers: [UUID: SubscriberState] = [:]
 
-    init(walletAddress: String) {
-        _ = walletAddress
-    }
-
     // MARK: - Subscriber registry (tombstone pattern from `TransactionHistoryProvider`)
 
     private func subscribe(id: UUID, continuation: AsyncStream<[Record]>.Continuation) {
