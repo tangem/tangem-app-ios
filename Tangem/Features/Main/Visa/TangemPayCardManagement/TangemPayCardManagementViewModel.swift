@@ -633,7 +633,7 @@ private extension TangemPayCardManagementViewModel {
         let action: () -> Void = { [weak self] in
             self?.showCloseCardPopup()
         }
-        closeCardRow = row(title: Localization.tangempayCardDetailsCloseCard, isBusy: isBusy, action: action)
+        closeCardRow = row(title: Localization.tangemPayCloseCardPopupPrimaryButtonTitle, isBusy: isBusy, action: action)
     }
 
     func row(
