@@ -23,7 +23,7 @@ final class CommonUserWalletPushNotificationsManager {
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     private let notificationPreferencesProvider: NotificationPreferencesProvider
 
-    private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
+    private lazy var updateTrigger: UserWalletPushNotificationsUpdateTrigger = .init(
         userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
         permissionService: pushNotificationsPermission,

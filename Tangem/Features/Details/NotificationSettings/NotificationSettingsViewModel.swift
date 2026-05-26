@@ -205,20 +205,26 @@ private extension NotificationSettingsViewModel {
     /// manager. On failure the `preferencesPublisher` subscription rolls back the toggle
     /// automatically and we surface a generic error alert.
     ///
-    /// When trying to enable while system permission is denied the toggle is reverted immediately
-    /// and an alert guides the user to system Settings — mirroring the legacy
-    /// `TransactionNotificationsRowToggleViewModel` approach.
+    /// When trying to enable while system permission is not granted we first request iOS
+    /// authorization (legacy behavior). If the user taps "Later"/denies, the toggle is reverted
+    /// and no manager update is sent for that channel.
     func handleToggle(value: Bool, for channel: PushChannel) {
-        if value, !isSystemPermissionGranted {
-            revertToggle(for: channel)
-            displayEnablePushSettingsAlert()
-            return
-        }
-
         toggleTasks[channel]?.cancel()
 
         toggleTasks[channel] = Task { @MainActor [weak self] in
             guard let self else { return }
+
+            if value, !isSystemPermissionGranted {
+                await pushNotificationsPermission.requestAuthorizationAndRegister()
+
+                let isAuthorized = await pushNotificationsPermission.isAuthorized
+                isSystemPermissionGranted = isAuthorized
+
+                guard isAuthorized else {
+                    displayEnablePushSettingsAlert(for: channel)
+                    return
+                }
+            }
 
             do {
                 try await userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
@@ -272,11 +278,12 @@ private extension NotificationSettingsViewModel {
         )
     }
 
-    func displayEnablePushSettingsAlert() {
+    func displayEnablePushSettingsAlert(for channel: PushChannel) {
         let buttons: AlertBuilder.Buttons = .init(
             primaryButton: .default(
                 Text(Localization.pushNotificationsPermissionAlertNegativeButton),
                 action: { [weak self] in
+                    self?.revertToggle(for: channel)
                     self?.coordinator?.onAlertDismiss()
                 }
             ),
