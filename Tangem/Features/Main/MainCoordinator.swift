@@ -843,8 +843,10 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
     func openBuy(userWalletModels: [UserWalletModel]) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
-            dismissAction: { [weak self] _ in
+            dismissAction: { [weak self] payload in
                 self?.actionButtonsBuyCoordinator = nil
+                guard let payload else { return }
+                self?.openTokenDetails(for: payload.walletModel, userWalletModel: payload.userWalletModel)
             }
         )
 
