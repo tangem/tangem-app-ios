@@ -22,6 +22,7 @@ protocol UserTokensPushNotificationsManager {
     var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> { get }
 
     /// Displayed last synced remote status on backend
+    @available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications. [REDACTED_INFO]")
     var isRemoteStatusEnabled: Bool { get }
 
     /// Handles a push-status event and updates internal manager state accordingly.
