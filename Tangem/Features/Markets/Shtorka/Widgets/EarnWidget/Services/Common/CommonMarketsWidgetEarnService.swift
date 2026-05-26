@@ -68,6 +68,10 @@ extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
                 let earnTokenModels = filteredItems.map { service.mapper.mapToEarnTokenModel(from: $0) }
                 service.earnResultValueSubject.send(.success(earnTokenModels))
             } catch {
+                if error.isCancellationError {
+                    return
+                }
+
                 service.earnResultValueSubject.send(.failure(error))
             }
         }.eraseToAnyCancellable()
