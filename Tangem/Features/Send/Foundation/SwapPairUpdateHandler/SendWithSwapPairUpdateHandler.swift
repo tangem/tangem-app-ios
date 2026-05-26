@@ -23,19 +23,21 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         selectedAmountType: ExpressAmountType?
     ) async throws -> SwapPairUpdateResult {
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+        let pairResult: ExpressManagerState = try await expressManager.update(pair: pair)
 
         guard let amountType = selectedAmountType else {
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
         }
 
-        let quoteResult: ExpressManagerUpdatingResult = await expressManager.update(amountType: amountType)
+        let quoteResult: ExpressManagerState = await expressManager.update(amountType: amountType)
 
-        let quote = quoteResult.selected?.getState().quote
+        guard case .swap(_, .some(let selected), _) = quoteResult, let quote = selected.getState().quote else {
+            return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: nil)
+        }
+
         let amountUpdate: SwapPairUpdateResult.AmountUpdate? = switch (amountType, quote) {
-        case (.from, .some(let quote)): .setReceiveAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId)
-        case (.to, .some(let quote)): .setSourceAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId)
-        case (_, .none): .none
+        case (.from, let quote): .setReceiveAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId)
+        case (.to, let quote): .setSourceAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId)
         }
 
         return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: amountUpdate)

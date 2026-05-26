@@ -18,7 +18,7 @@ protocol SwapPairUpdateHandler {
 }
 
 struct SwapPairUpdateResult {
-    let expressResult: ExpressManagerUpdatingResult
+    let expressResult: ExpressManagerState
 
     /// The amount field to update after the pair change.
     /// - `nil` means "keep current amounts unchanged" (no-op).

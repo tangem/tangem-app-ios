@@ -13,47 +13,64 @@ import BlockchainSdk
 
 public protocol ExpressManager: Actor {
     /// Recreates providers. Does not update quotes.
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState
 
     /// Updates quotes for providers eligible for the current `ExpressAmountType`.
-    func update(amountType: ExpressAmountType?) async -> ExpressManagerUpdatingResult
+    func update(amountType: ExpressAmountType?) async -> ExpressManagerState
 
     /// Updates state (fee) for the selected provider with a new `ApprovePolicy`.
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState
 
     /// Preserves the selected provider across autoupdate cycles.
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerUpdatingResult
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState
 
     /// Refreshes quotes for the currently selected provider without changing the selection.
-    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState
 
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
 }
 
-public struct ExpressManagerUpdatingResult {
-    public let providers: [ExpressAvailableProvider]
-    public let selected: ExpressAvailableProvider?
-    public let supportedRateTypes: Set<ExpressProviderRateType>
+public enum ExpressManagerState {
+    case idle
+    case transfer
+    case swap(rate: ExpressProviderRateType, selected: ExpressAvailableProvider? = .none, providers: Providers)
 
-    public init(
-        providers: [ExpressAvailableProvider],
-        selected: ExpressAvailableProvider?,
-        supportedRateTypes: Set<ExpressProviderRateType>
-    ) {
-        self.providers = providers
-        self.selected = selected
-        self.supportedRateTypes = supportedRateTypes
+    public struct Providers {
+        public let float: [ExpressAvailableProvider]
+        public let fixed: [ExpressAvailableProvider]
+
+        public var all: [ExpressAvailableProvider] { float + fixed }
+
+        public var supportedRateTypes: Set<ExpressProviderRateType> {
+            all.map(\.rateType).toSet()
+        }
+
+        public func availableProviders(rate: ExpressProviderRateType) -> [ExpressAvailableProvider] {
+            switch rate {
+            case .float: float
+            case .fixed: fixed
+            }
+        }
     }
 }
 
-extension ExpressManagerUpdatingResult: CustomStringConvertible {
+extension ExpressManagerState: CustomStringConvertible {
     public var description: String {
-        objectDescription("ExpressManagerUpdatingResult", userInfo: [
-            "selected name": selected.map { $0.provider.name } ?? "no selected provider",
-            "selected state": selected.map { $0.getState() } ?? "no selected provider",
-            "providers": providers.map { $0.provider.name },
-            "allSupportedRateTypes": supportedRateTypes,
-        ])
+        switch self {
+        case .idle:
+            return objectDescription("ExpressManagerState", userInfo: ["mode": "idle"])
+        case .transfer:
+            return objectDescription("ExpressManagerState", userInfo: ["mode": "transfer"])
+        case .swap(let rate, let selected, let providers):
+            return objectDescription("ExpressManagerState", userInfo: [
+                "mode": "swap",
+                "rate": rate,
+                "selected name": selected.map { $0.provider.name } ?? "no selected provider",
+                "selected state": selected.map { $0.getState() } ?? "no selected provider",
+                "providers": providers.all.map { $0.provider.name },
+                "allSupportedRateTypes": providers.supportedRateTypes,
+            ])
+        }
     }
 }
