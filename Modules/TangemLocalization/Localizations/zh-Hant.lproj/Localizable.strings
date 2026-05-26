@@ -75,6 +75,7 @@
 "add_custom_token_title" = "添加自定義代幣";
 "add_tokens_title" = "管理代幣";
 "addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Share your address or QR-code";
 "addfunds_swap_row_description" = "Between your portfolios";
 "addfunds_you_receive_title" = "You receive";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
 "main_add_and_manage_tokens" = "Add & Manage";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_manage_tokens" = "管理代幣";
 "main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
@@ -991,7 +994,7 @@
 "provider_name_support" = "%@ support";
 "push_notification_settings_banner_button_grant_permission" = "Grant permission";
 "push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
-"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
