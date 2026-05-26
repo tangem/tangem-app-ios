@@ -100,7 +100,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
         case .tangemPayMobileOnboarding: return .version("5.39")
-        case .onrampNativePayment: return .unspecified
+        case .onrampNativePayment: return .version("5.39")
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .version("5.39")
         case .swapStoriesV2: return .version("5.38")
