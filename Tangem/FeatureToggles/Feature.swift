@@ -106,13 +106,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapStoriesV2: return .version("5.38")
         case .swapProviderTypeFilter: return .unspecified
         case .swapInProgressV2: return .version("5.39")
-        case .swapPendingTxStateDate: return .unspecified
+        case .swapPendingTxStateDate: return .version("5.39")
         case .dexApproveNotificationV2: return .version("5.39")
         case .manageTokensImprovements: return .version("5.39")
-        case .swapSimpleMode: return .unspecified
-        case .swapMaxAmountFractions: return .unspecified
+        case .swapSimpleMode: return .version("5.39")
+        case .swapMaxAmountFractions: return .version("5.39")
         case .pushNotificationsSettings: return .unspecified
-        case .swapExchangeRateDisplay: return .unspecified
+        case .swapExchangeRateDisplay: return .version("5.39")
         case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
