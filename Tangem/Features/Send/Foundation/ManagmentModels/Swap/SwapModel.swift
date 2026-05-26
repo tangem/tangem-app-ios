@@ -1095,6 +1095,7 @@ extension SwapModel: SendSwapProvidersInput {
 
     var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.selectedRateType(from: $1) }
             .removeDuplicates()

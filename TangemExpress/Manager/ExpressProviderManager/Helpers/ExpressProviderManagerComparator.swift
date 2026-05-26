@@ -15,6 +15,8 @@ public enum ExpressProviderManagerComparator {
     ///   3. `.restriction(.tooBigAmount)`.
     ///   4. `.idle` / `.error`.
     public static func isBetter(lhs: ExpressAvailableProvider, rhs: ExpressAvailableProvider) -> Bool {
+        assert(lhs.rateType == rhs.rateType, "Comparator requires both providers to share the same `rateType`")
+
         switch (lhs.getState(), rhs.getState()) {
         case (.restriction(.tooSmallAmount(let lMinimum, _), _), .restriction(.tooSmallAmount(let rMinimum, _), _)):
             return lMinimum < rMinimum

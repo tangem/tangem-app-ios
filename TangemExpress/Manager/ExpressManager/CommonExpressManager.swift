@@ -204,12 +204,12 @@ private extension CommonExpressManager {
     }
 
     func stateWithBestProvider(from candidates: [ExpressAvailableProvider]) -> ExpressManagerState {
-        guard case .swap(let rate, _, let providers) = currentState else {
+        guard case .swap(let rate, let previousSelected, let providers) = currentState else {
             return currentState
         }
 
         let best = candidates.best()
-        if let best {
+        if let best, best !== previousSelected {
             best.pair.source.analyticsLogger.bestProviderSelected(best)
         }
 

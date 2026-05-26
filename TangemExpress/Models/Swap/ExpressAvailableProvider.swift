@@ -83,6 +83,7 @@ extension ExpressAvailableProvider {
     func reset() {
         _amount { $0 = .none }
         _approvePolicy { $0 = .specified }
+        _isBest { $0 = false }
 
         manager.reset()
     }
@@ -140,11 +141,12 @@ public extension Array where Element == ExpressAvailableProvider {
 
     func updateIsBestFlag() {
         let candidates = filter { provider in
-            switch provider.getState() {
-            case .permissionRequired, .revokeAndPermissionRequired, .cexPreview, .dexPreview:
-                return true
-            case .idle, .error, .restriction:
+            let state = provider.getState()
+            switch state {
+            case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
                 return false
+            default:
+                return state.quote != nil
             }
         }
 
