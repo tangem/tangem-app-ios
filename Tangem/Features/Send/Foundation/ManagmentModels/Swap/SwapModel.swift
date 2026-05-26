@@ -776,7 +776,7 @@ extension SwapModel {
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
-    func initialLoading() async {
+    private func initialLoading() async {
         do {
             switch (_sourceToken.value, _receiveToken.value) {
             case (.success(let source), .success):
