@@ -171,6 +171,10 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     func userDidTapNetworkFeeInfoButton(_ message: String) {
         alertPresenter.present(alert: .init(title: "", message: message))
     }
+
+    func update(isReceiveFiatHidden: Bool) {
+        receiveExpressCurrencyViewModel.update(isFiatAmountHidden: isReceiveFiatHidden)
+    }
 }
 
 // MARK: - Private
