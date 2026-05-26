@@ -144,7 +144,7 @@ enum NotificationButtonActionType: Identifiable {
         case .unlock:
             return Localization.visaUnlockNotificationButton
         case .renewTangemPaySession:
-            return Localization.tangempaySyncNeededRestoreAccess
+            return Localization.tangempaySyncNeededButton
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
