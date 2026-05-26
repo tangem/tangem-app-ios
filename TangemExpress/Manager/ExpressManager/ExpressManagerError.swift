@@ -19,6 +19,7 @@ public enum ExpressManagerError: String, LocalizedError {
     case objectReleased
     case notEnoughAmountToSubtractFee
     case unsupportedProviderType
+    case wrongCurrentMode
 
     public var errorDescription: String? {
         switch self {
@@ -32,6 +33,7 @@ public enum ExpressManagerError: String, LocalizedError {
         case .objectReleased: "Object released"
         case .notEnoughAmountToSubtractFee: "Not enough amount to subtract fee"
         case .unsupportedProviderType: "Unsupported provider type"
+        case .wrongCurrentMode: "Wrong current mode"
         }
     }
 }

@@ -23,13 +23,13 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         selectedAmountType: ExpressAmountType?
     ) async throws -> SwapPairUpdateResult {
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+        let pairResult: ExpressManagerState = try await expressManager.update(pair: pair)
 
         guard let amountType = selectedAmountType else {
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
         }
 
-        let quoteResult: ExpressManagerUpdatingResult = await expressManager.update(amountType: amountType)
+        let quoteResult: ExpressManagerState = await expressManager.update(amountType: amountType)
 
         let quote = quoteResult.selected?.getState().quote
         let amountUpdate: SwapPairUpdateResult.AmountUpdate? = switch (amountType, quote) {

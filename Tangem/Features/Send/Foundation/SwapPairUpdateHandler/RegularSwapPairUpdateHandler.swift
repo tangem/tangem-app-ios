@@ -35,7 +35,7 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         }
 
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+        let pairResult: ExpressManagerState = try await expressManager.update(pair: pair)
         return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
     }
 }
