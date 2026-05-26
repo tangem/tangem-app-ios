@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Token anlegen";
 "add_tokens_title" = "Token verwalten";
 "addfunds_buy_row_description" = "Kreditkarte oder Bankkonto";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Teile deine Adresse oder dein QR-Code";
 "addfunds_swap_row_description" = "Zwische deinen Portfolios";
 "addfunds_you_receive_title" = "Empfangen";
@@ -309,7 +310,7 @@
 "common_sending" = "Senden";
 "common_sent" = "Gesendet";
 "common_server_unavailable" = "Der Server ist nicht verfügbar. Bitte versuche es später erneut.";
-"common_session_expired" = "Session expired";
+"common_session_expired" = "Sitzung abgelaufen";
 "common_share_link" = "Link teilen";
 "common_share" = "Teilen";
 "common_sign" = "Signieren";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "Bitte richte ein Konto zum Senden von E-Mails ein";
 "mail_error_no_accounts_title" = "Keine Mail-Konten";
 "main_add_and_manage_tokens" = "Hinzufügen und Verwalten";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "Um mit der Verfolgung deiner Krypto-Assets und -Transaktionen zu beginnen, füge einen Token hinzu";
 "main_manage_tokens" = "Token verwalten";
 "main_qr_scan_hint" = "QR-Code scannen, um Geld zu senden oder eine Verbindung zu einer App herzustellen";
@@ -873,7 +876,7 @@
 "onboarding_create_wallet_options_button_options" = "Andere Optionen";
 "onboarding_create_wallet_options_message" = "Deine Schlüssel(private-keys) werden sicher im Inneren der Karte oder Ring generiert. Es gibt keine Seed-Phrase, d. h. niemand kann sie exportieren oder stehlen.";
 "onboarding_create_wallet_options_title" = "Schlüssel anonym generieren";
-"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:%@";
+"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:\n%@";
 "onboarding_done_body" = "Deine Karte oder Ring ist aktiviert und einsatzbereit";
 "onboarding_done_header" = "Erfolgreich!";
 "onboarding_done_wallet" = "Deine Wallet ist eingerichtet und einsatzbereit!";
@@ -2087,10 +2090,10 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
 "yield_apy_boost_banner_title" = "Sonderangebot für den Yield-Modus";
 "yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
-"yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
-"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
-"yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
-"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
+"yield_apy_boost_promo_activate_bonus" = "Aktivieren dein Bonus";
+"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Transaktionsverlauf für Details prüfen";
+"yield_apy_boost_promo_bonus_paid_out_title" = "Bonus im Ertragsmodus ausgezahlt";
+"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ tage übrig, um dein Bonus freizuschalten";
 "yield_apy_boost_promo_eligibility_text" = "Du hast Anspruch auf einen 30-tägigen APY-Boost, es gelten die T&C, erfahren Sie mehr";
 "yield_apy_boost_story_first_subtitle" = "Aktiviere den Renditemodus zum ersten Mal und erhalte in den ersten 30 Tagen bis zu 3x Rendite";
 "yield_apy_boost_story_first_title" = "Bonus für den ersten Monat APR";

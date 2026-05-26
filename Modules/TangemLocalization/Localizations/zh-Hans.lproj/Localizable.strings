@@ -75,6 +75,7 @@
 "add_custom_token_title" = "添加自定义代币";
 "add_tokens_title" = "管理代币";
 "addfunds_buy_row_description" = "信用卡或银行账户";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "分享您的地址或二维码";
 "addfunds_swap_row_description" = "在您的投资组合之间";
 "addfunds_you_receive_title" = "您将收到";
@@ -309,7 +310,7 @@
 "common_sending" = "发送中";
 "common_sent" = "发送";
 "common_server_unavailable" = "服务器不可用，请稍后再试。";
-"common_session_expired" = "Session expired";
+"common_session_expired" = "会话已过期";
 "common_share_link" = "分享链接";
 "common_share" = "分享";
 "common_sign" = "签名";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "请创建一个帐户以发送电子邮件。";
 "mail_error_no_accounts_title" = "无邮件账户";
 "main_add_and_manage_tokens" = "添加和管理";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "要开始追踪您的加密资产和交易，请添加代币。";
 "main_manage_tokens" = "管理代币";
 "main_qr_scan_hint" = "扫描二维码即可发送资金或连接到应用程序";
