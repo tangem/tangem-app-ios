@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Добавить токен";
 "add_tokens_title" = "Валюты";
 "addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Поделитесь своим адресом или QR-кодом.";
 "addfunds_swap_row_description" = "Между вашими портфелями";
 "addfunds_you_receive_title" = "Вы получите";
@@ -445,7 +446,7 @@
 "earn_mostly_used" = "Популярные";
 "earn_no_results" = "Нет результата";
 "earn_title" = "Доступные активы";
-"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_description" = "Поддержка доступна 24/7. Ответ может занять до 24 часов. Мы можем запросить диагностические данные.";
 "email_fallback_alert_open_mail_button" = "Open mail";
 "email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Привет, команда поддержки, у меня возникла ошибка с кодом: %@";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
 "mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
 "main_add_and_manage_tokens" = "Добавить и управлять";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "Чтобы начать отслеживать свои криптоактивы и транзакции, добавьте токены";
 "main_manage_tokens" = "Управление токенами";
 "main_qr_scan_hint" = "Отсканируйте QR-код, чтобы отправить средства или подключиться к приложению.";
@@ -991,7 +994,7 @@
 "provider_name_support" = "Поддержка %@";
 "push_notification_settings_banner_button_grant_permission" = "Grant permission";
 "push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
-"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
@@ -1399,10 +1402,10 @@
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_permission_header" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";
-"swapping_rate_experience_title" = "Rate your experience with provider";
-"swapping_rate_feedback_placeholder" = "Type your feedback";
-"swapping_rate_feedback_submit" = "Send feedback";
-"swapping_rate_feedback_title" = "What affected your \nexperience?";
+"swapping_rate_experience_title" = "Оцените ваш опыт взаимодействия с провайдером";
+"swapping_rate_feedback_placeholder" = "Напишите ваш отзыв";
+"swapping_rate_feedback_submit" = "Отправить отзыв";
+"swapping_rate_feedback_title" = "Что повлияло на вашу оценку?";
 "swapping_swap_action_in_progress" = "Обмен…";
 "swapping_swap_action" = "Обменять";
 "swapping_to_account_title" = "Вы получите на";

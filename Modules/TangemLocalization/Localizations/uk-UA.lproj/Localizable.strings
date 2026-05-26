@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Додати токен";
 "add_tokens_title" = "Токени";
 "addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Share your address or QR-code";
 "addfunds_swap_row_description" = "Between your portfolios";
 "addfunds_you_receive_title" = "You receive";
@@ -445,7 +446,7 @@
 "earn_mostly_used" = "Часто використовані";
 "earn_no_results" = "Немає результатів";
 "earn_title" = "Заробляйте";
-"email_fallback_alert_description" = "Support is available 24/7. Response may take up to 24 hours. We may ask for diagnostic data.";
+"email_fallback_alert_description" = "Підтримка доступна 24/7. Відповідь може зайняти до 24 годин. Ми можемо запросити діагностичні дані.";
 "email_fallback_alert_open_mail_button" = "Open mail";
 "email_fallback_alert_share_logs_button" = "Share logs";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "Будь ласка, налаштуйте обліковий запис для надсилання електронної пошти";
 "mail_error_no_accounts_title" = "Немає налаштованих поштових акаунтів";
 "main_add_and_manage_tokens" = "Додати та керувати";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "Щоб почати відстежувати свої криптоактиви та транзакції, додайте токени";
 "main_manage_tokens" = "Керування токенами";
 "main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
@@ -991,7 +994,7 @@
 "provider_name_support" = "Підтримка %@";
 "push_notification_settings_banner_button_grant_permission" = "Grant permission";
 "push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
-"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
@@ -1399,10 +1402,10 @@
 "swapping_insufficient_funds" = "Недостатньо коштів";
 "swapping_permission_header" = "Надати дозвіл";
 "swapping_permit_and_swap" = "Дозволити та обміняти";
-"swapping_rate_experience_title" = "Rate your experience with provider";
-"swapping_rate_feedback_placeholder" = "Type your feedback";
-"swapping_rate_feedback_submit" = "Send feedback";
-"swapping_rate_feedback_title" = "What affected your \nexperience?";
+"swapping_rate_experience_title" = "Оцініть ваш досвід взаємодії з провайдером";
+"swapping_rate_feedback_placeholder" = "Напишіть ваш відгук";
+"swapping_rate_feedback_submit" = "Надіслати відгук";
+"swapping_rate_feedback_title" = "Що вплинуло на вашу оцінку?";
 "swapping_swap_action_in_progress" = "Обмін...";
 "swapping_swap_action" = "Обміняти";
 "swapping_to_account_title" = "Ви отримаєте на";

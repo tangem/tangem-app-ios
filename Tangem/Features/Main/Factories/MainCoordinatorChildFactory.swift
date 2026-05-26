@@ -8,7 +8,7 @@
 
 protocol MainCoordinatorChildFactory {
     func makeTokenDetailsCoordinator(dismissAction: @escaping Action<Void>) -> TokenDetailsCoordinator
-    func makeBuyCoordinator(dismissAction: @escaping Action<Void>) -> ActionButtonsBuyCoordinator
+    func makeBuyCoordinator(dismissAction: @escaping Action<ActionButtonsBuyDismissPayload?>) -> ActionButtonsBuyCoordinator
 
     func makeSellCoordinator(
         userWalletModel: UserWalletModel,
