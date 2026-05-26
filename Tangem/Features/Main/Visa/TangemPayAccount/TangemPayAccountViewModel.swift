@@ -229,7 +229,7 @@ extension TangemPayAccountViewModel {
             case .replacingCard:
                 Localization.tangempayReissueCardInProgress
             case .syncNeeded:
-                Localization.tangempaySyncNeeded
+                Localization.commonSessionExpired
             case .unavailable(let cached):
                 cached?.subtitle ?? "—"
             case .skeleton:
