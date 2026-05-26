@@ -21,22 +21,20 @@ final class CommonEarnEthereumP2PFilter: EarnEthereumP2PFilter {
     }
 
     func filter(_ items: [EarnDTO.List.Item]) async throws -> [EarnDTO.List.Item] {
-        guard items.contains(where: Self.isEthereumP2PStakingItem) else {
-            return items
-        }
+        guard items.contains(where: Self.isEthereumP2PStakingItem) else { return items }
+        guard try await shouldHideEthereumP2P() else { return items }
+        return items.filter { !Self.isEthereumP2PStakingItem($0) }
+    }
 
-        let shouldHide: Bool
+    private func shouldHideEthereumP2P() async throws -> Bool {
         do {
             let yield = try await stakingYieldInfoProvider.yieldInfo(for: StakingIntegrationId.ethereumP2P.rawValue)
-            shouldHide = !yield.isAvailable
+            return !yield.isAvailable
         } catch let error as CancellationError {
             throw error
         } catch {
-            shouldHide = true
+            return true
         }
-
-        guard shouldHide else { return items }
-        return items.filter { !Self.isEthereumP2PStakingItem($0) }
     }
 
     static func isEthereumP2PStakingItem(_ item: EarnDTO.List.Item) -> Bool {
