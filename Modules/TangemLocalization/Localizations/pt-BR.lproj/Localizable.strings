@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Adicionar token personalizado";
 "add_tokens_title" = "Gerenciar tokens";
 "addfunds_buy_row_description" = "Cartão de crédito ou conta bancária";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Compartilhe seu endereço ou código QR.";
 "addfunds_swap_row_description" = "Entre seus portfólios";
 "addfunds_you_receive_title" = "Você recebe";
@@ -309,7 +310,7 @@
 "common_sending" = "Enviando";
 "common_sent" = "Enviado";
 "common_server_unavailable" = "O servidor não está disponível. Tente novamente mais tarde.";
-"common_session_expired" = "Session expired";
+"common_session_expired" = "Sessão expirada";
 "common_share_link" = "Compartilhar link";
 "common_share" = "Compartilhar";
 "common_sign" = "Assine";
@@ -650,6 +651,8 @@
 "mail_error_no_accounts_body" = "Por favor, crie uma conta para enviar e-mails.";
 "mail_error_no_accounts_title" = "Sem contas de correio eletrônico";
 "main_add_and_manage_tokens" = "Adicionar e gerenciar";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "Para começar a rastrear seus criptoativos e transações, adicione tokens.";
 "main_manage_tokens" = "Gerenciar tokens";
 "main_qr_scan_hint" = "Leia o código QR para enviar fundos ou conectar-se a um aplicativo";
@@ -873,7 +876,7 @@
 "onboarding_create_wallet_options_button_options" = "Outras opções";
 "onboarding_create_wallet_options_message" = "Suas chaves serão geradas com segurança dentro do chip. Não há frase mnemônica, o que significa que ninguém pode exportá-las ou roubá-las.";
 "onboarding_create_wallet_options_title" = "Gere chaves de forma privada";
-"onboarding_create_wallet_term_of_conditions_text" = "Ao continuar, você concorda com os termos. %@";
+"onboarding_create_wallet_term_of_conditions_text" = "Ao continuar, você concorda com os termos.\n%@";
 "onboarding_done_body" = "Seu cartão está ativado e pronto para uso.";
 "onboarding_done_header" = "Sucesso!";
 "onboarding_done_wallet" = "Sua carteira está configurada e pronta para uso!";
@@ -2087,10 +2090,10 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
 "yield_apy_boost_banner_title" = "Oferta especial para o modo Yield";
 "yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
-"yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
-"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
-"yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
-"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
+"yield_apy_boost_promo_activate_bonus" = "Ative seu bônus";
+"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Consulte o histórico de transações para obter detalhes.";
+"yield_apy_boost_promo_bonus_paid_out_title" = "Bônus do modo Yield pago";
+"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ Faltam poucos dias para desbloquear seu bônus.";
 "yield_apy_boost_promo_eligibility_text" = "Você tem direito a um aumento de APY por 30 dias. Aplicam-se os termos e condições. Saiba mais.";
 "yield_apy_boost_story_first_subtitle" = "Ative o Modo de Rendimento pela primeira vez e obtenha até 3 vezes mais rendimento nos seus primeiros 30 dias.";
 "yield_apy_boost_story_first_title" = "Bônus de APR no primeiro mês";
