@@ -1,5 +1,5 @@
 //
-//  UserTokensPushNotificationsUpdateTrigger.swift
+//  UserWalletPushNotificationsUpdateTrigger.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -15,8 +15,7 @@ import TangemFoundation
 /// Monitors wallet readiness conditions and emits events that drive push-notification
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
 /// independently from the manager that acts on those events.
-@available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications. [REDACTED_INFO]")
-final class UserTokensPushNotificationsUpdateTrigger {
+final class UserWalletPushNotificationsUpdateTrigger {
     enum Event {
         /// Pending derivations just finished and the token list is ready — the remote
         /// push status should be re-synced with the backend.
@@ -41,13 +40,13 @@ final class UserTokensPushNotificationsUpdateTrigger {
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         permissionService: PushNotificationsPermissionService,
-        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>? = nil
+        notificationPreferencesProvider: NotificationPreferencesProvider? = nil,
     ) {
         self.userWalletId = userWalletId
         bind(
             accountModelsManager: accountModelsManager,
             permissionService: permissionService,
-            remoteTransactionAlertsStatePublisher: remoteTransactionAlertsStatePublisher
+            notificationPreferencesProvider: notificationPreferencesProvider,
         )
     }
 
@@ -56,8 +55,11 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private func bind(
         accountModelsManager: AccountModelsManager,
         permissionService: PushNotificationsPermissionService,
-        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>?
+        notificationPreferencesProvider: NotificationPreferencesProvider?,
     ) {
+        let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
+            .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
+
         let isUserTokenListReadyPublisher = accountModelsManager
             .cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
@@ -102,16 +104,14 @@ final class UserTokensPushNotificationsUpdateTrigger {
         permissionService.isAuthorizedPublisher
             .combineLatest(isUserTokenListReadyPublisher)
             .receiveOnMain()
-            .map { _, _ in Event.updateStatusRequired }
+            .map { isAuthorized, _ in Event.updateStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
-            .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
-
-        let isPreferencesReadyPublisher = remoteTransactionAlertsStatePublisher?
-            .map { remoteState -> Bool in
-                guard case .ready = remoteState else { return false }
+        let isPreferencesReadyPublisher: AnyPublisher<Bool, Never> = notificationPreferencesProvider?
+            .preferencesPublisher
+            .map { preferences -> Bool in
+                guard case .ready = preferences.state else { return false }
                 return true
             }
             .removeDuplicates()
@@ -124,11 +124,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .filter { previous, current in
                 previous == false && current == true
             }
-            .combineLatest(
-                isUserTokenListReadyPublisher,
-                hasNotCompletedAllowanceOnboardingPublisher,
-                isPreferencesReadyPublisher
-            )
+            .combineLatest(isUserTokenListReadyPublisher, hasNotCompletedAllowanceOnboardingPublisher, isPreferencesReadyPublisher)
             .filter { _, isUserTokenListReady, hasNotCompletedAllowanceOnboarding, isPreferencesReady in
                 isUserTokenListReady && hasNotCompletedAllowanceOnboarding && isPreferencesReady
             }
@@ -139,15 +135,18 @@ final class UserTokensPushNotificationsUpdateTrigger {
 
         // Backend transactional-push address sync when the settled remote toggle changes,
         // gated on the token list being ready.
-        remoteTransactionAlertsStatePublisher?
+        notificationPreferencesProvider?
+            .preferencesPublisher
+            .map { $0.remoteValueState(for: .transactionAlerts) }
             .removeDuplicates()
             .pairwise()
             .filter { previous, current in
-                guard case .ready(let previousValue) = previous, case .ready(let currentValue) = current else {
+                switch (previous, current) {
+                case (.ready(let previousPreference), .ready(let currentPreference)):
+                    return previousPreference.isEnabled != currentPreference.isEnabled
+                default:
                     return false
                 }
-
-                return previousValue != currentValue
             }
             .combineLatest(isUserTokenListReadyPublisher)
             .map { _ in Event.syncRemoteStatusRequired }
