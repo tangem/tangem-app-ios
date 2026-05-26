@@ -21,6 +21,5 @@ struct DashMainNetworkParams: UTXONetworkParams {
     /// https://github.com/dashpay/dash/blob/master/src/chainparams.cpp#L462
     let coinType: UInt32 = 5
 
-    /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L38
-    let dustRelayTxFee = 3000
+    let dustCalculator: UTXONetworkParamsDustCalculator = .dashMainnet
 }
