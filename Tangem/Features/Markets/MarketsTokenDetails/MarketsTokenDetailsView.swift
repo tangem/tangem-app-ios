@@ -60,12 +60,15 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var rootViewWithTitle: some View {
-        if viewModel.isMarketsSheetStyle {
+        switch viewModel.presentationStyle {
+        case .marketsSheet:
             rootView
-        } else if viewModel.isRedesignEnabled {
-            redesignedToolbar
-        } else {
-            legacyToolbar
+
+        case .navigationStack:
+            rootViewWithToolbar
+
+        case .fullScreenCover:
+            rootView
         }
     }
 
@@ -102,14 +105,6 @@ struct MarketsTokenDetailsView: View {
 
     // MARK: - Redesigned navigation
 
-    private var redesignedToolbar: some View {
-        rootView.navigationToolbar(
-            leadingContent: { redesignedBackButton },
-            principalContent: { EmptyView() },
-            trailingContent: { redesignedShareButton }
-        )
-    }
-
     private var redesignedNavigationBar: some View {
         NavigationHeader(
             leadingContent: { redesignedBackButton },
@@ -121,28 +116,36 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var redesignedBackButton: some View {
-        circleIconButton(icon: Assets.DesignSystem.chevronSmallLeft, action: viewModel.onBackButtonTap)
+        NavigationBarButton.back(action: viewModel.onBackButtonTap)
+            .redesigned()
     }
 
     private var redesignedShareButton: some View {
-        circleIconButton(icon: Assets.DesignSystem.share, action: viewModel.shareTokenDetails)
-    }
-
-    private func circleIconButton(icon: ImageType, action: @escaping () -> Void) -> some View {
-        TangemButton(content: .icon(icon), action: action)
-            .setCornerStyle(.rounded)
-            .setStyleType(.secondary)
-            .setSize(.x11)
+        NavigationBarButton.share(action: viewModel.shareTokenDetails)
+            .redesigned()
     }
 
     // MARK: - Legacy navigation
 
-    private var legacyToolbar: some View {
+    private var rootViewWithToolbar: some View {
         rootView.toolbar {
-            ToolbarItem(placement: .principal) {
-                navigationBarTitle
-            }
+            principalToolbarContent
+            trailingToolbarContent
+        }
+    }
 
+    private var principalToolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            navigationBarTitle
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var trailingToolbarContent: some ToolbarContent {
+        if viewModel.isRedesignEnabled {
+            NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
+                .redesigned()
+        } else {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: viewModel.shareTokenDetails) {
                     Assets.Glyphs.moreVertical.image
@@ -199,7 +202,7 @@ struct MarketsTokenDetailsView: View {
                     header
 
                     picker
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 12)
                         .disabled(viewModel.isLoading)
                 }
                 .padding(.horizontal, 16.0)
