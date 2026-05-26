@@ -58,6 +58,11 @@ struct DefaultIncomingLinkParser {
         guard destination != .newsArticle else {
             return nil
         }
+        // `.news` is fully owned by `NewsIncomingLinkParser`. Falling through here would
+        // silently accept deeplinks with invalid `news_id` as "open news list" actions.
+        guard destination != .news else {
+            return nil
+        }
         return destination
     }
 
