@@ -44,6 +44,7 @@ enum IncomingActionConstants {
         static let transactionId = "transaction_id"
         static let entry = "entry"
         static let id = "id"
+        static let newsId = "news_id"
         static let categoryId = "category_id"
         static let promoCode = "promo_code"
         static let refcode = "ref"
