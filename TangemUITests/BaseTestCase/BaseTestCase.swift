@@ -38,7 +38,7 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         keepWallets: Bool = false,
-        features: [TestFeature: Bool] = [.redesign: false],
+        features: [TestFeature: Bool] = [:],
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments: [String] = []
