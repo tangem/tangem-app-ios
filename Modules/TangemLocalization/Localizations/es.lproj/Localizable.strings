@@ -309,6 +309,7 @@
 "common_sending" = "Sending";
 "common_sent" = "Sent";
 "common_server_unavailable" = "El servidor no está disponible, por favor inténtelo de nuevo más tarde";
+"common_session_expired" = "Session expired";
 "common_share_link" = "Compartir enlace";
 "common_share" = "Compartir";
 "common_sign" = "Firme";
@@ -1599,6 +1600,10 @@
 "tangempay_tangem_visa_card" = "Usa USDC para pagos cotidianos";
 "tangempay_temporarily_unavailable" = "Tangem Pay no está disponible temporalmente.";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_receive_body" = "Envía USDC Polygon a la dirección de tu cuenta";
+"tangempay_topup_receive_title" = "Desde otra billetera o exchange";
+"tangempay_topup_swap_body" = "Intercambia cualquier activo por USDC Polygon";
+"tangempay_topup_swap_title" = "Desde tu Tangem Wallet";
 "tangempay_usdc_on_polygon_network" = "USDC en Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Haga clic en el botón de abajo para restaurar el acceso";
 "tangempay_withdrawal_note_description" = "Los fondos de compras reembolsadas no se devolverán a tu saldo on-chain Polygon ni estarán disponibles para retiro, pero permanecerán en tu saldo de tarjeta para compras";

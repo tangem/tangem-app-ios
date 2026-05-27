@@ -50,7 +50,7 @@ struct YieldModulePromoView: View {
     // MARK: - Sub Views
 
     private var background: some View {
-        Colors.Background.primary.ignoresSafeArea()
+        Colors.Background.tertiary.ignoresSafeArea()
     }
 
     private var topLogo: some View {
@@ -60,8 +60,7 @@ struct YieldModulePromoView: View {
     }
 
     private var title: some View {
-        Text(Localization.yieldModulePromoScreenTitleV2(viewModel.apyString))
-            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+        Text(viewModel.makeTitleString())
             .multilineTextAlignment(.center)
     }
 
@@ -84,7 +83,7 @@ struct YieldModulePromoView: View {
 
     private var topStack: some View {
         VStack(spacing: .zero) {
-            topLogo.padding(.bottom, 20)
+            topLogo.padding(.bottom, viewModel.isApyBoostPromo ? 10 : 20)
             title.padding(.bottom, 8)
             pillInfoButton.padding(.bottom, 30)
             benefitsStack.padding(.top, 6)
@@ -128,9 +127,40 @@ struct YieldModulePromoView: View {
 
     private var bottomStack: some View {
         VStack(spacing: 16) {
+            if viewModel.isApyBoostPromo {
+                apyBoostBlock
+            }
             tosAndPrivacy
             continueButton
         }
+    }
+
+    private var apyBoostBlock: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Assets.Accounts.gift.image
+                .resizable()
+                .renderingMode(.template)
+                .frame(size: .init(bothDimensions: 24))
+                .foregroundStyle(Colors.Icon.accent)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.makeApyBoostBlockTitleString())
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text(viewModel.makeApyBoostEligibilityString())
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .environment(\.openURL, OpenURLAction { url in
+                        viewModel.openUrl(url)
+                        return .handled
+                    })
+            }
+            .infinityFrame(axis: .horizontal, alignment: .leading)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+        .background(Colors.Background.action)
+        .cornerRadiusContinuous(14)
     }
 }
 

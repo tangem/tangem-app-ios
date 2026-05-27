@@ -309,6 +309,7 @@
 "common_sending" = "Sending";
 "common_sent" = "Sent";
 "common_server_unavailable" = "Сервер недоступний, спробуйте пізніше";
+"common_session_expired" = "Session expired";
 "common_share_link" = "Поділитися посиланням";
 "common_share" = "Поширити";
 "common_sign" = "Підписати";
@@ -1599,6 +1600,10 @@
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
 "tangempay_temporarily_unavailable" = "Tangem Pay тимчасово недоступний";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_receive_body" = "Надішліть USDC Polygon на адресу вашого акаунту";
+"tangempay_topup_receive_title" = "З іншого гаманця або біржі";
+"tangempay_topup_swap_body" = "Обміняйте будь-який актив на USDC Polygon";
+"tangempay_topup_swap_title" = "З вашого Tangem Wallet";
 "tangempay_usdc_on_polygon_network" = "USDC у Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Натисніть кнопку нижче, щоб відновити доступ";
 "tangempay_withdrawal_note_description" = "Кошти з повернених покупок не будуть повернуті на ваш ончейн-баланс Polygon і не будуть доступні для виведення, але залишаться на балансі картки для покупок.";
