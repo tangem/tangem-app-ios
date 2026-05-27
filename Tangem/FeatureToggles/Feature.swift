@@ -99,9 +99,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return .unspecified
         case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
-        case .solanaTxHistoryEnabled: return .unspecified
-        case .solanaScaledUIEnabled: return .unspecified
-        case .dynamicAddresses: return .unspecified
+        case .solanaTxHistoryEnabled: return .version("5.39")
+        case .solanaScaledUIEnabled: return .version("5.39")
+        case .dynamicAddresses: return .version("5.39")
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
@@ -124,7 +124,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .addFundsStage1: return .unspecified
+        case .addFundsStage1: return .version("5.39")
         }
     }
 }
