@@ -538,6 +538,11 @@
 "feedback_subject_tx_failed" = "取引を送信できません";
 "feedback_subject_tx_push_failed" = "取引をプッシュできません";
 "feedback_token_description_error" = "コインの説明エラー";
+"force_update_banner_message" = "Update the application to the latest version to ensure proper functionality";
+"force_update_banner_title" = "Update Needed";
+"force_update_button" = "Update";
+"force_update_warning_message" = "Please update the application to the latest version to ensure proper functionality.";
+"force_update_warning_title" = "Update Required";
 "gasless_not_enough_funds_to_cover_token_fee" = "残高不足";
 "gasless_transaction_fee" = "取引手数料";
 "generic_error_code" = "エラーが発生しました。コード: %@ 。";
@@ -1433,11 +1438,13 @@
 "tangem_pay_freeze_card_failed" = "カードを凍結できませんでした。しばらくしてからもう一度お試しください。";
 "tangem_pay_freeze_card_freeze" = "一時停止";
 "tangem_pay_freeze_card_success" = "カードが凍結されています";
+"tangem_pay_freeze_card_unfreeze" = "Unfreeze";
 "tangem_pay_get_help" = "サポートを受ける";
 "tangem_pay_history_item_spend_mc_declined_reason" = "理由：%@";
 "tangem_pay_history_item_spend_mc_title_format" = "%@・%@";
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "その他";
+"tangem_pay_pin_code_title" = "PIN-code";
 "tangem_pay_rooted_device_subtitle" = "Root化された端末では使用できません";
 "tangem_pay_status_completed" = "完了";
 "tangem_pay_status_declined" = "拒否";
