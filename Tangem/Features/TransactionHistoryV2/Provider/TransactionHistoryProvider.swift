@@ -12,12 +12,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
-
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
-    /// - Note: Entries are `.cancelled` tombstones when `unsubscribe(id:)` lands before `subscribe(id:continuation:)`,
-    /// guarding against the race due to unordered `subscribe`/`unsubscribe` calls.
-    private var subscribers: [UUID: SubscriberState] = [:]
+    private var subscribers = AsyncStream<TransactionHistorySyncState>.Subscribers()
 
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
@@ -25,37 +20,17 @@ final actor TransactionHistoryProvider {
     private var hasCompletedInitialSync: Bool = false
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
     private func subscribe(id: UUID, continuation: AsyncStream<TransactionHistorySyncState>.Continuation) {
-        if case .cancelled = subscribers[id] {
-            subscribers.removeValue(forKey: id)
-            return
-        }
-        subscribers[id] = .active(continuation)
-        continuation.yield(stateValue)
+        subscribers.subscribe(id: id, continuation: continuation, currentValue: stateValue)
     }
 
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
     private func unsubscribe(id: UUID) {
-        switch subscribers[id] {
-        case .active:
-            subscribers.removeValue(forKey: id)
-        case .none:
-            subscribers[id] = .cancelled
-        case .cancelled:
-            break
-        }
+        subscribers.unsubscribe(id: id)
     }
 
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
     private func emit(_ newState: TransactionHistorySyncState) {
         stateValue = newState
-        for case .active(let continuation) in subscribers.values {
-            continuation.yield(newState)
-        }
+        subscribers.yield(newState)
     }
 
     private func performInitialSync() async {
@@ -172,16 +147,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         if case .pullToRefresh = kind {
             lastSuccessfulPullToRefreshAt = Date()
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension TransactionHistoryProvider {
-    /// Tombstone pattern for preventing races between unordered subscribe/unsubscribe calls.
-    enum SubscriberState {
-        case active(AsyncStream<TransactionHistorySyncState>.Continuation)
-        case cancelled
     }
 }
 
