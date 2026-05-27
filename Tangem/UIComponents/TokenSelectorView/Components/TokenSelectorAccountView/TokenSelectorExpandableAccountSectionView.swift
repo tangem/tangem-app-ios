@@ -62,7 +62,7 @@ struct TokenSelectorExpandableAccountSectionView: View {
     }
 
     private var expandedContent: some View {
-        VStack(spacing: 0) {
+        LazyVStack(spacing: 0) {
             ForEach(accountViewModel.items) { item in
                 TokenSelectorItemView(viewModel: item)
                     .padding(.horizontal, GroupedSectionConstants.defaultHorizontalPadding)

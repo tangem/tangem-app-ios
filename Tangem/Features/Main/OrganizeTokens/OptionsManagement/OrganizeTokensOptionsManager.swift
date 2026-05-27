@@ -45,14 +45,6 @@ final class OrganizeTokensOptionsManager {
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
-    var groupingOption: UserTokensReorderingOptions.Grouping {
-        return userTokensReorderer.groupingOption
-    }
-
-    var sortingOption: UserTokensReorderingOptions.Sorting {
-        return userTokensReorderer.sortingOption
-    }
-
     var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
             .compactMap { $0 }
