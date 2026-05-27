@@ -16,7 +16,7 @@ final class TangemPayCard: Identifiable {
     let cardId: String
     let paymentAccountId: String
 
-    var productInstance: VisaCustomerInfoResponse.PendingOrActiveProductInstance { snapshotSubject.value.productInstance }
+    var productInstance: VisaCustomerInfoResponse.ProductInstance { snapshotSubject.value.productInstance }
     var card: VisaCustomerInfoResponse.Card { snapshotSubject.value.card }
 
     var displayName: String { productInstance.displayName }
@@ -51,12 +51,19 @@ final class TangemPayCard: Identifiable {
         productInstance.status == .new || productInstance.status == .activating
     }
 
+    var inflightLifecycleOperationPublisher: AnyPublisher<LifecycleOperation?, Never> {
+        inflightLifecycleOperationSubject.eraseToAnyPublisher()
+    }
+
     var isReissuingPublisher: AnyPublisher<Bool, Never> {
-        isReissuingSubject.eraseToAnyPublisher()
+        inflightLifecycleOperationSubject
+            .map { $0 == .reissue }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var isReissuing: Bool {
-        isReissuingSubject.value
+        inflightLifecycleOperationSubject.value == .reissue
     }
 
     var cardLimit: Int {
@@ -72,76 +79,84 @@ final class TangemPayCard: Identifiable {
     }
 
     private let snapshotSubject: CurrentValueSubject<Snapshot, Never>
-    private let isReissuingSubject = CurrentValueSubject<Bool, Never>(false)
+    private let inflightLifecycleOperationSubject = CurrentValueSubject<LifecycleOperation?, Never>(nil)
+
+    private var pendingFreezingResetCancellable: AnyCancellable?
 
     let customerService: any CustomerInfoManagementService
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
-    private let operationGate: TangemPayOperationGate
 
     let refreshSignal: PassthroughSubject<Void, Never> = .init()
 
-    init?(
-        productInstance: VisaCustomerInfoResponse.PendingOrActiveProductInstance,
+    init(
+        productInstance: VisaCustomerInfoResponse.ProductInstance,
         card: VisaCustomerInfoResponse.Card,
-        customerService: any CustomerInfoManagementService,
-        operationGate: TangemPayOperationGate
+        customerService: any CustomerInfoManagementService
     ) {
-        guard let cardId = card.id else { return nil }
-        self.cardId = cardId
+        cardId = card.id
         paymentAccountId = productInstance.paymentAccountId
         self.customerService = customerService
-        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService)
-        self.operationGate = operationGate
+        orderStatusPollingService = TangemPayOrderStatusPollingService(customerService: customerService, multipleCardsEnabled: true)
         snapshotSubject = .init(Snapshot(productInstance: productInstance, card: card))
     }
 
-    func updateSnapshot(productInstance: VisaCustomerInfoResponse.PendingOrActiveProductInstance, card: VisaCustomerInfoResponse.Card) {
+    func updateSnapshot(productInstance: VisaCustomerInfoResponse.ProductInstance, card: VisaCustomerInfoResponse.Card) {
         snapshotSubject.send(Snapshot(productInstance: productInstance, card: card))
     }
 
     // MARK: - Operations
 
+    @MainActor
     func freeze() async throws {
-        guard operationGate.acquire(.freeze(cardId: cardId)) else {
+        guard inflightLifecycleOperationSubject.value == nil else {
             throw TangemPayCardError.operationBusy
         }
+        inflightLifecycleOperationSubject.send(.freeze)
 
         let response: TangemPayFreezeUnfreezeResponse
         do {
             response = try await customerService.freeze(cardId: cardId)
         } catch {
-            operationGate.release(.freeze(cardId: cardId))
+            inflightLifecycleOperationSubject.send(nil)
             throw error
         }
 
         switch response.status {
         case .completed, .canceled:
-            operationGate.release(.freeze(cardId: cardId))
+            scheduleFreezingStateResetOnNextSnapshot()
             refreshSignal.send(())
         case .new, .processing:
-            startFreezeUnfreezeOrderPolling(orderId: response.orderId, operation: .freeze(cardId: cardId))
+            startFreezeUnfreezeOrderPolling(orderId: response.orderId)
+        case .failed, .undefined:
+            inflightLifecycleOperationSubject.send(nil)
+            throw TangemPayCardError.operationFailed
         }
     }
 
+    @MainActor
     func unfreeze() async throws {
-        guard operationGate.acquire(.unfreeze(cardId: cardId)) else {
+        guard inflightLifecycleOperationSubject.value == nil else {
             throw TangemPayCardError.operationBusy
         }
+        inflightLifecycleOperationSubject.send(.unfreeze)
 
         let response: TangemPayFreezeUnfreezeResponse
         do {
             response = try await customerService.unfreeze(cardId: cardId)
         } catch {
-            operationGate.release(.unfreeze(cardId: cardId))
+            inflightLifecycleOperationSubject.send(nil)
             throw error
         }
 
         switch response.status {
         case .completed, .canceled:
-            operationGate.release(.unfreeze(cardId: cardId))
+            scheduleFreezingStateResetOnNextSnapshot()
             refreshSignal.send(())
         case .new, .processing:
-            startFreezeUnfreezeOrderPolling(orderId: response.orderId, operation: .unfreeze(cardId: cardId))
+            startFreezeUnfreezeOrderPolling(orderId: response.orderId)
+        case .failed, .undefined:
+            inflightLifecycleOperationSubject.send(nil)
+            throw TangemPayCardError.operationFailed
         }
     }
 
@@ -170,11 +185,6 @@ final class TangemPayCard: Identifiable {
 
     @discardableResult
     func updateDisplayName(_ name: String) async throws -> VisaCustomerInfoResponse.ProductInstance {
-        guard operationGate.acquire(.rename(cardId: cardId)) else {
-            throw TangemPayCardError.operationBusy
-        }
-        defer { operationGate.release(.rename(cardId: cardId)) }
-
         let pi = try await customerService.updateCardDisplayName(cardId: cardId, name)
         refreshSignal.send(())
         return pi
@@ -182,26 +192,23 @@ final class TangemPayCard: Identifiable {
 
     @discardableResult
     func setLimit(_ amount: Int) async throws -> VisaCustomerInfoResponse.ProductInstance {
-        guard operationGate.acquire(.setLimit(cardId: cardId)) else {
-            throw TangemPayCardError.operationBusy
-        }
-        defer { operationGate.release(.setLimit(cardId: cardId)) }
-
         let pi = try await customerService.setCardLimit(cardId: cardId, amount: amount)
         refreshSignal.send(())
         return pi
     }
 
+    @MainActor
     func reissue() async throws {
-        guard operationGate.acquire(.reissue(cardId: cardId)) else {
+        guard inflightLifecycleOperationSubject.value == nil else {
             throw TangemPayCardError.operationBusy
         }
+        inflightLifecycleOperationSubject.send(.reissue)
 
         let response: TangemPayReissueCardResponse
         do {
             response = try await customerService.reissueCard(cardId: cardId)
         } catch {
-            operationGate.release(.reissue(cardId: cardId))
+            inflightLifecycleOperationSubject.send(nil)
             throw error
         }
 
@@ -209,56 +216,72 @@ final class TangemPayCard: Identifiable {
     }
 
     private func startReissueOrderTracking(orderId: String) {
-        isReissuingSubject.send(true)
-
         orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
             interval: Constants.reissueOrderPollInterval,
-            onCompleted: { [operationGate, cardId, weak self] in
-                operationGate.release(.reissue(cardId: cardId))
-                self?.isReissuingSubject.send(false)
+            onCompleted: { [weak self] in
+                self?.inflightLifecycleOperationSubject.send(nil)
                 self?.refreshSignal.send(())
             },
-            onCanceled: { [operationGate, cardId, weak self] in
-                operationGate.release(.reissue(cardId: cardId))
-                self?.isReissuingSubject.send(false)
+            onCanceled: { [weak self] in
+                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.refreshSignal.send(())
             },
-            onFailed: { [operationGate, cardId, weak self] error in
+            onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll reissue order status", error: error)
-                operationGate.release(.reissue(cardId: cardId))
-                self?.isReissuingSubject.send(false)
+                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.refreshSignal.send(())
             }
         )
     }
 
-    private func startFreezeUnfreezeOrderPolling(orderId: String, operation: TangemPayOperationGate.Operation) {
+    private func startFreezeUnfreezeOrderPolling(orderId: String) {
         orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
             interval: Constants.freezeUnfreezeOrderPollInterval,
-            onCompleted: { [operationGate, weak self] in
-                operationGate.release(operation)
+            onCompleted: { [weak self] in
+                self?.scheduleFreezingStateResetOnNextSnapshot()
                 self?.refreshSignal.send(())
             },
-            onCanceled: { [operationGate] in
-                operationGate.release(operation)
+            onCanceled: { [weak self] in
+                self?.scheduleFreezingStateResetOnNextSnapshot()
+                self?.refreshSignal.send(())
             },
-            onFailed: { [operationGate] error in
+            onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll freeze/unfreeze order status", error: error)
-                operationGate.release(operation)
+                self?.scheduleFreezingStateResetOnNextSnapshot()
+                self?.refreshSignal.send(())
             }
         )
+    }
+
+    private func scheduleFreezingStateResetOnNextSnapshot() {
+        pendingFreezingResetCancellable = snapshotSubject
+            .dropFirst()
+            .first()
+            .receiveOnMain()
+            .sink { [weak self] _ in
+                self?.inflightLifecycleOperationSubject.send(nil)
+            }
     }
 }
 
 extension TangemPayCard {
+    enum LifecycleOperation {
+        case freeze
+        case unfreeze
+        case reissue
+    }
+
     struct Snapshot {
-        let productInstance: VisaCustomerInfoResponse.PendingOrActiveProductInstance
+        let productInstance: VisaCustomerInfoResponse.ProductInstance
         let card: VisaCustomerInfoResponse.Card
     }
 }
 
 enum TangemPayCardError: Error {
     case operationBusy
+    case operationFailed
 }
 
 private extension TangemPayCard {
