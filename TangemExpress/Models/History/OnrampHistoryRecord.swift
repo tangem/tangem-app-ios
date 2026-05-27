@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct OnrampHistoryRecord: HistoryRecord, Hashable, @unchecked Sendable {
+public struct OnrampHistoryRecord: TransactionHistoryRecord, Hashable, @unchecked Sendable {
     public let txId: String
     public let status: OnrampTransactionStatus
     public let provider: ExpressHistoryProvider
