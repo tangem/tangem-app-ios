@@ -8,6 +8,11 @@
 
 import TangemFoundation
 
+enum ApplePayMerchantType: String, CaseIterable {
+    case production
+    case sandbox
+}
+
 enum OnrampApplePayConstants {
     private static let productionIdentifiers: [String: String] = [
         "mercuryo": "merchant.mercuryo.com.tangem.tangem",
@@ -18,6 +23,27 @@ enum OnrampApplePayConstants {
     ]
 
     static func merchantIdentifier(forProviderId providerId: String) -> String? {
-        return productionIdentifiers[providerId.lowercased()]
+        merchantIdentifier(
+            forProviderId: providerId,
+            isProduction: AppEnvironment.current.isProduction,
+            nonProductionMerchantType: FeatureStorage.instance.applePayMerchantType
+        )
+    }
+
+    static func merchantIdentifier(
+        forProviderId providerId: String,
+        isProduction: Bool,
+        nonProductionMerchantType: ApplePayMerchantType
+    ) -> String? {
+        let resolved: ApplePayMerchantType = isProduction ? .production : nonProductionMerchantType
+        let table = identifiers(for: resolved)
+        return table[providerId.lowercased()]
+    }
+
+    private static func identifiers(for type: ApplePayMerchantType) -> [String: String] {
+        switch type {
+        case .production: return productionIdentifiers
+        case .sandbox: return sandboxIdentifiers
+        }
     }
 }
