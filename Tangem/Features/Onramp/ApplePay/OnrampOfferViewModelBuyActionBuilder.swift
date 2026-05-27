@@ -14,11 +14,25 @@ import TangemExpress
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
     let tokenItem: TokenItem
+    let countryCode: String
     weak var amountInput: OnrampAmountInput?
     weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
 
     private let balanceFormatter = BalanceFormatter()
-    private var countryCode: String { Locale.current.region?.identifier ?? "US" }
+
+    init(
+        geoEligibilityService: GeoEligibilityService,
+        tokenItem: TokenItem,
+        amountInput: OnrampAmountInput?,
+        authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?,
+        countryCode: String = Locale.current.region?.identifier ?? "US"
+    ) {
+        self.geoEligibilityService = geoEligibilityService
+        self.tokenItem = tokenItem
+        self.countryCode = countryCode
+        self.amountInput = amountInput
+        self.authorizationHandler = authorizationHandler
+    }
 
     func make(
         provider: OnrampProvider,
