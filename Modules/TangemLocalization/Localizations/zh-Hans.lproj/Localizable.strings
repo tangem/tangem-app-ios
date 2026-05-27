@@ -538,6 +538,11 @@
 "feedback_subject_tx_failed" = "无法发送交易";
 "feedback_subject_tx_push_failed" = "无法推送交易";
 "feedback_token_description_error" = "代币描述错误";
+"force_update_banner_message" = "Update the application to the latest version to ensure proper functionality";
+"force_update_banner_title" = "Update Needed";
+"force_update_button" = "Update";
+"force_update_warning_message" = "Please update the application to the latest version to ensure proper functionality.";
+"force_update_warning_title" = "Update Required";
 "gasless_not_enough_funds_to_cover_token_fee" = "资金不足";
 "gasless_transaction_fee" = "转账费";
 "generic_error_code" = "发生错误。错误代码： %@。";
@@ -1433,11 +1438,13 @@
 "tangem_pay_freeze_card_failed" = "冻结卡片失败，请稍后再试。";
 "tangem_pay_freeze_card_freeze" = "冻结";
 "tangem_pay_freeze_card_success" = "您的卡片已被冻结。";
+"tangem_pay_freeze_card_unfreeze" = "Unfreeze";
 "tangem_pay_get_help" = "获取帮助";
 "tangem_pay_history_item_spend_mc_declined_reason" = "原因： %@";
 "tangem_pay_history_item_spend_mc_title_format" = "%@ · %@";
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "其他";
+"tangem_pay_pin_code_title" = "PIN-code";
 "tangem_pay_rooted_device_subtitle" = "无法在已 root 的设备上使用";
 "tangem_pay_status_completed" = "已完成";
 "tangem_pay_status_declined" = "拒绝";

@@ -538,6 +538,11 @@
 "feedback_subject_tx_failed" = "Não foi possível enviar uma transação.";
 "feedback_subject_tx_push_failed" = "Não é possível enviar uma transação.";
 "feedback_token_description_error" = "Erro na descrição da moeda";
+"force_update_banner_message" = "Update the application to the latest version to ensure proper functionality";
+"force_update_banner_title" = "Update Needed";
+"force_update_button" = "Update";
+"force_update_warning_message" = "Please update the application to the latest version to ensure proper functionality.";
+"force_update_warning_title" = "Update Required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Fundos insuficientes";
 "gasless_transaction_fee" = "Taxa de transação";
 "generic_error_code" = "Ocorreu um erro. Código: %@.";
@@ -1433,11 +1438,13 @@
 "tangem_pay_freeze_card_failed" = "Não foi possível bloquear o cartão. Tente novamente mais tarde.";
 "tangem_pay_freeze_card_freeze" = "Congelar";
 "tangem_pay_freeze_card_success" = "Seu cartão está bloqueado.";
+"tangem_pay_freeze_card_unfreeze" = "Unfreeze";
 "tangem_pay_get_help" = "Obtenha ajuda";
 "tangem_pay_history_item_spend_mc_declined_reason" = "Razão: %@";
 "tangem_pay_history_item_spend_mc_title_format" = "%@ · %@";
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Outro";
+"tangem_pay_pin_code_title" = "PIN-code";
 "tangem_pay_rooted_device_subtitle" = "Não é possível usar em dispositivos com root.";
 "tangem_pay_status_completed" = "Concluído";
 "tangem_pay_status_declined" = "Recusado";
