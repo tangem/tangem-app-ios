@@ -304,7 +304,7 @@
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Оберіть дію";
 "common_sell" = "Продати";
-"common_send_colon" = "Send:";
+"common_send_colon" = "Відправка:";
 "common_send_tx_error" = "Не вдалося надіслати транзакцію";
 "common_send" = "Надіслати";
 "common_sending" = "Sending";
@@ -992,8 +992,6 @@
 "organize_tokens_title" = "Сортування токенів";
 "organize_tokens_ungroup" = "Список";
 "provider_name_support" = "Підтримка %@";
-"push_notification_settings_banner_button_grant_permission" = "Grant permission";
-"push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
 "push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
@@ -1517,6 +1515,7 @@
 "tangempay_card_page_daily_limit_change" = "Змінити";
 "tangempay_card_page_daily_limit_current_limit" = "Поточний ліміт";
 "tangempay_card_page_daily_limit_error_description" = "Не вдалося завантажити денний ліміт. Будь ласка, спробуйте ще раз.";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "Ліміт недоступний";
 "tangempay_card_page_daily_limit_success_description" = "Ви можете змінити це будь-коли";
 "tangempay_card_page_daily_limit_success_title" = "Ліміт встановлено";
