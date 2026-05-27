@@ -1,5 +1,5 @@
 //
-//  HistoryRecord.swift
+//  TransactionHistoryRecord.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
-public protocol HistoryRecord: Sendable {
+public protocol TransactionHistoryRecord: Sendable {
     var txId: String { get }
     var updatedAt: Date { get }
 }

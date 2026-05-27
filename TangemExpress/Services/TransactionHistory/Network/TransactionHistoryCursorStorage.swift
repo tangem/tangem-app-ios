@@ -1,5 +1,5 @@
 //
-//  HistoryCursorStorage.swift
+//  TransactionHistoryCursorStorage.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A storage for the opaque (hence `Any`) cursor for the next page.
-public protocol HistoryCursorStorage: Sendable {
+public protocol TransactionHistoryCursorStorage: Sendable {
     var cursor: Any? { get async }
 
     func setCursor(_ cursor: Any?) async

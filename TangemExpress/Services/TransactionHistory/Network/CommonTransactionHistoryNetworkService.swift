@@ -1,5 +1,5 @@
 //
-//  CommonHistoryNetworkService.swift
+//  CommonTransactionHistoryNetworkService.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,16 +8,16 @@
 
 import Foundation
 
-final class CommonHistoryNetworkService<Record: HistoryRecord>: @unchecked Sendable {
+final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRecord>: @unchecked Sendable {
     typealias PageFetcher = @Sendable (_ cursor: Any?) async throws -> Page
 
-    private let cursorStorage: any HistoryCursorStorage
-    private let recordsStorage: any HistoryRecordsStorage<Record>
+    private let cursorStorage: any TransactionHistoryCursorStorage
+    private let recordsStorage: any TransactionHistoryRecordsStorage<Record>
     private let pageFetcher: PageFetcher
 
     init(
-        cursorStorage: any HistoryCursorStorage,
-        recordsStorage: any HistoryRecordsStorage<Record>,
+        cursorStorage: any TransactionHistoryCursorStorage,
+        recordsStorage: any TransactionHistoryRecordsStorage<Record>,
         pageFetcher: @escaping PageFetcher
     ) {
         self.cursorStorage = cursorStorage
@@ -40,9 +40,9 @@ final class CommonHistoryNetworkService<Record: HistoryRecord>: @unchecked Senda
     }
 }
 
-// MARK: - HistoryNetworkService protocol conformance
+// MARK: - TransactionHistoryNetworkService protocol conformance
 
-extension CommonHistoryNetworkService: HistoryNetworkService {
+extension CommonTransactionHistoryNetworkService: TransactionHistoryNetworkService {
     func syncInitial() async throws {
         await cursorStorage.clear()
         try await fetchPages()
@@ -55,7 +55,7 @@ extension CommonHistoryNetworkService: HistoryNetworkService {
 
 // MARK: - Auxiliary types
 
-extension CommonHistoryNetworkService {
+extension CommonTransactionHistoryNetworkService {
     struct Page: @unchecked Sendable {
         let records: [Record]
         /// Opaque cursor for the next page.
