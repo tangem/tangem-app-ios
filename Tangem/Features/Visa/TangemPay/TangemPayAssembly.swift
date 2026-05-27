@@ -14,6 +14,8 @@ protocol TangemPayAssembly {
 
     func makeCardDetailsRepository(for tangemPayAccount: TangemPayAccount) -> TangemPayCardDetailsRepository
 
+    func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository
+
     func makeExpressCEXTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         walletPublicKey: Wallet.PublicKey?
