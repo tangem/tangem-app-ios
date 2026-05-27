@@ -425,6 +425,96 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
+
+    @MainActor
+    func openMatchedTokenList(
+        walletModels: [any WalletModel],
+        iconURL: URL,
+        addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        let portfolioViewModel = MarketsPortfolioTokenListViewModel(
+            walletModels: walletModels,
+            onSelect: { [weak self] walletModel in
+                self?.openPortfolioTokenDetails(walletModel: walletModel)
+            },
+            coordinator: self
+        )
+
+        let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
+
+        portfolioViewModel.addTokenPromo = .init(iconURL: iconURL) { [weak self, weak flowViewModel] in
+            guard let self, let flowViewModel else { return }
+            showAddTokenFlow(
+                in: flowViewModel,
+                inputData: addTokenInputData,
+                walletDataProvider: walletDataProvider
+            )
+        }
+
+        floatingSheetPresenter.enqueue(sheet: flowViewModel)
+    }
+
+    @MainActor
+    private func showAddTokenFlow(
+        in flowViewModel: MarketsPortfolioFlowViewModel,
+        inputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        let configuration = MarketsAddTokenFlowConfigurationFactory.make(inputData: inputData, coordinator: self)
+
+        guard
+            let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
+                inputData: inputData,
+                userWalletModels: walletDataProvider.userWalletModels,
+                isTokenAdded: configuration.isTokenAdded
+            ),
+            let viewModel = AddTokenFlowRedesignedViewModel(
+                tokenItem: tokenItem,
+                userWalletModels: walletDataProvider.userWalletModels,
+                configuration: configuration,
+                coordinator: self
+            )
+        else {
+            presentErrorToast(with: Localization.commonSomethingWentWrong)
+            return
+        }
+
+        flowViewModel.showAddToken(viewModel)
+    }
+
+    private func openPortfolioTokenDetails(walletModel: any WalletModel) {
+        guard
+            let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
+            let account = walletModel.account
+        else {
+            return
+        }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.tokenDetailsCoordinator = nil
+        }
+
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                walletModelsManager: account.walletModelsManager,
+                userTokensManager: account.userTokensManager,
+                walletModel: walletModel
+            )
+        )
+        tokenDetailsCoordinator = coordinator
+    }
+}
+
+// MARK: - MarketsPortfolioTokenListRoutable
+
+extension MarketsTokenDetailsCoordinator: MarketsPortfolioTokenListRoutable {
+    func closePortfolioTokenList() {
+        floatingSheetPresenter.removeActiveSheet()
+    }
 }
 
 // MARK: - AddTokenFlowRoutable
