@@ -35,7 +35,7 @@ struct TangemPayMainView: View {
 
                 balanceCard
 
-                if viewModel.shouldDisplayReplacingCardBanner {
+                if !viewModel.multipleCardsEnabled, viewModel.shouldDisplayReplacingCardBanner {
                     TangemPayReplacingCardBanner()
                 }
 
@@ -43,6 +43,10 @@ struct TangemPayMainView: View {
                     Button(action: viewModel.openAddToApplePayGuide) {
                         TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
                     }
+                }
+
+                if viewModel.multipleCardsEnabled, viewModel.hasIssuingEntry {
+                    TangemPayIssuingCardBanner()
                 }
 
                 if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
@@ -160,8 +164,14 @@ struct TangemPayMainView: View {
             )
             .opacity(viewModel.isStale ? 0.6 : 1)
 
-            cardIconRow
-                .padding(.vertical, 4)
+            Group {
+                if viewModel.multipleCardsEnabled {
+                    cardListRow
+                } else {
+                    cardIconRow
+                }
+            }
+            .padding(.vertical, 4)
 
             ScrollableButtonsView(
                 itemsHorizontalOffset: 14,
@@ -190,6 +200,8 @@ struct TangemPayMainView: View {
         .cornerRadiusContinuous(14)
     }
 
+    // MARK: - Legacy single-card
+
     private var cardIconRow: some View {
         HStack(spacing: 8) {
             Button(action: viewModel.openCardManagement) {
@@ -214,6 +226,53 @@ struct TangemPayMainView: View {
             .opacity(viewModel.isStale ? 0.6 : 1)
 
             Spacer()
+        }
+    }
+
+    // MARK: - Multi-card
+
+    private var cardListRow: some View {
+        HStack(spacing: 8) {
+            ForEach(viewModel.cardEntries) { entry in
+                cardEntryButton(for: entry)
+            }
+
+            Button(action: viewModel.tapAddCard) {
+                Image(systemName: "plus")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Colors.Text.tertiary)
+                    .frame(width: 48, height: 32)
+                    .background(Colors.Button.secondary.cornerRadiusContinuous(4))
+            }
+            .disabled(viewModel.isStale)
+            .opacity(viewModel.isStale ? 0.6 : 1)
+
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private func cardEntryButton(for entry: TangemPayCardEntry) -> some View {
+        switch entry {
+        case .issued(let card):
+            Button {
+                viewModel.openCardManagement(entry: entry)
+            } label: {
+                TangemPaySmallCardView(
+                    state: card.isReissuing
+                        ? .replacing
+                        : .issued(cardNumberEnd: card.cardNumberEnd)
+                )
+            }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton(cardId: card.cardId))
+            .disabled(viewModel.isStale)
+            .opacity(viewModel.isStale ? 0.6 : 1)
+        case .issuing:
+            Button {
+                viewModel.openCardManagement(entry: entry)
+            } label: {
+                TangemPaySmallCardView(state: .issuing)
+            }
         }
     }
 }
