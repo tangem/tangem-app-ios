@@ -309,6 +309,7 @@
 "common_sending" = "发送中";
 "common_sent" = "发送";
 "common_server_unavailable" = "服务器不可用，请稍后再试。";
+"common_session_expired" = "Session expired";
 "common_share_link" = "分享链接";
 "common_share" = "分享";
 "common_sign" = "签名";
@@ -1599,6 +1600,10 @@
 "tangempay_tangem_visa_card" = "使用 USDC 进行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时无法使用。";
 "tangempay_title" = "Tangem Pay";
+"tangempay_topup_receive_body" = "將 USDC Polygon 發送至您帳戶地址";
+"tangempay_topup_receive_title" = "從其他錢包或交易所";
+"tangempay_topup_swap_body" = "將任何資產兌換為 USDC Polygon";
+"tangempay_topup_swap_title" = "從您的 Tangem 錢包";
 "tangempay_usdc_on_polygon_network" = "Polygon网络上的 USDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "点击下方按钮恢复访问权限";
 "tangempay_withdrawal_note_description" = "您的Polygon链上 USDC  余额与您的卡片余额不同，并在购买后 2 个工作日内更新。购物退款的资金不会退还至您的链上余额，也不能提现，但会保留在您的卡片余额中用于购物。";
