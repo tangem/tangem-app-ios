@@ -346,17 +346,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                 hideKeyboardButton.tap()
             }
 
-            let buttonReady = confirmButton.waitForExistence(timeout: .quick)
-            if buttonReady, confirmButton.isEnabled {
-                confirmButton.waitAndTap()
+            // Hold button appears only after source token finishes loading; tapping the regular button earlier throws "Loading in process".
+            if holdConfirmButton.waitForExistence(timeout: .networkRequest) {
+                holdConfirmButton.press(forDuration: 4.0)
                 return
             }
-            waitAndAssertTrue(
-                holdConfirmButton,
-                timeout: .networkRequest,
-                "Confirm button (regular or hold-to-confirm) should exist and be ready"
-            )
-            holdConfirmButton.press(forDuration: 4.0)
+            waitAndAssertTrue(confirmButton, "Confirm button should exist and be ready")
+            confirmButton.waitAndTap()
         }
         return self
     }
