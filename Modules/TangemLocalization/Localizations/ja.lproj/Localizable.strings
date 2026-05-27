@@ -992,8 +992,6 @@
 "organize_tokens_title" = "トークンを整理する";
 "organize_tokens_ungroup" = "グループ解除";
 "provider_name_support" = "%@サポート";
-"push_notification_settings_banner_button_grant_permission" = "許可する";
-"push_notification_settings_banner_description_grant_permission" = "プッシュ通知は有効になっていますが、許可するまで機能しません";
 "push_notification_settings_banner_description" = "プッシュ通知は有効ですが、許可するまで動作しません";
 "push_notification_settings_banner_title" = "通知を許可する";
 "push_notification_settings_offers_updates_subtitle" = "製品ニュース、限定オファー、アクティビティのリマインダー。";
@@ -1517,6 +1515,7 @@
 "tangempay_card_page_daily_limit_change" = "変更";
 "tangempay_card_page_daily_limit_current_limit" = "現在の利用限度額";
 "tangempay_card_page_daily_limit_error_description" = "1日の利用限度額を読み込めませんでした。もう一度お試しください。";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "1日の利用限度額を表示できません";
 "tangempay_card_page_daily_limit_success_description" = "いつでも再度変更できます";
 "tangempay_card_page_daily_limit_success_title" = "1日の上限を設定しました";

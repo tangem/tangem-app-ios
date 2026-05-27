@@ -304,7 +304,7 @@
 "common_seed_phrase" = "Seed-фраза";
 "common_select_action" = "Выберите действие";
 "common_sell" = "Продать";
-"common_send_colon" = "Send:";
+"common_send_colon" = "Отправка:";
 "common_send_tx_error" = "Не удалось отправить транзакцию";
 "common_send" = "Отправить";
 "common_sending" = "Sending";
@@ -992,8 +992,6 @@
 "organize_tokens_title" = "Упорядочить токены";
 "organize_tokens_ungroup" = "Список";
 "provider_name_support" = "Поддержка %@";
-"push_notification_settings_banner_button_grant_permission" = "Grant permission";
-"push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
 "push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
@@ -1517,6 +1515,7 @@
 "tangempay_card_page_daily_limit_change" = "Изменить";
 "tangempay_card_page_daily_limit_current_limit" = "Текущий лимит";
 "tangempay_card_page_daily_limit_error_description" = "Не удалось загрузить суточный лимит. Пожалуйста, попробуйте снова.";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "Лимит недоступен";
 "tangempay_card_page_daily_limit_success_description" = "Вы можете поменять его снова в любой момент";
 "tangempay_card_page_daily_limit_success_title" = "Лимит установлен";

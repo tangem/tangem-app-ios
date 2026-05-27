@@ -992,8 +992,6 @@
 "organize_tokens_title" = "整理代币";
 "organize_tokens_ungroup" = "取消分组";
 "provider_name_support" = "%@ 支持";
-"push_notification_settings_banner_button_grant_permission" = "授予权限";
-"push_notification_settings_banner_description_grant_permission" = "推送通知已启用，但需要您授予权限才能生效。";
 "push_notification_settings_banner_description" = "推送通知已启用，但需要您在设备设置中允许通知才能正常工作。";
 "push_notification_settings_banner_title" = "允许通知";
 "push_notification_settings_offers_updates_subtitle" = "产品资讯、独家优惠和活动提醒。";
@@ -1517,6 +1515,7 @@
 "tangempay_card_page_daily_limit_change" = "改变";
 "tangempay_card_page_daily_limit_current_limit" = "当前限额";
 "tangempay_card_page_daily_limit_error_description" = "我们无法加载您的每日限额。请稍后再试。";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "每日限额不可用";
 "tangempay_card_page_daily_limit_success_description" = "您可以随时更改";
 "tangempay_card_page_daily_limit_success_title" = "每日限额已设定";
