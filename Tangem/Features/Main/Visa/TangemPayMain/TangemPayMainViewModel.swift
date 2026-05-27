@@ -9,15 +9,12 @@
 import Combine
 import PassKit
 import TangemUI
-import TangemSdk
-import TangemVisa
 import TangemUIUtils
 import TangemFoundation
 import TangemLocalization
 import TangemPay
 
 final class TangemPayMainViewModel: ObservableObject {
-    let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -31,24 +28,14 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    lazy var contactSupportNotificationInput = NotificationViewInput(
-        style: .withButtons([.init(
-            action: { [weak self] _, _ in
-                self?.contactSupport()
-            },
-            actionType: .support,
-            isWithLoader: false
-        )]),
-        severity: .critical,
-        settings: .init(event: TangemPayNotificationEvent.tangemPayIsNowBeta, dismissAction: nil)
-    )
-
     @Published private(set) var balance: LoadableBalanceView.State
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
+    @Published private(set) var shouldDisplayReplacingCardBanner: Bool = false
     @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published private(set) var cardNumberEnd: String
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
@@ -57,15 +44,11 @@ final class TangemPayMainViewModel: ObservableObject {
         tangemPayAccount.isDeactivated
     }
 
-    var cardNumberEnd: String {
-        cardDetailsRepository.lastFourDigits
-    }
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayMainRoutable?
-
-    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
@@ -77,22 +60,20 @@ final class TangemPayMainViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        cardDetailsRepository: TangemPayCardDetailsRepository,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
+        self.cardDetailsRepository = cardDetailsRepository
         self.coordinator = coordinator
-
-        cardDetailsRepository = .init(
-            lastFourDigits: tangemPayAccount.card?.cardNumberEnd ?? "",
-            customerService: tangemPayAccount.customerService
-        )
 
         cardDeactivatedNotificationInput = tangemPayAccount.isDeactivated
             ? NotificationsFactory().buildNotificationInput(for: TangemPayCardDeactivatedNotificationEvent())
             : nil
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
+        cardNumberEnd = cardDetailsRepository.lastFourDigits
 
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerService
@@ -105,11 +86,6 @@ final class TangemPayMainViewModel: ObservableObject {
             walletModelUpdater: nil
         )
         .makePendingExpressTransactionsManager()
-
-        tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
-            userWalletId: userWalletInfo.id,
-            repository: cardDetailsRepository
-        )
 
         bind()
         if !isDeactivated {
@@ -152,24 +128,15 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    func onPin() {
-        Analytics.log(.visaScreenPinCodeClicked, contextParams: .userWallet(userWalletInfo.id))
-        guard tangemPayAccount.card?.isPinSet == true else {
-            setPin()
-            return
-        }
+    func openCardManagement() {
+        Analytics.log(.visaScreenCardSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
+        Analytics.log(.visaCardIconClicked, contextParams: .userWallet(userWalletInfo.id))
+        coordinator?.openCardManagement()
+    }
 
-        runTask(in: self) { viewModel in
-            do {
-                _ = try await BiometricsUtil.requestAccess(
-                    localizedReason: Localization.biometryTouchIdReason
-                )
-                viewModel.checkPin()
-            } catch {
-                VisaLogger.error("Failed to receive biometry for PIN", error: error)
-                return
-            }
-        }
+    func openFakedoorSheet() {
+        Analytics.log(.visaAddExtraCardClicked, contextParams: .userWallet(userWalletInfo.id))
+        coordinator?.openFakedoorSheet()
     }
 
     func withdraw() {
@@ -213,46 +180,16 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func openAddToApplePayGuide() {
         Analytics.log(.visaScreenAddToWalletClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openAddToApplePayGuide(
-            viewModel: .init(
-                userWalletId: userWalletInfo.id,
-                repository: cardDetailsRepository
-            )
+
+        let guideCardDetailsViewModel = TangemPayCardDetailsViewModel(
+            userWalletId: userWalletInfo.id,
+            repository: cardDetailsRepository
         )
+        coordinator?.openAddToApplePayGuide(viewModel: guideCardDetailsViewModel)
     }
 
     func dismissAddToApplePayGuideBanner() {
         AppSettings.shared.tangemPayShowAddToApplePayGuide = false
-    }
-
-    func showFreezePopup() {
-        Analytics.log(.visaScreenFreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        coordinator?.openTangemPayFreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
-            self?.freeze()
-        }
-    }
-
-    func unfreeze() {
-        Analytics.log(.visaScreenUnfreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
-        freezingState = .unfreezingInProgress
-        tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
-
-        Task { @MainActor in
-            do {
-                try await tangemPayAccount.unfreeze()
-            } catch {
-                freezingState = .frozen
-                showFreezeUnfreezeErrorToast(freeze: false)
-            }
-        }
-    }
-
-    func setPin() {
-        coordinator?.openTangemPaySetPin(tangemPayAccount: tangemPayAccount)
-    }
-
-    func checkPin() {
-        coordinator?.openTangemPayCheckPin(tangemPayAccount: tangemPayAccount)
     }
 
     func termsAndLimits() {
@@ -279,32 +216,6 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
-    private func freeze() {
-        freezingState = .freezingInProgress
-        tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
-
-        Task { @MainActor in
-            do {
-                try await tangemPayAccount.freeze()
-            } catch {
-                freezingState = .normal
-                showFreezeUnfreezeErrorToast(freeze: true)
-            }
-        }
-    }
-
-    private func showFreezeUnfreezeErrorToast(freeze: Bool) {
-        let message = freeze
-            ? Localization.tangemPayFreezeCardFailed
-            : Localization.tangemPayUnfreezeCardFailed
-
-        Toast(view: WarningToast(text: message))
-            .present(
-                layout: .top(padding: 20),
-                type: .temporary()
-            )
-    }
-
     @MainActor
     func openTransactionDetails(id: String) {
         guard let transaction = transactionHistoryService.getTransaction(id: id) else {
@@ -324,10 +235,6 @@ final class TangemPayMainViewModel: ObservableObject {
             userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId
         )
-    }
-
-    func onToolbarClicked() {
-        Analytics.log(.visaScreenCardSettingsClicked, contextParams: .userWallet(userWalletInfo.id))
     }
 }
 
@@ -365,10 +272,14 @@ private extension TangemPayMainViewModel {
             .assign(to: \.freezingState, on: self, ownership: .weak)
             .store(in: &bag)
 
-        $freezingState
-            .map(\.cardDetailsState)
+        tangemPayAccount.isReissuingCardPublisher
             .receiveOnMain()
-            .assign(to: \.state, on: tangemPayCardDetailsViewModel, ownership: .weak)
+            .assign(to: \.shouldDisplayReplacingCardBanner, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        cardDetailsRepository.lastFourDigitsPublisher
+            .receiveOnMain()
+            .assign(to: \.cardNumberEnd, on: self, ownership: .weak)
             .store(in: &bag)
 
         pendingExpressTransactionsManager
@@ -436,23 +347,6 @@ private extension TangemPayMainViewModel {
             tokenItem: tokenItem,
             pendingTransactionsManager: pendingExpressTransactionsManager
         )
-    }
-}
-
-// MARK: - TangemPayFreezingState+TangemPayCardDetailsState
-
-private extension TangemPayFreezingState {
-    var cardDetailsState: TangemPayCardDetailsState {
-        switch self {
-        case .normal:
-            .hidden(isFrozen: false)
-        case .freezingInProgress:
-            .loading(isFrozen: false)
-        case .frozen:
-            .hidden(isFrozen: true)
-        case .unfreezingInProgress:
-            .loading(isFrozen: true)
-        }
     }
 }
 
