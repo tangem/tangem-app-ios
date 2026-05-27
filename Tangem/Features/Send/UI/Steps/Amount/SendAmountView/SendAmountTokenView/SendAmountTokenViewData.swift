@@ -49,6 +49,7 @@ extension SendAmountTokenViewData {
     enum SubtitleType: Hashable {
         case balance(state: LoadableBalanceView.State)
         case receive(state: LoadableTextView.State)
+        case balanceAndSend(balance: LoadableBalanceView.State, sendLabel: String, sendAmount: LoadableBalanceView.State)
     }
 
     enum DetailsType: Hashable {

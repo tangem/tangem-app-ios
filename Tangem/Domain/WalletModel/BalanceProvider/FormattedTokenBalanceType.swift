@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemMacro
 
 // MARK: - FormattedTokenBalanceType
 
@@ -61,6 +62,7 @@ extension FormattedTokenBalanceType: CustomStringConvertible {
 // MARK: - Cached
 
 extension FormattedTokenBalanceType {
+    @CaseFlagable
     enum CachedType: Hashable {
         case empty(String)
         case cache(Cached)

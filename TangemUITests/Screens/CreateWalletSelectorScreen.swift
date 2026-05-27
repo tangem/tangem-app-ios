@@ -11,7 +11,6 @@ import TangemAccessibilityIdentifiers
 
 final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenElement> {
     private lazy var scanButton = button(.scanButton)
-    private lazy var tosAcceptButton = button(.tosAcceptButton)
     private lazy var getStartedButton = button(.getStartedButton)
     private lazy var startWithMobileWalletButton = button(.startWithMobileWalletButton)
 
@@ -56,16 +55,6 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
         walletButton.tap()
         return self
-    }
-
-    @discardableResult
-    func acceptToSIfNeeded() -> Self {
-        XCTContext.runActivity(named: "Accept ToS if needed") { _ in
-            if tosAcceptButton.waitForExistence(timeout: .conditional) {
-                tosAcceptButton.waitAndTap()
-            }
-            return self
-        }
     }
 
     func openScanMenu() -> Self {
@@ -116,7 +105,6 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
 enum CreateWalletSelectorScreenElement: String, UIElement {
     case scanButton
-    case tosAcceptButton
     case getStartedButton
     case startWithMobileWalletButton
 
@@ -124,8 +112,6 @@ enum CreateWalletSelectorScreenElement: String, UIElement {
         switch self {
         case .scanButton:
             StoriesAccessibilityIdentifiers.scanButton
-        case .tosAcceptButton:
-            TOSAccessibilityIdentifiers.acceptButton
         case .getStartedButton:
             StoriesAccessibilityIdentifiers.getStartedButton
         case .startWithMobileWalletButton:

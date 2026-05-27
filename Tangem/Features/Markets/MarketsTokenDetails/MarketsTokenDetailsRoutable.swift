@@ -18,4 +18,8 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int)
     func shareTokenDetails(url: URL)
+    @MainActor
+    func openInfoDialogue(title: String, message: String)
+    @MainActor
+    func openFullDescriptionDialogue(title: String, description: String, onGenerateAITapAction: @escaping () -> Void)
 }

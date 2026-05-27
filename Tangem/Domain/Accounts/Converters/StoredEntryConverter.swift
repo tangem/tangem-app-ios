@@ -17,15 +17,19 @@ enum StoredEntryConverter {
             symbol: tokenItem.currencySymbol,
             decimalCount: tokenItem.decimalCount,
             // By definition, all token domain entities are known
-            blockchainNetwork: .known(blockchainNetwork: tokenItem.blockchainNetwork),
+            blockchainNetwork: .known(
+                blockchainNetwork: convertToStoredBlockchainNetwork(tokenItem.blockchainNetwork)
+            ),
             contractAddress: tokenItem.contractAddress
         )
     }
 
     static func convertToTokenItem(_ storedEntry: StoredCryptoAccount.Token) -> TokenItem? {
-        guard let blockchainNetwork = storedEntry.blockchainNetwork.knownValue else {
+        guard let storedBlockchainNetwork = storedEntry.blockchainNetwork.knownValue else {
             return nil
         }
+
+        let blockchainNetwork = convertToBlockchainNetwork(storedBlockchainNetwork)
 
         guard let bsdkToken = storedEntry.toBSDKToken() else {
             return .blockchain(blockchainNetwork)
@@ -59,8 +63,28 @@ enum StoredEntryConverter {
             symbol: bsdkToken.symbol,
             decimalCount: bsdkToken.decimalCount,
             // By definition, all token domain entities are known
-            blockchainNetwork: .known(blockchainNetwork: blockchainNetwork),
+            blockchainNetwork: .known(blockchainNetwork: convertToStoredBlockchainNetwork(blockchainNetwork)),
             contractAddress: bsdkToken.contractAddress
+        )
+    }
+
+    static func convertToStoredBlockchainNetwork(
+        _ blockchainNetwork: BlockchainNetwork
+    ) -> StoredCryptoAccount.Token.StoredBlockchainNetwork {
+        return StoredCryptoAccount.Token.StoredBlockchainNetwork(
+            blockchain: blockchainNetwork.blockchain,
+            derivationPath: blockchainNetwork.derivationPath,
+            settings: blockchainNetwork.settings
+        )
+    }
+
+    static func convertToBlockchainNetwork(
+        _ storedBlockchainNetwork: StoredCryptoAccount.Token.StoredBlockchainNetwork
+    ) -> BlockchainNetwork {
+        return BlockchainNetwork(
+            storedBlockchainNetwork.blockchain,
+            derivationPath: storedBlockchainNetwork.derivationPath,
+            settings: storedBlockchainNetwork.settings
         )
     }
 }

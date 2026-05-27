@@ -7,15 +7,13 @@
 //
 
 import SwiftUI
-import TangemLocalization
-import Combine
-import BlockchainSdk
+import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemFoundation
+import TangemLocalization
+import TangemMacro
 import TangemUI
 import TangemUIUtils
-import TangemFoundation
-import TangemAccessibilityIdentifiers
-import TangemMacro
 
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
@@ -34,9 +32,6 @@ struct MarketsView: View {
     @State private var isListContentObscured = false
 
     private var defaultBackgroundColor: Color { Colors.Background.primary }
-
-    private let scrollTopAnchorId = UUID()
-    private let scrollViewFrameCoordinateSpaceName = UUID()
 
     private var overlayHeight: CGFloat { showSearchResult ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
     private var showSearchResult: Bool { viewModel.isSearching }
@@ -59,7 +54,6 @@ struct MarketsView: View {
             }
     }
 
-    @ViewBuilder
     private var rootView: some View {
         ZStack {
             Group {
@@ -88,7 +82,6 @@ struct MarketsView: View {
         .injectMarketsNavigationConfigurator()
     }
 
-    @ViewBuilder
     private var navigationBarBackground: some View {
         MarketsNavigationBarBackgroundView(
             backdropViewColor: defaultBackgroundColor,
@@ -96,12 +89,10 @@ struct MarketsView: View {
             isNavigationBarBackgroundBackdropViewHidden: viewModel.isNavigationBarBackgroundBackdropViewHidden,
             isListContentObscured: isListContentObscured
         ) {
-            Group {
-                if showSearchResult {
-                    searchResultListOverlay
-                } else {
-                    defaultListOverlay
-                }
+            if showSearchResult {
+                searchResultListOverlay
+            } else {
+                defaultListOverlay
             }
         }
         .frame(height: headerHeight + overlayHeight)
@@ -136,7 +127,6 @@ struct MarketsView: View {
         }
     }
 
-    @ViewBuilder
     private var defaultListOverlay: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(Localization.marketsCommonTitle)
@@ -153,7 +143,6 @@ struct MarketsView: View {
         .readGeometry(\.size.height, bindTo: $defaultListOverlayTotalHeight)
     }
 
-    @ViewBuilder
     private var searchResultListOverlay: some View {
         Text(Localization.marketsSearchResultTitle)
             .style(Fonts.Bold.title3, color: Colors.Text.primary1)
@@ -164,7 +153,6 @@ struct MarketsView: View {
             .readGeometry(\.size.height, bindTo: $searchResultListOverlayTotalHeight)
     }
 
-    @ViewBuilder
     private var list: some View {
         ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
@@ -173,7 +161,7 @@ struct MarketsView: View {
                 VStack(spacing: 0.0) {
                     Color.clear
                         .frame(height: 0)
-                        .id(scrollTopAnchorId)
+                        .id(Identifiers.scrollTopAnchorID)
 
                     // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
                     // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
@@ -200,15 +188,15 @@ struct MarketsView: View {
                         }
                     }
                     .onReceive(viewModel.resetScrollPositionPublisher) { _ in
-                        proxy.scrollTo(scrollTopAnchorId)
+                        proxy.scrollTo(Identifiers.scrollTopAnchorID)
                     }
                 }
                 .readContentOffset(
-                    inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                    inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame),
                     onChange: updateListOverlayAppearance(contentOffset:)
                 )
             }
-            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+            .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
         }
     }
 
@@ -288,6 +276,18 @@ private extension MarketsView {
         static let defaultHorizontalInset = 16.0
         static let listOverlayTopInset = 10.0
         static let listOverlayBottomInset = 12.0
+    }
+
+    enum Identifiers {
+        private static let prefix = "MarketsView.Identifiers."
+
+        static let scrollTopAnchorID = prefix + "scrollTopAnchorID"
+    }
+
+    enum CoordinateSpaceName {
+        private static let prefix = "MarketsView.CoordinateSpaceName."
+
+        static let scrollViewFrame = prefix + "scrollViewFrame"
     }
 }
 

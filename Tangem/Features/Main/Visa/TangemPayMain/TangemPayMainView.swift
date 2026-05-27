@@ -9,27 +9,30 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct TangemPayMainView: View {
     @ObservedObject var viewModel: TangemPayMainViewModel
 
-    var body: some View {
-        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject) {
-            VStack(spacing: 14) {
-                if !viewModel.isDeactivated {
-                    TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
-                }
+    @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.tokenDetails(
+        tokenIconSizeSettings: Constants.tokenIconSizeSettings,
+        headerTopPadding: Constants.headerTopPadding
+    )
 
-                if viewModel.freezingState.shouldShowUnfreezeButton {
-                    MainButton(
-                        settings: .init(
-                            title: Localization.tangempayCardDetailsUnfreezeCard,
-                            style: .primary,
-                            size: .default,
-                            action: viewModel.unfreeze
-                        )
-                    )
+    var body: some View {
+        // This scroll view must use non-lazy content settings because the transactions list view
+        // and other subviews already contain inner lazy stacks.
+        // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
+        RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
+            VStack(spacing: 14) {
+                header
+
+                balanceCard
+
+                if viewModel.shouldDisplayReplacingCardBanner {
+                    TangemPayReplacingCardBanner()
                 }
 
                 if viewModel.shouldDisplayAddToApplePayGuide {
@@ -37,8 +40,6 @@ struct TangemPayMainView: View {
                         TangemPayAddToApplePayBanner(closeAction: viewModel.dismissAddToApplePayGuideBanner)
                     }
                 }
-
-                balance
 
                 if let cardDeactivatedNotificationInput = viewModel.cardDeactivatedNotificationInput {
                     NotificationView(input: cardDeactivatedNotificationInput)
@@ -49,8 +50,6 @@ struct TangemPayMainView: View {
                 }
 
                 if !viewModel.isDeactivated {
-                    NotificationView(input: viewModel.contactSupportNotificationInput)
-
                     TransactionsListView(
                         state: viewModel.tangemPayTransactionHistoryState,
                         exploreAction: nil,
@@ -66,43 +65,40 @@ struct TangemPayMainView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
+            .readContentOffset(
+                inCoordinateSpace: .named(Constants.coordinateSpaceName),
+                bindTo: scrollOffsetHandler.contentOffsetSubject.asWriteOnlyBinding(.zero)
+            )
         }
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onAppear)
+        .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
+        .coordinateSpace(name: Constants.coordinateSpaceName)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(Localization.tangempayPaymentAccount)
+                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .opacity(scrollOffsetHandler.state)
+                    .animation(.easeInOut(duration: 0.2), value: scrollOffsetHandler.state)
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.onPin) {
-                        Label(
-                            Localization.visaOnboardingPinCodeNavigationTitle,
-                            systemImage: "circle.grid.3x3.fill"
-                        )
-                    }
-                    .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
-
                     Button(action: viewModel.termsAndLimits) {
                         Label(
                             Localization.tangemPayTermsLimits,
-                            systemImage: "text.page.fill"
+                            systemImage: "text.page"
                         )
                     }
-                    .onAppear { viewModel.onToolbarClicked() }
 
-                    Button(
-                        action: viewModel.freezingState.isFrozen
-                            ? viewModel.unfreeze
-                            : viewModel.showFreezePopup
-                    ) {
+                    Button(action: viewModel.contactSupport) {
                         Label(
-                            viewModel.freezingState.isFrozen
-                                ? Localization.tangempayCardDetailsUnfreezeCard
-                                : Localization.tangempayCardDetailsFreezeCard,
-                            systemImage: "snowflake"
+                            Localization.tangempayPaySupport,
+                            systemImage: "text.bubble"
                         )
                     }
-                    .disabled(viewModel.freezingState.isFreezingUnfreezingInProgress)
                 } label: {
                     NavbarDotsImage()
                 }
@@ -110,42 +106,110 @@ struct TangemPayMainView: View {
         }
     }
 
-    var balance: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            VStack(alignment: .leading, spacing: 7) {
-                Text(Localization.tangempayTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(Localization.tangempayPaymentAccount)
+                .style(Fonts.Bold.largeTitle, color: Colors.Text.primary1)
 
-                LoadableBalanceView(
-                    state: viewModel.balance,
-                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                    loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6)
-                )
-                .padding(.bottom, 5)
+            HStack(alignment: .center, spacing: 6) {
+                HStack(alignment: .center, spacing: -4) {
+                    Assets.Visa.usdc.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 18, height: 18)
+                        .zIndex(1)
 
-                ScrollableButtonsView(
-                    itemsHorizontalOffset: 14,
-                    itemsVerticalOffset: 3,
-                    buttonsInfo: [
-                        FixedSizeButtonWithIconInfo(
-                            title: Localization.tangempayCardDetailsAddFunds,
-                            icon: Assets.plus14,
-                            disabled: viewModel.freezingState.shouldDisableActionButtons,
-                            action: viewModel.addFunds
-                        ),
-                        FixedSizeButtonWithIconInfo(
-                            title: Localization.tangempayCardDetailsWithdraw,
-                            icon: Assets.arrowUpMini,
-                            loading: viewModel.isWithdrawButtonLoading,
-                            disabled: viewModel.freezingState.shouldDisableActionButtons,
-                            action: viewModel.withdraw
-                        ),
-                    ]
-                )
+                    Assets.Visa.pol.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 18, height: 18)
+                        .mask {
+                            Rectangle()
+                                .overlay {
+                                    Circle()
+                                        .frame(width: 22, height: 22)
+                                        .offset(x: -14)
+                                        .blendMode(.destinationOut)
+                                }
+                                .compositingGroup()
+                        }
+                }
+
+                Text(Localization.tangempayUsdcOnPolygonNetwork)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var balanceCard: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(Localization.tangempayAvailableBalance)
+                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+            LoadableBalanceView(
+                state: viewModel.balance,
+                style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
+                loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6),
+                accessibilityIdentifier: TangemPayAccessibilityIdentifiers.paymentAccountBalance
+            )
+
+            cardIconRow
+                .padding(.vertical, 4)
+
+            ScrollableButtonsView(
+                itemsHorizontalOffset: 14,
+                itemsVerticalOffset: 3,
+                buttonsInfo: [
+                    FixedSizeButtonWithIconInfo(
+                        title: Localization.tangempayCardDetailsAddFunds,
+                        icon: Assets.plus14,
+                        disabled: viewModel.freezingState.shouldDisableActionButtons,
+                        action: viewModel.addFunds
+                    ),
+                    FixedSizeButtonWithIconInfo(
+                        title: Localization.tangempayCardDetailsWithdraw,
+                        icon: Assets.arrowUpMini,
+                        loading: viewModel.isWithdrawButtonLoading,
+                        disabled: viewModel.freezingState.shouldDisableActionButtons,
+                        action: viewModel.withdraw
+                    ),
+                ]
+            )
         }
         .padding(14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
+    }
+
+    private var cardIconRow: some View {
+        HStack(spacing: 8) {
+            Button(action: viewModel.openCardManagement) {
+                TangemPaySmallCardView(
+                    state: viewModel.shouldDisplayReplacingCardBanner
+                        ? .replacing
+                        : .active(cardNumberEnd: viewModel.cardNumberEnd)
+                )
+            }
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.paymentAccountCardButton)
+
+            Button(action: viewModel.openFakedoorSheet) {
+                Image(systemName: "plus")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Colors.Text.tertiary)
+                    .frame(width: 48, height: 32)
+                    .background(Colors.Button.secondary.cornerRadiusContinuous(4))
+            }
+
+            Spacer()
+        }
+    }
+}
+
+private extension TangemPayMainView {
+    enum Constants {
+        static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
+        static let headerTopPadding: CGFloat = 14.0
+        static let coordinateSpaceName = "TangemPayMainView.coordinateSpaceName"
     }
 }

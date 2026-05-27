@@ -14,6 +14,10 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: MobileCreateWalletViewModel?
 
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     // MARK: - Child coordinators
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
@@ -40,6 +44,10 @@ extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
 
     func closeMobileCreateWallet() {
         dismiss(with: .dismiss)
+    }
+
+    func openTos(url: URL) {
+        safariManager.openURL(url)
     }
 }
 
