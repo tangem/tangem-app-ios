@@ -67,11 +67,11 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     }
 
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }.asArray
+        pairs.filter { $0.destination == wallet.asCurrency }
     }
 
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }.asArray
+        pairs.filter { $0.source == wallet.asCurrency }
     }
 }
 

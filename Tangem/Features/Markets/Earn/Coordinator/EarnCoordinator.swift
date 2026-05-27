@@ -21,6 +21,10 @@ final class EarnCoordinator: CoordinatorObject {
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
+    // MARK: - Data
+
+    private let earnDataProvider: EarnDataProvider = CommonEarnDataService()
+
     // MARK: - Root ViewModels
 
     @Published var rootViewModel: EarnDetailViewModel?
@@ -50,16 +54,25 @@ final class EarnCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         Task { @MainActor in
-            let earnDataProvider = EarnDataProvider()
-
             rootViewModel = EarnDetailViewModel(
                 dataProvider: earnDataProvider,
                 filterProvider: filterProvider,
-                mostlyUsedTokens: options.mostlyUsedTokens,
                 coordinator: self,
-                analyticsProvider: analyticsProvider
+                analyticsProvider: analyticsProvider,
+                presentSource: options.presentSource
             )
+
+            if let mostlyUsedTokens = options.mostlyUsedTokens {
+                earnDataProvider.applyMostlyUsedTokens(mostlyUsedTokens)
+            } else {
+                earnDataProvider.refreshMostlyUsedTokens()
+            }
+
             analyticsProvider.logPageOpened()
+
+            if let deeplinkFilter = options.deeplinkFilter {
+                filterProvider.apply(deeplinkFilter: deeplinkFilter)
+            }
         }
     }
 }
@@ -68,7 +81,19 @@ final class EarnCoordinator: CoordinatorObject {
 
 extension EarnCoordinator {
     struct Options {
-        let mostlyUsedTokens: [EarnTokenModel]
+        let mostlyUsedTokens: [EarnTokenModel]?
+        let deeplinkFilter: EarnDataFilter?
+        let presentSource: MarketsNavigationBackButton.PresentSource
+
+        init(
+            mostlyUsedTokens: [EarnTokenModel]?,
+            deeplinkFilter: EarnDataFilter? = nil,
+            presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+        ) {
+            self.mostlyUsedTokens = mostlyUsedTokens
+            self.deeplinkFilter = deeplinkFilter
+            self.presentSource = presentSource
+        }
     }
 }
 

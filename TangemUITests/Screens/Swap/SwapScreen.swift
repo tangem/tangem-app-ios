@@ -212,6 +212,32 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func chooseReceiveToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Choose receive token '\(tokenName)' via TO selector") { _ in
+            waitAndAssertTrue(receiveTokenSelector, "Receive token selector button should exist")
+            receiveTokenSelector.waitAndTap()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
+            tokenButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func chooseSourceToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Choose source token '\(tokenName)' via FROM selector") { _ in
+            waitAndAssertTrue(fromTokenSelector, "From token selector button should exist")
+            fromTokenSelector.waitAndTap()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in source token selector")
+            tokenButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
     func waitToTokenDisplayed(tokenSymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate 'You receive' section displays token '\(tokenSymbol)'") { _ in
             waitAndAssertTrue(toAmountTextField, "Receive section container should exist")

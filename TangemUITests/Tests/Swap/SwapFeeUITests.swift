@@ -23,6 +23,7 @@ final class SwapFeeUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("POL (ex-MATIC)")
 
         swapScreen
             .enterFromAmount("0.99")
@@ -59,6 +60,7 @@ final class SwapFeeUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
 
         swapScreen
             .enterFromAmount("0.0001")
@@ -97,6 +99,7 @@ final class SwapFeeUITests: BaseTestCase {
             .tapSwapButton()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
+            .chooseReceiveToken("Ethereum")
 
         swapScreen
             .enterFromAmount("3000")

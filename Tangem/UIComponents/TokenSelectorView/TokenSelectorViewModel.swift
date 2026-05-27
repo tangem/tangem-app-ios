@@ -14,36 +14,51 @@ import TangemMacro
 
 final class TokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
+    @Published var selectedChipId: String?
 
     @Published private(set) var wallets: [TokenSelectorWalletItemViewModel]
-    @Published private(set) var contentVisibility: ContentVisibility = .visible(itemsCount: 0)
+    @Published private(set) var walletChips: [WalletChipData] = []
+    @Published private(set) var contentVisibility: ContentVisibility = .empty
     @Published private(set) var scrollToTopTrigger: UUID?
 
     private let walletsProvider: any TokenSelectorWalletsProvider
     private let availabilityProvider: any TokenSelectorItemAvailabilityProvider
+    private weak var tokenSelectorStateStorage: (any TokenSelectorStateStorage)?
 
     private let viewModelsMapper: TokenSelectorViewModelsMapper
+    private var walletFilterSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(
         walletsProvider: any TokenSelectorWalletsProvider,
         availabilityProvider: any TokenSelectorItemAvailabilityProvider,
         collapsibleAccounts: Bool = false,
-        expandedStateStorage: (any TokenSelectorExpandedStateStorage)? = nil
+        tokenSelectorStateStorage: (any TokenSelectorStateStorage)? = nil,
+        currentWalletId: UserWalletId? = nil,
+        initialSelectedItem: TokenItem? = nil,
+        initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
+        preferredWalletId: UserWalletId? = nil
     ) {
         self.walletsProvider = walletsProvider
         self.availabilityProvider = availabilityProvider
+        self.tokenSelectorStateStorage = tokenSelectorStateStorage
 
         viewModelsMapper = TokenSelectorViewModelsMapper(
             walletsProvider: walletsProvider,
             availabilityProvider: availabilityProvider,
             collapsibleAccounts: collapsibleAccounts,
-            expandedStateStorage: expandedStateStorage
+            tokenSelectorStateStorage: tokenSelectorStateStorage,
+            initiallyExpandedAccount: initiallyExpandedAccount
         )
 
+        // Pre-filter items before creating wallet VMs so the initial render is already correct
+        viewModelsMapper.setInitialSelectedItem(initialSelectedItem)
+
         wallets = viewModelsMapper.wallets
+        contentVisibility = wallets.isEmpty ? .empty : .loading
 
         viewModelsMapper.setupSearchable(searchTextPublisher: $searchText.eraseToAnyPublisher())
+        setupWalletFilter(currentWalletId: currentWalletId, preferredWalletId: preferredWalletId)
         bind()
     }
 
@@ -85,16 +100,64 @@ final class TokenSelectorViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        // Collect items count from all wallets and compute visibility
         wallets
-            .map { $0.$viewType.flatMapLatest { $0.itemsCount } }
+            .map { $0.viewType.itemsCount }
             .combineLatest()
+            .dropFirst()
             .map { counts -> ContentVisibility in
                 let totalCount = counts.sum()
                 return totalCount == 0 ? .empty : .visible(itemsCount: totalCount)
             }
             .removeDuplicates()
             .assign(to: &$contentVisibility)
+    }
+
+    private func setupWalletFilter(currentWalletId: UserWalletId? = nil, preferredWalletId: UserWalletId? = nil) {
+        guard wallets.count >= 2 else {
+            walletChips = []
+            selectedChipId = nil
+            updateWalletVisibility(selectedId: nil)
+            walletFilterSubscription = nil
+            return
+        }
+
+        walletChips = wallets.map { WalletChipData(id: $0.walletId.stringValue, name: $0.walletName) }
+
+        let chipIds = walletChips.map(\.id)
+
+        let selectedWalletId: String?
+        if let preferredWalletId, chipIds.contains(preferredWalletId.stringValue) {
+            selectedWalletId = preferredWalletId.stringValue
+        } else if let stored = tokenSelectorStateStorage?.selectedWalletId?.stringValue, chipIds.contains(stored) {
+            selectedWalletId = stored
+        } else if let currentWalletId, chipIds.contains(currentWalletId.stringValue) {
+            selectedWalletId = currentWalletId.stringValue
+        } else {
+            selectedWalletId = walletChips.first?.id
+        }
+
+        selectedChipId = selectedWalletId
+
+        updateWalletVisibility(selectedId: selectedWalletId)
+
+        walletFilterSubscription = $selectedChipId
+            .dropFirst()
+            .sink { [weak self] chipId in
+                guard let self else { return }
+                let walletId = wallets.first { $0.walletId.stringValue == chipId }?.walletId
+                tokenSelectorStateStorage?.selectedWalletId = walletId
+                updateWalletVisibility(selectedId: chipId)
+            }
+    }
+
+    private func updateWalletVisibility(selectedId: String?) {
+        guard let selectedId else {
+            wallets.forEach { $0.update(isFilteredOut: false) }
+            return
+        }
+        for wallet in wallets {
+            wallet.update(isFilteredOut: wallet.walletId.stringValue != selectedId)
+        }
     }
 }
 
@@ -118,5 +181,59 @@ extension TokenSelectorViewModel {
             self.title = title
             self.showsItemsCount = showsItemsCount
         }
+    }
+
+    struct WalletChipData: Identifiable {
+        let id: String
+        let name: String
+    }
+
+    struct InitiallyExpandedAccount {
+        let walletId: UserWalletId
+        let cryptoAccount: any CryptoAccountModel
+    }
+}
+
+// MARK: - Factory
+
+extension TokenSelectorViewModel {
+    static func common(
+        walletsProvider: any TokenSelectorWalletsProvider = .common(),
+        availabilityProvider: any TokenSelectorItemAvailabilityProvider,
+        initialSelectedItem: TokenItem? = nil,
+        initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
+        preferredWalletId: UserWalletId? = nil
+    ) -> TokenSelectorViewModel {
+        @Injected(\.tokenSelectorStateStorage)
+        var stateStorage: TokenSelectorStateStorage
+
+        @Injected(\.userWalletRepository)
+        var userWalletRepository: UserWalletRepository
+
+        return TokenSelectorViewModel(
+            walletsProvider: walletsProvider,
+            availabilityProvider: availabilityProvider,
+            collapsibleAccounts: true,
+            tokenSelectorStateStorage: stateStorage,
+            currentWalletId: userWalletRepository.selectedModel?.userWalletId,
+            initialSelectedItem: initialSelectedItem,
+            initiallyExpandedAccount: initiallyExpandedAccount,
+            preferredWalletId: preferredWalletId
+        )
+    }
+
+    static func swap(
+        walletsProvider: any TokenSelectorWalletsProvider = .common(),
+        initialSelectedItem: TokenItem? = nil,
+        initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
+        preferredWalletId: UserWalletId? = nil
+    ) -> TokenSelectorViewModel {
+        .common(
+            walletsProvider: walletsProvider,
+            availabilityProvider: .swap(),
+            initialSelectedItem: initialSelectedItem,
+            initiallyExpandedAccount: initiallyExpandedAccount,
+            preferredWalletId: preferredWalletId
+        )
     }
 }

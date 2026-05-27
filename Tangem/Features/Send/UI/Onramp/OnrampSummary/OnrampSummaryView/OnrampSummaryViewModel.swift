@@ -25,6 +25,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let interactor: OnrampSummaryInteractor
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
+    private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
 
     private lazy var fiatPresetService = FiatPresetService()
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
@@ -36,13 +37,15 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         interactor: OnrampSummaryInteractor,
         notificationManager: NotificationManager,
-        analyticsLogger: SendOnrampOffersAnalyticsLogger
+        analyticsLogger: SendOnrampOffersAnalyticsLogger,
+        buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.notificationManager = notificationManager
         self.analyticsLogger = analyticsLogger
+        self.buyActionBuilder = buyActionBuilder
 
         bind()
     }
@@ -107,31 +110,40 @@ private extension OnrampSummaryViewModel {
 
     func mapToRecentOnrampOfferViewModel(provider: OnrampProvider) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToRecentOnrampOfferViewModelTitle(provider: provider)
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider) { [weak self] in
-            self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
-            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-            self?.interactor.userDidRequestOnramp(provider: provider)
-        }
+        let buyAction = buyActionBuilder.make(
+            provider: provider,
+            onWillBuy: { [weak self] in
+                self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+                self?.analyticsLogger.logOnrampRecentlyUsedClicked(provider: provider)
+            },
+            onWidgetBuy: { [weak self] in
+                self?.interactor.userDidRequestOnramp(provider: provider)
+            }
+        )
 
-        return viewModel
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
     }
 
     func mapToRecommendedOnrampOfferViewModel(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> OnrampOfferViewModel {
         let provider = suggestedOfferType.provider
-
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider) { [weak self] in
-            switch title {
-            case .great: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
-            case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
-            case .text, .bestRate: break
+
+        let buyAction = buyActionBuilder.make(
+            provider: provider,
+            onWillBuy: { [weak self] in
+                self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+                switch title {
+                case .great: self?.analyticsLogger.logOnrampBestRateClicked(provider: provider)
+                case .fastest: self?.analyticsLogger.logOnrampFastestMethodClicked(provider: provider)
+                case .text, .bestRate: break
+                }
+            },
+            onWidgetBuy: { [weak self] in
+                self?.interactor.userDidRequestOnramp(provider: provider)
             }
+        )
 
-            self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
-            self?.interactor.userDidRequestOnramp(provider: provider)
-        }
-
-        return viewModel
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
     }
 }
 

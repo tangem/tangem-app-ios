@@ -13,7 +13,7 @@ import TangemFoundation
 
 class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
-    @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     // MARK: - ViewState
 
@@ -182,7 +182,7 @@ private extension SendSwapProvidersSelectorViewModel {
             ExpressConstants.expressProvidersFCAWarningList.contains($0)
         })
 
-        if ukGeoDefiner.isUK, isRestrictableFCAIncluded {
+        if geoEligibilityService.isUK, isRestrictableFCAIncluded {
             return NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
         } else {
             return nil

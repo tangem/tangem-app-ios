@@ -36,11 +36,8 @@ struct EarnDetailView: View {
             title: Localization.earnTitle,
             settings: .init(backgroundColor: Colors.Background.tertiary),
             leftButtons: {
-                BackButton(
-                    height: 44.0,
-                    isVisible: true,
-                    isEnabled: true,
-                    hPadding: 10.0,
+                MarketsNavigationBackButton(
+                    presentSource: viewModel.presentSource,
                     action: { viewModel.handleViewAction(.back) }
                 )
             }

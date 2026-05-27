@@ -60,15 +60,21 @@ struct CarouselNewsCardView: View {
         Button(action: {
             item.onTap(item.id)
         }) {
-            contentView(for: item)
-                .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
-                .defaultRoundedBackground(
-                    with: Colors.Background.action,
-                    verticalPadding: Layout.MainCard.padding,
-                    horizontalPadding: Layout.MainCard.padding,
-                    cornerRadius: Layout.MainCard.cornerRadius
-                )
-                .opacity(opacity())
+            if FeatureProvider.isAvailable(.redesign) {
+                contentView(for: item)
+                    .redesignNewsCarouselCardBackground()
+                    .opacity(opacity())
+            } else {
+                legacyContentView(for: item)
+                    .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
+                    .defaultRoundedBackground(
+                        with: Colors.Background.action,
+                        verticalPadding: Layout.MainCard.padding,
+                        horizontalPadding: Layout.MainCard.padding,
+                        cornerRadius: Layout.MainCard.cornerRadius
+                    )
+                    .opacity(opacity())
+            }
         }
         .buttonStyle(.plain)
         .allowsHitTesting(!isLoading)
@@ -76,7 +82,7 @@ struct CarouselNewsCardView: View {
 
     // MARK: - Content View
 
-    private func contentView(for item: CarouselNewsItem) -> some View {
+    private func legacyContentView(for item: CarouselNewsItem) -> some View {
         VStack(spacing: Layout.MainCard.verticalSpacing) {
             HStack {
                 NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)
@@ -100,6 +106,34 @@ struct CarouselNewsCardView: View {
         }
     }
 
+    private func contentView(for item: CarouselNewsItem) -> some View {
+        VStack(alignment: .leading, spacing: .zero) {
+            NewsRatingViewRedesign(rating: item.rating, isHighlighted: false)
+                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+
+            FixedSpacer(height: .unit(.x2))
+
+            Text(item.title)
+                .multilineTextAlignment(.leading)
+                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                .lineLimit(Layout.RedesignCard.titleLineLimit)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+
+            Spacer(minLength: .unit(.x2))
+
+            Text(item.timeAgo)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+
+            FixedSpacer(height: .unit(.x2))
+
+            InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
+                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+        }
+    }
+
     private func opacity() -> Double {
         if isLoading {
             return 1.0
@@ -117,6 +151,14 @@ extension CarouselNewsCardView {
             static let cornerRadius: CGFloat = 14
             static let width: CGFloat = 228
             static let height: CGFloat = 136
+        }
+
+        enum RedesignCard {
+            static let padding: CGFloat = .unit(.x4)
+            static let cornerRadius: CGFloat = .unit(.x5)
+            static let width: CGFloat = 228
+            static let height: CGFloat = 172
+            static let titleLineLimit: Int = 3
         }
 
         enum Spacing {
@@ -137,6 +179,33 @@ extension CarouselNewsCardView {
         enum Skeleton {
             static let cornerRadius: CGFloat = 8
         }
+    }
+}
+
+// MARK: - Shared Redesign Card Background
+
+extension View {
+    /// Applies the shared redesign "pill card" shell used by both news cards
+    /// and the "All news" card in `CarouselNewsView`: fixed 228×172 frame with
+    /// inner padding, `Surface.level3` background, `x5` continuous corner
+    /// radius and a 1pt inset border.
+    func redesignNewsCarouselCardBackground() -> some View {
+        padding(CarouselNewsCardView.Layout.RedesignCard.padding)
+            .frame(
+                width: CarouselNewsCardView.Layout.RedesignCard.width,
+                height: CarouselNewsCardView.Layout.RedesignCard.height,
+                alignment: .topLeading
+            )
+            .background(Color.Tangem.Surface.level3)
+            .cornerRadiusContinuous(CarouselNewsCardView.Layout.RedesignCard.cornerRadius)
+            .overlay(
+                RoundedRectangle(
+                    cornerRadius: CarouselNewsCardView.Layout.RedesignCard.cornerRadius,
+                    style: .continuous
+                )
+                .inset(by: 0.5)
+                .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: 1)
+            )
     }
 }
 
