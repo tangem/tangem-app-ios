@@ -54,6 +54,7 @@ struct LineChartViewConfigurator {
         dataSet.drawCirclesEnabled = false
         dataSet.drawValuesEnabled = false
         dataSet.lineCapType = .round
+        dataSet.lineWidth = 1.0
         dataSet.drawHorizontalHighlightIndicatorEnabled = false
         dataSet.verticalHighlightIndicatorInset = -8.0
 
