@@ -12,10 +12,16 @@ import TangemFoundation
 public final class TangemPayOrderStatusPollingService {
     private let customerService: CustomerInfoManagementService
 
+    /// Legacy single-card polling stops on the first request failure; the multi-card flow treats
+    /// request failures as transient and keeps polling. Hardcoded by the construction site in
+    /// Part 1; threaded from `FeatureProvider.isAvailable(.tangemPayMultipleCards)` in Part 2.
+    private let multipleCardsEnabled: Bool
+
     private var orderStatusPollingTask: Task<Void, Never>?
 
-    public init(customerService: CustomerInfoManagementService) {
+    public init(customerService: CustomerInfoManagementService, multipleCardsEnabled: Bool) {
         self.customerService = customerService
+        self.multipleCardsEnabled = multipleCardsEnabled
     }
 
     public func startOrderStatusPolling(
@@ -23,7 +29,8 @@ public final class TangemPayOrderStatusPollingService {
         interval: TimeInterval,
         onCompleted: @escaping () -> Void,
         onCanceled: @escaping () -> Void,
-        onFailed: @escaping (Error) -> Void
+        onFailed: @escaping (Error) -> Void,
+        onProgress: ((TangemPayOrderResponse) -> Void)? = nil
     ) {
         orderStatusPollingTask?.cancel()
 
@@ -34,26 +41,31 @@ public final class TangemPayOrderStatusPollingService {
             }
         )
 
-        orderStatusPollingTask = runTask {
+        orderStatusPollingTask = runTask { [multipleCardsEnabled] in
             for await result in polling {
                 switch result {
                 case .success(let order):
                     switch order.status {
                     case .new, .processing:
-                        break
-
+                        onProgress?(order)
+                        continue
                     case .completed:
                         onCompleted()
                         return
-
                     case .canceled:
                         onCanceled()
                         return
+                    case .failed, .undefined:
+                        onFailed(TangemPayOrderStatusPollingError.terminalStatus(order.status))
+                        return
                     }
-
                 case .failure(let error):
-                    onFailed(error)
-                    return
+                    if multipleCardsEnabled {
+                        continue
+                    } else {
+                        onFailed(error)
+                        return
+                    }
                 }
             }
         }
@@ -66,4 +78,8 @@ public final class TangemPayOrderStatusPollingService {
     deinit {
         orderStatusPollingTask?.cancel()
     }
+}
+
+public enum TangemPayOrderStatusPollingError: Error {
+    case terminalStatus(TangemPayOrderResponse.Status)
 }
