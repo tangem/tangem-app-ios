@@ -275,21 +275,9 @@ extension WalletConnectViewModel {
         userWalletRepository: some UserWalletRepository,
         cryptoAccountsState: CryptoAccounts.State
     ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
-        let walletIdToV1DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
-            let pairs = connectedDApps.compactMap { dApp -> (String, WalletConnectViewState.ContentState.ConnectedDApp)? in
-                guard case .v1(let legacy) = dApp else { return nil }
-                return (legacy.userWalletID, .init(domainModel: dApp))
-            }
-
-            return Dictionary(grouping: pairs, by: { $0.0 })
-                .mapValues { $0.map(\.1) }
-        }()
-
-        let accountIdToV2DApps: [DAppsV2Key: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
-            let pairs = connectedDApps.compactMap { dApp -> (DAppsV2Key, WalletConnectViewState.ContentState.ConnectedDApp)? in
-                guard case .v2(let current) = dApp else { return nil }
-                let key = DAppsV2Key(userWalletID: current.wrapped.userWalletID, accountID: current.accountId)
-
+        let accountIdToDApps: [DAppsKey: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
+            let pairs = connectedDApps.map { dApp -> (DAppsKey, WalletConnectViewState.ContentState.ConnectedDApp) in
+                let key = DAppsKey(userWalletID: dApp.userWalletID, accountID: dApp.accountId)
                 return (key, .init(domainModel: dApp))
             }
 
@@ -301,18 +289,15 @@ extension WalletConnectViewModel {
 
         for wallet in userWalletRepository.models {
             let walletId = wallet.userWalletId.stringValue
-            let walletLevel = walletIdToV1DApps[walletId] ?? []
 
             var accountSections: [WalletConnectViewState.ContentState.AccountSection] = []
-            var accountsWithSessions = 0
 
             func appendSection(for account: any CryptoAccountModel) {
                 let accountId = account.id.walletConnectIdentifierString
-                let key = DAppsV2Key(userWalletID: walletId, accountID: accountId)
+                let key = DAppsKey(userWalletID: walletId, accountID: accountId)
 
-                guard let dApps = accountIdToV2DApps[key], !dApps.isEmpty else { return }
+                guard let dApps = accountIdToDApps[key], !dApps.isEmpty else { return }
 
-                accountsWithSessions += 1
                 accountSections.append(
                     WalletConnectViewState.ContentState.AccountSection(
                         id: accountId,
@@ -338,7 +323,7 @@ extension WalletConnectViewModel {
 
             switch cryptoAccountsState {
             case .single:
-                let combined = accountSections.flatMap(\.dApps) + walletLevel
+                let combined = accountSections.flatMap(\.dApps)
                 guard !combined.isEmpty else { continue }
 
                 result.append(
@@ -350,14 +335,14 @@ extension WalletConnectViewModel {
                     )
                 )
             case .multiple:
-                guard !accountSections.isEmpty || !walletLevel.isEmpty else { continue }
+                guard !accountSections.isEmpty else { continue }
 
                 result.append(
                     WalletConnectViewState.ContentState.WalletWithConnectedDApps(
                         walletId: walletId,
                         walletName: wallet.name,
                         accountSections: accountSections,
-                        walletLevelDApps: walletLevel
+                        walletLevelDApps: []
                     )
                 )
             }
@@ -370,7 +355,7 @@ extension WalletConnectViewModel {
 // MARK: - Auxiliary types
 
 private extension WalletConnectViewModel {
-    struct DAppsV2Key: Hashable {
+    struct DAppsKey: Hashable {
         let userWalletID: String
         let accountID: String
     }

@@ -85,16 +85,10 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
-        let account: (any CryptoAccountModel)?
-
-        if let accountId = connectedDApp.accountId {
-            account = WCAccountFinder.findCryptoAccountModel(
-                by: accountId,
-                accountModelsManager: userWalletModel.accountModelsManager
-            )
-        } else {
-            account = nil
-        }
+        let account = WCAccountFinder.findCryptoAccountModel(
+            by: connectedDApp.accountId,
+            accountModelsManager: userWalletModel.accountModelsManager
+        )
 
         return WCValidatedRequest(
             request: request,
