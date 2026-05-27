@@ -14,6 +14,7 @@
 	<key>com.apple.developer.in-app-payments</key>
 	<array>
 		<string>merchant.sandbox.mercuryo.com.tangem.tangem</string>
+		<string>merchant.mercuryo.com.tangem.tangem</string>
 	</array>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
