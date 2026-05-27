@@ -43,7 +43,7 @@ struct TokenDetailsView: View {
 
                 marketPriceLegacy
 
-                yieldStatusView
+                yieldView
 
                 stakingView
 
@@ -177,6 +177,25 @@ struct TokenDetailsView: View {
             } label: {
                 NavbarDotsImage()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var yieldView: some View {
+        if viewModel.isRedesign {
+            redesignYieldView
+        } else {
+            yieldStatusView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignYieldView: some View {
+        switch viewModel.yieldState {
+        case .some(let state):
+            TokenDetailsYieldView(state: state)
+        case .none:
+            EmptyView()
         }
     }
 
