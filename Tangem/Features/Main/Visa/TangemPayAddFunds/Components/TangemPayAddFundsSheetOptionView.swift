@@ -60,15 +60,15 @@ extension TangemPayAddFundsSheetOptionView {
 
         var title: String {
             switch self {
-            case .receive: Localization.commonReceive
-            case .swap: Localization.commonSwap
+            case .receive: Localization.tangempayTopupReceiveTitle
+            case .swap: Localization.tangempayTopupSwapTitle
             }
         }
 
         var subtitle: String {
             switch self {
-            case .receive: Localization.receiveTokenDescription
-            case .swap: Localization.exchangeTokenDescription
+            case .receive: Localization.tangempayTopupReceiveBody
+            case .swap: Localization.tangempayTopupSwapBody
             }
         }
 

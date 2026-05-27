@@ -86,6 +86,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
+    private lazy var yieldAvailabilityBuilder = TokenDetailsYieldAvailabilityFactory(
+        walletModel: walletModel,
+        coordinator: coordinator,
+        factoryBuilder: { [weak self] manager in
+            self?.makeYieldModuleFlowFactory(manager: manager)
+        }
+    )
+
     init(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
@@ -638,6 +646,12 @@ private extension TokenDetailsViewModel {
 
     func mapToRewardsState(staked: StakingManagerState.Staked) -> ActiveStakingViewData.RewardsState? {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, let rewards) where staked.yieldInfo.item.network == .ethereum && rewards > 0:
+            let formatted = balanceFormatter.formatCryptoBalance(
+                rewards,
+                currencyCode: walletModel.tokenItem.currencySymbol
+            )
+            return .compoundedRewardsEarned(formatted)
         case (.auto, _):
             return nil
         case (.manual, .zero):
@@ -667,70 +681,7 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
-        yieldModuleAvailability = makeYieldAvailability(state: state.state, marketInfo: state.marketInfo)
-    }
-
-    private func makeYieldAvailability(
-        state: YieldModuleManagerState,
-        marketInfo: YieldModuleMarketInfo?
-    ) -> YieldModuleAvailability {
-        guard let manager = walletModel.yieldModuleManager,
-              let factory = makeYieldModuleFlowFactory(manager: manager)
-        else {
-            return .notApplicable
-        }
-
-        func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
-            if let apy = marketInfo?.apy {
-                let action = { [weak self] apy in self?.coordinator?.openYieldModulePromoView(apy: apy, factory: factory) }
-                let vm = factory.makeYieldAvailableNotificationViewModel(apy: apy, onButtonTap: { apy in action(apy) })
-                return .eligible(vm)
-            } else {
-                return .notApplicable
-            }
-        }
-
-        switch state {
-        case .active(let info):
-            let state: YieldStatusViewModel.State = .active(
-                isApproveRequired: info.isAllowancePermissionRequired,
-                undepositedAmount: info.nonYieldModuleBalanceValue,
-                apy: marketInfo?.apy
-            )
-
-            let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
-            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: { navigationAction() })
-
-            if info.isAllowancePermissionRequired {
-                Analytics.log(
-                    event: .earningNoticeApproveNeeded,
-                    params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
-                )
-            }
-
-            return .active(vm)
-
-        case .notActive:
-            return makeEligibleViewModelIfPossible()
-
-        case .processing(let action):
-            let state: YieldStatusViewModel.State = action == .enter ? .loading : .closing
-            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: {})
-            return (action == .enter) ? .enter(vm) : .exit(vm)
-
-        case .disabled:
-            return .notApplicable
-
-        case .loading:
-            AppLogger.warning("Loading state should not be passed here to avoid blinking on UI")
-            return .notApplicable
-
-        case .failedToLoad(_, .some(let cachedState)):
-            return makeYieldAvailability(state: cachedState, marketInfo: marketInfo)
-
-        case .failedToLoad:
-            return makeEligibleViewModelIfPossible()
-        }
+        yieldModuleAvailability = yieldAvailabilityBuilder.make(state: state.state, marketInfo: state.marketInfo)
     }
 
     private func makeNavigationBarViewModel() -> TokenDetailsNavigationBarViewModel {
