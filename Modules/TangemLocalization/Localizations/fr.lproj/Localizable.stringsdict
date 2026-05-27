@@ -50,6 +50,22 @@
         <string>%li days ago</string>
       </dict>
     </dict>
+    <key>common_hours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li hour</string>
+        <key>other</key>
+        <string>%li hours</string>
+      </dict>
+    </dict>
     <key>common_hours_time_ago</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -365,6 +381,22 @@
         <string>%li tokens aren't compatible with this address</string>
       </dict>
     </dict>
+    <key>tangempay_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -395,6 +427,22 @@
         <string>Utilisez votre carte ou bague pour obtenir une adresse pour le réseau %li</string>
         <key>other</key>
         <string>Utilisez votre carte ou bague pour obtenir des adresses pour les réseaux %li</string>
+      </dict>
+    </dict>
+    <key>warning_missing_derivation_no_nfc_message</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Sync addresses to get an address for %li network</string>
+        <key>other</key>
+        <string>Sync addresses to get an addresses for %li networks</string>
       </dict>
     </dict>
   </dict>

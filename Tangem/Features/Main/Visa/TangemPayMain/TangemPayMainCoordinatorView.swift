@@ -26,7 +26,10 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var links: some View {
-        EmptyView()
+        NavHolder()
+            .navigation(item: $coordinator.cardManagementViewModel) {
+                TangemPayCardManagementView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
@@ -50,8 +53,11 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayFreezeSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
-            .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
-                TangemPayTransactionDetailsView(viewModel: $0)
+            .floatingSheetContent(for: TangemPayReissueSheetViewModel.self) {
+                TangemPayReissuePopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayFakedoorSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
@@ -64,6 +70,10 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.tangemPayPinViewModel) {
                 TangemPayPinView(viewModel: $0)
+            }
+            .sheet(item: $coordinator.tangemPayDailyLimitViewModel) {
+                TangemPayDailyLimitView(viewModel: $0)
+                    .presentationCornerRadius(24)
             }
             .sheet(item: $coordinator.termsAndLimitsViewModel) {
                 WebViewContainer(viewModel: $0)
