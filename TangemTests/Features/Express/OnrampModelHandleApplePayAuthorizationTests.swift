@@ -484,19 +484,19 @@ private enum StubFixtures {
             fromAmount: 100,
             fromCurrencyCode: "USD",
             externalTxId: nil,
-            externalTxUrl: nil
+            externalTxURL: nil
         )
     }
 
     static func makeRedirectData() -> OnrampRedirectData {
         OnrampRedirectData(
             txId: "widget-tx",
-            widgetUrl: URL(string: "https://example.com/widget")!,
-            redirectUrl: URL(string: "https://example.com/redirect")!,
+            widgetURL: URL(string: "https://example.com/widget")!,
+            redirectURL: URL(string: "https://example.com/redirect")!,
             fromAmount: 100,
             fromCurrencyCode: "USD",
             externalTxId: nil,
-            externalTxUrl: nil
+            externalTxURL: nil
         )
     }
 
