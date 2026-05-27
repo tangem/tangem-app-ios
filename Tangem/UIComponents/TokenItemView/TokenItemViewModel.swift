@@ -61,14 +61,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         return nil
     }
 
-    var yieldApyTapAction: (() -> Void)? {
-        guard let action = yieldApyTapped else { return nil }
-        return { [weak self] in
-            guard let self else { return }
-            action(tokenItem)
-        }
-    }
-
     private let tokenIcon: TokenIconInfo
     private let priceChangeUtility = PriceChangeUtility()
     private let loadableTokenBalanceViewStateBuilder: LoadableBalanceViewStateBuilder
@@ -80,7 +72,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsDelegate: TokenItemContextActionDelegate?
 
     private let tokenTapped: (WalletModelId) -> Void
-    private let yieldApyTapped: ((TokenItem) -> Void)?
 
     init(
         id: WalletModelId,
@@ -89,8 +80,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         infoProvider: some TokenItemInfoProvider,
         contextActionsProvider: TokenItemContextActionsProvider,
         contextActionsDelegate: TokenItemContextActionDelegate,
-        tokenTapped: @escaping (WalletModelId) -> Void,
-        yieldApyTapped: ((TokenItem) -> Void)?
+        tokenTapped: @escaping (WalletModelId) -> Void
     ) {
         self.id = id
         self.tokenIcon = tokenIcon
@@ -99,7 +89,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         self.contextActionsProvider = contextActionsProvider
         self.contextActionsDelegate = contextActionsDelegate
         self.tokenTapped = tokenTapped
-        self.yieldApyTapped = yieldApyTapped
 
         loadableTokenBalanceViewStateBuilder = .init()
         balanceCrypto = loadableTokenBalanceViewStateBuilder.build(type: infoProvider.balanceType)

@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import enum BlockchainSdk.Blockchain
+import struct TangemSdk.DerivationPath
 
 struct StoredCryptoAccount: Codable, Equatable {
     enum Grouping: Codable, Equatable {
@@ -40,8 +42,17 @@ extension StoredCryptoAccount {
     struct Token: Codable, Hashable {
         /// Container type, preserves currently unknown/unsupported to the client networks.
         enum BlockchainNetworkContainer: Codable, Hashable {
-            case known(blockchainNetwork: BlockchainNetwork)
+            case known(blockchainNetwork: StoredBlockchainNetwork)
             case unknown(networkId: String, rawDerivationPath: String?)
+        }
+
+        /// Storage-layer of `BlockchainNetwork`. Distinct from `BlockchainNetwork`
+        /// because `Equatable`/`Hashable` here include `settings` — storage compares by
+        /// full record identity, while the domain type ignores `settings`.
+        struct StoredBlockchainNetwork: Codable, Hashable {
+            let blockchain: Blockchain
+            let derivationPath: DerivationPath?
+            let settings: BlockchainSettings?
         }
 
         let id: String?
