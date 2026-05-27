@@ -229,7 +229,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.quotesItem.providerInfo.id,
             toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil, // There is no memo on the client side
-            redirectUrl: item.redirectSettings.redirectURL,
+            redirectUrl: item.redirectSettings.redirectURL.absoluteString,
             language: item.redirectSettings.language,
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId
@@ -254,7 +254,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.quotesItem.providerInfo.id,
             toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil,
-            redirectUrl: item.redirectSettings.redirectURL,
+            redirectUrl: item.redirectSettings.redirectURL.absoluteString,
             language: item.redirectSettings.language,
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId,
