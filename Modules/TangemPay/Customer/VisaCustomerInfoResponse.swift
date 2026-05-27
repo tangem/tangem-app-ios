@@ -12,26 +12,26 @@ public struct VisaCustomerInfoResponse: Codable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
+    /// Legacy single-card field. Restored alongside `productInstances` so the legacy flow can read it directly.
     public let productInstance: ProductInstance?
-    /// Multi-card BFF v2 field; `nil` for legacy responses, populated alongside `productInstance` during transition.
-    public let productInstances: [PendingOrActiveProductInstance]?
+    public let productInstances: [ProductInstance]
     public let paymentAccount: PaymentAccount?
     public let kyc: KYCInfo?
+    /// Legacy single-card field. Restored alongside `cards` so the legacy flow can read it directly.
     public let card: Card?
-    /// Multi-card BFF v2 field; `nil` for legacy responses, populated alongside `card` during transition.
-    public let cards: [Card]?
+    public let cards: [Card]
     public let depositAddress: String?
 
     public init(
         id: String,
         state: CustomerState,
         createdAt: Date,
-        productInstance: ProductInstance?,
-        productInstances: [PendingOrActiveProductInstance]? = nil,
+        productInstance: ProductInstance? = nil,
+        productInstances: [ProductInstance],
         paymentAccount: PaymentAccount?,
         kyc: KYCInfo?,
-        card: Card?,
-        cards: [Card]? = nil,
+        card: Card? = nil,
+        cards: [Card],
         depositAddress: String?
     ) {
         self.id = id
@@ -45,6 +45,21 @@ public struct VisaCustomerInfoResponse: Codable {
         self.cards = cards
         self.depositAddress = depositAddress
     }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        state = try container.decode(CustomerState.self, forKey: .state)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        productInstance = try container.decodeIfPresent(ProductInstance.self, forKey: .productInstance)
+        // Tolerate legacy-shaped responses that omit the arrays entirely.
+        productInstances = try container.decodeIfPresent([ProductInstance].self, forKey: .productInstances) ?? []
+        paymentAccount = try container.decodeIfPresent(PaymentAccount.self, forKey: .paymentAccount)
+        kyc = try container.decodeIfPresent(KYCInfo.self, forKey: .kyc)
+        card = try container.decodeIfPresent(Card.self, forKey: .card)
+        cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
+        depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
+    }
 }
 
 public extension VisaCustomerInfoResponse {
@@ -55,24 +70,15 @@ public extension VisaCustomerInfoResponse {
         case blocked = "BLOCKED"
         case former = "FORMER"
         case unknown = "UNKNOWN"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct ProductInstance: Codable {
-        public let id: String
-        public let cardWalletAddress: String?
-        public let cardId: String
-        public let cid: String?
-        public let status: ProductStatus
-        public let updatedAt: Date
-        public let paymentAccountId: String
-        public let displayName: String
-        public let adminCardLimit: CardLimit
-        public let actualCardLimit: CardLimit?
-    }
-
-    /// Lenient product-instance shape used for the multi-card `productInstances` array, where pending entries
-    /// have `cardId == nil` and `actualCardLimit == nil`.
-    struct PendingOrActiveProductInstance: Codable {
         public let id: String
         public let cardWalletAddress: String?
         public let cardId: String?
@@ -98,6 +104,12 @@ public extension VisaCustomerInfoResponse {
         case deactivated = "DEACTIVATED"
         case canceled = "CANCELED"
         case unknown = "UNKNOWN"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct PaymentAccount: Codable {
@@ -122,6 +134,11 @@ public extension VisaCustomerInfoResponse {
         case inProgress = "IN_PROGRESS"
         case expired = "EXPIRED"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum KYCRisk: String, Codable {
@@ -129,17 +146,26 @@ public extension VisaCustomerInfoResponse {
         case medium = "MEDIUM"
         case high = "HIGH"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum KYCReviewAnswer: String, Codable {
         case green = "GREEN"
         case red = "RED"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct Card: Codable {
-        /// Multi-card BFF v2 field. `nil` for legacy responses; required to address a card in card-scoped APIs.
-        public let id: String?
+        public let id: String
         public let cardNumberEnd: String
         public let expirationMonth: String
         public let expirationYear: String
@@ -150,7 +176,7 @@ public extension VisaCustomerInfoResponse {
         public let isPinSet: Bool
 
         public init(
-            id: String? = nil,
+            id: String,
             cardNumberEnd: String,
             expirationMonth: String,
             expirationYear: String,
@@ -183,23 +209,33 @@ public extension VisaCustomerInfoResponse.Card {
         case virtual = "VIRTUAL"
         case physical = "PHYSICAL"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     enum CardStatus: String, Codable {
         case active = "ACTIVE"
         case inactive = "INACTIVE"
         case blocked = "BLOCKED"
-        case cancelled = "CANCELLED"
+        case canceled = "CANCELED"
         case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 }
 
 public extension VisaCustomerInfoResponse {
-    func productInstance(forCardId cardId: String) -> PendingOrActiveProductInstance? {
-        productInstances?.first { $0.cardId == cardId }
+    func productInstance(forCardId cardId: String) -> ProductInstance? {
+        productInstances.first { $0.cardId == cardId }
     }
 
     func card(forCardId cardId: String) -> Card? {
-        cards?.first { $0.id == cardId }
+        cards.first { $0.id == cardId }
     }
 }

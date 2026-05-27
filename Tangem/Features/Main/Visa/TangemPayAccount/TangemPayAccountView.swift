@@ -88,7 +88,10 @@ struct TangemPayAccountView: View {
                 EmptyView()
             }
 
-        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
+        case .normal(_, let balance, _):
+            balanceTrailingContent(balance: balance)
+
+        case .cardDeactivated(let balance), .replacingCard(let balance):
             balanceTrailingContent(balance: balance)
 
         case .skeleton:
