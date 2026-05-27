@@ -84,7 +84,7 @@ struct MetricsTradingVolumeCard: View {
                 MetricsProgressBar(
                     progress: liquidity,
                     foregroundColor: color,
-                    backgroundColor: Color.Tangem.Fill.Neutral.primaryInvertedConstant.opacity(0.1)
+                    backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
                 )
             }
 
@@ -194,7 +194,7 @@ struct MetricsCirculatingSupplyCard: View {
             MetricsProgressBar(
                 progress: supplyProgress,
                 foregroundColor: .Tangem.Text.Status.accent,
-                backgroundColor: Color.Tangem.Fill.Neutral.primaryInvertedConstant.opacity(0.1)
+                backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
             )
         }
     }
