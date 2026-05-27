@@ -256,6 +256,14 @@ extension HederaError: UniversalError {
             102008007
         case .unsupportedCurve:
             102008008
+        case .accountEVMAddressNotFound:
+            102008009
+        case .contractCallResultNotFound:
+            102008010
+        case .contractCallResultIsInvalid:
+            102008011
+        case .contractCallGasPriceNotFound:
+            102008012
         }
     }
 }
