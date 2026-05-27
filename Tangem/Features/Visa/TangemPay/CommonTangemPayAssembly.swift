@@ -17,6 +17,10 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
         CommonTangemPayCardDetailsRepository(tangemPayAccount: tangemPayAccount)
     }
 
+    func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
+        CommonTangemPayCardDetailsRepository(card: card)
+    }
+
     func makeExpressCEXTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         walletPublicKey: Wallet.PublicKey?
