@@ -16,12 +16,12 @@ public extension AsyncStream {
     /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md for details.
     ///
     /// - Warning: Holds mutable state, so it is meant to live as isolated state of an `actor`.
-    struct Subscribers {
-        private var subscribers: [UUID: SubscriptionState] = [:]
+    struct Subscribers<ID: Hashable> {
+        private var subscribers: [ID: SubscriptionState] = [:]
 
         public init() {}
 
-        public mutating func subscribe(id: UUID, continuation: Continuation, currentValue: @autoclosure () -> Element) {
+        public mutating func subscribe(id: ID, continuation: Continuation, currentValue: @autoclosure () -> Element) {
             if case .cancelled = subscribers[id] {
                 subscribers.removeValue(forKey: id)
                 return
@@ -31,7 +31,7 @@ public extension AsyncStream {
             continuation.yield(currentValue())
         }
 
-        public mutating func unsubscribe(id: UUID) {
+        public mutating func unsubscribe(id: ID) {
             switch subscribers[id] {
             case .active:
                 subscribers.removeValue(forKey: id)
@@ -51,15 +51,14 @@ public extension AsyncStream {
 }
 
 public extension AsyncStream {
-    static func multicast<Holder: Actor>(
-        on holder: Holder,
-        subscribers: ReferenceWritableKeyPath<Holder, Subscribers>,
-        bufferingPolicy: Continuation.BufferingPolicy,
+    static func multicast<Holder: Actor, ID: Hashable & Sendable>(
+        with holder: Holder,
+        id: ID,
+        subscribers: ReferenceWritableKeyPath<Holder, Subscribers<ID>>,
+        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
         currentValue: @escaping (_ holder: isolated Holder) -> Element
     ) -> AsyncStream<Element> {
         AsyncStream(bufferingPolicy: bufferingPolicy) { [weak holder] continuation in
-            let subscriberId = UUID()
-
             continuation.onTermination = { @Sendable _ in
                 guard let holder else {
                     return
@@ -67,7 +66,7 @@ public extension AsyncStream {
 
                 Task {
                     await holder.performIsolated { _holder in
-                        _holder[keyPath: subscribers].unsubscribe(id: subscriberId)
+                        _holder[keyPath: subscribers].unsubscribe(id: id)
                     }
                 }
             }
@@ -80,13 +79,72 @@ public extension AsyncStream {
 
                 await holder.performIsolated { _holder in
                     _holder[keyPath: subscribers].subscribe(
-                        id: subscriberId,
+                        id: id,
                         continuation: continuation,
                         currentValue: currentValue(_holder)
                     )
                 }
             }
         }
+    }
+
+    static func multicast<Holder: Actor>(
+        with holder: Holder,
+        subscribers: ReferenceWritableKeyPath<Holder, Subscribers<UUID>>,
+        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        currentValue: @escaping (_ holder: isolated Holder) -> Element
+    ) -> AsyncStream<Element> {
+        multicast(
+            with: holder,
+            id: UUID(),
+            subscribers: subscribers,
+            bufferingPolicy: bufferingPolicy,
+            currentValue: currentValue
+        )
+    }
+
+    static func multicast<Holder: Actor, ID: Hashable & Sendable>(
+        with holder: Holder,
+        id: ID,
+        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        onSubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: ID, _ continuation: Continuation) -> Void,
+        onUnsubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: ID) -> Void
+    ) -> AsyncStream<Element> {
+        AsyncStream(bufferingPolicy: bufferingPolicy) { [weak holder] continuation in
+            continuation.onTermination = { @Sendable _ in
+                guard let holder else {
+                    return
+                }
+
+                Task {
+                    await onUnsubscribe(holder, id)
+                }
+            }
+
+            Task {
+                guard let holder else {
+                    continuation.finish()
+                    return
+                }
+
+                await onSubscribe(holder, id, continuation)
+            }
+        }
+    }
+
+    static func multicast<Holder: Actor>(
+        with holder: Holder,
+        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        onSubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: UUID, _ continuation: Continuation) -> Void,
+        onUnsubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: UUID) -> Void
+    ) -> AsyncStream<Element> {
+        multicast(
+            with: holder,
+            id: UUID(),
+            bufferingPolicy: bufferingPolicy,
+            onSubscribe: onSubscribe,
+            onUnsubscribe: onUnsubscribe
+        )
     }
 }
 
