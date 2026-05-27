@@ -54,7 +54,7 @@ struct MarketsTokenDetailsSecurityScoreViewRedesign: View {
 private extension MarketsTokenDetailsSecurityScoreViewRedesign {
     var scoreValue: some View {
         Text(viewModel.ratingViewData.securityScore)
-            .style(.Tangem.Heading28.bold, color: .Tangem.Text.Neutral.primary)
+            .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreValue)
     }
@@ -75,13 +75,13 @@ private extension MarketsTokenDetailsSecurityScoreViewRedesign {
     var infoButton: some View {
         Button(action: viewModel.onInfoButtonTap) {
             HStack(spacing: .unit(.x1)) {
-                Text(viewModel.title)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-                    .lineLimit(1)
-
                 Assets.infoCircle16.image
                     .renderingMode(.template)
                     .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+
+                Text(viewModel.title)
+                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .lineLimit(1)
             }
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreInfoButton)
