@@ -11,9 +11,6 @@ import TangemVisa
 import TangemPay
 
 extension TangemPayUtilities {
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
-
     @Injected(\.keysManager)
     private static var keysManager: KeysManager
 
@@ -76,24 +73,9 @@ extension TangemPayUtilities {
             }
     }
 
-    static func getCustomerWalletAddressAndAuthorizationTokens(
-        customerWalletId: String,
-        keysRepository: KeysRepository
-    ) -> (customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)? {
-        guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
-              let customerWalletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
-              // If there was no refreshToken saved - means user never got tangem pay offer
-              let tokens = tangemPayAuthorizationTokensRepository.getToken(forCustomerWalletId: customerWalletId)
-        else {
-            return nil
-        }
-
-        return (customerWalletAddress, tokens)
-    }
-
     static func getBFFStaticToken() -> String {
         switch FeatureStorage.instance.visaAPIType {
-        case .dev:
+        case .dev, .mock:
             keysManager.bffStaticTokenDev
         case .prod:
             keysManager.bffStaticToken
