@@ -1603,6 +1603,7 @@
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Используйте карту или кольцо для обновления сессии";
 "tangempay_sync_needed_button" = "Обновить сессию";
+"tangempay_sync_needed_title" = "Tangem Pay · Cессия истекла";
 "tangempay_sync_needed_restore_access" = "Обновить сессию";
 "tangempay_sync_needed_title" = "Tangem Pay · Cессия истекла";
 "tangempay_sync_needed" = "Используйте карту или кольцо для обновления сессии";
@@ -2096,6 +2097,15 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
 "yield_apy_boost_banner_title" = "Спецпредложение для режима доходности";
 "yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
+"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
+"yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
+"yield_apy_boost_story_first_title" = "First month APR bonus";
+"yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
+"yield_apy_boost_story_fourth_title" = "Summary";
+"yield_apy_boost_story_second_subtitle" = "Keep funds in Yield Mode for 30 consecutive days. Bonus is based on the yield you actually earn during that period";
+"yield_apy_boost_story_second_title" = "How to qualify";
+"yield_apy_boost_story_third_subtitle" = "3 × market yield for first 30 days\nMinimum eligibility: $1 of market yield accumulated for 30 days\nMaximum bonus: $50";
+"yield_apy_boost_story_third_title" = "How much you get";
 "yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
 "yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
 "yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
