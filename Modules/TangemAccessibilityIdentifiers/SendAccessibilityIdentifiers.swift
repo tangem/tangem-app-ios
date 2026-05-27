@@ -85,6 +85,7 @@ public enum SendAccessibilityIdentifiers {
     /// Send via Swap
     public static let convertToAnotherTokenButton = "sendConvertToAnotherTokenButton"
     public static let receiveTokenBlock = "sendReceiveTokenBlock"
+    public static let receiveDecimalNumberTextField = "sendReceiveDecimalNumberTextField"
     public static let removeConvertButton = "sendRemoveConvertButton"
     public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
     public static let networkSelectorErrorSubtitle = "sendNetworkSelectorErrorSubtitle"

@@ -53,6 +53,17 @@ final class CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         return coordinator
     }
 
+    func makeMarketsSearchCoordinator(dismissAction: @escaping Action<Void>) -> MarketsSearchCoordinator {
+        MarketsSearchCoordinator(dismissAction: dismissAction)
+    }
+
+    func makeEarnCoordinator(dismissAction: @escaping Action<Void>) -> EarnCoordinator {
+        EarnCoordinator(
+            dismissAction: dismissAction,
+            routeOnEarnTokenResolvedAction: { _, _ in }
+        )
+    }
+
     func makeTangemPayOnboardingCoordinator(
         dismissAction: @escaping Action<TangemPayOnboardingCoordinator.DismissOptions?>
     ) -> TangemPayOnboardingCoordinator {

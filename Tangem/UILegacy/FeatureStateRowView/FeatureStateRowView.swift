@@ -19,18 +19,23 @@ struct FeatureStateRowView: View {
     }
 
     var body: some View {
+        content
+            .connect(state: $state, to: viewModel.state)
+    }
+
+    private var content: some View {
         VStack(alignment: .leading) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text(viewModel.feature.name)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Release version: \(viewModel.releaseVersionInfo)")
-                        .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                Text("Release version: \(viewModel.releaseVersionInfo)")
+                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .padding(.top, 4)
 
-                    Text("Default state: \(viewModel.defaultState)")
-                        .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
-                }
+                Text("Default state: \(viewModel.defaultState)")
+                    .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
+                    .padding(.top, 2)
             }
 
             Picker("", selection: $state) {
@@ -42,7 +47,6 @@ struct FeatureStateRowView: View {
             .pickerStyle(.segmented)
         }
         .padding(.vertical, 12)
-        .connect(state: $state, to: viewModel.state)
     }
 }
 
