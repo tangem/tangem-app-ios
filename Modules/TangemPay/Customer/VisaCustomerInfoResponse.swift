@@ -37,6 +37,9 @@ public extension VisaCustomerInfoResponse {
         public let status: ProductStatus
         public let updatedAt: Date
         public let paymentAccountId: String
+        public let displayName: String
+        public let adminCardLimit: CardLimit
+        public let actualCardLimit: CardLimit?
     }
 
     enum ProductStatus: String, Decodable {
@@ -102,6 +105,11 @@ public extension VisaCustomerInfoResponse {
 
         @DefaultIfMissing
         public var isPinSet: Bool
+    }
+
+    struct CardLimit: Decodable {
+        public let amount: Int
+        public let periodType: String
     }
 }
 

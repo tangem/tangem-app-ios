@@ -58,6 +58,22 @@
         <string>%li days ago</string>
       </dict>
     </dict>
+    <key>common_hours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li hour</string>
+        <key>other</key>
+        <string>%li hours</string>
+      </dict>
+    </dict>
     <key>common_hours_time_ago</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -304,9 +320,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Your wallet contains %li token. To continue, please sync your addresses.</string>
+        <string>У вашому гаманці %li токен. Синхронізуйте адреси, щоб продовжити.</string>
+        <key>few</key>
+        <string>У вашому гаманці %li токени. Синхронізуйте адреси, щоб продовжити.</string>
+        <key>many</key>
+        <string>У вашому гаманці %li токенів. Синхронізуйте адреси, щоб продовжити.</string>
         <key>other</key>
-        <string>Your wallet contains %li tokens. To continue, please sync your addresses.</string>
+        <string>У вашому гаманці %li токенів. Синхронізуйте адреси, щоб продовжити.</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -445,6 +465,22 @@
         <string>%li tokens aren't compatible with this address</string>
       </dict>
     </dict>
+    <key>tangempay_cards_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li card</string>
+        <key>other</key>
+        <string>%li cards</string>
+      </dict>
+    </dict>
     <key>visa_limits_available_for_days_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -483,6 +519,26 @@
         <string>Використовуйте вашу картку або кільце, щоб отримати адреси для %li мереж</string>
         <key>other</key>
         <string>Використовуйте вашу картку або кільце, щоб отримати адреси для %li мереж</string>
+      </dict>
+    </dict>
+    <key>warning_missing_derivation_no_nfc_message</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Синхронізуйте адреси, щоб отримати адресу для %li мережі</string>
+        <key>few</key>
+        <string>Синхронізуйте адреси, щоб отримати адреси для %li мереж</string>
+        <key>many</key>
+        <string>Синхронізуйте адреси, щоб отримати адреси для %li мереж</string>
+        <key>other</key>
+        <string>Синхронізуйте адреси, щоб отримати адреси для %li мереж</string>
       </dict>
     </dict>
   </dict>
