@@ -97,6 +97,7 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     func onAppear() {
         refreshSystemPermissionState()
+        logScreenOpened()
     }
 
     func onTapMoreInfoTransactionPushNotifications() {
@@ -220,6 +221,14 @@ private extension NotificationSettingsViewModel {
     /// `isAuthorizedPublisher`; if iOS doesn't surface a system prompt anymore (already denied),
     /// we fall back to showing our own settings alert.
     func handleToggle(value: Bool, for channel: PushChannel) {
+        Analytics.log(
+            .pushNotificationSettingsToggleClicked,
+            params: [
+                .toggleType: analyticsToggleType(for: channel),
+                .state: Analytics.ParameterValue.toggleState(for: value).rawValue,
+            ]
+        )
+
         toggleTasks[channel]?.cancel()
 
         toggleTasks[channel] = Task { @MainActor [weak self] in
@@ -298,6 +307,14 @@ private extension NotificationSettingsViewModel {
         case .priceAlerts: priceAlertsEnabled = false
         }
     }
+
+    func analyticsToggleType(for channel: PushChannel) -> String {
+        switch channel {
+        case .transactionAlerts: "transaction_alerts"
+        case .offersUpdates: "offers_updates"
+        case .priceAlerts: "price_alerts"
+        }
+    }
 }
 
 // MARK: - Banner Action
@@ -309,6 +326,7 @@ private extension NotificationSettingsViewModel {
     /// 3. No toggles are flipped — the `$isSystemPermissionGranted` pipeline reacts automatically
     ///    when the user returns from Settings via `isAuthorizedPublisher`.
     func handleBannerOpenSettingsTap() {
+        logBannerOpenSettingsTapped()
         bannerActionTask?.cancel()
 
         bannerActionTask = runTask(in: self) { @MainActor viewModel in
@@ -320,6 +338,25 @@ private extension NotificationSettingsViewModel {
 
             viewModel.refreshSystemPermissionState()
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension NotificationSettingsViewModel {
+    func logScreenOpened() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let isAuthorized = await pushNotificationsPermission.isAuthorized
+            Analytics.log(
+                .notificationSettingsScreenOpened,
+                params: [.state: .boolState(for: isAuthorized)]
+            )
+        }
+    }
+
+    func logBannerOpenSettingsTapped() {
+        Analytics.log(.pushBannerOpenSettingsTapped)
     }
 }
 
