@@ -203,6 +203,7 @@ public extension Color.Tangem.Markers {
     static let borderGray: Color = .dynamic(light: Primitives.Lights.light3, dark: Primitives.lightAlpha.opacity(0.2))
     static let borderTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let borderTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
+    static let borderTintedGreen: Color = Primitives.Green.emerald.opacity(0.1)
     static let backgroundTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
