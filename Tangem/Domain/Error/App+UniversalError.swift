@@ -131,6 +131,8 @@ extension AnyWalletManagerFactoryError: UniversalError {
             100005001
         case .noDerivation:
             100005002
+        case .twinWalletPublicKeyNotFound:
+            100005003
         }
     }
 }

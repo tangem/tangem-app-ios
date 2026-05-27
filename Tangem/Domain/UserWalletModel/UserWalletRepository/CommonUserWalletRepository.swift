@@ -60,7 +60,7 @@ class CommonUserWalletRepository: UserWalletRepository {
     init() {}
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("CommonUserWalletRepository deinit")
     }
 
     func initialize() async {
