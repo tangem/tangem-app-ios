@@ -9,6 +9,7 @@
 import Foundation
 import ReownWalletKit
 import enum BlockchainSdk.Blockchain
+import TangemFoundation
 
 final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessageHandler {
     @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
@@ -46,7 +47,7 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
 
         guard
             let rawHexChainReference = chainIDToValue["chainId"],
-            let caipChainReference = rawHexChainReference.hexToInteger,
+            let caipChainReference = rawHexChainReference.hexToInt(),
             let reownBlockchain = ReownWalletKit.Blockchain(
                 namespace: WalletConnectSupportedNamespace.eip155.rawValue,
                 reference: String(caipChainReference)

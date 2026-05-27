@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BigInt
 
 final class HederaNetworkService {
     var currentProviderIndex: Int
@@ -50,6 +51,38 @@ final class HederaNetworkService {
             default:
                 throw HederaError.multipleAccountsFound
             }
+        }
+    }
+
+    func getAccountInfo(address: String) -> some Publisher<HederaAccountInfo, Error> {
+        return providerPublisher { provider in
+            provider.getAccount(idOrAliasOrEvmAddress: address)
+                .eraseToAnyPublisher()
+        }
+        .tryMap { accountInfo in
+            guard let accountId = accountInfo.account else {
+                throw HederaError.accountDoesNotExist
+            }
+
+            return HederaAccountInfo(
+                accountId: accountId,
+                alias: accountInfo.alias,
+                evmAddress: accountInfo.evmAddress
+            )
+        }
+    }
+
+    func getContractId(evmAddress: String) -> some Publisher<String, Error> {
+        return providerPublisher { provider in
+            provider.getContract(idOrAliasOrEvmAddress: evmAddress)
+                .eraseToAnyPublisher()
+        }
+        .tryMap { contractInfo in
+            guard let contractId = contractInfo.contractId else {
+                throw HederaError.contractCallResultNotFound
+            }
+
+            return contractId
         }
     }
 
@@ -183,6 +216,121 @@ final class HederaNetworkService {
         }
     }
 
+    func getERC20Balance(
+        accountId: String,
+        tokenContractAddress: String,
+        tokenDecimals: Int
+    ) -> some Publisher<Decimal, Error> {
+        let converter = HederaTokenContractAddressConverter()
+
+        return Deferred {
+            Future { promise in
+                do {
+                    let sourceEVMAddress = try converter.convertFromHederaToEVM(accountId)
+                    let method = TokenBalanceERC20TokenMethod(owner: sourceEVMAddress.removeHexPrefix())
+                    promise(.success(method.encodedData))
+                } catch {
+                    promise(.failure(error))
+                }
+            }
+        }
+        .withWeakCaptureOf(self)
+        .flatMap { service, encodedData in
+            service.providerPublisher { provider in
+                provider.invokeContract(
+                    from: nil,
+                    to: tokenContractAddress,
+                    data: encodedData,
+                    estimate: nil
+                )
+                .eraseToAnyPublisher()
+            }
+        }
+        .tryMap { contractCallResult in
+            guard let result = contractCallResult.result else {
+                throw HederaError.contractCallResultNotFound
+            }
+
+            guard let balance = EthereumUtils.parseEthereumDecimal(result, decimalsCount: tokenDecimals) else {
+                throw HederaError.contractCallResultIsInvalid
+            }
+
+            return balance
+        }
+    }
+
+    func estimateERC20Transfer(
+        sourceAccountId: String,
+        destinationAddress: String,
+        tokenContractAddress: String,
+        amount: Amount
+    ) -> some Publisher<(gasLimit: UInt64, recipientEVMAddress: String), Error> {
+        let converter = HederaTokenContractAddressConverter()
+
+        return getAccountInfo(address: destinationAddress)
+            .tryMap { accountInfo -> String in
+                guard let recipientEVMAddress = accountInfo.evmAddress, !recipientEVMAddress.isEmpty else {
+                    throw HederaError.accountEVMAddressNotFound
+                }
+
+                return recipientEVMAddress
+            }
+            .tryMap { recipientEVMAddress -> (encodedData: String, sourceEVMAddress: String, recipientEVMAddress: String) in
+                guard let amountValue = amount.bigUIntValue else {
+                    throw HederaError.contractCallResultIsInvalid
+                }
+
+                let sourceEVMAddress = try converter.convertFromHederaToEVM(sourceAccountId)
+                let method = TransferERC20TokenMethod(
+                    destination: recipientEVMAddress.removeHexPrefix(),
+                    amount: amountValue
+                )
+                return (method.encodedData, sourceEVMAddress, recipientEVMAddress)
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { service, payload in
+                let (encodedData, sourceEVMAddress, recipientEVMAddress) = payload
+                return service.providerPublisher { provider in
+                    provider.invokeContract(
+                        from: sourceEVMAddress,
+                        to: tokenContractAddress,
+                        data: encodedData,
+                        estimate: true
+                    )
+                    .eraseToAnyPublisher()
+                }
+                .map { ($0, recipientEVMAddress) }
+            }
+            .tryMap { contractCallResult, recipientEVMAddress in
+                guard let result = contractCallResult.result else {
+                    throw HederaError.contractCallResultNotFound
+                }
+
+                let gasLimit = try Self.parseHexUInt64(result)
+                return (gasLimit: gasLimit, recipientEVMAddress: recipientEVMAddress)
+            }
+    }
+
+    func getERC20GasPrice() -> some Publisher<UInt64, Error> {
+        providerPublisher { provider in
+            provider.getNetworkFees()
+                .eraseToAnyPublisher()
+        }
+        .tryMap { networkFees in
+            guard
+                let contractCallFee = networkFees.fees.first(where: {
+                    $0.transactionType.caseInsensitiveCompare(Constants.contractCallTransactionType) == .orderedSame
+                }),
+                let gas = contractCallFee.gas,
+                gas >= 0
+            else {
+                throw HederaError.contractCallGasPriceNotFound
+            }
+
+            return UInt64(gas)
+        }
+    }
+
     /// - Note: For Hbar tx status fetching, the Mirror Node acts as a primary node, and the Consensus Node is a backup one.
     private func makeFallbackTransactionInfoPublisher(transactionHash: String) -> some Publisher<HederaTransactionInfo, Error> {
         return consensusProvider
@@ -252,6 +400,16 @@ final class HederaNetworkService {
             )
         }
     }
+
+    private static func parseHexUInt64(_ value: String) throws -> UInt64 {
+        let hexString = value.removeHexPrefix()
+
+        guard let parsed = BigUInt(hexString, radix: 16), parsed <= BigUInt(UInt64.max) else {
+            throw HederaError.contractCallResultIsInvalid
+        }
+
+        return UInt64(parsed)
+    }
 }
 
 // MARK: - MultiNetworkProvider protocol conformance
@@ -270,5 +428,6 @@ private extension HederaNetworkService {
         /// as there is no mention of such a limit in their docs), so this constant is limited to that limit.
         /// Still well enough for our needs, 200 unique tokens per unique Hedera account.
         static let tokenEntitiesLimit = 200
+        static let contractCallTransactionType = "CONTRACTCALL"
     }
 }
