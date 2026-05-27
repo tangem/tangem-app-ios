@@ -501,11 +501,7 @@ private extension WCServiceV2 {
 
     private func normalizeAddress(_ address: String) -> String {
         let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
-        let isEvmAddress = trimmedAddress.hasHexPrefix()
-            && trimmedAddress.count == 42
-            && trimmedAddress.dropFirst(2).allSatisfy(\.isHexDigit)
-
-        return isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
+        return trimmedAddress.isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
     }
 
     private func reject(transactionRequest: Request) async {
