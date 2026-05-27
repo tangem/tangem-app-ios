@@ -12,24 +12,24 @@ import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 actor InMemoryTransactionHistoryRecordsStorage<Record: TransactionHistoryRecord> {
-    private var byId: [String: Record] = [:]
+    private var recordsKeyedByTxId: [String: Record] = [:]
     private var subscribers = AsyncStream<[Record]>.MulticastSubscribers<UUID>()
 
-    private func snapshot() -> [Record] {
-        byId.values.sorted(by: { $0.updatedAt > $1.updatedAt })
+    private func makeSnapshot() -> [Record] {
+        recordsKeyedByTxId.values.sorted(by: \.updatedAt)
     }
 }
 
 // MARK: - TransactionHistoryRecordsStorage protocol conformance
 
 extension InMemoryTransactionHistoryRecordsStorage: TransactionHistoryRecordsStorage {
-    var records: [Record] { snapshot() }
+    var records: [Record] { makeSnapshot() }
 
     nonisolated var recordsUpdates: AsyncStream<[Record]> {
         .multicast(
             with: self,
             onSubscribe: { storage, id, continuation in
-                storage.subscribers.subscribe(id: id, continuation: continuation, currentValue: storage.snapshot())
+                storage.subscribers.subscribe(id: id, continuation: continuation, currentValue: storage.makeSnapshot())
             },
             onUnsubscribe: { storage, id in
                 storage.subscribers.unsubscribe(id: id)
@@ -38,12 +38,12 @@ extension InMemoryTransactionHistoryRecordsStorage: TransactionHistoryRecordsSto
     }
 
     func updateOrAppend(_ records: [Record]) {
-        records.forEach { byId[$0.txId] = $0 }
-        subscribers.yield(snapshot())
+        records.forEach { recordsKeyedByTxId[$0.txId] = $0 }
+        subscribers.yield(makeSnapshot())
     }
 
     func clear() {
-        byId.removeAll()
-        subscribers.yield([])
+        recordsKeyedByTxId.removeAll()
+        subscribers.yield(makeSnapshot())
     }
 }
