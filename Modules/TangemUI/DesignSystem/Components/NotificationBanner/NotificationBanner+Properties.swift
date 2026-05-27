@@ -154,8 +154,13 @@ extension NotificationBanner.Icon.Alignment {
 public extension NotificationBanner {
     enum Buttons: Equatable, Sendable {
         case none
-        case one(TangemButton.Model)
-        case two(left: TangemButton.Model, right: TangemButton.Model)
+        case one(TangemButton.Model, accessibilityIdentifier: String?)
+        case two(
+            left: TangemButton.Model,
+            right: TangemButton.Model,
+            leftAccessibilityIdentifier: String?,
+            rightAccessibilityIdentifier: String?
+        )
     }
 
     enum BannerAction: Equatable, Sendable {
