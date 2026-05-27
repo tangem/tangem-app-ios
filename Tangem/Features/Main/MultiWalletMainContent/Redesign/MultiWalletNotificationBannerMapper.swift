@@ -9,6 +9,7 @@
 import Foundation
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let id: NotificationViewId
@@ -220,20 +221,33 @@ private extension MultiWalletNotificationBannerMapper {
         case 0:
             return .none
         case 1:
+            let button = notificationButtons[0]
             return .one(
-                mapButton(notificationButtons[0], notificationId: notificationId)
+                mapButton(button, notificationId: notificationId),
+                accessibilityIdentifier: buttonAccessibilityIdentifier(for: button.actionType)
             )
         default:
+            let left = notificationButtons[0]
+            let right = notificationButtons[1]
             return .two(
-                left: mapButton(
-                    notificationButtons[0],
-                    notificationId: notificationId
-                ),
-                right: mapButton(
-                    notificationButtons[1],
-                    notificationId: notificationId
-                )
+                left: mapButton(left, notificationId: notificationId),
+                right: mapButton(right, notificationId: notificationId),
+                leftAccessibilityIdentifier: buttonAccessibilityIdentifier(for: left.actionType),
+                rightAccessibilityIdentifier: buttonAccessibilityIdentifier(for: right.actionType)
             )
+        }
+    }
+
+    func buttonAccessibilityIdentifier(for actionType: NotificationButtonActionType) -> String {
+        switch actionType {
+        case .reduceAmountBy:
+            return SendAccessibilityIdentifiers.reduceFeeButton
+        case .leaveAmount:
+            return SendAccessibilityIdentifiers.leaveAmountButton
+        case .openFeeCurrency:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        default:
+            return CommonUIAccessibilityIdentifiers.notificationButton
         }
     }
 
