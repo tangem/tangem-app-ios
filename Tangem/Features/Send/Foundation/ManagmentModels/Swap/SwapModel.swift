@@ -135,7 +135,7 @@ private extension SwapModel {
                 guard let publisher = self?._providersState else { return .float }
                 let states = await publisher.dropFirst().values
                 for await state in states {
-                    if case .loaded(let providers, _, _) = state, !providers.supportedRateTypes.isEmpty {
+                    if case .loaded(.swap(_, _, let providers), _) = state, !providers.supportedRateTypes.isEmpty {
                         return providers.supportedRateTypes.contains(.fixed) ? .fixed : .float
                     }
                 }
@@ -155,10 +155,10 @@ private extension SwapModel {
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
         // Use timer to check pending transactions
-        case .loaded(_, .some, .restriction(.hasPendingTransaction, _)),
-             .loaded(_, .some, .restriction(.hasPendingApproveTransaction, _)),
-             .loaded(_, .some, .previewCEX),
-             .loaded(_, .some, .readyToSwap):
+        case .loaded(_, .restriction(.hasPendingTransaction, _)),
+             .loaded(_, .restriction(.hasPendingApproveTransaction, _)),
+             .loaded(_, .previewCEX),
+             .loaded(_, .readyToSwap):
 
             autoupdatingTimer.setup { [weak self] in
                 self?.autoupdatingRates()
@@ -352,12 +352,12 @@ private extension SwapModel {
                 screen: screen,
                 errorDescription: error.localizedDescription
             )
-        case .loaded(_, .some, .requiredRefresh(let occurredError, _)):
+        case .loaded(.swap(_, .some, _), .requiredRefresh(let occurredError, _)):
             analyticsLogger.logSwapErrorExpressQuote(
                 screen: screen,
                 errorDescription: occurredError.localizedDescription
             )
-        case .loaded(_, .some, .restriction(let restriction, _)):
+        case .loaded(.swap(_, .some, _), .restriction(let restriction, _)):
             switch restriction {
             case .tooSmallAmountForSwapping, .notEnoughReceivedAmount:
                 analyticsLogger.logSwapErrorMinAmount(screen: screen)
@@ -459,6 +459,39 @@ extension SwapModel {
 
         case .revokeAndPermissionRequired(let permissionRequired):
             return try await map(provider: selected, permissionRequired: permissionRequired)
+        }
+    }
+
+    func mapToReadyToTransferState() async throws -> LoadedState {
+        let source = try _sourceToken.value.get()
+        let destination = try _receiveToken.value.get()
+
+        guard let amountValue = _sourceAmount.value?.crypto else {
+            return .idle
+        }
+
+        guard let address = destination.address else {
+            return .idle
+        }
+
+        let amount = makeAmount(value: amountValue, tokenItem: source.tokenItem)
+        let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
+
+        source.tokenFeeProvidersManager.update(input: .common(amount: amountValue, destination: address))
+        await source.tokenFeeProvidersManager.updateFees().value
+
+        do {
+            let fee = try source.tokenFeeProvidersManager.selectedTokenFee.value.get()
+            if let restriction = try validate(amount: amount, fee: fee) {
+                return .restriction(restriction, quote: quote)
+            }
+
+            let notification = source.withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
+            let state = ReadyToTransferState(quote: quote, fee: fee, notification: notification)
+            return .readyToTransfer(state)
+
+        } catch {
+            return .requiredRefresh(occurredError: error, quote: quote)
         }
     }
 
@@ -673,11 +706,30 @@ extension SwapModel {
 
         let result = try await {
             switch _providersState.value {
-            case .loaded(_, _, state: .permissionRequired):
+            case .loaded(_, .permissionRequired):
                 assertionFailure("Should called sendApproveTransaction()")
                 throw SwapModel.SwapModelError.transactionDataNotFound
 
-            case .loaded(_, .some(let selected), state: .previewCEX(let previewCEX)):
+            case .loaded(_, .readyToTransfer(let transferState)):
+                guard let destinationAddress = receive.address else {
+                    throw SwapModel.SwapModelError.destinationNotFound
+                }
+
+                let amount = makeAmount(value: transferState.quote.fromAmount, tokenItem: source.tokenItem)
+                let transaction = try await source.transactionCreator.createTransaction(
+                    amount: amount,
+                    fee: transferState.fee,
+                    destinationAddress: destinationAddress,
+                    params: nil
+                )
+
+                let dispatcher = source.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+                let result = try await dispatcher.send(transaction: .transfer(transaction))
+                analyticsLogger.logSwapTransactionSent(result: result)
+
+                return result
+
+            case .loaded(.swap(_, .some(let selected), _), .previewCEX(let previewCEX)):
                 let data = try await expressManager.requestData()
                 let dispatcher = source.transactionDispatcherProvider.makeCEXTransactionDispatcher()
                 let result = try await dispatcher.send(transaction: .cex(data: data, fee: previewCEX.fee))
@@ -695,7 +747,7 @@ extension SwapModel {
 
                 return result
 
-            case .loaded(_, .some(let selected), state: .readyToSwap(let readyToSwap)):
+            case .loaded(.swap(_, .some(let selected), _), .readyToSwap(let readyToSwap)):
                 let data = readyToSwap.data
                 let didUpgrade = source.sendYieldModuleHelper?.isUpgradeWrapped(data) == true
 
@@ -927,7 +979,7 @@ extension SwapModel: SendSourceTokenInput, SendSourceTokenOutput {
     }
 }
 
-// MARK: - SendSourceTokenAmountInput
+// MARK: - SendSourceTokenAmountInput, SendSourceTokenAmountOutput
 
 extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
     var sourceAmount: LoadingResult<SendAmount, any Error> {
@@ -1000,7 +1052,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
             .map { state -> ExchangeAmountRestriction? in
-                guard case .loaded(_, _, let loadedState) = state else {
+                guard case .loaded(_, let loadedState) = state else {
                     return nil
                 }
 
@@ -1041,7 +1093,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     }
 
     private func mapToHighPriceImpactCalculatorResult(providersState: ProvidersState) -> HighPriceImpactCalculator.Result? {
-        guard case .loaded(_, _, let state) = providersState else {
+        guard case .loaded(_, let state) = providersState else {
             return nil
         }
 
@@ -1103,7 +1155,7 @@ extension SwapModel: SendSwapProvidersInput {
     }
 
     private func selectedRateType(from state: ProvidersState) -> ExpressProviderRateType? {
-        if case .loaded(_, .some(let selected), _) = state {
+        if case .loaded(.swap(_, .some(let selected), _), _) = state {
             return selected.rateType
         }
         return nil
@@ -1115,9 +1167,10 @@ extension SwapModel: SendSwapProvidersInput {
         case .failure(let error): .failure(error)
         case .loading(.rates): .loading
         case .loading: .none
-        case .loaded(_, _, .idle): .none
-        case .loaded(_, _, .requiredRefresh(let error, _)): .failure(error)
-        case .loaded(_, let selected, _): selected.map { .success($0) }
+        case .loaded(_, .idle): .none
+        case .loaded(_, .requiredRefresh(let error, _)): .failure(error)
+        case .loaded(.swap(_, let selected, _), _): selected.map { .success($0) }
+        case .loaded: .none
         }
     }
 }
@@ -1136,13 +1189,25 @@ extension SwapModel: SendSwapProvidersOutput {
 
 extension SwapModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
-        selectedExpressProvider?.value?.expressFeeProvider as? TokenFeeProvidersManager
+        mapToTokenFeeProvidersManager(providersState: _providersState.value)
     }
 
     var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
-        selectedExpressProviderPublisher
-            .compactMap { $0?.value?.expressFeeProvider as? TokenFeeProvidersManager }
+        _providersState
+            .withWeakCaptureOf(self)
+            .compactMap { $0.mapToTokenFeeProvidersManager(providersState: $1) }
             .eraseToAnyPublisher()
+    }
+
+    private func mapToTokenFeeProvidersManager(providersState: ProvidersState) -> (any TokenFeeProvidersManager)? {
+        switch providersState {
+        case .loaded(.swap(_, .some(let selected), _), _):
+            return selected.expressFeeProvider as? TokenFeeProvidersManager
+        case .loaded(.transfer, _):
+            return _sourceToken.value.value?.tokenFeeProvidersManager
+        default:
+            return nil
+        }
     }
 }
 
@@ -1190,8 +1255,15 @@ extension SwapModel: SendFeeInput {
                 value: .loading
             )
 
-        case .loaded(_, .some(let selected), _):
+        case .loaded(.swap(_, .some(let selected), _), _):
             return try? selected.getTokenFeeProvidersManager().selectedFeeProvider.selectedTokenFee
+
+        case .loaded(_, .readyToTransfer(let state)):
+            return TokenFee(
+                option: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.option,
+                tokenItem: tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem,
+                value: .success(state.fee)
+            )
 
         default:
             return nil
@@ -1200,13 +1272,14 @@ extension SwapModel: SendFeeInput {
 
     private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
-        case .loaded(_, _, state: .readyToSwap):
+        case .loaded(_, .readyToSwap),
+             .loaded(_, .readyToTransfer):
             return true
-        case .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForFee, _)),
-             .loaded(_, .some(let selected), state: .restriction(.notEnoughAmountForTxValue, _)),
-             .loaded(_, .some(let selected), state: .restriction(.notEnoughBalanceForSwapping, _)):
+        case .loaded(.swap(_, .some(let selected), _), .restriction(.notEnoughAmountForFee, _)),
+             .loaded(.swap(_, .some(let selected), _), .restriction(.notEnoughAmountForTxValue, _)),
+             .loaded(.swap(_, .some(let selected), _), .restriction(.notEnoughBalanceForSwapping, _)):
             return !selected.getState().isPermissionRequired
-        case .loaded(_, _, state: .previewCEX(let previewCEX)):
+        case .loaded(_, .previewCEX(let previewCEX)):
             return !previewCEX.isExemptFee
         case .loading(.rates):
             return false
@@ -1382,10 +1455,12 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     private func mapToIsReadyToSend(providersState: ProvidersState) -> Bool {
         switch providersState {
-        case .loaded(_, _, state: .previewCEX(let state)):
+        case .loaded(_, .previewCEX(let state)):
             return state.quote.highPriceImpact?.isBlocked != true
-        case .loaded(_, _, state: .readyToSwap(let state)):
+        case .loaded(_, .readyToSwap(let state)):
             return state.quote.highPriceImpact?.isBlocked != true
+        case .loaded(_, .readyToTransfer):
+            return true
         default:
             return false
         }
@@ -1397,13 +1472,19 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         fee: TokenFee
     ) -> SendSummaryTransactionData? {
         switch providersState {
-        case .loaded(_, let selected, _):
+        case .loaded(.swap(_, let selected, _), _):
             guard let provider = selected,
                   let sourceTokenItem = _sourceToken.value.value?.tokenItem else {
                 return nil
             }
 
             return .swap(amount: amount, fee: fee, provider: provider.provider, sourceTokenItem: sourceTokenItem)
+        case .loaded(_, .readyToTransfer):
+            guard let amount else {
+                return nil
+            }
+
+            return .send(amount: amount, fee: fee)
         default:
             return .none
         }
@@ -1462,7 +1543,7 @@ extension SwapModel: SendBaseDataBuilderInput {
 
 extension SwapModel: ApproveFlowDataProvider, ApproveOutput {
     func approveFlowInput() throws -> ApproveFlowInput {
-        guard case .loaded(_, let selected, state: .permissionRequired(let state)) = _providersState.value else {
+        guard case .loaded(.swap(_, let selected, _), .permissionRequired(let state)) = _providersState.value else {
             throw SendApproveViewModelInputDataBuilderError.notFound("PermissionRequired state")
         }
 
@@ -1491,13 +1572,12 @@ extension SwapModel: ApproveFlowDataProvider, ApproveOutput {
     }
 
     func approveDidSendTransaction() {
-        guard case .loaded(let providers, let selected, state: .permissionRequired(let state)) = _providersState.value else {
+        guard case .loaded(.swap(let rate, let selected, let providers), .permissionRequired(let state)) = _providersState.value else {
             return
         }
 
         update(providersState: .loaded(
-            providers: providers,
-            selected: selected,
+            .swap(rate: rate, selected: selected, providers: providers),
             state: .restriction(.hasPendingApproveTransaction, quote: state.quote)
         ))
     }
@@ -1574,7 +1654,7 @@ extension SwapModel: NotificationTapDelegate {
         var newAmount = source - amount
 
         switch _providersState.value {
-        case .loaded(_, _, state: .previewCEX(let preview)) where preview.subtractFee.subtractFee > 0:
+        case .loaded(_, .previewCEX(let preview)) where preview.subtractFee.subtractFee > 0:
             newAmount = newAmount - preview.subtractFee.subtractFee
         default:
             break
@@ -1609,8 +1689,8 @@ extension SwapModel.ProvidersState: CustomStringConvertible {
             "loading(\(type))"
         case .failure(let error):
             "failure(\(error.localizedDescription))"
-        case .loaded(let providers, let selected, let state):
-            "loaded(providers: \(providers.available.count), selected: \(String(describing: selected)), state: \(state), supportedRateTypes: \(providers.supportedRateTypes))"
+        case .loaded(let manager, let state):
+            "loaded(manager: \(manager), state: \(state))"
         }
     }
 }
@@ -1624,6 +1704,7 @@ extension SwapModel.LoadedState: CustomStringConvertible {
         case .requiredRefresh(let error, _): "requiredRefresh(\(error))"
         case .restriction(let restriction, _): "restriction(\(restriction))"
         case .permissionRequired: "permissionRequired"
+        case .readyToTransfer: "readyToTransfer"
         case .readyToSwap: "readyToSwap"
         case .previewCEX: "previewCEX"
         }
@@ -1639,25 +1720,18 @@ extension SwapModel {
         case loading(LoadingType)
         /// Error only for case when all providers didn't loaded
         case failure(Error)
-        case loaded(providers: Providers, selected: ExpressAvailableProvider?, state: LoadedState)
-
-        struct Providers {
-            let available: [ExpressAvailableProvider]
-            let supportedRateTypes: Set<ExpressProviderRateType>
-
-            var isEmpty: Bool { available.isEmpty }
-        }
+        case loaded(ExpressManagerState, state: LoadedState)
 
         var providers: [ExpressAvailableProvider] {
             switch self {
-            case .loaded(let providers, _, _): providers.available
+            case .loaded(.swap(let rate, _, let providers), _): providers.availableProviders(rate: rate)
             default: []
             }
         }
 
         var supportedRateTypes: Set<ExpressProviderRateType> {
             switch self {
-            case .loaded(let providers, _, _): providers.supportedRateTypes
+            case .loaded(.swap(_, _, let providers), _): providers.supportedRateTypes
             default: []
             }
         }
@@ -1694,6 +1768,7 @@ extension SwapModel {
         case requiredRefresh(occurredError: Error, quote: Quote?)
         case restriction(RestrictionType, quote: Quote?)
         case permissionRequired(PermissionRequiredState)
+        case readyToTransfer(ReadyToTransferState)
         case previewCEX(PreviewCEXState)
         case readyToSwap(ReadyToSwapState)
 
@@ -1703,6 +1778,7 @@ extension SwapModel {
             case .requiredRefresh(_, let quote): quote
             case .restriction(_, let quote): quote
             case .permissionRequired(let state): state.quote
+            case .readyToTransfer(let state): state.quote
             case .previewCEX(let state): state.quote
             case .readyToSwap(let state): state.quote
             }
@@ -1725,6 +1801,12 @@ extension SwapModel {
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+    }
+
+    struct ReadyToTransferState {
+        let quote: Quote
+        let fee: BSDKFee
+        let notification: WithdrawalNotification?
     }
 
     struct PermissionRequiredState {

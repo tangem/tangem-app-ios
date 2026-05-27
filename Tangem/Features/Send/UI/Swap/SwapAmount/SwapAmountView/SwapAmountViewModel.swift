@@ -108,11 +108,14 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         Publishers.CombineLatest3(
             interactor.sourceTokenPublisher,
             interactor.receivedTokenPublisher,
-            stateProvider.statePublisher
+            stateProvider.statePublisher.filter { $0.filter(loading: [.rates, .autoupdate, .fee]) }
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateExpressCurrencyInputEnabledState(sourceToken: $1.0, receiveToken: $1.1, providersState: $1.2) }
+        .map { $0.mapToInputDisabledState(sourceToken: $1.0, receiveToken: $1.1, providersState: $1.2) }
+        .removeDuplicates()
+        .receiveOnMain()
+        .assign(to: &$isInputDisabled)
 
         // Source token / amount updating
 
@@ -194,12 +197,12 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 private extension SwapAmountViewModel {
     func updateSourceExpressCurrencyState(providersState: SwapModel.ProvidersState) {
         switch providersState {
-        case .loaded(_, _, .restriction(.notEnoughBalanceForSwapping, quote: _)):
+        case .loaded(_, .restriction(.notEnoughBalanceForSwapping, quote: _)):
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
-             .loaded(_, _, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
+        case .loaded(_, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
+             .loaded(_, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
+        case .loaded(_, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sourceExpressCurrencyViewModel.update(errorState: .error(errorText))
         default:
@@ -207,7 +210,7 @@ private extension SwapAmountViewModel {
         }
     }
 
-    func updateExpressCurrencyInputEnabledState(
+    func mapToInputDisabledState(
         sourceToken: LoadingResult<SendSourceToken, Error>,
         receiveToken: LoadingResult<SendReceiveToken, Error>,
         providersState: SwapModel.ProvidersState
