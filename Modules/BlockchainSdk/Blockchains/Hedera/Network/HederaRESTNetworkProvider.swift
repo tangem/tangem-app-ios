@@ -27,6 +27,14 @@ struct HederaRESTNetworkProvider {
         return requestPublisher(for: .getAccounts(publicKey: publicKey))
     }
 
+    func getAccount(idOrAliasOrEvmAddress: String) -> some Publisher<HederaNetworkResult.AccountInfo, Error> {
+        return requestPublisher(for: .getAccount(idOrAliasOrEvmAddress: idOrAliasOrEvmAddress))
+    }
+
+    func getContract(idOrAliasOrEvmAddress: String) -> some Publisher<HederaNetworkResult.ContractInfo, Error> {
+        return requestPublisher(for: .getContract(idOrAliasOrEvmAddress: idOrAliasOrEvmAddress))
+    }
+
     func getBalance(accountId: String) -> some Publisher<HederaNetworkResult.AccountHbarBalance, Error> {
         return requestPublisher(for: .getAccountBalance(accountId: accountId))
     }
@@ -39,12 +47,31 @@ struct HederaRESTNetworkProvider {
         return requestPublisher(for: .getExchangeRate)
     }
 
+    func getNetworkFees() -> some Publisher<HederaNetworkResult.NetworkFees, Error> {
+        return requestPublisher(for: .getNetworkFees)
+    }
+
     func getTransactionInfo(transactionHash: String) -> some Publisher<HederaNetworkResult.TransactionsInfo, Error> {
         return requestPublisher(for: .getTransactionInfo(transactionHash: transactionHash))
     }
 
     func getTokensDetails(tokenAddress: String) -> some Publisher<HederaNetworkResult.TokenDetails, Error> {
         return requestPublisher(for: .getTokenDetails(tokenAddress: tokenAddress))
+    }
+
+    func invokeContract(
+        from: String?,
+        to: String,
+        data: String,
+        estimate: Bool?
+    ) -> some Publisher<HederaNetworkResult.ContractCallResult, Error> {
+        let parameters = HederaTarget.ContractCallParameters(
+            from: from,
+            to: to,
+            data: data,
+            estimate: estimate
+        )
+        return requestPublisher(for: .invokeContract(parameters))
     }
 
     private func requestPublisher<T: Decodable>(

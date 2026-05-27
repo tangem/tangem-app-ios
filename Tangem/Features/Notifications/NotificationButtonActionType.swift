@@ -62,6 +62,7 @@ enum NotificationButtonActionType: Identifiable {
     case givePermission
     case openManageTokensAfterWalletSuccessImport
     case openYieldBoostPromo(buttonTitle: String)
+    case addFunds
 
     var id: Int {
         switch self {
@@ -100,6 +101,7 @@ enum NotificationButtonActionType: Identifiable {
         case .givePermission: "givePermission".hashValue
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
         case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
+        case .addFunds: "addFunds".hashValue
         }
     }
 
@@ -144,7 +146,7 @@ enum NotificationButtonActionType: Identifiable {
         case .unlock:
             return Localization.visaUnlockNotificationButton
         case .renewTangemPaySession:
-            return Localization.tangempaySyncNeededRestoreAccess
+            return Localization.tangempaySyncNeededButton
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
@@ -171,6 +173,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.mainManageTokens
         case .openYieldBoostPromo(let buttonTitle):
             return buttonTitle
+        case .addFunds:
+            return Localization.commonAddFunds
         }
     }
 
@@ -212,7 +216,8 @@ enum NotificationButtonActionType: Identifiable {
              .openCloreMigration,
              .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport,
-             .openYieldBoostPromo:
+             .openYieldBoostPromo,
+             .addFunds:
             return nil
         }
     }
@@ -227,7 +232,8 @@ enum NotificationButtonActionType: Identifiable {
              .openMobileUpgrade,
              .allowPushPermissionRequest,
              .activate,
-             .openYieldBoostPromo:
+             .openYieldBoostPromo,
+             .addFunds:
             return .primary
         case .backupCard,
              .openFeeCurrency,

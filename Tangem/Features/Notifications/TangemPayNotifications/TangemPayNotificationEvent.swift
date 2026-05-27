@@ -46,7 +46,7 @@ extension TangemPayNotificationEvent: NotificationEvent {
         case .unavailable:
             return .string(Localization.tangempayTemporarilyUnavailable)
         case .sessionExpired:
-            return .string(Localization.tangempaySyncNeeded)
+            return .string(Localization.tangempaySyncNeededTitle)
         case .tangemPayIsNowBeta:
             return .string(Localization.tangemPayBetaNotificationTitle)
         }
@@ -57,7 +57,7 @@ extension TangemPayNotificationEvent: NotificationEvent {
         case .unavailable:
             return Localization.tangempayServiceUnreachableTryLater
         case .sessionExpired:
-            return Localization.tangempaySyncNeededRestoreAccess
+            return Localization.tangempaySyncNeededBody
         case .tangemPayIsNowBeta:
             return Localization.tangemPayBetaNotificationSubtitle
         }
