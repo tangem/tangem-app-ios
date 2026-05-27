@@ -80,11 +80,11 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                 }
             }
 
-            newsView
-
             if let securityScoreViewModel = viewModel.securityScoreViewModel {
                 MarketsTokenDetailsSecurityScoreViewRedesign(viewModel: securityScoreViewModel)
             }
+
+            newsView
 
             if viewModel.linksSections.isNotEmpty {
                 MarketsTokenDetailsLinksViewRedesign(sections: viewModel.linksSections)

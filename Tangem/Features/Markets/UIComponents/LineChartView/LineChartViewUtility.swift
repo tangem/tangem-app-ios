@@ -36,9 +36,9 @@ struct LineChartViewUtility {
     func selectedChartLineColor(for trend: LineChartViewData.Trend) -> UIColor {
         switch trend {
         case .uptrend:
-            return .iconAccent
+            return UIColor.iconAccent.withAlphaComponent(Constants.activeLineAlpha)
         case .downtrend:
-            return .iconWarning
+            return UIColor.iconWarning.withAlphaComponent(Constants.activeLineAlpha)
         case .neutral:
             return inactiveColor
         }
@@ -61,5 +61,11 @@ struct LineChartViewUtility {
             fillColor.withAlphaComponent(0.24),
             fillColor.withAlphaComponent(0.0),
         ]
+    }
+}
+
+private extension LineChartViewUtility {
+    enum Constants {
+        static let activeLineAlpha: CGFloat = 0.85
     }
 }
