@@ -16,6 +16,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var sellActionButton = staticText(.sellTitle)
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
+    private lazy var addAndManageOrganizeRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
     private lazy var headerCardImage = image(.headerCardImage)
@@ -125,7 +126,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-            tokenElement(named: label).waitAndTapWithScroll()
+            let token = tokenElement(named: label)
+            scrollTokensListToHittable(token)
+            token.waitAndTap()
             return TokenScreen(app)
         }
     }
@@ -166,6 +169,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 organizeTokensButton.waitAndTap(timeout: .robustUIUpdate),
                 "Should successfully tap organize tokens button"
             )
+
+            // Redesign inserts the Add & Manage chooser sheet between the entry button and Organize Tokens.
+            if addAndManageOrganizeRow.waitForExistence(timeout: .conditional) {
+                addAndManageOrganizeRow.waitAndTap()
+            }
 
             return OrganizeTokensScreen(app)
         }
@@ -477,6 +485,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+            scrollTokensListToHittable(token)
 
             // Wait for balance to load — context menu captures content at presentation time
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
@@ -495,6 +504,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 if attempt < maxAttempts {
                     app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
                     _ = token.waitForExistence(timeout: .quick)
+                    scrollTokensListToHittable(token)
                 }
             }
 
@@ -572,6 +582,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenCount(tokenName: String) -> Int {
         XCTContext.runActivity(named: "Get count of tokens with name: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToHittable(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -591,6 +602,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getAllTokenBalances(tokenName: String) -> [String] {
         XCTContext.runActivity(named: "Get all balances for token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToHittable(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -627,6 +639,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenBalance(tokenName: String, tokenIndex: Int = 0) -> String {
         XCTContext.runActivity(named: "Get balance for token: \(tokenName) at index: \(tokenIndex)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToHittable(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -786,8 +799,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     /// Waits for main screen elements before coordinate-based wallet swipe.
     private func waitForMainScreenReadyForSwipe() {
-        waitAndAssertTrue(totalBalance, "Main header should exist before swiping wallet")
         waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
+        // Loading state exposes the header via `totalBalanceShimmer` instead of `totalBalance`.
+        let headerExists = totalBalance.waitForExistence(timeout: .conditional)
+            || totalBalanceShimmer.waitForExistence(timeout: .conditional)
+        XCTAssertTrue(headerExists, "Main header should exist before swiping wallet")
     }
 
     /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
@@ -810,6 +826,31 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             // Wait for scroll animation to settle
             _ = organizeTokensButton.waitForState(state: .hittable)
         }
+    }
+
+    /// Scrolls inside `tokensList` (not the whole app) and pushes the row above the Markets sheet grabber when they overlap.
+    @discardableResult
+    private func scrollTokensListToHittable(_ element: XCUIElement, attempts: Int = 5) -> Bool {
+        waitAndAssertTrue(tokensList, "Tokens list should exist before scrolling")
+
+        for _ in 0 ..< attempts {
+            if element.exists, element.isHittable {
+                if grabber.exists, element.frame.maxY > grabber.frame.minY {
+                    scrollTokensList(byOffset: -(element.frame.maxY - grabber.frame.minY + 50))
+                    continue
+                }
+                return true
+            }
+            scrollTokensList(byOffset: -250)
+        }
+
+        return element.exists && element.isHittable
+    }
+
+    private func scrollTokensList(byOffset dy: CGFloat) {
+        let start = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        let end = start.withOffset(CGVector(dx: 0, dy: dy))
+        start.press(forDuration: 0.1, thenDragTo: end)
     }
 
     private func isGrouped() -> Bool {
