@@ -169,37 +169,18 @@ private extension WalletConnectConnectedDApp {
         addedBlockchain: BlockchainSdk.Blockchain,
         updatedNamespaces: [String: WalletConnectSessionNamespace]
     ) -> WalletConnectConnectedDApp {
-        switch self {
-        case .v1(let dApp):
-            return .v1(
-                WalletConnectConnectedDAppV1(
-                    session: WalletConnectDAppSession(
-                        topic: dApp.session.topic,
-                        namespaces: updatedNamespaces,
-                        expiryDate: dApp.session.expiryDate
-                    ),
-                    userWalletID: dApp.userWalletID,
-                    dAppData: dApp.dAppData,
-                    verificationStatus: dApp.verificationStatus,
-                    dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
-                    connectionDate: dApp.connectionDate
-                )
-            )
-
-        case .v2(let dApp):
-            let wrapped = WalletConnectConnectedDAppV1(
-                session: WalletConnectDAppSession(
-                    topic: dApp.session.topic,
-                    namespaces: updatedNamespaces,
-                    expiryDate: dApp.session.expiryDate
-                ),
-                userWalletID: dApp.wrapped.userWalletID,
-                dAppData: dApp.dAppData,
-                verificationStatus: dApp.verificationStatus,
-                dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
-                connectionDate: dApp.connectionDate
-            )
-            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
-        }
+        WalletConnectConnectedDApp(
+            accountId: accountId,
+            session: WalletConnectDAppSession(
+                topic: session.topic,
+                namespaces: updatedNamespaces,
+                expiryDate: session.expiryDate
+            ),
+            userWalletID: userWalletID,
+            dAppData: dAppData,
+            verificationStatus: verificationStatus,
+            dAppBlockchains: dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
+            connectionDate: connectionDate
+        )
     }
 }
