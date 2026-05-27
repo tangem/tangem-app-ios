@@ -8,39 +8,19 @@
 
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 actor InMemoryTransactionHistoryRecordsStorage<Record: TransactionHistoryRecord> {
     private var byId: [String: Record] = [:]
-    private var subscribers: [UUID: SubscriberState] = [:]
-
-    // MARK: - Subscriber registry (tombstone pattern from `TransactionHistoryProvider`)
+    private var subscribers = AsyncStream<[Record]>.Subscribers()
 
     private func subscribe(id: UUID, continuation: AsyncStream<[Record]>.Continuation) {
-        if case .cancelled = subscribers[id] {
-            subscribers.removeValue(forKey: id)
-            return
-        }
-
-        subscribers[id] = .active(continuation)
-        continuation.yield(snapshot())
+        subscribers.subscribe(id: id, continuation: continuation, currentValue: snapshot())
     }
 
     private func unsubscribe(id: UUID) {
-        switch subscribers[id] {
-        case .active:
-            subscribers.removeValue(forKey: id)
-        case .none:
-            subscribers[id] = .cancelled
-        case .cancelled:
-            break
-        }
-    }
-
-    private func emit(_ snapshot: [Record]) {
-        for case .active(let continuation) in subscribers.values {
-            continuation.yield(snapshot)
-        }
+        subscribers.unsubscribe(id: id)
     }
 
     private func snapshot() -> [Record] {
@@ -80,20 +60,11 @@ extension InMemoryTransactionHistoryRecordsStorage: TransactionHistoryRecordsSto
 
     func updateOrAppend(_ records: [Record]) {
         records.forEach { byId[$0.txId] = $0 }
-        emit(snapshot())
+        subscribers.yield(snapshot())
     }
 
     func clear() {
         byId.removeAll()
-        emit([])
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension InMemoryTransactionHistoryRecordsStorage {
-    enum SubscriberState {
-        case active(AsyncStream<[Record]>.Continuation)
-        case cancelled
+        subscribers.yield([])
     }
 }
