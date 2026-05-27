@@ -22,6 +22,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case exchangeData(request: ExpressDTO.Swap.ExchangeData.Request)
         case exchangeStatus(request: ExpressDTO.Swap.ExchangeStatus.Request)
         case exchangeSent(request: ExpressDTO.Swap.ExchangeSent.Request)
+        case exchangeHistory(request: ExpressDTO.HistoryRequest)
 
         case onrampCurrencies
         case onrampCountries
@@ -32,6 +33,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case onrampData(request: ExpressDTO.Onramp.Data.Request)
         case onrampNativePaymentData(request: ExpressDTO.Onramp.NativePaymentData.Request)
         case onrampStatus(request: ExpressDTO.Onramp.Status.Request)
+        case onrampHistory(request: ExpressDTO.HistoryRequest)
     }
 
     var baseURL: URL {
@@ -64,6 +66,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .exchangeData: "exchange-data"
         case .exchangeStatus: "exchange-status"
         case .exchangeSent: "exchange-sent"
+        case .exchangeHistory: "exchange/history"
         case .onrampCurrencies: "currencies"
         case .onrampCountries: "countries"
         case .onrampCountryByIP: "country-by-ip"
@@ -74,6 +77,7 @@ struct ExpressAPITarget: Moya.TargetType {
         // Same endpoint as .onrampData but uses POST method with JSON body for native payment flow
         case .onrampNativePaymentData: "onramp-data"
         case .onrampStatus: "onramp-status"
+        case .onrampHistory: "onramp/history"
         }
     }
 
@@ -89,13 +93,15 @@ struct ExpressAPITarget: Moya.TargetType {
              .exchangeQuote,
              .exchangeData,
              .exchangeStatus,
+             .exchangeHistory,
              .onrampCurrencies,
              .onrampCountries,
              .onrampCountryByIP,
              .onrampPaymentMethods,
              .onrampQuote,
              .onrampData,
-             .onrampStatus:
+             .onrampStatus,
+             .onrampHistory:
             return .get
         }
     }
@@ -109,6 +115,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .exchangeQuote(let request):.requestParameters(request)
         case .exchangeData(let request):.requestParameters(request)
         case .exchangeStatus(let request): .requestParameters(request)
+        case .exchangeHistory(let request): .requestParameters(request)
         case .onrampCurrencies: .requestPlain
         case .onrampCountries: .requestPlain
         case .onrampCountryByIP: .requestPlain
@@ -118,6 +125,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .onrampData(let request):.requestParameters(request)
         case .onrampNativePaymentData(let request): .requestJSONEncodable(request)
         case .onrampStatus(let request):.requestParameters(request)
+        case .onrampHistory(let request): .requestParameters(request)
         }
     }
 
