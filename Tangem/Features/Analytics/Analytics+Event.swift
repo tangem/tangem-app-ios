@@ -104,6 +104,18 @@ extension Analytics {
         case buttonAddTokenTrustline = "[Token] Button - Token Trustline"
         case stakingClicked = "[Token] Staking Clicked"
 
+        // MARK: - Dynamic Addresses
+
+        case dynamicAddressesScreenOpened = "[Token] Dynamic Addresses Screen Opened"
+        case buttonEnableDynamicAddresses = "[Token] Button - Enable Dynamic Addresses"
+        case dynamicAddressesEnabled = "[Token] Dynamic Addresses Enabled"
+        case buttonDisableDynamicAddresses = "[Token] Button - Disable Dynamic Addresses"
+        case dynamicAddressesDisabled = "[Token] Dynamic Addresses Disabled"
+        case dynamicAddressesNoticeUnavailable = "[Token] Notice - Dynamic Addresses Unavailable"
+        case dynamicAddressesErrorUnavailable = "[Token] Error - Dynamic Addresses Unavailable"
+        // [REDACTED_TODO_COMMENT]
+        case dynamicAddressesNoticeFundsFound = "[Token] Notice - Additional Addresses Found"
+
         // MARK: - Main screen
 
         case mainScreenOpened = "[Main Screen] Screen opened"
@@ -206,11 +218,15 @@ extension Analytics {
         case settingsNoticeEnableBiometrics = "[Settings / App Settings] Notice - Enable Biometric"
         case buttonEnableBiometricAuthentication = "[Settings / App Settings] Button - Enable Biometric Authentication"
         case mainCurrencyChanged = "[Settings / App Settings] Main Currency Changed"
+        case emailNoMailSheetOpened = "[Settings] No Mail Sheet"
+        case emailOpenMail = "[Settings] Button - Open Mail"
+        case emailShareLogs = "[Settings] Button - Share Logs"
         case walletSettingsScreenOpened = "[Settings / Wallet Settings] Wallet Settings Screen Opened"
         case walletSettingsButtonBackup = "[Settings / Wallet Settings] Button - Backup"
         case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
         case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
         case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsButtonICloudBackup = "[Settings / Wallet Settings] Button - Cloud Backup"
         case walletSettingsButtonRecoveryPhrase = "[Settings / Wallet Settings] Button - Recovery phrase"
         case walletSettingsButtonHardwareUpdate = "[Settings / Wallet Settings] Button - Hardware Update"
         case walletSettingsButtonCreateNewWallet = "[Settings / Wallet Settings] Button - Create New Wallet"
@@ -331,6 +347,7 @@ extension Analytics {
 
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
+        case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
 
         // MARK: - Seed phrase
 
@@ -612,7 +629,7 @@ extension Analytics {
 
         // MARK: - Stories
 
-        case storiesSwapShown = "[Stories] Swap Stories"
+        case storiesSwapStory = "[Stories] Swap Story"
         case storiesError = "[Stories] Error"
 
         // MARK: - Tangem API Service
@@ -667,7 +684,7 @@ extension Analytics {
         case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
-        case visaScreenCardSettingsClicked = "[Visa Screen] Button - Card Settings"
+        case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"
         case visaScreenTermsAndLimitsClicked = "[Visa Screen] Button - Terms And Limits"
 
         case visaScreenFreezeCardClicked = "[Visa Screen] Button - Freeze Card"
@@ -694,6 +711,26 @@ extension Analytics {
         case visaScreenButtonVisaAddFunds = "[Visa Screen] Button - Visa Add Funds"
         case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
         case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
+
+        case visaReplaceCardClicked = "[Visa Card Management] Visa Replace Card Clicked"
+        case visaReplaceCardConfirmationPopupOpened = "[Visa Card Management] Visa Replace Card Confirmation Popup Opened"
+        case visaReplaceCardConfirmed = "[Visa Card Management] Visa Replace Card Confirmed"
+
+        case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
+        case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
+        case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+
+        case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
+        case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
+        case visaFakedoorPopupDisplayed = "[Visa Card Management] Visa Fakedoor Popup Displayed"
+        case visaFakedoorGotitClicked = "[Visa Card Management] Visa Fakedoor Gotit Clicked"
+        case visaExtraCardIssuancePopupDisplayed = "[Visa Screen] Visa Extra Card Issuance Popup Displayed"
+        case visaExtraCardIssuanceConfirmed = "[Visa Screen] Visa Extra Card Issuance Confirmed"
+
+        case visaCardManagementScreenOpened = "[Visa Card Management] Visa Card Management Screen Opened"
+        case visaCloseCardClicked = "[Visa Card Management] Visa Close Card Clicked"
+        case visaCloseCardConfirmationPopupOpened = "[Visa Card Management] Visa Close Card Confirmation Popup Opened"
+        case visaCloseCardConfirmed = "[Visa Card Management] Visa Close Card Confirmed"
 
         // MARK: - NFT
 
@@ -754,5 +791,12 @@ extension Analytics {
         case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
         case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
         case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
+
+        // MARK: - Initial Token Sync
+
+        case initialTokenSyncStarted = "[Token Sync] Sync Started"
+        case initialTokenSyncCompleted = "[Token Sync] Sync Completed"
+        case initialTokenSyncButtonClosed = "[Token Sync] Button - Close Banner"
+        case initialTokenSyncManageTokens = "[Token Sync] Button - Manage Tokens"
     }
 }

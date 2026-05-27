@@ -10,6 +10,8 @@ import Foundation
 import Testing
 @testable import Tangem
 
+/// Single source of truth for news link parsing tests.
+/// Keep all `news`/`newsArticle` parser scenarios in this suite and avoid duplicating them in `DefaultIncomingLinkParserTests`.
 @Suite(.tags(.news))
 struct NewsIncomingLinkParserTests {
     private let parser = NewsIncomingLinkParser()
@@ -27,7 +29,7 @@ struct NewsIncomingLinkParserTests {
             return
         }
 
-        #expect(deeplink.destination == .news)
+        #expect(deeplink.destination == .newsArticle)
         #expect(deeplink.params.id == "190801")
         #expect(deeplink.deeplinkString == url.absoluteString)
     }
@@ -43,7 +45,7 @@ struct NewsIncomingLinkParserTests {
             return
         }
 
-        #expect(deeplink.destination == .news)
+        #expect(deeplink.destination == .newsArticle)
         #expect(deeplink.params.id == "190801")
     }
 
@@ -58,7 +60,7 @@ struct NewsIncomingLinkParserTests {
             return
         }
 
-        #expect(deeplink.destination == .news)
+        #expect(deeplink.destination == .newsArticle)
         #expect(deeplink.params.id == "12345")
     }
 
@@ -98,6 +100,109 @@ struct NewsIncomingLinkParserTests {
         #expect(action == nil)
     }
 
+    // MARK: - Custom Scheme (tangem://news) Tests
+
+    @Test("Parses tangem://news with no query as navigation to all categories")
+    func customSchemeNewsAllCategories() throws {
+        let url = try #require(URL(string: "tangem://news"))
+
+        let action = try parser.parse(url)
+
+        guard case .navigation(let deeplink) = action else {
+            Issue.record("Expected navigation action")
+            return
+        }
+
+        #expect(deeplink.destination == .news)
+        #expect(deeplink.params.id == nil)
+        #expect(deeplink.params.categoryId == nil)
+        #expect(deeplink.deeplinkString == url.absoluteString)
+    }
+
+    @Test("Parses tangem://news with category_id")
+    func customSchemeNewsWithCategoryId() throws {
+        let url = try #require(URL(string: "tangem://news?category_id=42"))
+
+        let action = try parser.parse(url)
+
+        guard case .navigation(let deeplink) = action else {
+            Issue.record("Expected navigation action")
+            return
+        }
+
+        #expect(deeplink.destination == .news)
+        #expect(deeplink.params.categoryId == "42")
+        #expect(deeplink.params.id == nil)
+    }
+
+    @Test("Parses tangem://news with news_id")
+    func customSchemeNewsWithNewsId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=1001"))
+
+        let action = try parser.parse(url)
+
+        guard case .navigation(let deeplink) = action else {
+            Issue.record("Expected navigation action")
+            return
+        }
+
+        #expect(deeplink.destination == .news)
+        #expect(deeplink.params.id == "1001")
+        #expect(deeplink.params.categoryId == nil)
+    }
+
+    @Test("Parses tangem://news with both news_id and category_id (news_id takes precedence downstream)")
+    func customSchemeNewsWithNewsIdAndCategoryId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=1001&category_id=42"))
+
+        let action = try parser.parse(url)
+
+        guard case .navigation(let deeplink) = action else {
+            Issue.record("Expected navigation action")
+            return
+        }
+
+        #expect(deeplink.destination == .news)
+        #expect(deeplink.params.id == "1001")
+        #expect(deeplink.params.categoryId == "42")
+    }
+
+    @Test("Rejects tangem://news with non-numeric news_id")
+    func customSchemeNewsRejectsNonNumericNewsId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=not-a-number"))
+
+        let action = try parser.parse(url)
+
+        #expect(action == nil)
+    }
+
+    @Test("Rejects tangem://news with non-numeric category_id")
+    func customSchemeNewsRejectsNonNumericCategoryId() throws {
+        let url = try #require(URL(string: "tangem://news?category_id=abc"))
+
+        let action = try parser.parse(url)
+
+        #expect(action == nil)
+    }
+
+    @Test("Rejects tangem://news with invalid category_id characters")
+    func customSchemeNewsRejectsInvalidCategoryIdCharacters() throws {
+        let url = try #require(URL(string: "tangem://news?category_id=bad%20id"))
+
+        let action = try parser.parse(url)
+
+        #expect(action == nil)
+    }
+
+    @Test("Rejects non-news tangem:// scheme URLs")
+    func customSchemeRejectsNonNewsHost() throws {
+        let url = try #require(URL(string: "tangem://token?token_id=btc&network_id=bitcoin"))
+
+        let action = try parser.parse(url)
+
+        #expect(action == nil)
+    }
+
     // MARK: - Integration Tests (via IncomingActionParser)
 
     @Test("IncomingActionParser parses news path universal link")
@@ -112,7 +217,33 @@ struct NewsIncomingLinkParserTests {
             return
         }
 
-        #expect(deeplink.destination == .news)
+        #expect(deeplink.destination == .newsArticle)
         #expect(deeplink.params.id == "190801")
+    }
+
+    @Test("IncomingActionParser parses tangem://news custom scheme")
+    func incomingActionParserParsesCustomSchemeNews() throws {
+        let url = try #require(URL(string: "tangem://news?category_id=7"))
+
+        let incomingParser = IncomingActionParser()
+        let action = incomingParser.parseIncomingURL(url)
+
+        guard case .navigation(let deeplink) = action else {
+            Issue.record("Expected navigation action")
+            return
+        }
+
+        #expect(deeplink.destination == .news)
+        #expect(deeplink.params.categoryId == "7")
+    }
+
+    @Test("IncomingActionParser rejects tangem://news with invalid news_id and does not fall back to news list")
+    func incomingActionParserRejectsInvalidNewsId() throws {
+        let url = try #require(URL(string: "tangem://news?news_id=not-a-number"))
+
+        let incomingParser = IncomingActionParser()
+        let action = incomingParser.parseIncomingURL(url)
+
+        #expect(action == nil)
     }
 }

@@ -8,6 +8,7 @@
 //  USDTRevokeGaslessFee is OFF.
 //
 
+import Foundation
 import Testing
 import Combine
 import BlockchainSdk

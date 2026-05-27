@@ -283,6 +283,24 @@ final class UserWalletNotificationManager {
         self.shownMobileUpgradeNotificationId = nil
     }
 
+    // MARK: - Initial Wallet Token Sync
+
+    /// Clears persisted token-sync state when the banner with this `id` is dismissed. Safe if the banner row was already removed (e.g. list rebuild).
+    private func clearInitialWalletTokenSyncStateIfCurrentBanner(with id: NotificationViewId) {
+        guard shownTokenSyncNotificationId == id else {
+            return
+        }
+
+        shownTokenSyncNotificationId = nil
+
+        let userWalletId = userWalletModel.userWalletId
+        let progressProvider = walletTokenSyncProgressProvider
+
+        Task {
+            await progressProvider.removeProgress(for: userWalletId)
+        }
+    }
+
     private func showTokenSyncCompletedNotification() {
         guard shownTokenSyncNotificationId == nil else {
             return
@@ -293,10 +311,26 @@ final class UserWalletNotificationManager {
         let action: NotificationView.NotificationAction = { _ in }
 
         let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
-            self?.delegate?.didTapNotification(with: id, action: action)
+            guard let self else { return }
+
+            delegate?.didTapNotification(with: id, action: action)
+
+            if case .openManageTokensAfterWalletSuccessImport = action {
+                Analytics.log(.initialTokenSyncManageTokens, contextParams: .userWallet(userWalletModel.userWalletId))
+                clearInitialWalletTokenSyncStateIfCurrentBanner(with: id)
+
+                // Deferred UI removal only; cleanup runs above so delayed work cannot skip progress reset.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.hideNotification(with: id)
+                }
+            }
         }
 
-        let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
+        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
+            guard let self else { return }
+            Analytics.log(.initialTokenSyncButtonClosed, contextParams: .userWallet(userWalletModel.userWalletId))
+            dismissNotification(with: id)
+        }
 
         let input = factory.buildNotificationInput(
             for: GeneralNotificationEvent.initialWalletTokenSyncCompleted,
@@ -308,6 +342,8 @@ final class UserWalletNotificationManager {
         shownTokenSyncNotificationId = input.id
         addInputIfNeeded(input)
     }
+
+    // MARK: - Bindings
 
     private func bind() {
         notificationPublisher
@@ -404,13 +440,15 @@ final class UserWalletNotificationManager {
     }
 
     private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
+        // receive(on:) must stay BEFORE each combineLatest — moving it downstream
+        // re-races AbstractCombineLatest with deinit cancel cascade. See [REDACTED_INFO].
         let crypto = userWalletModel
             .accountModelsManager
             .cryptoAccountModelsPublisher
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
             .flatMapLatest { derivationManagers in
                 return derivationManagers
-                    .map(\.pendingDerivationsCount)
+                    .map { $0.pendingDerivationsCount.receive(on: DispatchQueue.main).eraseToAnyPublisher() }
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
@@ -424,6 +462,7 @@ final class UserWalletNotificationManager {
 
                 return accountModel
                     .statePublisher
+                    .receive(on: DispatchQueue.main)
                     .map { $0.isSyncNeeded || $0.isSyncInProgress ? 1 : 0 }
                     .eraseToAnyPublisher()
             }
@@ -455,6 +494,7 @@ extension UserWalletNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         guard let notification = notificationInputsSubject.value.first(where: { $0.id == id }) else {
+            clearInitialWalletTokenSyncStateIfCurrentBanner(with: id)
             return
         }
 
@@ -469,11 +509,7 @@ extension UserWalletNotificationManager: NotificationManager {
             case .mobileUpgrade:
                 mobileUpgradeBannerManager.shouldClose()
             case .initialWalletTokenSyncCompleted:
-                shownTokenSyncNotificationId = nil
-
-                Task { [walletId = userWalletModel.userWalletId] in
-                    await walletTokenSyncProgressProvider.removeProgress(for: walletId)
-                }
+                clearInitialWalletTokenSyncStateIfCurrentBanner(with: id)
             default:
                 break
             }

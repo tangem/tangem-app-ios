@@ -65,28 +65,58 @@ struct CarouselNewsView: View {
         Button(action: {
             onAllNewsTap?()
         }) {
-            VStack(spacing: Layout.AllNewsCard.verticalSpacing) {
-                iconView
-
-                FixedSpacer(height: Layout.AllNewsCard.spacingAfterIcon)
-
-                Text(Localization.newsAllNews)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
-
-                FixedSpacer(height: Layout.AllNewsCard.spacingAfterTitle)
-
-                Text(Localization.newsStayInTheLoop)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            if FeatureProvider.isAvailable(.redesign) {
+                redesignedAllNewsCardContent
+            } else {
+                legacyAllNewsCardContent
             }
-            .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
-            .defaultRoundedBackground(
-                with: Colors.Background.action,
-                verticalPadding: Layout.MainCard.padding,
-                horizontalPadding: Layout.MainCard.padding,
-                cornerRadius: Layout.MainCard.cornerRadius
-            )
         }
         .buttonStyle(.plain)
+    }
+
+    private var legacyAllNewsCardContent: some View {
+        VStack(spacing: Layout.AllNewsCard.verticalSpacing) {
+            iconView
+
+            FixedSpacer(height: Layout.AllNewsCard.spacingAfterIcon)
+
+            Text(Localization.newsAllNews)
+                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+
+            FixedSpacer(height: Layout.AllNewsCard.spacingAfterTitle)
+
+            Text(Localization.newsStayInTheLoop)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+        }
+        .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: Layout.MainCard.padding,
+            horizontalPadding: Layout.MainCard.padding,
+            cornerRadius: Layout.MainCard.cornerRadius
+        )
+    }
+
+    private var redesignedAllNewsCardContent: some View {
+        VStack(spacing: .zero) {
+            Spacer(minLength: .zero)
+
+            iconView
+
+            FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterIcon)
+
+            Text(Localization.newsAllNews)
+                .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+
+            FixedSpacer(height: Layout.RedesignAllNewsCard.spacingAfterTitle)
+
+            Text(Localization.newsStayInTheLoop)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+
+            Spacer(minLength: .zero)
+        }
+        .frame(maxWidth: .infinity)
+        .redesignNewsCarouselCardBackground()
     }
 
     private var iconView: some View {
@@ -101,7 +131,7 @@ struct CarouselNewsView: View {
 private extension CarouselNewsView {
     enum Layout {
         static let maxCardsCount: Int = 10
-        static let cardSpacing: CGFloat = 8
+        static let cardSpacing: CGFloat = 12
         static let defaultHorizontalInset: CGFloat = 16
 
         enum MainCard {
@@ -109,6 +139,11 @@ private extension CarouselNewsView {
             static let height: CGFloat = 136
             static let padding: CGFloat = 14
             static let cornerRadius: CGFloat = 14
+        }
+
+        enum RedesignAllNewsCard {
+            static let spacingAfterIcon: CGFloat = 10
+            static let spacingAfterTitle: CGFloat = 4
         }
 
         enum AllNewsCard {

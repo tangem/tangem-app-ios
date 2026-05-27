@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CombineExt
 import TangemPay
+import TangemFoundation
 
 class CommonTotalBalanceProvider {
     private let accountModelsManager: AccountModelsManager
@@ -37,7 +38,7 @@ class CommonTotalBalanceProvider {
     }
 
     deinit {
-        AppLogger.debug("deinit \(self)")
+        AppLogger.debug(self, "deinit")
     }
 }
 
@@ -108,5 +109,13 @@ extension CommonTotalBalanceProvider: TotalBalanceProvider {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonTotalBalanceProvider: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }

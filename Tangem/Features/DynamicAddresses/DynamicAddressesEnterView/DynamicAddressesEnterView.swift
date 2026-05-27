@@ -27,6 +27,7 @@ struct DynamicAddressesEnterView: View {
             .interContentPadding(16)
             .overlay(alignment: .bottom) { overlayButtonView }
             .navigationBarTitleDisplayMode(.inline)
+            .alert(item: $viewModel.alert) { $0.alert }
             .toolbar {
                 NavigationToolbarButton
                     .close(placement: .topBarTrailing, action: viewModel.close)

@@ -17,12 +17,17 @@ public final class EnrichStoryUseCase {
 
     public func callAsFunction(_ story: TangemStory) async -> TangemStory {
         switch story {
-        case .swap(let swapStoryData):
-            return await enrichSwapStory(swapStoryData)
+        case .swap(let data):
+            return await enrichSwapStoryData(data, wrap: { enrichedData in TangemStory.swap(enrichedData) })
+        case .swapLegacy(let data):
+            return await enrichSwapStoryData(data, wrap: { enrichedData in TangemStory.swapLegacy(enrichedData) })
         }
     }
 
-    private func enrichSwapStory(_ swapStoryData: TangemStory.SwapStoryData) async -> TangemStory {
+    private func enrichSwapStoryData<StoryData: SwapStoryDataPagesContainer>(
+        _ swapStoryData: StoryData,
+        wrap: (StoryData) -> TangemStory
+    ) async -> TangemStory {
         if let cachedStory = await storyDataCache.retrieveStory(with: .swap) {
             return cachedStory
         }
@@ -40,12 +45,12 @@ public final class EnrichStoryUseCase {
 
             try Task.checkCancellation()
 
-            let enrichedSwapStory = TangemStory.swap(enrichedSwapStoryData)
+            let enrichedSwapStory = wrap(enrichedSwapStoryData)
             await storyDataCache.store(story: enrichedSwapStory)
 
             return enrichedSwapStory
         } catch {
-            return TangemStory.swap(swapStoryData)
+            return wrap(swapStoryData)
         }
     }
 }

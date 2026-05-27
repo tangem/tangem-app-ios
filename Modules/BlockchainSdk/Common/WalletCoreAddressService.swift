@@ -1,0 +1,75 @@
+//
+//  WalletCoreAddressService.swift
+//  BlockchainSdk
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2023 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import WalletCore
+
+struct WalletCoreAddressService {
+    private let coin: CoinType
+    private let publicKeyType: PublicKeyType
+
+    // MARK: - Init
+
+    init(coin: CoinType, publicKeyType: PublicKeyType) {
+        self.coin = coin
+        self.publicKeyType = publicKeyType
+    }
+}
+
+// MARK: - Convenience init
+
+extension WalletCoreAddressService {
+    init(coin: CoinType) {
+        self.init(coin: coin, publicKeyType: coin.publicKeyType)
+    }
+
+    init(blockchain: Blockchain) {
+        let coin = CoinType(blockchain)!
+        self.init(coin: coin)
+    }
+}
+
+// MARK: - AddressProvider
+
+extension WalletCoreAddressService: AddressProvider {
+    func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
+        switch addressType {
+        case .default, .used(.default, _):
+            guard let walletCorePublicKey = PublicKey(tangemPublicKey: publicKey.blockchainKey, publicKeyType: publicKeyType) else {
+                throw BlockchainSdkError.twMakeAddressFailed
+            }
+
+            let address = AnyAddress(publicKey: walletCorePublicKey, coin: coin).description
+            return PlainAddress(value: address, type: addressType)
+        case .legacy where coin == .cardano:
+            let address = try makeByronAddress(publicKey: publicKey)
+            return PlainAddress(value: address, type: addressType)
+        default:
+            throw AddressTypeError.notSupported
+        }
+    }
+}
+
+// MARK: - AddressValidator
+
+extension WalletCoreAddressService: AddressValidator {
+    func validate(_ address: String) -> Bool {
+        return AnyAddress(string: address, coin: coin) != nil
+    }
+}
+
+private extension WalletCoreAddressService {
+    func makeByronAddress(publicKey: Wallet.PublicKey) throws -> String {
+        guard let publicKey = PublicKey(data: publicKey.blockchainKey, type: .ed25519Cardano) else {
+            throw BlockchainSdkError.twMakeAddressFailed
+        }
+
+        let byronAddress = Cardano.getByronAddress(publicKey: publicKey)
+        return byronAddress
+    }
+}

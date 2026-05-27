@@ -41,12 +41,10 @@ final class TransferModel {
     private let userWalletId: UserWalletId
     private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
-    private let analyticsLogger: SendAnalyticsLogger
+    private let analyticsLogger: SendManagementModelAnalyticsLogger
     private let sendAlertBuilder: SendAlertBuilder
 
     private let balanceConverter = BalanceConverter()
-
-    private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -56,7 +54,7 @@ final class TransferModel {
         userToken: SendTransferableToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
-        analyticsLogger: SendAnalyticsLogger,
+        analyticsLogger: SendManagementModelAnalyticsLogger,
         sendAlertBuilder: SendAlertBuilder,
         predefinedValues: PredefinedValues
     ) {
@@ -351,6 +349,10 @@ extension TransferModel: SendFeeInput {
         _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
     }
 
+    var supportFeeSelection: Bool {
+        _sourceToken.tokenFeeProvidersManager.supportFeeSelection
+    }
+
     var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
         _sourceToken.tokenFeeProvidersManager.supportFeeSelectionPublisher
     }
@@ -532,17 +534,6 @@ extension TransferModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         _isFeeIncluded.value
-    }
-}
-
-// MARK: - SendDestinationAccountOutput
-
-extension TransferModel: SendDestinationAccountOutput {
-    func setDestinationAccountInfo(
-        analyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        destinationAccountAnalyticsProvider = analyticsProvider
-        analyticsLogger.setDestinationAnalyticsProvider(analyticsProvider)
     }
 }
 
