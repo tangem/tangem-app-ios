@@ -17,6 +17,10 @@ final class MockTangemPayAssembly: TangemPayAssembly {
         MockTangemPayCardDetailsRepository()
     }
 
+    func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
+        MockTangemPayCardDetailsRepository()
+    }
+
     func makeExpressCEXTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
         walletPublicKey: Wallet.PublicKey?
