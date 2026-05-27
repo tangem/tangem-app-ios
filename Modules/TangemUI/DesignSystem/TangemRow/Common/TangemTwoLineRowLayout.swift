@@ -112,6 +112,7 @@ public struct TangemTwoLineRowLayout<
             contentView
         }
         .readGeometry(\.size.width, bindTo: $contentWidth)
+        .contentShape(.rect)
     }
 
     @ViewBuilder

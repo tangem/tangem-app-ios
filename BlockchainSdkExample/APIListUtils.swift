@@ -8,7 +8,6 @@
 
 import Foundation
 import BlockchainSdk
-import TangemNetworkUtils
 
 struct ConfigUtils {
     private let providersFileName = "providers_order"
