@@ -52,12 +52,12 @@ public struct NotificationBanner: View, Setupable {
 
     public var body: some View {
         bannerContent
+            .accessibilityIdentifier(accessibilityIdentifier)
             .overlay(alignment: .topTrailing) {
                 if bannerType.isClosable {
                     closeButton
                 }
             }
-            .accessibilityIdentifier(accessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -70,7 +70,7 @@ public struct NotificationBanner: View, Setupable {
             bannerBody {
                 buttonsView(buttons: buttons)
             }
-            .accessibilityElement(children: .combine)
+            .accessibilityElement(children: .contain)
         case .tappable(let tapAction):
             Button(action: tapAction.action) {
                 bannerBody()
@@ -174,12 +174,15 @@ public struct NotificationBanner: View, Setupable {
         switch buttons {
         case .none:
             EmptyView()
-        case .one(let model):
+        case .one(let model, let identifier):
             TangemButton(model: model)
-        case .two(let left, let right):
+                .accessibilityIdentifier(identifier)
+        case .two(let left, let right, let leftIdentifier, let rightIdentifier):
             HStack(spacing: SizeUnit.x3.value) {
                 TangemButton(model: left)
+                    .accessibilityIdentifier(leftIdentifier)
                 TangemButton(model: right)
+                    .accessibilityIdentifier(rightIdentifier)
             }
         }
     }
