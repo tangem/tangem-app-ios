@@ -1,0 +1,35 @@
+//
+//  WalletModelFeature.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import TangemNFT
+import TangemMacro
+
+@CaseFlagable
+enum WalletModelFeature {
+    case nft(networkService: NFTNetworkService)
+
+    case dynamicAddresses(manager: DynamicAddressesManager)
+
+    @available(*, unavailable, message: "This feature is not implemented yet")
+    case staking
+
+    @available(*, unavailable, message: "This feature is not implemented yet")
+    case transactionHistory
+}
+
+// MARK: - Convenience accessors
+
+extension Array where Element == WalletModelFeature {
+    var dynamicAddressesManager: DynamicAddressesManager? {
+        for case .dynamicAddresses(let manager) in self {
+            return manager
+        }
+        return nil
+    }
+}

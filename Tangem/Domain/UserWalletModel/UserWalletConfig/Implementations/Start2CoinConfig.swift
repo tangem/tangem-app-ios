@@ -155,6 +155,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .tangemPay:
             return .hidden
+        case .walletAssetsDiscovery:
+            return .hidden
         }
     }
 
@@ -166,11 +168,7 @@ extension Start2CoinConfig: UserWalletConfig {
         )
     }
 
-    func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
-        return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
-    }
-
-    func makeAnyWalletManagerFactory() throws -> AnyWalletManagerFactory {
+    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory {
         return SimpleWalletManagerFactory()
     }
 }
