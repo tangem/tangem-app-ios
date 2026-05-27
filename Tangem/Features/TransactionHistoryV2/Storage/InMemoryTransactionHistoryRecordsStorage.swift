@@ -13,7 +13,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 actor InMemoryTransactionHistoryRecordsStorage<Record: TransactionHistoryRecord> {
     private var byId: [String: Record] = [:]
-    private nonisolated(unsafe) var subscribers = AsyncStream<[Record]>.Subscribers<UUID>()
+    private var subscribers = AsyncStream<[Record]>.Subscribers<UUID>()
 
     private func snapshot() -> [Record] {
         byId.values.sorted(by: { $0.updatedAt > $1.updatedAt })
@@ -26,12 +26,15 @@ extension InMemoryTransactionHistoryRecordsStorage: TransactionHistoryRecordsSto
     var records: [Record] { snapshot() }
 
     nonisolated var recordsUpdates: AsyncStream<[Record]> {
-        return AsyncStream.multicast(
+        .multicast(
             with: self,
-            subscribers: \.subscribers
-        ) { holder in
-            holder.snapshot()
-        }
+            onSubscribe: { storage, id, continuation in
+                storage.subscribers.subscribe(id: id, continuation: continuation, currentValue: storage.snapshot())
+            },
+            onUnsubscribe: { storage, id in
+                storage.subscribers.unsubscribe(id: id)
+            }
+        )
     }
 
     func updateOrAppend(_ records: [Record]) {
