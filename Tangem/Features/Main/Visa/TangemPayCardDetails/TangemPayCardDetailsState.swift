@@ -10,23 +10,29 @@ enum TangemPayCardDetailsState: Equatable {
     case hidden(isFrozen: Bool)
     case loading(isFrozen: Bool)
     case loaded(LoadedState)
+    case issuing
 
     var isLoaded: Bool {
         switch self {
         case .loaded(.revealed):
             true
-        case .hidden, .loading, .loaded(.unrevealed):
+        case .hidden, .loading, .loaded(.unrevealed), .issuing:
             false
         }
     }
 
     var isFrozen: Bool {
         switch self {
-        case .loaded:
+        case .loaded, .issuing:
             false
         case .hidden(let isFrozen), .loading(let isFrozen):
             isFrozen
         }
+    }
+
+    var isIssuing: Bool {
+        if case .issuing = self { return true }
+        return false
     }
 
     var showDetailsButtonVisible: Bool {
@@ -42,7 +48,7 @@ enum TangemPayCardDetailsState: Equatable {
         switch self {
         case .loaded(.revealed(let data)), .loaded(.unrevealed(let data, _)):
             return data
-        case .loading, .hidden:
+        case .loading, .hidden, .issuing:
             return nil
         }
     }
