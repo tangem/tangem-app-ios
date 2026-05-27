@@ -93,7 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .unspecified
+        case .redesign: return .version("5.40")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .walletConnectBitcoin: return .unspecified
