@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemExpress
+import TangemFoundation
 
 protocol PendingExpressTransactionsManager: AnyObject {
     var pendingTransactions: [PendingTransaction] { get }
@@ -53,7 +54,7 @@ class CommonPendingExpressTransactionsManager {
     }
 
     deinit {
-        ExpressLogger.debug(self)
+        ExpressLogger.debug(self, "deinit")
         cancelTask()
     }
 
@@ -276,6 +277,14 @@ extension CommonPendingExpressTransactionsManager: PendingExpressTransactionsMan
     func hideTransaction(with id: String) {
         ExpressLogger.info("Hide transaction in the repository. Transaction id: \(id)")
         expressPendingTransactionsRepository.hideSwapTransaction(with: id)
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonPendingExpressTransactionsManager: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
 

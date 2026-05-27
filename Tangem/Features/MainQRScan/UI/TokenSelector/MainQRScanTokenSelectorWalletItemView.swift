@@ -34,7 +34,7 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                 MainQRScanTokenSelectorAccountSectionView(viewModel: accountViewModel)
             }
 
-        case .accounts(_, let accounts):
+        case .accounts(let accounts):
             let compatibleAccounts = accounts.filter(\.hasCompatibleItems)
 
             ForEach(Array(compatibleAccounts.enumerated()), id: \.element.id) { index, account in
@@ -56,10 +56,10 @@ struct MainQRScanTokenSelectorWalletItemView: View {
                 )
             }
 
-        case .accounts(let walletName, let accounts):
+        case .accounts(let accounts):
             let compatibleAccounts = accounts.filter(\.hasCompatibleItems)
             accountsModeWalletContent(
-                walletName: walletName,
+                walletName: viewModel.walletName,
                 accounts: compatibleAccounts,
                 accountHeaderOverride: nil
             )

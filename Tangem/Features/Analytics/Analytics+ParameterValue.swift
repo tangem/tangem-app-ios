@@ -72,6 +72,8 @@ extension Analytics {
         case swap = "Swap"
         case send = "Send"
         case sendAndSwap = "Send&Swap"
+        case from = "From"
+        case to = "To"
         case backup = "Backup"
         case sign = "Sign"
 
@@ -81,11 +83,15 @@ extension Analytics {
         case transactionSourceApprove = "Approve"
         case transactionSourceWalletConnect = "WalletConnect"
         case transactionSourceStaking = "Staking"
+        case dynamicAddressesSourceDetailedScreen = "Detailed Screen"
+        case dynamicAddressesSourceDynamicAddresses = "Dynamic Addresses"
 
         case transactionFeeMin = "Min"
         case transactionFeeNormal = "Normal"
         case transactionFeeMax = "Max"
         case custom = "Custom"
+
+        case coin = "Coin"
 
         case signInTypeBiometrics = "Biometric"
 
@@ -327,6 +333,10 @@ extension Analytics {
 
         static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
             return boolean ? .enabled : .disabled
+        }
+
+        static func feeAssetType(isGasless: Bool) -> ParameterValue {
+            return isGasless ? .token : .coin
         }
     }
 }

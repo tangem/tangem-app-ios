@@ -45,7 +45,7 @@ public class VisaConfigProvider {
         switch apiType {
         case .prod:
             return config.rsaPublicKey.prod
-        case .dev:
+        case .dev, .mock:
             return config.rsaPublicKey.dev
         }
     }
@@ -54,7 +54,7 @@ public class VisaConfigProvider {
         switch apiType {
         case .prod:
             return config.rainRSAPublicKey.prod
-        case .dev:
+        case .dev, .mock:
             return config.rainRSAPublicKey.dev
         }
     }
