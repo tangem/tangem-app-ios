@@ -326,10 +326,13 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
-        fromAmount /= pow(10, response.fromPrecision)
+        fromAmount /= pow(10, response.fromDecimals)
 
-        let toAmount = Decimal(string: response.toAmount)
-            .map { $0 / pow(10, response.toDecimals) }
+        guard var toAmount = Decimal(string: response.toAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
+        }
+
+        toAmount /= pow(10, response.toDecimals)
 
         let toActualAmount = response.toActualAmount
             .flatMap(Decimal.init)
@@ -343,7 +346,7 @@ struct ExpressAPIMapper {
             txId: response.txId,
             status: response.status,
             createdAt: createdAt,
-            fromCurrencyCode: response.fromCurrencyCode,
+            fromCurrencyCode: response.fromNetwork,
             fromAmount: fromAmount,
             toContractAddress: response.toContractAddress,
             toNetwork: response.toNetwork,

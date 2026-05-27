@@ -97,9 +97,10 @@ extension CommonOnrampManager: OnrampManager {
         fromAddress: String,
         since: Date,
         toContractAddress: String,
-        toNetwork: String
+        toNetwork: String,
+        limit: Int?
     ) async throws -> OnrampHistoryItem? {
-        let items = try await apiProvider.onrampHistory(fromAddress: fromAddress)
+        let items = try await apiProvider.onrampHistory(fromAddress: fromAddress, limit: limit)
         return OnrampHistoryMatcher.findMatch(
             in: items,
             since: since,

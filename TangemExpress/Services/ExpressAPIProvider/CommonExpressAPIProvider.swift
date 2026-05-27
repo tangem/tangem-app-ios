@@ -288,8 +288,8 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return try expressAPIMapper.mapToOnrampTransaction(response: response)
     }
 
-    func onrampHistory(fromAddress: String) async throws -> [OnrampHistoryItem] {
-        let request = ExpressDTO.Onramp.History.Request(fromAddress: fromAddress, afterCursor: nil, limit: nil)
+    func onrampHistory(fromAddress: String, limit: Int?) async throws -> [OnrampHistoryItem] {
+        let request = ExpressDTO.Onramp.History.Request(payoutAddress: fromAddress, afterCursor: nil, limit: limit)
         let response = try await expressAPIService.onrampHistory(request: request)
         return expressAPIMapper.mapToOnrampHistoryItems(response: response)
     }

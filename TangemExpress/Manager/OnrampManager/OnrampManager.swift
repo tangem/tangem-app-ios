@@ -27,7 +27,8 @@ public protocol OnrampManager: Actor {
         fromAddress: String,
         since: Date,
         toContractAddress: String,
-        toNetwork: String
+        toNetwork: String,
+        limit: Int?
     ) async throws -> OnrampHistoryItem?
 }
 

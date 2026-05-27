@@ -252,7 +252,7 @@ extension ExpressDTO {
 
         enum History {
             struct Request: Encodable {
-                let fromAddress: String
+                let payoutAddress: String
                 let afterCursor: String?
                 let limit: Int?
             }
@@ -263,21 +263,18 @@ extension ExpressDTO {
             }
 
             struct Item: Decodable {
-                let type: String
                 let txId: String
                 let providerId: String
-                let externalTxId: String
-                let externalTxUrl: String?
-                let countryCode: String
-                let paymentMethod: String
                 let payoutAddress: String
-                let payoutHash: String?
                 let status: OnrampTransactionStatus
+                let externalTxId: String?
+                let externalTxUrl: String?
                 let createdAt: String
 
-                let fromCurrencyCode: String
+                let fromContractAddress: String
+                let fromNetwork: String
+                let fromDecimals: Int
                 let fromAmount: String
-                let fromPrecision: Int
 
                 let toContractAddress: String
                 let toNetwork: String
@@ -288,7 +285,8 @@ extension ExpressDTO {
 
             struct Pagination: Decodable {
                 let endCursor: String?
-                let hasNextPage: Bool
+                let startDeltaCursor: String?
+                let hasMore: Bool
             }
         }
     }

@@ -421,7 +421,8 @@ private actor StubOnrampManager: OnrampManager {
         fromAddress: String,
         since: Date,
         toContractAddress: String,
-        toNetwork: String
+        toNetwork: String,
+        limit: Int?
     ) async throws -> OnrampHistoryItem? {
         switch historyMode {
         case .unused: return nil

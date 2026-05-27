@@ -29,5 +29,5 @@ public protocol ExpressAPIProvider {
     func onrampData(item: OnrampRedirectDataRequestItem) async throws -> OnrampRedirectData
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction
-    func onrampHistory(fromAddress: String) async throws -> [OnrampHistoryItem]
+    func onrampHistory(fromAddress: String, limit: Int?) async throws -> [OnrampHistoryItem]
 }

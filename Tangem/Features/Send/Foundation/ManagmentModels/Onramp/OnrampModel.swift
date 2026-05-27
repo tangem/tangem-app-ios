@@ -668,7 +668,8 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 fromAddress: defaultAddressString,
                 since: applePayStartDate,
                 toContractAddress: toContractAddress,
-                toNetwork: toNetwork
+                toNetwork: toNetwork,
+                limit: 1
             )
 
             await runOnMain { [weak self] in

@@ -21,6 +21,6 @@ public struct OnrampHistoryItem: Codable, Equatable {
     public let toAmount: Decimal?
     public let toActualAmount: Decimal?
 
-    public let externalTxId: String
+    public let externalTxId: String?
     public let externalTxUrl: String?
 }

@@ -107,7 +107,7 @@ class CommonPendingOnrampTransactionsManager {
 
         let items: [OnrampHistoryItem]
         do {
-            items = try await expressAPIProvider.onrampHistory(fromAddress: fromAddress)
+            items = try await expressAPIProvider.onrampHistory(fromAddress: fromAddress, limit: nil)
         } catch {
             return
         }
