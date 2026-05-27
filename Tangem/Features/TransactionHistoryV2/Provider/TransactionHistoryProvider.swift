@@ -12,21 +12,13 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
-    private var subscribers = AsyncStream<TransactionHistorySyncState>.Subscribers()
+    private var subscribers = AsyncStream<TransactionHistorySyncState>.Subscribers<UUID>()
 
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
 
     private var hasCompletedInitialSync: Bool = false
     private var lastSuccessfulPullToRefreshAt: Date?
-
-    private func subscribe(id: UUID, continuation: AsyncStream<TransactionHistorySyncState>.Continuation) {
-        subscribers.subscribe(id: id, continuation: continuation, currentValue: stateValue)
-    }
-
-    private func unsubscribe(id: UUID) {
-        subscribers.unsubscribe(id: id)
-    }
 
     private func emit(_ newState: TransactionHistorySyncState) {
         stateValue = newState
@@ -61,28 +53,15 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     nonisolated var stateUpdates: AsyncStream<TransactionHistorySyncState> {
-        AsyncStream { continuation in
-            let subscriberId = UUID()
-
-            continuation.onTermination = { @Sendable [weak self] _ in
-                guard let self else {
-                    return
-                }
-
-                Task {
-                    await self.unsubscribe(id: subscriberId)
-                }
+        .multicast(
+            with: self,
+            onSubscribe: { provider, id, continuation in
+                provider.subscribers.subscribe(id: id, continuation: continuation, currentValue: provider.stateValue)
+            },
+            onUnsubscribe: { provider, id in
+                provider.subscribers.unsubscribe(id: id)
             }
-
-            Task { [weak self] in
-                guard let self else {
-                    continuation.finish()
-                    return
-                }
-
-                await subscribe(id: subscriberId, continuation: continuation)
-            }
-        }
+        )
     }
 
     func syncInitial() async {
