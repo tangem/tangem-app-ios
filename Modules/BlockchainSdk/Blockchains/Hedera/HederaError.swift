@@ -18,6 +18,10 @@ enum HederaError: LocalizedError {
     case fixedFeeInAnotherToken
     case conversionFromConsensusToMirrorFailed(transactionId: String)
     case conversionFromMirrorToConsensusFailed(transactionId: String)
+    case accountEVMAddressNotFound
+    case contractCallResultNotFound
+    case contractCallResultIsInvalid
+    case contractCallGasPriceNotFound
 
     var errorDescription: String? {
         switch self {
@@ -39,6 +43,14 @@ enum HederaError: LocalizedError {
             return "Failed to convert transaction ID \(transactionId) from Consensus Node to Mirror Node format"
         case .conversionFromMirrorToConsensusFailed(let transactionId):
             return "Failed to convert transaction ID \(transactionId) from Mirror Node to Consensus Node format"
+        case .accountEVMAddressNotFound:
+            return "Account EVM address is missing in Mirror Node response"
+        case .contractCallResultNotFound:
+            return "Contract call result is missing in Mirror Node response"
+        case .contractCallResultIsInvalid:
+            return "Contract call result returned by Mirror Node is invalid"
+        case .contractCallGasPriceNotFound:
+            return "Contract call gas price is missing in Mirror Node network fees response"
         }
     }
 }
