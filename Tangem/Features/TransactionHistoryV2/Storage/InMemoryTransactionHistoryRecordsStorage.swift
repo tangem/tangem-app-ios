@@ -13,7 +13,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 actor InMemoryTransactionHistoryRecordsStorage<Record: TransactionHistoryRecord> {
     private var byId: [String: Record] = [:]
-    private var subscribers = AsyncStream<[Record]>.Subscribers<UUID>()
+    private var subscribers = AsyncStream<[Record]>.MulticastSubscribers<UUID>()
 
     private func snapshot() -> [Record] {
         byId.values.sorted(by: { $0.updatedAt > $1.updatedAt })

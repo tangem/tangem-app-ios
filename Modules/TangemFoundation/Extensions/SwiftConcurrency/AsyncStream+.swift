@@ -16,7 +16,7 @@ public extension AsyncStream {
     /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md for details.
     ///
     /// - Warning: Holds mutable state, so it is meant to live as isolated state of an `actor`.
-    struct Subscribers<ID: Hashable> {
+    struct MulticastSubscribers<ID: Hashable> {
         private var subscribers: [ID: SubscriptionState] = [:]
 
         public init() {}
@@ -106,7 +106,7 @@ public extension AsyncStream {
 
 // MARK: - Auxiliary types
 
-private extension AsyncStream.Subscribers {
+private extension AsyncStream.MulticastSubscribers {
     /// - Note: this tombstone-like pattern is used to prevent races between `subscribe(id:continuation:currentValue:)`
     /// and `unsubscribe(id:)` calls since their order is not guaranteed.
     enum SubscriptionState {

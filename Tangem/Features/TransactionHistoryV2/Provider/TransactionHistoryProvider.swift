@@ -12,7 +12,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
-    private var subscribers = AsyncStream<TransactionHistorySyncState>.Subscribers<UUID>()
+    private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
 
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
