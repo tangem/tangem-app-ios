@@ -43,6 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
     case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
+    case adiMainScreenDefault
 
     var name: String {
         switch self {
