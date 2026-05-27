@@ -61,10 +61,6 @@ extension CommonWCService: WCService {
                         incomingActionManager.becomeFirstResponder(self)
 
                         Task {
-                            // Defer to let crypto accounts finish loading before running WC
-                            // migration. Running too eagerly races account-model publishing
-                            // and can misclassify legitimate V1 sessions as orphaned.
-                            try? await Task.sleep(for: .seconds(Constants.migrationDeferral))
                             await dAppSessionsExtender.extendConnectedDAppSessionsIfNeeded()
                         }
                     }
@@ -105,14 +101,6 @@ extension CommonWCService: WCService {
 
     func handleHiddenBlockchainFromCurrentUserWallet(_ blockchain: BlockchainSdk.Blockchain) {
         v2Service.handleHiddenBlockchainFromCurrentUserWallet(blockchain)
-    }
-}
-
-// MARK: - Constants
-
-private extension CommonWCService {
-    enum Constants {
-        static let migrationDeferral: TimeInterval = 2
     }
 }
 
