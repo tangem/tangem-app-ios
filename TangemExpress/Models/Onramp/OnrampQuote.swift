@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public struct OnrampQuote: Hashable {
     public let expectedAmount: Decimal
     public let nativePaymentAvailable: Bool
