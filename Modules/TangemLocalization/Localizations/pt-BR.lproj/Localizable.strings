@@ -1424,6 +1424,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Não foi possível renomear o cartão.";
 "tangem_pay_card_frozen" = "Cartão bloqueado";
 "tangem_pay_card_payment" = "Pagamento com cartão";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_close_card_popup_description" = "O valor desaparecerá da conta de pagamento.";
 "tangem_pay_close_card_popup_primary_button_title" = "Fechar cartão";
 "tangem_pay_close_card_popup_secondary_button_title" = "Voltar";
@@ -1517,6 +1521,8 @@
 "tangempay_card_edit_name_placeholder" = "Nome do cartão";
 "tangempay_card_limit_setup_amount_subtitle" = "Definir um limite a partir de %@";
 "tangempay_card_limit_setup_error_message" = "Não foi possível definir o limite. Tente novamente.";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_closing_banner_description" = "Geralmente leva até 5 minutos";
 "tangempay_card_page_closing_banner_title" = "Fechando seu cartão";
 "tangempay_card_page_daily_limit_change" = "Mudar";
@@ -1603,6 +1609,7 @@
 "tangempay_status_replacing" = "Substituindo seu cartão";
 "tangempay_sync_needed_body" = "Use o cartão ou anel para renovar a sessão";
 "tangempay_sync_needed_button" = "Restaurar acesso";
+"tangempay_sync_needed_title" = "Tangem Pay sessão expirada";
 "tangempay_sync_needed_restore_access" = "Restaurar acesso";
 "tangempay_sync_needed_title" = "Tangem Pay sessão expirada";
 "tangempay_sync_needed" = "Use o cartão ou anel para renovar a sessão";
@@ -1934,6 +1941,8 @@
 "warning_old_card_title" = "Restrição do iOS para cartões mais antigos";
 "warning_old_device_old_card_message" = "Alguns modelos de iPhone 7/7+ podem apresentar problemas com o NFC durante determinadas operações.";
 "warning_old_device_old_card_title" = "Incompatibilidade do dispositivo detectada";
+"warning_outdated_data_message" = "Will be updated as soon as possible";
+"warning_outdated_data_title" = "Missing some token balances";
 "warning_outdated_data_message" = "Será atualizado assim que possível.";
 "warning_outdated_data_title" = "Faltam alguns saldos de tokens";
 "warning_rate_app_message" = "Sua avaliação nos motiva a aprimorar ainda mais a Tangem Wallet.";

@@ -40,6 +40,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapMaxAmountFractions
     case pushNotificationsSettings
     case swapExchangeRateDisplay
+    case swapRateExperience
     case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
@@ -78,6 +79,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .adiMainScreenDefault: return "14071_show_ADI_on_main_screen"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
         case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
+        case .swapRateExperience: return "13956_Swap_Rate_Experience"
         case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .addFundsStage1: return "[REDACTED_INFO]_ADDFUNDS_STAGE_1"
@@ -118,6 +120,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .adiMainScreenDefault: return .unspecified
         case .swapExchangeRateDisplay: return .version("5.39")
+        case .swapRateExperience: return .unspecified
         case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
