@@ -59,7 +59,7 @@ final class ResetToFactoryViewModel: ObservableObject {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("ResetToFactoryViewModel deinit")
     }
 
     func didTapMainButton() {

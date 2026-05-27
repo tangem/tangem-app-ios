@@ -30,7 +30,7 @@ public class ExpressAvailableProvider {
     }
 
     deinit {
-        ExpressLogger.debug("deinit \(objectDescription(self))")
+        ExpressLogger.debug(self, "deinit")
     }
 
     public func getState() -> ExpressProviderManagerState {
@@ -45,9 +45,9 @@ public class ExpressAvailableProvider {
         switch getState() {
         case .permissionRequired(let state), .revokeAndPermissionRequired(let state):
             return .high(rate: state.quote.rate)
-        case .preview(let state):
+        case .cexPreview(let state):
             return .high(rate: state.quote.rate)
-        case .ready(let state):
+        case .dexPreview(let state):
             return .high(rate: state.quote.rate)
         case .restriction(.tooSmallAmount(let amount, _), _):
             // HACK: We need to use a negative value here because
