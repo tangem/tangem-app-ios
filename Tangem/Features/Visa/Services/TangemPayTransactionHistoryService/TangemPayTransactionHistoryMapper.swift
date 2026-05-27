@@ -74,3 +74,14 @@ struct TangemPayTransactionHistoryMapper {
         )
     }
 }
+
+extension TangemPayTransactionRecord {
+    var transactionDate: Date {
+        switch record {
+        case .spend(let spend): spend.authorizedAt
+        case .collateral(let collateral): collateral.postedAt
+        case .payment(let payment): payment.postedAt
+        case .fee(let fee): fee.postedAt
+        }
+    }
+}

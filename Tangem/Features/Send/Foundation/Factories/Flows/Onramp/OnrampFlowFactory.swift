@@ -11,6 +11,8 @@ import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
+    @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
+
     let sourceToken: SendSourceToken
     let parameters: PredefinedOnrampParameters
     let coordinatorSource: SendCoordinator.Source
@@ -31,6 +33,12 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         predefinedValues: .init(amount: parameters.amount)
+    )
+
+    lazy var buyActionBuilder = OnrampOfferViewModelBuyActionBuilder(
+        geoEligibilityService: geoEligibilityService,
+        amountInput: onrampModel,
+        authorizationHandler: onrampModel
     )
 
     init(
@@ -59,6 +67,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         let offersSelectorViewModel = OnrampOffersSelectorViewModel(
             tokenItem: tokenItem,
             analyticsLogger: analyticsLogger,
+            buyActionBuilder: buyActionBuilder,
             input: onrampModel,
             output: onrampModel
         )
@@ -137,7 +146,7 @@ extension OnrampFlowFactory: SendBaseBuildable {
             feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: CommonTangemIconProvider(config: sourceToken.userWalletInfo.config)
+            tangemIconProvider: sourceToken.tangemIconProvider
         )
     }
 }
@@ -162,7 +171,8 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
     var onrampDependencies: OnrampSummaryStepBuilder.Dependencies {
         OnrampSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            buyActionBuilder: buyActionBuilder
         )
     }
 }

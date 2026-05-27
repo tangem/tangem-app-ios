@@ -12,4 +12,5 @@ public enum ExpressProviderError: LocalizedError {
     case allowanceProviderNotFound
     case transactionDataNotFound
     case transactionSizeNotSupported
+    case transactionTypeMismatch
 }

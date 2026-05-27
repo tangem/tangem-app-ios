@@ -18,13 +18,6 @@ final class TangemPayBuilder {
         userWalletId.stringValue
     }
 
-    private var tokens: TangemPayAuthorizationTokens? {
-        TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: customerWalletId,
-            keysRepository: keysRepository
-        )?.tokens
-    }
-
     private lazy var availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private lazy var authorizationService = TangemPayAuthorizationServiceBuilder().build(customerWalletId: customerWalletId)
@@ -68,6 +61,8 @@ final class TangemPayBuilder {
     private lazy var mainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
         tangemPayTokenBalanceProvider: balancesService.fixedFiatTotalTokenBalanceProvider
     )
+
+    private lazy var feeRepository = TangemPayFeeRepository()
 
     init(
         userWalletId: UserWalletId,
@@ -113,6 +108,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
+            feeRepository: feeRepository,
             account: account
         )
     }
