@@ -51,7 +51,7 @@ private struct TangemPayAccountTile: View {
         case .skeleton:
             TangemTwoLineRowSkeletonView()
 
-        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
+        case .normal(_, let balance, _), .cardDeactivated(let balance), .replacingCard(let balance):
             balanceRow(subtitle: state.subtitle, balance: balance, showsCachedIndicator: false)
 
         case .failedToIssueCard:
