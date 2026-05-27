@@ -16,6 +16,8 @@ extension PromotionsDTO {
     enum Placement: String, Codable {
         case main
         case news = "shtorka"
+        case tokenDetails = "token_details"
+        case yield
     }
 }
 
@@ -42,6 +44,7 @@ extension PromotionsDTO {
             let buttonEnabled: Bool?
             let buttonText: String?
             let dismissable: Bool?
+            let tokens: [TokenInfo]?
         }
     }
 }
