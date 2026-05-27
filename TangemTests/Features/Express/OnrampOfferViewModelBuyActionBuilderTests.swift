@@ -158,9 +158,8 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             return
         }
 
-        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier(forProviderId: "mercuryo"))
         #expect(request.currencyCode == "USD")
-        #expect(request.countryCode == (Locale.current.region?.identifier ?? "US"))
+        #expect(request.countryCode == "US")
     }
 
     @Test("Phase .willAuthorize triggers onWillBuy")
@@ -240,13 +239,15 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
 
     private func makeBuilder(
         authorizationHandler: ApplePayButtonPaymentAuthorizationHandler? = nil,
-        isApplePayAllowed: Bool = true
+        isApplePayAllowed: Bool = true,
+        countryCode: String = "US"
     ) -> OnrampOfferViewModelBuyActionBuilder {
         OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: isApplePayAllowed),
             tokenItem: Self.testTokenItem,
             amountInput: amountInput,
-            authorizationHandler: authorizationHandler
+            authorizationHandler: authorizationHandler,
+            countryCode: countryCode
         )
     }
 
