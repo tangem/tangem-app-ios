@@ -45,7 +45,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private(set) var linksSections: [MarketsTokenDetailsLinkSection] = []
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
-    @Published private(set) var shouldShowAddToPortfolioPromo: Bool = false
+    @Published private(set) var portfolioBlockState: MarketsPortfolioContainerViewModel.PortfolioBlockState = .loading
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -318,6 +318,15 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         }
 
         portfolioViewModel.onAddTapAction()
+    }
+
+    func onAddFundsTap() {
+        portfolioViewModel?.onAddFundsTap()
+    }
+
+    @MainActor
+    func onExpandPortfolioBlockTap() {
+        portfolioViewModel?.onExpandTap()
     }
 
     func logCarouselScrolledIfNeeded() {
@@ -595,11 +604,10 @@ private extension MarketsTokenDetailsViewModel {
         }
 
         portfolioViewModel
-            .$typeView
+            .$portfolioBlockState
             .receive(on: DispatchQueue.main)
-            .map { $0.isEmpty || $0.isList }
             .removeDuplicates()
-            .assign(to: \.shouldShowAddToPortfolioPromo, on: self, ownership: .weak)
+            .assign(to: \.portfolioBlockState, on: self, ownership: .weak)
             .store(in: &bag)
     }
 

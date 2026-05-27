@@ -39,8 +39,8 @@ struct MetricsMarketPositionCard: View {
                     if let progress = state.progress {
                         MetricsProgressBarWithDot(
                             progress: progress,
-                            dotColor: .Tangem.Fill.Neutral.primaryInvertedConstant,
-                            backgroundColor: Color.Tangem.Fill.Neutral.primaryInvertedConstant.opacity(0.1)
+                            dotColor: .Tangem.Fill.Neutral.primary,
+                            backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
                         )
                     }
 
