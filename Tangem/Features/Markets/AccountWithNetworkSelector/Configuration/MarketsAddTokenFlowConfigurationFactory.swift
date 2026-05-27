@@ -138,13 +138,15 @@ private extension MarketsAddTokenFlowConfigurationFactory {
 
             case .exchange:
                 analyticsLogger.logExchangeTapped()
-                let swapableToken = CommonSendSwapableTokenFactory(
-                    userWalletInfo: userWalletInfo,
-                    walletModel: walletModel,
-                    operationType: .swap
-                ).makeSwapableToken()
+                let helper = SwapPredefinedParametersHelper()
+                guard let parameters = helper.makeParameters(
+                    origin: .markets(walletModel: walletModel),
+                    userWalletInfo: userWalletInfo
+                ) else {
+                    break
+                }
 
-                coordinator.openSwap(input: .to(swapableToken), destination: walletModel.tokenItem)
+                coordinator.openSwap(input: parameters, destination: walletModel.tokenItem)
 
             case .receive:
                 analyticsLogger.logReceiveTapped()

@@ -149,6 +149,8 @@ private extension CommonSwapNotificationManager {
             // For only a express error we use "Service temporary unavailable"
             // or "Selected pair temporarily unavailable" depending on the error code.
             analyticsParams[.errorCode] = "\(occurredError.errorCode.rawValue)"
+            analyticsParams[.sendBlockchain] = source.tokenItem.blockchain.displayName
+            analyticsParams[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
 
             return [
                 .refreshRequired(

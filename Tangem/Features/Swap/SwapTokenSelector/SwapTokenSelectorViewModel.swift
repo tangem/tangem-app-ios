@@ -135,7 +135,7 @@ extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
     func didSelectExternalToken(_ token: MarketsTokenModel) {
         Task { @MainActor in
             guard let networks = token.networks, !networks.isEmpty else {
-                AppLogger.debug("Selected tokens with no networks")
+                AppLogger.error(error: "Selected tokens with no networks")
                 return
             }
 
@@ -157,7 +157,7 @@ extension SwapTokenSelectorViewModel {
 }
 
 extension SwapTokenSelectorViewModel.SwapDirection {
-    var tokenItem: TokenItem {
+    var tokenItem: TokenItem? {
         switch self {
         case .fromSource(let tokenItem): tokenItem
         case .toDestination(let tokenItem): tokenItem

@@ -53,13 +53,17 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 
     init(
         initialOrderType: MarketsListOrderType?,
+        initialIntervalType: MarketsPriceIntervalType?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: MarketsRoutable
     ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
-        filterProvider = MarketsListDataFilterProvider(initialOrderType: initialOrderType)
+        filterProvider = MarketsListDataFilterProvider(
+            initialOrderType: initialOrderType,
+            initialIntervalType: initialIntervalType
+        )
 
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,

@@ -11,11 +11,6 @@ import Foundation
 // MARK: - Convenience extensions for Accounts domain models
 
 extension AccountModel {
-    var isStandard: Bool {
-        if case .standard = self { return true }
-        return false
-    }
-
     func cryptoAccount(with identifier: some Hashable) -> (any CryptoAccountModel)? {
         switch self {
         case .standard(let cryptoAccounts):
