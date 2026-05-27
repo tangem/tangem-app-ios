@@ -992,8 +992,6 @@
 "organize_tokens_title" = "Organizar tokens";
 "organize_tokens_ungroup" = "Desagrupar";
 "provider_name_support" = "%@ suporte";
-"push_notification_settings_banner_button_grant_permission" = "Conceder permissão";
-"push_notification_settings_banner_description_grant_permission" = "As notificações push estão ativadas, mas não funcionarão até que você conceda permissão.";
 "push_notification_settings_banner_description" = "As notificações push estão ativadas, mas só funcionarão depois que você as permitir nas configurações do seu dispositivo.";
 "push_notification_settings_banner_title" = "Permitir notificações";
 "push_notification_settings_offers_updates_subtitle" = "Novidades sobre produtos, ofertas exclusivas e lembretes de atividades.";
@@ -1517,6 +1515,7 @@
 "tangempay_card_page_daily_limit_change" = "Mudar";
 "tangempay_card_page_daily_limit_current_limit" = "Limite atual";
 "tangempay_card_page_daily_limit_error_description" = "Não foi possível carregar seu limite diário. Tente novamente.";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "Limite diário indisponível";
 "tangempay_card_page_daily_limit_success_description" = "Você pode alterar isso novamente quando quiser.";
 "tangempay_card_page_daily_limit_success_title" = "O limite diário está definido.";
