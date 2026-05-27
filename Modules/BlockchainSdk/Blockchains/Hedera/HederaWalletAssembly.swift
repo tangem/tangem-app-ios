@@ -15,21 +15,15 @@ struct HederaWalletAssembly: WalletManagerAssembly {
         let isTestnet = blockchain.isTestnet
         let networkConfig = input.networkInput.tangemProviderConfig
         let dependencies = input.blockchainSdkDependencies
+        let apiList = APIList(dictionaryLiteral: (blockchain.networkId, input.networkInput.apiInfo))
 
-        let restProviders = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
-            .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
-                HederaRESTNetworkProvider(targetConfiguration: nodeInfo, providerConfiguration: networkConfig)
-            }
-
-        let consensusProvider = HederaConsensusNetworkProvider(
-            isTestnet: isTestnet,
-            timeout: networkConfig.urlSessionConfiguration.timeoutIntervalForRequest
+        let serviceFactory = WalletNetworkServiceFactory(
+            blockchainSdkKeysConfig: input.networkInput.keysConfig,
+            tangemProviderConfig: input.networkInput.tangemProviderConfig,
+            apiList: apiList
         )
 
-        let networkService = HederaNetworkService(
-            consensusProvider: consensusProvider,
-            restProviders: restProviders
-        )
+        let networkService: HederaNetworkService = try serviceFactory.makeServiceWithType(for: input.wallet.blockchain)
 
         let transactionBuilder = HederaTransactionBuilder(
             publicKey: wallet.publicKey.blockchainKey,

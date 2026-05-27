@@ -54,7 +54,11 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
 
     private let minLimit = 1
 
-    private let tangemPayAccount: TangemPayAccount
+    /// Exactly one of `card` / `tangemPayAccount` is set — `card` in the multi-card flow,
+    /// `tangemPayAccount` in the legacy single-card flow.
+    private let card: TangemPayCard?
+    private let tangemPayAccount: TangemPayAccount?
+    private let userWalletId: UserWalletId
     private weak var coordinator: TangemPayDailyLimitRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -63,21 +67,41 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         tangemPayAccount: TangemPayAccount,
         coordinator: TangemPayDailyLimitRoutable
     ) {
+        card = nil
         self.tangemPayAccount = tangemPayAccount
+        userWalletId = tangemPayAccount.userWalletId
         maxLimit = tangemPayAccount.adminCardLimit
         self.coordinator = coordinator
 
         let currentLimit = tangemPayAccount.cardLimit ?? 0
 
         amountFieldViewModel.update(value: Decimal(currentLimit))
+        isSubmitEnabled = currentLimit > 0 && currentLimit <= maxLimit
 
+        bind()
+    }
+
+    init(
+        card: TangemPayCard,
+        userWalletId: UserWalletId,
+        coordinator: TangemPayDailyLimitRoutable
+    ) {
+        self.card = card
+        tangemPayAccount = nil
+        self.userWalletId = userWalletId
+        maxLimit = card.adminCardLimit
+        self.coordinator = coordinator
+
+        let currentLimit = card.cardLimit
+
+        amountFieldViewModel.update(value: Decimal(currentLimit))
         isSubmitEnabled = currentLimit > 0 && currentLimit <= maxLimit
 
         bind()
     }
 
     func onAppear() {
-        Analytics.log(.visaScreenLimitManagementScreenOpened, contextParams: .userWallet(tangemPayAccount.userWalletId))
+        Analytics.log(.visaScreenLimitManagementScreenOpened, contextParams: .userWallet(userWalletId))
     }
 
     func selectPreset(_ value: String) {
@@ -96,15 +120,19 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         Analytics.log(
             event: .visaScreenSetLimitsConfirmed,
             params: [.amount: "\(intValue)"],
-            contextParams: .userWallet(tangemPayAccount.userWalletId)
+            contextParams: .userWallet(userWalletId)
         )
 
         isLoading = true
 
         runTask(in: self) { viewModel in
             do {
-                try await viewModel.tangemPayAccount.customerService.setCardLimit(amount: intValue)
-                await viewModel.tangemPayAccount.loadCustomerInfo()
+                if let card = viewModel.card {
+                    try await card.setLimit(intValue)
+                } else if let tangemPayAccount = viewModel.tangemPayAccount {
+                    _ = try await tangemPayAccount.customerService.setCardLimit(amount: intValue)
+                    await tangemPayAccount.loadCustomerInfo()
+                }
 
                 await MainActor.run {
                     viewModel.isLoading = false
