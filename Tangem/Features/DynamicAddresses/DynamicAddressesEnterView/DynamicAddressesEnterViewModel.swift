@@ -8,35 +8,102 @@
 
 import Foundation
 import TangemUI
+import TangemUIUtils
+import TangemAssets
 import TangemLocalization
 
 final class DynamicAddressesEnterViewModel: ObservableObject, Identifiable {
     @Published private(set) var mainButtonIsLoading: Bool = false
+    @Published private(set) var mainButtonIsDisabled: Bool = false
+    @Published private(set) var mainButtonIcon: MainButton.Icon?
 
+    @Published var alert: AlertBinder?
+
+    private let walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider
+    private let analyticsLogger: DynamicAddressesAnalyticsLogger
     private weak var coordinator: DynamicAddressesEnterRoutable?
 
-    init(coordinator: DynamicAddressesEnterRoutable) {
+    private var enablingTask: Task<Void, Never>?
+
+    init(
+        walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
+        analyticsLogger: DynamicAddressesAnalyticsLogger,
+        coordinator: DynamicAddressesEnterRoutable
+    ) {
+        self.walletModelDynamicAddressesProvider = walletModelDynamicAddressesProvider
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
+
+        setupView()
+
+        analyticsLogger.logDynamicAddressesScreenOpened()
     }
 
     // MARK: - Actions
 
     func userDidTapEnableAction() {
+        analyticsLogger.logButtonEnableDynamicAddresses()
+
         mainButtonIsLoading = true
-        Task {
-            try await Task.sleep(for: .seconds(2))
-            await MainActor.run {
-                close()
-                showSuccessToast()
-            }
+        enablingTask?.cancel()
+        enablingTask = Task { [weak self] in
+            await self?.enableDynamicAddresses()
         }
     }
 
     func close() {
-        coordinator?.closeDynamicAddressesEnterView()
+        enablingTask?.cancel()
+        dismiss(isSuccess: false)
+    }
+}
+
+// MARK: - Private
+
+private extension DynamicAddressesEnterViewModel {
+    func enableDynamicAddresses() async {
+        do {
+            try await walletModelDynamicAddressesProvider.enableDynamicAddresses()
+            try Task.checkCancellation()
+
+            analyticsLogger.logDynamicAddressesEnabled()
+
+            await MainActor.run {
+                mainButtonIsLoading = false
+                dismiss(isSuccess: true)
+            }
+        } catch is CancellationError {
+            // Do nothing
+        } catch {
+            await MainActor.run {
+                mainButtonIsLoading = false
+                alert = error.alertBinder
+            }
+        }
     }
 
-    func showSuccessToast() {
+    private func setupView() {
+        switch walletModelDynamicAddressesProvider.dynamicAddressesEnablingRequirements {
+        case .none:
+            mainButtonIcon = nil
+            mainButtonIsDisabled = false
+
+        case .xpubDerivationIsNeeded:
+            mainButtonIcon = .trailing(Assets.tangemIcon)
+            mainButtonIsDisabled = false
+
+        case .customTokensRemoveIsNeeded:
+            mainButtonIsDisabled = true
+        }
+    }
+
+    func dismiss(isSuccess: Bool) {
+        coordinator?.closeDynamicAddressesEnterView()
+        if isSuccess {
+            showSuccessToast()
+        }
+    }
+
+    private func showSuccessToast() {
         Toast(view: SuccessToast(text: Localization.dynamicAddressesEnabledToastTitle))
             .present(
                 layout: .top(),

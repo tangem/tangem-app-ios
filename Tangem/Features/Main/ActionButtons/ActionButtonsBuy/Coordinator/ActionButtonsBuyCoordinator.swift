@@ -147,10 +147,7 @@ extension ActionButtonsBuyCoordinator {
 
 private extension ActionButtonsBuyCoordinator {
     func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
-        TokenSelectorViewModel(
-            walletsProvider: .common(),
-            availabilityProvider: .buy()
-        )
+        .common(availabilityProvider: .buy())
     }
 }
 

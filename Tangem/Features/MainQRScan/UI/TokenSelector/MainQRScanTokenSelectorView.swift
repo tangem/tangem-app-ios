@@ -47,7 +47,7 @@ struct MainQRScanTokenSelectorView: View {
 
         switch tokenSelectorViewModel.contentVisibility {
         case .loading:
-            loadingView
+            TokenSelectorLoadingView()
         case .empty:
             noResultsView
         case .visible:
@@ -65,16 +65,6 @@ struct MainQRScanTokenSelectorView: View {
                 }
             }
         }
-    }
-
-    private var loadingView: some View {
-        HStack(spacing: 8.0) {
-            ProgressView()
-
-            Text(Localization.wcCommonLoading)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
-        }
-        .padding(.top, 12.0)
     }
 
     private var noResultsView: some View {

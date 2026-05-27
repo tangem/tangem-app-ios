@@ -114,6 +114,13 @@ private extension MobileCreateWalletView {
                 action: viewModel.onCreateTap
             )
             .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileCreateWalletCreateButton)
+
+            OnboardingTermsOfServiceFooter(onTap: viewModel.onTosTap)
+                .padding(.top, 4)
+        }
+        .background(alignment: .bottom) {
+            OnboardingBottomFadeBackground()
+                .padding(.top, -64)
         }
     }
 }
