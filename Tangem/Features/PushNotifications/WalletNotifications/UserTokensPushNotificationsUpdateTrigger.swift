@@ -21,8 +21,8 @@ final class UserTokensPushNotificationsUpdateTrigger {
         /// Pending derivations just finished and the token list is ready — the remote
         /// push status should be re-synced with the backend.
         case syncRemoteStatusRequired
-        /// The app returned to foreground while the token list is ready — the local
-        /// push status should be recalculated with the current system authorization state.
+        /// System push authorization changed between foreground transitions while the token
+        /// list is ready — the local push status should be recalculated.
         case updateStatusRequired
         /// System push permission was granted (`false` → `true`) while the token list is
         /// ready — wallet-level preferences may be auto-enabled for allowance onboarding.
@@ -99,10 +99,15 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        permissionService.isAuthorizedPublisher
+        permissionService
+            .isAuthorizedPublisher
+            .pairwise()
+            .filter { previous, current in
+                previous != current
+            }
             .combineLatest(isUserTokenListReadyPublisher)
             .receiveOnMain()
-            .map { _, _ in Event.updateStatusRequired }
+            .map { _ in Event.updateStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 
@@ -120,10 +125,6 @@ final class UserTokensPushNotificationsUpdateTrigger {
         permissionService
             .isAuthorizedPublisher
             .removeDuplicates()
-            .pairwise()
-            .filter { previous, current in
-                previous == false && current == true
-            }
             .combineLatest(
                 isUserTokenListReadyPublisher,
                 hasNotCompletedAllowanceOnboardingPublisher,
