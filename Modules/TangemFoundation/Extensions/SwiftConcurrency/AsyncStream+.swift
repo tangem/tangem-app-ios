@@ -21,6 +21,18 @@ public extension AsyncStream {
 
         public init() {}
 
+        /// Mimics a `PassthroughSubject`: the subscriber receives only elements yielded after it subscribes.
+        public mutating func subscribe(id: ID, continuation: Continuation) {
+            if case .cancelled = subscribers[id] {
+                subscribers.removeValue(forKey: id)
+                return
+            }
+
+            subscribers[id] = .active(continuation)
+        }
+
+        /// Mimics a `CurrentValueSubject`: the subscriber receives `currentValue` immediately on subscription,
+        /// then every subsequent yielded element.
         public mutating func subscribe(id: ID, continuation: Continuation, currentValue: @autoclosure () -> Element) {
             if case .cancelled = subscribers[id] {
                 subscribers.removeValue(forKey: id)
