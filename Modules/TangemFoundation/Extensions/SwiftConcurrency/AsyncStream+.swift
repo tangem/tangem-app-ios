@@ -50,6 +50,46 @@ public extension AsyncStream {
     }
 }
 
+public extension AsyncStream {
+    static func multicast<Holder: Actor>(
+        on holder: Holder,
+        subscribers: ReferenceWritableKeyPath<Holder, Subscribers>,
+        bufferingPolicy: Continuation.BufferingPolicy,
+        currentValue: @escaping (_ holder: isolated Holder) -> Element
+    ) -> AsyncStream<Element> {
+        AsyncStream(bufferingPolicy: bufferingPolicy) { [weak holder] continuation in
+            let subscriberId = UUID()
+
+            continuation.onTermination = { @Sendable _ in
+                guard let holder else {
+                    return
+                }
+
+                Task {
+                    await holder.performIsolated { _holder in
+                        _holder[keyPath: subscribers].unsubscribe(id: subscriberId)
+                    }
+                }
+            }
+
+            Task {
+                guard let holder else {
+                    continuation.finish()
+                    return
+                }
+
+                await holder.performIsolated { _holder in
+                    _holder[keyPath: subscribers].subscribe(
+                        id: subscriberId,
+                        continuation: continuation,
+                        currentValue: currentValue(_holder)
+                    )
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Auxiliary types
 
 private extension AsyncStream.Subscribers {
