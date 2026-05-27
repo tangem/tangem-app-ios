@@ -51,58 +51,10 @@ public extension AsyncStream {
 }
 
 public extension AsyncStream {
-    static func multicast<Holder: Actor, ID: Hashable & Sendable>(
-        with holder: Holder,
-        id: ID,
-        subscribers: ReferenceWritableKeyPath<Holder, Subscribers<ID>>,
-        bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
-        currentValue: @escaping (_ holder: isolated Holder) -> Element
-    ) -> AsyncStream<Element> {
-        AsyncStream(bufferingPolicy: bufferingPolicy) { [weak holder] continuation in
-            continuation.onTermination = { @Sendable _ in
-                guard let holder else {
-                    return
-                }
-
-                Task {
-                    await holder.performIsolated { _holder in
-                        _holder[keyPath: subscribers].unsubscribe(id: id)
-                    }
-                }
-            }
-
-            Task {
-                guard let holder else {
-                    continuation.finish()
-                    return
-                }
-
-                await holder.performIsolated { _holder in
-                    _holder[keyPath: subscribers].subscribe(
-                        id: id,
-                        continuation: continuation,
-                        currentValue: currentValue(_holder)
-                    )
-                }
-            }
-        }
-    }
-
-    static func multicast<Holder: Actor>(
-        with holder: Holder,
-        subscribers: ReferenceWritableKeyPath<Holder, Subscribers<UUID>>,
-        bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
-        currentValue: @escaping (_ holder: isolated Holder) -> Element
-    ) -> AsyncStream<Element> {
-        multicast(
-            with: holder,
-            id: UUID(),
-            subscribers: subscribers,
-            bufferingPolicy: bufferingPolicy,
-            currentValue: currentValue
-        )
-    }
-
+    /// A key-path-based overload — passing `\.subscribers` instead of the `onSubscribe` / `onUnsubscribe`
+    /// closures — isn't currently possible due to this Swift limitation:
+    /// `You cannot  key paths to self-isolated actor properties.`
+    /// See https://forums.swift.org/t/cannot-form-key-path-to-actor-isolated-property for details.
     static func multicast<Holder: Actor, ID: Hashable & Sendable>(
         with holder: Holder,
         id: ID,
@@ -132,6 +84,10 @@ public extension AsyncStream {
         }
     }
 
+    /// A key-path-based overload — passing `\.subscribers` instead of the `onSubscribe` / `onUnsubscribe`
+    /// closures — isn't currently possible due to this Swift limitation:
+    /// `You cannot  key paths to self-isolated actor properties.`
+    /// See https://forums.swift.org/t/cannot-form-key-path-to-actor-isolated-property for details.
     static func multicast<Holder: Actor>(
         with holder: Holder,
         bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
