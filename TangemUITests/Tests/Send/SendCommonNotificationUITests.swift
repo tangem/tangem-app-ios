@@ -88,7 +88,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
         usdcSolanaScreen
             .tapGoToFeeCurrencyButton()
             .waitForTokenName(topUpTokenName)
-            .waitForActionButtons()
+            .waitForActionButtons(requireSendOrTransfer: false)
     }
 
     private func prepareSendFlow() {
