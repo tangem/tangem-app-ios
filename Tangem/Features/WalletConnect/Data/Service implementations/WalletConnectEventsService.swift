@@ -111,7 +111,7 @@ extension WalletConnectEventsService {
     private func emitAddressesChangedEvent(for walletModel: any WalletModel, on blockchain: BlockchainSdk.Blockchain) {
         let pathString = walletModel.tokenItem.blockchainNetwork.derivationPath?.rawPath
 
-        let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
+        let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addressesString.map {
             WalletConnectBtcAccountAddressResponse(
                 address: $0,
                 path: pathString,

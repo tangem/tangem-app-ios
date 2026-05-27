@@ -50,6 +50,19 @@ final class UserTokensRepositoryStub: UserTokensRepository {
                         .withTokens(request.tokens)
                         .with(sorting: request.sorting, grouping: request.grouping)
                 )
+            case .updateBlockchainNetwork(let blockchainNetwork, let tokenItem):
+                let currentAccount = cryptoAccount
+                let updatedTokens = currentAccount.tokens.map { storedToken in
+                    guard storedToken == tokenItem.toStoredToken() else {
+                        return storedToken
+                    }
+
+                    let storedBlockchainNetwork = StoredEntryConverter.convertToStoredBlockchainNetwork(blockchainNetwork)
+                    return storedToken.with(blockchainNetwork: .known(blockchainNetwork: storedBlockchainNetwork))
+                }
+                cryptoAccountSubject.send(
+                    currentAccount.withTokens(updatedTokens)
+                )
             }
         }
     }
