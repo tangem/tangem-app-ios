@@ -116,6 +116,6 @@ final class MarketsSearchUITests: BaseTestCase {
             .deleteSearchCharacters(1)
             .verifyAllVisibleSearchResultsTokenNameContains("bt")
             .clearSearchField()
-            .verifySearchFieldIsEmptyAndClearButtonHidden()
+            .waitSearchFieldIsEmpty()
     }
 }

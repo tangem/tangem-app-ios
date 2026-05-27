@@ -79,7 +79,9 @@ private extension NotificationBannerShowcase {
                     )),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[0]),
-                        right: button("Got it", style: .primary, itemId: ids[0])
+                        right: button("Got it", style: .primary, itemId: ids[0]),
+                        leftAccessibilityIdentifier: nil,
+                        rightAccessibilityIdentifier: nil
                     ))
                 )
             ),
@@ -92,7 +94,9 @@ private extension NotificationBannerShowcase {
                     )),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[1]),
-                        right: button("Got it", style: .primary, itemId: ids[1])
+                        right: button("Got it", style: .primary, itemId: ids[1]),
+                        leftAccessibilityIdentifier: nil,
+                        rightAccessibilityIdentifier: nil
                     ))
                 )
             ),
@@ -117,7 +121,9 @@ private extension NotificationBannerShowcase {
                     )),
                     .buttons(.two(
                         left: button("Settings", style: .secondary, itemId: ids[3]),
-                        right: button("Enable notifications", style: .primary, itemId: ids[3])
+                        right: button("Enable notifications", style: .primary, itemId: ids[3]),
+                        leftAccessibilityIdentifier: nil,
+                        rightAccessibilityIdentifier: nil
                     ))
                 )
             ),
@@ -128,7 +134,7 @@ private extension NotificationBannerShowcase {
                         title: "Tangem Visa Card",
                         subtitle: "Join the waitlist and get a payment card unlike any other"
                     )),
-                    .buttons(.one(button("Got it", style: .primary, itemId: ids[4]))),
+                    .buttons(.one(button("Got it", style: .primary, itemId: ids[4]), accessibilityIdentifier: nil)),
                     closeAction(itemId: ids[4]),
                     .bannerMagic
                 )
@@ -142,7 +148,9 @@ private extension NotificationBannerShowcase {
                     ),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[5]),
-                        right: button("Got it", style: .primary, itemId: ids[5])
+                        right: button("Got it", style: .primary, itemId: ids[5]),
+                        leftAccessibilityIdentifier: nil,
+                        rightAccessibilityIdentifier: nil
                     )),
                     closeAction(itemId: ids[5])
                 )
@@ -156,7 +164,9 @@ private extension NotificationBannerShowcase {
                     )),
                     .buttons(.two(
                         left: button("Dismiss", style: .secondary, itemId: ids[6]),
-                        right: button("Got it", style: .primary, itemId: ids[6])
+                        right: button("Got it", style: .primary, itemId: ids[6]),
+                        leftAccessibilityIdentifier: nil,
+                        rightAccessibilityIdentifier: nil
                     )),
                     closeAction(itemId: ids[6]),
                     .bannerCard
