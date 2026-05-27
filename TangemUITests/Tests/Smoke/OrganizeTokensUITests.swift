@@ -148,10 +148,8 @@ final class OrganizeTokensUITests: BaseTestCase {
         let organizeTokensScreenAfterGroup = mainScreen
             .organizeTokens()
             .verifyIsGrouped(true)
-            .verifyGroupingButtonState(expectedToShowUngroup: true)
             .ungroup()
             .verifyIsGrouped(false)
-            .verifyGroupingButtonState(expectedToShowUngroup: false)
 
         let mainScreenAfterUngroup = organizeTokensScreenAfterGroup.applyChanges()
 

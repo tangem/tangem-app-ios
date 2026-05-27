@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokensManagementChooserView: View {
     // MARK: - Properties
@@ -26,6 +27,7 @@ struct TokensManagementChooserView: View {
                 subtitle: Localization.addAndManageSheetManageSubtitle,
                 action: viewModel.openAddTokens
             )
+            .accessibilityIdentifier(TokensManagementChooserAccessibilityIdentifiers.addTokensRow)
 
             row(
                 icon: Assets.OrganizeTokens.filterIcon,
@@ -33,6 +35,7 @@ struct TokensManagementChooserView: View {
                 subtitle: Localization.addAndManageSheetOrganizeSubtitle,
                 action: viewModel.openOrganize
             )
+            .accessibilityIdentifier(TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow)
         }
         .background(
             RoundedRectangle(cornerRadius: Constants.rowCornerRadius, style: .continuous)
