@@ -80,17 +80,26 @@ struct MarketsTokenDetailsView: View {
                 navigationBar
             }
 
-            if viewModel.isRedesignEnabled, viewModel.shouldShowAddToPortfolioPromo {
-                AddToPortfolioPromoView(
+            if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
+                MarketsPortfolioBlockView(
+                    state: viewModel.portfolioBlockState,
                     iconURL: viewModel.iconURL,
-                    action: viewModel.onTapAddToPortfolioPromo
+                    onAddTap: viewModel.onTapAddToPortfolioPromo,
+                    onAddFundsTap: viewModel.onAddFundsTap,
+                    onExpandTap: viewModel.onExpandPortfolioBlockTap
                 )
                 .padding(.horizontal, Constants.addToPortfolioPromoHorizontalPadding)
                 .padding(.bottom, Constants.addToPortfolioPromoBottomPadding)
+                .background(
+                    ListFooterOverlayShadowView(color: backgroundColor)
+                        .padding(.top, -Constants.bottomFadeHeight)
+                )
                 .readGeometry(\.size.height, onChange: updateAddToPortfolioPromoReservedHeight(height:))
                 .frame(maxHeight: .infinity, alignment: .bottom)
+                .transition(.portfolioBlock)
             }
         }
+        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -219,7 +228,7 @@ struct MarketsTokenDetailsView: View {
                     .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
 
-                if viewModel.isRedesignEnabled, viewModel.shouldShowAddToPortfolioPromo {
+                if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
                     Color.clear
                         .frame(height: addToPortfolioPromoReservedHeight)
                 }
@@ -398,6 +407,7 @@ private extension MarketsTokenDetailsView {
         static let addToPortfolioPromoReservedHeight = 96.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
+        static let bottomFadeHeight = 100.0
     }
 
     enum CoordinateSpaceName {
@@ -405,6 +415,17 @@ private extension MarketsTokenDetailsView {
 
         static let scrollViewFrame = prefix + "scrollViewFrame"
     }
+}
+
+private extension Animation {
+    static let footerOpacity = Animation.curve(.easeOutEmphasized, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let portfolioBlock = AnyTransition.asymmetric(
+        insertion: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity.delay(0.2))),
+        removal: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity))
+    )
 }
 
 // MARK: - Previews
