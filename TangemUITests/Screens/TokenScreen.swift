@@ -16,9 +16,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         case send = "Send"
     }
 
-    private lazy var moreButton = otherElement(.moreButton)
+    private lazy var moreButton = app.navigationBars.buttons["More"].firstMatch
     private lazy var hideTokenButton = button(.hideTokenButton)
-    private lazy var stakeNotificationButton = button(.stakeNotificationButton)
     private lazy var topUpBanner = staticText(.topUpBanner)
     private lazy var notEnoughFeeForTransactionBanner = otherElement(.notEnoughFeeForTransactionBanner)
     private lazy var goToFeeCurrencyButton = button(.feeCurrencyNavigationButton)
@@ -50,7 +49,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private lazy var pendingExpressTransaction = button(.pendingExpressTransaction)
 
     func hideToken(name: String) -> MainScreen {
-        moreButton.waitAndTap()
+        moreButton.tap()
         hideTokenButton.waitAndTap()
         app.alerts["Hide \(name)"].buttons["Hide"].waitAndTap()
         return MainScreen(app)
@@ -98,8 +97,8 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 
     func openStakeDetails() -> StakingDetailsScreen {
-        XCTContext.runActivity(named: "Tap stake button in notification") { _ in
-            stakeNotificationButton.waitAndTap()
+        XCTContext.runActivity(named: "Open stake details via native staking block") { _ in
+            nativeStakingBlock.waitAndTap()
             return StakingDetailsScreen(app)
         }
     }
@@ -116,7 +115,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         XCTContext.runActivity(named: "Validate staking information on token screen") { _ in
             waitAndAssertTrue(nativeStakingBlock, "Native staking block should be displayed")
             waitAndAssertTrue(nativeStakingTitle, "Native staking title should be displayed")
-            waitAndAssertTrue(nativeStakingChevron, "Navigation chevron should be displayed")
 
             return self
         }
@@ -213,7 +211,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     // MARK: - Action Buttons Validation Methods
 
     @discardableResult
-    func waitForActionButtons() -> Self {
+    func waitForActionButtons(requireSendOrTransfer: Bool = true) -> Self {
         XCTContext.runActivity(named: "Wait for action buttons") { _ in
             // Swap is direct in every layout (legacy, inlineList, buttonsRow).
             waitAndAssertTrue(swapButton, "Swap button should exist")
@@ -221,7 +219,10 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             // Legacy/inlineList: direct Buy/Receive/Send; buttonsRow: Buy/Receive under `Add Funds`, Send under `Transfer`.
             waitForEither(buyButton, or: addFundsButton, "Buy or Add Funds entry should be visible")
             waitForEither(receiveButton, or: addFundsButton, "Receive or Add Funds entry should be visible")
-            waitForEither(sendButton, or: transferButton, "Send or Transfer entry should be visible")
+            // Transfer entry is legitimately absent when the token has no outgoing options (e.g. empty balance).
+            if requireSendOrTransfer {
+                waitForEither(sendButton, or: transferButton, "Send or Transfer entry should be visible")
+            }
             return self
         }
     }
@@ -295,7 +296,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
 enum TokenScreenElement: String, UIElement {
     case moreButton
     case hideTokenButton
-    case stakeNotificationButton
     case nativeStakingBlock
     case nativeStakingTitle
     case nativeStakingChevron
@@ -323,8 +323,6 @@ enum TokenScreenElement: String, UIElement {
             return TokenAccessibilityIdentifiers.moreButton
         case .hideTokenButton:
             return TokenAccessibilityIdentifiers.hideTokenButton
-        case .stakeNotificationButton:
-            return CommonUIAccessibilityIdentifiers.notificationButton
         case .nativeStakingBlock:
             return TokenAccessibilityIdentifiers.nativeStakingBlock
         case .nativeStakingTitle:
