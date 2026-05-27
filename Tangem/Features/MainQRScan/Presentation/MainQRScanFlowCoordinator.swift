@@ -176,7 +176,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
     ) {
         closeScanner()
 
-        let walletsProvider = CommonTokenSelectorWalletsProvider(accountModelFilter: \.isStandard)
+        let walletsProvider: TokenSelectorWalletsProvider = .standardAccountsOnly()
         let selectorViewModel = TokenSelectorViewModel(
             walletsProvider: walletsProvider,
             availabilityProvider: MainQRScanTokenSelectorAvailabilityProvider(filter: filter)
@@ -312,7 +312,7 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
             return false
         }
 
-        return walletModel.addresses.contains { $0.caseInsensitiveCompare(destination) == .orderedSame }
+        return walletModel.addressesString.contains { $0.caseInsensitiveCompare(destination) == .orderedSame }
     }
 
     private func filterOutSelfAddressMatches(
