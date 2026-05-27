@@ -32,6 +32,8 @@ protocol YieldModuleFlowFactory {
     ) -> YieldStatusViewModel
 
     func makeYieldModuleBalanceInfoViewModel() -> YieldModuleBalanceInfoViewModel
+
+    func makeYieldManagerInteractor() -> YieldManagerInteractor
 }
 
 final class CommonYieldModuleFlowFactory {
@@ -177,5 +179,9 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
 
         coordinator.start(with: options)
         return coordinator
+    }
+
+    func makeYieldManagerInteractor() -> YieldManagerInteractor {
+        makeInteractor()
     }
 }
