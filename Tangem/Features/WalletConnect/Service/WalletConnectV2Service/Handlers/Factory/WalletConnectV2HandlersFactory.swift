@@ -45,9 +45,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
-        guard let accountId = connectedDApp.accountId else {
-            throw WalletConnectTransactionRequestProcessingError.accountNotFound
-        }
+        let accountId = connectedDApp.accountId
 
         switch action {
             // MARK: - ETH
