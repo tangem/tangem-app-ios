@@ -304,7 +304,7 @@
 "common_seed_phrase" = "Seed phrase";
 "common_select_action" = "Seleccione una acción";
 "common_sell" = "Vender";
-"common_send_colon" = "Send:";
+"common_send_colon" = "Enviar:";
 "common_send_tx_error" = "Error al enviar la transacción";
 "common_send" = "Enviar";
 "common_sending" = "Sending";
@@ -992,8 +992,6 @@
 "organize_tokens_title" = "Organizar tokens";
 "organize_tokens_ungroup" = "Desagrupar";
 "provider_name_support" = "Soporte de %@";
-"push_notification_settings_banner_button_grant_permission" = "Grant permission";
-"push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
 "push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
@@ -1517,6 +1515,7 @@
 "tangempay_card_page_daily_limit_change" = "Cambiar";
 "tangempay_card_page_daily_limit_current_limit" = "Límite actual";
 "tangempay_card_page_daily_limit_error_description" = "No se pudo cargar tu límite diario. Por favor, inténtalo de nuevo.";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "Límite no disponible";
 "tangempay_card_page_daily_limit_success_description" = "Puedes cambiarlo de nuevo quando quieras";
 "tangempay_card_page_daily_limit_success_title" = "El límite está establecido";
