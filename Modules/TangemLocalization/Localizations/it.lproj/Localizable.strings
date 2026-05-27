@@ -1603,6 +1603,7 @@
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Usa la carta o l'anello per rinnovare la sessione";
 "tangempay_sync_needed_button" = "Renew session";
+"tangempay_sync_needed_title" = "Tangem Pay sessione scaduta";
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed_title" = "Tangem Pay sessione scaduta";
 "tangempay_sync_needed" = "Usa la carta o l'anello per rinnovare la sessione";
