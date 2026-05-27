@@ -33,6 +33,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     let sourceAmountText: String
     let destinationAmountText: String
 
+    @Published private(set) var pendingTransaction: PendingTransaction
+
     @Published var providerRowViewModel: ProviderRowViewModel
     @Published var sourceFiatAmountTextState: LoadableTextView.State = .loading
     @Published var destinationFiatAmountTextState: LoadableTextView.State = .loading
@@ -44,10 +46,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     @Published private(set) var isHideButtonShowed = false
 
+    private(set) var ratingViewModel: RatingViewModel?
+
     private let expressProviderFormatter = ExpressProviderFormatter(balanceFormatter: .init())
     private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
 
-    private let pendingTransaction: PendingTransaction
     private let currentTokenItem: TokenItem
     private let userWalletInfo: UserWalletInfo
 
@@ -118,6 +121,8 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         loadEmptyFiatRates()
         updateUI(with: pendingTransaction, delay: 0)
         bind()
+
+        setupRatingViewModel()
     }
 
     func onAppear() {
@@ -243,6 +248,9 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
                     viewModel.subscription = nil
                     return
                 }
+
+                // Update the stored transaction to reflect current state
+                viewModel.pendingTransaction = pendingTx
 
                 // We will hide it via separate notification in case of refunded token
                 if pendingTx.transactionStatus.isCanBeHideAutomatically, pendingTx.refundedTokenItem == nil {
@@ -497,5 +505,27 @@ extension PendingExpressTxStatusBottomSheetViewModel {
         static var notificationAnimationDelay: TimeInterval {
             animationDuration + 0.05
         }
+    }
+}
+
+private extension PendingExpressTxStatusBottomSheetViewModel {
+    // MARK: - Setup rating
+
+    func setupRatingViewModel() {
+        guard
+            FeatureProvider.isAvailable(.swapRateExperience),
+            InjectedValues[\.keysManager].surveySparrow.isSwapRatingConfigured,
+            let transaction = RatingModel.Transaction(from: pendingTransaction)
+        else {
+            return
+        }
+
+        ratingViewModel = RatingViewModel(
+            model: RatingModel(
+                ratingProvider: InjectedValues[\.ratingProvider],
+                transaction: transaction,
+                userWalletIdHash: userWalletInfo.id.hashedStringValue
+            )
+        )
     }
 }
