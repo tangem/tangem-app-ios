@@ -11,7 +11,7 @@ import Foundation
 @inlinable
 @inline(__always)
 public func ensureOnMainQueue() {
-    guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
+    guard AppEnvironment.current.isInternalOrDebug else {
         return
     }
 
@@ -21,7 +21,7 @@ public func ensureOnMainQueue() {
 @inlinable
 @inline(__always)
 public func ensureNotOnMainQueue() {
-    guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
+    guard AppEnvironment.current.isInternalOrDebug else {
         return
     }
 

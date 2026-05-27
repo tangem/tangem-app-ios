@@ -13,6 +13,7 @@ import TangemAccessibilityIdentifiers
 final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var titleLabel = staticText(.title)
     private lazy var amountTextField = textField(.amountTextField)
+    private lazy var receiveAmountTextField = textField(.receiveAmountTextField)
     private lazy var destinationTextView = textView(.destinationTextView)
     private lazy var addressClearButton = button(.addressClearButton)
     private lazy var scanQRButton = button(.scanQRButton)
@@ -51,7 +52,13 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func waitForDisplay() -> Self {
         XCTContext.runActivity(named: "Validate Send screen is displayed") { _ in
             waitAndAssertTrue(titleLabel, "Title should exist")
-            waitAndAssertTrue(amountTextField, "Amount text field should exist")
+            // Wait for either source or receive amount field (layout differs in Send vs Send-via-Swap)
+            if !amountTextField.waitForExistence(timeout: .robustUIUpdate) {
+                XCTAssertTrue(
+                    receiveAmountTextField.waitForExistence(timeout: .robustUIUpdate),
+                    "Either source amount text field or receive amount text field should exist on Send screen"
+                )
+            }
             waitAndAssertTrue(nextButton, "Next button should exist")
         }
         return self
@@ -62,6 +69,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     @discardableResult
     func enterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount field") { _ in
+            waitAndAssertTrue(amountTextField, "Amount text field should exist")
             amountTextField.typeText(amount)
         }
         return self
@@ -78,6 +86,44 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             for _ in 0 ..< textLength {
                 amountTextField.typeText(XCUIKeyboardKey.delete.rawValue)
             }
+        }
+        return self
+    }
+
+    @discardableResult
+    func enterReceiveAmount(_ amount: String) -> Self {
+        XCTContext.runActivity(named: "Enter receive amount '\(amount)' in receive amount field") { _ in
+            waitAndAssertTrue(receiveAmountTextField, "Receive amount text field should exist")
+            receiveAmountTextField.typeText(amount)
+        }
+        return self
+    }
+
+    @discardableResult
+    func clearReceiveAmount() -> Self {
+        XCTContext.runActivity(named: "Clear receive amount field") { _ in
+            waitAndAssertTrue(receiveAmountTextField, "Receive amount text field should exist")
+
+            let currentText = receiveAmountTextField.getValue()
+            let textLength = currentText.count
+
+            for _ in 0 ..< textLength {
+                receiveAmountTextField.typeText(XCUIKeyboardKey.delete.rawValue)
+            }
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForReceiveAmountValue(_ expectedAmount: String) -> Self {
+        XCTContext.runActivity(named: "Validate receive amount value is '\(expectedAmount)'") { _ in
+            waitAndAssertTrue(receiveAmountTextField, "Receive amount text field should exist")
+            let actualAmount = receiveAmountTextField.getValue()
+            XCTAssertEqual(
+                actualAmount,
+                expectedAmount,
+                "Receive amount should be '\(expectedAmount)' but was '\(actualAmount)'"
+            )
         }
         return self
     }
@@ -1222,6 +1268,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
 enum SendScreenElement: String, UIElement {
     case title
     case amountTextField
+    case receiveAmountTextField
     case destinationTextView
     case addressClearButton
     case scanQRButton
@@ -1264,6 +1311,8 @@ enum SendScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.sendViewTitle
         case .amountTextField:
             return SendAccessibilityIdentifiers.decimalNumberTextField
+        case .receiveAmountTextField:
+            return SendAccessibilityIdentifiers.receiveDecimalNumberTextField
         case .destinationTextView:
             return SendAccessibilityIdentifiers.addressTextView
         case .addressClearButton:

@@ -7,13 +7,11 @@
 //
 
 import Foundation
-import Regex
+import TangemFoundation
 
 /// See the documentation for the `logEvent(_:parameters:)` method in the `FIRAnalytics.h` file for current
 /// Firebase Analytics limitations and reasons why this converter is required.
 enum FirebaseAnalyticsEventConverter {
-    private static let trimmingCharacterSet = CharacterSet(charactersIn: Constants.wordSeparator)
-
     static func convert(event: String) -> String {
         return convert(string: event)
     }
@@ -27,9 +25,8 @@ enum FirebaseAnalyticsEventConverter {
     }
 
     private static func convert(string: String) -> String {
-        return string
-            .replacingAll(matching: Constants.replacingPattern, with: Constants.wordSeparator)
-            .trimmingCharacters(in: trimmingCharacterSet)
+        string
+            .toUnderscoreCase()
             .trim(toLength: Constants.firebaseEventNameMaxLength)
     }
 
@@ -51,10 +48,6 @@ enum FirebaseAnalyticsEventConverter {
 
 private extension FirebaseAnalyticsEventConverter {
     enum Constants {
-        /// The `\w` meta character matches word characters.
-        /// A word character is a character a-z, A-Z, 0-9, including _ (underscore).
-        static let replacingPattern: StaticString = "[^\\w]+"
-        static let wordSeparator = "_"
         static let firebaseEventNameMaxLength = 40
         static let firebaseEventValueMaxLength = 100
     }

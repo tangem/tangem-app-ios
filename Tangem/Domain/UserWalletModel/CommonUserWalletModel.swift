@@ -25,6 +25,7 @@ class CommonUserWalletModel {
 
     let nftManager: NFTManager
     let keysRepository: KeysRepository
+    let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -53,6 +54,7 @@ class CommonUserWalletModel {
         userWalletId: UserWalletId,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
+        keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
@@ -63,6 +65,7 @@ class CommonUserWalletModel {
         self.name = name
         self.nftManager = nftManager
         self.keysRepository = keysRepository
+        self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
@@ -71,7 +74,7 @@ class CommonUserWalletModel {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("CommonUserWalletModel deinit")
     }
 
     private func updateConfiguration(walletInfo: WalletInfo, shouldSave: Bool = true) {
@@ -330,16 +333,7 @@ extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     }
 }
 
-extension CommonUserWalletModel: KeysDerivingProvider {
-    var keysDerivingInteractor: KeysDeriving {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            return KeysDerivingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
-        }
-    }
-}
+extension CommonUserWalletModel: KeysDerivingProvider {}
 
 extension CommonUserWalletModel: TangemPayAuthorizingProvider {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {

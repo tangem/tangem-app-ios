@@ -118,7 +118,7 @@ extension PaymentologyPINCodeProcessor {
     }
 }
 
-private extension SymmetricKey {
+private extension ContiguousBytes {
     var bytes: [UInt8] {
         withUnsafeBytes {
             return Array($0)
