@@ -1,5 +1,5 @@
 //
-//  InMemoryHistoryRecordsStorage.swift
+//  InMemoryTransactionHistoryRecordsStorage.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,8 @@
 import Foundation
 import TangemExpress
 
-actor InMemoryHistoryRecordsStorage<Record: HistoryRecord> {
+// [REDACTED_TODO_COMMENT]
+actor InMemoryTransactionHistoryRecordsStorage<Record: TransactionHistoryRecord> {
     private var byId: [String: Record] = [:]
     private var subscribers: [UUID: SubscriberState] = [:]
 
@@ -47,9 +48,9 @@ actor InMemoryHistoryRecordsStorage<Record: HistoryRecord> {
     }
 }
 
-// MARK: - HistoryRecordsStorage protocol conformance
+// MARK: - TransactionHistoryRecordsStorage protocol conformance
 
-extension InMemoryHistoryRecordsStorage: HistoryRecordsStorage {
+extension InMemoryTransactionHistoryRecordsStorage: TransactionHistoryRecordsStorage {
     var records: [Record] { snapshot() }
 
     nonisolated var recordsUpdates: AsyncStream<[Record]> {
@@ -90,7 +91,7 @@ extension InMemoryHistoryRecordsStorage: HistoryRecordsStorage {
 
 // MARK: - Auxiliary types
 
-private extension InMemoryHistoryRecordsStorage {
+private extension InMemoryTransactionHistoryRecordsStorage {
     enum SubscriberState {
         case active(AsyncStream<[Record]>.Continuation)
         case cancelled

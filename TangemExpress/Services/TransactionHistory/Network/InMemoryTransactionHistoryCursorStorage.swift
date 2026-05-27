@@ -1,5 +1,5 @@
 //
-//  InMemoryHistoryCursorStorage.swift
+//  InMemoryTransactionHistoryCursorStorage.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
-actor InMemoryHistoryCursorStorage {
+actor InMemoryTransactionHistoryCursorStorage {
     private var stored: Any?
 }
 
-// MARK: - HistoryCursorStorage protocol conformance
+// MARK: - TransactionHistoryCursorStorage protocol conformance
 
-extension InMemoryHistoryCursorStorage: HistoryCursorStorage {
+extension InMemoryTransactionHistoryCursorStorage: TransactionHistoryCursorStorage {
     var cursor: Any? { stored }
 
     func setCursor(_ cursor: Any?) {

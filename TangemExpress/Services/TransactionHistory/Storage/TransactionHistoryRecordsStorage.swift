@@ -1,5 +1,5 @@
 //
-//  HistoryRecordsStorage.swift
+//  TransactionHistoryRecordsStorage.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import Foundation
 
-public protocol HistoryRecordsStorage<Record>: Sendable {
-    associatedtype Record: HistoryRecord
+public protocol TransactionHistoryRecordsStorage<Record>: Sendable {
+    associatedtype Record: TransactionHistoryRecord
 
     var records: [Record] { get async }
     var recordsUpdates: AsyncStream<[Record]> { get }
