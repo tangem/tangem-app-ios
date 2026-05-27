@@ -22,21 +22,17 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
 
     func makeExpressProviderManager(provider: ExpressProvider, pair: ExpressManagerSwappingPair) -> ExpressProviderManager? {
         switch provider.type {
-        case .dex, .dexBridge:
-            return DEXExpressProviderManager(
+        case .dex, .dexBridge, .cex:
+            let context = ExpressProviderFlowContext(
                 provider: provider,
-                swappingPair: pair,
+                pair: pair,
                 expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
                 expressAPIProvider: expressAPIProvider,
                 mapper: mapper
             )
-        case .cex:
-            return CEXExpressProviderManager(
-                provider: provider,
-                swappingPair: pair,
-                expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
-                expressAPIProvider: expressAPIProvider,
-                mapper: mapper
+            return CommonExpressProviderManager(
+                context: context,
+                flowTypeResolver: CommonExpressFlowTypeResolver()
             )
         case .onramp, .unknown:
             return nil

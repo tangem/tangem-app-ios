@@ -20,7 +20,7 @@ class PersistentStorage {
     }
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("PersistentStorage deinit")
     }
 
     private func documentPath(for key: String) -> URL {

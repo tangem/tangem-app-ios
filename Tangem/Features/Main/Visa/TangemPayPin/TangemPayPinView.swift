@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TangemPayPinView: View {
     @ObservedObject var viewModel: TangemPayPinViewModel
@@ -51,11 +52,13 @@ struct TangemPayPinView: View {
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinScreenTitle)
 
                     Text(Localization.visaOnboardingPinCodeDescription)
                         .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinScreenDescription)
                 }
                 .padding(.horizontal, 40)
 
@@ -63,6 +66,7 @@ struct TangemPayPinView: View {
                     OnboardingPinStackView(
                         maxDigits: viewModel.pinCodeLength,
                         isDisabled: viewModel.isLoading,
+                        accessibilityIdentifier: TangemPayAccessibilityIdentifiers.pinInputField,
                         pinText: $viewModel.pin
                     )
 
@@ -72,6 +76,7 @@ struct TangemPayPinView: View {
                         .style(Fonts.Regular.footnote, color: Colors.Text.warning)
                         .hidden(viewModel.errorMessage == nil)
                         .padding(.horizontal, 16)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinErrorMessage)
                 }
             }
 
@@ -88,6 +93,7 @@ struct TangemPayPinView: View {
             )
             .padding(.bottom, 20)
             .padding(.horizontal, 16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinSubmitButton)
         }
         .onAppear(perform: viewModel.onAppear)
     }
@@ -108,11 +114,13 @@ struct TangemPayPinView: View {
                     Text(Localization.tangempayCardDetailsChangePinSuccessTitle)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinSuccessTitle)
 
                     Text(Localization.tangempayCardDetailsChangePinSuccessDescription)
                         .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                         .multilineTextAlignment(.center)
                         .frame(width: 265)
+                        .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinSuccessDescription)
                 }
             }
 
@@ -127,6 +135,7 @@ struct TangemPayPinView: View {
             )
             .padding(.bottom, 20)
             .padding(.horizontal, 16)
+            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinDoneButton)
         }
     }
 }

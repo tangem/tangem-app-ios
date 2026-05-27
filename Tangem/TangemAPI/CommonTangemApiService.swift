@@ -14,7 +14,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemNetworkUtils
 
-class CommonTangemApiService {
+final class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>(plugins: [
         CachePolicyPlugin(),
         TimeoutIntervalPlugin(),
@@ -35,7 +35,7 @@ class CommonTangemApiService {
     }()
 
     deinit {
-        AppLogger.debug(self)
+        AppLogger.debug("CommonTangemApiService deinit")
     }
 
     private func request<D: Decodable>(for type: TangemApiTarget.TargetType, decoder: JSONDecoder = .init()) async throws -> D {

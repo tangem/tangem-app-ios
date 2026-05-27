@@ -28,7 +28,6 @@ final class SwapCommonUITests: BaseTestCase {
 
         swapScreen
             .waitFromTokenDisplayed(tokenSymbol: fromTokenSymbol)
-            .waitToTokenDisplayed(tokenSymbol: receiveTokenSymbol)
 
         swapScreen
             .tapToTokenSelector()
@@ -42,7 +41,6 @@ final class SwapCommonUITests: BaseTestCase {
 
         swapScreen
             .waitForSwapTokensButtonDisplayed()
-            .waitForConfirmButtonDisabled()
     }
 
     func testSwapButtonAvailability() {
@@ -105,6 +103,7 @@ final class SwapCommonUITests: BaseTestCase {
 
         swapScreen
             .waitFromTokenDisplayed(tokenSymbol: fromTokenSymbol)
+            .chooseReceiveToken("Ethereum")
             .waitToTokenDisplayed(tokenSymbol: receiveTokenSymbol)
 
         swapScreen

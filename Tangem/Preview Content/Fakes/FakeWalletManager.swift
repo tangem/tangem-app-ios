@@ -20,7 +20,6 @@ class FakeWalletManager: WalletManager {
     var cardTokens: [BlockchainSdk.Token] = []
     var currentHost: String = "tangem.com"
     var outputsCount: Int?
-    var allowsFeeSelection: Bool = true
 
     var walletPublisher: AnyPublisher<Wallet, Never> { $wallet.eraseToAnyPublisher() }
     var statePublisher: AnyPublisher<WalletManagerState, Never> { $state.eraseToAnyPublisher() }
@@ -39,13 +38,27 @@ class FakeWalletManager: WalletManager {
             derivationPath: wallet.publicKey.derivationPath
         )
 
-        walletModels = CommonWalletModelsFactory(
-            config: Wallet2Config(
-                card: CardDTO(card: CardMock.wallet.card),
-                isDemo: false
-            ),
-            userWalletId: UserWalletId(value: Data())
-        ).makeWalletModels(
+        let config = Wallet2Config(
+            card: CardDTO(card: CardMock.wallet.card),
+            isDemo: false
+        )
+        let userWalletId = UserWalletId(value: Data())
+        let keysRepository = CommonKeysRepository(keys: .cardWallet(keys: []))
+
+        let walletModelsFactoryProvider = WalletModelsFactoryProvider(
+            userWalletId: userWalletId,
+            userWalletConfig: config,
+            keysRepository: keysRepository,
+            keysDerivingInteractor: KeysDerivingMock()
+        )
+
+        let walletModelsFactory = walletModelsFactoryProvider
+            .makeWalletModelsFactory(
+                blockchainSettingsUpdater: FakeBlockchainSettingsUpdater(),
+                userTokensManager: UserTokensManagerMock()
+            )
+
+        walletModels = walletModelsFactory.makeWalletModels(
             for: types,
             walletManager: self,
             blockchainNetwork: blockchainNetwork,
@@ -64,11 +77,14 @@ class FakeWalletManager: WalletManager {
     }
 
     func setNeedsUpdate() {}
+
     func update() async {
         AppLogger.debug("Receive update request")
         try? await Task.sleep(for: .seconds(5))
         state = nextState()
     }
+
+    func updateWalletManager(address: String) async throws {}
 
     func removeToken(_ token: BlockchainSdk.Token) {
         cardTokens.removeAll(where: { $0 == token })
@@ -173,4 +189,14 @@ extension FakeWalletManager {
         wallet.add(tokenValue: 354.123, for: VisaUtilities.mockToken)
         return FakeWalletManager(wallet: wallet)
     }()
+}
+
+private struct FakeBlockchainSettingsUpdater: BlockchainSettingsUpdater {
+    func update(settings: BlockchainSettings?, for tokenItem: TokenItem) -> BlockchainNetwork {
+        BlockchainNetwork(
+            tokenItem.blockchain,
+            derivationPath: tokenItem.blockchainNetwork.derivationPath,
+            settings: settings
+        )
+    }
 }

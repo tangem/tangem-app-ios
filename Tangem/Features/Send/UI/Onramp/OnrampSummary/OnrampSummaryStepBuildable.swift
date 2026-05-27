@@ -40,6 +40,7 @@ enum OnrampSummaryStepBuilder {
     struct Dependencies {
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendOnrampOffersAnalyticsLogger
+        let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     }
 
     typealias ReturnValue = OnrampSummaryStep
@@ -65,7 +66,8 @@ enum OnrampSummaryStepBuilder {
             tokenItem: types.tokenItem,
             interactor: interactor,
             notificationManager: dependencies.notificationManager,
-            analyticsLogger: dependencies.analyticsLogger
+            analyticsLogger: dependencies.analyticsLogger,
+            buyActionBuilder: dependencies.buyActionBuilder
         )
 
         let step = OnrampSummaryStep(tokenItem: types.tokenItem, viewModel: viewModel, interactor: interactor)

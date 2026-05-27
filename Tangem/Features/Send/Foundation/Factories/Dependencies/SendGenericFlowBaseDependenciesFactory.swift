@@ -27,6 +27,10 @@ extension SendGenericFlowBaseDependenciesFactory {
     // MARK: - TransactionSummaryDescriptionBuilders
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
+        Self.makeSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
+    }
+
+    static func makeSendTransactionSummaryDescriptionBuilder(tokenItem: TokenItem) -> SendTransactionSummaryDescriptionBuilder {
         if case .nonFungible = tokenItem.token?.metadata.kind {
             return NFTSendTransactionSummaryDescriptionBuilder()
         }
@@ -43,7 +47,7 @@ extension SendGenericFlowBaseDependenciesFactory {
 
     func makeSwapTransactionSummaryDescriptionBuilder() -> SwapTransactionSummaryDescriptionBuilder {
         CommonSwapTransactionSummaryDescriptionBuilder(
-            sendTransactionSummaryDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder()
+            sendTransactionSummaryDescriptionBuilderFactory: Self.makeSendTransactionSummaryDescriptionBuilder(tokenItem:)
         )
     }
 

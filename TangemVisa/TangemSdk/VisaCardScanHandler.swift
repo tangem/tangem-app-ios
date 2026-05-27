@@ -39,7 +39,7 @@ public final class VisaCardScanHandler: CardSessionRunnable {
     }
 
     deinit {
-        VisaLogger.info("Scan handler deinitialized")
+        VisaLogger.debug(self, "deinit")
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionHandler) {

@@ -21,7 +21,8 @@ extension SwapFlowBaseDependenciesFactory {
         analyticsLogger: any SendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
-        shouldStartInitialLoading: Bool
+        shouldStartInitialLoading: Bool,
+        swapTokenPairResolver: MainSwapPairResolver? = nil
     ) -> SwapModel {
         SwapModel(
             sourceToken: sourceToken,
@@ -35,7 +36,8 @@ extension SwapFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
-            shouldStartInitialLoading: shouldStartInitialLoading
+            shouldStartInitialLoading: shouldStartInitialLoading,
+            swapTokenPairResolver: swapTokenPairResolver
         )
     }
 

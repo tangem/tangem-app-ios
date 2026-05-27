@@ -28,7 +28,6 @@ final class SwapChooseTokenUITests: BaseTestCase {
             .validateSwapScreenDisplayed()
 
         let tokenSelector = swapScreen
-            .enterFromAmount("100")
             .tapToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
 
@@ -55,7 +54,6 @@ final class SwapChooseTokenUITests: BaseTestCase {
             .validateSwapScreenDisplayed()
 
         let tokenSelector = swapScreen
-            .enterFromAmount("100")
             .tapToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
 

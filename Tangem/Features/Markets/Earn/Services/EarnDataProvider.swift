@@ -10,18 +10,35 @@ import Foundation
 import Combine
 import TangemFoundation
 
-@MainActor
-final class EarnDataProvider {
+protocol EarnDataProvider: AnyObject {
+    var eventPublisher: AnyPublisher<EarnDataEvent, Never> { get }
+    var mostlyUsedEventPublisher: AnyPublisher<EarnDataMostlyUsedEvent, Never> { get }
+    var canFetchMore: Bool { get }
+
+    func applyMostlyUsedTokens(_ tokens: [EarnTokenModel])
+    func refreshMostlyUsedTokens()
+
+    func reset()
+    func fetch(with filter: EarnDataFilter)
+    func fetchMore()
+}
+
+final class CommonEarnDataService: EarnDataProvider {
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Subjects
 
-    private let _eventSubject = PassthroughSubject<Event, Never>()
+    private let _eventSubject = PassthroughSubject<EarnDataEvent, Never>()
+    private let _mostlyUsedEventSubject = PassthroughSubject<EarnDataMostlyUsedEvent, Never>()
 
-    var eventPublisher: AnyPublisher<Event, Never> {
+    var eventPublisher: AnyPublisher<EarnDataEvent, Never> {
         _eventSubject.eraseToAnyPublisher()
+    }
+
+    var mostlyUsedEventPublisher: AnyPublisher<EarnDataMostlyUsedEvent, Never> {
+        _mostlyUsedEventSubject.eraseToAnyPublisher()
     }
 
     // MARK: - Public Properties
@@ -46,14 +63,57 @@ final class EarnDataProvider {
     private var taskCancellable: AnyCancellable?
     private var scheduledFetchTask: AnyCancellable?
     private var isScheduledFetchPending: Bool = false
+    private var mostlyUsedUpdateTask: AnyCancellable?
 
     // MARK: - Init
 
     init() {}
 
+    deinit {
+        mostlyUsedUpdateTask?.cancel()
+    }
+
     // MARK: - Public Methods
 
+    func applyMostlyUsedTokens(_ tokens: [EarnTokenModel]) {
+        _mostlyUsedEventSubject.send(.loaded(items: tokens))
+    }
+
+    func refreshMostlyUsedTokens() {
+        mostlyUsedUpdateTask?.cancel()
+        _mostlyUsedEventSubject.send(.loading)
+
+        mostlyUsedUpdateTask = runTask(in: self) { provider in
+            do {
+                let requestModel = EarnDTO.List.Request(
+                    isForEarn: true,
+                    page: nil,
+                    limit: Constants.mostlyUsedLimit,
+                    type: nil,
+                    networkIds: nil
+                )
+
+                let response = try await provider.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
+                let models = response.items.map { provider.mapper.mapToEarnTokenModel(from: $0) }
+
+                await MainActor.run {
+                    provider.applyMostlyUsedTokens(models)
+                }
+            } catch {
+                if error.isCancellationError { return }
+
+                AppLogger.tag("Earn").error("Failed to refresh mostly used earn tokens", error: error)
+                await MainActor.run {
+                    provider._mostlyUsedEventSubject.send(.failed(error: error))
+                }
+            }
+        }.eraseToAnyCancellable()
+    }
+
     func reset() {
+        mostlyUsedUpdateTask?.cancel()
+        mostlyUsedUpdateTask = nil
+
         lastFilter = nil
         clearItems()
         _eventSubject.send(.cleared)
@@ -82,9 +142,9 @@ final class EarnDataProvider {
 
             do {
                 let response = try await loadItems(with: filter)
-                handleFetchResult(.success(response))
+                await handleFetchResult(.success(response))
             } catch {
-                handleFetchResult(.failure(error))
+                await handleFetchResult(.failure(error))
             }
         }.eraseToAnyCancellable()
     }
@@ -122,6 +182,7 @@ final class EarnDataProvider {
         return try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
     }
 
+    @MainActor
     private func handleFetchResult(_ result: Result<EarnDTO.List.Response, Error>) {
         do {
             let response = try result.get()
@@ -166,30 +227,54 @@ final class EarnDataProvider {
     }
 }
 
+// MARK: - Constants
+
+private extension CommonEarnDataService {
+    enum Constants {
+        static let mostlyUsedLimit = 5
+    }
+}
+
 // MARK: - Event
 
-extension EarnDataProvider {
-    enum Event: Equatable {
-        case loading
-        case idle
-        case failedToFetchData(error: Error)
-        case appendedItems(items: [EarnTokenModel], lastPage: Bool)
-        case startInitialFetch
-        case cleared
+enum EarnDataEvent: Equatable {
+    case loading
+    case idle
+    case failedToFetchData(error: Error)
+    case appendedItems(items: [EarnTokenModel], lastPage: Bool)
+    case startInitialFetch
+    case cleared
 
-        static func == (lhs: Event, rhs: Event) -> Bool {
-            switch (lhs, rhs) {
-            case (.loading, .loading),
-                 (.idle, .idle),
-                 (.startInitialFetch, .startInitialFetch),
-                 (.cleared, .cleared),
-                 (.failedToFetchData, .failedToFetchData):
-                return true
-            case (.appendedItems(let items1, let lastPage1), .appendedItems(let items2, let lastPage2)):
-                return items1.map(\.id) == items2.map(\.id) && lastPage1 == lastPage2
-            default:
-                return false
-            }
+    static func == (lhs: EarnDataEvent, rhs: EarnDataEvent) -> Bool {
+        switch (lhs, rhs) {
+        case (.loading, .loading),
+             (.idle, .idle),
+             (.startInitialFetch, .startInitialFetch),
+             (.cleared, .cleared),
+             (.failedToFetchData, .failedToFetchData):
+            return true
+        case (.appendedItems(let items1, let lastPage1), .appendedItems(let items2, let lastPage2)):
+            return items1.map(\.id) == items2.map(\.id) && lastPage1 == lastPage2
+        default:
+            return false
+        }
+    }
+}
+
+enum EarnDataMostlyUsedEvent: Equatable {
+    case loading
+    case failed(error: Error)
+    case loaded(items: [EarnTokenModel])
+
+    static func == (lhs: EarnDataMostlyUsedEvent, rhs: EarnDataMostlyUsedEvent) -> Bool {
+        switch (lhs, rhs) {
+        case (.loading, .loading),
+             (.failed, .failed):
+            return true
+        case (.loaded(let items1), .loaded(let items2)):
+            return items1.map(\.id) == items2.map(\.id)
+        default:
+            return false
         }
     }
 }

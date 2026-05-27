@@ -59,7 +59,8 @@ extension CommonReceiveAddressService: ReceiveAddressService {
     }
 
     func update(with addresses: [Address]) async {
-        let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+        let showableAddresses = addresses.filter { !$0.type.isUsed }
+        let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: showableAddresses)
         var resultTypes: [ReceiveAddressType] = addressInfos.map { .address($0) }
 
         if let domainAddressResolver {

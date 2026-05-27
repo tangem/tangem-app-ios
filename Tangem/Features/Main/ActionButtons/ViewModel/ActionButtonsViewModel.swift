@@ -7,6 +7,7 @@
 //
 
 import Combine
+import CombineExt
 import TangemLocalization
 import Foundation
 import TangemFoundation
@@ -46,13 +47,16 @@ final class ActionButtonsViewModel: ObservableObject {
     private var lastSellInitializeState: SellServiceState?
 
     private let userWalletModel: UserWalletModel
+    private let swapAvailabilityChecker: SwapAvailabilityChecker
     private var latestWalletModelsCount = 0
 
     init(
         coordinator: some ActionButtonsRoutable,
-        userWalletModel: some UserWalletModel
+        userWalletModel: some UserWalletModel,
+        swapAvailabilityChecker: SwapAvailabilityChecker
     ) {
         self.userWalletModel = userWalletModel
+        self.swapAvailabilityChecker = swapAvailabilityChecker
 
         sellActionButtonViewModel = SellActionButtonViewModel(
             model: .sell,
@@ -205,11 +209,26 @@ private extension ActionButtonsViewModel {
         let isActionButtonsAvailablePublisher = balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
             .removeDuplicates()
 
+        let walletModelsActionsUpdatePublisher = AccountWalletModelsAggregator
+            .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { walletModels in
+                guard !walletModels.isEmpty else {
+                    return AnyPublisher.just
+                }
+
+                return walletModels
+                    .map(\.actionsUpdatePublisher)
+                    .merge()
+            }
+
         expressAvailabilityProvider
             .expressAvailabilityUpdateState
-            .combineLatest(isActionButtonsAvailablePublisher)
-            .sink { [weak self] expressUpdateState, isActionButtonsAvailable in
-                self?.updateSwapButtonState(
+            .combineLatest(isActionButtonsAvailablePublisher, walletModelsActionsUpdatePublisher)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                // `walletModelsActionsUpdatePublisher` acts just as a trigger to re-evaluate swap button state
+                let (expressUpdateState, isActionButtonsAvailable, _) = input
+                viewModel.updateSwapButtonState(
                     expressUpdateState: expressUpdateState,
                     isActionButtonsAvailable: isActionButtonsAvailable
                 )
@@ -268,7 +287,7 @@ private extension ActionButtonsViewModel {
 
     @MainActor
     func handleUpdatedSwapState() {
-        switch latestWalletModelsCount {
+        switch swapAvailableWalletModelsCount() {
         case 0:
             swapActionButtonViewModel.updateState(to: .disabled)
         case 1:
@@ -280,6 +299,13 @@ private extension ActionButtonsViewModel {
         default:
             swapActionButtonViewModel.updateState(to: .idle)
         }
+    }
+
+    func swapAvailableWalletModelsCount() -> Int {
+        AccountWalletModelsAggregator
+            .walletModels(from: userWalletModel.accountModelsManager)
+            .filter { swapAvailabilityChecker.isSwapAvailable(walletModel: $0) }
+            .count
     }
 }
 

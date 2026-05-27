@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import PassKit
 import SwiftUI
 import TangemAssets
 import TangemLocalization
@@ -24,7 +25,15 @@ struct OnrampOfferView: View {
             bottomView
         }
         .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+        .environment(\.colorScheme, resolvedColorScheme)
         .opacity(viewModel.isAvailable ? 1 : 0.6)
+    }
+
+    /// Read synchronously to avoid an `@Environment(\.colorScheme)` subscription that leaks inside floating sheets.
+    private var resolvedColorScheme: ColorScheme {
+        let current: ColorScheme = UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        guard viewModel.isNativePayment else { return current }
+        return current == .light ? .dark : .light
     }
 
     private var topView: some View {
@@ -37,10 +46,7 @@ struct OnrampOfferView: View {
 
             Spacer(minLength: 8)
 
-            CapsuleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
-                .size(.medium)
-                .style(.primary)
-                .disabled(!viewModel.isAvailable)
+            buyButton
         }
     }
 
@@ -100,6 +106,23 @@ struct OnrampOfferView: View {
         }
     }
 
+    @ViewBuilder
+    private var buyButton: some View {
+        switch viewModel.buyAction {
+        case .button(let action):
+            CapsuleButton(title: Localization.commonBuy, action: action)
+                .size(.medium)
+                .style(.primary)
+                .disabled(!viewModel.isAvailable)
+        case .nativeApplePay(let request, let onPhaseChange):
+            PayWithApplePayButton(.plain, request: request, onPaymentAuthorizationChange: onPhaseChange)
+                .payWithApplePayButtonStyle(.automatic)
+                .frame(width: 66, height: 32)
+                .clipShape(Capsule())
+                .disabled(!viewModel.isAvailable)
+        }
+    }
+
     private var leadingBottomView: some View {
         HStack(spacing: 4) {
             HStack(spacing: 2) {
@@ -119,17 +142,23 @@ struct OnrampOfferView: View {
         }
     }
 
+    @ViewBuilder
     private var trailingBottomView: some View {
-        HStack(spacing: 4) {
-            Text(Localization.onrampPayWith)
+        if viewModel.isNativePayment {
+            Text(Localization.onrampPaymentMethodSubtitle)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+        } else {
+            HStack(spacing: 4) {
+                Text(Localization.onrampPayWith)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            IconView(url: viewModel.provider.paymentType.image, size: .height(16)) {
-                SkeletonView()
-                    .frame(width: 30, height: 16)
-                    .cornerRadiusContinuous(6)
+                IconView(url: viewModel.provider.paymentType.image, size: .height(16)) {
+                    SkeletonView()
+                        .frame(width: 30, height: 16)
+                        .cornerRadiusContinuous(6)
+                }
+                .foregroundStyle(Colors.Icon.secondary)
             }
-            .foregroundStyle(Colors.Icon.secondary)
         }
     }
 }

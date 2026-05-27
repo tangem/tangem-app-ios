@@ -223,6 +223,12 @@ struct WalletOnboardingView: View {
                         viewModel.closeOnboarding()
                     }
                     .padding(.top, 8)
+
+                    if viewModel.isTosFooterVisible {
+                        OnboardingTermsOfServiceFooter(onTap: viewModel.onTosTap)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 8)
+                    }
                 }
             }
         }

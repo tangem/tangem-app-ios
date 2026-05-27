@@ -27,7 +27,6 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
     )
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.walletTokenAutoSyncInteractor) private var autoSyncInteractor: WalletTokenAutoSyncInteractor
 
     private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
@@ -90,18 +89,6 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     throw UserWalletRepositoryError.duplicateWalletAdded
                 }
 
-                if let userWalletId {
-                    Task.detached {
-                        let walletCreationHelper = WalletCreationHelper(
-                            userWalletId: userWalletId,
-                            userWalletName: nil,
-                            userWalletConfig: userWalletConfig
-                        )
-
-                        try? await walletCreationHelper.createWallet()
-                    }
-                }
-
                 guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
                     walletInfo: .mobileWallet(walletInfo),
                     keys: .mobileWallet(keys: walletInfo.keys),
@@ -117,13 +104,6 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                 )
 
                 try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
-
-                if FeatureProvider.isAvailable(.mobileWalletTokenAutoSync) {
-                    try? await viewModel.autoSyncInteractor.startIfPossible(
-                        userWalletModel: userWalletModel,
-                        keyInfos: walletInfo.keys
-                    )
-                }
 
                 await runOnMain {
                     viewModel.isCreating = false

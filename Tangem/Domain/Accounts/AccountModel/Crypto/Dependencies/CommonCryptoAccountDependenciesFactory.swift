@@ -13,7 +13,6 @@ import BlockchainSdk
 
 struct CommonCryptoAccountDependenciesFactory {
     typealias UserTokensRepositoryProvider = (_ derivationIndex: Int) -> UserTokensRepository
-    typealias WalletModelsFactoryProvider = (_ userWalletId: UserWalletId) -> WalletModelsFactory
 
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
@@ -59,7 +58,11 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletManagerFactory: walletManagerFactory
         )
 
-        let walletModelsFactory = walletModelsFactoryProvider(userWalletId)
+        let blockchainSettingsUpdater = CommonBlockchainSettingsUpdater(userTokensRepository: userTokensRepository)
+        let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(
+            blockchainSettingsUpdater: blockchainSettingsUpdater,
+            userTokensManager: userTokensManager
+        )
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 
         let walletModelsManager = CommonWalletModelsManager(
@@ -87,5 +90,21 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             walletModelsFactoryInput: wrappedWalletModelsFactory,
             derivationManager: accountSpecificDerivationManager,
         )
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CommonCryptoAccountDependenciesFactory {
+    struct CommonBlockchainSettingsUpdater: BlockchainSettingsUpdater {
+        let userTokensRepository: UserTokensRepository
+
+        func update(settings: BlockchainSettings?, for tokenItem: TokenItem) -> BlockchainNetwork {
+            let blockchainNetwork = tokenItem.blockchainNetwork.with(settings: settings)
+            userTokensRepository.performBatchUpdates { updater in
+                updater.updateBlockchainNetwork(blockchainNetwork, for: tokenItem)
+            }
+            return blockchainNetwork
+        }
     }
 }

@@ -56,11 +56,3 @@ struct XPUBGeneratorFactory {
         return CommonXPUBGenerator.Key(derivationPath: derivationPath, extendedPublicKey: nil)
     }
 }
-
-// MARK: - DerivationPath+
-
-private extension DerivationPath {
-    func dropLastNode(count: Int) -> DerivationPath {
-        return DerivationPath(nodes: nodes.dropLast(count))
-    }
-}

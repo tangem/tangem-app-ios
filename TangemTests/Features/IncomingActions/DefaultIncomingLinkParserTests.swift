@@ -104,16 +104,26 @@ struct DefaultIncomingLinkParserTests {
 
         let urlString: String
         switch host {
-        case .token, .staking:
+        case .token:
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy&network_id=dummy"
-        case .tokenChart:
+        case .staking, .yield:
+            urlString = "tangem://\(rawValue)?token_id=dummy&network_id=dummy"
+        case .tokenChart, .tokenExchanges:
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy"
         case .onboardVisa:
             urlString = "tangem://\(rawValue)?entry=some-entry&id=some-id"
         case .payApp:
             urlString = "https://tangem.com/\(rawValue)?id=some-id"
         case .news:
-            urlString = "tangem://\(rawValue)?id=some-id"
+            // `.news` deeplinks are owned exclusively by `NewsIncomingLinkParser`.
+            // `DefaultIncomingLinkParser` intentionally rejects `tangem://news` to prevent
+            // silently accepting links with invalid news_id as "open news list" actions.
+            return
+        case .newsArticle:
+            // `.newsArticle` is not a deeplink host. Falls through to generic external link handling.
+            urlString = "https://tangem.com/news/markets/190801-polygon"
+        case .earn:
+            urlString = "tangem://\(rawValue)"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
@@ -127,11 +137,18 @@ struct DefaultIncomingLinkParserTests {
         #expect(result != nil, "Expected host '\(host)' to be parsed successfully")
     }
 
+    @Test("Rejects tangem://news-article since it is not a deeplink host")
+    func rejectsNewsArticleAsDeeplinkHost() throws {
+        let url = try #require(URL(string: "tangem://news-article?id=190801"))
+        let result = parser.parse(url)
+        #expect(result == nil)
+    }
+
     @Test(
         "Rejects deeplink with unknown host",
         arguments: [
             URL(string: "tangem://unknown?token_id=eth&network_id=ethereum")!,
-            URL(string: "tangem://main")!
+            URL(string: "tangem://main")!,
         ]
     )
     func rejectsUnknownHost(url: URL) {
@@ -164,7 +181,11 @@ struct DefaultIncomingLinkParserTests {
         "Parses valid external links from Tangem domains",
         arguments: [
             URL(string: "https://tangem.com/some/page")!,
+            URL(string: "https://www.tangem.com/some/page")!,
             URL(string: "https://app.tangem.com/anything")!,
+            URL(string: "https://buy.tangem.com/?promocode=PROMO")!,
+            URL(string: "https://tangem.surveysparrow.com/s/tangem-pay/tt-F8XXX")!,
+            URL(string: "https://feedback.tangem.com/anything")!,
             URL(string: "https://tangem.com/pay-app?id=something")!,
         ]
     )
@@ -223,7 +244,7 @@ struct DefaultIncomingLinkParserTests {
 
     @Test("Rejects tangem://token links with invalid tokenId")
     func rejectsTokenCharWitInvalidTokenId() {
-        let url = URL(string: "tangem://token?token_id=ываываыа&network_id=ethereum")!
+        let url = URL(string: "tangem://token?token_id=invalid!chars&network_id=ethereum")!
         let result = parser.parse(url)
 
         #expect(result == nil)
@@ -269,11 +290,133 @@ struct DefaultIncomingLinkParserTests {
         #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
     }
 
+    @Test("Parses tangem://yield with required params")
+    func parsesYieldWithRequiredParams() {
+        let url = URL(string: "tangem://yield?token_id=usd-coin&network_id=base")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .yield)
+        #expect(action.params.tokenId == "usd-coin")
+        #expect(action.params.networkId == "base")
+    }
+
+    @Test("Rejects tangem://yield with missing tokenId")
+    func rejectsYieldWithoutTokenId() {
+        let url = URL(string: "tangem://yield?network_id=base")!
+        let result = parser.parse(url)
+
+        #expect(result == nil, "Expected \(url) to be rejected due to missing tokenId")
+    }
+
+    @Test("Rejects tangem://yield with missing networkId")
+    func rejectsYieldWithoutNetworkId() {
+        let url = URL(string: "tangem://yield?token_id=usd-coin")!
+        let result = parser.parse(url)
+
+        #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
+    }
+
     @Test("Rejects tangem://token_chart with missing tokenId")
     func rejectsTokenChartWithoutTokenId() {
         let url = URL(string: "tangem://token_chart")!
         let result = parser.parse(url)
 
         #expect(result == nil, "Expected \(url) to be rejected due to missing tokenId")
+    }
+
+    // MARK: - Markets host: order/interval tests
+
+    @Test("Parses tangem://markets with order and interval")
+    func parsesMarketsWithOrderAndInterval() {
+        let url = URL(string: "tangem://markets?order=trending&interval=1w")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .markets)
+        #expect(action.params.order == "trending")
+        #expect(action.params.interval == "1w")
+    }
+
+    @Test("Parses tangem://markets with only interval (order omitted)")
+    func parsesMarketsWithOnlyInterval() {
+        let url = URL(string: "tangem://markets?interval=30d")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .markets)
+        #expect(action.params.order == nil)
+        #expect(action.params.interval == "30d")
+    }
+
+    @Test("Parses tangem://markets with only order (interval omitted)")
+    func parsesMarketsWithOnlyOrder() {
+        let url = URL(string: "tangem://markets?order=gainers")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .markets)
+        #expect(action.params.order == "gainers")
+        #expect(action.params.interval == nil)
+    }
+
+    @Test("Lower-cases markets order/interval query values")
+    func lowercasesMarketsOrderAndInterval() {
+        let url = URL(string: "tangem://markets?order=TRENDING&interval=24H")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.params.order == "trending")
+        #expect(action.params.interval == "24h")
+    }
+
+    @Test("Parses tangem://markets with no query params")
+    func parsesMarketsWithoutParams() {
+        let url = URL(string: "tangem://markets")!
+        let result = parser.parse(url)
+
+        guard case .navigation(let action) = result else {
+            #expect(Bool(false), "Expected navigation action for \(url)")
+            return
+        }
+
+        #expect(action.destination == .markets)
+        #expect(action.params.order == nil)
+        #expect(action.params.interval == nil)
+    }
+
+    @Test(
+        "Accepts tangem://markets even with unknown order/interval values (validation is deferred to routing)",
+        arguments: [
+            "tangem://markets?order=unknown_sort&interval=1w",
+            "tangem://markets?order=rating&interval=5y",
+            "tangem://markets?order=bogus&interval=bogus",
+        ]
+    )
+    func acceptsMarketsWithUnknownValues(deeplink: String) {
+        let url = URL(string: deeplink)!
+        let result = parser.parse(url)
+
+        #expect(result != nil, "Parser should pass unknown values through to routing layer for fallback")
     }
 }

@@ -81,6 +81,9 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.earnListCoordinator) {
                 EarnDetailCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.portfolioTokenDetailsCoordinator) {
+                TokenDetailsCoordinatorView(coordinator: $0)
+            }
     }
 
     private var newsPagerTokenDetailsLink: some View {

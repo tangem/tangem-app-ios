@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemFoundation
 import TangemUI
+import TangemUIUtils
 
 struct SendAmountInputSectionView<ExpandedContent: View>: View {
     let isExpanded: Bool
@@ -18,6 +19,7 @@ struct SendAmountInputSectionView<ExpandedContent: View>: View {
     let compactTokenData: SendAmountTokenViewData?
     var useCompactTokenRow: Bool = false
     var expandedContentVerticalPadding: CGFloat = 45
+    var tokenAccessibilityIdentifier: String? = nil
     let onTapCompact: () -> Void
     @ViewBuilder let expandedContent: () -> ExpandedContent
 
@@ -33,6 +35,7 @@ struct SendAmountInputSectionView<ExpandedContent: View>: View {
             if let tokenData = (isExpanded && !useCompactTokenRow) ? expandedTokenData : compactTokenData {
                 SendAmountTokenView(data: tokenData)
                     .contentShape(Rectangle())
+                    .accessibilityIdentifier(tokenAccessibilityIdentifier)
                     .onTapGesture {
                         guard !isExpanded, !isLocked, tokenData.action == nil else { return }
                         FeedbackGenerator.heavy()
