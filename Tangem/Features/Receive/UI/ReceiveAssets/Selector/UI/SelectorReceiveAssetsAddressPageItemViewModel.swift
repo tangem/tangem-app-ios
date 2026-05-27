@@ -21,6 +21,10 @@ final class SelectorReceiveAssetsAddressPageItemViewModel: ObservableObject {
         TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)
     }
 
+    var isDynamicAddressesEnabled: Bool {
+        tokenItem.blockchainNetwork.isDynamicAddressesEnabled()
+    }
+
     var address: AttributedString {
         stringForAddress(addressInfo.address)
     }

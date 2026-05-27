@@ -76,7 +76,8 @@ struct ExpressAPIMapper {
             fromAmount: fromAmount,
             expectAmount: toAmount,
             allowanceContract: response.allowanceContract,
-            quoteId: response.quoteId
+            quoteId: response.quoteId,
+            txType: response.txType.flatMap { ExpressTransactionType(rawValue: $0) }
         )
     }
 
@@ -114,7 +115,7 @@ struct ExpressAPIMapper {
         fromAmount /= pow(10, response.fromDecimals)
         toAmount /= pow(10, response.toDecimals)
 
-        let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue)
+        let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue, txType: txDetails.txType)
 
         let otherNativeFee = txDetails.otherNativeFee
             .flatMap(Decimal.init)
@@ -138,24 +139,22 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?) throws -> Decimal {
-        switch item.providerInfo.type {
-        case .cex:
+    func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?, txType: ExpressTransactionType) throws -> Decimal {
+        switch txType {
+        case .send:
             guard let txValue, let decimalTxValue = Decimal(string: txValue) else {
                 throw ExpressAPIMapperError.mapToDecimalError(txValue ?? "")
             }
 
-            // For CEX we have txValue amount as value which have to be sent
+            // For CEX/send we have txValue amount as value which have to be sent
             return decimalTxValue / pow(10, item.source.currency.decimalCount)
-        case .dex, .dexBridge:
+        case .swap:
             if let txValue, let decimalTxValue = Decimal(string: txValue) {
-                // For DEX we have txValue amount as coin. Because it's EVM or Solana DEX
+                // For DEX/swap we have txValue amount as coin. Because it's EVM or Solana DEX
                 return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
 
             return .zero
-        case .onramp, .unknown:
-            throw ExpressAPIMapperError.wrongProviderType
         }
     }
 
@@ -220,7 +219,56 @@ struct ExpressAPIMapper {
 
         toAmount /= pow(10, response.toDecimals)
 
-        return OnrampQuote(expectedAmount: toAmount)
+        return OnrampQuote(
+            expectedAmount: toAmount,
+            nativePaymentAvailable: response.nativePaymentAvailable ?? false,
+            quoteId: response.quoteId
+        )
+    }
+
+    func mapToOnrampDataResult(
+        request: ExpressDTO.Onramp.NativePaymentData.Request,
+        response: ExpressDTO.Onramp.NativePaymentData.Response
+    ) throws -> OnrampDataResult {
+        let codedData: ExpressDTO.Onramp.Data.CodedData = try exchangeDataDecoder.decode(
+            txDetailsJson: response.dataJson,
+            signature: response.signature
+        )
+
+        guard request.requestId == codedData.requestId else {
+            throw ExpressAPIMapperError.requestIdNotEqual
+        }
+
+        guard request.toAddress.caseInsensitiveCompare(codedData.toAddress) == .orderedSame else {
+            throw ExpressAPIMapperError.payoutAddressNotEqual
+        }
+
+        guard var fromAmount = Decimal(string: codedData.fromAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
+        }
+
+        fromAmount /= pow(10, codedData.fromPrecision)
+
+        switch response.txType {
+        case .nativePayment:
+            return .nativePayment(OnrampNativePaymentData(
+                txId: response.txId,
+                fromAmount: fromAmount,
+                fromCurrencyCode: codedData.fromCurrencyCode,
+                externalTxId: codedData.externalTxId,
+                externalTxUrl: codedData.externalTxUrl
+            ))
+        case .widget, .none:
+            return .widget(OnrampRedirectData(
+                txId: response.txId,
+                widgetUrl: codedData.widgetUrl,
+                redirectUrl: codedData.redirectUrl,
+                fromAmount: fromAmount,
+                fromCurrencyCode: codedData.fromCurrencyCode,
+                externalTxId: codedData.externalTxId,
+                externalTxUrl: codedData.externalTxUrl
+            ))
+        }
     }
 
     func mapToOnrampRedirectData(
@@ -280,7 +328,6 @@ enum ExpressAPIMapperError: LocalizedError {
     case requestIdNotEqual
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
-    case wrongProviderType
 
     var errorDescription: String? {
         switch self {
@@ -288,7 +335,6 @@ enum ExpressAPIMapperError: LocalizedError {
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
-        case .wrongProviderType: "Provider type is not support"
         }
     }
 }

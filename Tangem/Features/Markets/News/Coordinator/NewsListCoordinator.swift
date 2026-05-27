@@ -50,7 +50,9 @@ final class NewsListCoordinator: CoordinatorObject {
 
             rootViewModel = NewsListViewModel(
                 dataProvider: provider,
-                coordinator: self
+                coordinator: self,
+                incomingCategoryId: options.initialCategoryId,
+                presentSource: options.presentSource
             )
         }
     }
@@ -108,7 +110,10 @@ extension NewsListCoordinator {
 // MARK: - Options
 
 extension NewsListCoordinator {
-    struct Options {}
+    struct Options {
+        var initialCategoryId: Int?
+        var presentSource: MarketsNavigationBackButton.PresentSource = .navigation
+    }
 }
 
 // MARK: - NewsListRoutable
