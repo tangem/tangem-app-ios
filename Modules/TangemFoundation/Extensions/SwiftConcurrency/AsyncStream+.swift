@@ -55,7 +55,7 @@ public extension AsyncStream {
         with holder: Holder,
         id: ID,
         subscribers: ReferenceWritableKeyPath<Holder, Subscribers<ID>>,
-        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
         currentValue: @escaping (_ holder: isolated Holder) -> Element
     ) -> AsyncStream<Element> {
         AsyncStream(bufferingPolicy: bufferingPolicy) { [weak holder] continuation in
@@ -91,7 +91,7 @@ public extension AsyncStream {
     static func multicast<Holder: Actor>(
         with holder: Holder,
         subscribers: ReferenceWritableKeyPath<Holder, Subscribers<UUID>>,
-        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
         currentValue: @escaping (_ holder: isolated Holder) -> Element
     ) -> AsyncStream<Element> {
         multicast(
@@ -106,7 +106,7 @@ public extension AsyncStream {
     static func multicast<Holder: Actor, ID: Hashable & Sendable>(
         with holder: Holder,
         id: ID,
-        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
         onSubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: ID, _ continuation: Continuation) -> Void,
         onUnsubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: ID) -> Void
     ) -> AsyncStream<Element> {
@@ -134,7 +134,7 @@ public extension AsyncStream {
 
     static func multicast<Holder: Actor>(
         with holder: Holder,
-        bufferingPolicy: Continuation.BufferingPolicy = .bufferingNewest(1),
+        bufferingPolicy: Continuation.BufferingPolicy = .unbounded,
         onSubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: UUID, _ continuation: Continuation) -> Void,
         onUnsubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: UUID) -> Void
     ) -> AsyncStream<Element> {
