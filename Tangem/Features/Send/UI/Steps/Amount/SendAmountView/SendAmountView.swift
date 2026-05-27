@@ -117,6 +117,7 @@ struct SendAmountView: View {
                 expandedTokenData: expandedDestinationData,
                 compactTokenData: viewModel.compactDestinationTokenViewData,
                 expandedContentVerticalPadding: viewModel.destinationRateBadge != nil ? 45 : 51,
+                tokenAccessibilityIdentifier: SendAccessibilityIdentifiers.receiveTokenBlock,
                 onTapCompact: { viewModel.userDidTapCompactField(.receive) }
             ) {
                 destinationHeaderWithInput
@@ -137,6 +138,7 @@ struct SendAmountView: View {
                     focusedField: $focusedField,
                     cryptoFocusValue: .destinationCrypto,
                     fiatFocusValue: .destinationFiat,
+                    accessibilityConfiguration: .destination,
                     rateBadge: viewModel.destinationRateBadge,
                     onWillToggle: {
                         if focusedField != nil {

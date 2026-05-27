@@ -36,7 +36,24 @@ enum UITestsStorageCleaner {
             }
         }
 
+        clearTangemPayState()
+
         AppLogger.info("Cached files cleared for UI tests")
+        #endif
+    }
+
+    /// Clears Tangem Pay UserDefaults caches so state doesn't leak between test launches.
+    private static func clearTangemPayState() {
+        #if DEBUG
+        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId = [:]
+        AppSettings.shared.tangemPayShowAddToApplePayGuide = true
+        AppSettings.shared.tangemPayIsPaeraCustomer = [:]
+        AppSettings.shared.tangemPayIsDisabledForCustomerWalletId = [:]
+        AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId = [:]
+        AppSettings.shared.tangemPayEligibleDistributionChannels = []
+        AppSettings.shared.tangemPayShouldShowGetBanner = true
+        AppSettings.shared.tangemPayCachedLocalState = [:]
+        AppLogger.info("Tangem Pay state cleared for UI tests")
         #endif
     }
 
