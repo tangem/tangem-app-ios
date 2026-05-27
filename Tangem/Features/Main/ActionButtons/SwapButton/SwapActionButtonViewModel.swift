@@ -62,8 +62,7 @@ final class SwapActionButtonViewModel: ActionButtonViewModel {
         case .restricted(let reason):
             alert = .init(title: "", message: reason)
         case .idle:
-            let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
-            coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
+            openSwap()
         }
     }
 
@@ -159,9 +158,33 @@ private extension SwapActionButtonViewModel {
     func scheduledOpenSwap() {
         guard isOpeningRequired else { return }
 
-        let tokenSelectorViewModel = TokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap())
-        coordinator?.openSwap(userWalletModel: userWalletModel, tokenSelectorViewModel: tokenSelectorViewModel)
+        openSwap()
         isOpeningRequired = false
+    }
+
+    func openSwap() {
+        let userWalletInfo = userWalletModel.userWalletInfo
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+        let bestEffort = MainSwapPairResolver.makeBestEffortSourceToken(from: walletModels, userWalletInfo: userWalletInfo)
+        let fallback = walletModels.first.map { walletModel in
+            CommonSendSwapableTokenFactory(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                operationType: .swap
+            ).makeSwapableToken()
+        }
+
+        guard let sourceToken = bestEffort ?? fallback else {
+            return
+        }
+
+        let resolver = MainSwapPairResolver(
+            userWalletModel: userWalletModel,
+            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletInfo)
+        )
+
+        coordinator?.openSwap(predefinedParameters: .deferredPairResolution(source: sourceToken, resolver: resolver))
     }
 
     func showScheduledAlert(with message: String) {
