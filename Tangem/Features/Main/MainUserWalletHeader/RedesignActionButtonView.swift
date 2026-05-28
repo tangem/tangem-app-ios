@@ -33,12 +33,10 @@ struct RedesignActionButtonView<ViewModel: ActionButtonViewModel>: View {
 private extension ActionButtonState {
     var buttonState: TangemMainActionButton.ButtonState {
         switch self {
-        case .initial, .idle, .restricted:
+        case .initial, .idle, .unavailable:
             return .normal
-        case .loading, .disabled:
+        case .restricted, .loading, .disabled:
             return .disabled
-        case .unavailable:
-            return .normal
         }
     }
 

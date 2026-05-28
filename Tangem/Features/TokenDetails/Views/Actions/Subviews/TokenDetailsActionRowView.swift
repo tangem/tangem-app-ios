@@ -52,11 +52,15 @@ struct TokenDetailsActionRowView: View {
                 .frame(width: iconSize, height: iconSize)
         }
         .frame(width: iconContainerSize, height: iconContainerSize)
+        .opacity(item.isAvailable ? 1 : 0.4)
     }
 
     private var titleView: some View {
         Text(item.title)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(
+                .Tangem.Body16.medium,
+                color: item.isAvailable ? .Tangem.Text.Neutral.primary : .Tangem.Text.Status.disabled
+            )
             .lineLimit(1)
     }
 

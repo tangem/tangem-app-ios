@@ -34,6 +34,7 @@ public struct TangemMainActionButton: View {
                 .setSize(.x15)
                 .setCornerStyle(.rounded)
                 .setStyleType(.secondary)
+                .opacity(buttonState.isNormal ? 1 : 0.4)
 
             Text(title)
                 .style(

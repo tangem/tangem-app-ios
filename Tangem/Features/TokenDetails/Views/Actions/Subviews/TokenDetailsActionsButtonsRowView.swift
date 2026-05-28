@@ -22,7 +22,7 @@ struct TokenDetailsActionsButtonsRowView: View {
                 TangemMainActionButton(
                     title: button.title,
                     icon: button.icon,
-                    buttonState: .normal,
+                    buttonState: button.isAvailable ? .normal : .disabled,
                     action: button.action
                 )
                 .ifLet(button.longPressAction) { view, longPressAction in
@@ -42,24 +42,9 @@ struct TokenDetailsActionsButton: Identifiable {
     let title: String
     let icon: ImageType
     let accessibilityIdentifier: String?
+    let isAvailable: Bool
     let action: () -> Void
     let longPressAction: (() -> Void)?
-
-    init(
-        id: TokenDetailsActionsKind,
-        title: String,
-        icon: ImageType,
-        accessibilityIdentifier: String?,
-        action: @escaping () -> Void,
-        longPressAction: (() -> Void)? = nil
-    ) {
-        self.id = id
-        self.title = title
-        self.icon = icon
-        self.accessibilityIdentifier = accessibilityIdentifier
-        self.action = action
-        self.longPressAction = longPressAction
-    }
 }
 
 enum TokenDetailsActionsKind: String {
