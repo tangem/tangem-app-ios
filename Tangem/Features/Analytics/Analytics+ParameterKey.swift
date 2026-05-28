@@ -127,6 +127,7 @@ extension Analytics {
 
         case displayId = "Display Id"
         case placeholder = "Placeholder"
+        case surveyKey = "Survey Key"
 
         // MARK: - Earn
 

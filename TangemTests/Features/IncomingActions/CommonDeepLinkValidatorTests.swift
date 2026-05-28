@@ -631,4 +631,46 @@ struct CommonDeepLinkValidatorTests {
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
+
+    // MARK: - Survey deeplink
+
+    @Test
+    func surveyWithToken_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(surveyToken: "ntt-abc123"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func surveyWithTokenAndOptionalMetadata_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(surveyToken: "ntt-abc123", displayId: "88", surveyKey: "swap_nps"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func surveyWithoutToken_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(displayId: "88", surveyKey: "swap_nps"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func surveyWithInvalidMetadata_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(surveyToken: "ntt-abc123", surveyKey: "swap key"),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
 }
