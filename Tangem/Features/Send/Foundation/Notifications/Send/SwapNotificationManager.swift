@@ -108,7 +108,7 @@ private extension CommonSwapNotificationManager {
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case (.success(let source), .success(let receive), .loaded(let providers, _, _)) where providers.isEmpty:
+        case (.success(let source), .success(let receive), .loaded(let providers, _, .idle)) where providers.isEmpty:
             let analyticsParams: [Analytics.ParameterKey: String] = [
                 .sendToken: source.tokenItem.currencySymbol,
                 .sendBlockchain: source.tokenItem.blockchain.displayName,
