@@ -11,11 +11,11 @@ import Hiero
 
 final class HederaAddressService: AddressService {
     private let isTestnet: Bool
-
-    private lazy var client: Client = isTestnet ? Client.forTestnetWithImmediateUpdate() : Client.forMainnetWithImmediateUpdate()
+    private let addressValidator: HederaAddressValidator
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
+        addressValidator = HederaAddressValidator(isTestnet: isTestnet)
     }
 
     func makeAddress(for publicKey: Wallet.PublicKey, with addressType: AddressType) throws -> Address {
@@ -29,20 +29,14 @@ final class HederaAddressService: AddressService {
     }
 
     func validate(_ address: String) -> Bool {
-        do {
-            let accountId = try AccountId.fromSolidityAddressOrString(address)
-            try accountId.validateChecksum(client)
-            // For now, we’ve decided to accept as valid only shard 0 / realm 0 addresses.
-            // Also ensure `num` fits into Int64; otherwise `AccountId.toProtobuf()` crashes on overflow.
-            guard accountId.shard == 0,
-                  accountId.realm == 0,
-                  Int64(exactly: accountId.num) != nil
-            else {
-                return false
-            }
+        return addressValidator.isValid(address: address)
+    }
+
+    func validateCustomTokenAddress(_ address: String) -> Bool {
+        if validate(address) {
             return true
-        } catch {
-            return false
         }
+
+        return HederaTokenContractAddressConverter.extractEVMAddressBody(from: address) != nil
     }
 }

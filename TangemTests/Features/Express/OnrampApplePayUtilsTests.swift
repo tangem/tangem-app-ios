@@ -30,7 +30,8 @@ struct OnrampApplePayUtilsTests {
         #expect(request.merchantCapabilities == .threeDSecure)
         #expect(request.currencyCode == "EUR")
         #expect(request.countryCode == "DE")
-        #expect(Set(request.requiredBillingContactFields) == Set([.postalAddress, .name, .emailAddress]))
+        #expect(Set(request.requiredBillingContactFields) == Set([.postalAddress, .name]))
+        #expect(Set(request.requiredShippingContactFields) == Set([.emailAddress]))
     }
 
     @Test("makePaymentRequest exposes a single summary item with the supplied label and amount")
@@ -49,15 +50,15 @@ struct OnrampApplePayUtilsTests {
         #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: amount))
     }
 
-    @Test("mapPaymentResult base64-encodes the payment token and forwards billing contact fields")
+    @Test("mapPaymentResult base64-encodes the payment token, reads email from shipping contact and forwards billing fields")
     func mapPaymentResultMapping() throws {
         let tokenBytes = Data([0xDE, 0xAD, 0xBE, 0xEF])
         let payment = StubPKPayment(
             tokenData: tokenBytes,
-            email: "user@example.com",
-            firstName: "Ada",
-            lastName: "Lovelace",
-            postalAddress: PostalAddress(
+            shippingEmail: "user@example.com",
+            billingFirstName: "Ada",
+            billingLastName: "Lovelace",
+            billingPostalAddress: PostalAddress(
                 city: "Cupertino",
                 state: "CA",
                 postalCode: "95014",
@@ -77,16 +78,26 @@ struct OnrampApplePayUtilsTests {
         #expect(result.userData.billingAddress?.country == "United States")
     }
 
-    @Test("mapPaymentResult returns nil when billing contact has no email")
+    @Test("mapPaymentResult returns nil when shipping contact has no email")
     func mapPaymentResultNoEmail() {
         let payment = StubPKPayment(tokenData: Data())
 
         #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
     }
 
-    @Test("mapPaymentResult returns nil when email is empty")
+    @Test("mapPaymentResult returns nil when shipping email is empty")
     func mapPaymentResultEmptyEmail() {
-        let payment = StubPKPayment(tokenData: Data(), email: "")
+        let payment = StubPKPayment(tokenData: Data(), shippingEmail: "")
+
+        #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
+    }
+
+    @Test("mapPaymentResult ignores email set on billing contact only")
+    func mapPaymentResultIgnoresBillingEmail() {
+        let payment = StubPKPayment(
+            tokenData: Data(),
+            billingEmail: "billing@example.com"
+        )
 
         #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
     }
@@ -115,36 +126,46 @@ private final class StubPKPaymentToken: PKPaymentToken {
 private final class StubPKPayment: PKPayment {
     private let _token: PKPaymentToken
     private let _billingContact: PKContact?
+    private let _shippingContact: PKContact?
 
     init(
         tokenData: Data,
-        email: String? = nil,
-        firstName: String? = nil,
-        lastName: String? = nil,
-        postalAddress: PostalAddress? = nil
+        shippingEmail: String? = nil,
+        billingEmail: String? = nil,
+        billingFirstName: String? = nil,
+        billingLastName: String? = nil,
+        billingPostalAddress: PostalAddress? = nil
     ) {
         _token = StubPKPaymentToken(paymentData: tokenData)
 
-        if email == nil, firstName == nil, lastName == nil, postalAddress == nil {
+        if billingEmail == nil, billingFirstName == nil, billingLastName == nil, billingPostalAddress == nil {
             _billingContact = nil
         } else {
             let contact = PKContact()
-            contact.emailAddress = email
-            if let firstName = firstName, let lastName = lastName {
+            contact.emailAddress = billingEmail
+            if let billingFirstName, let billingLastName {
                 var components = PersonNameComponents()
-                components.givenName = firstName
-                components.familyName = lastName
+                components.givenName = billingFirstName
+                components.familyName = billingLastName
                 contact.name = components
             }
-            if let address = postalAddress {
+            if let billingPostalAddress {
                 let postal = CNMutablePostalAddress()
-                postal.city = address.city
-                postal.state = address.state
-                postal.postalCode = address.postalCode
-                postal.country = address.country
+                postal.city = billingPostalAddress.city
+                postal.state = billingPostalAddress.state
+                postal.postalCode = billingPostalAddress.postalCode
+                postal.country = billingPostalAddress.country
                 contact.postalAddress = postal
             }
             _billingContact = contact
+        }
+
+        if let shippingEmail {
+            let contact = PKContact()
+            contact.emailAddress = shippingEmail
+            _shippingContact = contact
+        } else {
+            _shippingContact = nil
         }
 
         super.init()
@@ -152,4 +173,5 @@ private final class StubPKPayment: PKPayment {
 
     override var token: PKPaymentToken { _token }
     override var billingContact: PKContact? { _billingContact }
+    override var shippingContact: PKContact? { _shippingContact }
 }

@@ -23,7 +23,8 @@ enum OnrampApplePayUtils {
         request.merchantCapabilities = .threeDSecure
         request.countryCode = countryCode
         request.currencyCode = currencyCode
-        request.requiredBillingContactFields = [.postalAddress, .name, .emailAddress]
+        request.requiredBillingContactFields = [.postalAddress, .name]
+        request.requiredShippingContactFields = [.emailAddress]
         request.paymentSummaryItems = [
             PKPaymentSummaryItem(label: summaryItemLabel, amount: amount as NSDecimalNumber),
         ]
@@ -31,7 +32,7 @@ enum OnrampApplePayUtils {
     }
 
     static func mapPaymentResult(_ payment: PKPayment) -> OnrampApplePayResult? {
-        guard let email = payment.billingContact?.emailAddress, !email.isEmpty else {
+        guard let email = payment.shippingContact?.emailAddress, !email.isEmpty else {
             return nil
         }
 

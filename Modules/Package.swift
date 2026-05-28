@@ -52,7 +52,7 @@ let package = Package(
         .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "2.3.1")),
         // CombineExt
         // CryptoSwift
-        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem2"),
+        .package(url: "git@github.com:tangem-developments/hiero-sdk-swift.git", exact: "0.49.0-tangem4"),
         .package(url: "git@github.com:tangem-developments/IcpKit.git", exact: "0.1.2-tangem5"),
         // Moya
         .package(url: "https://github.com/outfoxx/PotentCodables.git", .upToNextMajor(from: "3.2.0")),
@@ -289,6 +289,7 @@ var featureModules: [PackageDescription.Target] {
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .product(name: "IdensicMobileSDK", package: "idensicmobilesdk-ios"),
+                "BlockchainSdk",
                 "CryptoSwift",
                 "TangemAssets",
                 "TangemFoundation",
