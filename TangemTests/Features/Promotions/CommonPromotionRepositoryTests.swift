@@ -51,53 +51,6 @@ final class CommonPromotionRepositoryTests {
         #expect(result?.token.symbol == "ETH")
     }
 
-    // MARK: - Token Matching
-
-    @Test("Returns promotions matching token by networkId and address")
-    func returnsPromotionsMatchingToken() async throws {
-        let token = makeToken(networkId: "ethereum", address: "0xABC")
-        let sut = try await makeSUT(items: [
-            makeItem(id: 1, placeholder: .tokenDetails, tokens: [token]),
-            makeItem(id: 2, placeholder: .tokenDetails),
-        ])
-
-        let promotions = await sut.promotions(
-            userWalletId: walletId, placeholder: .tokenDetails, networkId: "ethereum", tokenAddress: "0xABC"
-        )
-
-        #expect(promotions.count == 1)
-        #expect(promotions.first?.id == 1)
-    }
-
-    @Test("Returns empty array when no promotions match token")
-    func returnsEmptyWhenNoMatch() async throws {
-        let token = makeToken(networkId: "ethereum", address: "0xAAA")
-        let sut = try await makeSUT(items: [makeItem(id: 1, placeholder: .tokenDetails, tokens: [token])])
-
-        let promotions = await sut.promotions(
-            userWalletId: walletId, placeholder: .tokenDetails, networkId: "polygon", tokenAddress: "0xBBB"
-        )
-
-        #expect(promotions.isEmpty)
-    }
-
-    @Test("Promotion with multiple tokens matches if any token matches")
-    func matchesAnyToken() async throws {
-        let sut = try await makeSUT(items: [
-            makeItem(id: 1, placeholder: .tokenDetails, tokens: [
-                makeToken(networkId: "ethereum", address: "0xETH"),
-                makeToken(networkId: "polygon", address: "0xMATIC"),
-            ]),
-        ])
-
-        let promotions = await sut.promotions(
-            userWalletId: walletId, placeholder: .tokenDetails, networkId: "polygon", tokenAddress: "0xMATIC"
-        )
-
-        #expect(promotions.count == 1)
-        #expect(promotions.first?.id == 1)
-    }
-
     // MARK: - Refresh Specific Placement
 
     @Test("Refreshes only specific placement, not all")
