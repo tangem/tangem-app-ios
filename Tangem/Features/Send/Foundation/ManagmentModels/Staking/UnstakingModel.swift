@@ -40,7 +40,7 @@ class UnstakingModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
 
-    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
