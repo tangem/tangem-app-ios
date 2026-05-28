@@ -13,4 +13,5 @@ protocol HotCryptoAddTokenRoutable: AnyObject {
     func presentSuccessToast(with text: String)
     func presentErrorToast(with text: String)
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
+    func openAddFunds(userWalletInfo: UserWalletInfo, walletModel: any WalletModel)
 }
