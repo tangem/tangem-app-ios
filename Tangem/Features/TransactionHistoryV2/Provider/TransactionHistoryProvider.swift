@@ -32,22 +32,37 @@ final actor TransactionHistoryProvider {
     }
 
     private func performInitialSync() async {
-        // [REDACTED_TODO_COMMENT]
         emit(.syncing(.initial))
-        hasCompletedInitialSync = true
-        emit(.idle(.ready))
+        do {
+            try await repository.syncInitial()
+            hasCompletedInitialSync = true
+            emit(.idle(.ready))
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .initial)))
+        }
     }
 
     private func performDeltaSync() async {
-        // [REDACTED_TODO_COMMENT]
         emit(.syncing(.delta))
-        emit(.idle(.ready))
+        do {
+            try await repository.syncDelta()
+            emit(.idle(.ready))
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .delta)))
+        }
     }
 
     private func performUserInitiatedSync(kind: UserInitiatedSyncKind) async {
-        // [REDACTED_TODO_COMMENT]
         emit(.syncing(.userInitiated(kind)))
-        emit(.idle(.ready))
+        do {
+            try await repository.syncDelta()
+            emit(.idle(.ready))
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .userInitiated(kind))))
+        }
     }
 }
 
