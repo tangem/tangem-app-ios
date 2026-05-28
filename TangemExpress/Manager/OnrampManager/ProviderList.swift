@@ -94,8 +94,11 @@ public extension ProvidersList {
 
         let fastestProviderItem = min(by: \.paymentMethod.type.processingTime)
         let successfullyLoadedProviders = fastestProviderItem?.providers.filter(\.isSuccessfullyLoaded)
+        let nativeApplePayProvider = successfullyLoadedProviders?
+            .filter { $0.quote?.nativePaymentAvailable == true && $0.quote?.quoteId != nil }
+            .min()
         let preferredProvider = successfullyLoadedProviders?.first(where: { $0.provider.id == preferredProviderId })
-        let fastestProvider = preferredProvider ?? successfullyLoadedProviders?.min()
+        let fastestProvider = nativeApplePayProvider ?? preferredProvider ?? successfullyLoadedProviders?.min()
 
         providers.forEach { provider in
             switch provider {
