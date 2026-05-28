@@ -81,7 +81,7 @@ extension CommonExpressPendingTransactionRepository: ExpressPendingTransactionRe
             provider: .init(provider: transaction.provider),
             date: transaction.date,
             externalTxId: transaction.expressTransactionData.externalTxId,
-            externalTxURL: transaction.expressTransactionData.externalTxUrl,
+            externalTxURL: transaction.expressTransactionData.externalTxURL?.absoluteString,
             averageDuration: nil, // Set nil because we don't have any data yet
             createdAt: nil, // Set nil because we don't have any data yet
             isHidden: false,

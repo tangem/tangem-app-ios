@@ -10,6 +10,7 @@ import Foundation
 import PassKit
 import Testing
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 @testable import Tangem
 @testable import TangemExpress
 @testable import BlockchainSdk
@@ -78,8 +79,8 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(eventLog.events.contains(.transactionDidSend))
     }
 
-    @Test("Thrown error → result.fail(error) once with the wrapped error")
-    func errorPathFailsWithError() async {
+    @Test("Thrown non-PassKit error → result.fail() once with scrubbed errors")
+    func errorPathFailsWithScrubbedError() async {
         let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
         let manager = StubOnrampManager(mode: .throwsError(stubError))
         let model = makeModel(onrampManager: manager)
@@ -88,14 +89,19 @@ final class OnrampModelHandleApplePayAuthorizationTests {
 
         #expect(outcome.callCount == 1)
         #expect(outcome.lastStatus == .failure)
-        #expect(outcome.lastErrors.count == 1)
-        #expect((outcome.lastErrors.first as NSError?)?.domain == "TestDomain")
-        #expect((outcome.lastErrors.first as NSError?)?.code == 7)
+        // Non-PKPaymentErrorDomain errors are dropped by ApplePayAuthorizationResult.fail
+        // so PassKit can dismiss instead of waiting for an inline correction.
+        #expect(outcome.lastErrors.isEmpty)
     }
 
-    @Test("Cancellation → result.fail(CancellationError) once")
-    func cancellationFailsWithCancellationError() async {
-        let manager = StubOnrampManager(mode: .throwsError(CancellationError()))
+    @Test("Thrown PassKit error → result.fail(error) forwards the error")
+    func errorPathForwardsPassKitError() async {
+        let passKitError = NSError(
+            domain: PKPaymentErrorDomain,
+            code: PKPaymentError.Code.billingContactInvalidError.rawValue,
+            userInfo: nil
+        )
+        let manager = StubOnrampManager(mode: .throwsError(passKitError))
         let model = makeModel(onrampManager: manager)
 
         let outcome = await runHandleAndAwaitResult(on: model)
@@ -103,8 +109,104 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         #expect(outcome.callCount == 1)
         #expect(outcome.lastStatus == .failure)
         #expect(outcome.lastErrors.count == 1)
-        // PassKit bridges Error elements to NSError; CancellationError lands as Domain="Swift.CancellationError".
-        #expect((outcome.lastErrors.first as NSError?)?.domain == "Swift.CancellationError")
+        #expect((outcome.lastErrors.first as NSError?)?.domain == PKPaymentErrorDomain)
+    }
+
+    @Test("Cancellation → result.fail() once with no errors")
+    func cancellationFailsWithoutError() async {
+        let manager = StubOnrampManager(mode: .throwsError(CancellationError()))
+        let model = makeModel(onrampManager: manager)
+
+        let outcome = await runHandleAndAwaitResult(on: model)
+
+        #expect(outcome.callCount == 1)
+        #expect(outcome.lastStatus == .failure)
+        #expect(outcome.lastErrors.isEmpty)
+    }
+
+    // MARK: - Deferred completion on applePaySheetDidFinish
+
+    @Test("Native payment success defers openFinishStep() until applePaySheetDidFinish()")
+    func finishStepFiresOnDidFinish() async {
+        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+        let router = StubOnrampModelRoutable(eventLog: eventLog)
+        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+        model.alertPresenter = alertPresenter
+
+        _ = await runHandleAndAwaitResult(on: model)
+        // Sheet still up: nothing routed yet.
+        #expect(!eventLog.events.contains(.finishStepOpened))
+
+        await runOnMain { model.applePaySheetDidFinish() }
+
+        #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
+        #expect(!eventLog.events.contains(.alertShown))
+
+        // Second dismiss must not re-trigger (pending state cleared).
+        await runOnMain { model.applePaySheetDidFinish() }
+        #expect(eventLog.events.filter { $0 == .finishStepOpened }.count == 1)
+    }
+
+    @Test("Thrown error defers alert until applePaySheetDidFinish()")
+    func errorFiresAlertOnDidFinish() async {
+        let stubError = NSError(domain: "TestDomain", code: 7, userInfo: nil)
+        let manager = StubOnrampManager(mode: .throwsError(stubError))
+        let router = StubOnrampModelRoutable(eventLog: eventLog)
+        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+        model.alertPresenter = alertPresenter
+
+        _ = await runHandleAndAwaitResult(on: model)
+        // Sheet still up: alert not shown yet.
+        #expect(!eventLog.events.contains(.alertShown))
+
+        await runOnMain { model.applePaySheetDidFinish() }
+
+        #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
+        #expect(!eventLog.events.contains(.finishStepOpened))
+
+        // Second dismiss must not re-trigger.
+        await runOnMain { model.applePaySheetDidFinish() }
+        #expect(eventLog.events.filter { $0 == .alertShown }.count == 1)
+    }
+
+    @Test("PassKit-domain error is not deferred as an alert on applePaySheetDidFinish()")
+    func passKitErrorDoesNotDeferAlert() async {
+        let passKitError = NSError(
+            domain: PKPaymentErrorDomain,
+            code: PKPaymentError.Code.billingContactInvalidError.rawValue,
+            userInfo: nil
+        )
+        let manager = StubOnrampManager(mode: .throwsError(passKitError))
+        let router = StubOnrampModelRoutable(eventLog: eventLog)
+        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+        model.alertPresenter = alertPresenter
+
+        _ = await runHandleAndAwaitResult(on: model)
+        await runOnMain { model.applePaySheetDidFinish() }
+
+        #expect(!eventLog.events.contains(.alertShown))
+        #expect(!eventLog.events.contains(.finishStepOpened))
+    }
+
+    @Test("applePaySheetDidFinish() with no pending completion is a no-op")
+    func didFinishWithoutPendingCompletionDoesNothing() async {
+        let manager = StubOnrampManager(mode: .nativePayment(StubFixtures.makeNativePaymentData()))
+        let router = StubOnrampModelRoutable(eventLog: eventLog)
+        let alertPresenter = StubSendViewAlertPresenter(eventLog: eventLog)
+        let model = makeModel(onrampManager: manager)
+        model.router = router
+        model.alertPresenter = alertPresenter
+
+        await runOnMain { model.applePaySheetDidFinish() }
+
+        #expect(!eventLog.events.contains(.finishStepOpened))
+        #expect(!eventLog.events.contains(.alertShown))
     }
 
     // MARK: - Helpers
@@ -147,6 +249,8 @@ private enum RecordedEvent: Equatable {
     case transactionDidSend
     case resultHandler
     case kycSheetOpened
+    case finishStepOpened
+    case alertShown
 }
 
 private final class EventLog: Sendable {
@@ -314,7 +418,9 @@ private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
     func openOnrampCountrySelectorView() {}
     func openOnrampRedirecting() {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
-    func openFinishStep() {}
+    func openFinishStep() {
+        eventLog.append(.finishStepOpened)
+    }
 
     func openOnrampKYCVerification(provider: OnrampProvider, onProceedToWidget: @escaping () -> Void) {
         eventLog.append(.kycSheetOpened)
@@ -322,6 +428,18 @@ private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
             state.openKYCCallCount += 1
             state.lastOnProceedToWidget = onProceedToWidget
         }
+    }
+}
+
+private final class StubSendViewAlertPresenter: SendViewAlertPresenter {
+    private let eventLog: EventLog
+
+    init(eventLog: EventLog) {
+        self.eventLog = eventLog
+    }
+
+    func showAlert(_ alert: AlertBinder) {
+        eventLog.append(.alertShown)
     }
 }
 
@@ -366,19 +484,19 @@ private enum StubFixtures {
             fromAmount: 100,
             fromCurrencyCode: "USD",
             externalTxId: nil,
-            externalTxUrl: nil
+            externalTxURL: nil
         )
     }
 
     static func makeRedirectData() -> OnrampRedirectData {
         OnrampRedirectData(
             txId: "widget-tx",
-            widgetUrl: URL(string: "https://example.com/widget")!,
-            redirectUrl: URL(string: "https://example.com/redirect")!,
+            widgetURL: URL(string: "https://example.com/widget")!,
+            redirectURL: URL(string: "https://example.com/redirect")!,
             fromAmount: 100,
             fromCurrencyCode: "USD",
             externalTxId: nil,
-            externalTxUrl: nil
+            externalTxURL: nil
         )
     }
 

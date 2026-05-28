@@ -23,24 +23,7 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
-            }
-
-            ForEach(viewModel.tokensNotificationInputs) { input in
-                NotificationView(input: input)
-            }
-
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-
-            if let viewModel = viewModel.tangemPayBannerViewModel {
-                GetTangemPayBannerView(viewModel: viewModel)
-            }
-
-            ForEach(viewModel.tangemPayNotificationInputs) { input in
-                NotificationView(input: input)
-            }
+            bannersSection
 
             VStack(spacing: 8.0) {
                 if let viewModel = viewModel.tangemPayAccountViewModel {
@@ -69,6 +52,33 @@ struct MultiWalletMainContentView: View {
         .onDidAppear(perform: viewModel.onDidAppear)
         .onWillDisappear(perform: viewModel.onWillDisappear)
         .bindAlert($viewModel.error)
+    }
+
+    /// Add funds banner takes priority over every other banner while it is visible.
+    @ViewBuilder
+    private var bannersSection: some View {
+        if viewModel.isAddFundsBannerVisible {
+            NotificationView(input: viewModel.addFundsNotificationInput)
+        } else {
+            ForEach(viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
+            }
+
+            ForEach(viewModel.tokensNotificationInputs) { input in
+                NotificationView(input: input)
+            }
+
+            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+
+            if let viewModel = viewModel.tangemPayBannerViewModel {
+                GetTangemPayBannerView(viewModel: viewModel)
+            }
+
+            ForEach(viewModel.tangemPayNotificationInputs) { input in
+                NotificationView(input: input)
+            }
+        }
     }
 
     @ViewBuilder

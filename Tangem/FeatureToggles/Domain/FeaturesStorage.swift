@@ -55,6 +55,9 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.gaslessTransactionsAPIType)
     var gaslessTransactionsAPIType = GaslessTransactionsAPIType.prod
 
+    @AppStorageCompat(FeatureStorageKeys.applePayMerchantType)
+    var applePayMerchantType = ApplePayMerchantType.sandbox
+
     private init() {}
 }
 
@@ -76,4 +79,5 @@ private enum FeatureStorageKeys: String {
     case stakeKitAPIType = "stake_kit_api_type"
     case yieldModuleAPIType = "yield_module_api_type"
     case gaslessTransactionsAPIType = "gasless_transactions_api_type"
+    case applePayMerchantType = "apple_pay_merchant_id_env"
 }

@@ -19,6 +19,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     @Published var notificationBannerItems: [NotificationBannerItem] = []
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
     @Published var promotionNotificationsViewModel: PromotionNotificationsViewModel
+    @Published private(set) var isAddFundsBannerVisible: Bool = false
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
@@ -35,10 +36,19 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     // MARK: - Dependencies
 
+    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private let userWalletNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let rateAppController: RateAppInteractionController
     private let contextActionTokenRouter: SingleTokenRoutable
+    private weak var addFundsRoutable: (any ActionButtonsBuyFlowRoutable)?
+
+    private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
+        for: AddFundsNotificationEvent(),
+        buttonAction: { [weak self] _, _ in self?.openAddFunds() }
+    )
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
@@ -64,6 +74,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         self.rateAppController = rateAppController
         contextActionTokenRouter = tokenRouter
         self.delegate = delegate
+        addFundsRoutable = coordinator
 
         if WalletPromoBannerUtil().shouldShowBanner() {
             walletPromoBannerViewModel = .init(
@@ -224,6 +235,17 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher: $notificationInputs
         )
+
+        addFundsBannerVisibilityProvider
+            .shouldShowPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isAddFundsBannerVisible, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func openAddFunds() {
+        let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+        addFundsRoutable?.openBuy(userWalletModels: userWalletModels)
     }
 }
 

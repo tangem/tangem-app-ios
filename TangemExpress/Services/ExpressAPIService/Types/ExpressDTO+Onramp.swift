@@ -6,6 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import AnyCodable
+
 extension ExpressDTO {
     enum Onramp {
         // MARK: - Common
@@ -245,6 +248,63 @@ extension ExpressDTO {
 
                 let paymentMethod: String // Payment method used
                 let countryCode: String // Country code
+            }
+        }
+
+        // MARK: - History
+
+        enum History {
+            struct Response: Decodable {
+                let data: [Record]
+                let nextCursor: AnyDecodable
+                let hasMore: Bool
+            }
+
+            struct Record: Decodable {
+                let txId: String
+                let status: OnrampTransactionStatus
+                let provider: ExpressDTO.HistoryProvider
+                let from: FiatAsset
+                let to: AssetRef
+                let payoutHash: String?
+                let externalTxId: String?
+                let externalTxUrl: String?
+                let refund: Refund?
+                let rate: Rate?
+                let failReason: String?
+                // [REDACTED_TODO_COMMENT]
+                /*
+                 let createdAt: Int
+                 let updatedAt: Int
+                 */
+                let createdAt: Date
+                let updatedAt: Date
+            }
+
+            struct FiatAsset: Decodable {
+                let currencyCode: String
+                let amount: String
+            }
+
+            struct AssetRef: Decodable {
+                let network: String
+                let tokenId: String?
+                let expectedRawAmount: String
+                let actualRawAmount: String?
+                let decimals: Int
+            }
+
+            struct Refund: Decodable {
+                let network: String
+                let tokenId: String?
+                let rawAmount: String
+                let decimals: Int
+                let hash: String?
+            }
+
+            struct Rate: Decodable {
+                let atCreate: String?
+                let atFinish: String?
             }
         }
     }
