@@ -11,7 +11,7 @@ import Foundation
 struct SeiEvmExternalLinkProvider: ExternalLinkProvider {
     private let isTestnet: Bool
 
-    var baseExplorerURL: String {
+    private var baseExplorerURL: String {
         isTestnet ? "https://testnet.seiscan.io" : "https://seiscan.io"
     }
 
