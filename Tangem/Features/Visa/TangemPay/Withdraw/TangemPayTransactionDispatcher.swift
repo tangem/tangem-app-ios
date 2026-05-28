@@ -1,42 +1,60 @@
 //
-//  TangemPayExpressCEXTransactionDispatcher.swift
+//  TangemPayTransactionDispatcher.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import BlockchainSdk
 import TangemFoundation
-import TangemExpress
 import TangemVisa
 
-struct TangemPayExpressCEXTransactionDispatcher {
+struct TangemPayTransactionDispatcher {
     let withdrawTransactionService: TangemPayWithdrawTransactionService
+    let hasNFCInteraction: Bool
     let walletPublicKey: Wallet.PublicKey?
 }
 
 // MARK: - TransactionDispatcher
 
-extension TangemPayExpressCEXTransactionDispatcher: TransactionDispatcher {
-    var hasNFCInteraction: Bool { true }
-
+extension TangemPayTransactionDispatcher: TransactionDispatcher {
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .cex(let data, _) = transaction else {
+        switch transaction {
+        case .transfer(let transaction):
+            return try await sendWithdraw(
+                amount: transaction.amount.value,
+                destination: transaction.destinationAddress
+            )
+
+        case .cex(let data, _):
+            return try await sendWithdraw(
+                amount: data.txValue,
+                destination: data.destinationAddress
+            )
+
+        default:
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
+    }
+}
 
+// MARK: - Private
+
+private extension TangemPayTransactionDispatcher {
+    func sendWithdraw(amount: Decimal, destination: String) async throws -> TransactionDispatcherResult {
         guard let walletPublicKey else {
             throw Error.walletPublicKeyNotFound
         }
 
         let result = try await withdrawTransactionService.sendWithdrawTransaction(
-            amount: data.txValue,
-            destination: data.destinationAddress,
+            amount: amount,
+            destination: destination,
             walletPublicKey: walletPublicKey
         )
 
-        try? await Task.sleep(for: .seconds(3)) // approximate wait for the server to generate txHash
+        // The server needs a moment to produce a transaction hash before polling can pick it up.
+        try? await Task.sleep(for: .seconds(Self.initialPollingDelay))
 
         let pollingSequence = PollingSequence(
             interval: Self.interval,
@@ -64,11 +82,14 @@ extension TangemPayExpressCEXTransactionDispatcher: TransactionDispatcher {
     }
 }
 
-extension TangemPayExpressCEXTransactionDispatcher {
+// MARK: - Error / Constants
+
+extension TangemPayTransactionDispatcher {
     enum Error: LocalizedError {
         case walletPublicKeyNotFound
         case transactionHashNotFound
     }
 
     static let interval: TimeInterval = 3
+    static let initialPollingDelay: TimeInterval = 3
 }
