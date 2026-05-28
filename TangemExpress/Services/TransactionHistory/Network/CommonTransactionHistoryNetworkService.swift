@@ -7,34 +7,44 @@
 //
 
 import Foundation
+import TangemFoundation
 
 final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRecord>: @unchecked Sendable {
     typealias PageFetcher = @Sendable (_ cursor: Any?) async throws -> Page
 
     private let cursorStorage: any TransactionHistoryCursorStorage
-    private let recordsStorage: any TransactionHistoryRecordsStorage<Record>
     private let pageFetcher: PageFetcher
 
     init(
         cursorStorage: any TransactionHistoryCursorStorage,
-        recordsStorage: any TransactionHistoryRecordsStorage<Record>,
         pageFetcher: @escaping PageFetcher
     ) {
         self.cursorStorage = cursorStorage
-        self.recordsStorage = recordsStorage
         self.pageFetcher = pageFetcher
     }
 
-    private func fetchPages() async throws {
-        var cursor: Any? = await cursorStorage.cursor
+    private func fetchPages(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
+        var cursor = await cursorStorage.cursor
 
         while !Task.isCancelled {
             let page = try await pageFetcher(cursor)
 
-            await recordsStorage.updateOrAppend(page.records)
-            await cursorStorage.setCursor(page.nextCursor)
+            TransactionHistoryLogger.debug(self, "Fetched page: \(page.records.count) record(s), hasMore: \(page.hasMore)")
 
-            guard page.hasMore else { break }
+            let action = await handleRecordsPage(page.records)
+
+            switch action {
+            case .stop:
+                TransactionHistoryLogger.info(self, "Caller halted pagination; cursor left unchanged")
+                return
+            case .proceed:
+                await cursorStorage.setCursor(page.nextCursor)
+            }
+
+            guard page.hasMore else {
+                break
+            }
+
             cursor = page.nextCursor
         }
     }
@@ -43,13 +53,21 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
 // MARK: - TransactionHistoryNetworkService protocol conformance
 
 extension CommonTransactionHistoryNetworkService: TransactionHistoryNetworkService {
-    func syncInitial() async throws {
+    func syncInitial(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
         await cursorStorage.clear()
-        try await fetchPages()
+        try await fetchPages(handleRecordsPage: handleRecordsPage)
     }
 
-    func syncDelta() async throws {
-        try await fetchPages()
+    func syncDelta(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
+        try await fetchPages(handleRecordsPage: handleRecordsPage)
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonTransactionHistoryNetworkService: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
     }
 }
 
