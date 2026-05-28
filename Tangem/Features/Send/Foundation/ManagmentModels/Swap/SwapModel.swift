@@ -606,8 +606,7 @@ extension SwapModel {
     func validate(amount: Amount, fee: Fee) throws -> RestrictionType? {
         do {
             let source = try _sourceToken.value.get()
-            let transactionValidator = source.expressTransactionValidator
-            try transactionValidator.validate(amount: amount, fee: fee)
+            try source.transactionValidator.validate(amount: amount, fee: fee)
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .notEnoughBalanceForSwapping
         } catch ValidationError.feeExceedsBalance {
