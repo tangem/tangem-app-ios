@@ -27,7 +27,21 @@ enum PromotionMapper {
             deeplink: dto.deeplink,
             buttonEnabled: dto.buttonEnabled ?? false,
             buttonText: dto.buttonText,
-            dismissable: dto.dismissable ?? false
+            dismissable: dto.dismissable ?? false,
+            tokens: dto.tokens?.map(mapToTokenInfo)
+        )
+    }
+
+    private static func mapToTokenInfo(from dto: PromotionsDTO.Load.TokenInfo) -> Promotion.TokenInfo {
+        Promotion.TokenInfo(
+            networkId: dto.networkId,
+            token: Promotion.Token(
+                id: dto.token.id,
+                symbol: dto.token.symbol,
+                name: dto.token.name,
+                address: dto.token.address,
+                decimalCount: dto.token.decimalCount
+            )
         )
     }
 }

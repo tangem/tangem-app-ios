@@ -13,7 +13,7 @@ typealias PromotionPlacement = PromotionsDTO.Placement
 enum PromotionsDTO {}
 
 extension PromotionsDTO {
-    enum Placement: String, Codable {
+    enum Placement: String, Codable, CaseIterable {
         case main
         case news = "shtorka"
         case tokenDetails = "token_details"
