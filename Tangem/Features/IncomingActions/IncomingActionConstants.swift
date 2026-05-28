@@ -53,8 +53,6 @@ enum IncomingActionConstants {
         static let interval = "interval"
         static let earnType = "earn_type"
         static let surveyToken = "token"
-        static let displayId = "display_id"
-        static let surveyKey = "survey_key"
     }
 
     enum DeeplinkDestination: String, CaseIterable {

@@ -121,6 +121,9 @@ extension MainCoordinator {
             let surveyViewController = SsSurveyViewController()
             surveyViewController.domain = keysManager.surveySparrow.domain
             surveyViewController.token = token
+            // `.CLASSIC` controls the SDK rendering mode (full-screen survey UI).
+            // The survey methodology (NPS / CSAT / CES) is determined by the token
+            // on SurveySparrow's side, not by this flag.
             surveyViewController.surveyType = .CLASSIC
 
             AppPresenter.shared.show(surveyViewController)

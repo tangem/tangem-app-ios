@@ -645,32 +645,46 @@ struct CommonDeepLinkValidatorTests {
     }
 
     @Test
-    func surveyWithTokenAndOptionalMetadata_shouldPass() {
-        let action = DeeplinkNavigationAction(
-            destination: .survey,
-            params: .init(surveyToken: "ntt-abc123", displayId: "88", surveyKey: "swap_nps"),
-            deeplinkString: ""
-        )
-        #expect(validator.hasMinimumDataForHandling(deeplink: action))
-    }
-
-    @Test
     func surveyWithoutToken_shouldFail() {
         let action = DeeplinkNavigationAction(
             destination: .survey,
-            params: .init(displayId: "88", surveyKey: "swap_nps"),
+            params: .init(),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
 
     @Test
-    func surveyWithInvalidMetadata_shouldFail() {
+    func surveyWithEmptyToken_shouldFail() {
         let action = DeeplinkNavigationAction(
             destination: .survey,
-            params: .init(surveyToken: "ntt-abc123", surveyKey: "swap key"),
+            params: .init(surveyToken: ""),
             deeplinkString: ""
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    /// SurveySparrow tokens are opaque vendor identifiers without a fixed format,
+    /// so the validator must accept arbitrary non-empty strings (e.g. `tt-…`, base64-like).
+    @Test
+    func surveyWithUnusualTokenShapes_shouldPass() {
+        let tokens = [
+            "tt-5xtkamxzdOD",
+            "ntt-84iF22PDajmervYneMW4kv",
+            "abc+def/ghi=",
+            "token with spaces",
+        ]
+
+        for token in tokens {
+            let action = DeeplinkNavigationAction(
+                destination: .survey,
+                params: .init(surveyToken: token),
+                deeplinkString: ""
+            )
+            #expect(
+                validator.hasMinimumDataForHandling(deeplink: action),
+                "Expected token \(token) to be accepted"
+            )
+        }
     }
 }

@@ -46,9 +46,7 @@ struct DefaultIncomingLinkParser {
             order: keyedQueryItems[IncomingActionConstants.DeeplinkParams.order]?.lowercased(),
             interval: keyedQueryItems[IncomingActionConstants.DeeplinkParams.interval]?.lowercased(),
             earnType: keyedQueryItems[IncomingActionConstants.DeeplinkParams.earnType]?.lowercased(),
-            surveyToken: keyedQueryItems[IncomingActionConstants.DeeplinkParams.surveyToken],
-            displayId: keyedQueryItems[IncomingActionConstants.DeeplinkParams.displayId],
-            surveyKey: keyedQueryItems[IncomingActionConstants.DeeplinkParams.surveyKey]
+            surveyToken: keyedQueryItems[IncomingActionConstants.DeeplinkParams.surveyToken]
         )
     }
 

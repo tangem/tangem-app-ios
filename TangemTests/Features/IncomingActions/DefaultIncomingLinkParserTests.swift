@@ -323,9 +323,9 @@ struct DefaultIncomingLinkParserTests {
         #expect(result == nil, "Expected \(url) to be rejected due to missing networkId")
     }
 
-    @Test("Parses tangem://survey with required token and optional metadata")
+    @Test("Parses tangem://survey with required token")
     func parsesSurveyWithToken() {
-        let url = URL(string: "tangem://survey?token=ntt-abc123&display_id=77&survey_key=swap_nps")!
+        let url = URL(string: "tangem://survey?token=ntt-abc123")!
         let result = parser.parse(url)
 
         guard case .navigation(let action) = result else {
@@ -335,13 +335,11 @@ struct DefaultIncomingLinkParserTests {
 
         #expect(action.destination == .survey)
         #expect(action.params.surveyToken == "ntt-abc123")
-        #expect(action.params.displayId == "77")
-        #expect(action.params.surveyKey == "swap_nps")
     }
 
     @Test("Rejects tangem://survey with missing token")
     func rejectsSurveyWithoutToken() {
-        let url = URL(string: "tangem://survey?display_id=77&survey_key=swap_nps")!
+        let url = URL(string: "tangem://survey")!
         let result = parser.parse(url)
         #expect(result == nil)
     }

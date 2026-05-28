@@ -38,8 +38,6 @@ extension DeeplinkNavigationAction {
         var interval: String?
         var earnType: String?
         var surveyToken: String?
-        var displayId: String?
-        var surveyKey: String?
 
         static let empty = Params()
 
