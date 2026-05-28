@@ -307,10 +307,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceToken = SendWithSwapTokenFactory(
+        let sourceToken = CommonSendSwapableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel
-        ).makeWithSwapToken()
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .tokenDetails)

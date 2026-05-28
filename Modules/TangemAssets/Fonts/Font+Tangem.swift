@@ -47,6 +47,7 @@ public extension Font.Tangem.Caption12 {
 
 public extension Font.Tangem.Caption13 {
     static let regular: Font = .footnote.weight(.regular)
+    static let medium: Font = .footnote.weight(.medium)
     static let semibold: Font = .footnote.weight(.semibold)
 }
 
