@@ -32,7 +32,8 @@ class FakePromotionNotificationsManager: PromotionNotificationsManager {
                 deeplink: URL(string: "tangem://buy?currency=BTC"),
                 buttonEnabled: true,
                 buttonText: "Buy Now",
-                dismissable: true
+                dismissable: true,
+                tokens: nil
             ),
             .init(
                 id: 2,
@@ -44,7 +45,8 @@ class FakePromotionNotificationsManager: PromotionNotificationsManager {
                 deeplink: URL(string: "tangem://staking?currency=ETH"),
                 buttonEnabled: true,
                 buttonText: "Stake Now",
-                dismissable: true
+                dismissable: true,
+                tokens: []
             ),
         ]
 
