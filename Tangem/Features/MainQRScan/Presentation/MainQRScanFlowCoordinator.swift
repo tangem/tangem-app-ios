@@ -202,11 +202,12 @@ final class MainQRScanFlowCoordinator: CoordinatorObject {
         closeScanner()
         tokenSelectorViewModel = nil
 
-        let sourceTokenFactory = SendWithSwapTokenFactory(
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
             userWalletInfo: match.userWalletInfo,
-            walletModel: match.walletModel
+            walletModel: match.walletModel,
+            operationType: .swapAndSend
         )
-        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
         let resolvedParameters = sendParametersFactory.resolveSendParameters(
             parameters,
             sourceToken: sourceToken
