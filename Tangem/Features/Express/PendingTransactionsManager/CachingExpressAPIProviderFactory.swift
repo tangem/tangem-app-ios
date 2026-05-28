@@ -1,5 +1,5 @@
 //
-//  ExpressAPIProviderResolver.swift
+//  CachingExpressAPIProviderFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,16 @@ import Foundation
 import TangemExpress
 import TangemFoundation
 
-/// Resolves the correct `ExpressAPIProvider` for a given user wallet ID,
-/// caching providers to avoid re-creation on every polling cycle.
+/// `ExpressAPIProvider` factory that caches one instance per `(userWalletId, refcode)` pair, creating
+/// each lazily on first request to avoid re-building on every polling cycle.
 /// - Note: No mutable state, so this type is considered to be `Sendable` by definition.
-final class ExpressAPIProviderResolver: @unchecked Sendable {
-    private let providerFactory: (String, Refcode?) -> ExpressAPIProvider
+final class CachingExpressAPIProviderFactory: @unchecked Sendable {
+    typealias Factory = (_ userWalletId: String, _ refcode: Refcode?) -> ExpressAPIProvider
+
+    private let providerFactory: Factory
     private let cache = OSAllocatedUnfairLock<[CacheKey: ExpressAPIProvider]>(initialState: [:])
 
-    init(providerFactory: @escaping (String, Refcode?) -> ExpressAPIProvider) {
+    init(providerFactory: @escaping Factory) {
         self.providerFactory = providerFactory
     }
 
@@ -38,7 +40,7 @@ final class ExpressAPIProviderResolver: @unchecked Sendable {
 
 // MARK: - Auxiliary types
 
-private extension ExpressAPIProviderResolver {
+private extension CachingExpressAPIProviderFactory {
     struct CacheKey: Hashable {
         let userWalletId: String
         let refcode: Refcode?
