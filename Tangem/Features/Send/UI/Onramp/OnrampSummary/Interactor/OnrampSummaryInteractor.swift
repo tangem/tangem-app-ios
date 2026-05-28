@@ -185,10 +185,9 @@ extension CommonOnrampSummaryInteractor {
             }()
 
             let great = list.great() ?? list.best()
+            let fastest = list.fastest()
             let successfullyLoadedProviders = list.successfullyLoadedProviders()
             let nativeApplePay = successfullyLoadedProviders.nativeApplePay()
-            // When NAP is present it occupies the Fastest spot in the suggested offers
-            let fastest = nativeApplePay == nil ? list.fastest() : nil
 
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
                 nativeApplePay.map { .nativeApplePay($0) },

@@ -116,7 +116,10 @@ public extension ProvidersList {
     }
 
     func fastest() -> OnrampProvider? {
-        flatMap { $0.providers }.first(where: { $0.processingTimeType == .fastest })
+        let providers = flatMap { $0.providers }
+        // NAP occupies the Fastest spot in the suggested offers when present
+        guard providers.nativeApplePay() == nil else { return nil }
+        return providers.first(where: { $0.processingTimeType == .fastest })
     }
 }
 
