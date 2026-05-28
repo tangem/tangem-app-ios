@@ -23,8 +23,6 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        // Latest design review unified card background to Surface.level3 across all rank tiers;
-        // accent color now only paints the value/icons, not the card itself.
         MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
@@ -119,15 +117,6 @@ struct MetricsMarketPositionCard: View {
         case .silver: .Tangem.Market.textTop2
         case .bronze: .Tangem.Market.textTop3
         case .other: .Tangem.Text.Neutral.primary
-        }
-    }
-
-    private func rankCardBackground(for rankType: RankType) -> Color {
-        switch rankType {
-        case .gold: .Tangem.Market.backgroundTop1
-        case .silver: .Tangem.Market.backgroundTop2
-        case .bronze: .Tangem.Market.backgroundTop3
-        case .other: .Tangem.Surface.level3
         }
     }
 }
