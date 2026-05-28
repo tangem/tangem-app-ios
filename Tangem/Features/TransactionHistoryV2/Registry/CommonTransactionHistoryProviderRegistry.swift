@@ -11,7 +11,7 @@ import Combine
 import TangemExpress
 import TangemFoundation
 
-/// Registry for transaction history providers, single instance per user wallet model.
+/// DI registry and factory for transaction history providers, single instance per user wallet model.
 /// Transaction history providers are keyed by `TransactionHistoryProviderKey`.
 actor CommonTransactionHistoryProviderRegistry {
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
