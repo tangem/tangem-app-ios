@@ -14,6 +14,6 @@ public protocol TransactionHistoryRecordsStorage<Record>: Sendable {
     var records: [Record] { get async }
     var recordsUpdates: AsyncStream<[Record]> { get }
 
-    func updateOrAppend(_ records: [Record]) async
-    func clear() async
+    func updateOrAppend(_ records: [Record]) async throws
+    func clear() async throws
 }
