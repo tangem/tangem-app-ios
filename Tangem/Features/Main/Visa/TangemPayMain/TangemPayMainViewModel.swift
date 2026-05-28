@@ -495,7 +495,7 @@ private extension TangemPayMainViewModel {
             fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
             cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
             transactionValidator: TangemPayExpressTransactionValidator(
-                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
+                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider
             ),
             operationType: .swap
         ).makeSwapableToken()
