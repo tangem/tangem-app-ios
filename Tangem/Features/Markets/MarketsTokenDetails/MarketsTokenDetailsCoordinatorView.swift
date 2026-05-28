@@ -92,11 +92,10 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                backButton {
-                                    coordinator.tokenDetailsCoordinator = nil
-                                }
+                            NavigationToolbarButton.back(placement: .topBarLeading) {
+                                coordinator.tokenDetailsCoordinator = nil
                             }
+                            .redesigned()
                         }
                 }
             }
