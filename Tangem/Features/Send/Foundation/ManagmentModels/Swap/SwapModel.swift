@@ -300,6 +300,10 @@ extension SwapModel {
         updateTask?.cancel()
         updateTask = runTask(in: self) { @MainActor input in
             do {
+                if let restrictionProvidersState = try await input.hasSwapBalanceRestrictionProvidersState() {
+                    return input.update(providersState: restrictionProvidersState)
+                }
+
                 input.update(providersState: .loading(loadingType))
 
                 let result = try await block(input.expressManager)
@@ -327,17 +331,24 @@ extension SwapModel {
         _providersState.send(providersState)
     }
 
-    private func hasSwapBalanceRestriction() async throws -> RestrictionType? {
-        guard let sourceAmount = sourceAmount.value?.crypto, sourceAmount > 0 else {
-            return nil
-        }
-
+    private func hasSwapBalanceRestrictionProvidersState() async throws -> ProvidersState? {
         guard let sourceToken = sourceToken.value else {
             return nil
         }
 
-        let hasRestriction = try await balanceRestrictionFeatureChecker.hasSwapTotalBalanceRestriction(for: sourceToken)
-        return hasRestriction ? .notEnoughBalanceForSwapping : nil
+        let hasRestriction = try await balanceRestrictionFeatureChecker
+            .hasSwapTotalBalanceRestriction(for: sourceToken)
+
+        guard hasRestriction else {
+            return nil
+        }
+
+        guard let sourceAmount = sourceAmount.value?.crypto, sourceAmount > 0 else {
+            return .idle
+        }
+
+        // For this kind of restriction we don't show any sign of providers.
+        return .loaded(providers: [], selected: .none, state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
     }
 
     private func logErrorIfNeeded(providersState: ProvidersState) {
@@ -401,11 +412,6 @@ extension SwapModel {
             return .idle
 
         case .some(let updatingResult):
-            if let restriction = try await hasSwapBalanceRestriction() {
-                // For this kind of restriction we don't show selected provider.
-                return .loaded(providers: updatingResult.providers, selected: .none, state: .restriction(restriction, quote: .none))
-            }
-
             let state = try await mapToLoadedState(updatingResult: updatingResult)
             try Task.checkCancellation()
 
