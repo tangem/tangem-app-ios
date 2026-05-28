@@ -22,7 +22,7 @@ struct ExpressPendingTransactionsFactory {
             tokenEnricher: tokenEnricher
         )
 
-        let expressAPIProviderResolver = ExpressAPIProviderResolver(
+        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory(
             providerFactory: makeExpressAPIProvider(userWalletId:refcode:)
         )
 
@@ -30,14 +30,14 @@ struct ExpressPendingTransactionsFactory {
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
             walletModelUpdater: walletModelUpdater,
-            expressAPIProviderResolver: expressAPIProviderResolver,
+            cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+            expressAPIProvider: cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         )
 
         return CompoundPendingTransactionsManager(

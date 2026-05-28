@@ -14,7 +14,7 @@ actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private lazy var expressAPIProviderResolver = ExpressAPIProviderResolver(
+    private lazy var cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory(
         providerFactory: { userWalletId, refcode in
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         }
@@ -39,7 +39,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     ) async throws {
         guard !currencies.isEmpty else { return }
 
-        let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+        let provider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         let pairsTo = try await provider.pairs(from: [wallet], to: currencies.toSet())
         pairs.formUnion(pairsTo.toSet())
     }
@@ -49,7 +49,7 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
 
         guard !currencies.isEmpty else { return }
 
-        let provider = expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+        let provider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         async let pairsTo = provider.pairs(from: [wallet], to: currencies)
         async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
 
