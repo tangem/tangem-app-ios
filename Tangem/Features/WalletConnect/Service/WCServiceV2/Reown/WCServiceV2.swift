@@ -24,7 +24,6 @@ final class WCServiceV2 {
     private var bag = Set<AnyCancellable>()
     private var walletModelsCancellables = [UserWalletId: AnyCancellable]()
     private var walletModelsSnapshots = [String: Set<Blockchain>]()
-    private var accountsMigrationTask: Task<Void, Never>?
 
     private let walletKitClient: ReownWalletKit.WalletKitClient
     private let wcHandlersService: WCHandlersService
@@ -34,12 +33,6 @@ final class WCServiceV2 {
     private var lastConnectedDAppsSnapshot: [WalletConnectConnectedDApp] = []
     private var balancesCancellables: [String: AnyCancellable] = [:]
     private var balancesWalletModelIds: [String: WalletModelId] = [:]
-
-    private lazy var savedSessionToAccountsMigrationService = WalletConnectAccountMigrationService(
-        userWalletRepository: userWalletRepository,
-        connectedDAppRepository: connectedDAppRepository,
-        appSettings: AppSettings.shared
-    )
 
     var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
         transactionRequestSubject.eraseToAnyPublisher()
@@ -105,19 +98,17 @@ private extension WCServiceV2 {
         for target in targets {
             guard
                 let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == target.walletId }),
-                !userWalletModel.isUserWalletLocked,
-                let accountId = target.accountId
+                !userWalletModel.isUserWalletLocked
             else {
                 balancesCancellables[target.key]?.cancel()
                 balancesCancellables[target.key] = nil
                 balancesWalletModelIds[target.key] = nil
-                assert(target.accountId != nil, "Balance subscription target has nil accountId. This should not happen for v2 sessions. Target: \(target)")
                 continue
             }
 
             let walletModel = userWalletModel.wcAccountsWalletModelProvider.getModel(
                 with: target.blockchain.networkId,
-                accountId: accountId
+                accountId: target.accountId
             )
 
             guard let walletModel else {
@@ -386,13 +377,9 @@ private extension WCServiceV2 {
         requestedAddress: String,
         request: Request
     ) -> Bool {
-        guard case .v2(let dAppV2) = dApp else {
-            return false
-        }
-
-        return accountCanHandleAddress(
-            accountId: dAppV2.accountId,
-            userWalletId: dAppV2.wrapped.userWalletID,
+        accountCanHandleAddress(
+            accountId: dApp.accountId,
+            userWalletId: dApp.userWalletID,
             requestedAddress: requestedAddress,
             request: request
         )
@@ -411,13 +398,9 @@ private extension WCServiceV2 {
             return dApp
         }
 
-        guard case .v2(let dAppV2) = dApp else {
-            return dApp
-        }
-
         if accountCanHandleAddress(
-            accountId: dAppV2.accountId,
-            userWalletId: dAppV2.wrapped.userWalletID,
+            accountId: dApp.accountId,
+            userWalletId: dApp.userWalletID,
             requestedAddress: requestedAddress,
             request: request
         ) {
@@ -427,15 +410,15 @@ private extension WCServiceV2 {
         guard
             let resolvedAccountId = resolveAccountIdForAddress(
                 requestedAddress: requestedAddress,
-                userWalletId: dAppV2.wrapped.userWalletID,
+                userWalletId: dApp.userWalletID,
                 request: request
             ),
-            resolvedAccountId != dAppV2.accountId
+            resolvedAccountId != dApp.accountId
         else {
             return dApp
         }
 
-        return .v2(WalletConnectConnectedDAppV2(accountId: resolvedAccountId, wrapped: dAppV2.wrapped))
+        return dApp.with(accountId: resolvedAccountId)
     }
 
     private func accountCanHandleAddress(
@@ -518,11 +501,7 @@ private extension WCServiceV2 {
 
     private func normalizeAddress(_ address: String) -> String {
         let trimmedAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
-        let isEvmAddress = trimmedAddress.hasHexPrefix()
-            && trimmedAddress.count == 42
-            && trimmedAddress.dropFirst(2).allSatisfy(\.isHexDigit)
-
-        return isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
+        return trimmedAddress.isEvmAddress ? trimmedAddress.lowercased() : trimmedAddress
     }
 
     private func reject(transactionRequest: Request) async {
@@ -548,22 +527,18 @@ private extension WCServiceV2 {
         walletModelsCancellables[userWalletId] = AccountWalletModelsAggregator
             .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .map { walletModels in
-                WalletModelsUpdate(
-                    blockchains: walletModels.compactMap { walletModel -> Blockchain? in
-                        guard walletModel.tokenItem.isBlockchain else {
-                            return nil
-                        }
+                walletModels.compactMap { walletModel -> Blockchain? in
+                    guard walletModel.tokenItem.isBlockchain else {
+                        return nil
+                    }
 
-                        return walletModel.tokenItem.blockchain
-                    },
-                    hasWalletModels: walletModels.isNotEmpty
-                )
+                    return walletModel.tokenItem.blockchain
+                }
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { wcService, update in
-                wcService.handleWalletModelsUpdate(blockchains: update.blockchains, for: userWalletId.stringValue)
-                wcService.maybeTriggerAccountsMigration(hasWalletModels: update.hasWalletModels)
+            .sink { wcService, blockchains in
+                wcService.handleWalletModelsUpdate(blockchains: blockchains, for: userWalletId.stringValue)
             }
     }
 
@@ -590,62 +565,6 @@ private extension WCServiceV2 {
         removedBlockchains.forEach {
             handleHiddenBlockchainFromCurrentUserWallet($0)
         }
-    }
-
-    func maybeTriggerAccountsMigration(hasWalletModels: Bool) {
-        guard hasWalletModels else {
-            return
-        }
-
-        guard accountsMigrationTask == nil else {
-            return
-        }
-
-        accountsMigrationTask = Task { [weak self] in
-            guard let self else {
-                return
-            }
-
-            defer {
-                self.accountsMigrationTask = nil
-            }
-
-            do {
-                _ = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts()
-            } catch {
-                WCLogger.error("WalletConnect account migration failed", error: error)
-                await forceDisconnectAllSessionsAfterMigrationFailure()
-            }
-        }
-    }
-
-    private func forceDisconnectAllSessionsAfterMigrationFailure() async {
-        guard let dApps = try? await connectedDAppRepository.getAllDApps(), dApps.isNotEmpty else {
-            return
-        }
-
-        do {
-            try await connectedDAppRepository.delete(dApps: dApps)
-        } catch {
-            WCLogger.error("Failed to remove WalletConnect sessions after migration failure", error: error)
-        }
-
-        await withTaskGroup(of: Void.self) { taskGroup in
-            for dApp in dApps {
-                taskGroup.addTask {
-                    do {
-                        try await self.walletKitClient.disconnect(topic: dApp.session.topic)
-                    } catch {
-                        WCLogger.error(LoggerStrings.failedToDisconnectSession(dApp.session.topic), error: error)
-                    }
-                }
-            }
-        }
-    }
-
-    private struct WalletModelsUpdate {
-        let blockchains: [Blockchain]
-        let hasWalletModels: Bool
     }
 }
 
@@ -864,14 +783,11 @@ extension WCServiceV2 {
     /// Identifies a single balance subscription entry.
     struct BalanceSubscriptionTarget {
         let walletId: String
-        let accountId: String?
+        let accountId: String
         let blockchain: Blockchain
 
         var key: String {
-            if let accountId {
-                return "\(walletId):\(accountId):\(blockchain.networkId)"
-            }
-            return "\(walletId):\(blockchain.networkId)"
+            "\(walletId):\(accountId):\(blockchain.networkId)"
         }
     }
 }

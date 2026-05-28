@@ -63,7 +63,10 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     var promoBonusText: String? {
         switch promoStatus {
-        case .active: daysLeftToUnlockBonus().map { Localization.commonDaysNoParam($0) + " " + Localization.yieldPromoLeftTitle }
+        case .active:
+            daysLeftToUnlockBonus().map { days in
+                "\(days) \(Localization.commonDaysNoParam(days)) \(Localization.yieldPromoLeftTitle)"
+            }
 
         case .completed:
             Localization.yieldPromoCompleted
