@@ -28,8 +28,15 @@ enum TangemPayCachedLocalState: Codable {
     case kycDeclined
     case issuingCard
     case failedToIssueCard
-    case tangemPayAccount(cardNumberEnd: String?)
-    case cardDeactivated(cardNumberEnd: String?)
+    case tangemPayAccount(CardsSummary)
+    case cardDeactivated(CardsSummary)
+}
+
+extension TangemPayCachedLocalState {
+    enum CardsSummary: Codable {
+        case single(cardNumberEnd: String)
+        case multiple(count: Int)
+    }
 }
 
 extension TangemPayLocalState {
@@ -56,8 +63,8 @@ extension TangemPayLocalState {
 
     var tangemPayAccount: TangemPayAccount? {
         switch self {
-        case .tangemPayAccount(let tangemPayAccount), .cardDeactivated(let tangemPayAccount):
-            return tangemPayAccount
+        case .tangemPayAccount(let account), .cardDeactivated(let account):
+            return account
         default:
             return nil
         }
@@ -74,11 +81,23 @@ extension TangemPayLocalState {
         case .failedToIssueCard:
             .failedToIssueCard
         case .tangemPayAccount(let account):
-            .tangemPayAccount(cardNumberEnd: account.card?.cardNumberEnd)
+            account.cardsSummary.map(TangemPayCachedLocalState.tangemPayAccount)
         case .cardDeactivated(let account):
-            .cardDeactivated(cardNumberEnd: account.card?.cardNumberEnd)
+            account.cardsSummary.map(TangemPayCachedLocalState.cardDeactivated)
         case .loading, .syncNeeded, .syncInProgress, .unavailable:
             nil
         }
+    }
+}
+
+private extension TangemPayAccount {
+    var cardsSummary: TangemPayCachedLocalState.CardsSummary? {
+        if cards.count > 1 {
+            return .multiple(count: cards.count)
+        }
+        if let cardNumberEnd = card?.cardNumberEnd {
+            return .single(cardNumberEnd: cardNumberEnd)
+        }
+        return nil
     }
 }
