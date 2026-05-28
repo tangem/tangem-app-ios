@@ -8,10 +8,12 @@
 
 import Foundation
 import Combine
+import CombineExt
 import SwiftUI
 import BlockchainSdk
 import TangemFoundation
 import TangemAccounts
+import TangemUI
 
 /// Copy-pasted and adapted for accounts `MarketsPortfolioContainerViewModel`
 final class MarketsPortfolioContainerViewModel: ObservableObject {
@@ -22,8 +24,14 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     @Published private(set) var typeView: TypeView = .loading
     @Published private(set) var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
     @Published private(set) var tokenWithExpandedQuickActions: MarketsPortfolioTokenItemViewModel?
+    @Published private(set) var portfolioBlockState: PortfolioBlockState = .loading
 
     private var bag = Set<AnyCancellable>()
+    private var balanceCancellables = Set<AnyCancellable>()
+    private var portfolioBlockStateCancellable: AnyCancellable?
+    private var matchedWalletModels: [any WalletModel] = []
+    private var hasMultiCurrencyWallet: Bool = false
+    @Published private var totalFiatBalanceText: String?
 
     // MARK: - Private Properties
 
@@ -65,6 +73,36 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
     func onAddTapAction() {
         addTokenTapAction?()
+    }
+
+    func onAddFundsTap() {
+        guard
+            let walletModel = matchedWalletModels.first,
+            let userWalletModel = walletDataProvider.userWalletModels[walletModel.userWalletId]
+        else {
+            return
+        }
+
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        Analytics.log(event: .marketsChartButtonBuy, params: makeAnalyticsParams(for: walletModel))
+        coordinator?.openOnramp(input: sendInput, parameters: .none)
+    }
+
+    @MainActor
+    func onExpandTap() {
+        let iconURL = IconURLBuilder().tokenIconURL(id: coinId, size: .large)
+        let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
+            coinId: coinId,
+            coinName: coinName,
+            coinSymbol: coinSymbol,
+            networks: networks ?? []
+        )
+        coordinator?.openMatchedTokenList(
+            walletModels: matchedWalletModels,
+            iconURL: iconURL,
+            addTokenInputData: inputData,
+            walletDataProvider: walletDataProvider
+        )
     }
 
     func update(networks: [NetworkModel]) {
@@ -125,6 +163,75 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             .sink(receiveValue:
                 weakify(self, forFunction: MarketsPortfolioContainerViewModel.bindToUserWalletUpdates(userWalletModels:))
             )
+
+        bindPortfolioBlockState()
+    }
+
+    private func bindPortfolioBlockState() {
+        portfolioBlockStateCancellable = Publishers.CombineLatest3($typeView, $tokenItemViewModels, $totalFiatBalanceText)
+            .map { [weak self] typeView, tokenItems, balanceText -> PortfolioBlockState in
+                guard let self else { return .hidden }
+                return resolvePortfolioBlockState(typeView: typeView, tokenItems: tokenItems, balanceText: balanceText)
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.portfolioBlockState, on: self, ownership: .weak)
+    }
+
+    private func resolvePortfolioBlockState(
+        typeView: TypeView,
+        tokenItems: [MarketsPortfolioTokenItemViewModel],
+        balanceText: String?
+    ) -> PortfolioBlockState {
+        switch typeView {
+        case .loading:
+            return .loading
+
+        case .unsupported, .unavailable:
+            return .hidden
+
+        case .empty:
+            guard hasMultiCurrencyWallet, !isAddTokenButtonDisabled else { return .hidden }
+            return .addToken
+
+        case .list:
+            return .content(.init(
+                balanceText: balanceText,
+                tokensInPortfolioCount: tokenItems.count
+            ))
+        }
+    }
+
+    private func rebindMatchedBalances(matchedWalletModelIds: Set<WalletModelId>, allWalletModels: [any WalletModel]) {
+        balanceCancellables.removeAll()
+
+        let matched = allWalletModels.filter { matchedWalletModelIds.contains($0.id) }
+        matchedWalletModels = matched
+
+        guard !matched.isEmpty else {
+            totalFiatBalanceText = nil
+            return
+        }
+
+        totalFiatBalanceText = formatTotal(from: matched.map(\.fiatTotalTokenBalanceProvider.balanceType))
+
+        let publishers = matched.map { $0.fiatTotalTokenBalanceProvider.balanceTypePublisher }
+        publishers
+            .combineLatest()
+            .map { [weak self] balanceTypes -> String? in
+                self?.formatTotal(from: balanceTypes)
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.totalFiatBalanceText, on: self, ownership: .weak)
+            .store(in: &balanceCancellables)
+    }
+
+    private func formatTotal(from balanceTypes: [TokenBalanceType]) -> String {
+        let total = balanceTypes.reduce(Decimal.zero) { partial, balanceType in
+            partial + (balanceType.value ?? .zero)
+        }
+        return BalanceFormatter().formatFiatBalance(total)
     }
 
     private func bindToUserWalletUpdates(userWalletModels: [UserWalletModel]) {
@@ -184,19 +291,22 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             walletData.accountModels.cryptoAccounts().hasMultipleAccounts
         }
 
+        hasMultiCurrencyWallet = walletsData.contains { $0.config.hasFeature(.multiCurrency) }
+        let allWalletModels = walletsData.flatMap(\.walletModels)
+
         let shouldAnimate = networks != nil
 
         if hasMultipleAccounts {
-            buildUI(walletsData: walletsData, factory: factory, animated: shouldAnimate)
+            buildUI(walletsData: walletsData, factory: factory, allWalletModels: allWalletModels, animated: shouldAnimate)
         } else {
-            buildSimpleWalletsUI(walletsData: walletsData, factory: factory, animated: shouldAnimate)
+            buildSimpleWalletsUI(walletsData: walletsData, factory: factory, allWalletModels: allWalletModels, animated: shouldAnimate)
         }
 
         updateExpandedAction()
     }
 
     /// Builds accounts-aware UI from wallet data
-    private func buildUI(walletsData: [WalletData], factory: MarketsPortfolioTokenItemFactory, animated: Bool) {
+    private func buildUI(walletsData: [WalletData], factory: MarketsPortfolioTokenItemFactory, allWalletModels: [any WalletModel], animated: Bool) {
         var allUserWalletsWithAccountsData: [TypeView.UserWalletWithAccountsData] = []
         var allTokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
 
@@ -238,6 +348,10 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             }
         }
 
+        rebindMatchedBalances(
+            matchedWalletModelIds: Set(allTokenItemViewModels.map(\.walletModelId)),
+            allWalletModels: allWalletModels
+        )
         tokenItemViewModels = allTokenItemViewModels
         updateTypeView(
             hasTokens: allTokenItemViewModels.isNotEmpty,
@@ -247,7 +361,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     /// Builds simple wallets UI from wallet data
-    private func buildSimpleWalletsUI(walletsData: [WalletData], factory: MarketsPortfolioTokenItemFactory, animated: Bool) {
+    private func buildSimpleWalletsUI(walletsData: [WalletData], factory: MarketsPortfolioTokenItemFactory, allWalletModels: [any WalletModel], animated: Bool) {
         var allUserWalletsWithTokensData: [TypeView.UserWalletWithTokensData] = []
         var allTokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
 
@@ -272,6 +386,10 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             }
         }
 
+        rebindMatchedBalances(
+            matchedWalletModelIds: Set(allTokenItemViewModels.map(\.walletModelId)),
+            allWalletModels: allWalletModels
+        )
         tokenItemViewModels = allTokenItemViewModels
         updateTypeView(
             hasTokens: allTokenItemViewModels.isNotEmpty,
@@ -464,5 +582,24 @@ extension MarketsPortfolioContainerViewModel {
         let flattenedTokenItems: [TokenItem]
         let walletModels: [any WalletModel]
         let config: UserWalletConfig
+    }
+
+    enum PortfolioBlockState: Equatable {
+        case hidden
+        case loading
+        case addToken
+        case content(ContentData)
+
+        struct ContentData: Equatable {
+            let balanceText: String?
+            let tokensInPortfolioCount: Int
+        }
+
+        var isVisible: Bool {
+            switch self {
+            case .hidden, .loading: false
+            case .addToken, .content: true
+            }
+        }
     }
 }

@@ -1546,7 +1546,8 @@ extension SwapModel: NotificationTapDelegate {
              .openManageTokensAfterWalletSuccessImport,
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
-             .openYieldBoostPromo:
+             .openYieldBoostPromo,
+             .addFunds:
             assertionFailure("Notification tap not handled")
         }
     }

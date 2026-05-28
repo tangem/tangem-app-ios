@@ -16,12 +16,14 @@ typealias TangemPayTransactionRecord = TangemPayTransactionHistoryResponse.Trans
 
 final class TangemPayTransactionHistoryService {
     private let apiService: CustomerInfoManagementService
+    private let tangemPayAccount: TangemPayAccount
     private let cacheStorage: TangemPayTransactionHistoryCacheStorage?
     private let customerWalletId: String?
     private let mapper = TangemPayTransactionHistoryMapper()
 
     private let stateSubject = CurrentValueSubject<TransactionsListView.State, Never>(.loading)
     private let taskProcessor = SingleTaskProcessor<Void, Never>()
+    private var bag = Set<AnyCancellable>()
 
     @MainActor
     private(set) var reachedEndOfHistoryList: Bool = false
@@ -31,10 +33,12 @@ final class TangemPayTransactionHistoryService {
 
     init(
         apiService: CustomerInfoManagementService,
+        tangemPayAccount: TangemPayAccount,
         cacheStorage: TangemPayTransactionHistoryCacheStorage? = nil,
         customerWalletId: String? = nil
     ) {
         self.apiService = apiService
+        self.tangemPayAccount = tangemPayAccount
         self.cacheStorage = cacheStorage
         self.customerWalletId = customerWalletId
 
@@ -42,9 +46,35 @@ final class TangemPayTransactionHistoryService {
             Task { @MainActor [weak self] in
                 guard let self, records.isEmpty else { return }
                 records = cached
-                stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                stateSubject.send(.loaded(mapper.formatTransactions(records, cardNameByCardId: currentCardNameMap())))
             }
         }
+
+        bindCardNameUpdates()
+    }
+
+    private func bindCardNameUpdates() {
+        tangemPayAccount.cardsPublisher
+            .map { cards in
+                Publishers.MergeMany(cards.map { card in
+                    card.displayNamePublisher.map { _ in () }.eraseToAnyPublisher()
+                })
+            }
+            .switchToLatest()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { service, _ in
+                Task { @MainActor in
+                    service.reformatCurrentRecordsIfPossible()
+                }
+            }
+            .store(in: &bag)
+    }
+
+    @MainActor
+    private func reformatCurrentRecordsIfPossible() {
+        guard !records.isEmpty else { return }
+        stateSubject.send(.loaded(mapper.formatTransactions(records, cardNameByCardId: currentCardNameMap())))
     }
 
     private func loadCachedRecords() -> [TangemPayTransactionRecord]? {
@@ -56,6 +86,12 @@ final class TangemPayTransactionHistoryService {
     private func storeCacheIfPossible() {
         guard let cacheStorage, let customerWalletId, !records.isEmpty else { return }
         cacheStorage.saveCachedTransactions(records, customerWalletId: customerWalletId)
+    }
+
+    private func currentCardNameMap() -> [String: String] {
+        let cards = tangemPayAccount.cards
+        guard cards.count > 1 else { return [:] }
+        return Dictionary(cards.map { ($0.cardId, $0.displayName) }, uniquingKeysWith: { first, _ in first })
     }
 }
 
@@ -94,7 +130,7 @@ extension TangemPayTransactionHistoryService {
                         records.append(contentsOf: newRecords)
                         reachedEndOfHistoryList = newRecords.count != Constants.numberOfItemsOnPage
 
-                        stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                        stateSubject.send(.loaded(mapper.formatTransactions(records, cardNameByCardId: currentCardNameMap())))
                         storeCacheIfPossible()
                     } catch {
                         if records.isEmpty {
@@ -127,7 +163,7 @@ extension TangemPayTransactionHistoryService {
                     reachedEndOfHistoryList = newRecords.count != Constants.numberOfItemsOnPage
                 }
 
-                stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                stateSubject.send(.loaded(mapper.formatTransactions(records, cardNameByCardId: currentCardNameMap())))
                 storeCacheIfPossible()
             } catch {
                 if records.isEmpty {
