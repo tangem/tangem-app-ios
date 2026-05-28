@@ -11,6 +11,8 @@ import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
+    private let repository: TransactionHistoryRepository
+
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
     private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
 
@@ -19,6 +21,10 @@ final actor TransactionHistoryProvider {
 
     private var hasCompletedInitialSync: Bool = false
     private var lastSuccessfulPullToRefreshAt: Date?
+
+    init(repository: TransactionHistoryRepository) {
+        self.repository = repository
+    }
 
     private func emit(_ newState: TransactionHistorySyncState) {
         stateValue = newState
