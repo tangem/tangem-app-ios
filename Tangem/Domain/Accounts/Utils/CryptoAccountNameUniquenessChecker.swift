@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemFoundation
 
 struct CryptoAccountNameUniquenessChecker {
     private let remoteState: CryptoAccountsRemoteState
