@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "yieldFilledMonochrome.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
