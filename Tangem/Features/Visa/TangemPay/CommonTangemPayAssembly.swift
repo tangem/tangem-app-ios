@@ -21,12 +21,14 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
         CommonTangemPayCardDetailsRepository(card: card)
     }
 
-    func makeExpressCEXTransactionDispatcher(
+    func makeTransactionDispatcher(
         withdrawTransactionService: TangemPayWithdrawTransactionService,
+        hasNFCInteraction: Bool,
         walletPublicKey: Wallet.PublicKey?
     ) -> TransactionDispatcher {
-        TangemPayExpressCEXTransactionDispatcher(
+        TangemPayTransactionDispatcher(
             withdrawTransactionService: withdrawTransactionService,
+            hasNFCInteraction: hasNFCInteraction,
             walletPublicKey: walletPublicKey
         )
     }
