@@ -34,7 +34,6 @@ final class SwapModel {
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
-    private let _currentRateType = CurrentValueSubject<ExpressProviderRateType?, Never>(nil)
 
     // MARK: - Dependencies
 
@@ -136,9 +135,8 @@ private extension SwapModel {
                 guard let publisher = self?._providersState else { return .float }
                 let states = await publisher.dropFirst().values
                 for await state in states {
-                    if case .loaded(_, .some(let provider), _) = state {
-                        let hasFixed = provider.supportedRateTypes.contains(.fixed)
-                        return hasFixed ? .fixed : .float
+                    if case .loaded(let providers, _, _) = state, !providers.supportedRateTypes.isEmpty {
+                        return providers.supportedRateTypes.contains(.fixed) ? .fixed : .float
                     }
                 }
                 return .float
@@ -227,7 +225,7 @@ extension SwapModel {
     }
 }
 
-// MARK: - Private
+// MARK: - Updating
 
 private extension SwapModel {
     func swappingPairDidChange() {
@@ -281,7 +279,7 @@ private extension SwapModel {
 
     func updateTask(
         loadingType: LoadingType,
-        block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult
+        block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
         updateTask?.cancel()
         updateTask = runTask(in: self) { @MainActor input in
@@ -292,18 +290,17 @@ private extension SwapModel {
 
                 input.update(providersState: .loading(loadingType))
 
-                let updatingResult = try await block(input.expressManager)
+                let result = try await block(input.expressManager)
                 try Task.checkCancellation()
 
-                let providersState = try await input.mapToLoadedProvidersState(updatingResult: updatingResult)
+                let providersState = try await input.mapToLoadedProvidersState(result: result)
                 try Task.checkCancellation()
 
-                await input.updateComplementaryAmount(state: providersState)
                 input.update(providersState: providersState)
-                await input.updateRateType()
+                input.updateComplementaryAmount(state: providersState)
 
             } catch is CancellationError {
-                ExpressLogger.info(input, "updateTask was cancelled")
+                ExpressLogger.info(input, "UpdateTask was cancelled")
                 // Do nothing
             } catch {
                 input.update(providersState: .failure(error))
@@ -311,14 +308,14 @@ private extension SwapModel {
         }
     }
 
-    private func update(providersState: ProvidersState) {
+    func update(providersState: ProvidersState) {
         ExpressLogger.info(self, "ProvidersState will update to: \(providersState)")
 
         logErrorIfNeeded(providersState: providersState)
         _providersState.send(providersState)
     }
 
-    private func hasSwapBalanceRestrictionProvidersState() async throws -> ProvidersState? {
+    func hasSwapBalanceRestrictionProvidersState() async throws -> ProvidersState? {
         guard let sourceToken = sourceToken.value else {
             return nil
         }
@@ -335,10 +332,13 @@ private extension SwapModel {
         }
 
         // For this kind of restriction we don't show any sign of providers.
-        return .loaded(providers: [], selected: .none, state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+        return .loaded(
+            .swap(rate: .float, selected: .none, providers: .empty),
+            state: .restriction(.notEnoughBalanceForSwapping, quote: .none)
+        )
     }
 
-    private func logErrorIfNeeded(providersState: ProvidersState) {
+    func logErrorIfNeeded(providersState: ProvidersState) {
         // The screen name is derived from the in-flight LoadingType, which only lives on the
         // outgoing `.loading` state. If we're not transitioning from `.loading`, there's nothing to log.
         guard case .loading(let loadingType) = _providersState.value else {
@@ -373,12 +373,7 @@ private extension SwapModel {
         }
     }
 
-    private func updateRateType() async {
-        let newRateType = await expressManager.getRateType()
-        _currentRateType.send(newRateType)
-    }
-
-    private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
+    func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
         switch update {
         case .setReceiveAmount(let crypto, let currencyId):
             _receiveAmount.send(makeSendAmount(crypto: crypto, currencyId: currencyId))
@@ -393,22 +388,25 @@ private extension SwapModel {
 // MARK: - Map
 
 extension SwapModel {
-    func mapToLoadedProvidersState(updatingResult: ExpressManagerUpdatingResult) async throws -> ProvidersState {
-        let state = try await mapToLoadedState(updatingResult: updatingResult)
-        try Task.checkCancellation()
+    func mapToLoadedProvidersState(result: ExpressManagerState) async throws -> ProvidersState {
+        switch result {
+        case .idle:
+            return .idle
 
-        return .loaded(
-            providers: updatingResult.providers,
-            selected: updatingResult.selected,
-            state: state
-        )
+        case .transfer:
+            let loadedState = try await mapToReadyToTransferState()
+            return .loaded(result, state: loadedState)
+
+        case .swap(let rate, .some(let selected), let providers):
+            let state = try await mapToLoadedState(selected: selected)
+            return .loaded(result, state: state)
+
+        case .swap(_, .none, _):
+            return .loaded(result, state: .idle)
+        }
     }
 
-    func mapToLoadedState(updatingResult: ExpressManagerUpdatingResult) async throws -> LoadedState {
-        guard let selected = updatingResult.selected else {
-            return .idle
-        }
-
+    func mapToLoadedState(selected: ExpressAvailableProvider) async throws -> LoadedState {
         switch selected.getState() {
         case .idle:
             return .idle
@@ -635,22 +633,22 @@ extension SwapModel {
         }
     }
 
-    func updateComplementaryAmount(state: ProvidersState) async {
-        guard case .loaded(_, _, let loadedState) = state,
-              let quote = loadedState.quote else { return }
+    func updateComplementaryAmount(state: ProvidersState) {
+        switch state {
+        case .loaded(.swap(.fixed, _, _), let loadedState):
+            guard let quote = loadedState.quote else { return }
+            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
 
-        let amountType = await expressManager.getAmountType()
-        switch amountType {
-        case .from:
-            _receiveAmount.send(
-                makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId)
-            )
-        case .to:
-            _sourceAmount.send(
-                makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId)
-            )
-        case .none:
-            break
+        case .loaded(.swap(.float, _, _), let loadedState):
+            guard let quote = loadedState.quote else { return }
+            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
+
+        case .loaded(.transfer, let loadedState):
+            guard let quote = loadedState.quote else { return }
+            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
+
+        default:
+            return
         }
     }
 
@@ -774,7 +772,7 @@ extension SwapModel {
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
-    func initialLoading() async {
+    private func initialLoading() async {
         do {
             switch (_sourceToken.value, _receiveToken.value) {
             case (.success(let source), .success):
@@ -1025,6 +1023,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
         _providersState
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.mapToHighPriceImpactCalculatorResult(providersState: $1) }
             .eraseToAnyPublisher()
@@ -1081,12 +1080,32 @@ extension SwapModel: SendSwapProvidersInput {
             .eraseToAnyPublisher()
     }
 
+    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
+        _providersState
+            // Do not clear data in `Publisher` when `.loading`
+            .filter { !$0.isLoading }
+            .map(\.supportedRateTypes)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var currentRateType: ExpressProviderRateType? {
-        _currentRateType.value
+        selectedRateType(from: _providersState.value)
     }
 
     var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
-        _currentRateType.removeDuplicates().eraseToAnyPublisher()
+        _providersState
+            .withWeakCaptureOf(self)
+            .map { $0.selectedRateType(from: $1) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private func selectedRateType(from state: ProvidersState) -> ExpressProviderRateType? {
+        if case .loaded(_, .some(let selected), _) = state {
+            return selected.rateType
+        }
+        return nil
     }
 
     private func mapToLoadingExpressAvailableProvider(providersState: ProvidersState) -> LoadingResult<ExpressAvailableProvider, any Error>? {
@@ -1590,7 +1609,7 @@ extension SwapModel.ProvidersState: CustomStringConvertible {
         case .failure(let error):
             "failure(\(error.localizedDescription))"
         case .loaded(let providers, let selected, let state):
-            "loaded(providers: \(providers.count), selected: \(String(describing: selected)), state: \(state))"
+            "loaded(providers: \(providers.available.count), selected: \(String(describing: selected)), state: \(state), supportedRateTypes: \(providers.supportedRateTypes))"
         }
     }
 }
@@ -1619,11 +1638,25 @@ extension SwapModel {
         case loading(LoadingType)
         /// Error only for case when all providers didn't loaded
         case failure(Error)
-        case loaded(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?, state: LoadedState)
+        case loaded(providers: Providers, selected: ExpressAvailableProvider?, state: LoadedState)
+
+        struct Providers {
+            let available: [ExpressAvailableProvider]
+            let supportedRateTypes: Set<ExpressProviderRateType>
+
+            var isEmpty: Bool { available.isEmpty }
+        }
 
         var providers: [ExpressAvailableProvider] {
             switch self {
-            case .loaded(let providers, _, _): providers
+            case .loaded(let providers, _, _): providers.available
+            default: []
+            }
+        }
+
+        var supportedRateTypes: Set<ExpressProviderRateType> {
+            switch self {
+            case .loaded(let providers, _, _): providers.supportedRateTypes
             default: []
             }
         }

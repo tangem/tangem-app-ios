@@ -105,7 +105,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .receiveOnMain()
             .sink { $0.updateSourceExpressCurrencyState(providersState: $1) }
 
-        isInputDisabledCancellable = Publishers.CombineLatest3(
+        Publishers.CombineLatest3(
             interactor.sourceTokenPublisher,
             interactor.receivedTokenPublisher,
             stateProvider.statePublisher
@@ -211,14 +211,14 @@ private extension SwapAmountViewModel {
         sourceToken: LoadingResult<SendSourceToken, Error>,
         receiveToken: LoadingResult<SendReceiveToken, Error>,
         providersState: SwapModel.ProvidersState
-    ) {
+    ) -> Bool {
         switch (sourceToken, receiveToken, providersState) {
-        case (.success, .success, .loaded(let providers, _, .idle)):
-            isInputDisabled = providers.isEmpty
+        case (.success, .success, .loaded(.swap(_, _, let providers), .idle)):
+            return providers.all.isEmpty
         case (_, .failure, _), (.failure, _, _):
-            isInputDisabled = true
+            return true
         default:
-            isInputDisabled = false
+            return false
         }
     }
 
