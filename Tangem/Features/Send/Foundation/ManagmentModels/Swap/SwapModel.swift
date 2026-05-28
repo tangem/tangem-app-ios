@@ -1522,7 +1522,7 @@ extension SwapModel: NotificationTapDelegate {
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         case .refresh:
-            swappingPairDidChange(isFullRefresh: false)
+            swappingPairDidChange()
         case .givePermission:
             router?.openApproveSheet()
         case .generateAddresses,
