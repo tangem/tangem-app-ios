@@ -86,6 +86,10 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncInitial() async {
+        guard !hasCompletedInitialSync else {
+            return
+        }
+
         if let inFlightSyncTask = inFlightInitialSyncTask {
             return await inFlightSyncTask.value
         }
