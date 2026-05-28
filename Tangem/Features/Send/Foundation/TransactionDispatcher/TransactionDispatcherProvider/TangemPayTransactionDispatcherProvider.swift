@@ -9,14 +9,14 @@
 import TangemStaking
 
 struct TangemPayTransactionDispatcherProvider {
-    let cexTransactionDispatcher: any TransactionDispatcher
+    let transactionDispatcher: any TransactionDispatcher
 }
 
 // MARK: - TransactionDispatcherProvider
 
 extension TangemPayTransactionDispatcherProvider: TransactionDispatcherProvider {
     func makeTransferTransactionDispatcher() -> TransactionDispatcher {
-        UnsupportedTransactionDispatcher()
+        transactionDispatcher
     }
 
     func makeApproveTransactionDispatcher() -> TransactionDispatcher {
@@ -28,7 +28,7 @@ extension TangemPayTransactionDispatcherProvider: TransactionDispatcherProvider 
     }
 
     func makeCEXTransactionDispatcher() -> TransactionDispatcher {
-        cexTransactionDispatcher
+        transactionDispatcher
     }
 
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher {
