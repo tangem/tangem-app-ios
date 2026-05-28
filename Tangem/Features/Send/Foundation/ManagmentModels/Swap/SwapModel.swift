@@ -120,28 +120,21 @@ final class SwapModel {
 
 // MARK: - Autoupdating
 
-extension SwapModel {
+private extension SwapModel {
     func autoupdatingRates() {
-        updateTask(loadingType: .autoupdate) { [weak self] manager in
-            let result: ExpressManagerUpdatingResult = try await manager.update(by: .autoupdate)
-
-            if let self, let quote = result.selected?.getState().quote {
-                let amountType = await manager.getAmountType()
-                sendComplementaryAmount(for: amountType, quote: quote)
-            }
-
-            return result
+        updateTask(loadingType: .autoupdate) { manager in
+            await manager.update(type: .autoupdate)
         }
     }
 
-    private func bind() {
+    func bind() {
         _receiveToken
             .map { $0.value?.tokenItem }
             .pairwise()
             .filter { previous, current in previous == nil && current != nil }
             .asyncMap { [weak self] _ -> ExpressProviderRateType in
-                guard let self else { return .float }
-                let states = await _providersState.dropFirst().values
+                guard let publisher = self?._providersState else { return .float }
+                let states = await publisher.dropFirst().values
                 for await state in states {
                     if case .loaded(_, .some(let provider), _) = state {
                         let hasFixed = provider.supportedRateTypes.contains(.fixed)
@@ -184,20 +177,14 @@ extension SwapModel {
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
 
-        updateTask(loadingType: .rates) { [weak self] expressManager in
+        updateTask(loadingType: .rates) { expressManager in
             if sourceAmount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
             }
 
             let amountType: ExpressAmountType? = sourceAmount?.crypto.map { .from($0) }
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: amountType)
-
-            if let self, let quote = result.selected?.getState().quote {
-                _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
-            }
-
-            return result
+            return await expressManager.update(amountType: amountType)
         }
 
         _sourceAmount.send(sourceAmount)
@@ -210,20 +197,14 @@ extension SwapModel {
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
 
-        updateTask(loadingType: .rates) { [weak self] expressManager in
+        updateTask(loadingType: .rates) { expressManager in
             if receiveAmount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
             }
 
             let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
-            let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: amountType)
-
-            if let self, let quote = result.selected?.getState().quote {
-                _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
-            }
-
-            return result
+            return await expressManager.update(amountType: amountType)
         }
 
         _receiveAmount.send(receiveAmount)
@@ -241,48 +222,53 @@ extension SwapModel {
 
     func update(receive wallet: SendReceiveToken) {
         ExpressLogger.info("Will update receive to \(wallet.tokenItem)")
-
-        let tokenChanged = _receiveToken.value.value?.tokenItem.id != wallet.tokenItem.id
-
-        if tokenChanged {
-            _receiveAmount.send(nil)
-        }
-
         _receiveToken.send(.success(wallet))
-        swappingPairDidChange(isFullRefresh: tokenChanged)
+        swappingPairDidChange()
     }
+}
 
-    func swappingPairDidChange(isFullRefresh: Bool = true) {
-        if isFullRefresh {
-            _currentRateType.send(nil)
-        }
+// MARK: - Private
+
+private extension SwapModel {
+    func swappingPairDidChange() {
+        let currentPair = selectedExpressProvider?.value?.pair
+        let shouldReloadProviders = {
+            guard let currentPair else {
+                return true
+            }
+
+            guard currentPair.source.currency == _sourceToken.value.value?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            guard currentPair.destination.currency == _receiveToken.value.value?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            return false
+        }()
+
         let hasAmount = _sourceAmount.value?.crypto != nil || _receiveAmount.value?.crypto != nil
 
-        let loadingType: LoadingType
-        if isFullRefresh {
-            loadingType = hasAmount ? .rates : .providers
-        } else {
-            // Destination-only change: .providers doesn't clear displayed amounts
-            // (only .rates triggers .loading in mapToAmountResult) and keeps
-            // analyticsScreenName as .amount instead of .confirmation
-            loadingType = .providers
-        }
+        let loadingType: LoadingType = {
+            if shouldReloadProviders {
+                return hasAmount ? .rates : .providers
+            }
+
+            return .autoupdate
+        }()
 
         updateTask(loadingType: loadingType) { [weak self] expressManager in
-            guard let self, let source = _sourceToken.value.value,
+            guard let self,
+                  let source = _sourceToken.value.value,
                   let destination = _receiveToken.value.value else {
                 ExpressLogger.info("Source / Receive not found")
                 return try await expressManager.update(pair: .none)
             }
 
-            let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-
-            let result = try await pairUpdateHandler.handlePairChange(
-                pair: pair,
+            let result = try await pairUpdateHandler.updatePair(
                 source: source,
-                destination: destination,
-                sourceAmount: _sourceAmount.value?.crypto,
-                isFullRefresh: isFullRefresh
+                destination: destination
             )
 
             if let amountUpdate = result.amountUpdate {
@@ -295,7 +281,7 @@ extension SwapModel {
 
     func updateTask(
         loadingType: LoadingType,
-        block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult?
+        block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerUpdatingResult
     ) {
         updateTask?.cancel()
         updateTask = runTask(in: self) { @MainActor input in
@@ -306,12 +292,13 @@ extension SwapModel {
 
                 input.update(providersState: .loading(loadingType))
 
-                let result = try await block(input.expressManager)
+                let updatingResult = try await block(input.expressManager)
                 try Task.checkCancellation()
 
-                let providersState = try await input.mapToLoadedProvidersState(result: result)
+                let providersState = try await input.mapToLoadedProvidersState(updatingResult: updatingResult)
                 try Task.checkCancellation()
 
+                await input.updateComplementaryAmount(state: providersState)
                 input.update(providersState: providersState)
                 await input.updateRateType()
 
@@ -406,21 +393,15 @@ extension SwapModel {
 // MARK: - Map
 
 extension SwapModel {
-    func mapToLoadedProvidersState(result: ExpressManagerUpdatingResult?) async throws -> ProvidersState {
-        switch result {
-        case .none:
-            return .idle
+    func mapToLoadedProvidersState(updatingResult: ExpressManagerUpdatingResult) async throws -> ProvidersState {
+        let state = try await mapToLoadedState(updatingResult: updatingResult)
+        try Task.checkCancellation()
 
-        case .some(let updatingResult):
-            let state = try await mapToLoadedState(updatingResult: updatingResult)
-            try Task.checkCancellation()
-
-            return .loaded(
-                providers: updatingResult.providers,
-                selected: updatingResult.selected,
-                state: state
-            )
-        }
+        return .loaded(
+            providers: updatingResult.providers,
+            selected: updatingResult.selected,
+            state: state
+        )
     }
 
     func mapToLoadedState(updatingResult: ExpressManagerUpdatingResult) async throws -> LoadedState {
@@ -655,12 +636,20 @@ extension SwapModel {
         }
     }
 
-    func sendComplementaryAmount(for amountType: ExpressAmountType?, quote: ExpressQuote) {
+    func updateComplementaryAmount(state: ProvidersState) async {
+        guard case .loaded(_, _, let loadedState) = state,
+              let quote = loadedState.quote else { return }
+
+        let amountType = await expressManager.getAmountType()
         switch amountType {
         case .from:
-            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
+            _receiveAmount.send(
+                makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId)
+            )
         case .to:
-            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
+            _sourceAmount.send(
+                makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId)
+            )
         case .none:
             break
         }
@@ -1118,16 +1107,8 @@ extension SwapModel: SendSwapProvidersInput {
 
 extension SwapModel: SendSwapProvidersOutput {
     func userDidSelect(provider: ExpressAvailableProvider) {
-        updateTask(loadingType: .provider) { [weak self] expressManager in
-            let result: ExpressManagerUpdatingResult = try await expressManager.updateSelectedProvider(provider: provider)
-
-            if let self, let quote = result.selected?.getState().quote {
-                let amountType = await expressManager.getAmountType()
-                try Task.checkCancellation()
-                sendComplementaryAmount(for: amountType, quote: quote)
-            }
-
-            return result
+        updateTask(loadingType: .provider) { expressManager in
+            await expressManager.updateSelectedProvider(provider: provider)
         }
     }
 }
@@ -1136,12 +1117,12 @@ extension SwapModel: SendSwapProvidersOutput {
 
 extension SwapModel: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: (any TokenFeeProvidersManager)? {
-        selectedExpressProvider?.value?.manager.feeProvider as? TokenFeeProvidersManager
+        selectedExpressProvider?.value?.expressFeeProvider as? TokenFeeProvidersManager
     }
 
     var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
         selectedExpressProviderPublisher
-            .compactMap { $0?.value?.manager.feeProvider as? TokenFeeProvidersManager }
+            .compactMap { $0?.value?.expressFeeProvider as? TokenFeeProvidersManager }
             .eraseToAnyPublisher()
     }
 }
@@ -1224,7 +1205,7 @@ extension SwapModel: FeeSelectorOutput {
         tokenFeeProvidersManager?.update(feeOption: feeOption)
 
         updateTask(loadingType: .fee) { manager in
-            try await manager.update(by: .autoupdate)
+            await manager.update(type: .autoupdate)
         }
     }
 }
@@ -1522,7 +1503,7 @@ extension SwapModel: NotificationTapDelegate {
         case .reduceAmountTo(let amount, _):
             reduceAmountTo(amount)
         case .refresh:
-            swappingPairDidChange(isFullRefresh: false)
+            swappingPairDidChange()
         case .givePermission:
             router?.openApproveSheet()
         case .generateAddresses,
@@ -1762,7 +1743,7 @@ extension SwapModel {
 
 extension ExpressAvailableProvider {
     func getTokenFeeProvidersManager() throws -> TokenFeeProvidersManager {
-        guard let tokenFeeProvidersManager = manager.feeProvider as? TokenFeeProvidersManager else {
+        guard let tokenFeeProvidersManager = expressFeeProvider as? TokenFeeProvidersManager else {
             throw SwapModel.SwapModelError.feeNotFound
         }
 
