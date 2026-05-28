@@ -14,11 +14,9 @@ actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private lazy var cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory(
-        providerFactory: { userWalletId, refcode in
-            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-        }
-    )
+    private lazy var cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+    }
 
     private var pairs: Set<ExpressPair> = []
 

@@ -22,9 +22,9 @@ struct ExpressPendingTransactionsFactory {
             tokenEnricher: tokenEnricher
         )
 
-        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory(
-            providerFactory: makeExpressAPIProvider(userWalletId:refcode:)
-        )
+        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
@@ -44,9 +44,5 @@ struct ExpressPendingTransactionsFactory {
             first: pendingExpressTransactionsManager,
             second: pendingOnrampTransactionsManager
         )
-    }
-
-    private func makeExpressAPIProvider(userWalletId: String, refcode: Refcode?) -> ExpressAPIProvider {
-        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
 }

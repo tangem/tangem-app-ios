@@ -319,12 +319,9 @@ private extension TokenDetailsView {
         walletModelsManager: cryptoAccountModel.walletModelsManager,
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
-    let apiProviderFactory = ExpressAPIProviderFactory()
-    let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory(
-        providerFactory: { userWalletId, refcode in
-            apiProviderFactory.makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-        }
-    )
+    let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+    }
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
