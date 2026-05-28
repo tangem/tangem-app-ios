@@ -371,19 +371,6 @@ public extension Color.Tangem.Market {
     static let iconTop1: Color = Primitives.Gold.gold
     static let iconTop2: Color = Primitives.Cobalt.cobalt
     static let iconTop3: Color = Primitives.Coral.coral
-
-    static let backgroundTop1: Color = .dynamic(
-        light: Primitives.Gold.gold.opacity(0.5),
-        dark: Primitives.Gold.gold.opacity(0.3)
-    )
-    static let backgroundTop2: Color = .dynamic(
-        light: Primitives.Cobalt.cobalt.opacity(0.5),
-        dark: Primitives.Cobalt.cobalt.opacity(0.3)
-    )
-    static let backgroundTop3: Color = .dynamic(
-        light: Primitives.Coral.coral.opacity(0.5),
-        dark: Primitives.Coral.coral.opacity(0.3)
-    )
 }
 
 // MARK: - Init with hex-value
