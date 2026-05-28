@@ -28,10 +28,10 @@ final class MailComposePresenter: NSObject {
         emailInProcess = viewModel.emailType
         completionInProcess = completion
 
-        viewModel.logsComposer.getZipLogsData { [weak self] attachment in
+        viewModel.logsComposer.getLogsArchive { [weak self] logsArchive in
             Task { @MainActor in
                 guard let self else { return }
-                let viewController = self.makeMailViewController(using: viewModel, attachment: attachment)
+                let viewController = self.makeMailViewController(using: viewModel, logsArchive: logsArchive)
                 self.present(viewController: viewController)
             }
         }
@@ -87,9 +87,9 @@ extension MailComposePresenter {
     private func shareLogs(viewModel: MailViewModel) {
         Analytics.log(.emailShareLogs, analyticsSystems: .all)
 
-        viewModel.logsComposer.getZipLogsData { data in
+        viewModel.logsComposer.getLogsArchive { logsArchive in
             Task { @MainActor in
-                guard let archiveURL = data?.1 else { return }
+                guard let archiveURL = logsArchive?.file else { return }
                 let activityVC = UIActivityViewController(activityItems: [archiveURL], applicationActivities: nil)
                 self.present(viewController: activityVC)
             }
@@ -102,7 +102,7 @@ extension MailComposePresenter {
 extension MailComposePresenter {
     private func makeMailViewController(
         using viewModel: MailViewModel,
-        attachment: (data: Data, file: URL)?
+        logsArchive: (data: Data, file: URL)?
     ) -> MFMailComposeViewController {
         let viewController = MFMailComposeViewController()
         viewController.mailComposeDelegate = self
@@ -119,8 +119,12 @@ extension MailComposePresenter {
 
         viewController.setMessageBody(messageBody, isHTML: false)
 
-        if let (data, file) = attachment {
-            viewController.addAttachmentData(data, mimeType: "application/zip", fileName: file.lastPathComponent)
+        if let logsArchive {
+            viewController.addAttachmentData(
+                logsArchive.data,
+                mimeType: "application/zip",
+                fileName: logsArchive.file.lastPathComponent
+            )
         }
 
         return viewController
