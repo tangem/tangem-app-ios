@@ -52,8 +52,9 @@ final class TangemPayBuilder {
         signer: signer
     )
 
-    private lazy var expressCEXTransactionDispatcher = tangemPayAssembly.makeExpressCEXTransactionDispatcher(
+    private lazy var transactionDispatcher = tangemPayAssembly.makeTransactionDispatcher(
         withdrawTransactionService: withdrawTransactionService,
+        hasNFCInteraction: signer.hasNFCInteraction,
         walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
     )
 
@@ -111,7 +112,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
-            expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
+            transactionDispatcher: transactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
