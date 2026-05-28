@@ -60,6 +60,7 @@ struct CommonUserWalletModelDependencies {
         accountModelsManager = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
+            walletInfo: walletInfo,
             walletManagerFactory: walletManagerFactory,
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
@@ -181,6 +182,7 @@ private extension CommonUserWalletModelDependencies {
     static func makeAccountModelsManager(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
+        walletInfo: WalletInfo,
         walletManagerFactory: AnyWalletManagerFactory,
         keysRepository: KeysRepository,
         keysDerivingInteractor: KeysDeriving,
@@ -194,7 +196,15 @@ private extension CommonUserWalletModelDependencies {
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
 
-        let transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry()
+        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
+
+        let transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
+            cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
+            userWalletId: userWalletId,
+            walletInfo: walletInfo
+        )
 
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
