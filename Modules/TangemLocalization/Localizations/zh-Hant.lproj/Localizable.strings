@@ -75,6 +75,7 @@
 "add_custom_token_title" = "添加自定義代幣";
 "add_tokens_title" = "管理代幣";
 "addfunds_buy_row_description" = "Credit card or bank account";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Share your address or QR-code";
 "addfunds_swap_row_description" = "Between your portfolios";
 "addfunds_you_receive_title" = "You receive";
@@ -537,6 +538,11 @@
 "feedback_subject_tx_failed" = "無法發送交易";
 "feedback_subject_tx_push_failed" = "無法推送交易";
 "feedback_token_description_error" = "Coin description error";
+"force_update_banner_message" = "Update the application to the latest version to ensure proper functionality";
+"force_update_banner_title" = "Update Needed";
+"force_update_button" = "Update";
+"force_update_warning_message" = "Please update the application to the latest version to ensure proper functionality.";
+"force_update_warning_title" = "Update Required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
 "gasless_transaction_fee" = "Transaction fee";
 "generic_error_code" = "An error occurred. Code: %@.";
@@ -650,6 +656,8 @@
 "mail_error_no_accounts_body" = "請設置一個帳戶以發送電子郵件";
 "mail_error_no_accounts_title" = "沒有郵件帳戶";
 "main_add_and_manage_tokens" = "Add & Manage";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "To begin tracking your crypto assets and transactions, add tokens";
 "main_manage_tokens" = "管理代幣";
 "main_qr_scan_hint" = "Scan QR code to send funds or connect to an app";
@@ -989,9 +997,7 @@
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
 "provider_name_support" = "%@ support";
-"push_notification_settings_banner_button_grant_permission" = "Grant permission";
-"push_notification_settings_banner_description_grant_permission" = "Push Notifications are enabled but won't work until you grant permission";
-"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow notifications in your device settings";
+"push_notification_settings_banner_description" = "Push Notifications are enabled but won't work until you allow them";
 "push_notification_settings_banner_title" = "Allow notifications";
 "push_notification_settings_offers_updates_subtitle" = "Product news, exclusive offers, and activity reminders.";
 "push_notification_settings_offers_updates_title" = "Offers & Updates";
@@ -1432,11 +1438,13 @@
 "tangem_pay_freeze_card_failed" = "無法凍結卡片。請稍後再試。";
 "tangem_pay_freeze_card_freeze" = "凍結";
 "tangem_pay_freeze_card_success" = "您的卡片已凍結。";
+"tangem_pay_freeze_card_unfreeze" = "Unfreeze";
 "tangem_pay_get_help" = "獲取幫助";
 "tangem_pay_history_item_spend_mc_declined_reason" = "Reason: %@";
 "tangem_pay_history_item_spend_mc_title_format" = "%@ · %@";
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "其他";
+"tangem_pay_pin_code_title" = "PIN-code";
 "tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "已完成";
 "tangem_pay_status_declined" = "已拒絕";
@@ -1514,6 +1522,7 @@
 "tangempay_card_page_daily_limit_change" = "Change";
 "tangempay_card_page_daily_limit_current_limit" = "Current limit";
 "tangempay_card_page_daily_limit_error_description" = "We couldn't load your daily limit. Please try again.";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "Daily limit unavailable";
 "tangempay_card_page_daily_limit_success_description" = "You can change it again anytime you like";
 "tangempay_card_page_daily_limit_success_title" = "Daily limit is set";
@@ -1594,6 +1603,7 @@
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "用卡或戒指續期會話";
 "tangempay_sync_needed_button" = "Renew session";
+"tangempay_sync_needed_title" = "Tangem Pay 工作階段已過期";
 "tangempay_sync_needed_restore_access" = "Renew session";
 "tangempay_sync_needed_title" = "Tangem Pay 工作階段已過期";
 "tangempay_sync_needed" = "用卡或戒指續期會話";

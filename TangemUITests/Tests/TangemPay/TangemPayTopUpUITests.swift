@@ -15,6 +15,7 @@ final class TangemPayTopUpUITests: BaseTestCase {
         let mainScreen = launchAndImportHotWallet(scenarios: [
             ScenarioConfig(name: "bitcoin_utxo", initialState: "Balance"),
             ScenarioConfig(name: "express_api_assets", initialState: "BitcoinExchangeEnabled"),
+            ScenarioConfig(name: "exchange_status_provider", initialState: "Finished"),
             ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
             ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
         ])
