@@ -37,12 +37,12 @@ extension InMemoryTransactionHistoryRecordsStorage: TransactionHistoryRecordsSto
         )
     }
 
-    func updateOrAppend(_ records: [Record]) {
+    func updateOrAppend(_ records: [Record]) throws {
         records.forEach { recordsKeyedByTxId[$0.txId] = $0 }
         subscribers.yield(makeSnapshot())
     }
 
-    func clear() {
+    func clear() throws {
         recordsKeyedByTxId.removeAll()
         subscribers.yield(makeSnapshot())
     }
