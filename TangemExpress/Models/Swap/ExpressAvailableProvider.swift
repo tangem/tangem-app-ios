@@ -10,23 +10,21 @@ import Foundation
 import TangemFoundation
 
 public class ExpressAvailableProvider {
-    public let provider: ExpressProvider
-    public let manager: ExpressProviderManager
+    public var provider: ExpressProvider { context.provider }
+    public var pair: ExpressManagerSwappingPair { context.pair }
+    public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
+
     public let supportedRateTypes: Set<ExpressProviderRateType>
     public var isBest: Bool { _isBest { $0 } }
 
-    private let _isBest: OSAllocatedUnfairLock<Bool>
+    private let context: ExpressProviderFlowContext
+    private let manager: ExpressProviderManager
+    private let _isBest: OSAllocatedUnfairLock<Bool> = .init(initialState: false)
 
-    init(provider: ExpressProvider, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>, isBest: Bool) {
-        self.provider = provider
+    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>) {
+        self.context = context
         self.manager = manager
         self.supportedRateTypes = supportedRateTypes
-
-        _isBest = .init(initialState: isBest)
-    }
-
-    func update(isBest: Bool) {
-        _isBest { $0 = isBest }
     }
 
     deinit {
@@ -35,6 +33,22 @@ public class ExpressAvailableProvider {
 
     public func getState() -> ExpressProviderManagerState {
         manager.getState()
+    }
+}
+
+// MARK: - Internal
+
+extension ExpressAvailableProvider {
+    func update(isBest: Bool) {
+        _isBest { $0 = isBest }
+    }
+
+    func updateState(request: ExpressManagerSwappingPairRequest) async {
+        await manager.update(request: request)
+    }
+
+    func requestData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
+        try await manager.sendData(request: request)
     }
 }
 
