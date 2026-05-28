@@ -12,7 +12,7 @@ import TangemFoundation
 
 class CommonPromotionRepository {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.promotionProvider) private var promotionProvider: PromotionProvider
 
     typealias PromotionList = [PromotionPlacement: [Promotion]]
 
@@ -43,10 +43,6 @@ class CommonPromotionRepository {
 
     init() {
         bind()
-
-        if let userWalletId = selectedUserWalletId {
-            Task { await loadPromotions(userWalletId: userWalletId) }
-        }
     }
 }
 
@@ -63,6 +59,15 @@ extension CommonPromotionRepository: PromotionRepository {
         await updatePromotions(for: userWalletId, hasToRefresh: true)?.value
     }
 
+    func loadPromotions(userWalletId: UserWalletId, placeholder: PromotionPlacement) async {
+        let walletIdString = userWalletId.stringValue
+        let promotions = await loadPromotions(for: walletIdString, placement: placeholder)
+
+        var currentPromotions = promotionsSubject.value[userWalletId] ?? [:]
+        currentPromotions[placeholder] = promotions
+        promotionsSubject.value[userWalletId] = currentPromotions
+    }
+
     func hidePromotion(userWalletId: UserWalletId, displayId: Int) async {
         let walletIdString = userWalletId.stringValue
         let redactedUserWalletId = "\(walletIdString.prefix(4))...\(walletIdString.suffix(4))"
@@ -74,7 +79,7 @@ extension CommonPromotionRepository: PromotionRepository {
                 status: .dismissed
             )
 
-            _ = try await tangemApiService.hidePromotion(request: request)
+            _ = try await promotionProvider.hidePromotion(request: request)
         } catch {
             PromotionsLogger.error("Hiding promotion for user wallet: \"\(redactedUserWalletId)\"", error: error)
         }
@@ -106,8 +111,15 @@ private extension CommonPromotionRepository {
 
             async let mainPromotions = repository.loadPromotions(for: walletIdString, placement: .main)
             async let newsPromotions = repository.loadPromotions(for: walletIdString, placement: .news)
+            async let tokenDetailsPromotions = repository.loadPromotions(for: walletIdString, placement: .tokenDetails)
+            async let yieldPromotions = repository.loadPromotions(for: walletIdString, placement: .yield)
 
-            let promotions: PromotionList = await [.main: mainPromotions, .news: newsPromotions]
+            let promotions: PromotionList = await [
+                .main: mainPromotions,
+                .news: newsPromotions,
+                .tokenDetails: tokenDetailsPromotions,
+                .yield: yieldPromotions,
+            ]
             PromotionsLogger.info("Finished loading promotions for user wallet: \"\(redactedUserWalletId)\". Promotions \(promotions.mapValues { $0.map(\.id) })")
 
             if Task.isCancelled { return }
@@ -130,7 +142,7 @@ private extension CommonPromotionRepository {
                 language: Locale.deviceLanguageCode(withRegion: false)
             )
 
-            let items = try await tangemApiService.loadPromotions(request: request).items
+            let items = try await promotionProvider.loadPromotions(request: request).items
             return items.compactMap(PromotionMapper.mapToPromotion(from:))
         } catch {
             let redactedUserWalletId = "\(userWalletId.prefix(4))...\(userWalletId.suffix(4))"

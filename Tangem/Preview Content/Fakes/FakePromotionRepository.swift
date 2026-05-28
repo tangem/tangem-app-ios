@@ -25,7 +25,8 @@ class FakePromotionRepository: PromotionRepository {
                 deeplink: URL(string: "tangem://buy?currency=BTC"),
                 buttonEnabled: true,
                 buttonText: "Buy Now",
-                dismissable: true
+                dismissable: true,
+                tokens: []
             ),
             Promotion(
                 id: 2,
@@ -37,7 +38,8 @@ class FakePromotionRepository: PromotionRepository {
                 deeplink: URL(string: "tangem://staking?currency=ETH"),
                 buttonEnabled: true,
                 buttonText: "Stake Now",
-                dismissable: true
+                dismissable: true,
+                tokens: []
             ),
         ],
         .news: [
@@ -51,7 +53,8 @@ class FakePromotionRepository: PromotionRepository {
                 deeplink: nil,
                 buttonEnabled: false,
                 buttonText: nil,
-                dismissable: false
+                dismissable: false,
+                tokens: []
             ),
         ],
     ]) {
@@ -63,6 +66,8 @@ class FakePromotionRepository: PromotionRepository {
     }
 
     func loadPromotions(userWalletId: UserWalletId) async {}
+
+    func loadPromotions(userWalletId: UserWalletId, placeholder: PromotionPlacement) async {}
 
     func hidePromotion(userWalletId: UserWalletId, displayId: Int) async {}
 }
