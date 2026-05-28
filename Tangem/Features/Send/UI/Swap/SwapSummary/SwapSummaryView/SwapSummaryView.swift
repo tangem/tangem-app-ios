@@ -79,21 +79,23 @@ struct SwapSummaryView: View {
         // Both views always rendered. Mode switch flips frame/opacity only — no
         // conditional add/remove, so SwapSummaryProviderView's
         // `.transition(.opacity.animation(.easeInOut))` does not fire on toggle.
-        VStack(spacing: 0) {
-            SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
-                .frame(maxHeight: isDetailed ? .infinity : 0)
-                .opacity(isDetailed ? 1 : 0)
-                .clipped()
-                .accessibilityHidden(!isDetailed)
+        if viewModel.swapSummaryProviderViewModel.providerState != nil {
+            VStack(spacing: 0) {
+                SwapSummaryProviderView(viewModel: viewModel.swapSummaryProviderViewModel)
+                    .frame(maxHeight: isDetailed ? .infinity : 0)
+                    .opacity(isDetailed ? 1 : 0)
+                    .clipped()
+                    .accessibilityHidden(!isDetailed)
 
-            SwapSummaryProviderCompactView(
-                viewModel: viewModel.swapSummaryProviderViewModel,
-                shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge
-            )
-            .frame(maxHeight: isSimple ? .infinity : 0)
-            .opacity(isSimple ? 1 : 0)
-            .clipped()
-            .accessibilityHidden(!isSimple)
+                SwapSummaryProviderCompactView(
+                    viewModel: viewModel.swapSummaryProviderViewModel,
+                    shouldAnimateBestRateBadge: $viewModel.shouldAnimateBestRateBadge
+                )
+                .frame(maxHeight: isSimple ? .infinity : 0)
+                .opacity(isSimple ? 1 : 0)
+                .clipped()
+                .accessibilityHidden(!isSimple)
+            }
         }
     }
 
