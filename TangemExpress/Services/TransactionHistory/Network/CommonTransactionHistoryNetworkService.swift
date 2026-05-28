@@ -9,16 +9,21 @@
 import Foundation
 import TangemFoundation
 
+/// - Note: No mutable state, so this type is considered to be `Sendable` by definition.
 final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRecord>: @unchecked Sendable {
-    typealias PageFetcher = @Sendable (_ cursor: Any?) async throws -> Page
+    /// - Parameter cursor: Opaque cursor for the next page.
+    typealias PageFetcher = @Sendable (_ apiProvider: ExpressAPIProvider, _ cursor: Any?) async throws -> Page
 
-    private let cursorStorage: any TransactionHistoryCursorStorage
+    private let apiProvider: ExpressAPIProvider
+    private let cursorStorage: TransactionHistoryCursorStorage
     private let pageFetcher: PageFetcher
 
     init(
-        cursorStorage: any TransactionHistoryCursorStorage,
+        apiProvider: ExpressAPIProvider,
+        cursorStorage: TransactionHistoryCursorStorage,
         pageFetcher: @escaping PageFetcher
     ) {
+        self.apiProvider = apiProvider
         self.cursorStorage = cursorStorage
         self.pageFetcher = pageFetcher
     }
@@ -27,7 +32,7 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
         var cursor = await cursorStorage.cursor
 
         while !Task.isCancelled {
-            let page = try await pageFetcher(cursor)
+            let page = try await pageFetcher(apiProvider, cursor)
 
             TransactionHistoryLogger.debug(self, "Fetched page: \(page.records.count) record(s), hasMore: \(page.hasMore)")
 
