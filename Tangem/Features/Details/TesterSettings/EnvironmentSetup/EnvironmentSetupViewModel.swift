@@ -148,6 +148,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 ),
                 pickerStyle: .menu
             ),
+            DefaultPickerRowViewModel(
+                title: "Apple Pay merchant env",
+                options: ApplePayMerchantType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: ApplePayMerchantType.sandbox.rawValue,
+                    get: { $0.applePayMerchantType.rawValue },
+                    set: { $0.applePayMerchantType = ApplePayMerchantType(rawValue: $1) ?? .sandbox }
+                ),
+                pickerStyle: .menu
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in

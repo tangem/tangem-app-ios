@@ -10,7 +10,7 @@ import Foundation
 import TangemUI
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<ActionButtonsBuyDismissPayload?>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
@@ -26,9 +26,10 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     // MARK: - Private property
 
     private var safariHandle: SafariHandle?
+    private var userWalletModels: [UserWalletModel] = []
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<ActionButtonsBuyDismissPayload?>,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
     ) {
         self.dismissAction = dismissAction
@@ -36,6 +37,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        userWalletModels = options.userWalletModels
         let tokenSelectorViewModel = makeTokenSelectorViewModel()
         viewState = .newTokenList(
             ActionButtonsBuyViewModel(
@@ -44,6 +46,10 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
                 coordinator: self
             )
         )
+    }
+
+    func dismiss() {
+        dismiss(with: nil)
     }
 }
 
@@ -70,6 +76,18 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
         viewState = .onramp(coordinator)
     }
 
+    func openAddFunds(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let viewModel = AddFundsViewModel(
+                walletModel: walletModel,
+                userWalletInfo: userWalletInfo,
+                coordinator: self
+            )
+            viewState = .addFunds(viewModel)
+        }
+    }
+
     func openAddToPortfolio(viewModel: HotCryptoAddToPortfolioBottomSheetViewModel) {
         addToPortfolioBottomSheetInfo = viewModel
     }
@@ -93,6 +111,62 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+}
+
+// MARK: - AddFundsCoordinator
+
+extension ActionButtonsBuyCoordinator: AddFundsCoordinator {
+    func openBuy(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        Task { @MainActor [weak self] in
+            let input = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            self?.openOnramp(input: input, parameters: .none)
+        }
+    }
+
+    func openSwap(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        let helper = SwapPredefinedParametersHelper()
+        guard let parameters = helper.makeParameters(
+            origin: .tokenDetails(walletModel: walletModel),
+            userWalletInfo: userWalletInfo
+        ) else { return }
+
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            let sendCoordinator = SendCoordinator(dismissAction: { [weak self] _ in
+                self?.dismiss()
+            })
+            sendCoordinator.start(with: .init(type: .swap(parameters), source: .actionButtons))
+            viewState = .swap(sendCoordinator)
+        }
+    }
+
+    func openReceive(walletModel: any WalletModel) {
+        let factory = AvailabilityReceiveFlowFactory(
+            flow: .crypto,
+            tokenItem: walletModel.tokenItem,
+            addressTypesProvider: walletModel
+        )
+        let receiveViewModel = factory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.enqueue(sheet: receiveViewModel)
+        }
+    }
+
+    func openTokenDetails(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletInfo.id }) else {
+            return
+        }
+
+        Task { @MainActor [weak self] in
+            self?.dismiss(with: ActionButtonsBuyDismissPayload(walletModel: walletModel, userWalletModel: userWalletModel))
+        }
+    }
+
+    func closeAddFunds() {
+        dismiss()
     }
 }
 
@@ -131,16 +205,27 @@ extension ActionButtonsBuyCoordinator {
 
     enum RootViewState: Equatable {
         case newTokenList(ActionButtonsBuyViewModel)
+        case addFunds(AddFundsViewModel)
         case onramp(SendCoordinator)
+        case swap(SendCoordinator)
 
         static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {
             switch (lhs, rhs) {
             case (.newTokenList, .newTokenList): true
+            case (.addFunds, .addFunds): true
             case (.onramp, .onramp): true
+            case (.swap, .swap): true
             default: false
             }
         }
     }
+}
+
+// MARK: - Dismiss payload
+
+struct ActionButtonsBuyDismissPayload {
+    let walletModel: any WalletModel
+    let userWalletModel: UserWalletModel
 }
 
 // MARK: - Factory method

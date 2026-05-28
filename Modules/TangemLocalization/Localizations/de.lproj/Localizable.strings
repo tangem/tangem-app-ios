@@ -75,6 +75,7 @@
 "add_custom_token_title" = "Token anlegen";
 "add_tokens_title" = "Token verwalten";
 "addfunds_buy_row_description" = "Kreditkarte oder Bankkonto";
+"addfunds_fund_token" = "Fund token";
 "addfunds_receive_row_description" = "Teile deine Adresse oder dein QR-Code";
 "addfunds_swap_row_description" = "Zwische deinen Portfolios";
 "addfunds_you_receive_title" = "Empfangen";
@@ -309,7 +310,7 @@
 "common_sending" = "Senden";
 "common_sent" = "Gesendet";
 "common_server_unavailable" = "Der Server ist nicht verfügbar. Bitte versuche es später erneut.";
-"common_session_expired" = "Session expired";
+"common_session_expired" = "Sitzung abgelaufen";
 "common_share_link" = "Link teilen";
 "common_share" = "Teilen";
 "common_sign" = "Signieren";
@@ -537,6 +538,11 @@
 "feedback_subject_tx_failed" = "Eine Transaktion kann nicht gesendet werden";
 "feedback_subject_tx_push_failed" = "Transaktion kann nicht gepusht werden";
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
+"force_update_banner_message" = "Update the application to the latest version to ensure proper functionality";
+"force_update_banner_title" = "Update Needed";
+"force_update_button" = "Update";
+"force_update_warning_message" = "Please update the application to the latest version to ensure proper functionality.";
+"force_update_warning_title" = "Update Required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Nicht genügend Mittel";
 "gasless_transaction_fee" = "Transaktionsgebühr";
 "generic_error_code" = "Es ist ein Fehler aufgetreten. Code: %@.";
@@ -650,6 +656,8 @@
 "mail_error_no_accounts_body" = "Bitte richte ein Konto zum Senden von E-Mails ein";
 "mail_error_no_accounts_title" = "Keine Mail-Konten";
 "main_add_and_manage_tokens" = "Hinzufügen und Verwalten";
+"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
+"main_add_funds_promo_title" = "Add funds to start earning and trading";
 "main_empty_tokens_list_message" = "Um mit der Verfolgung deiner Krypto-Assets und -Transaktionen zu beginnen, füge einen Token hinzu";
 "main_manage_tokens" = "Token verwalten";
 "main_qr_scan_hint" = "QR-Code scannen, um Geld zu senden oder eine Verbindung zu einer App herzustellen";
@@ -873,7 +881,7 @@
 "onboarding_create_wallet_options_button_options" = "Andere Optionen";
 "onboarding_create_wallet_options_message" = "Deine Schlüssel(private-keys) werden sicher im Inneren der Karte oder Ring generiert. Es gibt keine Seed-Phrase, d. h. niemand kann sie exportieren oder stehlen.";
 "onboarding_create_wallet_options_title" = "Schlüssel anonym generieren";
-"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:%@";
+"onboarding_create_wallet_term_of_conditions_text" = "Indem Sie fortfahren, stimmen Sie den folgenden Bedingungen zu:\n%@";
 "onboarding_done_body" = "Deine Karte oder Ring ist aktiviert und einsatzbereit";
 "onboarding_done_header" = "Erfolgreich!";
 "onboarding_done_wallet" = "Deine Wallet ist eingerichtet und einsatzbereit!";
@@ -989,8 +997,6 @@
 "organize_tokens_title" = "Token organisieren";
 "organize_tokens_ungroup" = "Gruppe löschen";
 "provider_name_support" = "%@ Unterstützung";
-"push_notification_settings_banner_button_grant_permission" = "Genehmigung erteilen";
-"push_notification_settings_banner_description_grant_permission" = "Push-Benachrichtigungen sind aktiviert, funktionieren aber erst nach Ihrer Zustimmung.";
 "push_notification_settings_banner_description" = "Push-Benachrichtigungen sind aktiviert, funktionieren aber erst, nachdem du Benachrichtigungen in den Geräteeinstellungen zugelassen hast.";
 "push_notification_settings_banner_title" = "Benachrichtigungen zulassen";
 "push_notification_settings_offers_updates_subtitle" = "Produktneuheiten, exklusive Angebote und Erinnerungen an Aktivitäten.";
@@ -1418,6 +1424,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Karte kann nicht umbenannt werden";
 "tangem_pay_card_frozen" = "Karte eingefroren";
 "tangem_pay_card_payment" = "Kartenzahlung";
+"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_primary_button_title" = "Close card";
+"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
+"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_close_card_popup_description" = "Es wird vom Zahlungskonto verschwinden";
 "tangem_pay_close_card_popup_primary_button_title" = "Karte schließen";
 "tangem_pay_close_card_popup_secondary_button_title" = "Geh zurück";
@@ -1432,11 +1442,13 @@
 "tangem_pay_freeze_card_failed" = "Karte konnte nicht eingefroren werden. Versuchen Sie es später erneut.";
 "tangem_pay_freeze_card_freeze" = "Einfrieren";
 "tangem_pay_freeze_card_success" = "Ihre Karte ist eingefroren.";
+"tangem_pay_freeze_card_unfreeze" = "Unfreeze";
 "tangem_pay_get_help" = "Hilfe erhalten";
 "tangem_pay_history_item_spend_mc_declined_reason" = "Grund: %@";
 "tangem_pay_history_item_spend_mc_title_format" = "%@ · %@";
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Andere";
+"tangem_pay_pin_code_title" = "PIN-code";
 "tangem_pay_rooted_device_subtitle" = "Nicht nutzbar auf gerooteten Geräten";
 "tangem_pay_status_completed" = "Abgeschlossen";
 "tangem_pay_status_declined" = "Abgelehnt";
@@ -1509,11 +1521,14 @@
 "tangempay_card_edit_name_placeholder" = "Kartenname";
 "tangempay_card_limit_setup_amount_subtitle" = "Limit festlegen ab %@";
 "tangempay_card_limit_setup_error_message" = "Das Limit konnte nicht festgelegt werden. Bitte versuchen Sie es erneut.";
+"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
+"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_closing_banner_description" = "Dauert in der Regel bis zu 5 Minuten";
 "tangempay_card_page_closing_banner_title" = "Schließen Ihrer Karte";
 "tangempay_card_page_daily_limit_change" = "Ändern";
 "tangempay_card_page_daily_limit_current_limit" = "Aktuelles Limit";
 "tangempay_card_page_daily_limit_error_description" = "Ihr Tageslimit konnte nicht geladen werden. Bitte versuchen Sie es erneut.";
+"tangempay_card_page_daily_limit_error_subtitle" = "Reload to try again";
 "tangempay_card_page_daily_limit_error_title" = "Tageslimit nicht verfügbar";
 "tangempay_card_page_daily_limit_success_description" = "Sie können es jederzeit wieder ändern";
 "tangempay_card_page_daily_limit_success_title" = "Tageslimit ist festgelegt";
@@ -1594,6 +1609,7 @@
 "tangempay_status_replacing" = "Ersetzen deine Karte";
 "tangempay_sync_needed_body" = "Karte oder Ring verwenden, um die Sitzung zu verlängern";
 "tangempay_sync_needed_button" = "Zugang wiederherstellen";
+"tangempay_sync_needed_title" = "Tangem Pay sitzung abgelaufen";
 "tangempay_sync_needed_restore_access" = "Zugang wiederherstellen";
 "tangempay_sync_needed_title" = "Tangem Pay sitzung abgelaufen";
 "tangempay_sync_needed" = "Karte oder Ring verwenden, um die Sitzung zu verlängern";
@@ -1925,6 +1941,8 @@
 "warning_old_card_title" = "iOS-Beschränkung für ältere Karten oder Ringe";
 "warning_old_device_old_card_message" = "Bei einigen iPhone 7/7+ Modellen kann es bei bestimmten Vorgängen zu NFC-Problemen kommen.";
 "warning_old_device_old_card_title" = "Geräteinkompatibilität erkannt";
+"warning_outdated_data_message" = "Will be updated as soon as possible";
+"warning_outdated_data_title" = "Missing some token balances";
 "warning_outdated_data_message" = "Wird so schnell wie möglich aktualisiert.";
 "warning_outdated_data_title" = "Es fehlen einige Token-Guthaben.";
 "warning_rate_app_message" = "Deine Bewertung motiviert uns, die Tangem Wallet noch besser zu machen.";
@@ -2087,10 +2105,10 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
 "yield_apy_boost_banner_title" = "Sonderangebot für den Yield-Modus";
 "yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
-"yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
-"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
-"yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
-"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
+"yield_apy_boost_promo_activate_bonus" = "Aktivieren dein Bonus";
+"yield_apy_boost_promo_bonus_paid_out_subtitle" = "Transaktionsverlauf für Details prüfen";
+"yield_apy_boost_promo_bonus_paid_out_title" = "Bonus im Ertragsmodus ausgezahlt";
+"yield_apy_boost_promo_days_left_to_unlock" = "%1$@ tage übrig, um dein Bonus freizuschalten";
 "yield_apy_boost_promo_eligibility_text" = "Du hast Anspruch auf einen 30-tägigen APY-Boost, es gelten die T&C, erfahren Sie mehr";
 "yield_apy_boost_story_first_subtitle" = "Aktiviere den Renditemodus zum ersten Mal und erhalte in den ersten 30 Tagen bis zu 3x Rendite";
 "yield_apy_boost_story_first_title" = "Bonus für den ersten Monat APR";

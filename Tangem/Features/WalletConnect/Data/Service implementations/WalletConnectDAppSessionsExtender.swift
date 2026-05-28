@@ -11,7 +11,6 @@ import TangemLogger
 
 actor WalletConnectDAppSessionsExtender {
     private let connectedDAppRepository: any WalletConnectConnectedDAppRepository
-    private let savedSessionToAccountsMigrationService: WalletConnectAccountMigrationService
     private let dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService
     private let logger: TangemLogger.Logger
     private let currentDateProvider: () -> Date
@@ -20,13 +19,11 @@ actor WalletConnectDAppSessionsExtender {
 
     init(
         connectedDAppRepository: some WalletConnectConnectedDAppRepository,
-        savedSessionToAccountsMigrationService: WalletConnectAccountMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService,
         logger: TangemLogger.Logger,
         currentDateProvider: @escaping () -> Date = { Date() }
     ) {
         self.connectedDAppRepository = connectedDAppRepository
-        self.savedSessionToAccountsMigrationService = savedSessionToAccountsMigrationService
         self.dAppSessionExtensionService = dAppSessionExtensionService
         self.logger = logger
         self.currentDateProvider = currentDateProvider
@@ -37,16 +34,9 @@ actor WalletConnectDAppSessionsExtender {
             return await extendTask.value
         }
 
-        let task = Task { [connectedDAppRepository, savedSessionToAccountsMigrationService, logger, weak self] in
+        let task = Task { [connectedDAppRepository, logger, weak self] in
             do {
-                let dAppsToExtend: [WalletConnectConnectedDApp]
-
-                if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
-                    dAppsToExtend = migratedDApps
-                } else {
-                    dAppsToExtend = try await connectedDAppRepository.getAllDApps()
-                }
-
+                let dAppsToExtend = try await connectedDAppRepository.getAllDApps()
                 try await self?.extendDAppsWithTimeout(dAppsToExtend)
             } catch {
                 logger.error("Failed to extend connected dApps", error: error)
@@ -105,37 +95,18 @@ extension WalletConnectDAppSessionsExtender {
 
 private extension WalletConnectConnectedDApp {
     func with(updatedExpiryDate: Date) -> WalletConnectConnectedDApp {
-        switch self {
-        case .v1(let dApp):
-            return .v1(
-                WalletConnectConnectedDAppV1(
-                    session: WalletConnectDAppSession(
-                        topic: dApp.session.topic,
-                        namespaces: dApp.session.namespaces,
-                        expiryDate: updatedExpiryDate
-                    ),
-                    userWalletID: dApp.userWalletID,
-                    dAppData: dApp.dAppData,
-                    verificationStatus: dApp.verificationStatus,
-                    dAppBlockchains: dApp.dAppBlockchains,
-                    connectionDate: dApp.connectionDate
-                )
-            )
-
-        case .v2(let dApp):
-            let wrapped = WalletConnectConnectedDAppV1(
-                session: WalletConnectDAppSession(
-                    topic: dApp.session.topic,
-                    namespaces: dApp.session.namespaces,
-                    expiryDate: updatedExpiryDate
-                ),
-                userWalletID: dApp.wrapped.userWalletID,
-                dAppData: dApp.dAppData,
-                verificationStatus: dApp.verificationStatus,
-                dAppBlockchains: dApp.dAppBlockchains,
-                connectionDate: dApp.connectionDate
-            )
-            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
-        }
+        WalletConnectConnectedDApp(
+            accountId: accountId,
+            session: WalletConnectDAppSession(
+                topic: session.topic,
+                namespaces: session.namespaces,
+                expiryDate: updatedExpiryDate
+            ),
+            userWalletID: userWalletID,
+            dAppData: dAppData,
+            verificationStatus: verificationStatus,
+            dAppBlockchains: dAppBlockchains,
+            connectionDate: connectionDate
+        )
     }
 }
