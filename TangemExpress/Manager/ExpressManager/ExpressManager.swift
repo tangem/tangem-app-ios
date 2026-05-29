@@ -35,12 +35,14 @@ public protocol ExpressManager: Actor {
 }
 
 public struct ExpressManagerUpdatingResult {
-    public let providers: [ExpressAvailableProvider]
     public let selected: ExpressAvailableProvider?
+    public let providers: [ExpressAvailableProvider]
+    public let supportedRateTypes: Set<ExpressProviderRateType>
 
-    public init(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?) {
-        self.providers = providers
+    public init(selected: ExpressAvailableProvider?, providers: [ExpressAvailableProvider], supportedRateTypes: Set<ExpressProviderRateType>) {
         self.selected = selected
+        self.providers = providers
+        self.supportedRateTypes = supportedRateTypes
     }
 }
 

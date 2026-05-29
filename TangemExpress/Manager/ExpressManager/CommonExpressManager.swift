@@ -243,7 +243,11 @@ private extension CommonExpressManager {
     }
 
     func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
-        let result = ExpressManagerUpdatingResult(providers: availableProviders.all, selected: selected)
+        let result = ExpressManagerUpdatingResult(
+            selected: selected,
+            providers: availableProviders.all,
+            supportedRateTypes: availableProviders.supportedRateTypes
+        )
         ExpressLogger.info(self, "Updating result: \(result.description)")
         return result
     }
@@ -265,6 +269,13 @@ extension CommonExpressManager {
         let fixed: [ExpressAvailableProvider]
 
         var all: [ExpressAvailableProvider] { float + fixed }
+
+        var supportedRateTypes: Set<ExpressProviderRateType> {
+            var types: Set<ExpressProviderRateType> = []
+            if !float.isEmpty { types.insert(.float) }
+            if !fixed.isEmpty { types.insert(.fixed) }
+            return types
+        }
 
         func providers(for rateType: ExpressProviderRateType) -> [ExpressAvailableProvider] {
             switch rateType {

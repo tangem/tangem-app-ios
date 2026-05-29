@@ -335,7 +335,7 @@ private extension SwapModel {
         }
 
         // For this kind of restriction we don't show any sign of providers.
-        return .loaded(providers: [], selected: .none, state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
+        return .loaded(providers: .empty, selected: .none, state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
     }
 
     private func logErrorIfNeeded(providersState: ProvidersState) {
@@ -398,7 +398,10 @@ extension SwapModel {
         try Task.checkCancellation()
 
         return .loaded(
-            providers: updatingResult.providers,
+            providers: ProvidersState.Providers(
+                available: updatingResult.providers,
+                supportedRateTypes: updatingResult.supportedRateTypes
+            ),
             selected: updatingResult.selected,
             state: state
         )
@@ -1081,6 +1084,15 @@ extension SwapModel: SendSwapProvidersInput {
             .eraseToAnyPublisher()
     }
 
+    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
+        _providersState
+            // Do not clear data in `Publisher` when `.loading`
+            .filter { !$0.isLoading }
+            .map(\.supportedRateTypes)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var currentRateType: ExpressProviderRateType? {
         _currentRateType.value
     }
@@ -1590,7 +1602,7 @@ extension SwapModel.ProvidersState: CustomStringConvertible {
         case .failure(let error):
             "failure(\(error.localizedDescription))"
         case .loaded(let providers, let selected, let state):
-            "loaded(providers: \(providers.count), selected: \(String(describing: selected)), state: \(state))"
+            "loaded(providers: \(providers.available.count), selected: \(String(describing: selected)), state: \(state), supportedRateTypes: \(providers.supportedRateTypes))"
         }
     }
 }
@@ -1619,11 +1631,18 @@ extension SwapModel {
         case loading(LoadingType)
         /// Error only for case when all providers didn't loaded
         case failure(Error)
-        case loaded(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?, state: LoadedState)
+        case loaded(providers: Providers, selected: ExpressAvailableProvider?, state: LoadedState)
 
         var providers: [ExpressAvailableProvider] {
             switch self {
-            case .loaded(let providers, _, _): providers
+            case .loaded(let providers, _, _): providers.available
+            default: []
+            }
+        }
+
+        var supportedRateTypes: Set<ExpressProviderRateType> {
+            switch self {
+            case .loaded(let providers, _, _): providers.supportedRateTypes
             default: []
             }
         }
@@ -1635,6 +1654,15 @@ extension SwapModel {
             case .loading(let type): types.contains(type)
             default: true
             }
+        }
+
+        struct Providers {
+            static let empty = Providers(available: [], supportedRateTypes: [])
+
+            let available: [ExpressAvailableProvider]
+            let supportedRateTypes: Set<ExpressProviderRateType>
+
+            var isEmpty: Bool { available.isEmpty }
         }
     }
 
