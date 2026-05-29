@@ -269,6 +269,13 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .apiList)
     }
 
+    // MARK: - Application versions
+
+    func loadApplicationVersions() async throws -> ApplicationVersionsDTO {
+        let version: String = InfoDictionaryUtils.version.value() ?? ""
+        return try await request(for: .applicationVersions(version: version, platform: "ios"))
+    }
+
     func loadFeatures() async throws -> [String: Bool] {
         try await request(for: .features)
     }

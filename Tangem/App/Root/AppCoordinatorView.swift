@@ -79,6 +79,9 @@ struct AppCoordinatorView: CoordinatorView {
                 LaunchScreenView()
             case .jailbreakWarning(let viewModel):
                 JailbreakWarningView(viewModel: viewModel)
+            case .forceUpdate(let viewModel):
+                ForceUpdateView(viewModel: viewModel)
+                    .transition(.opacity.animation(.easeIn))
             case .none:
                 EmptyView()
             }

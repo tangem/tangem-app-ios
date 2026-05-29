@@ -47,6 +47,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
     @Published private(set) var isAddFundsBannerVisible: Bool = false
+    @Published private(set) var isAppUpdateBannerVisible: Bool = false
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -54,6 +55,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
         for: AddFundsNotificationEvent(),
         buttonAction: { [weak self] _, _ in self?.openAddFunds() }
+    )
+    private(set) lazy var appUpdateNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
+        for: AppUpdateNotificationEvent(),
+        buttonAction: { [weak self] _, _ in self?.openAppStoreUpdate() }
     )
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
@@ -86,6 +91,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.appUpdateService) private var appUpdateService: AppUpdateService
 
     private let notificationBannerItemsProvider: NotificationBannerItemsProvider
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
@@ -318,6 +324,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        appUpdateService
+            .statePublisher
+            .map { $0.isOptionalUpdate }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isAppUpdateBannerVisible, on: self, ownership: .weak)
             .store(in: &bag)
 
         Publishers
@@ -634,6 +648,10 @@ extension MultiWalletMainContentViewModel {
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
         coordinator?.openBuy(userWalletModels: userWalletModels)
+    }
+
+    private func openAppStoreUpdate() {
+        coordinator?.openAppStore()
     }
 
     private func openSupport() {

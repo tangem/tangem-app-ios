@@ -102,6 +102,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadApplicationVersions() async throws -> ApplicationVersionsDTO {
+        throw "Not implemented"
+    }
+
     func loadCoinsList(requestModel: MarketsDTO.General.Request) async throws -> MarketsDTO.General.Response {
         throw "Not implemented"
     }

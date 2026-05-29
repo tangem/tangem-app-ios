@@ -40,4 +40,5 @@ enum AppConstants {
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
     static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
+    static let appStoreURL = URL(string: "itms-apps://apps.apple.com/app/id1354868448")!
 }
