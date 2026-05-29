@@ -36,7 +36,11 @@ public protocol ExpressManager: Actor {
 
 public enum ExpressManagerState {
     case idle
-    case swap(selected: ExpressAvailableProvider? = .none, providers: Providers)
+
+    @available(*, unavailable, message: "This is not implemented yet")
+    case transfer
+
+    case swap(selected: ExpressAvailableProvider?, providers: Providers)
 
     public struct Providers {
         public static let empty = Providers(float: [], fixed: [])
