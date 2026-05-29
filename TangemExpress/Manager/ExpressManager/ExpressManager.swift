@@ -43,8 +43,6 @@ public enum ExpressManagerState {
     case swap(selected: ExpressAvailableProvider?, providers: Providers)
 
     public struct Providers {
-        public static let empty = Providers(float: [], fixed: [])
-
         private let float: [ExpressAvailableProvider]
         private let fixed: [ExpressAvailableProvider]
 

@@ -21,6 +21,5 @@ public struct ExpressManagerSwappingPairRequest {
 
     /// - Note: Stays nil for single-provider updates since quotes loading performance tracking
     /// is only relevant for batched updates of multiple providers.
-    /// - Note: `private(set)` is used here only for keeping the synthesized initializer working.
-    private(set) var quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
+    let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }

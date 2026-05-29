@@ -227,7 +227,7 @@ extension SwapModel {
 
 private extension SwapModel {
     func swappingPairDidChange() {
-        let loadingType: (_ manager: ExpressManager) async -> LoadingType = { [weak self] _ in
+        let loadingType: () async -> LoadingType = { [weak self] in
             guard let self else {
                 return .providers
             }
@@ -254,11 +254,11 @@ private extension SwapModel {
         loadingType: LoadingType,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
-        updateTask(loadingType: { _ in loadingType }, block: block)
+        updateTask(loadingType: { loadingType }, block: block)
     }
 
     func updateTask(
-        loadingType: @escaping (_ manager: ExpressManager) async -> LoadingType,
+        loadingType: @escaping () async -> LoadingType,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
         updateTask?.cancel()
@@ -268,7 +268,7 @@ private extension SwapModel {
                     return input.update(providersState: restrictionProvidersState)
                 }
 
-                let type = await loadingType(input.expressManager)
+                let type = await loadingType()
                 input.update(providersState: .loading(type))
 
                 let state = try await block(input.expressManager)
@@ -609,7 +609,7 @@ extension SwapModel {
 
         let amountType = await expressManager.getAmountType()
 
-        switch (amountType, loadedState.quote)  {
+        switch (amountType, loadedState.quote) {
         case (.from, .some(let quote)):
             _receiveAmount.send(
                 makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId)
