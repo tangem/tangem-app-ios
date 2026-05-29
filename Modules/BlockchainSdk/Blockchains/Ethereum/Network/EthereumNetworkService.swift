@@ -129,9 +129,15 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> {
-        providerPublisher {
-            $0.getGasLimit(to: to, from: from, value: value, data: data)
+    func getGasLimit(
+        to: String,
+        from: String,
+        value: String?,
+        data: String?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<BigUInt, Error> {
+        return providerPublisher {
+            $0.getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
                 .tryMap { try EthereumMapper.mapBigUInt($0) }
                 .eraseToAnyPublisher()
         }
