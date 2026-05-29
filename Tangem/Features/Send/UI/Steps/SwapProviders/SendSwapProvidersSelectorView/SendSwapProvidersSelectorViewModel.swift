@@ -92,7 +92,8 @@ private extension SendSwapProvidersSelectorViewModel {
         }
 
         showableProvidersPublisher
-            .map { Self.computeFilterOptions(showableProviders: $0.providers) }
+            .withWeakCaptureOf(self)
+            .map { $0.computeFilterOptions(showableProviders: $1.providers) }
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -131,19 +132,14 @@ private extension SendSwapProvidersSelectorViewModel {
             .assign(to: &$ukNotificationInput)
     }
 
-    static func computeFilterOptions(showableProviders: [ExpressAvailableProvider]) -> [ProviderTypeFilter] {
+    func computeFilterOptions(showableProviders: [ExpressAvailableProvider]) -> [ProviderTypeFilter] {
         guard FeatureProvider.isAvailable(.swapProviderTypeFilter) else { return [] }
-        var hasCex = false
-        var hasDex = false
-        for available in showableProviders {
-            switch available.provider.type {
-            case .cex: hasCex = true
-            case .dex, .dexBridge: hasDex = true
-            case .onramp, .unknown: break
-            }
-            if hasCex, hasDex { break }
-        }
+
+        let hasCex = showableProviders.contains(where: \.provider.type.isCEX)
+        let hasDex = showableProviders.contains(where: \.provider.type.isDEX)
+
         guard hasCex, hasDex else { return [] }
+
         return [.all, .cex, .dex]
     }
 
