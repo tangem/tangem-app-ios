@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct DetailsView: View {
     @ObservedObject private var viewModel: DetailsViewModel
@@ -58,6 +59,7 @@ struct DetailsView: View {
             staticModels: [viewModel.addOrScanNewUserWalletViewModel].compactMap { $0 },
             staticContent: { viewData in
                 AddListItemButton(viewData: viewData)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.addNewWallet)
             },
             sectionHeader: {
                 DefaultHeaderView(Localization.commonWallets)
@@ -101,6 +103,7 @@ struct DetailsView: View {
                 Text(applicationInfoFooter)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .padding(.top, 8)
+                    .accessibilityIdentifier(DetailsAccessibilityIdentifiers.appVersion)
             }
         }
         .frame(maxWidth: .infinity)
