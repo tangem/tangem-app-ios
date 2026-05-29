@@ -40,7 +40,15 @@ final class OnrampApplePayPresenter: NSObject, OnrampApplePayPresenting, @unchec
         currentOnWillBuy = onWillBuy
 
         authorizationHandler?.applePaySheetWillPresent()
-        controller.present()
+        controller.present { [weak self] presented in
+            guard !presented else { return }
+            Task { @MainActor in
+                guard let self else { return }
+                ExpressLogger.warning(self, "PKPaymentAuthorizationController.present rejected; releasing session")
+                self.releaseSession()
+                self.authorizationHandler?.applePaySheetDidFinish()
+            }
+        }
     }
 
     @MainActor
