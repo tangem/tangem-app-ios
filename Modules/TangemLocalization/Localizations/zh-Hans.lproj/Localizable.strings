@@ -656,8 +656,8 @@
 "mail_error_no_accounts_body" = "请创建一个帐户以发送电子邮件。";
 "mail_error_no_accounts_title" = "无邮件账户";
 "main_add_and_manage_tokens" = "添加和管理";
-"main_add_funds_promo_description" = "Deposit crypto or buy with card to get started";
-"main_add_funds_promo_title" = "Add funds to start earning and trading";
+"main_add_funds_promo_description" = "Buy or receive crypto to start using your wallet.";
+"main_add_funds_promo_title" = "Get your first crypto";
 "main_empty_tokens_list_message" = "要开始追踪您的加密资产和交易，请添加代币。";
 "main_manage_tokens" = "管理代币";
 "main_qr_scan_hint" = "扫描二维码即可发送资金或连接到应用程序";
@@ -1424,10 +1424,6 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "无法重命名卡片";
 "tangem_pay_card_frozen" = "卡片已冻结";
 "tangem_pay_card_payment" = "卡片支付";
-"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
-"tangem_pay_close_card_popup_primary_button_title" = "Close card";
-"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
-"tangem_pay_close_card_popup_title" = "Close your card?";
 "tangem_pay_close_card_popup_description" = "它将从付款账户中消失";
 "tangem_pay_close_card_popup_primary_button_title" = "关闭卡片";
 "tangem_pay_close_card_popup_secondary_button_title" = "返回";
@@ -1457,15 +1453,15 @@
 "tangem_pay_terms_fees_limits" = "条款、费用和限制";
 "tangem_pay_terms_limits" = "条款和限制";
 "tangem_pay_transaction_declined_notification_text" = "银行拒绝了这项交易请求。";
-"tangem_pay_transaction_fee_notification_text" = "这笔费用用于支付您办理转账时的费用。";
+"tangem_pay_transaction_fee_notification_text" = "费用按服务费率收取";
 "tangem_pay_transaction_reversed_notification_text" = "商家部分或全部撤销了交易";
 "tangem_pay_unfreeze_card_alert_body" = "继续使用您的资金。您可以随时冻结资金。";
 "tangem_pay_unfreeze_card_alert_title" = "要解冻您的卡片？";
 "tangem_pay_unfreeze_card_failed" = "卡片解冻失败，请稍后再试。";
 "tangem_pay_unfreeze_card_success" = "您的卡片已解冻。";
 "tangem_pay_withdrawal" = "提款";
-"tangempay_account_deactivated_message_subtitle" = "这是根据监管要求执行的。不过，提现仍然可用。";
-"tangempay_account_deactivated_message_title" = "您的卡已停用";
+"tangempay_account_deactivated_message_subtitle" = "如需咨询账户、数据或交易记录，请联系支持团队";
+"tangempay_account_deactivated_message_title" = "您的账户已被关闭";
 "tangempay_account_unable_to_use_rooted" = "无法在已root的设备上使用";
 "tangempay_available_balance" = "可用余额";
 "tangempay_cancel_kyc" = "从主屏幕隐藏 KYC 页面";
@@ -1521,8 +1517,6 @@
 "tangempay_card_edit_name_placeholder" = "卡片名称";
 "tangempay_card_limit_setup_amount_subtitle" = "从 %@设定一个限额";
 "tangempay_card_limit_setup_error_message" = "我们无法设置限额，请稍后再试。";
-"tangempay_card_page_closing_banner_description" = "Usually takes up to 5 minutes";
-"tangempay_card_page_closing_banner_title" = "Closing your card";
 "tangempay_card_page_closing_banner_description" = "通常需要最多 5 分钟";
 "tangempay_card_page_closing_banner_title" = "关闭您的卡片";
 "tangempay_card_page_daily_limit_change" = "改变";
@@ -1586,7 +1580,7 @@
 "tangempay_onboarding_security_title" = "无与伦比的隐私保护";
 "tangempay_onboarding_setup_wallet_description" = "并将其与支付卡关联。";
 "tangempay_onboarding_setup_wallet_title" = "我们将设置一个钱包。";
-"tangempay_onboarding_title" = "几分钟内即可获得免费的 Tangem Pay 卡";
+"tangempay_onboarding_title" = "立即获取你的 Tangem Pay 卡";
 "tangempay_pay_support" = "支付支持";
 "tangempay_payment_account_sync_needed" = "Tangem Pay 会话已过期";
 "tangempay_payment_account" = "支付账户";
@@ -1609,7 +1603,6 @@
 "tangempay_status_replacing" = "更换您的卡片";
 "tangempay_sync_needed_body" = "用卡或戒指续期会话";
 "tangempay_sync_needed_button" = "恢复访问权限";
-"tangempay_sync_needed_title" = "Tangem Pay 会话已过期";
 "tangempay_sync_needed_restore_access" = "恢复访问权限";
 "tangempay_sync_needed_title" = "Tangem Pay 会话已过期";
 "tangempay_sync_needed" = "用卡或戒指续期会话";
@@ -1941,8 +1934,6 @@
 "warning_old_card_title" = "iOS 对旧卡片的限制";
 "warning_old_device_old_card_message" = "部分 iPhone 7/7+ 机型在进行某些操作时可能会出现 NFC 问题。";
 "warning_old_device_old_card_title" = "检测到设备不兼容";
-"warning_outdated_data_message" = "Will be updated as soon as possible";
-"warning_outdated_data_title" = "Missing some token balances";
 "warning_outdated_data_message" = "将尽快更新";
 "warning_outdated_data_title" = "缺少部分代币余额";
 "warning_rate_app_message" = "您的评价激励我们不断改进 Tangem Wallet。";
@@ -2105,7 +2096,6 @@
 "yield_apy_boost_banner_title_apy_multiplied" = "APY x3";
 "yield_apy_boost_banner_title" = "收益模式特惠";
 "yield_apy_boost_block_activate" = "yield_apy_boost_block_activate";
-"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
 "yield_apy_boost_promo_activate_bonus" = "Activate your bonus";
 "yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
 "yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
