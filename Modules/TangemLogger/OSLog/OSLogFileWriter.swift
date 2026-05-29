@@ -20,8 +20,7 @@ public final class OSLogFileWriter {
         .urls(for: .cachesDirectory, in: .userDomainMask)[0]
         .appendingPathComponent(OSLogConstants.fileName)
 
-    /// Resolved once: production redacts persisted logs, non-production keeps the full trace.
-    /// The build environment is fixed for the process lifetime, so this never needs re-evaluation.
+    /// Production redacts persisted logs, non-production keeps the full trace.
     private let sanitizerPolicy: LogSanitizerPolicy = AppEnvironment.current.isProduction ? .production : .disabled
 
     /// Cached once per process, matching the pattern used in `DateFormatter+.swift` (BlockchainSdk).

@@ -193,6 +193,8 @@ Key lanes defined in `fastlane/Fastfile`:
 
 **Style Guide:** Follow [Google's Swift Style Guide](https://google.github.io/swift/)
 
+**No redundant comments.** Don't add comments that merely restate what the code or the language already conveys — e.g. annotating a `static let` with "Resolved once" / "Cached / fixed for the process lifetime", or a `private` member with "Used internally". A comment must explain something the reader can't get from the declaration itself: a non-obvious *why*, a constraint, a gotcha, or intent that isn't visible in the code. When in doubt, leave it out — the diff and the type signatures already document the *what*.
+
 **SwiftUI Previews:** Must be wrapped in `#if DEBUG`/`#endif` and marked with `// MARK: - Previews`:
 ```swift
 // MARK: - Previews

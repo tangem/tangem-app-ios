@@ -47,7 +47,7 @@ struct TangemLoggerConfiguration: TangemLogger.Logger.Configuration {
              .error:
             return true
         case .debug:
-            // Non-production builds persist debug logs too, so the exported archive carries every severity.
+            // Persist debug too, so the exported archive carries every severity.
             return !AppEnvironment.current.isProduction
         }
     }

@@ -69,7 +69,7 @@ extension TangemNetworkLoggerPlugin {
 
             let headers = isVerboseLoggingEnabled
                 ? allHeaders.map { "\($0.key): \($0.value)" }.joined(separator: ", ")
-                : allHeaders.keys.joined(separator: ",")
+                : allHeaders.keys.joined(separator: ", ")
 
             output.append("Headers: \(headers)")
         }
