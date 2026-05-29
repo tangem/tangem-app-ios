@@ -20,17 +20,15 @@ final class UserTokensPushNotificationsUpdateTrigger {
         eventsSubject.eraseToAnyPublisher()
     }
 
-    /// Local mirror of `permissionService.isAuthorizedPublisher`. The upstream publisher only
-    /// emits on `UIApplication.didBecomeActiveNotification`, so we keep the latest reported value
-    /// here. Starts as `.idle` — consumers must skip that state instead of treating it as `false`.
+    /// Local mirror of `isAuthorizedPublisher` (which only emits on `didBecomeActive`). Starts at
+    /// `.idle` so downstream can distinguish "no reading yet" from a real `false`.
     private let isAuthorizedSubject = CurrentValueSubject<AuthorizationState, Never>(.idle)
 
     private let userWalletId: UserWalletId
     private let eventsSubject = PassthroughSubject<PushNotificationsUpdateTriggerEvent, Never>()
     private var bag: Set<AnyCancellable> = []
 
-    /// Stream of authorization values with `idle` filtered out, so downstream operators only see
-    /// real readings reported by the permission service.
+    /// `isAuthorizedSubject` with `.idle` filtered out — emits only real permission readings.
     private var isAuthorizedValuePublisher: AnyPublisher<Bool, Never> {
         isAuthorizedSubject
             .compactMap { state in
@@ -49,6 +47,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
         remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>
     ) {
         self.userWalletId = userWalletId
+        seedInitialAuthorizationState(permissionService: permissionService)
         bind(
             accountModelsManager: accountModelsManager,
             permissionService: permissionService,
@@ -57,6 +56,15 @@ final class UserTokensPushNotificationsUpdateTrigger {
     }
 
     // MARK: - Private
+
+    private func seedInitialAuthorizationState(permissionService: PushNotificationsPermissionService) {
+        // Seed `isAuthorizedSubject` with the current system permission so downstream pipelines
+        // have a baseline even if the trigger is created after the cold-start `didBecomeActive`.
+        Task { [weak self, permissionService] in
+            let initial = await permissionService.isAuthorized
+            self?.isAuthorizedSubject.send(.value(initial))
+        }
+    }
 
     private func bind(
         accountModelsManager: AccountModelsManager,
@@ -110,14 +118,15 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        // Fire on every known auth reading instead of `pairwise()`-based change detection: the
-        // upstream publisher only emits on `didBecomeActive` and never replays, so when the trigger
-        // is created after the cold-start activation we'd otherwise stay one emission short of a
-        // pair and miss the very first transition (e.g. user disabling push permission in Settings
-        // and returning). `updateStatusIfNeeded()` deduplicates by comparing against the current
-        // stored status, so extra invocations don't produce redundant emissions.
+        // Fire on any flip of system permission (`true ↔ false`), typically the user toggling
+        // push in iOS Settings. Needs two known readings, so it relies on at least one prior
+        // `didBecomeActive`.
         isAuthorizedValuePublisher
             .removeDuplicates()
+            .pairwise()
+            .filter { previous, current in
+                previous != current
+            }
             .combineLatest(isUserTokenListReadyPublisher)
             .receiveOnMain()
             .map { _ in PushNotificationsUpdateTriggerEvent.updateStatusRequired }
@@ -135,22 +144,21 @@ final class UserTokensPushNotificationsUpdateTrigger {
             .removeDuplicates()
             .eraseToAnyPublisher()
 
-        // `isPreferencesReady == true` means the wallet is synced with the backend — that's the
-        // primary trigger for auto-enabling preferences. Auth state and other readiness flags are
-        // gated in via `combineLatest` so they contribute their latest values without driving the
-        // emission cadence.
+        // Auto-enable preferences once everything is ready: backend synced (`isPreferencesReady`),
+        // token list loaded, onboarding not yet completed, and system permission granted. Auth has
+        // no `removeDuplicates()` on purpose — a late-arriving reading must still re-emit. The
+        // manager dedupes downstream and ends the loop by flipping the onboarding flag to `false`.
         isPreferencesReadyPublisher
             .filter { $0 }
             .combineLatest(
-                isAuthorizedValuePublisher.removeDuplicates(),
+                isAuthorizedValuePublisher,
                 isUserTokenListReadyPublisher,
                 hasNotCompletedAllowanceOnboardingPublisher
             )
-            .filter { _, _, isUserTokenListReady, hasNotCompletedAllowanceOnboarding in
-                isUserTokenListReady && hasNotCompletedAllowanceOnboarding
+            .filter { _, isAuthorized, isUserTokenListReady, hasNotCompletedAllowanceOnboarding in
+                isAuthorized && isUserTokenListReady && hasNotCompletedAllowanceOnboarding
             }
             .receiveOnMain()
-            .print("UserTokensPushNotificationsUpdateTrigger")
             .map { _ in PushNotificationsUpdateTriggerEvent.autoEnablePreferencesRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
@@ -175,9 +183,8 @@ final class UserTokensPushNotificationsUpdateTrigger {
 }
 
 private extension UserTokensPushNotificationsUpdateTrigger {
-    /// Tri-state mirror of the system push-authorization flag. `idle` means the upstream
-    /// publisher hasn't reported yet and the value must not be treated as `false`; downstream
-    /// pipelines drop `idle` instead of acting on an unknown state.
+    /// `.idle` means we haven't observed any permission reading yet — consumers must drop it
+    /// instead of treating it as `false`.
     enum AuthorizationState: Hashable {
         case idle
         case value(Bool)
