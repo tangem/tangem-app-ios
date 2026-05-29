@@ -22,9 +22,10 @@ struct TokenDetailsActionsButtonsRowView: View {
                 TangemMainActionButton(
                     title: button.title,
                     icon: button.icon,
-                    buttonState: button.isAvailable ? .normal : .disabled,
-                    action: button.action
+                    action: button.action,
+                    reasonTapWhenDisabled: button.action
                 )
+                .disabled(!button.isAvailable)
                 .ifLet(button.longPressAction) { view, longPressAction in
                     view.simultaneousGesture(
                         LongPressGesture(minimumDuration: 0.5)

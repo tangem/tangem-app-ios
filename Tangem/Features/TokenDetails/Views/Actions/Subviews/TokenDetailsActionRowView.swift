@@ -21,6 +21,7 @@ struct TokenDetailsActionRowView: View {
     @ScaledMetric(wrappedValue: .unit(.x3)) private var verticalPadding: CGFloat
 
     var body: some View {
+        // An unavailable row stays tappable so `item.action` can surface the reason alert; dimming is cosmetic.
         Button(action: item.action) {
             TangemTwoLineRowLayout(
                 icon: { iconView },
@@ -52,14 +53,14 @@ struct TokenDetailsActionRowView: View {
                 .frame(width: iconSize, height: iconSize)
         }
         .frame(width: iconContainerSize, height: iconContainerSize)
-        .opacity(item.isAvailable ? 1 : 0.4)
+        .actionControlDimmed(isEnabled: item.isAvailable)
     }
 
     private var titleView: some View {
         Text(item.title)
             .style(
                 .Tangem.Body16.medium,
-                color: item.isAvailable ? .Tangem.Text.Neutral.primary : .Tangem.Text.Status.disabled
+                color: ActionControlAppearance.contentColor(isEnabled: item.isAvailable)
             )
             .lineLimit(1)
     }
