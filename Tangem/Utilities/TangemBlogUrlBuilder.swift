@@ -25,6 +25,7 @@ extension TangemBlogUrlBuilder {
         case mobileWallet
         case giveRevokePermission
         case seedPhraseFaq
+        case yieldMode
     }
 }
 
@@ -45,6 +46,8 @@ private extension TangemBlogUrlBuilder.Post {
             "give-revoke-permission"
         case .seedPhraseFaq:
             "seed-phrase-faq"
+        case .yieldMode:
+            "yield-mode"
         }
     }
 }
