@@ -172,25 +172,20 @@ private extension SwapModel {
 // MARK: - Changes -> ExpressManager
 
 extension SwapModel {
-    func update(amountType: ExpressAmountType?) {
-        ExpressLogger.info("Will update express amount type to \(amountType as Any)")
+    func update(sourceAmount: SendAmount?) {
+        ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
 
         updateTask(loadingType: .rates) { expressManager in
-            if amountType != nil {
+            if sourceAmount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
             }
 
+            let amountType: ExpressAmountType? = sourceAmount?.crypto.map { .from($0) }
             return await expressManager.update(amountType: amountType)
         }
-    }
-
-    func update(sourceAmount: SendAmount?) {
-        ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
-        update(amountType: sourceAmount?.crypto.map { .from($0) })
 
         _sourceAmount.send(sourceAmount)
-
         if sourceAmount == nil {
             _receiveAmount.send(nil)
         }
@@ -198,7 +193,15 @@ extension SwapModel {
 
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
-        update(amountType: receiveAmount?.crypto.map { .to($0) })
+
+        updateTask(loadingType: .rates) { expressManager in
+            if receiveAmount != nil {
+                // Add some debounce
+                try await Task.sleep(for: .seconds(1))
+            }
+            let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
+            return await expressManager.update(amountType: amountType)
+        }
 
         _receiveAmount.send(receiveAmount)
 
@@ -268,10 +271,10 @@ private extension SwapModel {
                 let type = await loadingType(input.expressManager)
                 input.update(providersState: .loading(type))
 
-                let result = try await block(input.expressManager)
+                let state = try await block(input.expressManager)
                 try Task.checkCancellation()
 
-                let providersState = try await input.mapToLoadedProvidersState(result: result)
+                let providersState = try await input.mapToLoadedProvidersState(state: state)
                 try Task.checkCancellation()
 
                 await input.updateComplementaryAmount(state: providersState)
@@ -352,8 +355,8 @@ private extension SwapModel {
 // MARK: - Map
 
 extension SwapModel {
-    func mapToLoadedProvidersState(result: ExpressManagerState) async throws -> ProvidersState {
-        switch result {
+    func mapToLoadedProvidersState(state: ExpressManagerState) async throws -> ProvidersState {
+        switch state {
         case .idle:
             return .idle
 
