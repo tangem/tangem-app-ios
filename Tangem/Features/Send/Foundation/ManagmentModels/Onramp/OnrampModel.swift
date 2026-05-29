@@ -45,7 +45,7 @@ class OnrampModel {
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
     private var pendingApplePayCompletion: PendingApplePayCompletion?
-    private var didPauseTimerForApplePay = false
+    private var isApplePaySheetPresented = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -363,6 +363,11 @@ private extension OnrampModel {
     }
 
     func autoupdateTask() async throws {
+        guard !isApplePaySheetPresented else {
+            log("Apple Pay sheet presented. Skip autoupdate")
+            return
+        }
+
         guard _selectedOnrampProvider.value?.value?.isSuccessfullyLoaded == true else {
             log("Selected provider has an error. Do not start autoupdate")
             return
@@ -547,16 +552,11 @@ extension OnrampModel: OnrampSummaryOutput {
 
 extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetWillPresent() {
-        guard !autoupdatingTimer.isPaused else { return }
-        autoupdatingTimer.pauseTimer()
-        didPauseTimerForApplePay = true
+        isApplePaySheetPresented = true
     }
 
     func applePaySheetDidFinish() {
-        if didPauseTimerForApplePay {
-            autoupdatingTimer.resumeTimer()
-            didPauseTimerForApplePay = false
-        }
+        isApplePaySheetPresented = false
 
         switch pendingApplePayCompletion {
         case .finishStep:
