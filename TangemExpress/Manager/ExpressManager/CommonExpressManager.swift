@@ -66,18 +66,23 @@ extension CommonExpressManager: ExpressManager {
             update(state: .idle(providers: providers))
             return currentState
 
-        case (.from(let amount), .float), (.to(let amount), .fixed):
-            return await reloadQuotes(amount: amount)
+        case (.from(let amount), .float):
+            let candidates = providers.availableProviders(rate: .float)
+            return await reloadQuotes(amountType: .from(amount), candidates: candidates)
+
+        case (.to(let amount), .fixed):
+            let candidates = providers.availableProviders(rate: .fixed)
+            return await reloadQuotes(amountType: .to(amount), candidates: candidates)
 
         case (.from(let amount), .fixed):
             update(state: .swap(rate: .float, providers: providers))
-
-            return await reloadQuotes(amount: amount)
+            let candidates = providers.availableProviders(rate: .float)
+            return await reloadQuotes(amountType: .from(amount), candidates: candidates)
 
         case (.to(let amount), .float):
             update(state: .swap(rate: .fixed, providers: providers))
-
-            return await reloadQuotes(amount: amount)
+            let candidates = providers.availableProviders(rate: .fixed)
+            return await reloadQuotes(amountType: .to(amount), candidates: candidates)
         }
     }
 
@@ -155,14 +160,13 @@ private extension CommonExpressManager {
         return ExpressManagerState.Providers(float: float, fixed: fixed)
     }
 
-    func reloadQuotes(amount: Decimal) async -> ExpressManagerState {
-        guard case .swap(let rate, _, let providers) = currentState else {
+    func reloadQuotes(amountType: ExpressAmountType, candidates: [ExpressAvailableProvider]) async -> ExpressManagerState {
+        guard case .swap = currentState else {
             return currentState
         }
 
-        let candidates = providers.availableProviders(rate: rate)
         await update(candidates: candidates) { provider, tracker in
-            await provider.update(amount: amount, quotesLoadingPerformanceTracker: tracker)
+            await provider.update(amountType: amountType, quotesLoadingPerformanceTracker: tracker)
         }
 
         if Task.isCancelled {

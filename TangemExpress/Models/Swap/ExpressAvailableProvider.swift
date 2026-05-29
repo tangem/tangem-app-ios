@@ -20,13 +20,13 @@ public class ExpressAvailableProvider {
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
     public var isBest: Bool { _isBest { $0 } }
-    public var amount: Decimal? { _amount { $0 } }
+    public var amountType: ExpressAmountType? { _amountType { $0 } }
     public var approvePolicy: ApprovePolicy { _approvePolicy { $0 } }
 
     // MARK: - Updatable state
 
     private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
-    private let _amount = OSAllocatedUnfairLock<Decimal?>(initialState: nil)
+    private let _amountType = OSAllocatedUnfairLock<ExpressAmountType?>(initialState: nil)
     private let _approvePolicy = OSAllocatedUnfairLock<ApprovePolicy>(initialState: .specified)
 
     init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, rateType: ExpressProviderRateType) {
@@ -51,8 +51,8 @@ extension ExpressAvailableProvider {
         _isBest { $0 = isBest }
     }
 
-    func update(amount: Decimal, quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) async {
-        _amount { $0 = amount }
+    func update(amountType: ExpressAmountType, quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) async {
+        _amountType { $0 = amountType }
 
         await updateState(quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker)
     }
@@ -81,7 +81,7 @@ extension ExpressAvailableProvider {
     }
 
     func reset() {
-        _amount { $0 = .none }
+        _amountType { $0 = .none }
         _approvePolicy { $0 = .specified }
         _isBest { $0 = false }
 
@@ -93,13 +93,8 @@ extension ExpressAvailableProvider {
 
 private extension ExpressAvailableProvider {
     func makeRequest(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) -> ExpressManagerSwappingPairRequest? {
-        guard let amount, amount > 0 else {
+        guard let amountType, amountType.amount > 0 else {
             return nil
-        }
-
-        let amountType: ExpressAmountType = switch rateType {
-        case .fixed: .to(amount)
-        case .float: .from(amount)
         }
 
         return ExpressManagerSwappingPairRequest(
