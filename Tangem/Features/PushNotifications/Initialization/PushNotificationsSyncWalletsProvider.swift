@@ -13,14 +13,22 @@ import TangemFoundation
 final class PushNotificationsSyncWalletsProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.pushNotificationsPermission) private var pushNotificationsPermission: PushNotificationsPermissionService
 
     func syncUserWalletModelState(applicationUid: String) async throws {
         let response = try await tangemApiService.getUserWallets(applicationUid: applicationUid)
 
-        let uniqueEntries = Array(Set(response.map {
-            ApplicationWalletEntry(id: $0.id, name: $0.name ?? "", notifyStatus: $0.notifyStatus)
-        }))
+        // Deduplicate by wallet id keeping the first occurrence. ApplicationWalletEntry's
+        // Hashable hashes id+name+notifyStatus, so a plain Set would let two entries with
+        // the same id but diverging metadata slip through and trap later in
+        // Dictionary(uniqueKeysWithValues:).
+        let uniqueEntries = Dictionary(
+            response.map { (
+                $0.id,
+                ApplicationWalletEntry(id: $0.id, name: $0.name ?? "", notifyStatus: $0.notifyStatus)
+            ) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        .map(\.value)
 
         let toSyncEntries: [ApplicationWalletEntry]
 
@@ -84,20 +92,20 @@ private extension PushNotificationsSyncWalletsProvider {
 
     /// Fetches fresh remote data for a wallet that was just connected. Falls back to a
     /// locally-derived entry if the remote fetch fails.
+    ///
+    /// Always returns the real remote `notifyStatus` (or `false` on fallback). Bootstrap
+    /// enabling for first-time eligible wallets is driven by `UserTokensPushNotificationsUpdateTrigger`'s
+    /// `autoEnablePreferencesRequired` event, which routes through `tryUpdateEnableState(true)` and
+    /// thus performs a real backend sync — overriding the value here would make the manager
+    /// believe remote is already `true` and skip that sync.
     func resolveNewlyConnectedEntry(for model: UserWalletModel) async -> ApplicationWalletEntry {
         let walletId = model.userWalletId.stringValue
-
-        let isAuthorized = await pushNotificationsPermission.isAuthorized
-        let shouldBootstrapNotifyStatus = PushNotificationsAllowanceBootstrapPolicy.isEligibleForBootstrap(
-            userWalletId: model.userWalletId,
-            isSystemPushAuthorized: isAuthorized
-        )
 
         if let remoteWallet = try? await tangemApiService.getUserWallet(userWalletId: walletId) {
             return ApplicationWalletEntry(
                 id: remoteWallet.id,
                 name: remoteWallet.name ?? "",
-                notifyStatus: shouldBootstrapNotifyStatus ? true : remoteWallet.notifyStatus
+                notifyStatus: remoteWallet.notifyStatus
             )
         }
 
@@ -105,7 +113,7 @@ private extension PushNotificationsSyncWalletsProvider {
         return ApplicationWalletEntry(
             id: walletId,
             name: model.name,
-            notifyStatus: shouldBootstrapNotifyStatus
+            notifyStatus: false
         )
     }
 
