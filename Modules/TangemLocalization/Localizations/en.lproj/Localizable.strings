@@ -1424,7 +1424,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Card frozen";
 "tangem_pay_card_payment" = "Card payment";
-"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
+"tangem_pay_close_card_popup_description" = "It will disappear from the app";
 "tangem_pay_close_card_popup_primary_button_title" = "Close card";
 "tangem_pay_close_card_popup_secondary_button_title" = "Go back";
 "tangem_pay_close_card_popup_title" = "Close your card?";
@@ -1597,9 +1597,9 @@
 "tangempay_reissue_card_title" = "Replace your card?";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
-"tangempay_service_unreachable_try_later" = "Unable to display details. However, card payments are still working.";
+"tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
 "tangempay_set_pin_code" = "Set \nPIN code";
-"tangempay_status_deactivated" = "Card deactivated";
+"tangempay_status_deactivated" = "Account closed";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Use your card or ring to renew session";
 "tangempay_sync_needed_button" = "Renew session";
@@ -1607,7 +1607,7 @@
 "tangempay_sync_needed_title" = "Payment account session expired";
 "tangempay_sync_needed" = "Use your card or ring to renew session";
 "tangempay_tangem_visa_card" = "Use USDC for everyday payments";
-"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unreachable";
+"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "Send USDC Polygon to your account’s address ";
 "tangempay_topup_receive_title" = "From another wallet or exchange";

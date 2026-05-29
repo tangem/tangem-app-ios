@@ -1424,10 +1424,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Tarjeta congelada";
 "tangem_pay_card_payment" = "Pago con tarjeta";
-"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
-"tangem_pay_close_card_popup_primary_button_title" = "Close card";
-"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
-"tangem_pay_close_card_popup_title" = "Close your card?";
+"tangem_pay_close_card_popup_description" = "Desaparecerá de la aplicación";
+"tangem_pay_close_card_popup_primary_button_title" = "Cerrar la tarjeta";
+"tangem_pay_close_card_popup_secondary_button_title" = "Atrás";
+"tangem_pay_close_card_popup_title" = "¿Cerrar tu tarjeta?";
 "tangem_pay_deposit" = "Depósito";
 "tangem_pay_dispute" = "Disputar";
 "tangem_pay_explore_transaction" = "Explorar transacción";
@@ -1581,7 +1581,7 @@
 "tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Obtén tu tarjeta Tangem Pay en minutos";
-"tangempay_pay_support" = "Pay Support";
+"tangempay_pay_support" = "Soporte Pay";
 "tangempay_payment_account_sync_needed" = "Tangem Pay sesión expirada";
 "tangempay_payment_account" = "Cuenta de pago";
 "tangempay_pin_validation_error_message" = "PIN no válido: evitar secuencias o repeticiones";
@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "Servicio temporalmente no disponible";
 "tangempay_service_unreachable_try_later" = "No es posible mostrar los datos en este momento, pero los pagos con tarjeta siguen funcionando.";
 "tangempay_set_pin_code" = "Establecer \nCódigo PIN";
-"tangempay_status_deactivated" = "Tarjeta desactivada";
+"tangempay_status_deactivated" = "Cuenta cerrada";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Usa la tarjeta o el anillo para renovar la sesión";
 "tangempay_sync_needed_button" = "Restablecer acceso";

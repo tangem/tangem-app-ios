@@ -27,13 +27,11 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService,
-        pendingDerivations: [Data: [DerivationPath]]
+        authorizationService: TangemPayAuthorizationService
     ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
         let task = CustomerWalletAuthorizationTask(
             customerWalletId: customerWalletId,
-            authorizationService: authorizationService,
-            pendingDerivations: pendingDerivations
+            authorizationService: authorizationService
         )
 
         let response: CustomerWalletAuthorizationTask.Response = await withCheckedContinuation { continuation in

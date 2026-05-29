@@ -1424,10 +1424,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Carta congelata";
 "tangem_pay_card_payment" = "Pagamento con carta";
-"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
-"tangem_pay_close_card_popup_primary_button_title" = "Close card";
-"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
-"tangem_pay_close_card_popup_title" = "Close your card?";
+"tangem_pay_close_card_popup_description" = "Sparirà dall’app";
+"tangem_pay_close_card_popup_primary_button_title" = "Chiudere la carta";
+"tangem_pay_close_card_popup_secondary_button_title" = "Indietro";
+"tangem_pay_close_card_popup_title" = "Chiudere la carta?";
 "tangem_pay_deposit" = "Deposito";
 "tangem_pay_dispute" = "Contestazione";
 "tangem_pay_explore_transaction" = "Esplora transazione";
@@ -1581,7 +1581,7 @@
 "tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Ottieni la tua carta Tangem Pay in pochi minuti";
-"tangempay_pay_support" = "Pay Support";
+"tangempay_pay_support" = "Assistenza Pay";
 "tangempay_payment_account_sync_needed" = "Tangem Pay sessione scaduta";
 "tangempay_payment_account" = "Conto di pagamento";
 "tangempay_pin_validation_error_message" = "PIN non valido: evitare sequenze o ripetizioni";
@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "Servizio temporaneamente non disponibile";
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
 "tangempay_set_pin_code" = "Set \nPIN code";
-"tangempay_status_deactivated" = "Carta disattivata";
+"tangempay_status_deactivated" = "Conto chiuso";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Usa la carta o l'anello per rinnovare la sessione";
 "tangempay_sync_needed_button" = "Renew session";

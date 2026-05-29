@@ -1424,10 +1424,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Картку заморожено";
 "tangem_pay_card_payment" = "Оплата карткою";
-"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
-"tangem_pay_close_card_popup_primary_button_title" = "Close card";
-"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
-"tangem_pay_close_card_popup_title" = "Close your card?";
+"tangem_pay_close_card_popup_description" = "Воно зникне з застосунку";
+"tangem_pay_close_card_popup_primary_button_title" = "Закрити картку";
+"tangem_pay_close_card_popup_secondary_button_title" = "Назад";
+"tangem_pay_close_card_popup_title" = "Закрити вашу картку?";
 "tangem_pay_deposit" = "Депозит";
 "tangem_pay_dispute" = "Оскаржити";
 "tangem_pay_explore_transaction" = "Переглянути транзакцію";
@@ -1581,7 +1581,7 @@
 "tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Отримайте картку Tangem Pay за лічені хвилини";
-"tangempay_pay_support" = "Pay Support";
+"tangempay_pay_support" = "Підтримка Pay";
 "tangempay_payment_account_sync_needed" = "Tangem Pay · Сесія закінчилася";
 "tangempay_payment_account" = "Платіжний акаунт";
 "tangempay_pin_validation_error_message" = "Слабкий ПІН: не використовуйте повторів або послідовностей.";
@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "Сервіс тимчасово недоступний";
 "tangempay_service_unreachable_try_later" = "Не можемо показати дані картки, але оплати продовжують працювати.";
 "tangempay_set_pin_code" = "Встановіть \nPIN-код";
-"tangempay_status_deactivated" = "Картку деактивовано";
+"tangempay_status_deactivated" = "Рахунок закрито";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Використайте картку або кільце для поновлення сесії";
 "tangempay_sync_needed_button" = "Відновити доступ";

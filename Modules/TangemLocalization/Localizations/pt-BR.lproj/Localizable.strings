@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "Serviço temporariamente indisponível";
 "tangempay_service_unreachable_try_later" = "Não foi possível exibir os detalhes. No entanto, os pagamentos com cartão ainda estão funcionando.";
 "tangempay_set_pin_code" = "Defina o código PIN.";
-"tangempay_status_deactivated" = "Cartão desativado";
+"tangempay_status_deactivated" = "Conta encerrada";
 "tangempay_status_replacing" = "Substituindo seu cartão";
 "tangempay_sync_needed_body" = "Use o cartão ou anel para renovar a sessão";
 "tangempay_sync_needed_button" = "Restaurar acesso";

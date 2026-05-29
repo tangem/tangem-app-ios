@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "服务暂时不可用";
 "tangempay_service_unreachable_try_later" = "无法显示详细信息。但刷卡支付功能仍然可用。";
 "tangempay_set_pin_code" = "设置 PIN 码";
-"tangempay_status_deactivated" = "卡片已停用";
+"tangempay_status_deactivated" = "账户已关闭";
 "tangempay_status_replacing" = "更换您的卡片";
 "tangempay_sync_needed_body" = "用卡或戒指续期会话";
 "tangempay_sync_needed_button" = "恢复访问权限";

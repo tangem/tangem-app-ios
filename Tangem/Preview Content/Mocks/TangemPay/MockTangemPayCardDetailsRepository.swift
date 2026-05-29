@@ -21,6 +21,10 @@ final class MockTangemPayCardDetailsRepository: TangemPayCardDetailsRepository {
         Just("My Card").eraseToAnyPublisher()
     }
 
+    var isReissuingPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
     func updateCardDisplayName(_ name: String) async throws {}
 
     func revealRequest() async throws -> TangemPayCardDetailsData {

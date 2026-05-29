@@ -105,34 +105,36 @@ struct TangemPayCardDetailsView: View {
             Spacer()
 
             HStack(alignment: .bottom, spacing: 6) {
-                VStack(alignment: .leading, spacing: 2) {
-                    cardNameContent()
+                if !viewModel.isReissuing {
+                    VStack(alignment: .leading, spacing: 2) {
+                        cardNameContent()
 
-                    HStack(spacing: 6) {
-                        Text("··· " + viewModel.lastFourDigits)
-                            .style(
-                                Fonts.Bold.subheadline,
-                                color: Colors.Text.constantWhite
-                            )
+                        HStack(spacing: 6) {
+                            Text("··· " + viewModel.lastFourDigits)
+                                .style(
+                                    Fonts.Bold.subheadline,
+                                    color: Colors.Text.constantWhite
+                                )
 
-                        Group {
-                            if isLoading {
-                                CircularActivityIndicator(color: .white, lineWidth: 1.5)
-                            } else if isFrozen {
-                                Image(systemName: "snowflake")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundColor(.white)
+                            Group {
+                                if isLoading {
+                                    CircularActivityIndicator(color: .white, lineWidth: 1.5)
+                                } else if isFrozen {
+                                    Image(systemName: "snowflake")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .foregroundColor(.white)
+                                }
                             }
+                            .frame(width: 16, height: 16)
                         }
-                        .frame(width: 16, height: 16)
                     }
-                }
 
-                Spacer()
+                    Spacer()
 
-                if viewModel.state.showDetailsButtonVisible {
-                    showDetailsButton()
+                    if viewModel.state.showDetailsButtonVisible {
+                        showDetailsButton()
+                    }
                 }
             }
         }

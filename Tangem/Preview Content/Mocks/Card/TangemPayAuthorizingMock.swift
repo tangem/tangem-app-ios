@@ -15,8 +15,7 @@ class TangemPayAuthorizingMock: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService,
-        pendingDerivations: [Data: [DerivationPath]]
+        authorizationService: TangemPayAuthorizationService
     ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
         TangemPayAuthorizingResponse(
             customerWalletAddress: "",

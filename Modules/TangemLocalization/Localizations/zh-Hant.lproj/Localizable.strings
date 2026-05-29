@@ -1424,10 +1424,10 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "卡片已凍結";
 "tangem_pay_card_payment" = "信用卡支付";
-"tangem_pay_close_card_popup_description" = "It will disappear from payment account";
-"tangem_pay_close_card_popup_primary_button_title" = "Close card";
-"tangem_pay_close_card_popup_secondary_button_title" = "Go back";
-"tangem_pay_close_card_popup_title" = "Close your card?";
+"tangem_pay_close_card_popup_description" = "它將從應用程式中消失";
+"tangem_pay_close_card_popup_primary_button_title" = "關閉卡片";
+"tangem_pay_close_card_popup_secondary_button_title" = "返回";
+"tangem_pay_close_card_popup_title" = "關閉您的卡片？";
 "tangem_pay_deposit" = "充值";
 "tangem_pay_dispute" = "爭議";
 "tangem_pay_explore_transaction" = "探索交易";
@@ -1581,7 +1581,7 @@
 "tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "立即獲取你的 Tangem Pay 卡";
-"tangempay_pay_support" = "Pay Support";
+"tangempay_pay_support" = "Pay 客服";
 "tangempay_payment_account_sync_needed" = "Tangem Pay 工作階段已過期";
 "tangempay_payment_account" = "付款帳戶";
 "tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "服務暫時無法使用";
 "tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
 "tangempay_set_pin_code" = "Set \nPIN code";
-"tangempay_status_deactivated" = "卡片已停用";
+"tangempay_status_deactivated" = "帳戶已關閉";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "用卡或戒指續期會話";
 "tangempay_sync_needed_button" = "Renew session";

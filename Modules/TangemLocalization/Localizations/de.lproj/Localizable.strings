@@ -1424,7 +1424,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Karte kann nicht umbenannt werden";
 "tangem_pay_card_frozen" = "Karte eingefroren";
 "tangem_pay_card_payment" = "Kartenzahlung";
-"tangem_pay_close_card_popup_description" = "Es wird vom Zahlungskonto verschwinden";
+"tangem_pay_close_card_popup_description" = "Es wird aus der App verschwinden";
 "tangem_pay_close_card_popup_primary_button_title" = "Karte schließen";
 "tangem_pay_close_card_popup_secondary_button_title" = "Geh zurück";
 "tangem_pay_close_card_popup_title" = "Ihre Karte schließen?";
@@ -1581,7 +1581,7 @@
 "tangempay_onboarding_setup_wallet_description" = "Verknüpfen Sie eine Zahlungskarte";
 "tangempay_onboarding_setup_wallet_title" = "Wir richten eine Wallet ein.";
 "tangempay_onboarding_title" = "Holen Sie sich Ihre Tangem Pay Karte";
-"tangempay_pay_support" = "Bezahlen mit";
+"tangempay_pay_support" = "Pay-Betreuung";
 "tangempay_payment_account_sync_needed" = "Tangem Pay sitzung abgelaufen";
 "tangempay_payment_account" = "Zahlungskonto";
 "tangempay_pin_validation_error_message" = "Ungültige PIN: Sequenzen oder Wiederholungen vermeiden";
@@ -1599,7 +1599,7 @@
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
 "tangempay_set_pin_code" = "Satz \nPIN-Code";
-"tangempay_status_deactivated" = "Karte deaktiviert";
+"tangempay_status_deactivated" = "Konto geschlossen";
 "tangempay_status_replacing" = "Ersetzen deine Karte";
 "tangempay_sync_needed_body" = "Karte oder Ring verwenden, um die Sitzung zu verlängern";
 "tangempay_sync_needed_button" = "Zugang wiederherstellen";
