@@ -21,7 +21,7 @@ public final class OSLogFileWriter {
         .appendingPathComponent(OSLogConstants.fileName)
 
     /// Production redacts persisted logs, non-production keeps the full trace.
-    private let sanitizerPolicy: LogSanitizerPolicy = AppEnvironment.current.isProduction ? .production : .disabled
+    private static let sanitizerPolicy: LogSanitizerPolicy = AppEnvironment.current.isProduction ? .production : .disabled
 
     /// Cached once per process, matching the pattern used in `DateFormatter+.swift` (BlockchainSdk).
     /// Both formatters are touched only from `loggerSerialQueue`, so they are thread-safe by confinement.
@@ -124,7 +124,7 @@ extension OSLogFileWriter {
 
 private extension OSLogFileWriter {
     func writeSynchronously(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date) throws {
-        var message = LogSanitizer.sanitize(message, policy: sanitizerPolicy)
+        var message = LogSanitizer.sanitize(message, policy: Self.sanitizerPolicy)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {
