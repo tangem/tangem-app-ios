@@ -21,12 +21,7 @@ actor CommonExpressManager {
 
     // MARK: - State
 
-    private var _pair: ExpressManagerSwappingPair?
-    private var _approvePolicy: ApprovePolicy = .specified
-    private var _amountType: ExpressAmountType?
-
-    private var availableProviders: [ExpressAvailableProvider] = []
-    private var selectedProvider: ExpressAvailableProvider?
+    private var currentState: ExpressManagerState = .idle
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -42,109 +37,90 @@ actor CommonExpressManager {
 // MARK: - ExpressManager
 
 extension CommonExpressManager: ExpressManager {
-    func getAmountType() -> ExpressAmountType? {
-        return _amountType
-    }
-
-    func getRateType() -> ExpressProviderRateType? {
-        guard let amountType = _amountType, let selected = selectedProvider else { return nil }
-
-        if selected.supportedRateTypes.contains(amountType.rateType) {
-            return amountType.rateType
-        }
-
-        return selected.supportedRateTypes.first
-    }
-
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
-        pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
-        _pair = pair
-
-        // Clear for reselected the best quote
-        clearCache()
-
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
         switch pair {
-        case .some(let pair): try await updateAvailableProviders(pair: pair)
-        case .none: availableProviders.removeAll()
+        case .some(let pair):
+            let providers = try await makeAvailableProviders(pair: pair)
+            return update(state: .idle(providers: providers))
+
+        case .none:
+            return update(state: .idle)
+        }
+    }
+
+    func update(amountType: ExpressAmountType?) async -> ExpressManagerState {
+        guard case .swap(_, let providers) = currentState else {
+            return currentState
         }
 
-        let selected = await bestProvider()
-        return makeUpdatingResult(selected: selected)
+        switch amountType {
+        case .none:
+            // Reset all providers to idle
+            providers.all.forEach { $0.reset() }
+            return update(state: .idle(providers: providers))
+
+        // Workaround. We receive Amount.from. But we have only providers with fixed rate
+        case .from(let amount) where providers.availableProviders(rate: .float).isEmpty:
+            let candidates = providers.availableProviders(rate: .fixed)
+            return await reloadQuotes(amountType: .from(amount), candidates: candidates)
+
+        case .some(let amountType):
+            let candidates = providers.availableProviders(rate: amountType.rateType)
+            return await reloadQuotes(amountType: amountType, candidates: candidates)
+        }
     }
 
-    func update(amountType: ExpressAmountType?) async -> ExpressManagerUpdatingResult {
-        _amountType = amountType
-        return await update(type: .amount)
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
+        guard case .swap(_, let providers) = currentState else {
+            return currentState
+        }
+
+        return update(state: .swap(selected: provider, providers: providers))
     }
 
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerUpdatingResult {
-        selectedProvider = provider
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
+        guard case .swap(.some(let selectedProvider), _) = currentState else {
+            return currentState
+        }
 
-        return makeUpdatingResult(selected: selectedProvider)
-    }
-
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult {
-        guard _approvePolicy != approvePolicy else {
+        guard selectedProvider.approvePolicy != approvePolicy else {
             ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
-            return makeUpdatingResult(selected: selectedProvider)
+            return currentState
         }
 
-        _approvePolicy = approvePolicy
+        await selectedProvider.update(approvePolicy: approvePolicy)
 
-        let request = try makeRequest(for: selectedProvider)
-        await selectedProvider?.updateState(request: request)
-        return makeUpdatingResult(selected: selectedProvider)
+        return currentState
     }
 
-    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult {
-        let selected: ExpressAvailableProvider?
-        do {
-            selected = try await updateState(by: type)
-        } catch {
-            ExpressLogger.warning(self, "update(type: \(type)) failed: \(error)")
-            selected = selectedProvider
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {
+        guard case .swap(.some(let selectedProvider), let providers) = currentState else {
+            return currentState
         }
-        return makeUpdatingResult(selected: selected)
+
+        let candidates = providers.availableProviders(rate: selectedProvider.rateType)
+        await reloadQuotes(candidates: candidates)
+
+        if type.isRequiredUpdateSelectedProvider {
+            return update(state: stateWithBestProvider(from: candidates))
+        }
+
+        return currentState
     }
 
     func requestData() async throws -> ExpressTransactionData {
-        guard let selectedProvider = selectedProvider else {
+        guard case .swap(.some(let selectedProvider), _) = currentState else {
             throw ExpressManagerError.selectedProviderNotFound
         }
 
-        let request = try makeRequest(for: selectedProvider)
-        return try await selectedProvider.requestData(request: request)
+        return try await selectedProvider.requestData()
     }
 }
 
 // MARK: - Private
 
 private extension CommonExpressManager {
-    /// Return the state which checking the all properties
-    func updateState(by source: ExpressManagerUpdatingType) async throws -> ExpressAvailableProvider? {
-        guard let pair = _pair else {
-            ExpressLogger.warning("Pair isn't set. Return nil as `selectedProvider`")
-            return nil
-        }
-
-        try Task.checkCancellation()
-
-        guard let amountType = _amountType, amountType.amount > 0 else {
-            ExpressLogger.warning(self, "Amount isn't set. Return nil as `selectedProvider`")
-            return nil
-        }
-
-        let request = try makeRequest()
-        await updateStatesInProviders(request: request)
-
-        try Task.checkCancellation()
-
-        await updateSelectedProvider(pair: pair, by: source)
-
-        return selectedProvider
-    }
-
-    func updateAvailableProviders(pair: ExpressManagerSwappingPair) async throws {
+    func makeAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState.Providers {
         async let allIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: nil)
         async let fixedIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .fixed)
         async let floatIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .float)
@@ -152,117 +128,78 @@ private extension CommonExpressManager {
 
         let providers = try await expressRepository.providers()
 
-        availableProviders = try providers.compactMap { provider in
-            guard allSet.contains(provider.id),
-                  pair.source.supportedProvidersFilter.isSupported(provider: provider) else {
-                return nil
-            }
+        let supported = providers.filter { provider in
+            allSet.contains(provider.id) && pair.source.supportedProvidersFilter.isSupported(provider: provider)
+        }
 
-            var rateTypes: Set<ExpressProviderRateType> = []
-            if floatSet.contains(provider.id) { rateTypes.insert(.float) }
-            if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
+        let make: (ExpressProvider, ExpressProviderRateType) throws -> ExpressAvailableProvider = { provider, rateType in
+            try self.expressProviderManagerFactory
+                .makeExpressProviderManager(provider: provider, pair: pair, rateType: rateType)
+        }
 
-            return try expressProviderManagerFactory.makeExpressProviderManager(
-                provider: provider,
-                pair: pair,
-                supportedRateTypes: rateTypes
-            )
+        let float = try supported.filter { floatSet.contains($0.id) }.map { try make($0, .float) }
+        let fixed = try supported.filter { fixedSet.contains($0.id) }.map { try make($0, .fixed) }
+
+        return ExpressManagerState.Providers(float: float, fixed: fixed)
+    }
+
+    func reloadQuotes(amountType: ExpressAmountType, candidates: [ExpressAvailableProvider]) async -> ExpressManagerState {
+        guard case .swap = currentState else {
+            return currentState
+        }
+
+        await update(candidates: candidates) { provider, tracker in
+            await provider.update(amountType: amountType, quotesLoadingPerformanceTracker: tracker)
+        }
+
+        if Task.isCancelled {
+            return currentState
+        }
+
+        let newState = stateWithBestProvider(from: candidates)
+        return update(state: newState)
+    }
+
+    func reloadQuotes(candidates: [ExpressAvailableProvider]) async {
+        await update(candidates: candidates) { provider, tracker in
+            await provider.updateState(quotesLoadingPerformanceTracker: tracker)
         }
     }
 
-    func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressManagerUpdatingType) async {
-        if source.isRequiredUpdateSelectedProvider || selectedProvider == nil {
-            selectedProvider = await bestProvider()
+    func update(
+        candidates: [ExpressAvailableProvider],
+        action: @escaping (ExpressAvailableProvider, ExpressQuotesLoadingPerformanceTracker) async -> Void
+    ) async {
+        defer { candidates.updateIsBestFlag() }
 
-            if let selectedProvider {
-                pair.source.analyticsLogger.bestProviderSelected(selectedProvider)
-            }
-        }
-    }
-
-    var candidateProviders: [ExpressAvailableProvider] {
-        let filtered = availableProviders.filteredByRateType(_amountType?.rateType)
-        return filtered.isEmpty ? availableProviders : filtered
-    }
-
-    func updateIsBestFlag() {
-        let rateType = _amountType?.rateType ?? .float
-        availableProviders.updateIsBestFlag(rateType: rateType)
-
-        let summary = availableProviders.map { "\($0.provider.name)=\($0.isBest)" }.joined(separator: ", ")
-        ExpressLogger.info(self, "isBest flags: \(summary)")
-    }
-
-    func bestProvider() async -> ExpressAvailableProvider? {
-        let rateType = _amountType?.rateType ?? .float
-        return candidateProviders.best(rateType: rateType)
-    }
-
-    func updateStatesInProviders(request: ExpressManagerSwappingPairRequest) async {
-        let candidates = candidateProviders
-
-        defer { updateIsBestFlag() }
-
-        let providers = candidates.map { $0.provider.name }.joined(separator: ", ")
-        ExpressLogger.info(self, "Start a parallel updating in providers: \(providers) with request \(request)")
-
-        guard candidates.isNotEmpty else {
-            return
-        }
+        let names = candidates.map { $0.provider.name }.joined(separator: ", ")
+        ExpressLogger.info(self, "Start a parallel updating in providers: \(names)")
 
         let tracker = ExpressQuotesLoadingPerformanceTracker.started(providersCount: candidates.count)
-        let request = request.with(quotesLoadingPerformanceTracker: tracker)
-
-        // Run a parallel asynchronous tasks
-        await withTaskGroup(of: Void.self) { taskGroup in
-            candidates.forEach { provider in
-                let providerRequest = request.with(rateType: resolveRateType(for: provider))
-                taskGroup.addTask {
-                    await provider.updateState(request: providerRequest)
-                }
-            }
+        await TaskGroup.executeKeepingOrder(items: candidates) { provider in
+            await action(provider, tracker)
         }
     }
 
-    func makeRequest(for provider: ExpressAvailableProvider? = nil) throws -> ExpressManagerSwappingPairRequest {
-        guard let pair = _pair else {
-            throw ExpressManagerError.pairNotFound
-        }
+    @discardableResult
+    func update(state: ExpressManagerState) -> ExpressManagerState {
+        currentState = state
+        ExpressLogger.info(self, "Updated state: \(state.description)")
 
-        guard let amountType = _amountType, amountType.amount > 0 else {
-            throw ExpressManagerError.amountNotFound
-        }
-
-        let rateType: ExpressProviderRateType
-        if let provider {
-            rateType = resolveRateType(for: provider)
-        } else {
-            rateType = amountType.rateType
-        }
-
-        return ExpressManagerSwappingPairRequest(
-            amountType: amountType,
-            rateType: rateType,
-            approvePolicy: _approvePolicy,
-            operationType: pair.source.operationType
-        )
+        return state
     }
 
-    func resolveRateType(for provider: ExpressAvailableProvider) -> ExpressProviderRateType {
-        if let preferred = _amountType?.rateType, provider.supportedRateTypes.contains(preferred) {
-            return preferred
+    func stateWithBestProvider(from candidates: [ExpressAvailableProvider]) -> ExpressManagerState {
+        guard case .swap(let previousSelected, let providers) = currentState else {
+            return currentState
         }
-        return provider.supportedRateTypes.first ?? .float
-    }
 
-    func clearCache() {
-        selectedProvider = nil
-    }
+        let best = candidates.best()
+        if let best, best !== previousSelected {
+            best.pair.source.analyticsLogger.bestProviderSelected(best)
+        }
 
-    func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
-        let result = ExpressManagerUpdatingResult(providers: availableProviders, selected: selected)
-        ExpressLogger.info(self, "Updating result: \(result.description)")
-        return result
+        return .swap(selected: best, providers: providers)
     }
 }
 
@@ -270,6 +207,14 @@ private extension CommonExpressManager {
 
 extension CommonExpressManager: @preconcurrency CustomStringConvertible {
     var description: String { objectDescription(self) }
+}
+
+// MARK: - ExpressManagerState+
+
+extension ExpressManagerState {
+    static func idle(providers: Providers) -> Self {
+        return .swap(selected: .none, providers: providers)
+    }
 }
 
 // MARK: - SupportedProvidersFilter+

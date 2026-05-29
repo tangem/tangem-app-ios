@@ -63,7 +63,7 @@ struct ExpressProviderFormatterBadgeTests {
         let available = ExpressAvailableProvider(
             context: context,
             manager: StubExpressProviderManager(),
-            supportedRateTypes: [.float]
+            rateType: .float
         )
         available.update(isBest: isBest)
         return available
@@ -146,18 +146,8 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
 }
 
 private final class StubExpressProviderManager: ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair {
-        fatalError("Not used in tests")
-    }
-
-    var feeProvider: ExpressFeeProvider {
-        fatalError("Not used in tests")
-    }
-
-    func getState() -> ExpressProviderManagerState {
-        .idle
-    }
-
+    func getState() -> ExpressProviderManagerState { .idle }
+    func reset() {}
     func update(request: ExpressManagerSwappingPairRequest) async {}
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {

@@ -86,8 +86,9 @@ private extension SendSwapProvidersSelectorViewModel {
         )
         .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
             let showable = providers
-                .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
-                .sortedByAttractively(rateType: currentRateType ?? .float)
+                .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+                .sortedByAttractively()
+
             return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
         }
 

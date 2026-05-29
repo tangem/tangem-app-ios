@@ -21,8 +21,9 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
     }
 
     func updatePair(
-        source: any SendSwapableToken,
-        destination: any SendReceiveToken
+        source: SendSwapableToken,
+        destination: SendReceiveToken,
+        amountDirection: SwapAmountDirection?
     ) async throws -> SwapPairUpdateResult {
         if FeatureProvider.isAvailable(.swapPipelineV2) {
             let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)

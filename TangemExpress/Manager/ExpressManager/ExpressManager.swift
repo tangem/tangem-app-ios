@@ -12,44 +12,68 @@ import TangemFoundation
 import BlockchainSdk
 
 public protocol ExpressManager: Actor {
-    func getAmountType() -> ExpressAmountType?
-    func getRateType() -> ExpressProviderRateType?
-
     /// Recreates providers. Does not update quotes.
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState
 
     /// Updates quotes for providers eligible for the current `ExpressAmountType`.
-    func update(amountType: ExpressAmountType?) async -> ExpressManagerUpdatingResult
+    func update(amountType: ExpressAmountType?) async -> ExpressManagerState
 
     /// Updates state (fee) for the selected provider with a new `ApprovePolicy`.
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState
 
     /// Preserves the selected provider across autoupdate cycles.
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerUpdatingResult
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState
 
-    /// Refreshes quotes for all available providers and changes the selection according to `type`.
-    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult
+    /// Refreshes quotes for providers matching `rate` and optionally updates the selection.
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState
 
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
 }
 
-public struct ExpressManagerUpdatingResult {
-    public let providers: [ExpressAvailableProvider]
-    public let selected: ExpressAvailableProvider?
+public enum ExpressManagerState {
+    case idle
+    case swap(selected: ExpressAvailableProvider? = .none, providers: Providers)
 
-    public init(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?) {
-        self.providers = providers
-        self.selected = selected
+    public struct Providers {
+        public static let empty = Providers(float: [], fixed: [])
+
+        private let float: [ExpressAvailableProvider]
+        private let fixed: [ExpressAvailableProvider]
+
+        public var all: [ExpressAvailableProvider] { float + fixed }
+
+        public var supportedRateTypes: Set<ExpressProviderRateType> {
+            all.map(\.rateType).toSet()
+        }
+
+        init(float: [ExpressAvailableProvider], fixed: [ExpressAvailableProvider]) {
+            self.float = float
+            self.fixed = fixed
+        }
+
+        public func availableProviders(rate: ExpressProviderRateType) -> [ExpressAvailableProvider] {
+            switch rate {
+            case .float: float
+            case .fixed: fixed
+            }
+        }
     }
 }
 
-extension ExpressManagerUpdatingResult: CustomStringConvertible {
+extension ExpressManagerState: CustomStringConvertible {
     public var description: String {
-        objectDescription("ExpressManagerUpdatingResult", userInfo: [
-            "selected name": selected.map { $0.provider.name } ?? "no selected provider",
-            "selected state": selected.map { $0.getState() } ?? "no selected provider",
-            "providers": providers.map { $0.provider.name },
-        ])
+        switch self {
+        case .idle:
+            return objectDescription("ExpressManagerState", userInfo: ["mode": "idle"])
+        case .swap(let selected, let providers):
+            return objectDescription("ExpressManagerState", userInfo: [
+                "mode": "swap",
+                "selected name": selected.map { $0.provider.name } ?? "no selected provider",
+                "selected state": selected.map { $0.getState() } ?? "no selected provider",
+                "providers": providers.all.map { $0.provider.name },
+                "allSupportedRateTypes": providers.supportedRateTypes,
+            ])
+        }
     }
 }
