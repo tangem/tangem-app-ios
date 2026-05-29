@@ -20,14 +20,10 @@ public class ExpressAvailableProvider {
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
     public var isBest: Bool { _isBest { $0 } }
-    public var amountType: ExpressAmountType? { _amountType { $0 } }
-    public var approvePolicy: ApprovePolicy { _approvePolicy { $0 } }
 
     // MARK: - Updatable state
 
     private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
-    private let _amountType = OSAllocatedUnfairLock<ExpressAmountType?>(initialState: nil)
-    private let _approvePolicy = OSAllocatedUnfairLock<ApprovePolicy>(initialState: .specified)
 
     init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, rateType: ExpressProviderRateType) {
         self.context = context
@@ -51,20 +47,8 @@ extension ExpressAvailableProvider {
         _isBest { $0 = isBest }
     }
 
-    func update(amountType: ExpressAmountType, quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) async {
-        _amountType { $0 = amountType }
-
-        await updateState(quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker)
-    }
-
-    func update(approvePolicy: ApprovePolicy) async {
-        _approvePolicy { $0 = approvePolicy }
-
-        await updateState()
-    }
-
-    func updateState(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker? = nil) async {
-        guard let request = makeRequest(quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker) else {
+    func update(request: ExpressAvailableProviderUpdatingRequest) async {
+        guard let request = makeRequest(request: request) else {
             ExpressLogger.info(self, "Skip updateState: amount is empty (nil or zero)")
             return
         }
@@ -72,8 +56,8 @@ extension ExpressAvailableProvider {
         await manager.update(request: request)
     }
 
-    func requestData() async throws -> ExpressTransactionData {
-        guard let request = makeRequest(quotesLoadingPerformanceTracker: nil) else {
+    func requestData(request: ExpressAvailableProviderUpdatingRequest) async throws -> ExpressTransactionData {
+        guard let request = makeRequest(request: request) else {
             throw ExpressManagerError.amountNotFound
         }
 
@@ -81,8 +65,6 @@ extension ExpressAvailableProvider {
     }
 
     func reset() {
-        _amountType { $0 = .none }
-        _approvePolicy { $0 = .specified }
         _isBest { $0 = false }
 
         manager.reset()
@@ -92,17 +74,17 @@ extension ExpressAvailableProvider {
 // MARK: - Private
 
 private extension ExpressAvailableProvider {
-    func makeRequest(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) -> ExpressManagerSwappingPairRequest? {
-        guard let amountType, amountType.amount > 0 else {
+    func makeRequest(request: ExpressAvailableProviderUpdatingRequest) -> ExpressManagerSwappingPairRequest? {
+        guard let amountType = request.amountType, amountType.amount > 0 else {
             return nil
         }
 
         return ExpressManagerSwappingPairRequest(
             amountType: amountType,
             rateType: rateType,
-            approvePolicy: approvePolicy,
+            approvePolicy: request.approvePolicy,
             operationType: pair.source.operationType,
-            quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker
+            quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
         )
     }
 }
@@ -121,6 +103,12 @@ extension ExpressAvailableProvider: CustomStringConvertible {
     public var description: String {
         objectDescription(self, userInfo: ["provider": provider.name])
     }
+}
+
+struct ExpressAvailableProviderUpdatingRequest {
+    let amountType: ExpressAmountType?
+    let approvePolicy: ApprovePolicy
+    let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }
 
 // MARK: - [ExpressAvailableProvider]+
