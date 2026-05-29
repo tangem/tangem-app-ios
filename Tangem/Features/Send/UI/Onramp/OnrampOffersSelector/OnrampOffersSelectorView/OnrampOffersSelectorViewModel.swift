@@ -109,6 +109,7 @@ private extension OnrampOffersSelectorViewModel {
                 provider: provider,
                 onWillBuy: { [weak self] in
                     self?.analyticsLogger.logOnrampOfferButtonBuy(provider: provider)
+                    self?.close()
                     self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
                 },
                 onWidgetBuy: { [weak self] in
