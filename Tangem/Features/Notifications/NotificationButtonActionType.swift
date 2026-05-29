@@ -63,6 +63,7 @@ enum NotificationButtonActionType: Identifiable {
     case openManageTokensAfterWalletSuccessImport
     case openYieldBoostPromo(buttonTitle: String)
     case addFunds
+    case openAppStore
 
     var id: Int {
         switch self {
@@ -102,6 +103,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
         case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
         case .addFunds: "addFunds".hashValue
+        case .openAppStore: "openAppStore".hashValue
         }
     }
 
@@ -175,6 +177,8 @@ enum NotificationButtonActionType: Identifiable {
             return buttonTitle
         case .addFunds:
             return Localization.commonAddFunds
+        case .openAppStore:
+            return Localization.forceUpdateButton
         }
     }
 
@@ -217,7 +221,8 @@ enum NotificationButtonActionType: Identifiable {
              .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport,
              .openYieldBoostPromo,
-             .addFunds:
+             .addFunds,
+             .openAppStore:
             return nil
         }
     }
@@ -258,7 +263,8 @@ enum NotificationButtonActionType: Identifiable {
              .openCloreMigration,
              .openDynamicAddressesEnter,
              .closeMobileUpgrade,
-             .openManageTokensAfterWalletSuccessImport:
+             .openManageTokensAfterWalletSuccessImport,
+             .openAppStore:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary

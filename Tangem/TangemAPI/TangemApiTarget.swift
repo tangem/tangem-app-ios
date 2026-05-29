@@ -94,6 +94,10 @@ struct TangemApiTarget: TargetType {
         case .pushNotificationsEligible:
             return "/notification/push_notifications_eligible_networks"
 
+        // MARK: - Application versions
+        case .applicationVersions:
+            return "/application/versions"
+
         // MARK: Applications
         case .createUserWalletsApplication:
             return "/user-wallets/applications"
@@ -169,7 +173,8 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .trendingNews:
+             .trendingNews,
+             .applicationVersions:
             return .get
         case .saveUserWalletTokens,
              .saveUserAccounts,
@@ -195,7 +200,7 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .quotes(let pageModel):
             return .requestParameters(pageModel)
-        case .currencies, .geo, .features, .getUserWalletTokens:
+        case .currencies, .geo, .features, .getUserWalletTokens, .applicationVersions:
             return .requestPlain
         case .saveUserWalletTokens(_, let list):
             return .requestJSONEncodable(list)
@@ -321,6 +326,11 @@ struct TangemApiTarget: TargetType {
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
             ]
+        case .applicationVersions(let version, let platform):
+            return [
+                "version": version,
+                "platform": platform,
+            ]
         case .rawData,
              .currencies,
              .coins,
@@ -421,6 +431,9 @@ extension TangemApiTarget {
         /// Notifications
         case pushNotificationsEligible
 
+        /// Application versions
+        case applicationVersions(version: String, platform: String)
+
         // Applications
         case createUserWalletsApplication(_ requestModel: ApplicationDTO.Request)
         case updateUserWalletsApplication(uid: String, requestModel: ApplicationDTO.Update.Request)
@@ -508,7 +521,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .saveUserAccounts,
              .getArchivedUserAccounts,
              .activatePromoCode,
-             .coinsSettings:
+             .coinsSettings,
+             .applicationVersions:
             return true
         }
     }

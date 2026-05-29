@@ -40,6 +40,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
+    @Injected(\.appUpdateService) private var appUpdateService: AppUpdateService
 
     // MARK: - Child coordinators
 
@@ -121,6 +122,21 @@ class AppCoordinator: CoordinatorObject {
     private func setupJailbreakWarning() {
         let viewModel = JailbreakWarningViewModel(coordinator: self)
         setState(.jailbreakWarning(viewModel))
+    }
+
+    private func setupForceUpdate() {
+        if case .forceUpdate = viewState {
+            return
+        }
+
+        mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
+
+        runTask(in: self) { coordinator in
+            await self.floatingSheetPresenter.removeAllSheets()
+        }
+
+        let viewModel = ForceUpdateViewModel(coordinator: self)
+        setState(.forceUpdate(viewModel))
     }
 
     private func setupWelcome() {
@@ -253,6 +269,18 @@ class AppCoordinator: CoordinatorObject {
                 }
             }
             .store(in: &bag)
+
+        Publishers
+            .CombineLatest($viewState, appUpdateService.statePublisher)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { coordinator, params in
+                let (viewState, updateState) = params
+                guard case .forceUpdate = updateState else { return }
+                if case .forceUpdate = viewState { return }
+                coordinator.setupForceUpdate()
+            }
+            .store(in: &bag)
     }
 
     private func setState(_ newViewState: AppCoordinator.ViewState) {
@@ -310,10 +338,11 @@ extension AppCoordinator {
         case lock
         case launch
         case jailbreakWarning(JailbreakWarningViewModel)
+        case forceUpdate(ForceUpdateViewModel)
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome, .launch, .jailbreakWarning:
+            case .auth, .welcome, .launch, .jailbreakWarning, .forceUpdate:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -322,7 +351,7 @@ extension AppCoordinator {
 
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main), (.jailbreakWarning, .jailbreakWarning):
+            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main), (.jailbreakWarning, .jailbreakWarning), (.forceUpdate, .forceUpdate):
                 return true
             default:
                 return false
@@ -375,6 +404,12 @@ extension AppCoordinator {
 extension AppCoordinator: JailbreakWarningRoutable {
     func closeJailbreakWarning() {
         start()
+    }
+}
+
+extension AppCoordinator: ForceUpdateRoutable {
+    func openAppStore() {
+        UIApplication.shared.open(AppConstants.appStoreURL)
     }
 }
 
