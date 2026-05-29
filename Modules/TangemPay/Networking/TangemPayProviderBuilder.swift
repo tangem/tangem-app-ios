@@ -18,20 +18,20 @@ public struct TangemPayProviderBuilder {
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler?,
         configuration: URLSessionConfiguration
     ) -> TangemProvider<T> {
-        var plugins: [PluginType] = [
-            DeviceInfoPlugin(),
-            TangemNetworkLoggerPlugin(logOptions: .verbose),
-        ]
-
-        plugins.append(TangemPayDefaultHeadersPlugin())
-        plugins.append(
-            TangemPayAuthorizationPlugin(
-                bffStaticToken: bffStaticToken,
-                authorizationTokensHandler: authorizationTokensHandler
-            )
+        return TangemProvider<T>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: configuration
+            ),
+            additionalPlugins: [
+                DeviceInfoPlugin(),
+                TangemPayDefaultHeadersPlugin(),
+                TangemPayAuthorizationPlugin(
+                    bffStaticToken: bffStaticToken,
+                    authorizationTokensHandler: authorizationTokensHandler
+                ),
+            ]
         )
-
-        return TangemProvider<T>(plugins: plugins, sessionConfiguration: configuration)
     }
 }
 
