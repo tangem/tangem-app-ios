@@ -37,14 +37,14 @@
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.base.white}, {opacity.60})"
+          "$value": "rgba({palette.neutral.5}, {opacity.60})"
         },
         "solid": {
           "$extensions": {
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.base.white}, {opacity.90})"
+          "$value": "rgba({palette.neutral.5}, {opacity.95})"
         }
       },
       "lighten": {
@@ -99,21 +99,21 @@
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.base.black}, {opacity.15})"
+          "$value": "rgba({palette.base.white}, {opacity.80})"
         },
         "mid": {
           "$extensions": {
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.base.black}, {opacity.0})"
+          "$value": "rgba({palette.base.white}, {opacity.0})"
         },
         "end": {
           "$extensions": {
             "com.figma.hiddenFromPublishing": true
           },
           "$type": "color",
-          "$value": "rgba({palette.base.black}, {opacity.10})"
+          "$value": "rgba({palette.base.white}, {opacity.60})"
         }
       }
     }
