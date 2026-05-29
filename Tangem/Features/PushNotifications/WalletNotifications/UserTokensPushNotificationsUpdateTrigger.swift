@@ -16,31 +16,37 @@ import TangemFoundation
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
 /// independently from the manager that acts on those events.
 final class UserTokensPushNotificationsUpdateTrigger {
-    enum Event {
-        /// Pending derivations just finished and the token list is ready — the remote
-        /// push status should be re-synced with the backend.
-        case syncRemoteStatusRequired
-        /// System push authorization changed between foreground transitions while the token
-        /// list is ready — the local push status should be recalculated.
-        case updateStatusRequired
-        /// System push permission was granted (`false` → `true`) while the token list is
-        /// ready — wallet-level preferences may be auto-enabled for allowance onboarding.
-        case autoEnablePreferencesRequired
-    }
-
-    var eventsPublisher: AnyPublisher<Event, Never> {
+    var eventsPublisher: AnyPublisher<PushNotificationsUpdateTriggerEvent, Never> {
         eventsSubject.eraseToAnyPublisher()
     }
 
+    /// Local mirror of `permissionService.isAuthorizedPublisher`. The upstream publisher only
+    /// emits on `UIApplication.didBecomeActiveNotification`, so we keep the latest reported value
+    /// here. Starts as `.idle` — consumers must skip that state instead of treating it as `false`.
+    private let isAuthorizedSubject = CurrentValueSubject<AuthorizationState, Never>(.idle)
+
     private let userWalletId: UserWalletId
-    private let eventsSubject = PassthroughSubject<Event, Never>()
+    private let eventsSubject = PassthroughSubject<PushNotificationsUpdateTriggerEvent, Never>()
     private var bag: Set<AnyCancellable> = []
+
+    /// Stream of authorization values with `idle` filtered out, so downstream operators only see
+    /// real readings reported by the permission service.
+    private var isAuthorizedValuePublisher: AnyPublisher<Bool, Never> {
+        isAuthorizedSubject
+            .compactMap { state in
+                switch state {
+                case .idle: return nil
+                case .value(let isAuthorized): return isAuthorized
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 
     init(
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         permissionService: PushNotificationsPermissionService,
-        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>? = nil
+        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>
     ) {
         self.userWalletId = userWalletId
         bind(
@@ -55,8 +61,14 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private func bind(
         accountModelsManager: AccountModelsManager,
         permissionService: PushNotificationsPermissionService,
-        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>?
+        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>
     ) {
+        permissionService
+            .isAuthorizedPublisher
+            .map(AuthorizationState.value)
+            .subscribe(isAuthorizedSubject)
+            .store(in: &bag)
+
         let isUserTokenListReadyPublisher = accountModelsManager
             .cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
@@ -94,52 +106,58 @@ final class UserTokensPushNotificationsUpdateTrigger {
                 return previous != current && current == false
             }
             .combineLatest(isUserTokenListReadyPublisher)
-            .map { _ in Event.syncRemoteStatusRequired }
+            .map { _ in PushNotificationsUpdateTriggerEvent.syncRemoteStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        permissionService
-            .isAuthorizedPublisher
-            .pairwise()
-            .filter { previous, current in
-                previous != current
-            }
+        // Fire on every known auth reading instead of `pairwise()`-based change detection: the
+        // upstream publisher only emits on `didBecomeActive` and never replays, so when the trigger
+        // is created after the cold-start activation we'd otherwise stay one emission short of a
+        // pair and miss the very first transition (e.g. user disabling push permission in Settings
+        // and returning). `updateStatusIfNeeded()` deduplicates by comparing against the current
+        // stored status, so extra invocations don't produce redundant emissions.
+        isAuthorizedValuePublisher
+            .removeDuplicates()
             .combineLatest(isUserTokenListReadyPublisher)
             .receiveOnMain()
-            .map { _ in Event.updateStatusRequired }
+            .map { _ in PushNotificationsUpdateTriggerEvent.updateStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 
         let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
             .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
 
-        let isPreferencesReadyPublisher = remoteTransactionAlertsStatePublisher?
+        let isPreferencesReadyPublisher = remoteTransactionAlertsStatePublisher
             .map { remoteState -> Bool in
                 guard case .ready = remoteState else { return false }
                 return true
             }
             .removeDuplicates()
-            .eraseToAnyPublisher() ?? Just(false).eraseToAnyPublisher()
+            .eraseToAnyPublisher()
 
-        permissionService
-            .isAuthorizedPublisher
-            .removeDuplicates()
+        // `isPreferencesReady == true` means the wallet is synced with the backend — that's the
+        // primary trigger for auto-enabling preferences. Auth state and other readiness flags are
+        // gated in via `combineLatest` so they contribute their latest values without driving the
+        // emission cadence.
+        isPreferencesReadyPublisher
+            .filter { $0 }
             .combineLatest(
+                isAuthorizedValuePublisher.removeDuplicates(),
                 isUserTokenListReadyPublisher,
-                hasNotCompletedAllowanceOnboardingPublisher,
-                isPreferencesReadyPublisher
+                hasNotCompletedAllowanceOnboardingPublisher
             )
-            .filter { _, isUserTokenListReady, hasNotCompletedAllowanceOnboarding, isPreferencesReady in
-                isUserTokenListReady && hasNotCompletedAllowanceOnboarding && isPreferencesReady
+            .filter { _, _, isUserTokenListReady, hasNotCompletedAllowanceOnboarding in
+                isUserTokenListReady && hasNotCompletedAllowanceOnboarding
             }
             .receiveOnMain()
-            .map { _ in Event.autoEnablePreferencesRequired }
+            .print("UserTokensPushNotificationsUpdateTrigger")
+            .map { _ in PushNotificationsUpdateTriggerEvent.autoEnablePreferencesRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
 
         // Backend transactional-push address sync when the settled remote toggle changes,
         // gated on the token list being ready.
-        remoteTransactionAlertsStatePublisher?
+        remoteTransactionAlertsStatePublisher
             .removeDuplicates()
             .pairwise()
             .filter { previous, current in
@@ -150,8 +168,18 @@ final class UserTokensPushNotificationsUpdateTrigger {
                 return previousValue != currentValue
             }
             .combineLatest(isUserTokenListReadyPublisher)
-            .map { _ in Event.syncRemoteStatusRequired }
+            .map { _ in PushNotificationsUpdateTriggerEvent.syncRemoteStatusRequired }
             .subscribe(eventsSubject)
             .store(in: &bag)
+    }
+}
+
+private extension UserTokensPushNotificationsUpdateTrigger {
+    /// Tri-state mirror of the system push-authorization flag. `idle` means the upstream
+    /// publisher hasn't reported yet and the value must not be treated as `false`; downstream
+    /// pipelines drop `idle` instead of acting on an unknown state.
+    enum AuthorizationState: Hashable {
+        case idle
+        case value(Bool)
     }
 }
