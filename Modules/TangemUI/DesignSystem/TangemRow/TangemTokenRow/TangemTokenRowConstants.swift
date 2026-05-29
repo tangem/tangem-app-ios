@@ -41,11 +41,4 @@ enum TangemTokenRowConstants {
         static let priceChangeIconSpacing: CGFloat = SizeUnit.x1.value
         static let badgeSpacing: CGFloat = SizeUnit.x1.value
     }
-
-    enum Sizes {
-        static let iconSize: CGFloat = SizeUnit.x10.value
-        static let fiatBalanceLoaderSize = CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value)
-        static let cryptoBalanceLoaderSize = CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value)
-        static let tokenPriceLoaderSize = CGSize(width: SizeUnit.x13.value, height: SizeUnit.x3.value)
-    }
 }

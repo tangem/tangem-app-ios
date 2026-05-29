@@ -15,8 +15,6 @@ public struct TangemCallout: View, Setupable {
     private let action: Action
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
-    @ScaledSize private var arrowSize: CGSize
-    @ScaledSize private var iconSize: CGSize
 
     private var icon: Image?
     private var colorPalette: ColorPalette = .green
@@ -29,9 +27,6 @@ public struct TangemCallout: View, Setupable {
         self.text = text
         self.arrowAlignment = arrowAlignment
         self.action = action
-
-        _arrowSize = ScaledSize(wrappedValue: CGSize(bothDimensions: SizeUnit.x2.value))
-        _iconSize = ScaledSize(wrappedValue: CGSize(bothDimensions: SizeUnit.x3.value))
     }
 
     public var body: some View {
@@ -84,7 +79,7 @@ private extension TangemCallout {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .foregroundStyle(colorPalette.icon)
-            .frame(size: iconSize)
+            .frame(width: SizeUnit.x3.value * scaleFactor, height: SizeUnit.x3.value * scaleFactor)
     }
 
     func actionView(_ action: Action) -> some View {
@@ -109,6 +104,10 @@ private extension TangemCallout {
 private extension TangemCallout {
     var alignment: Alignment {
         alignment(arrowAlignment: arrowAlignment)
+    }
+
+    var arrowSize: CGSize {
+        CGSize(bothDimensions: SizeUnit.x2.value * scaleFactor)
     }
 
     var arrowScaleFactorY: CGFloat {

@@ -21,7 +21,7 @@ public struct TangemButtonV2: View, Setupable {
     private var horizontalLayout: HorizontalLayout = .intrinsic
     private var isLoading: Bool = false
     private var accessibilityLabel: String?
-    @ScaledSize private var iconSize: CGSize = .init(bothDimensions: Size.x10.iconSize)
+    @ScaledMetric private var iconSide = Size.x10.iconSize
 
     private let action: () -> Void
 
@@ -54,7 +54,7 @@ public struct TangemButtonV2: View, Setupable {
         horizontalLayout = model.horizontalLayout
         accessibilityLabel = model.accessibilityLabel
         action = model.action
-        _iconSize = ScaledSize(wrappedValue: CGSize(bothDimensions: model.size.iconSize), relativeTo: .body)
+        _iconSide = ScaledMetric(wrappedValue: model.size.iconSize, relativeTo: .body)
     }
 
     public var body: some View {
@@ -102,7 +102,7 @@ public struct TangemButtonV2: View, Setupable {
             .resizable()
             .renderingMode(.template)
             .aspectRatio(contentMode: .fit)
-            .frame(size: iconSize)
+            .frame(width: iconSide, height: iconSide)
     }
 }
 
@@ -116,7 +116,7 @@ public extension TangemButtonV2 {
     func size(_ size: Size) -> Self {
         map {
             $0.size = size
-            $0._iconSize = ScaledSize(wrappedValue: CGSize(bothDimensions: size.iconSize), relativeTo: .body)
+            $0._iconSide = ScaledMetric(wrappedValue: size.iconSize, relativeTo: .body)
         }
     }
 
