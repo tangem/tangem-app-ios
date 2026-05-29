@@ -109,13 +109,13 @@ final class CommonPushNotificationsSyncService: NSObject {
         updateStateTask?.cancel()
 
         updateStateTask = runTask(in: self) { service in
-            do {
-                // Stop observing before sync so that server-originated name changes applied
-                // inside syncUserWalletModelState do not fire back to the server via the
-                // active walletNameProvider subscription left from the previous updateState call.
-                // Observing is restarted after sync to capture only user-initiated renames.
-                await service.walletNameProvider.stopObserving()
+            // Stop observing before sync so that server-originated name changes applied
+            // inside syncUserWalletModelState do not fire back to the server via the
+            // active walletNameProvider subscription left from the previous updateState call.
+            // Observing is restarted after sync (success or failure) to capture only user-initiated renames.
+            await service.walletNameProvider.stopObserving()
 
+            do {
                 try await service.walletsStateProvider
                     .syncUserWalletModelState(applicationUid: service.applicationUid)
 
@@ -124,12 +124,12 @@ final class CommonPushNotificationsSyncService: NSObject {
                         .userTokensPushNotificationsManager
                         .process(.walletApplicationBindingSynchronized)
                 }
-
-                await service.walletNameProvider.restartObserving()
             } catch {
                 PushNotificationsSyncServiceLogger.error("Failed to sync wallets state with remote", error: error)
                 service.walletsStateProvider.handleSyncErrorForAllWallets()
             }
+
+            await service.walletNameProvider.restartObserving()
         }
     }
 }
@@ -158,6 +158,10 @@ extension CommonPushNotificationsSyncService: UserTokensPushNotificationsService
                 }
             } catch {
                 PushNotificationsSyncServiceLogger.error("Failed to initialize push notifications sync service", error: error)
+                // Reset the guard so a subsequent initialize() call can retry registration.
+                // Without this, a single network failure on startup permanently disables
+                // push notifications sync for the entire app session.
+                service.isInitialized = false
                 return
             }
 
