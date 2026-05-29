@@ -36,10 +36,7 @@ public protocol ExpressManager: Actor {
 
 public enum ExpressManagerState {
     case idle
-
-    @available(*, unavailable, message: "This is not implemented yet")
     case transfer
-
     case swap(selected: ExpressAvailableProvider?, providers: Providers)
 
     public struct Providers {
@@ -76,6 +73,8 @@ extension ExpressManagerState: CustomStringConvertible {
         switch self {
         case .idle:
             return objectDescription("ExpressManagerState", userInfo: ["mode": "idle"])
+        case .transfer:
+            return objectDescription("ExpressManagerState", userInfo: ["mode": "transfer"])
         case .swap(let selected, let providers):
             return objectDescription("ExpressManagerState", userInfo: [
                 "mode": "swap",

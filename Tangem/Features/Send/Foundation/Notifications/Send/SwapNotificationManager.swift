@@ -117,6 +117,9 @@ private extension CommonSwapNotificationManager {
             ]
             return [.unsupportedPair(analyticsParams: analyticsParams)]
 
+        case (.success(let source), .success(let receive), .loaded(.transfer, let state)):
+            return mapLoadedStateEvents(source: source, receive: receive, provider: nil, state: state)
+
         case (.success(let source), .success(let receive), .loaded(.swap(let selected, _), let state)):
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
             return events
@@ -265,6 +268,17 @@ private extension CommonSwapNotificationManager {
                         analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
                     )
                 )
+            }
+
+            return events
+
+        case .readyToTransfer(let transferState):
+            var events: [SwapNotificationEvent] = []
+
+            if let notification = transferState.notification {
+                let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
+                let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(notification)
+                events.append(.withdrawalNotificationEvent(withdrawalNotification))
             }
 
             return events
