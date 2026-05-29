@@ -70,7 +70,7 @@ private extension TangemCallout {
             .alignmentGuide(.top) { $0.height }
             .alignmentGuide(.bottom) { _ in .zero }
             .scaleEffect(x: 1, y: arrowScaleFactorY, anchor: .center)
-            .frame(size: arrowSize)
+            .frame(width: Sizes.arrowSide * scaleFactor, height: Sizes.arrowSide * scaleFactor)
     }
 
     func iconView(_ icon: Image) -> some View {
@@ -106,10 +106,6 @@ private extension TangemCallout {
         alignment(arrowAlignment: arrowAlignment)
     }
 
-    var arrowSize: CGSize {
-        CGSize(bothDimensions: SizeUnit.x2.value * scaleFactor)
-    }
-
     var arrowScaleFactorY: CGFloat {
         switch arrowAlignment {
         case .top: 1
@@ -134,12 +130,9 @@ public extension TangemCallout {
     }
 }
 
-// MARK: - Alignment
-
 public extension TangemCallout {
-    func arrowAligned(to alignment: HorizontalAlignment) -> some View {
-        let arrowTipOffset = arrowSize.width * 2
-        return alignmentGuide(alignment) { _ in arrowTipOffset }
+    enum Sizes {
+        public static let arrowSide = CGFloat.unit(.x2)
     }
 }
 
