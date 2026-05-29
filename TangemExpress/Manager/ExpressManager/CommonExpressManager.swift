@@ -240,7 +240,7 @@ private extension CommonExpressManager {
     func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
         let result = ExpressManagerUpdatingResult(
             selected: selected,
-            providers: availableProviders.all,
+            providers: candidateProviders,
             supportedRateTypes: availableProviders.supportedRateTypes
         )
         ExpressLogger.info(self, "Updating result: \(result.description)")

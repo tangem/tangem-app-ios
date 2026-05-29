@@ -1092,6 +1092,8 @@ extension SwapModel: SendSwapProvidersInput {
 
     var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
         _providersState
+            // Do not clear data in `Publisher` when `.loading`
+            .filter { !$0.isLoading }
             .withWeakCaptureOf(self)
             .map { $0.selectedRateType(from: $1) }
             .removeDuplicates()
