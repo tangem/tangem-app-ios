@@ -1,5 +1,5 @@
 //
-//  TangemPayExpressTransactionValidator.swift
+//  TangemPaySendTransactionValidator.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import BlockchainSdk
 
-struct TangemPayExpressTransactionValidator: ExpressTransactionValidator {
+struct TangemPaySendTransactionValidator: SendTransactionValidator {
     let availableBalanceProvider: any TokenBalanceProvider
 
-    func validate(amount: Amount, fee: Fee) throws {
+    func validate(amount: Amount) throws {
         guard let balance = availableBalanceProvider.balanceType.value else {
             throw ValidationError.balanceNotFound
         }
@@ -19,7 +19,11 @@ struct TangemPayExpressTransactionValidator: ExpressTransactionValidator {
         guard amount.value <= balance else {
             throw ValidationError.amountExceedsBalance
         }
+    }
 
-        // All good
+    func validate(amount: Amount, fee: Fee) throws {
+        // TangemPay flows are fee-exempt for the user (see `isExemptFee` on the swapable token),
+        // so client-side fee validation collapses to the amount-only check.
+        try validate(amount: amount)
     }
 }
