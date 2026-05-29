@@ -102,7 +102,7 @@ private extension SensitiveTextVisibilityViewModel {
             )
             .icon(type.image)
             let presenter = Toast(view: snackbar)
-            presenter.present(layout: .bottom(padding: 80), type: .temporary())
+            presenter.present(layout: .top(padding: 8), type: .temporary())
             toast = presenter
         } else {
             // [REDACTED_INFO]: remove legacy UndoToast branch once redesign ships
