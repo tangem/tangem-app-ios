@@ -34,7 +34,6 @@ final class SwapModel {
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
-    private let _currentRateType = CurrentValueSubject<ExpressProviderRateType?, Never>(nil)
 
     // MARK: - Dependencies
 
@@ -300,7 +299,6 @@ private extension SwapModel {
 
                 await input.updateComplementaryAmount(state: providersState)
                 input.update(providersState: providersState)
-                await input.updateRateType()
 
             } catch is CancellationError {
                 ExpressLogger.info(input, "updateTask was cancelled")
@@ -371,11 +369,6 @@ private extension SwapModel {
         default:
             break
         }
-    }
-
-    private func updateRateType() async {
-        let newRateType = await expressManager.getRateType()
-        _currentRateType.send(newRateType)
     }
 
     private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate) {
@@ -1094,11 +1087,22 @@ extension SwapModel: SendSwapProvidersInput {
     }
 
     var currentRateType: ExpressProviderRateType? {
-        _currentRateType.value
+        selectedRateType(from: _providersState.value)
     }
 
     var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> {
-        _currentRateType.removeDuplicates().eraseToAnyPublisher()
+        _providersState
+            .withWeakCaptureOf(self)
+            .map { $0.selectedRateType(from: $1) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private func selectedRateType(from state: ProvidersState) -> ExpressProviderRateType? {
+        if case .loaded(_, .some(let selected), _) = state {
+            return selected.rateType
+        }
+        return nil
     }
 
     private func mapToLoadingExpressAvailableProvider(providersState: ProvidersState) -> LoadingResult<ExpressAvailableProvider, any Error>? {

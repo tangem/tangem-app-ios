@@ -13,7 +13,6 @@ import BlockchainSdk
 
 public protocol ExpressManager: Actor {
     func getAmountType() -> ExpressAmountType?
-    func getRateType() -> ExpressProviderRateType?
 
     /// Recreates providers. Does not update quotes.
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult

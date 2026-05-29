@@ -46,11 +46,6 @@ extension CommonExpressManager: ExpressManager {
         return _amountType
     }
 
-    func getRateType() -> ExpressProviderRateType? {
-        guard _amountType != nil, let selected = selectedProvider else { return nil }
-        return selected.rateType
-    }
-
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
         pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
