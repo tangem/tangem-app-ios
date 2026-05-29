@@ -13,10 +13,10 @@ import TangemFoundation
 public class ExpressAvailableProvider {
     private let context: ExpressProviderFlowContext
     private let manager: ExpressProviderManager
-    public let rateType: ExpressProviderRateType
 
     public var provider: ExpressProvider { context.provider }
     public var pair: ExpressManagerSwappingPair { context.pair }
+    public var rateType: ExpressProviderRateType { context.rateType }
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
     public var isBest: Bool { _isBest { $0 } }
@@ -25,10 +25,9 @@ public class ExpressAvailableProvider {
 
     private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
 
-    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, rateType: ExpressProviderRateType) {
+    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager) {
         self.context = context
         self.manager = manager
-        self.rateType = rateType
     }
 
     deinit {

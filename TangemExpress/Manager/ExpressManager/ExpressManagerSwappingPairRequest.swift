@@ -24,27 +24,3 @@ public struct ExpressManagerSwappingPairRequest {
     /// - Note: `private(set)` is used here only for keeping the synthesized initializer working.
     private(set) var quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }
-
-// MARK: - Convenience extensions
-
-extension ExpressManagerSwappingPairRequest {
-    func with(rateType: ExpressProviderRateType) -> ExpressManagerSwappingPairRequest {
-        ExpressManagerSwappingPairRequest(
-            amountType: amountType,
-            rateType: rateType,
-            approvePolicy: approvePolicy,
-            operationType: operationType,
-            quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker
-        )
-    }
-
-    func with(quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?) -> ExpressManagerSwappingPairRequest {
-        ExpressManagerSwappingPairRequest(
-            amountType: amountType,
-            rateType: rateType,
-            approvePolicy: approvePolicy,
-            operationType: operationType,
-            quotesLoadingPerformanceTracker: quotesLoadingPerformanceTracker
-        )
-    }
-}

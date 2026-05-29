@@ -30,6 +30,7 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
             let context = ExpressProviderFlowContext(
                 provider: provider,
                 pair: pair,
+                rateType: rateType,
                 expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
                 expressAPIProvider: expressAPIProvider,
                 mapper: mapper
@@ -40,7 +41,7 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
                 flowTypeResolver: CommonExpressFlowTypeResolver()
             )
 
-            return ExpressAvailableProvider(context: context, manager: manager, rateType: rateType)
+            return ExpressAvailableProvider(context: context, manager: manager)
         case .onramp, .unknown:
             throw ExpressManagerError.unsupportedProviderType
         }

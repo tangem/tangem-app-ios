@@ -55,6 +55,7 @@ struct ExpressProviderFormatterBadgeTests {
         let context = ExpressProviderFlowContext(
             provider: provider,
             pair: ExpressManagerSwappingPair(source: StubExpressWallet(), destination: StubExpressWallet()),
+            rateType: .float,
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper()
@@ -62,8 +63,7 @@ struct ExpressProviderFormatterBadgeTests {
 
         let available = ExpressAvailableProvider(
             context: context,
-            manager: StubExpressProviderManager(),
-            rateType: .float
+            manager: StubExpressProviderManager()
         )
         available.update(isBest: isBest)
         return available

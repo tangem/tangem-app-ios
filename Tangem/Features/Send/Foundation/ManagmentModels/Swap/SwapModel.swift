@@ -226,7 +226,6 @@ private extension SwapModel {
     func swappingPairDidChange() {
         let loadingType: (_ manager: ExpressManager) async -> LoadingType = { [weak self] _ in
             guard let self else {
-                ExpressLogger.info("Source / Receive not found")
                 return .providers
             }
 
