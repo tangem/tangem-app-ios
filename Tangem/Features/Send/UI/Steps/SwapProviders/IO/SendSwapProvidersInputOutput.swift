@@ -27,7 +27,7 @@ extension SendSwapProvidersInput {
     var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
         expressProvidersPublisher
             .map { providers in
-                providers.reduce(into: Set<ExpressProviderRateType>()) { $0.formUnion($1.supportedRateTypes) }
+                providers.reduce(into: Set<ExpressProviderRateType>()) { $0.insert($1.rateType) }
             }
             .removeDuplicates()
             .eraseToAnyPublisher()

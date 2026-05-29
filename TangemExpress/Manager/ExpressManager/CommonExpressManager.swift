@@ -47,13 +47,8 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func getRateType() -> ExpressProviderRateType? {
-        guard let amountType = _amountType, let selected = selectedProvider else { return nil }
-
-        if selected.supportedRateTypes.contains(amountType.rateType) {
-            return amountType.rateType
-        }
-
-        return selected.supportedRateTypes.first
+        guard _amountType != nil, let selected = selectedProvider else { return nil }
+        return selected.rateType
     }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
@@ -152,21 +147,23 @@ private extension CommonExpressManager {
 
         let providers = try await expressRepository.providers()
 
-        availableProviders = try providers.compactMap { provider in
+        availableProviders = try providers.flatMap { provider -> [ExpressAvailableProvider] in
             guard allSet.contains(provider.id),
                   pair.source.supportedProvidersFilter.isSupported(provider: provider) else {
-                return nil
+                return []
             }
 
-            var rateTypes: Set<ExpressProviderRateType> = []
-            if floatSet.contains(provider.id) { rateTypes.insert(.float) }
-            if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
+            var rateTypes: [ExpressProviderRateType] = []
+            if floatSet.contains(provider.id) { rateTypes.append(.float) }
+            if fixedSet.contains(provider.id) { rateTypes.append(.fixed) }
 
-            return try expressProviderManagerFactory.makeExpressProviderManager(
-                provider: provider,
-                pair: pair,
-                supportedRateTypes: rateTypes
-            )
+            return try rateTypes.map { rateType in
+                try expressProviderManagerFactory.makeExpressProviderManager(
+                    provider: provider,
+                    pair: pair,
+                    rateType: rateType
+                )
+            }
         }
     }
 
@@ -216,7 +213,7 @@ private extension CommonExpressManager {
         // Run a parallel asynchronous tasks
         await withTaskGroup(of: Void.self) { taskGroup in
             candidates.forEach { provider in
-                let providerRequest = request.with(rateType: resolveRateType(for: provider))
+                let providerRequest = request.with(rateType: provider.rateType)
                 taskGroup.addTask {
                     await provider.updateState(request: providerRequest)
                 }
@@ -233,12 +230,7 @@ private extension CommonExpressManager {
             throw ExpressManagerError.amountNotFound
         }
 
-        let rateType: ExpressProviderRateType
-        if let provider {
-            rateType = resolveRateType(for: provider)
-        } else {
-            rateType = amountType.rateType
-        }
+        let rateType: ExpressProviderRateType = provider?.rateType ?? amountType.rateType
 
         return ExpressManagerSwappingPairRequest(
             amountType: amountType,
@@ -246,13 +238,6 @@ private extension CommonExpressManager {
             approvePolicy: _approvePolicy,
             operationType: pair.source.operationType
         )
-    }
-
-    func resolveRateType(for provider: ExpressAvailableProvider) -> ExpressProviderRateType {
-        if let preferred = _amountType?.rateType, provider.supportedRateTypes.contains(preferred) {
-            return preferred
-        }
-        return provider.supportedRateTypes.first ?? .float
     }
 
     func clearCache() {

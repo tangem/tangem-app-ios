@@ -137,7 +137,7 @@ private extension SwapModel {
                 let states = await publisher.dropFirst().values
                 for await state in states {
                     if case .loaded(_, .some(let provider), _) = state {
-                        let hasFixed = provider.supportedRateTypes.contains(.fixed)
+                        let hasFixed = provider.rateType == .fixed
                         return hasFixed ? .fixed : .float
                     }
                 }

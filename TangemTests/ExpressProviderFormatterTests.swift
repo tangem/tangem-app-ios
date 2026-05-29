@@ -63,7 +63,7 @@ struct ExpressProviderFormatterBadgeTests {
         let available = ExpressAvailableProvider(
             context: context,
             manager: StubExpressProviderManager(),
-            supportedRateTypes: [.float]
+            rateType: .float
         )
         available.update(isBest: isBest)
         return available

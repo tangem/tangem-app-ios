@@ -14,17 +14,17 @@ public class ExpressAvailableProvider {
     public var pair: ExpressManagerSwappingPair { context.pair }
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
-    public let supportedRateTypes: Set<ExpressProviderRateType>
+    public let rateType: ExpressProviderRateType
     public var isBest: Bool { _isBest { $0 } }
 
     private let context: ExpressProviderFlowContext
     private let manager: ExpressProviderManager
     private let _isBest: OSAllocatedUnfairLock<Bool> = .init(initialState: false)
 
-    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>) {
+    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, rateType: ExpressProviderRateType) {
         self.context = context
         self.manager = manager
-        self.supportedRateTypes = supportedRateTypes
+        self.rateType = rateType
     }
 
     deinit {
@@ -77,7 +77,7 @@ public extension [ExpressAvailableProvider] {
     /// only when selection actually changes (see `CommonExpressManager.updateSelectedProvider`).
     func updateIsBestFlag(rateType: ExpressProviderRateType) {
         let candidates = filter { provider in
-            guard provider.supportedRateTypes.contains(rateType) else { return false }
+            guard provider.rateType == rateType else { return false }
             let state = provider.getState()
             switch state {
             case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
@@ -101,7 +101,7 @@ public extension [ExpressAvailableProvider] {
             return self
         }
 
-        return filter { $0.supportedRateTypes.contains(rateType) }
+        return filter { $0.rateType == rateType }
     }
 
     func showableProviders() -> [ExpressAvailableProvider] {
@@ -116,7 +116,7 @@ public extension [ExpressAvailableProvider] {
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
             let isAvailableToShow = !provider.getState().isError
-            let isSupportedRateType = rateType.map { provider.supportedRateTypes.contains($0) } ?? true
+            let isSupportedRateType = rateType.map { provider.rateType == $0 } ?? true
 
             return (isSelected || isAvailableToShow) && isSupportedRateType
         }
