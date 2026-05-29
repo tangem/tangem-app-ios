@@ -106,6 +106,9 @@ public extension Color.Tangem.Surface {
     static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark7)
     static let level3: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
     static let level4: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
+
+    /// Main screen background. Matches Android: level2 in light, level1 (pure black) in dark for stronger contrast against token cards (level3).
+    static let mainBackground: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Base.black)
 }
 
 // MARK: - Controls
