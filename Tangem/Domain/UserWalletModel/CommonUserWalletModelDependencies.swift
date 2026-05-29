@@ -196,22 +196,26 @@ private extension CommonUserWalletModelDependencies {
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
 
-        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
-            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        let transactionHistoryProviderRegistry: CommonTransactionHistoryProviderRegistry?
+        if FeatureProvider.isAvailable(.transactionHistoryV2) {
+            let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+                ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+            }
+            transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
+                cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
+                userWalletId: userWalletId,
+                walletInfo: walletInfo
+            )
+        } else {
+            transactionHistoryProviderRegistry = nil
         }
-
-        let transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
-            cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
-            userWalletId: userWalletId,
-            walletInfo: walletInfo
-        )
 
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry()
         )
 
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
@@ -239,7 +243,7 @@ private extension CommonUserWalletModelDependencies {
             areHDWalletsSupported: areHDWalletsSupported
         )
 
-        transactionHistoryProviderRegistry.setup(with: accountModelsManager)
+        transactionHistoryProviderRegistry?.setup(with: accountModelsManager)
 
         return accountModelsManager
     }
