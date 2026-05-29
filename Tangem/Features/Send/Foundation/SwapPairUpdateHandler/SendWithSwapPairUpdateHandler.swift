@@ -45,25 +45,14 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         return .autoupdate
     }
 
-    func updatePair(source: any SendSwapableToken, destination: any SendReceiveToken) async throws -> SwapPairUpdateResult {
+    func updatePair(source: any SendSwapableToken, destination: any SendReceiveToken) async throws -> ExpressManagerState {
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
         let pairResult = try await expressManager.update(pair: pair)
 
         guard let amountType = await expressManager.getAmountType() else {
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
+            return pairResult
         }
 
-        let quoteResult = await expressManager.update(amountType: amountType)
-
-        guard case .swap(.some(let selected), _) = quoteResult, let quote = selected.getState().quote else {
-            return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: nil)
-        }
-
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate? = switch amountType {
-        case .from: .setReceiveAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId)
-        case .to: .setSourceAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId)
-        }
-
-        return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: amountUpdate)
+        return await expressManager.update(amountType: amountType)
     }
 }

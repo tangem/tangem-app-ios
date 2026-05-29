@@ -25,7 +25,7 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         return .providers
     }
 
-    func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> SwapPairUpdateResult {
+    func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
         if FeatureProvider.isAvailable(.swapPipelineV2) {
             let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
@@ -35,11 +35,11 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
             }
         }
 
-        // In regular swap we are clear cached amount type when pair is changed
+        // In regular swap we are clear cached amount type when pair is changed.
+        // The cleared `amountType` propagates to `updateComplementaryAmount`, which clears the receive field.
         let _ = await expressManager.update(amountType: .none)
 
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
-        let pairResult = try await expressManager.update(pair: pair)
-        return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
+        return try await expressManager.update(pair: pair)
     }
 }

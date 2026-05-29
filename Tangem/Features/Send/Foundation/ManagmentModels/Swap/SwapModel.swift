@@ -243,10 +243,7 @@ private extension SwapModel {
                 return try await expressManager.update(pair: .none)
             }
 
-            let result = try await pairUpdateHandler.updatePair(source: source, destination: destination)
-            applyAmountUpdate(result.amountUpdate)
-
-            return result.expressResult
+            return try await pairUpdateHandler.updatePair(source: source, destination: destination)
         }
     }
 
@@ -348,19 +345,6 @@ private extension SwapModel {
             }
         default:
             break
-        }
-    }
-
-    private func applyAmountUpdate(_ update: SwapPairUpdateResult.AmountUpdate?) {
-        switch update {
-        case .none:
-            break
-        case .setReceiveAmount(let crypto, let currencyId):
-            _receiveAmount.send(makeSendAmount(crypto: crypto, currencyId: currencyId))
-        case .setSourceAmount(let crypto, let currencyId):
-            _sourceAmount.send(makeSendAmount(crypto: crypto, currencyId: currencyId))
-        case .clearReceiveAmount:
-            _receiveAmount.send(nil)
         }
     }
 }
@@ -616,20 +600,28 @@ extension SwapModel {
     }
 
     func updateComplementaryAmount(state: ProvidersState) async {
-        guard case .loaded(_, _, let loadedState) = state,
-              let quote = loadedState.quote else { return }
+        guard case .loaded(_, _, let loadedState) = state else {
+            return
+        }
 
-        switch await expressManager.getAmountType() {
-        case .from:
+        let amountType = await expressManager.getAmountType()
+
+        switch (amountType, loadedState.quote)  {
+        case (.from, .some(let quote)):
             _receiveAmount.send(
                 makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId)
             )
-        case .to:
+        case (.to, .some(let quote)):
             _sourceAmount.send(
                 makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId)
             )
-        case .none:
-            break
+        case (.from, .none):
+            _receiveAmount.send(nil)
+        case (.to, .none):
+            _sourceAmount.send(nil)
+        case (.none, _):
+            _sourceAmount.send(nil)
+            _receiveAmount.send(nil)
         }
     }
 
