@@ -25,7 +25,7 @@ actor CommonExpressManager {
     private var _approvePolicy: ApprovePolicy = .specified
     private var _amountType: ExpressAmountType?
 
-    private var availableProviders: [ExpressAvailableProvider] = []
+    private var availableProviders: AvailableProviders = .empty
     private var selectedProvider: ExpressAvailableProvider?
 
     init(
@@ -60,7 +60,7 @@ extension CommonExpressManager: ExpressManager {
 
         switch pair {
         case .some(let pair): try await updateAvailableProviders(pair: pair)
-        case .none: availableProviders.removeAll()
+        case .none: availableProviders = .empty
         }
 
         let selected = await bestProvider()
@@ -147,24 +147,22 @@ private extension CommonExpressManager {
 
         let providers = try await expressRepository.providers()
 
-        availableProviders = try providers.flatMap { provider -> [ExpressAvailableProvider] in
-            guard allSet.contains(provider.id),
-                  pair.source.supportedProvidersFilter.isSupported(provider: provider) else {
-                return []
-            }
-
-            var rateTypes: [ExpressProviderRateType] = []
-            if floatSet.contains(provider.id) { rateTypes.append(.float) }
-            if fixedSet.contains(provider.id) { rateTypes.append(.fixed) }
-
-            return try rateTypes.map { rateType in
-                try expressProviderManagerFactory.makeExpressProviderManager(
-                    provider: provider,
-                    pair: pair,
-                    rateType: rateType
-                )
-            }
+        let supported = providers.filter { provider in
+            allSet.contains(provider.id) && pair.source.supportedProvidersFilter.isSupported(provider: provider)
         }
+
+        let make = { (provider: ExpressProvider, rateType: ExpressProviderRateType) throws -> ExpressAvailableProvider in
+            try self.expressProviderManagerFactory.makeExpressProviderManager(
+                provider: provider,
+                pair: pair,
+                rateType: rateType
+            )
+        }
+
+        let float = try supported.filter { floatSet.contains($0.id) }.map { try make($0, .float) }
+        let fixed = try supported.filter { fixedSet.contains($0.id) }.map { try make($0, .fixed) }
+
+        availableProviders = AvailableProviders(float: float, fixed: fixed)
     }
 
     func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressManagerUpdatingType) async {
@@ -178,15 +176,15 @@ private extension CommonExpressManager {
     }
 
     var candidateProviders: [ExpressAvailableProvider] {
-        let filtered = availableProviders.filteredByRateType(_amountType?.rateType)
-        return filtered.isEmpty ? availableProviders : filtered
+        availableProviders.candidates(for: _amountType?.rateType)
     }
 
     func updateIsBestFlag() {
         let rateType = _amountType?.rateType ?? .float
-        availableProviders.updateIsBestFlag(rateType: rateType)
+        let providers = availableProviders.all
+        providers.updateIsBestFlag(rateType: rateType)
 
-        let summary = availableProviders.map { "\($0.provider.name)=\($0.isBest)" }.joined(separator: ", ")
+        let summary = providers.map { "\($0.provider.name)=\($0.isBest)" }.joined(separator: ", ")
         ExpressLogger.info(self, "isBest flags: \(summary)")
     }
 
@@ -245,7 +243,7 @@ private extension CommonExpressManager {
     }
 
     func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
-        let result = ExpressManagerUpdatingResult(providers: availableProviders, selected: selected)
+        let result = ExpressManagerUpdatingResult(providers: availableProviders.all, selected: selected)
         ExpressLogger.info(self, "Updating result: \(result.description)")
         return result
     }
@@ -255,6 +253,33 @@ private extension CommonExpressManager {
 
 extension CommonExpressManager: @preconcurrency CustomStringConvertible {
     var description: String { objectDescription(self) }
+}
+
+// MARK: - Types
+
+extension CommonExpressManager {
+    struct AvailableProviders {
+        static let empty = AvailableProviders(float: [], fixed: [])
+
+        let float: [ExpressAvailableProvider]
+        let fixed: [ExpressAvailableProvider]
+
+        var all: [ExpressAvailableProvider] { float + fixed }
+
+        func providers(for rateType: ExpressProviderRateType) -> [ExpressAvailableProvider] {
+            switch rateType {
+            case .float: float
+            case .fixed: fixed
+            }
+        }
+
+        /// Providers matching `rateType`; falls back to `all` if no providers match (or `rateType` is nil).
+        func candidates(for rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {
+            guard let rateType else { return all }
+            let preferred = providers(for: rateType)
+            return preferred.isEmpty ? all : preferred
+        }
+    }
 }
 
 // MARK: - SupportedProvidersFilter+

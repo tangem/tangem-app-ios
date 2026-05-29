@@ -96,14 +96,6 @@ public extension [ExpressAvailableProvider] {
         forEach { $0.update(isBest: $0 === bestProvider) }
     }
 
-    func filteredByRateType(_ rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {
-        guard let rateType else {
-            return self
-        }
-
-        return filter { $0.rateType == rateType }
-    }
-
     func showableProviders() -> [ExpressAvailableProvider] {
         filter { provider in
             let isAvailableToShow = !provider.getState().isError

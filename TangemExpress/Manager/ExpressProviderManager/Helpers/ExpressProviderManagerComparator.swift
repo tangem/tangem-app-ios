@@ -11,7 +11,7 @@ import Foundation
 public enum ExpressProviderManagerComparator {
     /// `.min(by:)` / `.sorted(by:)` returns the best provider first.
     /// Callers must pre-filter the array to providers whose `rateType`
-    /// matches the active `rateType` (e.g. via `filteredByRateType`).
+    /// matches the active `rateType`.
     public static func isBetter(
         _ lhs: ExpressAvailableProvider,
         _ rhs: ExpressAvailableProvider,
