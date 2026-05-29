@@ -39,8 +39,18 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
     }
 
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+        try await getFee(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee, stateOverride: nil)
+    }
+
+    func getFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> [BSDKFee] {
         var fees = try await ethereumNetworkProvider
-            .getFee(destination: destination, value: amount.encodedForSend, data: txData)
+            .getFee(destination: destination, value: amount.encodedForSend, data: txData, stateOverride: stateOverride)
             .async()
 
         // For EVM networks increase gas limit

@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import struct BlockchainSdk.EthereumAccountOverride
 
 struct DEXProviderFlowHelper {
     private let context: ExpressProviderFlowContext
@@ -35,28 +36,27 @@ struct DEXProviderFlowHelper {
             sourceAmount = quote.fromAmount
         }
 
-        if let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote) {
-            return restriction
-        }
+        let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote)
 
-        do {
-            try await yieldModuleTransactionHelper?.prepareForYieldModuleDEXSwap(provider: provider)
+        switch restriction {
+        case .some(.permissionRequired(let permissionData)) where !context.featureFlags.isApproveWithSwapEnabled:
+            return .permissionRequired(permissionData)
 
-            let dataItem = try mapper.makeExpressSwappableDataItem(
-                pair: pair,
-                request: request,
-                providerId: provider.id,
-                providerType: provider.type,
-                quoteId: quote.quoteId
+        case .some(.permissionRequired(let permissionData)):
+            let v2Result = await fetchExchangeDataAndProceed(
+                sourceAmount: sourceAmount, request: request, quote: quote, requiredApprove: permissionData
             )
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
-            try Task.checkCancellation()
+            // Any V2 failure (override unsupported on this RPC, simulation reverted, etc.) falls back to legacy approve-first.
+            if case .error = v2Result {
+                return .permissionRequired(permissionData)
+            }
+            return v2Result
 
-            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+        case .some(let otherRestrictions):
+            return otherRestrictions
 
-            return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: yieldModuleData)
-        } catch {
-            return mapError(error, quote: quote, amountType: request.amountType)
+        case .none:
+            return await fetchExchangeDataAndProceed(sourceAmount: sourceAmount, request: request, quote: quote)
         }
     }
 
@@ -97,7 +97,7 @@ private extension DEXProviderFlowHelper {
         }
 
         // Check Permission
-        if let spender = quote.allowanceContract, !isYieldModuleDEXSwap {
+        if let spender = quote.allowanceContract {
             do {
                 let allowanceState = try await pair.source.allowanceProvider?.allowanceState(
                     request: request,
@@ -132,27 +132,38 @@ private extension DEXProviderFlowHelper {
         return nil
     }
 
-    func makeYieldModuleDEXSwapDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
-        guard isYieldModuleDEXSwap else {
-            return data
-        }
+    func fetchExchangeDataAndProceed(
+        sourceAmount: Decimal,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired? = nil
+    ) async -> ExpressProviderManagerState {
+        do {
+            let dataItem = try mapper.makeExpressSwappableDataItem(
+                pair: pair,
+                request: request,
+                providerId: provider.id,
+                providerType: provider.type,
+                quoteId: quote.quoteId
+            )
+            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            try Task.checkCancellation()
 
-        guard let spender = quote.allowanceContract else {
-            throw ExpressProviderError.yieldModuleSwapUnavailable(.spenderNotFound)
+            return try await proceed(
+                sourceAmount: sourceAmount, request: request, quote: quote,
+                data: data, requiredApprove: requiredApprove
+            )
+        } catch {
+            return mapError(error, quote: quote, amountType: request.amountType)
         }
-
-        guard let yieldModuleTransactionHelper else {
-            return data
-        }
-
-        return try await yieldModuleTransactionHelper.yieldModuleDEXSwapData(data: data, provider: provider, spender: spender)
     }
 
     func proceed(
         sourceAmount: Decimal,
         request: ExpressManagerSwappingPairRequest,
         quote: ExpressQuote,
-        data: ExpressTransactionData
+        data: ExpressTransactionData,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired?
     ) async throws -> ExpressProviderManagerState {
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
         if data.txValue > coinBalance {
@@ -165,7 +176,7 @@ private extension DEXProviderFlowHelper {
         }
 
         do {
-            let ready = try await ready(request: request, quote: quote, data: data)
+            let ready = try await ready(request: request, quote: quote, data: data, requiredApprove: requiredApprove)
             return .dexPreview(ready)
         } catch {
             return .error(error, quote: quote)
@@ -189,14 +200,35 @@ private extension DEXProviderFlowHelper {
         return .insufficientBalance(estimatedAmount)
     }
 
-    func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.DEXPreview {
-        let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data))
+    func ready(
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote,
+        data: ExpressTransactionData,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired?
+    ) async throws -> ExpressProviderManagerState.DEXPreview {
+        // Build a fake-unlimited-allowance override only when we know an approve is pending — drives the
+        // V2 "estimate swap-tx fee before approve" path. nil owner short-circuits to legacy fallback at the helper layer.
+        let stateOverride: [String: EthereumAccountOverride]? = {
+            guard let requiredApprove else {
+                return nil
+            }
+            guard let owner = pair.source.address else {
+                return nil
+            }
+            return EthereumAccountOverride.unlimitedAllowance(
+                tokenAddress: pair.source.currency.contractAddress,
+                owner: owner,
+                spender: requiredApprove.data.spender
+            )
+        }()
+
+        let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data), stateOverride: stateOverride)
 
         try Task.checkCancellation()
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId, txType: quote.txType)
-        return .init(provider: provider, data: data, fee: fee, quote: quoteData)
+        return .init(provider: provider, data: data, fee: fee, quote: quoteData, requiredApprove: requiredApprove)
     }
 
     func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
@@ -205,19 +237,6 @@ private extension DEXProviderFlowHelper {
             return .mapError(apiError, quote: quote, currencySymbol: currencySymbol)
         }
         return .error(error, quote: quote)
-    }
-
-    var isYieldModuleDEXSwap: Bool {
-        switch provider.type {
-        case .dex, .dexBridge:
-            return yieldModuleTransactionHelper?.yieldContractAddress != nil
-        case .cex, .onramp, .unknown:
-            return false
-        }
-    }
-
-    var yieldModuleTransactionHelper: YieldModuleTransactionHelper? {
-        pair.source.yieldModuleTransactionHelper
     }
 }
 

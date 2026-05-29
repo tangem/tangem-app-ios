@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct BlockchainSdk.EthereumAccountOverride
 
 protocol TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee]
@@ -18,6 +19,28 @@ protocol TokenFeeLoader {
 protocol EthereumTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee]
+
+    /// Override-aware variant for pre-approve `transferFrom` gas estimation; passes `stateOverride` down to
+    /// `EthereumNetworkProvider.getFee`. Default impl drops the override so legacy loaders silently degrade.
+    func getFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> [BSDKFee]
+}
+
+extension EthereumTokenFeeLoader {
+    func getFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> [BSDKFee] {
+        try await getFee(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
+    }
 }
 
 // MARK: - SolanaTokenFeeLoader

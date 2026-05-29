@@ -47,15 +47,6 @@ public enum ExpressProviderManagerState {
         }
     }
 
-    public var isShowable: Bool {
-        switch self {
-        case .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview:
-            return true
-        case .idle, .error:
-            return false
-        }
-    }
-
     public var isPermissionRequired: Bool {
         switch self {
         case .permissionRequired, .revokeAndPermissionRequired:
@@ -95,6 +86,7 @@ public extension ExpressProviderManagerState {
         public let data: ExpressTransactionData
         public let fee: Fee
         public let quote: ExpressQuote
+        public let requiredApprove: PermissionRequired?
     }
 }
 

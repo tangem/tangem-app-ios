@@ -11,13 +11,16 @@ import Foundation
 struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
+    private let featureFlags: ExpressFeatureFlagsProvider
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
+        mapper: ExpressManagerMapper,
+        featureFlags: ExpressFeatureFlagsProvider
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
+        self.featureFlags = featureFlags
     }
 
     func makeExpressProviderManager(
@@ -32,7 +35,8 @@ struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
                 pair: pair,
                 expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
                 expressAPIProvider: expressAPIProvider,
-                mapper: mapper
+                mapper: mapper,
+                featureFlags: featureFlags
             )
 
             let manager = CommonExpressProviderManager(

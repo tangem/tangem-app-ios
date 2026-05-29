@@ -207,6 +207,35 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             return fee
         }
     }
+
+    /// Override-aware variant for pre-approve swap-fee estimation. Bypasses the state machine for the
+    /// EVM-DEX case (calls `selectedFeeProvider.ethereumFee` directly); everything else falls back to the regular path.
+    func transactionFee(
+        data: ExpressTransactionDataType,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> BSDKFee {
+
+        guard let stateOverride, case .dex(let dexData) = data else {
+            return try await transactionFee(data: data)
+        }
+
+        let blockchain = initialSelectedProvider.feeTokenItem.blockchain
+        if case .solana = blockchain {
+            return try await transactionFee(data: data)
+        }
+
+        guard let txData = dexData.txData.map(Data.init(hexString:)) else {
+            throw ExpressProviderError.transactionDataNotFound
+        }
+        let amount = BSDKAmount(with: blockchain, type: .coin, value: dexData.txValue)
+        return try await selectedFeeProvider.ethereumFee(
+            amount: amount,
+            destination: dexData.destinationAddress,
+            txData: txData,
+            otherNativeFee: dexData.otherNativeFee,
+            stateOverride: stateOverride
+        )
+    }
 }
 
 // MARK: - Private

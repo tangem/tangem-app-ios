@@ -11,6 +11,7 @@ import Foundation
 import TangemFoundation
 import TangemMacro
 import enum BlockchainSdk.EthereumFeeParametersConstants
+import struct BlockchainSdk.EthereumAccountOverride
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -143,6 +144,32 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         updatingFeeTask = task
 
         return task
+    }
+
+    /// One-shot EVM fee bypassing the state machine — returns the market fee from a fresh
+    /// override-aware loader call. Throws if this provider's loader isn't an `EthereumTokenFeeLoader`.
+    func ethereumFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> BSDKFee {
+        let fees = try await tokenFeeLoader
+            .asEthereumTokenFeeLoader()
+            .getFee(
+                amount: amount,
+                destination: destination,
+                txData: txData,
+                otherNativeFee: otherNativeFee,
+                stateOverride: stateOverride
+            )
+
+        // Approve-style flow has no speed selector — return market (index 1), fall back to [0] for single-fee loaders.
+        guard let marketFee = fees[safe: 1] ?? fees[safe: 0] else {
+            throw TokenFeeProviderError.feeNotFound
+        }
+        return marketFee
     }
 
     private func updateFees() async {

@@ -39,7 +39,8 @@ private extension CommonExpressDependenciesFactory {
     func makeExpressManager() -> ExpressManager {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository
+            expressRepository: expressRepository,
+            featureFlags: CommonExpressFeatureFlagsProvider()
         )
     }
 

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import struct BlockchainSdk.EthereumAccountOverride
 
 protocol TokenFeeProvider {
     var feeTokenItem: TokenItem { get }
@@ -31,6 +32,28 @@ protocol TokenFeeProvider {
 
     @discardableResult
     func updateFees() -> Task<Void, Never>
+
+    /// One-shot EVM fee calculation that bypasses the state machine — used for pre-approve `transferFrom`
+    /// gas estimation via state override. Default impl throws so non-EVM providers fail loudly.
+    func ethereumFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> BSDKFee
+}
+
+extension TokenFeeProvider {
+    func ethereumFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> BSDKFee {
+        throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+    }
 }
 
 // MARK: - TokenFeeProvider+
