@@ -10,7 +10,11 @@ import Foundation
 import TangemExpress
 
 protocol SwapPairUpdateHandler {
-    func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> SwapPairUpdateResult
+    func updatePair(
+        source: SendSwapableToken,
+        destination: SendReceiveToken,
+        amountDirection: SwapAmountDirection?
+    ) async throws -> SwapPairUpdateResult
 }
 
 struct SwapPairUpdateResult {

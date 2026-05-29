@@ -26,6 +26,7 @@ final class SwapModel {
 
     private let preselectedTokenChangeAnalyticsLogger: SwapPreselectedTokenChangeAnalyticsLogger
 
+    private let _amountDirection: CurrentValueSubject<SwapAmountDirection?, Never>
     private let _sourceAmount: CurrentValueSubject<SendAmount?, Never>
     private let _receiveAmount: CurrentValueSubject<SendAmount?, Never>
 
@@ -95,6 +96,7 @@ final class SwapModel {
             preselectedReceiveTokenItem: receiveToken?.tokenItem,
             analyticsLogger: analyticsLogger
         )
+        _amountDirection = .init(.none)
         _sourceAmount = .init(.none)
         _receiveAmount = .init(.none)
 
@@ -172,44 +174,30 @@ private extension SwapModel {
 // MARK: - Changes -> ExpressManager
 
 extension SwapModel {
-    func update(sourceAmount: SendAmount?) {
-        ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
+    func update(swapAmountDirection: SwapAmountDirection?) {
+        ExpressLogger.info("Will update express amount direction to \(swapAmountDirection as Any)")
+        _amountDirection.send(swapAmountDirection)
 
         updateTask(loadingType: .rates) { expressManager in
-            if sourceAmount != nil {
+            if swapAmountDirection != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
             }
 
-            let amountType: ExpressAmountType? = sourceAmount?.crypto.map { .from($0) }
-            return await expressManager.update(amountType: amountType)
+            return await expressManager.update(amountType: swapAmountDirection?.amountType)
         }
+    }
 
-        _sourceAmount.send(sourceAmount)
-
-        if sourceAmount == nil {
-            _receiveAmount.send(nil)
-        }
+    func update(sourceAmount: SendAmount?) {
+        ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
+        let direction: SwapAmountDirection? = sourceAmount?.crypto.map { .from($0) }
+        update(swapAmountDirection: direction)
     }
 
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
-
-        updateTask(loadingType: .rates) { expressManager in
-            if receiveAmount != nil {
-                // Add some debounce
-                try await Task.sleep(for: .seconds(1))
-            }
-
-            let amountType: ExpressAmountType? = receiveAmount?.crypto.map { .to($0) }
-            return await expressManager.update(amountType: amountType)
-        }
-
-        _receiveAmount.send(receiveAmount)
-
-        if receiveAmount == nil {
-            _sourceAmount.send(nil)
-        }
+        let direction: SwapAmountDirection? = receiveAmount?.crypto.map { .to($0) }
+        update(swapAmountDirection: direction)
     }
 
     func update(source wallet: SendSwapableToken) {
@@ -264,10 +252,9 @@ private extension SwapModel {
                 return try await expressManager.update(pair: .none)
             }
 
-            let result = try await pairUpdateHandler.updatePair(
-                source: source,
-                destination: destination
-            )
+            let amountDirection = _amountDirection.value
+            let result = try await pairUpdateHandler
+                .updatePair(source: source, destination: destination, amountDirection: amountDirection)
 
             if let amountUpdate = result.amountUpdate {
                 applyAmountUpdate(amountUpdate)
@@ -667,21 +654,19 @@ extension SwapModel {
     }
 
     func updateComplementaryAmount(state: ProvidersState) {
-        switch state {
-        case .loaded(.swap(.fixed, _, _), let loadedState):
-            guard let quote = loadedState.quote else { return }
-            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId))
-
-        case .loaded(.swap(.float, _, _), let loadedState):
-            guard let quote = loadedState.quote else { return }
-            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
-
-        case .loaded(.transfer, let loadedState):
-            guard let quote = loadedState.quote else { return }
-            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveToken.value?.tokenItem.currencyId))
-
-        default:
+        guard case .loaded(_, let loadedState) = state, let quote = loadedState.quote else {
             return
+        }
+
+        switch _amountDirection.value {
+        case .from:
+            let receiveCurrencyId = receiveToken.value?.tokenItem.currencyId
+            _receiveAmount.send(makeSendAmount(crypto: quote.expectAmount, currencyId: receiveCurrencyId))
+        case .to:
+            let sourceCurrencyId = sourceToken.value?.tokenItem.currencyId
+            _sourceAmount.send(makeSendAmount(crypto: quote.fromAmount, currencyId: sourceCurrencyId))
+        default:
+            break
         }
     }
 
