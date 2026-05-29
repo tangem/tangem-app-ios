@@ -56,6 +56,14 @@ public extension AppEnvironment {
         #endif
     }
 
+    var isUnitTest: Bool {
+        #if DEBUG
+        return NSClassFromString("XCTestCase") != nil
+        #else
+        return false
+        #endif
+    }
+
     var isInternalOrDebug: Bool {
         isDebug || !isProduction
     }

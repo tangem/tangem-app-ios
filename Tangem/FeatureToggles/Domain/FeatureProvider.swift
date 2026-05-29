@@ -12,7 +12,8 @@ import TangemFoundation
 /// Use this provider to check the availability of your feature
 enum FeatureProvider {
     static func isAvailable(_ feature: Feature) -> Bool {
-        if AppEnvironment.current.isProduction {
+        // In unit tests, allow FeatureStorage overrides even in production
+        if AppEnvironment.current.isProduction, !AppEnvironment.current.isUnitTest {
             return isAvailableForReleaseVersion(feature)
         }
 
