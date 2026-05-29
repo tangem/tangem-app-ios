@@ -100,7 +100,7 @@ extension SendFeeSelectorViewModel {
                         title: Localization.commonNetworkFeeTitle,
                         description: AttributedString(""),
                         headerButtonAction: .close,
-                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
+                        learnMoreURL: TangemBlogUrlBuilder().url(post: .yieldMode),
                         isSingleOptionMode: false
                     )
                 )
@@ -112,7 +112,7 @@ extension SendFeeSelectorViewModel {
                         title: Localization.feeSelectorChooseTokenTitle,
                         description: Content.makeDescription(text: text),
                         headerButtonAction: .back,
-                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
+                        learnMoreURL: TangemBlogUrlBuilder().url(post: .yieldMode),
                         isSingleOptionMode: false
                     )
                 )
@@ -124,7 +124,7 @@ extension SendFeeSelectorViewModel {
                         title: Localization.feeSelectorChooseSpeedTitle,
                         description: Content.makeDescription(text: text),
                         headerButtonAction: isFeesOnlyOption ? .close : .back,
-                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
+                        learnMoreURL: TangemBlogUrlBuilder().url(post: .yieldMode),
                         isSingleOptionMode: isFeesOnlyOption
                     )
                 )
