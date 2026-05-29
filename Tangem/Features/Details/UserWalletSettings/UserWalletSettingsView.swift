@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemAccounts
+import TangemAccessibilityIdentifiers
 
 struct UserWalletSettingsView: View {
     @ObservedObject private var viewModel: UserWalletSettingsViewModel
@@ -80,6 +81,7 @@ struct UserWalletSettingsView: View {
                 onAction: viewModel.onTapNameField
             )
         }
+        .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.renameWalletRow)
     }
 
     @ViewBuilder
