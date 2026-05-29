@@ -12,7 +12,7 @@
         "y": "{dimension.100}",
         "blur": "{dimension.500}",
         "spread": "{dimension.0}",
-        "color": "rgba({palette.base.black}, {opacity.10})",
+        "color": "rgba({palette.base.black}, 0.12)",
         "type": "dropShadow"
       }
     }
