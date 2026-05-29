@@ -157,10 +157,10 @@ private extension SwapModel {
     func updateAutoupdatingTimer(state: ProvidersState) {
         switch state {
         // Use timer to check pending transactions
-        case .loaded(_, .restriction(.hasPendingTransaction, _)),
-             .loaded(_, .restriction(.hasPendingApproveTransaction, _)),
-             .loaded(_, .previewCEX),
-             .loaded(_, .readyToSwap):
+        case .loaded(.swap(.some, _), .restriction(.hasPendingTransaction, _)),
+             .loaded(.swap(.some, _), .restriction(.hasPendingApproveTransaction, _)),
+             .loaded(.swap(.some, _), .previewCEX),
+             .loaded(.swap(.some, _), .readyToSwap):
 
             autoupdatingTimer.setup { [weak self] in
                 self?.autoupdatingRates()
