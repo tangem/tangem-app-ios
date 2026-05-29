@@ -41,7 +41,8 @@ extension CommonExpressManager: ExpressManager {
         switch pair {
         case .some(let pair):
             let providers = try await makeAvailableProviders(pair: pair)
-            return update(state: .idle(providers: providers))
+            let selected = providers.availableProviders(rate: .float).best()
+            return update(state: .swap(selected: selected, providers: providers))
 
         case .none:
             return update(state: .idle)
@@ -57,7 +58,8 @@ extension CommonExpressManager: ExpressManager {
         case .none:
             // Reset all providers to idle
             providers.all.forEach { $0.reset() }
-            return update(state: .idle(providers: providers))
+            let selected = providers.availableProviders(rate: .float).best()
+            return update(state: .swap(selected: selected, providers: providers))
 
         // Workaround. We receive Amount.from. But we have only providers with fixed rate
         case .from(let amount) where providers.availableProviders(rate: .float).isEmpty:
@@ -207,14 +209,6 @@ private extension CommonExpressManager {
 
 extension CommonExpressManager: @preconcurrency CustomStringConvertible {
     var description: String { objectDescription(self) }
-}
-
-// MARK: - ExpressManagerState+
-
-extension ExpressManagerState {
-    static func idle(providers: Providers) -> Self {
-        return .swap(selected: .none, providers: providers)
-    }
 }
 
 // MARK: - SupportedProvidersFilter+
