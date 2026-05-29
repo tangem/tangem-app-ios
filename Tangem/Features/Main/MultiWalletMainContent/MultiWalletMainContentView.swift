@@ -54,7 +54,7 @@ struct MultiWalletMainContentView: View {
         .bindAlert($viewModel.error)
     }
 
-    /// Add funds banner takes priority over every other banner while it is visible.
+    /// Add funds banner takes priority over every other banner while it is visible, except force update banner
     @ViewBuilder
     private var bannersSection: some View {
         if viewModel.isAppUpdateBannerVisible {
