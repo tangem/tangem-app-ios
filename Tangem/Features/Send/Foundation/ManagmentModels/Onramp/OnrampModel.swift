@@ -45,6 +45,7 @@ class OnrampModel {
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
     private var pendingApplePayCompletion: PendingApplePayCompletion?
+    private var didPauseTimerForApplePay = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -546,11 +547,16 @@ extension OnrampModel: OnrampSummaryOutput {
 
 extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetWillPresent() {
+        guard !autoupdatingTimer.isPaused else { return }
         autoupdatingTimer.pauseTimer()
+        didPauseTimerForApplePay = true
     }
 
     func applePaySheetDidFinish() {
-        autoupdatingTimer.resumeTimer()
+        if didPauseTimerForApplePay {
+            autoupdatingTimer.resumeTimer()
+            didPauseTimerForApplePay = false
+        }
 
         switch pendingApplePayCompletion {
         case .finishStep:
