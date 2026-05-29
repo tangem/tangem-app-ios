@@ -135,7 +135,7 @@ struct ExpressAPIMapper {
             otherNativeFee: otherNativeFee,
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
-            externalTxUrl: txDetails.externalTxUrl
+            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:))
         )
     }
 
@@ -164,7 +164,7 @@ struct ExpressAPIMapper {
             externalStatus: response.status,
             refundedCurrency: mapToRefundedExpressCurrency(response: response),
             externalTxId: response.externalTxId,
-            externalTxUrl: response.externalTxUrl,
+            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:)),
             averageDuration: response.averageDuration,
             createdAt: response.createdAt
         )
@@ -256,21 +256,21 @@ struct ExpressAPIMapper {
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
                 externalTxId: codedData.externalTxId,
-                externalTxUrl: codedData.externalTxUrl
+                externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
         case .widget, .none:
-            guard let widgetUrl = codedData.widgetUrl else {
+            guard let widgetURL = codedData.widgetUrl else {
                 throw ExpressAPIMapperError.widgetUrlMissing
             }
 
             return .widget(OnrampRedirectData(
                 txId: response.txId,
-                widgetUrl: widgetUrl,
-                redirectUrl: codedData.redirectUrl,
+                widgetURL: widgetURL,
+                redirectURL: codedData.redirectUrl,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
                 externalTxId: codedData.externalTxId,
-                externalTxUrl: codedData.externalTxUrl
+                externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
         }
     }
@@ -295,18 +295,18 @@ struct ExpressAPIMapper {
 
         fromAmount /= pow(10, codedData.fromPrecision)
 
-        guard let widgetUrl = codedData.widgetUrl else {
+        guard let widgetURL = codedData.widgetUrl else {
             throw ExpressAPIMapperError.widgetUrlMissing
         }
 
         return OnrampRedirectData(
             txId: response.txId,
-            widgetUrl: widgetUrl,
-            redirectUrl: codedData.redirectUrl,
+            widgetURL: widgetURL,
+            redirectURL: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
             externalTxId: codedData.externalTxId,
-            externalTxUrl: codedData.externalTxUrl
+            externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
         )
     }
 
@@ -326,7 +326,7 @@ struct ExpressAPIMapper {
             toAmount: toAmount,
             status: response.status,
             externalTxId: response.externalTxId,
-            externalTxURL: response.externalTxUrl
+            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
         )
     }
 
