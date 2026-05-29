@@ -77,7 +77,11 @@ actor CommonTransactionHistoryProviderRegistry {
             onrampNetworkService: onrampNetworkService
         )
 
-        return TransactionHistoryProvider(repository: repository)
+        return TransactionHistoryProvider(
+            repository: repository,
+            userWalletId: userWalletId,
+            address: key.address
+        )
     }
 }
 

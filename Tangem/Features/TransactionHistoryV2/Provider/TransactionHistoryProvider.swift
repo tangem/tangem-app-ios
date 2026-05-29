@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CryptoSwift
 import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
@@ -19,11 +20,18 @@ final actor TransactionHistoryProvider {
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
 
-    private var hasCompletedInitialSync: Bool = false
+    @AppStorageCompat<StorageKey, Bool>
+    private var hasCompletedInitialSync: Bool
+
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    init(repository: TransactionHistoryRepository) {
+    init(
+        repository: TransactionHistoryRepository,
+        userWalletId: UserWalletId,
+        address: String
+    ) {
         self.repository = repository
+        _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
     }
 
     private func emit(_ newState: TransactionHistorySyncState) {
@@ -35,7 +43,7 @@ final actor TransactionHistoryProvider {
         emit(.syncing(.initial))
         do {
             try await repository.syncInitial()
-            hasCompletedInitialSync = true
+            await MainActor.run { hasCompletedInitialSync = true }
             emit(.idle(.ready))
         } catch {
             // [REDACTED_TODO_COMMENT]
@@ -86,7 +94,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncInitial() async {
-        guard !hasCompletedInitialSync else {
+        guard await !hasCompletedInitialSync else {
             return
         }
 
@@ -104,7 +112,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncDelta() async {
-        guard hasCompletedInitialSync else {
+        guard await hasCompletedInitialSync else {
             return
         }
 
@@ -122,7 +130,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
-        guard hasCompletedInitialSync else {
+        guard await hasCompletedInitialSync else {
             return
         }
 
@@ -160,5 +168,20 @@ private extension TransactionHistoryProvider {
     enum Constants {
         static let pullToRefreshThrottle: TimeInterval = 10
         static let postBroadcastDelay: Duration = .seconds(5)
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension TransactionHistoryProvider {
+    struct StorageKey: RawRepresentable {
+        let rawValue: String
+
+        static func makeKey(
+            userWalletId: UserWalletId,
+            address: String
+        ) -> StorageKey {
+            StorageKey(rawValue: "TransactionHistoryV2InitialSyncCompleted_\(userWalletId.stringValue)_\(address.sha256())")
+        }
     }
 }
