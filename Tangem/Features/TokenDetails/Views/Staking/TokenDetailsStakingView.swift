@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsStakingView: View {
     let state: TokenDetailsStakingState
@@ -66,6 +67,7 @@ private extension TokenDetailsStakingView {
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
                         .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                     Text(item.description)
                         .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
@@ -92,6 +94,7 @@ private extension TokenDetailsStakingView {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
     }
 
     func enableView(item: TokenDetailsStakingState.EnableItem) -> some View {
@@ -112,6 +115,7 @@ private extension TokenDetailsStakingView {
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
                         .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                     rewardsStateView(state: item.rewardsState)
                         .lineLimit(1)
@@ -124,6 +128,7 @@ private extension TokenDetailsStakingView {
                     SensitiveText(item.cryptoBalance)
                         .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 }
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)
             }
             .padding(padding)
             .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: cornerRadius))
@@ -133,6 +138,7 @@ private extension TokenDetailsStakingView {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
     }
 
     func unavailableView(item: TokenDetailsStakingState.UnavailableItem) -> some View {
@@ -146,6 +152,7 @@ private extension TokenDetailsStakingView {
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
                     .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                 Text(item.description)
                     .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)

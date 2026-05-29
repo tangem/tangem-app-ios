@@ -20,6 +20,11 @@ struct AddTokenFlowRedesignedView: View {
         contentView
             .animation(hasAppeared ? .contentFrameUpdate : nil, value: viewModel.viewState)
             .onAppear { hasAppeared = true }
+            .floatingSheetConfiguration { configuration in
+                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+                configuration.backgroundInteractionBehavior = .consumeTouches
+                configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
+            }
     }
 
     private var contentView: some View {
@@ -27,6 +32,8 @@ struct AddTokenFlowRedesignedView: View {
             switch viewModel.viewState {
             case .confirm(let confirmViewModel):
                 AddTokenConfirmView(viewModel: confirmViewModel)
+                    .animation(.contentFrameUpdate, value: confirmViewModel.isSaving)
+                    .animation(.contentFrameUpdate, value: confirmViewModel.isTokenAlreadyAdded)
                     .transition(.content)
 
             case .networkPicker(let pickerViewModel):
@@ -47,11 +54,6 @@ struct AddTokenFlowRedesignedView: View {
             header
         }
         .scrollBounceBehavior(.basedOnSize)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
-            configuration.sheetBackgroundColor = Color.Tangem.Surface.level2
-        }
     }
 
     private var bottomFadeOverlay: some View {
@@ -68,15 +70,28 @@ struct AddTokenFlowRedesignedView: View {
     }
 
     private var header: some View {
-        FloatingSheetNavigationBarView(
-            title: viewModel.viewState.title,
-            backgroundColor: Color.Tangem.Surface.level2,
-            closeButtonAction: viewModel.close
-        )
-        .id(viewModel.viewState.id)
-        .transition(.opacity)
-        .transformEffect(.identity)
-        .animation(hasAppeared ? .headerOpacity.delay(0.2) : nil, value: viewModel.viewState)
+        ZStack(alignment: .top) {
+            LinearGradient(
+                colors: [
+                    Color.Tangem.Surface.level2,
+                    Color.Tangem.Surface.level2.opacity(0),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 80)
+            .allowsHitTesting(false)
+
+            FloatingSheetNavigationBarView(
+                title: viewModel.viewState.title,
+                backgroundColor: .clear,
+                closeButtonAction: viewModel.close
+            )
+            .id(viewModel.viewState.id)
+            .transition(.opacity)
+            .transformEffect(.identity)
+            .animation(hasAppeared ? .headerOpacity.delay(0.2) : nil, value: viewModel.viewState)
+        }
     }
 }
 

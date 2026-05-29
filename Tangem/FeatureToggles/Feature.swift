@@ -40,9 +40,12 @@ enum Feature: String, Hashable, CaseIterable {
     case swapMaxAmountFractions
     case pushNotificationsSettings
     case swapExchangeRateDisplay
+    case swapRateExperience
     case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
+    case adiMainScreenDefault
+    case tangemPayMultipleCards
 
     var name: String {
         switch self {
@@ -77,10 +80,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .adiMainScreenDefault: return "14071_show_ADI_on_main_screen"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
         case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
+        case .swapRateExperience: return "13956_Swap_Rate_Experience"
         case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .addFundsStage1: return "[REDACTED_INFO]_ADDFUNDS_STAGE_1"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
+        case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         }
     }
 
@@ -88,7 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .unspecified
+        case .redesign: return .version("5.40")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .walletConnectBitcoin: return .unspecified
@@ -96,9 +101,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return .unspecified
         case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
-        case .solanaTxHistoryEnabled: return .unspecified
-        case .solanaScaledUIEnabled: return .unspecified
-        case .dynamicAddresses: return .unspecified
+        case .solanaTxHistoryEnabled: return .version("5.39")
+        case .solanaScaledUIEnabled: return .version("5.39")
+        case .dynamicAddresses: return .version("5.39")
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
         case .swapPipelineV2: return .version("5.38")
@@ -107,7 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .version("5.39")
         case .swapStoriesV2: return .version("5.38")
-        case .swapProviderTypeFilter: return .unspecified
+        case .swapProviderTypeFilter: return .version("5.39")
         case .swapInProgressV2: return .version("5.39")
         case .swapPendingTxStateDate: return .version("5.39")
         case .dexApproveNotificationV2: return .version("5.39")
@@ -117,10 +122,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .adiMainScreenDefault: return .unspecified
         case .swapExchangeRateDisplay: return .version("5.39")
+        case .swapRateExperience: return .unspecified
         case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .addFundsStage1: return .unspecified
+        case .addFundsStage1: return .version("5.39")
+        case .tangemPayMultipleCards: return .unspecified
         }
     }
 }
