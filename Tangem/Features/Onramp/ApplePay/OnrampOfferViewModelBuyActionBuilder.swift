@@ -8,30 +8,30 @@
 
 import Foundation
 import PassKit
-import SwiftUI
 import TangemExpress
 
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
     let tokenItem: TokenItem
     let countryCode: String
+    let applePayPresenter: any OnrampApplePayPresenting
+
     weak var amountInput: OnrampAmountInput?
-    weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
 
     private let balanceFormatter = BalanceFormatter()
 
     init(
         geoEligibilityService: GeoEligibilityService,
         tokenItem: TokenItem,
-        amountInput: OnrampAmountInput?,
-        authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?,
+        amountInput: OnrampAmountInput,
+        applePayPresenter: any OnrampApplePayPresenting,
         countryCode: String = Locale.current.region?.identifier ?? "US"
     ) {
         self.geoEligibilityService = geoEligibilityService
         self.tokenItem = tokenItem
         self.countryCode = countryCode
         self.amountInput = amountInput
-        self.authorizationHandler = authorizationHandler
+        self.applePayPresenter = applePayPresenter
     }
 
     func make(
@@ -79,46 +79,8 @@ struct OnrampOfferViewModelBuyActionBuilder {
             merchantIdentifier: merchantIdentifier
         )
 
-        return .nativeApplePay(request: request) { [self, onWillBuy] phase in
-            handle(phase: phase, provider: provider, onWillBuy: onWillBuy)
-        }
-    }
-
-    private func handle(
-        phase: PayWithApplePayButtonPaymentAuthorizationPhase,
-        provider: OnrampProvider,
-        onWillBuy: () -> Void
-    ) {
-        switch phase {
-        case .willAuthorize:
-            onWillBuy()
-            authorizationHandler?.applePaySheetWillPresent()
-
-        case .didAuthorize(let payment, let resultHandler):
-            guard let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment) else {
-                let error = PKPaymentRequest.paymentContactInvalidError(
-                    withContactField: .emailAddress,
-                    localizedDescription: nil
-                )
-                resultHandler(.init(status: .failure, errors: [error]))
-                return
-            }
-            let authorization = ApplePayAuthorizationResult(
-                provider: provider,
-                applePayResult: applePayResult,
-                resultHandler: resultHandler
-            )
-            guard let authorizationHandler else {
-                authorization.fail()
-                return
-            }
-            authorizationHandler.handleApplePayAuthorization(authorization)
-
-        case .didFinish:
-            authorizationHandler?.applePaySheetDidFinish()
-
-        @unknown default:
-            break
+        return .nativeApplePay { [applePayPresenter] in
+            applePayPresenter.present(request: request, provider: provider, onWillBuy: onWillBuy)
         }
     }
 
