@@ -51,7 +51,7 @@ final class WelcomeCoordinator: CoordinatorObject {
             .eraseToAnyPublisher()
     }
 
-    private var tangemPayMobileOnboardingObserve: AnyCancellable?
+    private var tangemPayMobileOnboardingObserver: AnyCancellable?
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -82,7 +82,7 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     private func bindTangemPayMobileOnboarding() {
-        tangemPayMobileOnboardingObserve = AppSettings.shared.$needsTangemPayMobileOnboarding
+        tangemPayMobileOnboardingObserver = AppSettings.shared.$needsTangemPayMobileOnboarding
             .dropFirst()
             .first()
             .receive(on: DispatchQueue.main)
