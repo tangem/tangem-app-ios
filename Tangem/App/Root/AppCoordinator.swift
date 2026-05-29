@@ -132,7 +132,7 @@ class AppCoordinator: CoordinatorObject {
         mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
 
         runTask(in: self) { coordinator in
-            await self.floatingSheetPresenter.removeAllSheets()
+            await coordinator.floatingSheetPresenter.removeAllSheets()
         }
 
         let viewModel = ForceUpdateViewModel(coordinator: self)
