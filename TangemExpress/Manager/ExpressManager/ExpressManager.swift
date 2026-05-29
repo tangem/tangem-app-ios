@@ -12,6 +12,9 @@ import TangemFoundation
 import BlockchainSdk
 
 public protocol ExpressManager: Actor {
+    func getCurrentPair() async -> ExpressManagerSwappingPair?
+    func getAmountType() async -> ExpressAmountType?
+
     /// Recreates providers. Does not update quotes.
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState
 

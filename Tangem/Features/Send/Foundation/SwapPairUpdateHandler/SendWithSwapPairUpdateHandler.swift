@@ -17,15 +17,39 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressManager = expressManager
     }
 
-    func updatePair(
-        source: SendSwapableToken,
-        destination: SendReceiveToken,
-        amountDirection: SwapAmountDirection?
-    ) async throws -> SwapPairUpdateResult {
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType {
+        let currentPair = await expressManager.getCurrentPair()
+        let shouldReloadProviders = {
+            guard let currentPair else {
+                return true
+            }
+
+            guard currentPair.source.currency == source?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            guard currentPair.destination.currency == destination?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            return false
+        }()
+
+        let amountType = await expressManager.getAmountType()
+        let hasAmount = amountType != nil
+
+        if shouldReloadProviders {
+            return hasAmount ? .rates : .providers
+        }
+
+        return .autoupdate
+    }
+
+    func updatePair(source: any SendSwapableToken, destination: any SendReceiveToken) async throws -> SwapPairUpdateResult {
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
         let pairResult = try await expressManager.update(pair: pair)
 
-        guard let amountType = amountDirection?.amountType else {
+        guard let amountType = await expressManager.getAmountType() else {
             return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
         }
 

@@ -19,6 +19,12 @@ actor CommonExpressManager {
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
 
+    // MARK: - Inputs
+
+    private var _pair: ExpressManagerSwappingPair?
+    private var _amountType: ExpressAmountType?
+    private var _approvePolicy: ApprovePolicy = .specified
+
     // MARK: - State
 
     private var currentState: ExpressManagerState = .idle
@@ -37,7 +43,17 @@ actor CommonExpressManager {
 // MARK: - ExpressManager
 
 extension CommonExpressManager: ExpressManager {
+    func getCurrentPair() -> ExpressManagerSwappingPair? {
+        _pair
+    }
+
+    func getAmountType() -> ExpressAmountType? {
+        _amountType
+    }
+
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
+        _pair = pair
+
         switch pair {
         case .some(let pair):
             let providers = try await makeAvailableProviders(pair: pair)
@@ -50,6 +66,8 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(amountType: ExpressAmountType?) async -> ExpressManagerState {
+        _amountType = amountType
+
         guard case .swap(_, let providers) = currentState else {
             return currentState
         }
@@ -81,12 +99,15 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
-        guard case .swap(.some(let selectedProvider), _) = currentState else {
+        guard _approvePolicy != approvePolicy else {
+            ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
             return currentState
         }
 
-        guard selectedProvider.approvePolicy != approvePolicy else {
-            ExpressLogger.warning(self, "ApprovePolicy already is \(approvePolicy)")
+        _approvePolicy = approvePolicy
+
+        guard case .swap(.some(let selectedProvider), _) = currentState else {
+            // Policy saved on the actor; will be applied on the next quote refresh.
             return currentState
         }
 
