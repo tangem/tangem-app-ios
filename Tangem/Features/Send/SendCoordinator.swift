@@ -25,6 +25,10 @@ final class SendCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.floatingSheetPresentingStateProvider) private var floatingSheetPresentingStateProvider: any FloatingSheetPresentingStateProvider
+
+    private var floatingSheetActiveSubscription: AnyCancellable?
+    private var hasActiveFloatingSheet: Bool = false
 
     // MARK: - Root view model
 
@@ -70,6 +74,11 @@ final class SendCoordinator: CoordinatorObject {
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+
+        floatingSheetActiveSubscription = floatingSheetPresentingStateProvider
+            .hasPresentedSheetPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.hasActiveFloatingSheet = $0 }
     }
 
     func start(with options: Options) {
@@ -337,6 +346,11 @@ extension SendCoordinator: OnrampRoutable {
 
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {
         Task { @MainActor in
+            if hasActiveFloatingSheet {
+                floatingSheetPresenter.removeActiveSheet()
+                // [REDACTED_TODO_COMMENT]
+                try? await Task.sleep(for: Constants.sheetReplaceDismissDelay)
+            }
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -361,6 +375,11 @@ extension SendCoordinator: OnrampRoutable {
         )
         Task { @MainActor in
             UIApplication.shared.endEditing()
+            if hasActiveFloatingSheet {
+                floatingSheetPresenter.removeActiveSheet()
+                // [REDACTED_TODO_COMMENT]
+                try? await Task.sleep(for: Constants.sheetReplaceDismissDelay)
+            }
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -419,5 +438,14 @@ extension SendCoordinator: OnrampCurrencySelectorRoutable {
 extension SendCoordinator: OnrampRedirectingRoutable {
     func dismissOnrampRedirecting() {
         onrampRedirectingViewModel = nil
+    }
+}
+
+// MARK: - Constants
+
+private extension SendCoordinator {
+    enum Constants {
+        // [REDACTED_TODO_COMMENT]
+        static let sheetReplaceDismissDelay: Duration = .milliseconds(350)
     }
 }
