@@ -364,7 +364,7 @@ private extension OnrampModel {
 
     func autoupdateTask() async throws {
         guard !isApplePaySheetPresented else {
-            log("Apple Pay sheet presented. Skip autoupdate") 
+            log("Apple Pay sheet presented. Skip autoupdate")
             restartTimer()
             return
         }
