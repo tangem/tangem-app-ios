@@ -194,6 +194,19 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    @discardableResult
+    func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate token total balance contains currency symbol: \(currencySymbol)") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            let balanceText = totalBalance.label
+            XCTAssertTrue(
+                balanceText.contains(currencySymbol),
+                "Token total balance should contain '\(currencySymbol)' but was '\(balanceText)'"
+            )
+            return self
+        }
+    }
+
     func getAvailableBalance() -> String {
         XCTContext.runActivity(named: "Get available balance") { _ in
             waitAndAssertTrue(availableBalance, "Available balance element should exist")
