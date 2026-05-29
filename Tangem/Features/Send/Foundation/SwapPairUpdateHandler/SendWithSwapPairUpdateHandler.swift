@@ -31,7 +31,7 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
 
         let quoteResult = await expressManager.update(amountType: amountType)
 
-        guard case .swap(_, .some(let selected), _) = quoteResult, let quote = selected.getState().quote else {
+        guard case .swap(.some(let selected), _) = quoteResult, let quote = selected.getState().quote else {
             return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: nil)
         }
 

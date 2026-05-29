@@ -54,49 +54,40 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(amountType: ExpressAmountType?) async -> ExpressManagerState {
-        guard case .swap(let rate, _, let providers) = currentState else {
+        guard case .swap(_, let providers) = currentState else {
             return currentState
         }
 
-        switch (amountType, rate) {
-        case (.none, _):
+        switch amountType {
+        case .none:
             // Reset all providers to idle
             providers.all.forEach { $0.reset() }
 
             update(state: .idle(providers: providers))
             return currentState
 
-        case (.from(let amount), .float):
-            let candidates = providers.availableProviders(rate: .float)
-            return await reloadQuotes(amountType: .from(amount), candidates: candidates)
-
-        case (.to(let amount), .fixed):
+        // Workaround. We receive Amount.from. But we have only providers with fixed rate
+        case .from(let amount) where providers.float.isEmpty:
             let candidates = providers.availableProviders(rate: .fixed)
             return await reloadQuotes(amountType: .to(amount), candidates: candidates)
 
-        case (.from(let amount), .fixed):
-            update(state: .swap(rate: .float, providers: providers))
-            let candidates = providers.availableProviders(rate: .float)
-            return await reloadQuotes(amountType: .from(amount), candidates: candidates)
-
-        case (.to(let amount), .float):
-            update(state: .swap(rate: .fixed, providers: providers))
-            let candidates = providers.availableProviders(rate: .fixed)
-            return await reloadQuotes(amountType: .to(amount), candidates: candidates)
+        case .some(let amountType):
+            let candidates = providers.availableProviders(rate: amountType.rateType)
+            return await reloadQuotes(amountType: amountType, candidates: candidates)
         }
     }
 
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
-        guard case .swap(let rate, _, let providers) = currentState else {
+        guard case .swap(_, let providers) = currentState else {
             return currentState
         }
 
-        update(state: .swap(rate: rate, selected: provider, providers: providers))
+        update(state: .swap(selected: provider, providers: providers))
         return currentState
     }
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState {
-        guard case .swap(_, .some(let selectedProvider), _) = currentState else {
+        guard case .swap(.some(let selectedProvider), _) = currentState else {
             return currentState
         }
 
@@ -111,11 +102,11 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {
-        guard case .swap(let rate, _, let providers) = currentState else {
+        guard case .swap(.some(let selectedProvider), let providers) = currentState else {
             return currentState
         }
 
-        let candidates = providers.availableProviders(rate: rate)
+        let candidates = providers.availableProviders(rate: selectedProvider.rateType)
         await reloadQuotes(candidates: candidates)
 
         if type.isRequiredUpdateSelectedProvider {
@@ -126,7 +117,7 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func requestData() async throws -> ExpressTransactionData {
-        guard case .swap(_, .some(let selectedProvider), _) = currentState else {
+        guard case .swap(.some(let selectedProvider), _) = currentState else {
             throw ExpressManagerError.selectedProviderNotFound
         }
 
@@ -208,7 +199,7 @@ private extension CommonExpressManager {
     }
 
     func stateWithBestProvider(from candidates: [ExpressAvailableProvider]) -> ExpressManagerState {
-        guard case .swap(let rate, let previousSelected, let providers) = currentState else {
+        guard case .swap(let previousSelected, let providers) = currentState else {
             return currentState
         }
 
@@ -217,7 +208,7 @@ private extension CommonExpressManager {
             best.pair.source.analyticsLogger.bestProviderSelected(best)
         }
 
-        return .swap(rate: rate, selected: best, providers: providers)
+        return .swap(selected: best, providers: providers)
     }
 }
 
@@ -231,7 +222,7 @@ extension CommonExpressManager: @preconcurrency CustomStringConvertible {
 
 extension ExpressManagerState {
     static func idle(providers: Providers) -> Self {
-        return .swap(rate: .float, selected: .none, providers: providers)
+        return .swap(selected: .none, providers: providers)
     }
 }
 

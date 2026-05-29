@@ -216,7 +216,7 @@ private extension SwapAmountViewModel {
         providersState: SwapModel.ProvidersState
     ) -> Bool {
         switch (sourceToken, receiveToken, providersState) {
-        case (.success, .success, .loaded(.swap(_, _, let providers), .idle)):
+        case (.success, .success, .loaded(.swap(_, let providers), .idle)):
             return providers.all.isEmpty
         case (_, .failure, _), (.failure, _, _):
             return true

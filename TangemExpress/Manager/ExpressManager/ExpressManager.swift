@@ -24,7 +24,7 @@ public protocol ExpressManager: Actor {
     /// Preserves the selected provider across autoupdate cycles.
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState
 
-    /// Refreshes quotes for the currently selected provider without changing the selection.
+    /// Refreshes quotes for providers matching `rate` and optionally updates the selection.
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState
 
     /// Use this method for CEX provider
@@ -34,7 +34,7 @@ public protocol ExpressManager: Actor {
 public enum ExpressManagerState {
     case idle
     case transfer
-    case swap(rate: ExpressProviderRateType, selected: ExpressAvailableProvider? = .none, providers: Providers)
+    case swap(selected: ExpressAvailableProvider? = .none, providers: Providers)
 
     public struct Providers {
         public static let empty = Providers(float: [], fixed: [])
@@ -64,10 +64,9 @@ extension ExpressManagerState: CustomStringConvertible {
             return objectDescription("ExpressManagerState", userInfo: ["mode": "idle"])
         case .transfer:
             return objectDescription("ExpressManagerState", userInfo: ["mode": "transfer"])
-        case .swap(let rate, let selected, let providers):
+        case .swap(let selected, let providers):
             return objectDescription("ExpressManagerState", userInfo: [
                 "mode": "swap",
-                "rate": rate,
                 "selected name": selected.map { $0.provider.name } ?? "no selected provider",
                 "selected state": selected.map { $0.getState() } ?? "no selected provider",
                 "providers": providers.all.map { $0.provider.name },
