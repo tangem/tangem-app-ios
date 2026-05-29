@@ -9,9 +9,10 @@
 private let AutoupdateTimerLogger = AppLogger.tag("AutoupdateTimer")
 
 final class AutoupdatingTimer {
+    private(set) var isPaused: Bool = true
+
     private var refreshDataTask: Task<Void, Error>?
     private var refreshAction: (() -> Void)?
-    private var isPaused: Bool = true
 
     deinit {
         AutoupdateTimerLogger.debug("AutoupdatingTimer deinit")
