@@ -209,10 +209,16 @@ protocol SendSummaryAnalyticsLogger {
     func logSummaryStepOpened()
 
     func logTapAmountFraction(_ fraction: SwapAmountFraction)
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant)
+    func logSwapTypeScreenOpened(variant: SwapFormVariant)
 }
 
 extension SendSummaryAnalyticsLogger {
     func logTapAmountFraction(_ fraction: SwapAmountFraction) {}
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant) {}
+    func logSwapTypeScreenOpened(variant: SwapFormVariant) {}
 }
 
 protocol SendFinishAnalyticsLogger {
