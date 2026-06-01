@@ -167,24 +167,6 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
     }
 
     @discardableResult
-    func assertSwapButtonHasBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has badge indicator on Markets token details screen") { _ in
-            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
-            waitAndAssertTrue(badge, "Swap button badge should be displayed on Markets token details screen")
-            return self
-        }
-    }
-
-    @discardableResult
-    func assertSwapButtonHasNoBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has no badge indicator on Markets token details screen") { _ in
-            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
-            XCTAssertFalse(badge.exists, "Swap button badge should not be displayed on Markets token details screen")
-            return self
-        }
-    }
-
-    @discardableResult
     func tapSwapButton() -> SwapStoriesScreen {
         XCTContext.runActivity(named: "Tap Swap button on Markets token details screen") { _ in
             swapButton.waitAndTap()

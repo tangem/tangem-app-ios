@@ -17,6 +17,9 @@ struct AppsFlyerDeepLinkResolver {
         switch deepLinkValue {
         case AppsflyerDeepLinkType.referral:
             return AppsFlyerDeepReferralHandler().handle(deepLink)
+        case AppsflyerDeepLinkType.tangemPayMobileOnboarding:
+            TangemPayMobileOnboardingService().markOnboardingNeeded()
+            return
         default:
             return
         }
@@ -26,6 +29,7 @@ struct AppsFlyerDeepLinkResolver {
 extension AppsFlyerDeepLinkResolver {
     enum AppsflyerDeepLinkType {
         static let referral = "referral"
+        static let tangemPayMobileOnboarding = "tpay_mobileonboard"
     }
 }
 

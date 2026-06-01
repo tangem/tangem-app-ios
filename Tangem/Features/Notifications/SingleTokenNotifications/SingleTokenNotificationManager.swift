@@ -28,6 +28,7 @@ final class SingleTokenNotificationManager {
     private var rentFeeNotification: NotificationViewInput?
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
+    private var dynamicAddressesNotificationTask: Task<Void, Never>?
 
     private var totalState: TokenBalanceType?
 
@@ -61,6 +62,7 @@ final class SingleTokenNotificationManager {
         .receive(on: DispatchQueue.main)
         .sink { [weak self] availableState, totalState in
             self?.notificationsUpdateTask?.cancel()
+            self?.dynamicAddressesNotificationTask?.cancel()
             self?.totalState = totalState
 
             if case .binance = self?.walletModel.tokenItem.blockchain {
@@ -89,7 +91,7 @@ final class SingleTokenNotificationManager {
 
         var events = [TokenNotificationEvent]()
 
-        if let event = makeStakingNotificationEvent() {
+        if !FeatureProvider.isAvailable(.redesign), let event = makeStakingNotificationEvent() {
             events.append(event)
         }
 
@@ -152,6 +154,46 @@ final class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         setupRentFeeNotification()
+        if FeatureProvider.isAvailable(.dynamicAddresses) {
+            setupDynamicAddressesNotificationIfNeeded()
+        }
+    }
+
+    private func setupDynamicAddressesNotificationIfNeeded() {
+        guard let dynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider else {
+            return
+        }
+
+        dynamicAddressesNotificationTask?.cancel()
+        dynamicAddressesNotificationTask = Task { [weak self] in
+            let hasBalances = await dynamicAddressesProvider.hasDynamicAddressesBalancesFlag()
+            guard !Task.isCancelled else { return }
+            await self?.updateDynamicAddressesNotificationVisibility(hasOtherBalances: hasBalances)
+        }
+    }
+
+    @MainActor
+    private func updateDynamicAddressesNotificationVisibility(hasOtherBalances: Bool) {
+        let input = NotificationsFactory().buildNotificationInput(
+            for: TokenNotificationEvent.dynamicAddressesFundsFound(
+                currencySymbol: walletModel.tokenItem.currencySymbol,
+                blockchainName: walletModel.tokenItem.blockchain.displayName
+            ),
+            buttonAction: { [weak self] id, actionType in
+                self?.delegate?.didTapNotification(with: id, action: actionType)
+            },
+            dismissAction: { [weak self] id in
+                self?.dismissNotification(with: id)
+            }
+        )
+
+        if hasOtherBalances {
+            if notificationInputsSubject.value.contains(where: { $0.id == input.id }) == false {
+                notificationInputsSubject.value.append(input)
+            }
+        } else {
+            notificationInputsSubject.value.removeAll { $0.id == input.id }
+        }
     }
 
     private func setupRentFeeNotification() {
