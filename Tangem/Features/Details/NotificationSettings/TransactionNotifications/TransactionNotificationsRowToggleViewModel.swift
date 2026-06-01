@@ -27,6 +27,8 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
     @Published private(set) var warningPermissionViewModel: DefaultWarningRowViewModel?
     @Published private(set) var pushNotifyViewModel: DefaultToggleRowViewModel?
 
+    @Published private var isSystemPermissionGranted: Bool = false
+
     private var isEnabledPushNotificationStatusBinding: BindingValue<Bool> {
         BindingValue<Bool>(
             root: self,
@@ -34,20 +36,22 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
             get: { $0.isPushNotifyEnabled },
             set: { viewModel, value in
                 viewModel.isPushNotifyEnabled = value
-                viewModel.handleTogglePushNotifyStatus(toggleValue: value)
+                viewModel.handleToggle(value: value)
             }
         )
     }
-
-    private var requestAuthorizationTask: Task<Void, Never>?
-    private var updateEnableStateTask: Task<Void, Error>?
-    private var bag: Set<AnyCancellable> = .init()
 
     // MARK: - Dependencies
 
     private let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     private weak var coordinator: TransactionNotificationsRowToggleRoutable?
     private let showPushSettingsAlert: (() -> Void)?
+
+    // MARK: - Pending state
+
+    private var pendingEnable: Bool = false
+    private var requestAuthorizationTask: Task<Void, Never>?
+    private var bag: Set<AnyCancellable> = .init()
 
     // MARK: - Init
 
@@ -62,8 +66,14 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
 
         isPushNotifyEnabled = userTokensPushNotificationsManager.isRemoteStatusEnabled
 
-        bind()
         setupViewModels()
+        bind()
+    }
+
+    // MARK: - Lifecycle
+
+    func onAppear() {
+        refreshSystemPermissionState()
     }
 
     func onTapMoreInfoTransactionPushNotifications() {
@@ -74,30 +84,54 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
 // MARK: - Private
 
 private extension TransactionNotificationsRowToggleViewModel {
+    enum PendingEnableAuthorizationUpdateSource {
+        case isAuthorizedPublisher
+        case authorizationRequestFallback
+    }
+
     func bind() {
-        userTokensPushNotificationsManager
-            .statusPublisher
-            .dropFirst()
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+        // `isAuthorizedPublisher` only emits on `UIApplication.didBecomeActive`, so this branch
+        // covers the case when the user returns from system Settings. The initial state on screen
+        // open is primed by `refreshSystemPermissionState()` from `onAppear()`.
+        pushNotificationsPermission.isAuthorizedPublisher
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, status in
-                viewModel.applyPushNotifyStatus(status)
+            .sink { viewModel, isAuthorized in
+                viewModel.isSystemPermissionGranted = isAuthorized
+                viewModel.handlePendingEnableAuthorizationUpdate(
+                    isAuthorized: isAuthorized,
+                    source: .isAuthorizedPublisher
+                )
             }
             .store(in: &bag)
+
+        // System permission and remote status both feed into banner visibility and toggle state,
+        // so we recompute the UI whenever either of them changes.
+        Publishers.CombineLatest(
+            $isSystemPermissionGranted.removeDuplicates(),
+            userTokensPushNotificationsManager.statusPublisher.removeDuplicates()
+        )
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .sink { viewModel, _ in
+            viewModel.refreshUI()
+        }
+        .store(in: &bag)
     }
 
     func setupViewModels() {
-        applyPushNotifyStatus(userTokensPushNotificationsManager.status)
+        rebuildPushNotifyViewModel()
     }
 
-    func applyPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {
+    func refreshUI() {
         isPushNotifyEnabled = userTokensPushNotificationsManager.isRemoteStatusEnabled
-        updatePushNotifyViewModel(isDisabled: status.isNotInitialized)
+        rebuildPushNotifyViewModel()
         refreshPermissionWarning()
     }
 
-    func updatePushNotifyViewModel(isDisabled: Bool) {
+    func rebuildPushNotifyViewModel() {
+        let isDisabled = userTokensPushNotificationsManager.status.isNotInitialized
+
         guard pushNotifyViewModel?.isDisabled != isDisabled else {
             return
         }
@@ -108,15 +142,11 @@ private extension TransactionNotificationsRowToggleViewModel {
             isOn: isEnabledPushNotificationStatusBinding
         )
     }
-}
 
-// MARK: - Private Push Notifications Implementation
-
-private extension TransactionNotificationsRowToggleViewModel {
+    /// Banner is shown when push notifications are switched on remotely but the user has revoked
+    /// (or never granted) the iOS system permission.
     func refreshPermissionWarning() {
-        // Warning is relevant only when push notifications are switched on remotely
-        // but the user has revoked (or never granted) the iOS system permission.
-        let shouldShowPermissionWarning = userTokensPushNotificationsManager.status == .needSystemPermission && userTokensPushNotificationsManager.isRemoteStatusEnabled
+        let shouldShowPermissionWarning = !isSystemPermissionGranted && userTokensPushNotificationsManager.isRemoteStatusEnabled
 
         guard shouldShowPermissionWarning else {
             warningPermissionViewModel = nil
@@ -126,70 +156,87 @@ private extension TransactionNotificationsRowToggleViewModel {
         warningPermissionViewModel = DefaultWarningRowViewModel(
             title: Localization.transactionNotificationsWarningTitle,
             subtitle: Localization.transactionNotificationsWarningDescription,
-            leftView: .icon(Assets.attention),
+            leftView: .icon(Assets.attention)
         )
     }
 
-    /// Handles the state changes of push notifications toggle in wallet settings.
-    ///
-    /// This method manages the transition between different push notification states based on the current status
-    /// and the requested value. It handles special cases such as system permission blocks and provides
-    /// appropriate user feedback through alerts when necessary.
-    ///
-    /// - Parameter value: The new desired state of push notifications (true for enabled, false for disabled)
-    ///
-    /// The method follows these rules:
-    /// - For .enabled or .disabledInApp states: Updates remote preference via the manager
-    /// - For .needSystemPermission state:
-    ///   - If enabling: Requests system permission, then enables remote when granted
-    ///   - If disabling: Turns off remote preference even without system permission
-    /// - For other states (`.loading`, `.failed`): Maintains current status and UI shows toggle as disabled
-    ///
-    /// The actual status update is delegated to the userTokensPushNotificationsManager.
-    func handleTogglePushNotifyStatus(toggleValue: Bool) {
-        Analytics.log(.pushToggleClicked, params: [.state: toggleValue ? .on : .off])
-
-        let channel: PushChannel = .transactionAlerts
-
-        switch userTokensPushNotificationsManager.status {
-        case .enabled, .disabledInApp:
-            tryUpdateEnableState(value: toggleValue)
-        case .needSystemPermission where !toggleValue:
-            tryUpdateEnableState(value: false)
-        case .loading, .failed:
-            break
-        case .needSystemPermission:
-            handleAndCheckUnavailablePushNotifyStatus()
-        }
-
-        applyPushNotifyStatus(userTokensPushNotificationsManager.status)
-    }
-
-    func tryUpdateEnableState(value: Bool) {
-        updateEnableStateTask?.cancel()
-
-        updateEnableStateTask = runTask(in: self) { @MainActor viewModel in
-            try await viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: .transactionAlerts)
+    /// Pulls the current system authorization status and writes it into `isSystemPermissionGranted`,
+    /// which in turn drives `refreshUI()` through the `$isSystemPermissionGranted` subscription
+    /// in `bind()`. Called on screen appearance to avoid waiting for the next `didBecomeActive`.
+    func refreshSystemPermissionState() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            isSystemPermissionGranted = await pushNotificationsPermission.isAuthorized
         }
     }
+}
 
-    func handleAndCheckUnavailablePushNotifyStatus() {
+// MARK: - Toggle Handling
+
+private extension TransactionNotificationsRowToggleViewModel {
+    /// Optimistically updates the UI (via the binding setter), then forwards the request to the
+    /// manager. When trying to enable while system permission is not granted, we switch into a
+    /// pending state and request iOS authorization. The final decision is primarily processed
+    /// from `isAuthorizedPublisher`; if iOS doesn't surface a system prompt anymore (already
+    /// denied), we fall back to showing our own settings alert.
+    func handleToggle(value: Bool) {
+        Analytics.log(.pushToggleClicked, params: [.state: value ? .on : .off])
+
         requestAuthorizationTask?.cancel()
 
-        requestAuthorizationTask = runTask(in: self) { @MainActor viewModel in
-            await viewModel.pushNotificationsPermission.requestAuthorizationAndRegister()
+        if value, !isSystemPermissionGranted {
+            pendingEnable = true
 
-            if await viewModel.pushNotificationsPermission.isAuthorized {
-                do {
-                    try await viewModel.userTokensPushNotificationsManager.tryUpdateEnableState(value: true, for: .transactionAlerts)
-                } catch {
-                    // Manager handles optimistic-update rollback internally; nothing to do here.
-                }
-            } else {
-                // To display a system message about the need for permission to receive notifications.
-                viewModel.showPushSettingsAlert?()
-                return
+            requestAuthorizationTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                await pushNotificationsPermission.requestAuthorizationAndRegister()
+
+                // If iOS prompt wasn't shown (already-denied), `isAuthorizedPublisher` may not emit.
+                // Resolve pending state from a direct snapshot in this fallback path.
+                let isAuthorized = await pushNotificationsPermission.isAuthorized
+                handlePendingEnableAuthorizationUpdate(
+                    isAuthorized: isAuthorized,
+                    source: .authorizationRequestFallback
+                )
             }
+            return
         }
+
+        if !value, pendingEnable {
+            pendingEnable = false
+        }
+
+        userTokensPushNotificationsManager.tryUpdateEnableState(value: value)
+    }
+
+    func handlePendingEnableAuthorizationUpdate(
+        isAuthorized: Bool,
+        source: PendingEnableAuthorizationUpdateSource
+    ) {
+        guard pendingEnable else {
+            return
+        }
+
+        if isAuthorized {
+            pendingEnable = false
+            userTokensPushNotificationsManager.tryUpdateEnableState(value: true)
+            return
+        }
+
+        switch source {
+        case .isAuthorizedPublisher:
+            pendingEnable = false
+            revertToggle()
+        case .authorizationRequestFallback:
+            // Intentionally keep `pendingEnable = true`: the alert points the user at iOS Settings,
+            // and if they return with permission granted, `isAuthorizedPublisher` will fire `true`
+            // and the `.isAuthorizedPublisher` branch above will execute the pending enable
+            // automatically. Tap OFF on the toggle still clears pending via `handleToggle(value:)`.
+            showPushSettingsAlert?()
+        }
+    }
+
+    func revertToggle() {
+        isPushNotifyEnabled = false
     }
 }
