@@ -309,6 +309,11 @@ extension Analytics {
         case accountSourceNew = "New Account"
         case accountSourceArchive = "Archive"
 
+        // MARK: - Swap
+
+        case simple
+        case detailed
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
