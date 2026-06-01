@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemNetworkUtils
 
 enum GaslessApiTargetConstants {
     // Base URLs
@@ -77,5 +78,17 @@ struct GaslessTransactionsAPITarget: TargetType {
 
     var headers: [String: String]? {
         nil
+    }
+}
+
+// MARK: - TargetTypeLogConvertible protocol conformance
+
+extension GaslessTransactionsAPITarget: TargetTypeLogConvertible {
+    var requestDescription: String {
+        path
+    }
+
+    var shouldLogResponseBody: Bool {
+        true
     }
 }
