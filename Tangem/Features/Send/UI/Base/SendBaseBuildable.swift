@@ -34,7 +34,7 @@ enum SendViewModelBuilder {
         let feeCurrencyProviderDataBuilder: any SendFeeCurrencyProviderDataBuilder
         let analyticsLogger: any SendBaseViewAnalyticsLogger
         let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
-        let tangemIconProvider: TangemIconProvider
+        let mainButtonUIOptionsProvider: any SendMainButtonUIOptionsProvider
     }
 
     typealias ReturnValue = SendViewModel
@@ -50,13 +50,13 @@ enum SendViewModelBuilder {
         let viewModel = SendViewModel(
             interactor: interactor,
             stepsManager: stepsManager,
+            mainButtonUIOptionsProvider: dependencies.mainButtonUIOptionsProvider,
             alertBuilder: dependencies.alertBuilder,
             mailDataBuilder: dependencies.mailDataBuilder,
             approveViewModelInputDataBuilder: dependencies.approveViewModelInputDataBuilder,
             feeCurrencyProviderDataBuilder: dependencies.feeCurrencyProviderDataBuilder,
             analyticsLogger: dependencies.analyticsLogger,
             blockchainSDKNotificationMapper: dependencies.blockchainSDKNotificationMapper,
-            tangemIconProvider: dependencies.tangemIconProvider,
             coordinator: router
         )
 

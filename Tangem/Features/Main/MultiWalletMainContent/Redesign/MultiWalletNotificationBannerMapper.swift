@@ -9,17 +9,23 @@
 import Foundation
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct NotificationBannerItem: NotificationBannerContainerItem, Equatable {
     let id: NotificationViewId
     let bannerType: NotificationBanner.BannerType
     let priority: NotificationBanner.Priority
+    let accessibilityIdentifier: String?
 }
 
 struct MultiWalletNotificationBannerMapper {
     func mapItems(
         _ inputs: [NotificationViewInput]...
     ) -> [NotificationBannerItem] {
+        mapItems(inputs)
+    }
+
+    func mapItems(_ inputs: [[NotificationViewInput]]) -> [NotificationBannerItem] {
         inputs.flatMap { $0.map { mapItem($0) } }
     }
 }
@@ -29,7 +35,8 @@ private extension MultiWalletNotificationBannerMapper {
         NotificationBannerItem(
             id: input.id,
             bannerType: makeBannerType(from: input),
-            priority: mapPriority(from: input.severity)
+            priority: mapPriority(from: input.severity),
+            accessibilityIdentifier: input.settings.event.accessibilityIdentifier
         )
     }
 
@@ -81,12 +88,19 @@ private extension MultiWalletNotificationBannerMapper {
             return .critical(content, bannerAction)
         case .warning:
             return .warning(content, bannerAction)
-        case .informational:
-            return .informational(textOnly, bannerAction, closeAction)
+        case .informational(let alignment):
+            return .informational(textOnly, bannerAction, closeAction, mapTextAlignment(alignment))
         case .promo(let effect):
-            return .promo(textOnly, bannerAction, closeAction, mapEffect(effect))
+            return .promo(content, bannerAction, closeAction, mapEffect(effect))
         case .survey:
             return .survey(textOnly, bannerAction, closeAction)
+        }
+    }
+
+    func mapTextAlignment(_ alignment: NotificationBannerKind.TextAlignment) -> NotificationBanner.BannerTextAlignment {
+        switch alignment {
+        case .leading: .leading
+        case .center: .center
         }
     }
 
@@ -173,7 +187,8 @@ private extension MultiWalletNotificationBannerMapper {
         case 15: return .x15
         case 16: return .x16
         case 17: return .x17
-        default: return .x7
+        case 18: return .x18
+        default: return .x18
         }
     }
 
@@ -206,20 +221,33 @@ private extension MultiWalletNotificationBannerMapper {
         case 0:
             return .none
         case 1:
+            let button = notificationButtons[0]
             return .one(
-                mapButton(notificationButtons[0], notificationId: notificationId)
+                mapButton(button, notificationId: notificationId),
+                accessibilityIdentifier: buttonAccessibilityIdentifier(for: button.actionType)
             )
         default:
+            let left = notificationButtons[0]
+            let right = notificationButtons[1]
             return .two(
-                left: mapButton(
-                    notificationButtons[0],
-                    notificationId: notificationId
-                ),
-                right: mapButton(
-                    notificationButtons[1],
-                    notificationId: notificationId
-                )
+                left: mapButton(left, notificationId: notificationId),
+                right: mapButton(right, notificationId: notificationId),
+                leftAccessibilityIdentifier: buttonAccessibilityIdentifier(for: left.actionType),
+                rightAccessibilityIdentifier: buttonAccessibilityIdentifier(for: right.actionType)
             )
+        }
+    }
+
+    func buttonAccessibilityIdentifier(for actionType: NotificationButtonActionType) -> String {
+        switch actionType {
+        case .reduceAmountBy:
+            return SendAccessibilityIdentifiers.reduceFeeButton
+        case .leaveAmount:
+            return SendAccessibilityIdentifiers.leaveAmountButton
+        case .openFeeCurrency:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
+        default:
+            return CommonUIAccessibilityIdentifiers.notificationButton
         }
     }
 
