@@ -14,15 +14,26 @@ import TangemUIUtils
 struct RootViewControllerFactory {
     @Injected(\.overlayContentContainerInitializer) private var overlayContentContainer: OverlayContentContainerInitializable
 
+    private var overlayCollapsedHeight: CGFloat {
+        let hasHomeScreenIndicator = UIDevice.current.hasHomeScreenIndicator
+
+        if FeatureProvider.isAvailable(.redesign) {
+            return hasHomeScreenIndicator
+                ? Constants.notchDevicesOverlayCollapsedHeight
+                : Constants.notchlessDevicesOverlayCollapsedHeight
+        } else {
+            return hasHomeScreenIndicator
+                ? Constants.notchDevicesOverlayCollapsedHeight + Constants.overlayCollapsedHeightAdjustment
+                : Constants.notchlessDevicesOverlayCollapsedHeight + Constants.overlayCollapsedHeightAdjustment
+        }
+    }
+
     func makeRootViewController(for rootView: some View, coordinator: AppCoordinator, window: UIWindow) -> UIViewController {
-        let overlayCollapsedHeight: CGFloat
         let overlayCornerRadius: CGFloat
 
         if UIDevice.current.hasHomeScreenIndicator {
-            overlayCollapsedHeight = Constants.notchDevicesOverlayCollapsedHeight + Constants.overlayCollapsedHeightAdjustment
             overlayCornerRadius = Constants.notchDevicesOverlayCornerRadius
         } else {
-            overlayCollapsedHeight = Constants.notchlessDevicesOverlayCollapsedHeight + Constants.overlayCollapsedHeightAdjustment
             overlayCornerRadius = Constants.notchlessDevicesOverlayCornerRadius
         }
 
@@ -50,9 +61,9 @@ struct RootViewControllerFactory {
 extension RootViewControllerFactory {
     enum Constants {
         /// Based on Figma mockups.
-        fileprivate static let notchDevicesOverlayCollapsedHeight: CGFloat = FeatureProvider.isAvailable(.redesign) ? 112.0 : 100.0
+        fileprivate static let notchDevicesOverlayCollapsedHeight: CGFloat = FeatureProvider.isAvailable(.redesign) ? 108.0 : 100.0
         /// Based on Figma mockups.
-        fileprivate static let notchlessDevicesOverlayCollapsedHeight: CGFloat = FeatureProvider.isAvailable(.redesign) ? 98.0 : 86.0
+        fileprivate static let notchlessDevicesOverlayCollapsedHeight: CGFloat = FeatureProvider.isAvailable(.redesign) ? 90.0 : 86.0
         /// The height of `SwiftUI.TextField` used in the `CustomSearchBar` UI components differs from the mockups by this small margin.
         fileprivate static let overlayCollapsedHeightAdjustment = 4.0
         static let notchDevicesOverlayCornerRadius = 24.0
