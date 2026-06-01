@@ -18,7 +18,8 @@ struct ScrollWalletAssembly: WalletManagerAssembly {
 
         let yieldSupplyServiceFactory = YieldSupplyServiceFactory(
             wallet: wallet,
-            dataStorage: input.blockchainSdkDependencies.dataStorage
+            dataStorage: input.blockchainSdkDependencies.dataStorage,
+            isYieldModuleUpdateEnabled: input.blockchainSdkDependencies.isYieldModuleUpdateEnabled
         )
 
         let apiList = APIList(dictionaryLiteral: (wallet.blockchain.networkId, input.networkInput.apiInfo))

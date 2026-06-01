@@ -31,6 +31,10 @@ class SwapSummaryStep {
     func set(router: SwapSummaryStepRoutable) {
         viewModel.router = router
     }
+
+    func makeFormVariantMenu() -> SwapSummaryViewModel.FormVariantMenu {
+        viewModel.makeFormVariantMenu()
+    }
 }
 
 // MARK: - SendStep
@@ -48,11 +52,13 @@ extension SwapSummaryStep: SendStep {
 
     func initialAppear() {
         analyticsLogger.logSummaryStepOpened()
+        viewModel.logScreenOpened()
         autoupdatingTimer.resumeTimer()
     }
 
     func willAppear(previous step: any SendStep) {
         analyticsLogger.logSummaryStepOpened()
+        viewModel.logScreenOpened()
         autoupdatingTimer.resumeTimer()
     }
 
