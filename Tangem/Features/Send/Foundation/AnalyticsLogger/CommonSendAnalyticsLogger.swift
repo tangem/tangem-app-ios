@@ -610,6 +610,10 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         ])
     }
 
+    func logTransferTransactionSent(result: TransactionDispatcherResult) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
     func logSwapTransactionSent(result: TransactionDispatcherResult) {
         guard let sourceTokenItem else {
             return
