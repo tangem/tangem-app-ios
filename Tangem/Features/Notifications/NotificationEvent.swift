@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemUI
 import TangemAccessibilityIdentifiers
 
@@ -27,6 +28,8 @@ protocol NotificationEvent: Identifiable {
     var isOneShotAnalyticsEvent: Bool { get }
 
     var bannerKind: NotificationBannerKind? { get }
+
+    var descriptionLinkTint: Color? { get }
 }
 
 extension NotificationEvent where Self: Hashable {
@@ -93,6 +96,8 @@ extension NotificationEvent {
             default:
                 return nil
             }
+        } else if self is GetTangemPayBannerNotificationEvent {
+            return TangemPayAccessibilityIdentifiers.getTangemPayBanner
         }
         return nil
     }
@@ -102,4 +107,6 @@ extension NotificationEvent {
     var colorTheme: NotificationView.ColorTheme {
         .system
     }
+
+    var descriptionLinkTint: Color? { nil }
 }

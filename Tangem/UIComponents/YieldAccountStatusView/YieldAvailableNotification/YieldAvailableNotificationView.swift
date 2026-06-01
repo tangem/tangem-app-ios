@@ -13,8 +13,7 @@ import TangemAssets
 import TangemAccessibilityIdentifiers
 
 struct YieldAvailableNotificationView: View {
-    @ObservedObject
-    var viewModel: YieldAvailableNotificationViewModel
+    let viewModel: YieldAvailableNotificationViewModel
 
     // MARK: - View Body
 
@@ -31,19 +30,41 @@ struct YieldAvailableNotificationView: View {
     var content: some View {
         VStack(alignment: .leading, spacing: 14) {
             messageIconContent
-            button
+            buttons
         }
     }
 
     @ViewBuilder
-    private var button: some View {
+    private var buttons: some View {
+        switch viewModel.style {
+        case .standard:
+            learnMoreButton
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationButton)
+        case .promo:
+            HStack(spacing: 8) {
+                learnMoreButton
+                activateButton
+            }
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationButton)
+        }
+    }
+
+    private var learnMoreButton: some View {
         MainButton(
             title: Localization.commonLearnMore,
             style: .secondary,
             size: .notification,
-            action: { viewModel.onGetStartedTap() }
+            action: { viewModel.onLearnMoreButtonTap() }
         )
-        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationButton)
+    }
+
+    private var activateButton: some View {
+        MainButton(
+            title: Localization.commonActivate,
+            style: .primary,
+            size: .notification,
+            action: { viewModel.onActivateButtonTap() }
+        )
     }
 
     private var messageIconContent: some View {
@@ -51,11 +72,11 @@ struct YieldAvailableNotificationView: View {
             icon
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.makeTitleText())
+                Text(viewModel.titleText)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.yieldModuleNotificationTitle)
 
-                Text(Localization.yieldModuleTokenDetailsEarnNotificationDescription)
+                Text(viewModel.descriptionText)
                     .multilineTextAlignment(.leading)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .infinityFrame(axis: .horizontal, alignment: .leading)

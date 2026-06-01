@@ -1,0 +1,56 @@
+{
+  "font": {
+    "family": {
+      "ios": {
+        "$extensions": {
+          "com.figma.scopes": [
+            "FONT_FAMILY"
+          ],
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "fontFamilies",
+        "$value": "SF Pro"
+      },
+      "android": {
+        "$extensions": {
+          "com.figma.scopes": [
+            "FONT_FAMILY"
+          ],
+          "com.figma.hiddenFromPublishing": true
+        },
+        "$type": "fontFamilies",
+        "$value": "Inter"
+      }
+    },
+    "weight": {
+      "medium": {
+        "$type": "fontWeights",
+        "$value": "500"
+      },
+      "semibold": {
+        "$type": "fontWeights",
+        "$value": "600"
+      },
+      "bold": {
+        "$type": "fontWeights",
+        "$value": "700"
+      }
+    },
+    "case": {
+      "default": {
+        "$type": "textCase",
+        "$value": "none"
+      },
+      "uppercase": {
+        "$type": "textCase",
+        "$value": "uppercase"
+      }
+    },
+    "decoration": {
+      "underline": {
+        "$type": "textDecoration",
+        "$value": "underline"
+      }
+    }
+  }
+}

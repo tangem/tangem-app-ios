@@ -8,10 +8,13 @@
 
 import Foundation
 import TangemFoundation
+import TangemPay
 
 protocol TangemPayMainRoutable: AnyObject {
     func openCardManagement()
     func openFakedoorSheet()
+    func openMaximumCardsIssuedSheet()
+    func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, issueCard: @escaping () async throws -> Void)
     func openAddToApplePayGuide(viewModel: TangemPayCardDetailsViewModel)
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input)
@@ -19,6 +22,7 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayNoDepositAddressSheet()
     func openTangemWithdrawInProgressSheet()
     func openTermsAndLimits()
+    func renewTangemPaySession()
 
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
