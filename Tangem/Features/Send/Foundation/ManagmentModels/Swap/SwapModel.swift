@@ -133,25 +133,6 @@ private extension SwapModel {
     }
 
     func bind() {
-        _receiveToken
-            .map { $0.value?.tokenItem }
-            .pairwise()
-            .filter { previous, current in previous == nil && current != nil }
-            .asyncMap { [weak self] _ -> ExpressProviderRateType in
-                guard let publisher = self?._providersState else { return .float }
-                let states = await publisher.dropFirst().values
-                for await state in states {
-                    if case .loaded(.swap(_, let providers), _) = state, providers.supportedRateTypes.isNotEmpty {
-                        return providers.supportedRateTypes.contains(.fixed) ? .fixed : .float
-                    }
-                }
-                return .float
-            }
-            .sink { [weak self] rateType in
-                self?.analyticsLogger.logSendWithSwapAmountScreenOpened(rateType: rateType)
-            }
-            .store(in: &bag)
-
         _providersState
             .withWeakCaptureOf(self)
             .sink { $0.updateAutoupdatingTimer(state: $1) }

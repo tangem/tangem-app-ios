@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import TangemExpress
+import TangemFoundation
 
 protocol SendAmountStepBuildable {
     var amountIO: SendAmountStepBuilder.IO { get }
@@ -57,6 +58,7 @@ enum SendAmountStepBuilder {
         let analyticsLogger: any SendAmountAnalyticsLogger
         let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
         let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
+        let selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never>?
 
         init(
             sendAmountValidator: any SendAmountValidator,
@@ -64,7 +66,8 @@ enum SendAmountStepBuilder {
             notificationService: (any SendAmountNotificationService)?,
             analyticsLogger: any SendAmountAnalyticsLogger,
             providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
-            currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
+            currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil,
+            selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never>? = nil
         ) {
             self.sendAmountValidator = sendAmountValidator
             self.amountModifier = amountModifier
@@ -72,6 +75,7 @@ enum SendAmountStepBuilder {
             self.analyticsLogger = analyticsLogger
             self.providerRateTypesPublisher = providerRateTypesPublisher
             self.currentRateTypePublisher = currentRateTypePublisher
+            self.selectedExpressProviderPublisher = selectedExpressProviderPublisher
         }
     }
 
@@ -104,7 +108,8 @@ enum SendAmountStepBuilder {
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
             providerRateTypesPublisher: dependencies.providerRateTypesPublisher,
-            currentRateTypePublisher: dependencies.currentRateTypePublisher
+            currentRateTypePublisher: dependencies.currentRateTypePublisher,
+            selectedExpressProviderPublisher: dependencies.selectedExpressProviderPublisher
         )
 
         let step = SendAmountStep(

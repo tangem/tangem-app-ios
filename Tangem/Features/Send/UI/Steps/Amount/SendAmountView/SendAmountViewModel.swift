@@ -102,6 +102,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
     private let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
+    private let selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
@@ -127,7 +128,8 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
         providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
-        currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
+        currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil,
+        selectedExpressProviderPublisher: AnyPublisher<LoadingResult<ExpressAvailableProvider, any Error>?, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -140,6 +142,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.analyticsLogger = analyticsLogger
         self.providerRateTypesPublisher = providerRateTypesPublisher
         self.currentRateTypePublisher = currentRateTypePublisher
+        self.selectedExpressProviderPublisher = selectedExpressProviderPublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -400,6 +403,15 @@ private extension SendAmountViewModel {
         currentRateTypePublisher?
             .receiveOnMain()
             .assign(to: &$currentRateType)
+
+        selectedExpressProviderPublisher?
+            .compactMap { $0?.value?.rateType }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.analyticsLogger.logAmountStepReopened()
+            }
+            .store(in: &bag)
     }
 
     func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
