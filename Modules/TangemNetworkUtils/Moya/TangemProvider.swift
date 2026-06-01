@@ -10,6 +10,7 @@ import Foundation
 import Moya
 
 public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
+    @available(iOS, deprecated: 100000.0, message: "Using this constructor is discouraged, use init(configuration:additionalPlugins:) instead.")
     public init(
         stubClosure: @escaping StubClosure = MoyaProvider.neverStub,
         plugins: [PluginType] = [],
@@ -20,8 +21,12 @@ public class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
 
         super.init(stubClosure: stubClosure, session: session, plugins: plugins)
     }
+}
 
-    public convenience init(
+// MARK: - Convenience initializer
+
+public extension TangemProvider {
+    convenience init(
         configuration: TangemProviderConfiguration,
         additionalPlugins: [PluginType] = []
     ) {

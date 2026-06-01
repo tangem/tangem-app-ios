@@ -15,14 +15,16 @@ import TangemFoundation
 import TangemNetworkUtils
 
 final class CommonTangemApiService {
-    private let provider = TangemProvider<TangemApiTarget>(plugins: [
-        CachePolicyPlugin(),
-        TimeoutIntervalPlugin(),
-        DeviceInfoPlugin(),
-        TangemNetworkLoggerPlugin(logOptions: .verbose),
-        TangemNetworkAnalyticsPlugin(),
-        TangemApiAuthorizationPlugin(),
-    ])
+    private let provider = TangemProvider<TangemApiTarget>(
+        configuration: TangemProviderConfiguration(logOptions: .verbose),
+        additionalPlugins: [
+            CachePolicyPlugin(),
+            TimeoutIntervalPlugin(),
+            DeviceInfoPlugin(),
+            TangemNetworkAnalyticsPlugin(),
+            TangemApiAuthorizationPlugin(),
+        ]
+    )
 
     private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
     private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)

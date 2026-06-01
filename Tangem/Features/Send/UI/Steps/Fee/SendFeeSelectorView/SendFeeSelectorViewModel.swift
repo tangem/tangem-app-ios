@@ -63,7 +63,7 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
     }
 
     func openURL() {
-        router?.openFeeSelectorLearnMoreURL(state.content.learnMoreURL)
+        // no-op for now
     }
 
     // MARK: - Private Implementation
@@ -100,7 +100,6 @@ extension SendFeeSelectorViewModel {
                         title: Localization.commonNetworkFeeTitle,
                         description: AttributedString(""),
                         headerButtonAction: .close,
-                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
                         isSingleOptionMode: false
                     )
                 )
@@ -112,7 +111,6 @@ extension SendFeeSelectorViewModel {
                         title: Localization.feeSelectorChooseTokenTitle,
                         description: Content.makeDescription(text: text),
                         headerButtonAction: .back,
-                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
                         isSingleOptionMode: false
                     )
                 )
@@ -124,7 +122,6 @@ extension SendFeeSelectorViewModel {
                         title: Localization.feeSelectorChooseSpeedTitle,
                         description: Content.makeDescription(text: text),
                         headerButtonAction: isFeesOnlyOption ? .close : .back,
-                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
                         isSingleOptionMode: isFeesOnlyOption
                     )
                 )
@@ -163,7 +160,6 @@ extension SendFeeSelectorViewModel {
         let title: String
         let description: AttributedString
         let headerButtonAction: SendFeeSelectorViewModel.ViewState.HeaderButtonAction
-        let learnMoreURL: URL
         let isSingleOptionMode: Bool
 
         static func makeDescription(text: String) -> AttributedString {
