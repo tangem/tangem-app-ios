@@ -51,7 +51,11 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
-        resolveSignaturesAddress(request: request)
+        guard case .address(let address) = request.key else {
+            return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
+        }
+
+        return resolveSignaturesAddress(owner: address, amountType: request.amountType)
             .flatMap { [weak self] signaturesAddress -> AnyPublisher<[String], Error> in
                 guard let self else {
                     return .anyFail(error: BlockchainSdkError.empty)
@@ -81,7 +85,7 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
 
                         let records = try mapper.mapToTransactionRecords(
                             transactions,
-                            walletAddress: request.address,
+                            walletAddress: address,
                             amountType: request.amountType
                         )
                         .filter { record in
@@ -100,12 +104,12 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
 }
 
 private extension SolanaTransactionHistoryProvider {
-    func resolveSignaturesAddress(request: TransactionHistory.Request) -> AnyPublisher<String?, Error> {
-        switch request.amountType {
+    func resolveSignaturesAddress(owner: String, amountType: Amount.AmountType) -> AnyPublisher<String?, Error> {
+        switch amountType {
         case .coin, .reserve:
-            return .justWithError(output: request.address)
+            return .justWithError(output: owner)
         case .token(let token):
-            return fetchTokenAccountAddress(owner: request.address, mint: token.contractAddress)
+            return fetchTokenAccountAddress(owner: owner, mint: token.contractAddress)
         case .feeResource:
             return .justWithError(output: nil)
         }

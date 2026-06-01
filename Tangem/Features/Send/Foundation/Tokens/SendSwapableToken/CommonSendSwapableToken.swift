@@ -16,7 +16,10 @@ struct CommonSendSwapableToken: SendSwapableToken {
     let sendingRestrictionsProvider: any SendingRestrictionsProvider
     let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
     let tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider
-    let expressTransactionValidator: any ExpressTransactionValidator
+    let tokenFeeProvidersManager: any TokenFeeProvidersManager
+    let transactionValidator: any SendTransactionValidator
+    let transactionCreator: any SendTransactionCreator
+    let sendYieldModuleHelper: SendYieldModuleHelper?
 
     let balanceProvider: any TangemExpress.BalanceProvider
     let analyticsLogger: any TangemExpress.AnalyticsLogger
@@ -42,6 +45,7 @@ struct CommonSendSwapableToken: SendSwapableToken {
     var transactionDispatcherProvider: any TransactionDispatcherProvider { sourceToken.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
+    var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
 
     var tokenItem: TokenItem { sourceToken.tokenItem }
     var fiatItem: FiatItem { sourceToken.fiatItem }

@@ -1,0 +1,86 @@
+{
+  "font": {
+    "display": {
+      "medium": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.base}",
+          "fontWeight": "{font.display.weight.medium}",
+          "lineHeight": "{font.display.lineHeight.medium}",
+          "fontSize": "{font.display.size.medium}",
+          "textCase": "{font.case.default}",
+          "letterSpacing": "{font.display.spacing.medium}",
+          "fontFeature": "ss01,ss11,liga,calt,kern"
+        }
+      }
+    },
+    "heading": {
+      "medium": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.base}",
+          "fontWeight": "{font.heading.weight.medium}",
+          "lineHeight": "{font.heading.lineHeight.medium}",
+          "fontSize": "{font.heading.size.medium}",
+          "textCase": "{font.case.default}",
+          "letterSpacing": "{font.heading.spacing.medium}",
+          "fontFeature": "ss01,ss11,liga,calt,kern"
+        }
+      },
+      "small": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.base}",
+          "fontWeight": "{font.heading.weight.small}",
+          "lineHeight": "{font.heading.lineHeight.small}",
+          "fontSize": "{font.heading.size.small}",
+          "textCase": "{font.case.default}",
+          "letterSpacing": "{font.heading.spacing.small}",
+          "fontFeature": "ss01,ss11,liga,calt,kern"
+        }
+      }
+    },
+    "subheading": {
+      "medium": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.base}",
+          "fontWeight": "{font.subheading.weight.medium}",
+          "lineHeight": "{font.subheading.lineHeight.medium}",
+          "fontSize": "{font.subheading.size.medium}",
+          "textCase": "{font.case.default}",
+          "letterSpacing": "{font.subheading.spacing.medium}",
+          "fontFeature": "ss01,ss11,liga,calt,kern"
+        }
+      }
+    },
+    "body": {
+      "medium": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.base}",
+          "fontWeight": "{font.body.weight.medium}",
+          "lineHeight": "{font.body.lineHeight.medium}",
+          "fontSize": "{font.body.size.medium}",
+          "textCase": "{font.case.default}",
+          "letterSpacing": "{font.body.spacing.medium}",
+          "fontFeature": "ss01,ss11,liga,calt,kern"
+        }
+      }
+    },
+    "caption": {
+      "medium": {
+        "$type": "typography",
+        "$value": {
+          "fontFamily": "{font.family.base}",
+          "fontWeight": "{font.caption.weight.medium}",
+          "lineHeight": "{font.caption.lineHeight.medium}",
+          "fontSize": "{font.caption.size.medium}",
+          "textCase": "{font.case.default}",
+          "letterSpacing": "{font.caption.spacing.medium}",
+          "fontFeature": "ss01,ss11,liga,calt,kern"
+        }
+      }
+    }
+  }
+}

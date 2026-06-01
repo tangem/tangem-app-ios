@@ -19,7 +19,7 @@ struct CommonWCEthTransactionBuilder {
         using ethereumNetworkProvider: EthereumNetworkProvider,
         blockchain: Blockchain
     ) async throws -> BigUInt {
-        if let dappGasLimit = tx.gas?.hexToInteger {
+        if let dappGasLimit = tx.gas?.hexToInt() {
             if case .mantle = blockchain {
                 return MantleUtils.multiplyGasLimit(dappGasLimit, with: MantleUtils.feeGasLimitMultiplier)
             }
@@ -62,7 +62,7 @@ struct CommonWCEthTransactionBuilder {
                 priorityFee: priorityFee
             )
         } else {
-            let gasPrice = tx.gasPrice?.hexToInteger.map { BigUInt($0) }
+            let gasPrice = tx.gasPrice?.hexToInt().map { BigUInt($0) }
             feeParameters = try await ethereumNetworkProvider.getFee(gasLimit: gasLimit, supportsEIP1559: blockchain.supportsEIP1559, gasPrice: gasPrice)
         }
 
@@ -111,7 +111,7 @@ extension CommonWCEthTransactionBuilder: WCEthTransactionBuilder {
 
         transaction.params = EthereumTransactionParams(
             data: wcTxData,
-            nonce: wcTransaction.nonce?.hexToInteger
+            nonce: wcTransaction.nonce?.hexToInt()
         )
 
         return transaction

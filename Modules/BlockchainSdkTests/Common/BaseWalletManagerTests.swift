@@ -206,7 +206,7 @@ struct BaseWalletManagerDispatchTests {
 
         await sut.update()
 
-        #expect(sut.updateCalledWithXpub != nil)
+        #expect(sut.updateCalledWithXpubs?.count == 2)
         #expect(sut.state.isLoaded)
     }
 
@@ -264,13 +264,13 @@ private final class MockMultiAddressOnlyWalletManager: BaseWalletManager, MultiA
 
 // MARK: - Mock: XPUB
 
-private final class MockXPUBWalletManager: BaseWalletManager, BaseWalletManagerUpdater, XPUBWalletManagerUpdater {
-    var updateCalledWithXpub: String?
+private final class MockXPUBWalletManager: BaseWalletManager, BaseWalletManagerUpdater, XPUBWalletManagerUpdater, MultipleXPUBWalletManagerUpdater {
+    var updateCalledWithXpubs: [UTXOXpubScriptType]?
 
     func updateWalletManager(address _: String) async throws {}
 
-    func updateWalletManager(xpub: String) async throws {
-        updateCalledWithXpub = xpub
+    func updateWalletManager(xpubs: [UTXOXpubScriptType]) async throws {
+        updateCalledWithXpubs = xpubs
     }
 }
 

@@ -20,10 +20,18 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
+    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
-    @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
+    @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
     @Published var dotsMenuItems: [DotsMenuItem] = []
+
+    @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
+
+    private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
+
+    // [REDACTED_INFO]: Remove when the redesign feature toggle is removed
 
     private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
         tokenItem: walletModel.tokenItem,
@@ -50,8 +58,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     )
 
+    let actionsViewModel: TokenDetailsActionsViewModel?
+
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
+
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
+    @Published private(set) var stakingState: TokenDetailsStakingState?
+    @Published private(set) var yieldState: TokenDetailsYieldState?
 
     var iconUrl: URL? {
         guard let id = walletModel.tokenItem.id else {
@@ -66,7 +79,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     private weak var coordinator: (any TokenDetailsRoutable)?
-    private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
     private let pendingTransactionDetails: PendingTransactionDetails?
     private let userTokensManager: any UserTokensManager
@@ -75,11 +87,26 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
+    private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
+        walletModel: walletModel,
+        coordinator: coordinator,
+        factoryBuilder: { [weak self] manager in
+            self?.makeYieldModuleFlowFactory(manager: manager)
+        }
+    )
+
+    private lazy var yieldAvailabilityBuilder = TokenDetailsYieldAvailabilityFactory(
+        walletModel: walletModel,
+        coordinator: coordinator,
+        factoryBuilder: { [weak self] manager in
+            self?.makeYieldModuleFlowFactory(manager: manager)
+        }
+    )
+
     init(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
-        bannerNotificationManager: NotificationManager?,
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
@@ -88,10 +115,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         pendingTransactionDetails: PendingTransactionDetails?
     ) {
         self.coordinator = coordinator
-        self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
         self.userTokensManager = userTokensManager
+
+        actionsViewModel = FeatureProvider.isAvailable(.redesign)
+            ? TokenDetailsActionsViewModel(walletModel: walletModel, userWalletInfo: userWalletInfo)
+            : nil
 
         super.init(
             userWalletInfo: userWalletInfo,
@@ -100,8 +130,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
             tokenRouter: tokenRouter
         )
+
+        actionsViewModel?.setRoutable(self)
+
         notificationManager.setupManager(with: self)
-        bannerNotificationManager?.setupManager(with: self)
 
         prepareSelf()
     }
@@ -131,6 +163,12 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             openExchange()
         case .openCloreMigration:
             openCloreMigration()
+        case .openDynamicAddressesEnter:
+            if let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider {
+                openDynamicAddressesManagementView(
+                    walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
+                )
+            }
         case .generateAddresses,
              .backupCard,
              .refresh,
@@ -156,7 +194,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .givePermission,
-             .openManageTokensAfterWalletSuccessImport:
+             .openManageTokensAfterWalletSuccessImport,
+             .renewTangemPaySession,
+             .openPushNotificationsSystemSettings,
+             .openYieldBoostPromo,
+             .addFunds:
             super.didTapNotification(with: id, action: action)
         }
     }
@@ -267,6 +309,16 @@ extension TokenDetailsViewModel {
     }
 
     func openDynamicAddressesManagementView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: userWalletInfo.config,
+            walletModel: walletModel
+        )
+
+        if let unavailableAlert = TokenActionAvailabilityAlertBuilder().alert(for: availabilityProvider.dynamicAddressesAvailability) {
+            alert = unavailableAlert
+            return
+        }
+
         if walletModel.tokenItem.blockchainNetwork.isDynamicAddressesEnabled() {
             openDynamicAddressesDisableView(walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider)
         } else {
@@ -350,10 +402,52 @@ private extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        tokenNotificationInputs = notificationManager.notificationInputs
+        Task { @MainActor [notificationManager, weak self] in
+            let tokenNotificationInputs = await notificationManager.notificationInputs
+
+            guard self?.isRedesign == true else {
+                self?.tokenNotificationInputs = tokenNotificationInputs
+                return
+            }
+
+            self?.notifications = MultiWalletNotificationBannerMapper().mapItems(tokenNotificationInputs)
+        }
+
+        setupQuickTopUpBanner()
         dotsMenuItems = makeDotsMenuItems()
+        marketPriceViewModel = makeMarketPriceViewModel()
 
         bind()
+    }
+
+    private func setupQuickTopUpBanner() {
+        guard FeatureProvider.isAvailable(.onrampNativePayment) else { return }
+
+        expressAvailabilityProvider.availabilityDidChangePublisher
+            .receiveOnMain()
+            .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
+            .assign(to: &$quickTopUpBannerViewModel)
+    }
+
+    private func mapToQuickTopUpBannerViewModel() -> QuickTopUpBannerViewModel? {
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletConfig: userWalletInfo.config,
+            walletModel: walletModel
+        )
+        guard availabilityProvider.isBuyAvailable else { return nil }
+        if let existing = quickTopUpBannerViewModel { return existing }
+
+        let sourceToken = CommonSendSourceTokenFactory(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        ).makeSourceToken()
+
+        return QuickTopUpBannerViewModel(
+            sourceToken: sourceToken,
+            onOpenOnramp: { [weak self] parameters in
+                self?.openOnramp(parameters: parameters)
+            }
+        )
     }
 
     private func makeDotsMenuItems() -> [DotsMenuItem] {
@@ -392,8 +486,8 @@ private extension TokenDetailsViewModel {
             .filter { !$0.state.isLoading }
             .receiveOnMain()
             .removeDuplicates()
-            .sink { [weak self] state in
-                self?.updateYieldAvailability(state: state)
+            .sink { [weak self] info in
+                self?.updateYield(info: info)
             }
             .store(in: &bag)
 
@@ -416,12 +510,6 @@ private extension TokenDetailsViewModel {
                 .store(in: &bag)
         }
 
-        bannerNotificationManager?.notificationPublisher
-            .receive(on: DispatchQueue.main)
-            .removeDuplicates()
-            .assign(to: \.bannerNotificationInputs, on: self, ownership: .weak)
-            .store(in: &bag)
-
         walletModel.stakingManagerStatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
@@ -429,9 +517,125 @@ private extension TokenDetailsViewModel {
                 self?.updateStaking(state: state)
             }
             .store(in: &bag)
+
+        $miniChartData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] chartData in
+                MainActor.assumeIsolated {
+                    self?.updateMarketPrice(miniChartData: chartData)
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func updateYield(info: YieldModuleManagerStateInfo) {
+        if isRedesign {
+            updateRedesignYield(info: info)
+        } else {
+            updateYieldAvailability(state: info)
+        }
+    }
+
+    private func updateRedesignYield(info: YieldModuleManagerStateInfo) {
+        yieldState = yieldStateFactory.make(info: info)
     }
 
     private func updateStaking(state: StakingManagerState) {
+        if isRedesign {
+            updateRedesignStaking(state: state)
+        } else {
+            updateLegacyStaking(state: state)
+        }
+    }
+
+    private func updateRedesignStaking(state: StakingManagerState) {
+        switch state {
+        case .loading:
+            stakingState = .loading
+        case .availableToStake(let info):
+            stakingState = makeAvailableStakingState(info: info)
+        case .staked(let staked):
+            stakingState = makeEnableStakingState(staked: staked)
+        case .loadingError, .temporaryUnavailable:
+            stakingState = makeUnavailableStakingState()
+        case .notEnabled:
+            stakingState = nil
+        }
+    }
+
+    private func makeAvailableStakingState(info: StakingYieldInfo) -> TokenDetailsStakingState {
+        let rewardPercent = PercentFormatter().format(info.rewardRateValues.max, option: .staking)
+
+        let description = switch info.rewardType {
+        case .apr: Localization.tokenDetailsEarnStakingSubtitle(rewardPercent)
+        case .apy: Localization.tokenDetailsEarnStakingSubtitleApy(rewardPercent)
+        }
+
+        let item = TokenDetailsStakingState.AvailableItem(
+            title: Localization.tokenDetailsStakingBlockTitle,
+            description: description,
+            actionTitle: Localization.commonStake,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
+        )
+
+        return .available(item: item)
+    }
+
+    private func makeEnableStakingState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState {
+        let rewardsState = makeStakingRewardsState(staked: staked)
+
+        let balance = staked.balances.stakes().sum()
+
+        let cryptoBalance = balanceFormatter.formatCryptoBalance(
+            balance,
+            currencyCode: walletModel.tokenItem.currencySymbol
+        )
+
+        let fiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
+            balanceConverter.convertToFiat(balance, currencyId: currencyId)
+        }
+        let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
+        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+            formattedFiatBalance,
+            font: .Tangem.Body16.medium,
+            integerColor: .Tangem.Text.Neutral.primary,
+            decimalColor: .Tangem.Text.Neutral.secondary
+        )
+
+        let item = TokenDetailsStakingState.EnableItem(
+            title: Localization.stakingEnabled,
+            rewardsState: rewardsState,
+            fiatBalance: attributedFiatBalance,
+            cryptoBalance: cryptoBalance,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
+        )
+        return .enable(item: item)
+    }
+
+    private func makeUnavailableStakingState() -> TokenDetailsStakingState {
+        let item = TokenDetailsStakingState.UnavailableItem(
+            title: Localization.commonStaking,
+            description: Localization.stakingNotificationNetworkErrorText
+        )
+        return .unavailable(item: item)
+    }
+
+    private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
+        switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, _):
+            return .auto
+        case (.manual, .zero):
+            return .empty(Localization.stakingDetailsNoRewardsToClaim)
+        case (.manual, let rewards):
+            let fiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(rewards, currencyId: currencyId)
+            }
+            let formattedFiat = balanceFormatter.formatFiatBalance(fiat)
+            return .claimed(formattedFiat)
+        }
+    }
+
+    private func updateLegacyStaking(state: StakingManagerState) {
         switch state {
         case .loading:
             // Do nothing
@@ -451,8 +655,25 @@ private extension TokenDetailsViewModel {
         }
     }
 
+    @MainActor
+    private func updateMarketPrice(miniChartData: LoadingResult<[Double], any Error>) {
+        switch miniChartData {
+        case .success(let chartPoints):
+            marketPriceViewModel?.miniChartPoints = LoadingResult.success(chartPoints)
+
+        case .loading, .failure:
+            marketPriceViewModel?.miniChartPoints = LoadingResult.loading
+        }
+    }
+
     func mapToRewardsState(staked: StakingManagerState.Staked) -> ActiveStakingViewData.RewardsState? {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, let rewards) where staked.yieldInfo.item.network == .ethereum && rewards > 0:
+            let formatted = balanceFormatter.formatCryptoBalance(
+                rewards,
+                currencyCode: walletModel.tokenItem.currencySymbol
+            )
+            return .compoundedRewardsEarned(formatted)
         case (.auto, _):
             return nil
         case (.manual, .zero):
@@ -482,70 +703,57 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateYieldAvailability(state: YieldModuleManagerStateInfo) {
-        yieldModuleAvailability = makeYieldAvailability(state: state.state, marketInfo: state.marketInfo)
+        yieldModuleAvailability = yieldAvailabilityBuilder.make(state: state.state, marketInfo: state.marketInfo)
     }
 
-    private func makeYieldAvailability(
-        state: YieldModuleManagerState,
-        marketInfo: YieldModuleMarketInfo?
-    ) -> YieldModuleAvailability {
-        guard let manager = walletModel.yieldModuleManager,
-              let factory = makeYieldModuleFlowFactory(manager: manager)
-        else {
-            return .notApplicable
+    private func makeNavigationBarViewModel() -> TokenDetailsNavigationBarViewModel {
+        let tokenStorage: TokenDetailsNavigationBarViewModel.TokenStorage
+        let headerProvider = TokenHeaderProvider(userWalletName: userWalletInfo.name, account: walletModel.account)
+
+        switch headerProvider.makeHeader() {
+        case .account(let accountName, let accountIcon):
+            tokenStorage = .account(icon: accountIcon, name: accountName)
+
+        case .wallet(name: let walletName, hasOnlyOneWallet: false):
+            tokenStorage = .wallet(name: walletName, icon: userWalletInfo.config.walletThumbnailType)
+
+        case .wallet(_, hasOnlyOneWallet: true):
+            tokenStorage = .singleWallet
         }
 
-        func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
-            if let apy = marketInfo?.apy {
-                let action = { [weak self] apy in self?.coordinator?.openYieldModulePromoView(apy: apy, factory: factory) }
-                let vm = factory.makeYieldAvailableNotificationViewModel(apy: apy, onButtonTap: { apy in action(apy) })
-                return .eligible(vm)
-            } else {
-                return .notApplicable
+        let title = TokenDetailsNavigationBarViewModel.Title(
+            tokenName: walletModel.tokenItem.name,
+            storedIn: tokenStorage
+        )
+
+        let subtitle: String
+
+        if walletModel.tokenItem.isToken {
+            let tokenName = walletModel.tokenItem.blockchain.tokenTypeName ?? Localization.commonToken
+            let networkName = walletModel.tokenItem.blockchain.displayName
+            let preposition = Localization.commonIn
+            let network = Localization.wcCommonNetwork.lowercased()
+            subtitle = "\(tokenName) \(preposition) \(networkName) \(network)"
+        } else {
+            subtitle = Localization.commonMainNetwork
+        }
+
+        return TokenDetailsNavigationBarViewModel(title: title, subtitle: subtitle)
+    }
+
+    private func makeMarketPriceViewModel() -> TokenDetailsMarketPriceViewModel? {
+        guard isRedesign, walletModel.tokenItem.id != nil else {
+            return nil
+        }
+
+        return TokenDetailsMarketPriceViewModel(
+            subtitle: rateFormatted,
+            priceChange: priceChangeState,
+            miniChartPoints: .loading,
+            action: { [weak self] in
+                self?.openMarketsTokenDetails()
             }
-        }
-
-        switch state {
-        case .active(let info):
-            let state: YieldStatusViewModel.State = .active(
-                isApproveRequired: info.isAllowancePermissionRequired,
-                undepositedAmount: info.nonYieldModuleBalanceValue,
-                apy: marketInfo?.apy
-            )
-
-            let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
-            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: { navigationAction() })
-
-            if info.isAllowancePermissionRequired {
-                Analytics.log(
-                    event: .earningNoticeApproveNeeded,
-                    params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
-                )
-            }
-
-            return .active(vm)
-
-        case .notActive:
-            return makeEligibleViewModelIfPossible()
-
-        case .processing(let action):
-            let state: YieldStatusViewModel.State = action == .enter ? .loading : .closing
-            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: {})
-            return (action == .enter) ? .enter(vm) : .exit(vm)
-
-        case .disabled:
-            return .notApplicable
-
-        case .loading:
-            AppLogger.warning("Loading state should not be passed here to avoid blinking on UI")
-            return .notApplicable
-
-        case .failedToLoad(_, .some(let cachedState)):
-            return makeYieldAvailability(state: cachedState, marketInfo: marketInfo)
-
-        case .failedToLoad:
-            return makeEligibleViewModelIfPossible()
-        }
+        )
     }
 }
 
@@ -623,6 +831,10 @@ extension TokenDetailsViewModel: TokenDetailsBalanceDataProvider {
         walletModel.isCustom
     }
 }
+
+// MARK: - TokenDetailsActionsRoutable
+
+extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {

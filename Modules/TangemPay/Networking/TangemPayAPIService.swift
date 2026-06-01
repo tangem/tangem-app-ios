@@ -96,6 +96,12 @@ public enum TangemPayAPIServiceError: Error {
 
 public struct TangemPayAPIError: Error, Decodable {
     public let correlationId: String?
+    public let code: Int?
+    public let message: String?
+
+    public enum Code {
+        public static let cardIssueInsufficientBalance = 140116
+    }
 }
 
 private struct WrappedInResult<T: Decodable>: Decodable {

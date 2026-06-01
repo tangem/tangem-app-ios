@@ -41,6 +41,7 @@ enum NotificationButtonActionType: Identifiable {
     case retryKaspaTokenTransaction(icon: MainButton.Icon?)
     case stake
     case openCloreMigration
+    case openDynamicAddressesEnter
     /// Rate the app
     case openFeedbackMail
     /// Rate the app.
@@ -50,14 +51,18 @@ enum NotificationButtonActionType: Identifiable {
     case support
     case openCurrency
     case unlock(icon: MainButton.Icon?)
+    case renewTangemPaySession(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
     case closeMobileUpgrade
     case allowPushPermissionRequest
     case postponePushPermissionRequest
+    case openPushNotificationsSystemSettings
     case activate
     case givePermission
     case openManageTokensAfterWalletSuccessImport
+    case openYieldBoostPromo(buttonTitle: String)
+    case addFunds
 
     var id: Int {
         switch self {
@@ -78,20 +83,25 @@ enum NotificationButtonActionType: Identifiable {
         case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
         case .stake: "stake".hashValue
         case .openCloreMigration: "openCloreMigration".hashValue
+        case .openDynamicAddressesEnter: "openDynamicAddressesEnter".hashValue
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
         case .support: "support".hashValue
         case .openCurrency: "openCurrency".hashValue
         case .unlock: "unlock".hashValue
+        case .renewTangemPaySession: "renewTangemPaySession".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
         case .closeMobileUpgrade: "closeMobileUpgrade".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
+        case .openPushNotificationsSystemSettings: "openPushNotificationsSystemSettings".hashValue
         case .activate: "activate".hashValue
         case .givePermission: "givePermission".hashValue
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
+        case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
+        case .addFunds: "addFunds".hashValue
         }
     }
 
@@ -135,6 +145,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonGoToToken
         case .unlock:
             return Localization.visaUnlockNotificationButton
+        case .renewTangemPaySession:
+            return Localization.tangempaySyncNeededButton
         case .addTokenTrustline:
             return Localization.warningTokenTrustlineButtonTitle
         case .openMobileFinishActivation:
@@ -147,14 +159,22 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonEnable
         case .postponePushPermissionRequest:
             return Localization.commonLater
+        case .openPushNotificationsSystemSettings:
+            return Localization.commonOpenSettingsButtonTitle
         case .activate:
             return Localization.commonActivate
         case .givePermission:
             return Localization.givePermissionTitle
         case .openCloreMigration:
             return Localization.warningCloreMigrationButton
+        case .openDynamicAddressesEnter:
+            return Localization.commonLearnMore
         case .openManageTokensAfterWalletSuccessImport:
             return Localization.mainManageTokens
+        case .openYieldBoostPromo(let buttonTitle):
+            return buttonTitle
+        case .addFunds:
+            return Localization.commonAddFunds
         }
     }
 
@@ -162,7 +182,8 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses(let icon),
              .retryKaspaTokenTransaction(let icon),
-             .unlock(let icon):
+             .unlock(let icon),
+             .renewTangemPaySession(let icon):
             return icon
         case .swap:
             return .leading(Assets.exchangeMini)
@@ -189,10 +210,14 @@ enum NotificationButtonActionType: Identifiable {
              .closeMobileUpgrade,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
+             .openPushNotificationsSystemSettings,
              .activate,
              .givePermission,
              .openCloreMigration,
-             .openManageTokensAfterWalletSuccessImport:
+             .openDynamicAddressesEnter,
+             .openManageTokensAfterWalletSuccessImport,
+             .openYieldBoostPromo,
+             .addFunds:
             return nil
         }
     }
@@ -203,9 +228,12 @@ enum NotificationButtonActionType: Identifiable {
              .openAppStoreReview,
              .empty,
              .unlock,
+             .renewTangemPaySession,
              .openMobileUpgrade,
              .allowPushPermissionRequest,
-             .activate:
+             .activate,
+             .openYieldBoostPromo,
+             .addFunds:
             return .primary
         case .backupCard,
              .openFeeCurrency,
@@ -225,8 +253,10 @@ enum NotificationButtonActionType: Identifiable {
              .swap,
              .addTokenTrustline,
              .postponePushPermissionRequest,
+             .openPushNotificationsSystemSettings,
              .givePermission,
              .openCloreMigration,
+             .openDynamicAddressesEnter,
              .closeMobileUpgrade,
              .openManageTokensAfterWalletSuccessImport:
             return .secondary

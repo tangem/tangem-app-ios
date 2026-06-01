@@ -13,17 +13,32 @@ import enum TangemLocalization.Localization
 public enum TangemStory: Identifiable {
     case swap(SwapStoryData)
     case swapLegacy(SwapStoryDataLegacy)
+    case yieldFirstActivationAPYBoost(YieldFirstActivationAPYBoostStoryData)
 
     public var id: TangemStory.ID {
         switch self {
         case .swap, .swapLegacy: .swap
+        case .yieldFirstActivationAPYBoost: .yieldFirstActivationAPYBoost
         }
     }
 
     public var pagesCount: Int {
+        pages.count
+    }
+
+    public var pages: [TangemStory.Page] {
         switch self {
-        case .swap: 4
-        case .swapLegacy: 5
+        case .swap(let data): return data.pages
+        case .swapLegacy(let data): return data.pages
+        case .yieldFirstActivationAPYBoost(let data): return data.pages
+        }
+    }
+
+    /// When `true`, the story is shown on every entry and is not marked as viewed in persistent storage.
+    public var isRepeatable: Bool {
+        switch self {
+        case .swap, .swapLegacy: false
+        case .yieldFirstActivationAPYBoost: true
         }
     }
 }
@@ -31,6 +46,7 @@ public enum TangemStory: Identifiable {
 public extension TangemStory {
     enum ID: String, CaseIterable {
         case swap
+        case yieldFirstActivationAPYBoost
     }
 
     struct Image {
@@ -42,12 +58,30 @@ public extension TangemStory {
             self.rawData = rawData
         }
     }
+
+    struct Page {
+        public let title: String
+        public let subtitle: String
+        public var image: TangemStory.Image?
+
+        public init(title: String, subtitle: String, image: TangemStory.Image? = nil) {
+            self.title = title
+            self.subtitle = subtitle
+            self.image = image
+        }
+    }
 }
 
-// MARK: - Swap story pages container
+// MARK: - Story pages container
 
-public protocol SwapStoryDataPagesContainer {
-    var pagesKeyPaths: [WritableKeyPath<Self, TangemStory.SwapStoryData.Page>] { get }
+public protocol StoryPagesContainer {
+    var pagesKeyPaths: [WritableKeyPath<Self, TangemStory.Page>] { get }
+}
+
+public extension StoryPagesContainer {
+    var pages: [TangemStory.Page] {
+        pagesKeyPaths.map { self[keyPath: $0] }
+    }
 }
 
 // MARK: - Swap story
@@ -69,26 +103,20 @@ public extension TangemStory {
     }
 }
 
-extension TangemStory.SwapStoryData: SwapStoryDataPagesContainer {
-    public var pagesKeyPaths: [WritableKeyPath<TangemStory.SwapStoryData, Page>] {
+extension TangemStory.SwapStoryData: StoryPagesContainer {
+    public var pagesKeyPaths: [WritableKeyPath<TangemStory.SwapStoryData, TangemStory.Page>] {
         Property.allCases.map(\.keyPath)
     }
 }
 
 public extension TangemStory.SwapStoryData {
-    struct Page {
-        public let title: String
-        public let subtitle: String
-        public var image: TangemStory.Image?
-    }
-
     enum Property: CaseIterable {
         case firstPage
         case secondPage
         case thirdPage
         case fourthPage
 
-        var keyPath: WritableKeyPath<TangemStory.SwapStoryData, Page> {
+        var keyPath: WritableKeyPath<TangemStory.SwapStoryData, TangemStory.Page> {
             switch self {
             case .firstPage: \.firstPage
             case .secondPage: \.secondPage
@@ -120,15 +148,13 @@ public extension TangemStory {
     }
 }
 
-extension TangemStory.SwapStoryDataLegacy: SwapStoryDataPagesContainer {
-    public var pagesKeyPaths: [WritableKeyPath<TangemStory.SwapStoryDataLegacy, Page>] {
+extension TangemStory.SwapStoryDataLegacy: StoryPagesContainer {
+    public var pagesKeyPaths: [WritableKeyPath<TangemStory.SwapStoryDataLegacy, TangemStory.Page>] {
         Property.allCases.map(\.keyPath)
     }
 }
 
 public extension TangemStory.SwapStoryDataLegacy {
-    typealias Page = TangemStory.SwapStoryData.Page
-
     enum Property: CaseIterable {
         case firstPage
         case secondPage
@@ -136,13 +162,68 @@ public extension TangemStory.SwapStoryDataLegacy {
         case fourthPage
         case fifthPage
 
-        var keyPath: WritableKeyPath<TangemStory.SwapStoryDataLegacy, Page> {
+        var keyPath: WritableKeyPath<TangemStory.SwapStoryDataLegacy, TangemStory.Page> {
             switch self {
             case .firstPage: \.firstPage
             case .secondPage: \.secondPage
             case .thirdPage: \.thirdPage
             case .fourthPage: \.fourthPage
             case .fifthPage: \.fifthPage
+            }
+        }
+    }
+}
+
+// MARK: - Yield first activation APY boost story
+
+public extension TangemStory {
+    /// do not forget to update YieldFirstActivationAPYBoostStoryData.Property enum if you add / remove pages
+    struct YieldFirstActivationAPYBoostStoryData {
+        public var firstPage: Page
+        public var secondPage: Page
+        public var thirdPage: Page
+        public var fourthPage: Page
+
+        public static let initialWithoutImages = YieldFirstActivationAPYBoostStoryData(
+            firstPage: Page(
+                title: Localization.yieldApyBoostStoryFirstTitle,
+                subtitle: Localization.yieldApyBoostStoryFirstSubtitle
+            ),
+            secondPage: Page(
+                title: Localization.yieldApyBoostStorySecondTitle,
+                subtitle: Localization.yieldApyBoostStorySecondSubtitle
+            ),
+            thirdPage: Page(
+                title: Localization.yieldApyBoostStoryThirdTitle,
+                subtitle: Localization.yieldApyBoostStoryThirdSubtitle
+            ),
+            fourthPage: Page(
+                title: Localization.yieldApyBoostStoryFourthTitle,
+                subtitle: Localization.yieldApyBoostStoryFourthSubtitle
+            )
+        )
+    }
+}
+
+extension TangemStory.YieldFirstActivationAPYBoostStoryData: StoryPagesContainer {
+    public var pagesKeyPaths: [WritableKeyPath<TangemStory.YieldFirstActivationAPYBoostStoryData, TangemStory.Page>] {
+        Property.allCases.map(\.keyPath)
+    }
+}
+
+public extension TangemStory.YieldFirstActivationAPYBoostStoryData {
+    enum Property: CaseIterable {
+        case firstPage
+        case secondPage
+        case thirdPage
+        case fourthPage
+
+        var keyPath: WritableKeyPath<TangemStory.YieldFirstActivationAPYBoostStoryData, TangemStory.Page> {
+            switch self {
+            case .firstPage: \.firstPage
+            case .secondPage: \.secondPage
+            case .thirdPage: \.thirdPage
+            case .fourthPage: \.fourthPage
             }
         }
     }

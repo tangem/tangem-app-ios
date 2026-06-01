@@ -14,7 +14,6 @@ class CommonRestakingStepsManager {
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
-    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private let actionType: SendFlowActionType
 
     private var stack: [SendStep]
@@ -25,14 +24,12 @@ class CommonRestakingStepsManager {
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
-        confirmTransactionPolicy: ConfirmTransactionPolicy,
         actionType: SendFlowActionType
     ) {
         self.targetsStep = targetsStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
-        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.actionType = actionType
 
         stack = [actionType == .restake ? targetsStep : summaryStep]
@@ -105,7 +102,7 @@ extension CommonRestakingStepsManager: SendStepsManager {
         switch currentStep().type {
         case .targets where isEditAction: return .init(action: .continue)
         case .targets: return .init(action: .next)
-        case .summary: return .init(action: .action(needsHold: confirmTransactionPolicy.needsHoldToConfirm))
+        case .summary: return .init(action: .action)
         case .finish: return .init(action: .close)
         default: return .empty
         }

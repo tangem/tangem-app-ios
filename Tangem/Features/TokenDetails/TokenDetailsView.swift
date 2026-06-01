@@ -26,42 +26,26 @@ struct TokenDetailsView: View {
         // and other subviews already contain inner lazy stacks.
         // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
-            VStack(spacing: 14) {
+            VStack(spacing: Constants.sectionSpacing) {
                 TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
 
-                if FeatureProvider.isAvailable(.redesign) {
+                if viewModel.isRedesign {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+
+                    if let actionsViewModel = viewModel.actionsViewModel {
+                        TokenDetailsActionsView(viewModel: actionsViewModel)
+                    }
                 } else {
                     BalanceWithButtonsView(viewModel: viewModel.balanceWithButtonsModel)
                 }
 
-                ForEach(viewModel.bannerNotificationInputs) { input in
-                    NotificationView(input: input)
-                }
+                notifications
 
-                ForEach(viewModel.tokenNotificationInputs) { input in
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
-                }
+                marketPriceLegacy
 
-                if viewModel.isMarketsDetailsAvailable {
-                    MarketPriceView(
-                        currencySymbol: viewModel.currencySymbol,
-                        price: viewModel.rateFormatted,
-                        priceChangeState: viewModel.priceChangeState,
-                        miniChartData: viewModel.miniChartData,
-                        tapAction: viewModel.openMarketsTokenDetails
-                    )
-                }
+                yieldView
 
-                yieldStatusView
-
-                if let activeStakingViewData = viewModel.activeStakingViewData {
-                    ActiveStakingView(data: activeStakingViewData)
-                        .padding(14)
-                        .background(Colors.Background.primary)
-                        .cornerRadiusContinuous(14)
-                }
+                stakingView
 
                 ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
                     PendingExpressTransactionView(info: transactionInfo)
@@ -72,16 +56,34 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                TransactionsListView(
-                    state: viewModel.transactionHistoryState,
-                    exploreAction: viewModel.openExplorer,
-                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
-                    exploreTransactionAction: viewModel.openTransactionExplorer,
-                    reloadButtonAction: viewModel.onButtonReloadHistory,
-                    isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
-                    fetchMore: viewModel.fetchMoreHistory()
-                )
-                .padding(.bottom, 40)
+                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                    QuickTopUpBannerView(viewModel: quickTopUpVM)
+                }
+
+                if FeatureProvider.isAvailable(.redesign) {
+                    TransactionsListViewRedesigned(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                    .padding(.bottom, 40)
+                } else {
+                    // [REDACTED_INFO]: remove legacy transactions list after redesign rollout.
+                    TransactionsListView(
+                        state: viewModel.transactionHistoryState,
+                        exploreAction: viewModel.openExplorer,
+                        exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
+                        exploreTransactionAction: viewModel.openTransactionExplorer,
+                        reloadButtonAction: viewModel.onButtonReloadHistory,
+                        isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
+                        fetchMore: viewModel.fetchMoreHistory()
+                    )
+                    .padding(.bottom, 40)
+                }
             }
             .padding(.top, Constants.headerTopPadding)
             .readContentOffset(
@@ -90,9 +92,10 @@ struct TokenDetailsView: View {
             )
         }
         .padding(.horizontal, 16)
-        .edgesIgnoringSafeArea(.bottom)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .ignoresSafeArea(.keyboard)
+        .background {
+            backgroundColor
+                .edgesIgnoringSafeArea(.all)
+        }
         .onAppear {
             viewModel.onAppear()
             scrollOffsetHandler.onViewAppear()
@@ -100,34 +103,71 @@ struct TokenDetailsView: View {
         .onFirstAppear {
             viewModel.onFirstAppear()
         }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            marketPriceRedesign
+        }
+        .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert) { $0.alert }
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                TokenIcon(
-                    tokenIconInfo: .init(
-                        name: "",
-                        blockchainIconAsset: nil,
-                        imageURL: viewModel.iconUrl,
-                        isCustom: false,
-                        customTokenColor: viewModel.customTokenColor
-                    ),
-                    size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
-                )
-                .opacity(scrollOffsetHandler.state)
-            }
-
-            ToolbarItem(placement: .navigationBarTrailing) {
-                navbarTrailingButton
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
-            }
-        })
+        .toolbar {
+            principalToolbarContent
+            trailingToolbarButton
+        }
         .navigationBarTitleDisplayMode(.inline)
+        .modifyView { view in
+            if #unavailable(iOS 26.0), viewModel.isRedesign {
+                view.backportTranslucentNavigationBar()
+            } else {
+                view
+            }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var principalToolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            if viewModel.isRedesign {
+                redesignPrincipalToolbarContent
+            } else {
+                legacyPrincipalToolbarContent
+            }
+        }
+    }
+
+    private var redesignPrincipalToolbarContent: some View {
+        TokenDetailsNavigationBar(viewModel: viewModel.navigationBarViewModel)
+    }
+
+    private var legacyPrincipalToolbarContent: some View {
+        TokenIcon(
+            tokenIconInfo: .init(
+                name: "",
+                blockchainIconAsset: nil,
+                imageURL: viewModel.iconUrl,
+                isCustom: false,
+                customTokenColor: viewModel.customTokenColor
+            ),
+            size: IconViewSizeSettings.tokenDetailsToolbar.iconSize
+        )
+        .opacity(scrollOffsetHandler.state)
+    }
+
+    private var trailingToolbarButton: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            Group {
+                if viewModel.isRedesign {
+                    redesignTrailingToolbarButton
+                } else {
+                    legacyTrailingToolbarButton
+                }
+            }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.moreButton)
+        }
     }
 
     @ViewBuilder
-    private var navbarTrailingButton: some View {
+    private var legacyTrailingToolbarButton: some View {
         if !viewModel.dotsMenuItems.isEmpty {
             Menu {
                 ForEach(indexed: viewModel.dotsMenuItems.indexed()) { _, item in
@@ -137,6 +177,108 @@ struct TokenDetailsView: View {
             } label: {
                 NavbarDotsImage()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var yieldView: some View {
+        if viewModel.isRedesign {
+            redesignYieldView
+        } else {
+            yieldStatusView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignYieldView: some View {
+        switch viewModel.yieldState {
+        case .some(let state):
+            TokenDetailsYieldView(state: state)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var stakingView: some View {
+        if viewModel.isRedesign {
+            redesignStakingView
+        } else {
+            legacyStakingView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignStakingView: some View {
+        switch viewModel.stakingState {
+        case .some(let state):
+            TokenDetailsStakingView(state: state)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private var legacyStakingView: some View {
+        if let activeStakingViewData = viewModel.activeStakingViewData {
+            ActiveStakingView(data: activeStakingViewData)
+                .padding(14)
+                .background(Colors.Background.primary)
+                .cornerRadiusContinuous(14)
+        }
+    }
+
+    @ViewBuilder
+    private var redesignTrailingToolbarButton: some View {
+        if !viewModel.dotsMenuItems.isEmpty {
+            Menu("", systemImage: "ellipsis") {
+                ForEach(viewModel.dotsMenuItems) { menuItem in
+                    Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                        .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var notifications: some View {
+        if viewModel.isRedesign {
+            VStack(spacing: .unit(.x2)) {
+                ForEach(viewModel.notifications) { notification in
+                    NotificationBanner(
+                        bannerType: notification.bannerType,
+                        accessibilityIdentifier: notification.accessibilityIdentifier
+                    )
+                }
+            }
+        } else {
+            ForEach(viewModel.tokenNotificationInputs) { input in
+                NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var marketPriceLegacy: some View {
+        if !viewModel.isRedesign, viewModel.isMarketsDetailsAvailable {
+            MarketPriceView(
+                currencySymbol: viewModel.currencySymbol,
+                price: viewModel.rateFormatted,
+                priceChangeState: viewModel.priceChangeState,
+                miniChartData: viewModel.miniChartData,
+                tapAction: viewModel.openMarketsTokenDetails
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var marketPriceRedesign: some View {
+        if let viewModel = viewModel.marketPriceViewModel {
+            TokenDetailsMarketPriceView(viewModel: viewModel)
+                .padding(.horizontal, .unit(.x4))
+                .padding(.vertical, .unit(.x2))
+                .ignoresSafeArea(.keyboard)
         }
     }
 
@@ -153,16 +295,25 @@ struct TokenDetailsView: View {
             YieldStatusView(viewModel: vm)
         }
     }
+
+    private var backgroundColor: Color {
+        viewModel.isRedesign
+            ? Color.Tangem.Surface.level2
+            : Colors.Background.secondary
+    }
 }
 
 // MARK: - Constants
 
-private extension TokenDetailsView {
+extension TokenDetailsView {
     enum Constants {
         static let tokenIconSizeSettings: IconViewSizeSettings = .tokenDetails
         static let headerTopPadding: CGFloat = 14.0
+        static let sectionSpacing: CGFloat = 14
     }
+}
 
+private extension TokenDetailsView {
     enum CoordinateSpaceName {
         private static let prefix = "TokenDetailsView.CoordinateSpaceName."
 
@@ -211,24 +362,20 @@ private extension TokenDetailsView {
     )
     let coordinator = TokenDetailsCoordinator()
 
-    let bannerNotificationManager = BannerNotificationManager(
-        userWalletInfo: userWalletModel.userWalletInfo,
-        placement: .tokenDetails(walletModel.tokenItem),
-    )
-
-    TokenDetailsView(viewModel: .init(
-        userWalletInfo: userWalletModel.userWalletInfo,
-        walletModel: walletModel,
-        notificationManager: notifManager,
-        bannerNotificationManager: bannerNotificationManager,
-        userTokensManager: cryptoAccountModel.userTokensManager,
-        pendingExpressTransactionsManager: pendingTxsManager,
-        xpubGenerator: nil,
-        coordinator: coordinator,
-        tokenRouter: SingleTokenRouter(
+    TokenDetailsView(
+        viewModel: .init(
             userWalletInfo: userWalletModel.userWalletInfo,
-            coordinator: coordinator
-        ),
-        pendingTransactionDetails: nil
-    ))
+            walletModel: walletModel,
+            notificationManager: notifManager,
+            userTokensManager: cryptoAccountModel.userTokensManager,
+            pendingExpressTransactionsManager: pendingTxsManager,
+            xpubGenerator: nil,
+            coordinator: coordinator,
+            tokenRouter: SingleTokenRouter(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                coordinator: coordinator
+            ),
+            pendingTransactionDetails: nil
+        )
+    )
 }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 
@@ -16,6 +17,37 @@ struct NewsSourcesSectionView: View {
     let onSourceTap: (NewsSource) -> Void
 
     var body: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignContent
+        } else {
+            legacyContent
+        }
+    }
+
+    // MARK: - Redesign
+
+    private var redesignContent: some View {
+        VStack(alignment: .leading, spacing: .unit(.x3)) {
+            Text(Localization.newsRelatedNews)
+                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .padding(.horizontal, .unit(.x2))
+                .padding(.vertical, .unit(.x3))
+
+            ScrollView(.horizontal) {
+                HStack(spacing: .unit(.x3)) {
+                    ForEach(sources) { source in
+                        NewsSourceCardView(source: source, onTap: onSourceTap)
+                    }
+                }
+                .padding(.horizontal, .unit(.x4))
+            }
+            .scrollIndicators(.hidden)
+        }
+    }
+
+    // MARK: - Legacy
+
+    private var legacyContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Text(Localization.newsSources)

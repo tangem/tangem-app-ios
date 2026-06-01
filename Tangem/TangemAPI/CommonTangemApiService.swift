@@ -225,10 +225,6 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func promotion(request requestModel: BannerPromotion.Request) async throws -> BannerPromotion.Response {
-        try await request(for: .promotion(request: requestModel), decoder: decoder)
-    }
-
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError> {
         let target = TangemApiTarget(type: .activatePromoCode(requestModel: model))
 
@@ -252,6 +248,23 @@ extension CommonTangemApiService: TangemApiService {
 
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response {
         try await self.request(for: .hidePromotion(request: request))
+    }
+
+    // MARK: - Yield Boost Promotion
+
+    func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion] {
+        let response: BannerPromotion.Response = try await request(
+            for: .promotion(request: BannerPromotion.Request(walletId: userWalletId)),
+            decoder: decoder
+        )
+        return response.promotions
+    }
+
+    func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response {
+        return try await request(
+            for: .yieldBoostPromotionStatus(request: YieldBoostPromotionDTO.Request(walletId: userWalletId)),
+            decoder: decoder
+        )
     }
 
     func loadAPIList() async throws -> APIListDTO {
@@ -298,6 +311,12 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response {
         return try await request(for: .earnNetworks(requestModel), decoder: decoder)
+    }
+
+    // MARK: - Coins Implementation
+
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response {
+        try await request(for: .coinsSettings, decoder: decoder)
     }
 
     // MARK: - Action Buttons

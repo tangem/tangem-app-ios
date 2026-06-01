@@ -14,11 +14,28 @@ public enum TangemPayAccessibilityIdentifiers {
     // MARK: - Main screen entry
 
     public static let mainScreenTile = "\(prefix)MainScreenTile"
+    public static let getTangemPayBanner = "\(prefix)GetTangemPayBanner"
 
     // MARK: - Tangem Pay payment account screen
 
+    public static let paymentAccountCardButtonPrefix = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountCardButton = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
+    public static let addFundsButton = "\(prefix)AddFundsButton"
+    public static let withdrawButton = "\(prefix)WithdrawButton"
+
+    // MARK: - Add funds flow
+
+    public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
+    public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
+
+    public static func paymentAccountCardButton(cardId: String) -> String {
+        "\(paymentAccountCardButtonPrefix)_\(cardId)"
+    }
+
+    // MARK: - Withdraw flow
+
+    public static let withdrawNoteSheetPrimaryButton = "\(prefix)WithdrawNoteSheetPrimaryButton"
 
     // MARK: - Card details (reveal + copy)
 

@@ -57,6 +57,8 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         !isMarketsSheetFlow && !isDeeplinkMode
     }
 
+    let isRedesign = FeatureProvider.isAvailable(.redesign)
+
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -66,7 +68,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
 
     // MARK: - Private Properties
 
-    private let dateFormatter: NewsDateFormatter
+    private let dateFormatter: RelativeDateFormatter
     private let dataSource: NewsPagerDataSource?
     private let analyticsSource: Analytics.ParameterValue?
     private weak var coordinator: NewsDetailsRoutable?
@@ -87,7 +89,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         initialIndex: Int,
         isDeeplinkMode: Bool = false,
         isMarketsSheetFlow: Bool = true,
-        dateFormatter: NewsDateFormatter = NewsDateFormatter(),
+        dateFormatter: RelativeDateFormatter = .shared,
         dataSource: NewsPagerDataSource? = nil,
         analyticsSource: Analytics.ParameterValue? = nil,
         coordinator: NewsDetailsRoutable? = nil

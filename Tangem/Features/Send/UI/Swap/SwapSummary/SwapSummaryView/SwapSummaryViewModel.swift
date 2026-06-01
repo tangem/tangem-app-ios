@@ -33,11 +33,15 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var transactionDescription: AttributedString?
     @Published private(set) var alert: AlertBinder?
 
+    @Published private(set) var formVariant: SwapFormVariant
+    @Published var shouldAnimateBestRateBadge: Bool = true
+
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
+    private let formVariantResolver: SwapFormVariantResolver
 
     weak var router: SwapSummaryStepRoutable?
 
@@ -48,7 +52,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
-        sourceTokenInput: SendSourceTokenInput
+        sourceTokenInput: SendSourceTokenInput,
+        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -56,9 +61,34 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
         self.feeCompactViewModel = feeCompactViewModel
+        self.formVariantResolver = formVariantResolver
+        formVariant = formVariantResolver.currentVariant()
 
         bind()
         bind(sourceTokenInput: sourceTokenInput)
+        applyFormVariant(formVariant)
+    }
+
+    func userDidSelectFormVariant(_ variant: SwapFormVariant) {
+        guard variant != formVariant else { return }
+        formVariant = variant
+        applyFormVariant(variant)
+        formVariantResolver.setVariant(variant)
+    }
+
+    func makeFormVariantMenu() -> (selectedId: String, items: [SendStepNavigationLeadingViewType.DotsMenuItem]) {
+        let items = SwapFormVariant.allCases.map { variant in
+            SendStepNavigationLeadingViewType.DotsMenuItem(
+                id: variant.rawValue,
+                title: variant.menuTitle,
+                action: { [weak self] in self?.userDidSelectFormVariant(variant) }
+            )
+        }
+        return (selectedId: formVariant.rawValue, items: items)
+    }
+
+    private func applyFormVariant(_ variant: SwapFormVariant) {
+        swapAmountViewModel.update(isReceiveFiatHidden: variant == .simple)
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {
@@ -70,7 +100,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
             .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
     }
@@ -79,8 +109,14 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func userDidTapMaxAmount() {
         interactor.userDidRequestMaxAmount()
+    }
+
+    func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
+        analyticsLogger.logTapAmountFraction(fraction)
+        interactor.userDidRequestSourceAmount(fraction: fraction)
     }
 
     func userDidTapMainActionButton() {

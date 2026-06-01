@@ -34,8 +34,11 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     @State private var scrolledID: Data.Element.ID?
     @State private var scrollOffset: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
-    @State private var elasticContainerModel: TangemElasticContainerModel
+    @State private var visibleBodyHeight: CGFloat = 0
+    @StateObject private var elasticContainerModel: TangemElasticContainerModel
     @State private var scrollPhase: ScrollPhase = .awaitingLayout
+
+    private let refreshScrollViewInteractor: RefreshScrollViewInteractor
 
     // MARK: - Configuration
 
@@ -64,7 +67,8 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
-        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        self.refreshScrollViewInteractor = refreshScrollViewInteractor
+        _elasticContainerModel = StateObject(wrappedValue: TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor))
         self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
@@ -82,7 +86,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
             headerContainer(pageWidth: pageWidth)
 
             bodyOffsetView(pageWidth: pageWidth)
-                .frame(minHeight: viewportHeight)
+                .frame(minHeight: max(viewportHeight, visibleBodyHeight))
         }
         .onGeometryChange(for: CGFloat.self) { proxy in
             proxy.size.width
@@ -91,6 +95,9 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
             onHeaderHeightRatioChange?($0)
+        }
+        .onReceive(refreshScrollViewInteractor.$visibleBodyHeight) {
+            visibleBodyHeight = $0
         }
     }
 
