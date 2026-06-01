@@ -67,11 +67,15 @@ private extension TokenDetailsActionsViewModel {
             mode = buttons.isNotEmpty ? .buttonsRow(buttons: buttons) : .hidden
         } else {
             let items = incomingOptions().map { type in
-                makeRowItem(for: type, onTap: { [weak self] in
-                    Task { @MainActor in
-                        self?.actionsRoutable?.performTokenAction(type)
+                makeRowItem(
+                    for: type,
+                    isAvailable: isActionAvailable(type),
+                    onTap: { [weak self] in
+                        Task { @MainActor in
+                            self?.actionsRoutable?.performTokenAction(type)
+                        }
                     }
-                })
+                )
             }
             mode = items.isNotEmpty ? .inlineList(items: items) : .hidden
         }
@@ -116,6 +120,7 @@ private extension TokenDetailsActionsViewModel {
             title: Localization.commonAddFunds,
             icon: Assets.arrowDownMini,
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.addFundsButton,
+            isAvailable: true,
             action: { [weak self] in
                 self?.handleGroupTap(kind: .addFunds, options: options)
             },
@@ -124,18 +129,20 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func makeSwapButton() -> TokenDetailsActionsButton? {
-        guard availabilityProvider.isSwapAvailable else { return nil }
+        guard isSwapButtonVisible else { return nil }
 
         return TokenDetailsActionsButton(
             id: .swap,
             title: Localization.commonSwap,
             icon: Assets.exchangeMini,
             accessibilityIdentifier: TokenActionType.exchange.accessibilityIdentifier,
+            isAvailable: availabilityProvider.isSwapAvailable,
             action: { [weak self] in
                 Task { @MainActor in
                     self?.actionsRoutable?.performTokenAction(.exchange)
                 }
-            }
+            },
+            longPressAction: nil
         )
     }
 
@@ -148,9 +155,11 @@ private extension TokenDetailsActionsViewModel {
             title: Localization.commonTransfer,
             icon: Assets.arrowUpMini,
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.transferButton,
+            isAvailable: true,
             action: { [weak self] in
                 self?.handleGroupTap(kind: .transfer, options: options)
-            }
+            },
+            longPressAction: nil
         )
     }
 
@@ -166,12 +175,16 @@ private extension TokenDetailsActionsViewModel {
 
     func presentSheet(kind: TokenDetailsActionsKind, options: [TokenActionType]) {
         let items = options.map { type in
-            makeRowItem(for: type, onTap: { [weak self] in
-                self?.dismissSheet()
-                Task { @MainActor in
-                    self?.actionsRoutable?.performTokenAction(type)
+            makeRowItem(
+                for: type,
+                isAvailable: true,
+                onTap: { [weak self] in
+                    self?.dismissSheet()
+                    Task { @MainActor in
+                        self?.actionsRoutable?.performTokenAction(type)
+                    }
                 }
-            })
+            )
         }
         let sheetViewModel = TokenDetailsActionsBottomSheetViewModel(
             title: title(for: kind),
@@ -186,13 +199,18 @@ private extension TokenDetailsActionsViewModel {
         }
     }
 
-    func makeRowItem(for type: TokenActionType, onTap: @escaping () -> Void) -> TokenDetailsActionRowItem {
+    func makeRowItem(
+        for type: TokenActionType,
+        isAvailable: Bool,
+        onTap: @escaping () -> Void
+    ) -> TokenDetailsActionRowItem {
         TokenDetailsActionRowItem(
             id: type,
             title: type.title,
             subtitle: subtitle(for: type),
             icon: type.icon,
             accessibilityIdentifier: type.accessibilityIdentifier,
+            isAvailable: isAvailable,
             action: onTap
         )
     }
@@ -207,10 +225,14 @@ private extension TokenDetailsActionsViewModel {
 // MARK: - Availability
 
 private extension TokenDetailsActionsViewModel {
+    var isSwapButtonVisible: Bool {
+        availabilityProvider.buildAvailableButtonsList().contains(.exchange)
+    }
+
     func incomingOptions() -> [TokenActionType] {
         var options: [TokenActionType] = []
         if availabilityProvider.isBuyAvailable { options.append(.buy) }
-        if availabilityProvider.isSwapAvailable { options.append(.exchange) }
+        if isSwapButtonVisible { options.append(.exchange) }
         if availabilityProvider.isReceiveAvailable { options.append(.receive) }
         return options
     }
@@ -218,9 +240,18 @@ private extension TokenDetailsActionsViewModel {
     func outgoingOptions() -> [TokenActionType] {
         var options: [TokenActionType] = []
         if availabilityProvider.isSendAvailable { options.append(.send) }
-        if availabilityProvider.isSwapAvailable { options.append(.exchange) }
+        if isSwapButtonVisible { options.append(.exchange) }
         if availabilityProvider.isSellAvailable { options.append(.sell) }
         return options
+    }
+
+    func isActionAvailable(_ type: TokenActionType) -> Bool {
+        switch type {
+        case .exchange:
+            return availabilityProvider.isSwapAvailable
+        case .buy, .send, .receive, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
+            return true
+        }
     }
 
     /// `.exchange` is reachable via the dedicated Swap button, so it never appears in Add Funds / Transfer groups.
