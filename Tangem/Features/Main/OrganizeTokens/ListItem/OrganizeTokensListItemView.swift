@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
+// [REDACTED_INFO]: legacy organize-tokens row, replaced by OrganizeTokensListItemViewRedesigned behind `.redesign` flag
 struct OrganizeTokensListItemView: View {
     let viewModel: OrganizeTokensListItemViewModel
 

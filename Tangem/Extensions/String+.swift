@@ -11,10 +11,6 @@ import Foundation
 extension String {
     var dropTrailingPeriod: SubSequence { hasSuffix(".") ? dropLast(1) : self[...] }
 
-    var hexToInteger: Int? { Int(removeHexPrefix(), radix: 16) }
-
-    var integerToHex: String { .init(Int(self) ?? 0, radix: 16) }
-
     func removeLatestSlash() -> String {
         if last == "/" {
             return String(dropLast())
@@ -35,10 +31,6 @@ extension String {
         strings.reduce(into: self) {
             $0 = $0.remove($1)
         }
-    }
-
-    func trimmed() -> String {
-        trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func camelCaseToSnakeCase() -> String {

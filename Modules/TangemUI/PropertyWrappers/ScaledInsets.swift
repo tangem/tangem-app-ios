@@ -9,6 +9,7 @@
 import SwiftUI
 
 /// A property wrapper that scales a EdgeInsets value based on Dynamic Type settings.
+@available(iOS, deprecated: 100000.0, message: "Use native @ScaledMetric instead.")
 @propertyWrapper
 public struct ScaledInsets: DynamicProperty {
     @ScaledMetric private var scaleFactor: CGFloat = 1.0

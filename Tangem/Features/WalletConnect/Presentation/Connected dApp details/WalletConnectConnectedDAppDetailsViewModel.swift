@@ -166,49 +166,45 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         var walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection?
         var connectionTargetSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTargetSection?
         var walletName = ""
+        var walletFound = false
 
-        switch dApp {
-        case .v1(let dAppV1):
-            let userWalletID = dAppV1.userWalletID
-            if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID }) {
-                walletName = userWalletModel.name
-            } else {
-                logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
-            }
-        case .v2(let dAppV2):
-            outer: for userWalletModel in userWalletRepository.models where userWalletModel.userWalletId.stringValue == dAppV2.userWalletID {
-                walletName = userWalletModel.name
-                for accountModel in userWalletModel.accountModelsManager.accountModels {
-                    switch accountModel {
-                    case .standard(.single(let cryptoAccount)):
-                        if cryptoAccount.id.walletConnectIdentifierString == dAppV2.accountId {
-                            connectionTargetSection = .init(
-                                targetName: walletName,
-                                target: .wallet()
-                            )
-                            walletSection = nil
-                            break outer
-                        }
-
-                    case .standard(.multiple(let cryptoAccounts)):
-                        if let cryptoAccount = cryptoAccounts.first(where: { $0.id.walletConnectIdentifierString == dAppV2.accountId }) {
-                            connectionTargetSection = .init(
-                                targetName: cryptoAccount.name,
-                                target: .account(.init(icon: cryptoAccount.icon.erased))
-                            )
-                            walletSection = nil
-                            break outer
-                        }
-
-                    case .tangemPay:
+        outer: for userWalletModel in userWalletRepository.models where userWalletModel.userWalletId.stringValue == dApp.userWalletID {
+            walletFound = true
+            walletName = userWalletModel.name
+            for accountModel in userWalletModel.accountModelsManager.accountModels {
+                switch accountModel {
+                case .standard(.single(let cryptoAccount)):
+                    if cryptoAccount.id.walletConnectIdentifierString == dApp.accountId {
+                        connectionTargetSection = .init(
+                            targetName: walletName,
+                            target: .wallet()
+                        )
+                        walletSection = nil
                         break outer
                     }
+
+                case .standard(.multiple(let cryptoAccounts)):
+                    if let cryptoAccount = cryptoAccounts.first(where: { $0.id.walletConnectIdentifierString == dApp.accountId }) {
+                        connectionTargetSection = .init(
+                            targetName: cryptoAccount.name,
+                            target: .account(.init(icon: cryptoAccount.icon.erased))
+                        )
+                        walletSection = nil
+                        break outer
+                    }
+
+                case .tangemPay:
+                    break
                 }
             }
+        }
 
-            if connectionTargetSection == nil {
+        if connectionTargetSection == nil {
+            if walletFound {
                 walletSection = .init(walletName: walletName)
                 logger.warning("CryptoAccountModel not found for \(dApp.dAppData.name) dApp")
+            } else {
+                logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
             }
         }
 

@@ -22,6 +22,7 @@ struct MarketsTokenDetailsView: View {
 
     @State private var headerHeight: CGFloat = .zero
     @State private var isListContentObscured = false
+    @State private var addToPortfolioPromoReservedHeight = Constants.addToPortfolioPromoReservedHeight
 
     @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.marketTokenDetails(
         initialState: MarketsNavigationBarTitle.State(priceOpacity: nil, titleOffset: 0),
@@ -59,12 +60,15 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var rootViewWithTitle: some View {
-        if viewModel.isMarketsSheetStyle {
+        switch viewModel.presentationStyle {
+        case .marketsSheet:
             rootView
-        } else if viewModel.isRedesignEnabled {
-            redesignedToolbar
-        } else {
-            legacyToolbar
+
+        case .navigationStack:
+            rootViewWithToolbar
+
+        case .fullScreenCover:
+            rootView
         }
     }
 
@@ -75,7 +79,27 @@ struct MarketsTokenDetailsView: View {
             if viewModel.isMarketsSheetStyle {
                 navigationBar
             }
+
+            if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
+                MarketsPortfolioBlockView(
+                    state: viewModel.portfolioBlockState,
+                    iconURL: viewModel.iconURL,
+                    onAddTap: viewModel.onTapAddToPortfolioPromo,
+                    onAddFundsTap: viewModel.onAddFundsTap,
+                    onExpandTap: viewModel.onExpandPortfolioBlockTap
+                )
+                .padding(.horizontal, Constants.addToPortfolioPromoHorizontalPadding)
+                .padding(.bottom, Constants.addToPortfolioPromoBottomPadding)
+                .background(
+                    ListFooterOverlayShadowView(color: backgroundColor)
+                        .padding(.top, -Constants.bottomFadeHeight)
+                )
+                .readGeometry(\.size.height, onChange: updateAddToPortfolioPromoReservedHeight(height:))
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .transition(.portfolioBlock)
+            }
         }
+        .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -90,14 +114,6 @@ struct MarketsTokenDetailsView: View {
 
     // MARK: - Redesigned navigation
 
-    private var redesignedToolbar: some View {
-        rootView.navigationToolbar(
-            leadingContent: { redesignedBackButton },
-            principalContent: { EmptyView() },
-            trailingContent: { redesignedShareButton }
-        )
-    }
-
     private var redesignedNavigationBar: some View {
         NavigationHeader(
             leadingContent: { redesignedBackButton },
@@ -109,28 +125,36 @@ struct MarketsTokenDetailsView: View {
     }
 
     private var redesignedBackButton: some View {
-        circleIconButton(icon: Assets.DesignSystem.chevronSmallLeft, action: viewModel.onBackButtonTap)
+        NavigationBarButton.back(action: viewModel.onBackButtonTap)
+            .redesigned()
     }
 
     private var redesignedShareButton: some View {
-        circleIconButton(icon: Assets.DesignSystem.share, action: viewModel.shareTokenDetails)
-    }
-
-    private func circleIconButton(icon: ImageType, action: @escaping () -> Void) -> some View {
-        TangemButton(content: .icon(icon), action: action)
-            .setCornerStyle(.rounded)
-            .setStyleType(.secondary)
-            .setSize(.x11)
+        NavigationBarButton.share(action: viewModel.shareTokenDetails)
+            .redesigned()
     }
 
     // MARK: - Legacy navigation
 
-    private var legacyToolbar: some View {
+    private var rootViewWithToolbar: some View {
         rootView.toolbar {
-            ToolbarItem(placement: .principal) {
-                navigationBarTitle
-            }
+            principalToolbarContent
+            trailingToolbarContent
+        }
+    }
 
+    private var principalToolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            navigationBarTitle
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var trailingToolbarContent: some ToolbarContent {
+        if viewModel.isRedesignEnabled {
+            NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
+                .redesigned()
+        } else {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: viewModel.shareTokenDetails) {
                     Assets.Glyphs.moreVertical.image
@@ -187,7 +211,7 @@ struct MarketsTokenDetailsView: View {
                     header
 
                     picker
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 12)
                         .disabled(viewModel.isLoading)
                 }
                 .padding(.horizontal, 16.0)
@@ -203,6 +227,11 @@ struct MarketsTokenDetailsView: View {
                 content
                     .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
+
+                if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
+                    Color.clear
+                        .frame(height: addToPortfolioPromoReservedHeight)
+                }
             }
             .padding(.top, Constants.scrollViewContentTopInset)
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
@@ -357,6 +386,14 @@ struct MarketsTokenDetailsView: View {
 
         return Color(uiColor: uiColor)
     }
+
+    private func updateAddToPortfolioPromoReservedHeight(height: CGFloat) {
+        guard abs(addToPortfolioPromoReservedHeight - height) > 0.5 else {
+            return
+        }
+
+        addToPortfolioPromoReservedHeight = height
+    }
 }
 
 // MARK: - Constants
@@ -365,8 +402,12 @@ private extension MarketsTokenDetailsView {
     enum Constants {
         static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
+        static let addToPortfolioPromoHorizontalPadding = 16.0
+        static let addToPortfolioPromoBottomPadding = 8.0
+        static let addToPortfolioPromoReservedHeight = 96.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
+        static let bottomFadeHeight = 100.0
     }
 
     enum CoordinateSpaceName {
@@ -374,6 +415,17 @@ private extension MarketsTokenDetailsView {
 
         static let scrollViewFrame = prefix + "scrollViewFrame"
     }
+}
+
+private extension Animation {
+    static let footerOpacity = Animation.curve(.easeOutEmphasized, duration: 0.3)
+}
+
+private extension AnyTransition {
+    static let portfolioBlock = AnyTransition.asymmetric(
+        insertion: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity.delay(0.2))),
+        removal: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity))
+    )
 }
 
 // MARK: - Previews

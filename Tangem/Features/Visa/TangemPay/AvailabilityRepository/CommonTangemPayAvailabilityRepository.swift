@@ -143,7 +143,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .map { isDistributionChannelEligible, tangemPayOfferAvailability in
                 guard let walletSelection = tangemPayOfferAvailability.availableWalletSelection,
                       isDistributionChannelEligible,
-                      !RTCUtil().checkStatus().hasIssues
+                      !RTCUtil.isRootedDevice
                 else {
                     return nil
                 }
