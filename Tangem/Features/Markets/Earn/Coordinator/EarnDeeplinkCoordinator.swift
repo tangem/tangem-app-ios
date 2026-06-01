@@ -18,9 +18,9 @@ final class EarnDeeplinkCoordinator: ObservableObject {
 
     private(set) var earnCoordinator: EarnCoordinator!
 
-    init(earnType: EarnFilterType?, networkId: String?) {
+    init(earnType: EarnFilterType?, networkId: String?, dismissAction: @escaping () -> Void) {
         earnCoordinator = EarnCoordinator(
-            dismissAction: { UIApplication.dismissTop() },
+            dismissAction: dismissAction,
             routeOnEarnTokenResolvedAction: { [weak self] resolution, source in
                 self?.routeOnTokenResolved(resolution, source: source)
             }

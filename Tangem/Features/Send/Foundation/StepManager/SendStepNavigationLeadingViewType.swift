@@ -7,21 +7,18 @@
 //
 
 import Foundation
+import struct TangemFoundation.IgnoredEquatable
 
 enum SendStepNavigationLeadingViewType: Hashable {
     case closeButton
     case backButton
+    case dotsMenu(selectedId: String, items: [DotsMenuItem])
+}
 
-    static func == (lhs: SendStepNavigationLeadingViewType, rhs: SendStepNavigationLeadingViewType) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-
-    func hash(into hasher: inout Hasher) {
-        switch self {
-        case .closeButton:
-            hasher.combine("closeButton")
-        case .backButton:
-            hasher.combine("backButton")
-        }
+extension SendStepNavigationLeadingViewType {
+    struct DotsMenuItem: Hashable {
+        let id: String
+        let title: String
+        @IgnoredEquatable var action: () -> Void
     }
 }

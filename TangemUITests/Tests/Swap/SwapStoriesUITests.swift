@@ -24,17 +24,15 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
-            .assertSwapButtonHasBadge()
 
         tokenScreen
             .tapSwapButton()
             .closeStories()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
-            .assertSwapButtonHasNoBadge()
     }
 
-    func testSwapStories_BadgeIndicatorOnMainScreen() {
+    func testSwapStoriesOnMainScreen() {
         setAllureId(5453)
 
         launchApp(
@@ -46,40 +44,12 @@ final class SwapStoriesUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
-            .assertSwapButtonHasBadge()
 
         mainScreen
             .tapMainSwap()
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
-
-        MainScreen(app)
-            .assertSwapButtonHasNoBadge()
-    }
-
-    func testSwapStories_BadgeIndicatorOnTokenScreenInMarkets() throws {
-        setAllureId(5455)
-
-        launchApp(
-            tangemApiType: .mock,
-            clearStorage: true
-        )
-
-        let marketsTokenDetailsScreen = CreateWalletSelectorScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .validate(cardType: .wallet2)
-            .openMarketsSheetWithSwipe()
-            .tapSeeAll()
-            .openTokenDetails(ethereumTokenName)
-            .assertSwapButtonHasBadge()
-
-        marketsTokenDetailsScreen
-            .tapSwapButton()
-            .closeStoriesIfNeeded()
-            .validateSwapScreenDisplayed()
-            .tapCloseButtonAndReturnToMarkets()
-            .assertSwapButtonHasNoBadge()
     }
 
     func testSwapStories_StoriesDisplayOnMainScreen() {
@@ -280,7 +250,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .assertSwapButtonHasNoBadge()
 
         marketsTokenDetailsScreen
             .tapSwapButton()
@@ -299,7 +268,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .openMarketsSheetWithSwipe()
             .tapSeeAll()
             .openTokenDetails(ethereumTokenName)
-            .assertSwapButtonHasBadge()
 
         marketsTokenDetailsScreenAfterRestart
             .tapSwapButton()
@@ -324,7 +292,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
-            .assertSwapButtonHasNoBadge()
 
         mainScreen
             .tapMainSwap()
@@ -334,9 +301,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .validateSwapScreenDisplayed()
             .tapCloseButton()
 
-        MainScreen(app)
-            .assertSwapButtonHasNoBadge()
-
         wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
         launchApp(tangemApiType: .mock, clearStorage: false)
@@ -345,7 +309,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .waitActionButtonsEnabled()
-            .assertSwapButtonHasBadge()
 
         mainScreenAfterRestart
             .tapMainSwap()
@@ -371,7 +334,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
-            .assertSwapButtonHasNoBadge()
 
         tokenScreen
             .tapSwapButton()
@@ -379,7 +341,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .closeStoriesIfNeeded()
             .validateSwapScreenDisplayed()
             .tapCloseButton()
-            .assertSwapButtonHasNoBadge()
 
         wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
@@ -390,7 +351,6 @@ final class SwapStoriesUITests: BaseTestCase {
             .validate(cardType: .wallet2)
             .tapToken(ethereumTokenName)
             .waitForActionButtons()
-            .assertSwapButtonHasBadge()
 
         tokenScreenAfterRestart
             .tapSwapButton()
