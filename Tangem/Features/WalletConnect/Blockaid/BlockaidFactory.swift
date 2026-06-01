@@ -8,19 +8,16 @@
 
 import Foundation
 import TangemNetworkUtils
-import Moya
 
 final class BlockaidFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     func makeBlockaidAPIService() -> BlockaidAPIService {
-        let plugins: [PluginType] = [
-            TangemNetworkLoggerPlugin(logOptions: .verbose),
-        ]
-
         let provider = TangemProvider<BlockaidTarget>(
-            plugins: plugins,
-            sessionConfiguration: .ephemeralConfiguration
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: .ephemeralConfiguration
+            )
         )
         return CommonBlockaidAPIService(
             provider: provider,
