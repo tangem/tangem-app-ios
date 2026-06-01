@@ -85,6 +85,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case sui(curve: EllipticCurve, testnet: Bool)
     case filecoin
     case sei(testnet: Bool)
+    case seiEvm(testnet: Bool)
     /// EVM
     case energyWebEVM(testnet: Bool)
     /// Polkadot parachain
@@ -153,6 +154,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .cyber(let testnet),
              .blast(let testnet),
              .sei(let testnet),
+             .seiEvm(let testnet),
              .kaspa(let testnet),
              .energyWebEVM(let testnet),
              .core(let testnet),
@@ -357,7 +359,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .monad,
              .arbitrumNova,
              .plasma,
-             .adi:
+             .adi,
+             .seiEvm:
             return 18
         case .cardano,
              .xrp,
@@ -522,7 +525,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "SUI"
         case .filecoin:
             return "FIL"
-        case .sei:
+        case .sei,
+             .seiEvm:
             return "SEI"
         case .energyWebEVM:
             return isTestnet ? "VT" : "EWT"
@@ -642,6 +646,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Sui"
         case .sei:
             return "Sei" + testnetSuffix
+        case .seiEvm:
+            return "Sei EVM" + testnetSuffix
         case .energyWebEVM:
             return "Energy Web Chain" + (isTestnet ? " Volta Testnet" : "")
         case .energyWebX:
@@ -967,6 +973,7 @@ public extension Blockchain {
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
         case .adi: return isTestnet ? 99999 : 36900
+        case .seiEvm: return isTestnet ? 1328 : 1329
         default:
             return nil
         }
@@ -1057,6 +1064,7 @@ public extension Blockchain {
         case .arbitrumNova: return true
         case .plasma: return true
         case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
+        case .seiEvm: return true
         default:
             assertionFailure("Don't forget about evm here")
             return false
@@ -1200,6 +1208,7 @@ extension Blockchain: Codable {
         case .sui: return "sui"
         case .filecoin: return "filecoin"
         case .sei: return "sei"
+        case .seiEvm: return "sei-v2"
         case .energyWebEVM: return "energyWebEVM"
         case .energyWebX: return "energyWebX"
         case .core: return "core"
@@ -1318,6 +1327,7 @@ extension Blockchain: Codable {
         case "sui": self = .sui(curve: curve, testnet: isTestnet)
         case "filecoin": self = .filecoin
         case "sei": self = .sei(testnet: isTestnet)
+        case "sei-v2": self = .seiEvm(testnet: isTestnet)
         case "energyWebEVM": self = .energyWebEVM(testnet: isTestnet)
         case "energyWebX": self = .energyWebX(curve: curve)
         case "core": self = .core(testnet: isTestnet)
@@ -1569,6 +1579,8 @@ private extension Blockchain {
             return "filecoin"
         case .sei:
             return "sei-network"
+        case .seiEvm:
+            return "sei-v2"
         case .energyWebEVM:
             switch type {
             case .network: return "energy-web-chain"
@@ -1718,7 +1730,8 @@ extension Blockchain {
              .monad,
              .arbitrumNova,
              .plasma,
-             .adi:
+             .adi,
+             .seiEvm:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
