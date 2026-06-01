@@ -50,16 +50,13 @@ struct SingleWalletMainContentView: View {
         .bindAlert($viewModel.alert)
     }
 
-    /// Add funds banner takes priority over every other banner while it is visible.
     @ViewBuilder
     private var bannersSection: some View {
-        if viewModel.isAddFundsBannerVisible {
-            NotificationView(input: viewModel.addFundsNotificationInput)
-        } else {
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-            }
+        ForEach(viewModel.notificationInputs) { input in
+            NotificationView(input: input)
+        }
 
+        if !viewModel.isAddFundsBannerVisible {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -67,9 +64,9 @@ struct SingleWalletMainContentView: View {
             if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
                 WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
             }
-
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
         }
+
+        PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
     }
 }
 
