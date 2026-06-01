@@ -18,6 +18,5 @@ struct DashTestNetworkParams: UTXONetworkParams {
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
     let coinType: UInt32 = 1
 
-    /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L36
-    let dustRelayTxFee = 1000
+    let dustCalculator: UTXONetworkParamsDustCalculator = .dashTestnet
 }
