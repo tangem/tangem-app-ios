@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemExpress
 
 /// Maybe put in init `TangemPayAccount` ?
@@ -69,6 +70,8 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
             expressTransactionValidator: expressTransactionValidator,
+            // TangemPay is limited only by CEX providers
+            sendYieldModuleHelper: nil,
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,
             providerTransactionValidator: providerTransactionValidator,
