@@ -21,5 +21,8 @@ public struct ExpressManagerSwappingPairRequest {
 
     /// - Note: Stays nil for single-provider updates since quotes loading performance tracking
     /// is only relevant for batched updates of multiple providers.
-    let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
+    /// - Note: `private(set) var` (rather than `let`) is required so the synthesized memberwise
+    /// initializer treats this optional as `= nil` by default; otherwise call sites that don't
+    /// pass a tracker fail to compile.
+    private(set) var quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
 }
