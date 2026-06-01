@@ -337,7 +337,7 @@ extension SendCoordinator: OnrampRoutable {
 
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {
         Task { @MainActor in
-            await floatingSheetPresenter.present(replacingActive: viewModel)
+            await floatingSheetPresenter.replaceActive(with: viewModel)
         }
     }
 
@@ -361,7 +361,7 @@ extension SendCoordinator: OnrampRoutable {
         )
         Task { @MainActor in
             UIApplication.shared.endEditing()
-            await floatingSheetPresenter.present(replacingActive: viewModel)
+            await floatingSheetPresenter.replaceActive(with: viewModel)
         }
     }
 }
