@@ -27,6 +27,7 @@ final class TangemPayAccountViewModel: ObservableObject {
     private let tangemPayLocalState: TangemPayLocalState
     private let userWalletId: UserWalletId
     private let cachedStateStorage: TangemPayCachedStateStorage
+    private let lastKnownTangemPayAccount: TangemPayAccount?
     private weak var router: TangemPayAccountRoutable?
 
     private let loadableTokenBalanceViewStateBuilder = LoadableBalanceViewStateBuilder()
@@ -35,20 +36,28 @@ final class TangemPayAccountViewModel: ObservableObject {
         tangemPayLocalState: TangemPayLocalState,
         userWalletId: UserWalletId,
         cachedStateStorage: TangemPayCachedStateStorage,
+        lastKnownTangemPayAccount: TangemPayAccount?,
         router: TangemPayAccountRoutable?
     ) {
         self.tangemPayLocalState = tangemPayLocalState
         self.userWalletId = userWalletId
         self.cachedStateStorage = cachedStateStorage
+        self.lastKnownTangemPayAccount = lastKnownTangemPayAccount
         self.router = router
 
         bind()
     }
 
     func userDidTapView() {
+        guard !RTCUtil.isRootedDevice else { return }
+
         switch tangemPayLocalState {
-        case .loading, .syncNeeded, .syncInProgress, .unavailable:
+        case .loading, .syncInProgress:
             break
+        case .unavailable, .syncNeeded:
+            if let lastKnownTangemPayAccount {
+                router?.openTangemPayMainView(tangemPayAccount: lastKnownTangemPayAccount)
+            }
         case .kycRequired(let tangemPayKYCInteractor):
             router?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .kycDeclined(let tangemPayKYCInteractor):
@@ -70,7 +79,7 @@ private extension TangemPayAccountViewModel {
         Just(tangemPayLocalState)
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, state -> AnyPublisher<ViewState, Never> in
-                guard !RTCUtil().checkStatus().hasIssues else {
+                guard !RTCUtil.isRootedDevice else {
                     return .just(output: .rootedDevice)
                 }
 
@@ -78,7 +87,7 @@ private extension TangemPayAccountViewModel {
                 case .loading:
                     .just(output: .skeleton)
                 case .syncNeeded, .syncInProgress:
-                    .just(output: .syncNeeded)
+                    .just(output: .syncNeeded(cached: viewModel.makeCachedDisplayData()))
                 case .unavailable:
                     .just(output: .unavailable(cached: viewModel.makeCachedDisplayData()))
                 case .kycRequired:
@@ -200,8 +209,8 @@ extension TangemPayAccountViewModel {
         case failedToIssueCard
         case normal(card: CardInfo, balance: LoadableBalanceView.State)
         case cardDeactivated(balance: LoadableBalanceView.State)
+        case syncNeeded(cached: CachedDisplayData? = nil)
         case replacingCard(balance: LoadableBalanceView.State)
-        case syncNeeded
         case unavailable(cached: CachedDisplayData? = nil)
         case rootedDevice
 
@@ -220,7 +229,7 @@ extension TangemPayAccountViewModel {
             case .replacingCard:
                 Localization.tangempayReissueCardInProgress
             case .syncNeeded:
-                Localization.tangempaySyncNeeded
+                Localization.commonSessionExpired
             case .unavailable(let cached):
                 cached?.subtitle ?? "—"
             case .skeleton:
@@ -238,6 +247,17 @@ extension TangemPayAccountViewModel {
                 true
             case .syncNeeded, .unavailable, .rootedDevice:
                 false
+            }
+        }
+
+        var showsCachedIndicator: Bool {
+            switch self {
+            case .unavailable(let cached), .syncNeeded(let cached):
+                return cached != nil
+            case .skeleton, .normal, .kycInProgress, .kycDeclined,
+                 .issuingYourCard, .failedToIssueCard, .rootedDevice,
+                 .replacingCard, .cardDeactivated:
+                return false
             }
         }
 

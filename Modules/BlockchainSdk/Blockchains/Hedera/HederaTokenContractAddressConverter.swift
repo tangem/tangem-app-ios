@@ -28,7 +28,7 @@ public struct HederaTokenContractAddressConverter {
         // This is fairly loose validation logic and it differs from the previous behavior, where conversion
         // was only possible for addresses in Hedera address format ('shard.realm.num').
         // Therefore, additional validation is required to make sure that the provided address is NOT an EVM address.
-        if hederaAddress.isEvmAddress {
+        if hederaAddress.addHexPrefix().isEvmAddress {
             throw "Expecting Hedera address ('shard.realm.num'), but EVM address received instead: \(hederaAddress)"
         }
 
@@ -44,13 +44,33 @@ public struct HederaTokenContractAddressConverter {
     public init() {}
 }
 
-// MARK: - Convenience extension
+/// Conversion logic according to this doc.
+/// [REDACTED_INFO]
+public extension HederaTokenContractAddressConverter {
+    static func isERC20TokenAddress(_ contractAddress: String) -> Bool {
+        guard let evmAddressBody = extractEVMAddressBody(from: contractAddress) else {
+            return false
+        }
 
-private extension String {
-    /// (Naively) checks whether a string is an EVM address with or without the `0x` prefix.
-    var isEvmAddress: Bool {
-        let hexString = addHexPrefix()
+        return !hasZeroFirstTenBytes(evmAddressBody)
+    }
 
-        return hexString.count == 42 && hexString.dropFirst(2).allSatisfy(\.isHexDigit)
+    static func extractEVMAddressBody(from address: String) -> String? {
+        let normalizedAddress = address.addHexPrefix()
+        guard normalizedAddress.isEvmAddress else {
+            return nil
+        }
+
+        return normalizedAddress.removeHexPrefix().lowercased()
+    }
+
+    static func hasZeroFirstTenBytes(_ addressBody: String) -> Bool {
+        addressBody.prefix(Constants.firstTenBytesHexLength).allSatisfy { $0 == "0" }
+    }
+}
+
+private extension HederaTokenContractAddressConverter {
+    enum Constants {
+        static let firstTenBytesHexLength = 20
     }
 }

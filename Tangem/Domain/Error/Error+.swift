@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import PassKit
 import SwiftUI
 import TangemSdk
 import TangemFoundation
@@ -47,5 +48,9 @@ extension Error {
         default:
             return false
         }
+    }
+
+    var isPassKitError: Bool {
+        (self as NSError).domain == PKPaymentErrorDomain
     }
 }

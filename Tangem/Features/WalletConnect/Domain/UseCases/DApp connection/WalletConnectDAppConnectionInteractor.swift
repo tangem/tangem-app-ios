@@ -12,5 +12,4 @@ struct WalletConnectDAppConnectionInteractor {
     let approveDAppProposal: WalletConnectApproveDAppProposalUseCase
     let rejectDAppProposal: WalletConnectRejectDAppProposalUseCase
     let persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase
-    let migrateToAccounts: WalletConnectToAccountsMigrationUseCase
 }

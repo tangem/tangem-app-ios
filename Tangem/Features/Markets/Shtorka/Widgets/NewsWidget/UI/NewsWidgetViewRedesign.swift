@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUIUtils
 import TangemUI
@@ -14,6 +15,8 @@ import TangemLocalization
 
 struct NewsWidgetViewRedesign: View {
     @ObservedObject var viewModel: NewsWidgetViewModel
+
+    @ScaledSize private var headerSkeletonSize = CGSize(width: 120, height: 24)
 
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
@@ -37,14 +40,67 @@ struct NewsWidgetViewRedesign: View {
 
     // MARK: - Private Properties
 
+    /// News header keeps the same shape as `MarketsCommonWidgetHeaderViewRedesign` but renders
+    /// "Tangem AI" as a gradient-colored Text node (per latest Figma) instead of a flat image asset.
     private var header: some View {
-        MarketsCommonWidgetHeaderViewRedesign(
-            headerTitle: Localization.commonNews,
-            headerImage: Assets.Markets.tangemAI.image,
-            buttonTitle: Localization.commonSeeAll,
-            buttonAction: viewModel.handleAllNewsTap,
-            isLoadingState: viewModel.headerLoadingState
-        )
+        HStack(alignment: .center, spacing: .zero) {
+            Text(Localization.commonNews)
+                .lineLimit(1)
+                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .skeletonable(
+                    isShown: viewModel.headerLoadingState.isHeaderSkeletonable,
+                    size: headerSkeletonSize,
+                    cornerStyle: .capsule
+                )
+
+            if viewModel.headerLoadingState.isButtonVisibility {
+                FixedSpacer(width: SizeUnit.x2.value)
+                tangemAIAccessory
+            }
+
+            Spacer(minLength: SizeUnit.x2.value)
+
+            if viewModel.headerLoadingState.isButtonVisibility {
+                seeAllButton
+            }
+        }
+        .padding(.vertical, SizeUnit.x2.value)
+        .padding(.horizontal, SizeUnit.x2.value)
+    }
+
+    private var tangemAIAccessory: some View {
+        HStack(spacing: SizeUnit.x1.value) {
+            Assets.Glyphs.tripleSparkles.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: SizeUnit.x5.value, height: SizeUnit.x5.value)
+                .foregroundStyle(NewsHeaderGradient.linearGradient)
+
+            Text("Tangem AI")
+                .style(.Tangem.Body16.medium, color: .clear)
+                .overlay(
+                    NewsHeaderGradient.linearGradient.mask(
+                        Text("Tangem AI")
+                            .style(.Tangem.Body16.medium, color: .black)
+                    )
+                )
+        }
+    }
+
+    private var seeAllButton: some View {
+        Button(action: viewModel.handleAllNewsTap) {
+            HStack(spacing: .zero) {
+                Text(Localization.commonSeeAll)
+                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+
+                Assets.chevron.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                    .frame(width: SizeUnit.x6.value, height: SizeUnit.x6.value)
+            }
+        }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
     }
 
     @ViewBuilder
@@ -101,4 +157,15 @@ private extension NewsWidgetViewRedesign {
     enum Layout {
         static let spacingBetweenSections: CGFloat = .unit(.x3)
     }
+}
+
+/// Single source of truth for the "Tangem AI" brand gradient (#7b78ff → #c56bcd with the stop at 43.125% per Figma).
+/// Used by the news widget header here and by `NewsQuickRecapView`'s title — reference from both sites instead of duplicating.
+enum NewsHeaderGradient {
+    static let stops: [Gradient.Stop] = [
+        .init(color: Color(red: 0x7b / 255, green: 0x78 / 255, blue: 0xff / 255), location: 0),
+        .init(color: Color(red: 0xc5 / 255, green: 0x6b / 255, blue: 0xcd / 255), location: 0.43125),
+    ]
+
+    static let linearGradient = LinearGradient(stops: stops, startPoint: .leading, endPoint: .trailing)
 }
