@@ -16,6 +16,7 @@ protocol SwapSummaryInteractor: AnyObject {
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
     var isActionInProcessing: AnyPublisher<Bool, Never> { get }
+    var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
     // [REDACTED_TODO_COMMENT]
@@ -27,6 +28,7 @@ protocol SwapSummaryInteractor: AnyObject {
 class CommonSwapSummaryInteractor {
     private weak var input: SwapSummaryInput?
     private weak var output: SwapSummaryOutput?
+    private weak var swapModelStateProvider: SwapModelStateProvider?
 
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
 
@@ -34,10 +36,12 @@ class CommonSwapSummaryInteractor {
         input: SwapSummaryInput,
         output: SwapSummaryOutput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
+        swapModelStateProvider: SwapModelStateProvider,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
     ) {
         self.input = input
         self.output = output
+        self.swapModelStateProvider = swapModelStateProvider
         self.swapDescriptionBuilder = swapDescriptionBuilder
     }
 }
@@ -101,6 +105,24 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         }
 
         return input.isReadyToSendPublisher
+    }
+
+    var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> {
+        guard let swapModelStateProvider else {
+            assertionFailure("SwapModelStateProvider is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return swapModelStateProvider.statePublisher
+            .filter { !$0.isLoading }
+            .map { state -> SwapSummaryViewModel.MainButtonState in
+                switch state {
+                case .loaded(.transfer, _): .transfer
+                default: .swap
+                }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func userDidRequestSwap() {
