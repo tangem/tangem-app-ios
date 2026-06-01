@@ -375,6 +375,15 @@ extension SendWithSwapModel: SendSwapProvidersInput {
             .eraseToAnyPublisher()
     }
 
+    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.providerRateTypesPublisher : .just(output: [])
+            }
+            .eraseToAnyPublisher()
+    }
+
     var currentRateType: ExpressProviderRateType? {
         isSwapMode ? swapModel.currentRateType : nil
     }
