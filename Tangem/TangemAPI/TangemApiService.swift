@@ -49,6 +49,10 @@ protocol TangemApiService: AnyObject {
     func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response
     func loadEarnNetworks(requestModel: EarnDTO.Networks.Request) async throws -> EarnDTO.Networks.Response
 
+    // MARK: - Coins
+
+    func loadCoinsSettings() async throws -> CoinsSettingsDTO.Response
+
     // MARK: - News
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
@@ -88,8 +92,6 @@ protocol TangemApiService: AnyObject {
 
     func bindReferral(request model: ReferralDTO.Request) async throws
 
-    func promotion(request: BannerPromotion.Request) async throws -> BannerPromotion.Response
-
     func activatePromoCode(request model: PromoCodeActivationDTO.Request) -> AnyPublisher<PromoCodeActivationDTO.Response, TangemAPIError>
 
     func loadStory(storyId: String) async throws -> StoryDTO.Response
@@ -98,6 +100,11 @@ protocol TangemApiService: AnyObject {
 
     func loadPromotions(request: PromotionsDTO.Load.Request) async throws -> PromotionsDTO.Load.Response
     func hidePromotion(request: PromotionsDTO.Hide.Request) async throws -> PromotionsDTO.Hide.Response
+
+    // MARK: - Yield Boost Promotion
+
+    func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion]
+    func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response
 
     // MARK: - Configs
 

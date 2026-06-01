@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
 import TangemLocalization
 import protocol TangemUI.FloatingSheetContentViewModel
@@ -17,6 +18,7 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
     @Published var sections: [WalletSection] = []
 
     let barTitle = Localization.marketsPortfolioBlockTitle
+    var addTokenPromo: AddTokenPromo?
 
     var hasWalletHeader: Bool {
         sections.count > 1
@@ -31,11 +33,13 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
 
     init(
         walletModels: [any WalletModel],
+        addTokenPromo: AddTokenPromo? = nil,
         onSelect: @escaping (any WalletModel) -> Void,
         coordinator: MarketsPortfolioTokenListRoutable
     ) {
         self.onSelect = onSelect
         self.coordinator = coordinator
+        self.addTokenPromo = addTokenPromo
         sections = makeWalletSections(walletModels: walletModels)
     }
 }
@@ -155,8 +159,8 @@ private extension MarketsPortfolioTokenListViewModel {
         )
 
         let onTap: () -> Void = { [weak self] in
-            self?.onSelect(walletModel)
             self?.close()
+            self?.onSelect(walletModel)
         }
 
         return TokenRow(model: model, onTap: onTap)
@@ -193,6 +197,11 @@ extension MarketsPortfolioTokenListViewModel {
     struct TokenRow {
         let model: MarketsPortfolioTokenListRowViewModel
         let onTap: () -> Void
+    }
+
+    struct AddTokenPromo {
+        let iconURL: URL
+        let action: () -> Void
     }
 }
 

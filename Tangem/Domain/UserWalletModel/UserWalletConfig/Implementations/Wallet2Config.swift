@@ -83,10 +83,11 @@ extension Wallet2Config: UserWalletConfig {
         }
 
         let isTestnet = AppEnvironment.current.isTestnet
-        let blockchains: [Blockchain] = [
+        var blockchains: [Blockchain] = [
             .bitcoin(testnet: isTestnet),
             .ethereum(testnet: isTestnet),
         ]
+        blockchains.append(contentsOf: extraDefaultBlockchains(isTestnet: isTestnet, card: card))
 
         let entries: [TokenItem] = blockchains.map {
             if let derivationStyle = derivationStyle {
@@ -357,6 +358,12 @@ extension Wallet2Config: UserWalletConfig {
         // Metaplanet
         case "BB000040":
             return cardsCount == 2 ? Assets.Cards.metaplanetDouble : Assets.Cards.metaplanetTriple
+        // ADI
+        case "BB000053":
+            return cardsCount == 2 ? Assets.Cards.adiDouble : Assets.Cards.adiTriple
+        // Stronghold
+        case "BB000054":
+            return cardsCount == 2 ? Assets.Cards.strongholdDouble : Assets.Cards.strongholdTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
@@ -693,25 +700,49 @@ extension Wallet2Config: UserWalletConfig {
             return cardsCount == 2
                 ? .twoCards(.init(card: CC.upbit, secondCard: CC.upbit))
                 : .threeCards(.init(card: CC.upbit, secondCard: CC.upbit, thirdCard: CC.upbit))
+        // The batches below have no dedicated redesign thumbnail colors yet, so they intentionally
+        // fall back to the default Tangem thumbnail. They are listed explicitly (instead of relying on
+        // `default`) so the missing color mapping stays visible until colors are provided.
+        // French Collection
+        case "AF990084", "AF990085", "AF990086":
+            return defaultWalletThumbnailType()
+        // Football
+        case "AF990088", "AF990089", "AF990090":
+            return defaultWalletThumbnailType()
+        // Metaplanet
+        case "BB000040":
+            return defaultWalletThumbnailType()
+        // ADI
+        case "BB000053":
+            return defaultWalletThumbnailType()
+        // Stronghold
+        case "BB000054":
+            return defaultWalletThumbnailType()
         // Tangem Wallet 2.0
         default:
-            var isUserWalletWithRing = false
-
-            if let userWalletIdSeed {
-                let userWalletId = UserWalletId(with: userWalletIdSeed).stringValue
-                isUserWalletWithRing = AppSettings.shared.userWalletIdsWithRing.contains(userWalletId)
-            }
-
-            if isUserWalletWithRing || RingUtil().isRing(batchId: card.batchId) {
-                return cardsCount == 2
-                    ? .ringCard(.init(ring: CC.tangem, card: CC.tangem))
-                    : .ringTwoCards(.init(ring: CC.tangem, card: CC.tangem, secondCard: CC.tangem))
-            }
-
-            return cardsCount == 2
-                ? .tLetterTwoCards(.init(card: CC.tangem, secondCard: CC.tangem, tLetter: CC.tLogo))
-                : .tLetterThreeCards(.init(card: CC.tangem, secondCard: CC.tangem, thirdCard: CC.tangem, tLetter: CC.tLogo))
+            return defaultWalletThumbnailType()
         }
+    }
+
+    private func defaultWalletThumbnailType() -> ThumbnailWalletViewType {
+        typealias CC = Color.Tangem.CardCollection
+
+        var isUserWalletWithRing = false
+
+        if let userWalletIdSeed {
+            let userWalletId = UserWalletId(with: userWalletIdSeed).stringValue
+            isUserWalletWithRing = AppSettings.shared.userWalletIdsWithRing.contains(userWalletId)
+        }
+
+        if isUserWalletWithRing || RingUtil().isRing(batchId: card.batchId) {
+            return cardsCount == 2
+                ? .ringCard(.init(ring: CC.tangem, card: CC.tangem))
+                : .ringTwoCards(.init(ring: CC.tangem, card: CC.tangem, secondCard: CC.tangem))
+        }
+
+        return cardsCount == 2
+            ? .tLetterTwoCards(.init(card: CC.tangem, secondCard: CC.tangem, tLetter: CC.tLogo))
+            : .tLetterThreeCards(.init(card: CC.tangem, secondCard: CC.tangem, thirdCard: CC.tangem, tLetter: CC.tLogo))
     }
 
     var contextBuilder: WalletCreationContextBuilder {
@@ -835,6 +866,16 @@ extension Wallet2Config: WalletOnboardingStepsBuilderFactory {}
 // MARK: - Private extensions
 
 private extension Wallet2Config {
+    /// Return extra default blockchains for certain cards/promo campaigns
+    func extraDefaultBlockchains(isTestnet: Bool, card: CardDTO) -> [Blockchain] {
+        switch card.batchId {
+        case "BB000053" where FeatureProvider.isAvailable(.adiMainScreenDefault):
+            return [.adi(testnet: isTestnet)]
+        default:
+            return []
+        }
+    }
+
     func supportedBlockchainFilter(for blockchain: Blockchain) -> Bool {
         if case .quai = blockchain {
             return hasFeature(.hdWallets)
