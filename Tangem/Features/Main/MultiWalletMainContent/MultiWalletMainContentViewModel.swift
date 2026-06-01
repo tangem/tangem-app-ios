@@ -51,10 +51,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     weak var delegate: MultiWalletMainContentDelegate?
 
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
-    private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
-        for: AddFundsNotificationEvent(),
-        buttonAction: { [weak self] _, _ in self?.openAddFunds() }
-    )
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
     // [REDACTED_INFO]: legacy banner; redesign surfaces the same banner through `getTangemPayBannerNotificationManager`.
@@ -776,6 +772,9 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openManageTokens()
         case .renewTangemPaySession:
             deriveEntriesWithoutDerivation()
+        case .addFunds:
+            Analytics.log(.addFundsPromoButton)
+            openAddFunds()
         default:
             break
         }
