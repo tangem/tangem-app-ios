@@ -243,35 +243,35 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C21C3A8E2F7D6CD400CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		C21C3A8E2F7D6CD400CF1555 /* Exceptions for "TangemTests" folder in "TangemTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = 5D3F77D724BF56DC00E8695B /* TangemTests */;
 		};
-		C21C3DFF2F7D6E4B00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		C21C3DFF2F7D6E4B00CF1555 /* Exceptions for "TangemExpress" folder in "TangemExpress" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
 				TangemExpress.h,
 			);
 			target = EF9E29922B4F0C8800418559 /* TangemExpress */;
 		};
-		C21C3EBE2F7D6EDF00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		C21C3EBE2F7D6EDF00CF1555 /* Exceptions for "TangemStaking" folder in "TangemStaking" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
 				TangemStaking.h,
 			);
 			target = EFEE23872BFF62D50099917E /* TangemStaking */;
 		};
-		C21C40182F7D735B00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		C21C40182F7D735B00CF1555 /* Exceptions for "TangemVisa" folder in "TangemVisa" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
 				Settings/TangemVisa.h,
 			);
 			target = B09933762B5517E300240CDB /* TangemVisa */;
 		};
-		C21CAD382F7EB69E00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		C21CAD382F7EB69E00CF1555 /* Exceptions for "Tangem" folder in "Tangem" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				App/AppEnvironmentConfig/Alpha.xcconfig,
@@ -283,7 +283,7 @@
 			);
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 		};
-		C21CCB2D2F7ED3C500CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		C21CCB2D2F7ED3C500CF1555 /* Exceptions for "BlockchainSdkExample" folder in "BlockchainSdkExample" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -293,16 +293,122 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C21C3A3E2F7D6CD300CF1555 /* TangemTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C3A8E2F7D6CD400CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemTests; sourceTree = "<group>"; };
-		C21C3C852F7D6D8300CF1555 /* TangemUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemUITests; sourceTree = "<group>"; };
-		C21C3DA02F7D6E4A00CF1555 /* TangemExpress */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C3DFF2F7D6E4B00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemExpress; sourceTree = "<group>"; };
-		C21C3E012F7D6E5000CF1555 /* TangemExpressTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemExpressTests; sourceTree = "<group>"; };
-		C21C3E6A2F7D6EDE00CF1555 /* TangemStaking */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C3EBE2F7D6EDF00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemStaking; sourceTree = "<group>"; };
-		C21C3EC02F7D6EE200CF1555 /* TangemStakingTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemStakingTests; sourceTree = "<group>"; };
-		C21C3FD12F7D735A00CF1555 /* TangemVisa */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21C40182F7D735B00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TangemVisa; sourceTree = "<group>"; };
-		C21C401B2F7D736000CF1555 /* TangemVisaTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemVisaTests; sourceTree = "<group>"; };
-		C21CA0CD2F7EB69D00CF1555 /* Tangem */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CAD382F7EB69E00CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Tangem; sourceTree = "<group>"; };
-		C21CAD4C2F7ECF2E00CF1555 /* BlockchainSdkExample */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C21CCB2D2F7ED3C500CF1555 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlockchainSdkExample; sourceTree = "<group>"; };
+		C21C3A3E2F7D6CD300CF1555 /* TangemTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C21C3A8E2F7D6CD400CF1555 /* Exceptions for "TangemTests" folder in "TangemTests" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemTests;
+			sourceTree = "<group>";
+		};
+		C21C3C852F7D6D8300CF1555 /* TangemUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemUITests;
+			sourceTree = "<group>";
+		};
+		C21C3DA02F7D6E4A00CF1555 /* TangemExpress */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C21C3DFF2F7D6E4B00CF1555 /* Exceptions for "TangemExpress" folder in "TangemExpress" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemExpress;
+			sourceTree = "<group>";
+		};
+		C21C3E012F7D6E5000CF1555 /* TangemExpressTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemExpressTests;
+			sourceTree = "<group>";
+		};
+		C21C3E6A2F7D6EDE00CF1555 /* TangemStaking */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C21C3EBE2F7D6EDF00CF1555 /* Exceptions for "TangemStaking" folder in "TangemStaking" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemStaking;
+			sourceTree = "<group>";
+		};
+		C21C3EC02F7D6EE200CF1555 /* TangemStakingTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemStakingTests;
+			sourceTree = "<group>";
+		};
+		C21C3FD12F7D735A00CF1555 /* TangemVisa */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C21C40182F7D735B00CF1555 /* Exceptions for "TangemVisa" folder in "TangemVisa" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemVisa;
+			sourceTree = "<group>";
+		};
+		C21C401B2F7D736000CF1555 /* TangemVisaTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TangemVisaTests;
+			sourceTree = "<group>";
+		};
+		C21CA0CD2F7EB69D00CF1555 /* Tangem */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C21CAD382F7EB69E00CF1555 /* Exceptions for "Tangem" folder in "Tangem" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Tangem;
+			sourceTree = "<group>";
+		};
+		C21CAD4C2F7ECF2E00CF1555 /* BlockchainSdkExample */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C21CCB2D2F7ED3C500CF1555 /* Exceptions for "BlockchainSdkExample" folder in "BlockchainSdkExample" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = BlockchainSdkExample;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -579,6 +685,8 @@
 			);
 			name = Tangem;
 			packageProductDependencies = (
+				B6E27FA42DFD1CAC00B29813 /* TangemModules */,
+				B6457BCF2F9120CA00C91066 /* TangemMacro */,
 				B0B11A072C787FE70018A2A6 /* MarkdownUI */,
 				DCB616E42CB39AE100BE4481 /* WalletConnect */,
 				DCB616E62CB3A63800BE4481 /* ReownWalletKit */,
@@ -593,7 +701,6 @@
 				B0776C362DA69090004A8765 /* Lottie */,
 				3075F0CF2DCA6B430094B4C7 /* Kingfisher */,
 				B6C144062DFD1BF8008E9478 /* DGCharts */,
-				B6E27FA42DFD1CAC00B29813 /* TangemModules */,
 				C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */,
 				2D67256A2EB0A6490035A4BC /* Experiment */,
 				B608020E2ECEA1E600CC5F4E /* AnyCodable */,
@@ -606,7 +713,6 @@
 				B6C02EAF2F856B000003ADBE /* FirebaseMessaging */,
 				B6C02EB12F856B000003ADBE /* FirebasePerformance */,
 				B6FF157D2F8F2A6E000C63B6 /* BigInt */,
-				B6457BCF2F9120CA00C91066 /* TangemMacro */,
 				B6DBDE492F97790F00885068 /* Hiero */,
 			);
 			productName = "Tangem Tap";
@@ -682,9 +788,9 @@
 				B6C0D3FA2CBDC6DD001113ED /* Moya */,
 				B62C16782CBE095A00522683 /* Alamofire */,
 				B67E38BA2CC7179000D660EB /* TangemSdk */,
-				B0D70D472CE5FB6800A8A0F1 /* JWTDecode */,
 				F92DB9C82CD4C2F400C16530 /* TangemModules */,
 				DCED46542EF04FDB0021AC0D /* CryptoSwift */,
+				B0D70D472CE5FB6800A8A0F1 /* JWTDecode */,
 			);
 			productName = TangemVisa;
 			productReference = B09933772B5517E300240CDB /* TangemVisa.framework */;
@@ -913,7 +1019,7 @@
 				B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */,
 				B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */,
-				B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */,
+				B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */,
 				F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */,
 				B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */,
 				B6DDDE762CF39157008DEA94 /* XCRemoteSwiftPackageReference "CombineExt" */,
@@ -7413,206 +7519,111 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		2D26855E2EB09D3A000E472A /* XCLocalSwiftPackageReference "experiment-ios-client" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/experiment-ios-client";
+		};
+		3075F0CE2DCA6B3A0094B4C7 /* XCLocalSwiftPackageReference "Kingfisher" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Kingfisher;
+		};
+		B0776C352DA69090004A8765 /* XCLocalSwiftPackageReference "lottie-spm" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/lottie-spm";
+		};
+		B09FF1882CE24DF5004881F6 /* XCLocalSwiftPackageReference "JWTDecode.swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/JWTDecode.swift;
+		};
+		B0B11A062C787FE70018A2A6 /* XCLocalSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/swift-markdown-ui";
+		};
+		B62C16772CBE095A00522683 /* XCLocalSwiftPackageReference "Alamofire" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Alamofire;
+		};
+		B62D344E2CBC67D500C2460E /* XCLocalSwiftPackageReference "AnyCodable" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/AnyCodable;
+		};
 		B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = TangemMacro;
 		};
+		B67E38B72CC7147600D660EB /* XCLocalSwiftPackageReference "tangem-sdk-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/tangem-sdk-ios";
+		};
+		B69FC9072CF67D9300A5C51D /* XCLocalSwiftPackageReference "GDPerformanceView-Swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/GDPerformanceView-Swift";
+		};
+		B6C02EAA2F856B000003ADBE /* XCLocalSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/firebase-ios-sdk";
+		};
+		B6C0D3F02CBDC52D001113ED /* XCLocalSwiftPackageReference "Moya" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Moya;
+		};
+		B6DBDE482F97790F00885068 /* XCLocalSwiftPackageReference "hiero-sdk-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/hiero-sdk-swift";
+		};
+		B6DDDE732CF39079008DEA94 /* XCLocalSwiftPackageReference "BlockiesSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/BlockiesSwift;
+		};
+		B6DDDE762CF39157008DEA94 /* XCLocalSwiftPackageReference "CombineExt" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/CombineExt;
+		};
+		B6DDDE7C2CF39729008DEA94 /* XCLocalSwiftPackageReference "Amplitude-Swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/Amplitude-Swift";
+		};
+		B6DDDE7F2CF39C69008DEA94 /* XCLocalSwiftPackageReference "analytics-connector-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/analytics-connector-ios";
+		};
+		B6F6252E2C85E1A600DEF098 /* XCLocalSwiftPackageReference "DGCharts" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/DGCharts;
+		};
+		B6FF157C2F8F2A6E000C63B6 /* XCLocalSwiftPackageReference "BigInt" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/BigInt;
+		};
+		C24285412F55E085004F0348 /* XCLocalSwiftPackageReference "customerio-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/customerio-ios";
+		};
+		C28E01692E79A6FA00B47571 /* XCLocalSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/AppsFlyerFramework-Strict";
+		};
+		C2B5B4D82F59D93B00C89C89 /* XCLocalSwiftPackageReference "surveysparrow-ios-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/surveysparrow-ios-sdk";
+		};
 		C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = TangemTestKit;
+		};
+		DCB616E32CB39A8100BE4481 /* XCLocalSwiftPackageReference "reown-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/reown-swift";
+		};
+		DCED46512EF04FBC0021AC0D /* XCLocalSwiftPackageReference "CryptoSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/CryptoSwift;
 		};
 		F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Modules;
 		};
 /* End XCLocalSwiftPackageReference section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/experiment-ios-client";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.19.0;
-			};
-		};
-		3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.7.0;
-			};
-		};
-		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.6.0;
-			};
-		};
-		B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.3.0;
-			};
-		};
-		B0B11A062C787FE70018A2A6 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.1;
-			};
-		};
-		B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.11.1;
-			};
-		};
-		B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Flight-School/AnyCodable.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.6.7;
-			};
-		};
-		B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
-			requirement = {
-				kind = exactVersion;
-				version = 4.1.2;
-			};
-		};
-		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/dani-gavrilov/GDPerformanceView-Swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.1;
-			};
-		};
-		B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.12.0;
-			};
-		};
-		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Moya/Moya.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 15.0.3;
-			};
-		};
-		B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/hiero-sdk-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "0.49.0-tangem4";
-			};
-		};
-		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/BlockiesSwift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "0.1.2-tangem1";
-			};
-		};
-		B6DDDE762CF39157008DEA94 /* XCRemoteSwiftPackageReference "CombineExt" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/CombineCommunity/CombineExt.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.9.0;
-			};
-		};
-		B6DDDE7C2CF39729008DEA94 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.17.3;
-			};
-		};
-		B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/analytics-connector-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.1;
-			};
-		};
-		B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/DGCharts.git";
-			requirement = {
-				kind = exactVersion;
-				version = "5.1.0-tangem3";
-			};
-		};
-		B6FF157C2F8F2A6E000C63B6 /* XCRemoteSwiftPackageReference "BigInt" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/attaswift/BigInt.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.3.0;
-			};
-		};
-		C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/customerio/customerio-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.2.0;
-			};
-		};
-		C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.17.8;
-			};
-		};
-		C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/surveysparrow/surveysparrow-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.7;
-			};
-		};
-		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/reown-com/reown-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.2.8;
-			};
-		};
-		DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.9.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		0A40A87F2E2FCB28006411E5 /* Lottie */ = {
@@ -7647,7 +7658,7 @@
 		};
 		B0D70D472CE5FB6800A8A0F1 /* JWTDecode */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */;
+			package = B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */;
 			productName = JWTDecode;
 		};
 		B608020E2ECEA1E600CC5F4E /* AnyCodable */ = {
