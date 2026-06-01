@@ -77,7 +77,6 @@ private extension EthereumTarget {
             return AnyEncodable([transaction])
         case .gasLimit(let params, let stateOverride):
             if let stateOverride {
-                // 3-param `eth_estimateGas`: [call, block, stateOverride] — fakes storage for the simulation.
                 return AnyEncodable([AnyEncodable(params), AnyEncodable("latest"), AnyEncodable(stateOverride)])
             }
             return AnyEncodable([params])
