@@ -730,6 +730,8 @@ extension Analytics {
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+        case visaScreenExtraCardIssuancePopupDisplayed = "[Visa Card Management] Visa Extra Card Issuance Popup Displayed"
+        case visaScreenExtraCardIssuanceConfirmed = "[Visa Card Management] Visa Extra Card Issuance Confirmed"
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
