@@ -86,8 +86,9 @@ private extension SendSwapProvidersSelectorViewModel {
         )
         .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
             let showable = providers
-                .showableProviders(selectedProviderId: selectedProvider?.provider.id, rateType: currentRateType)
-                .sortedByAttractively(rateType: currentRateType ?? .float)
+                .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+                .sortedByAttractively()
+
             return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
         }
 
@@ -133,17 +134,12 @@ private extension SendSwapProvidersSelectorViewModel {
 
     static func computeFilterOptions(showableProviders: [ExpressAvailableProvider]) -> [ProviderTypeFilter] {
         guard FeatureProvider.isAvailable(.swapProviderTypeFilter) else { return [] }
-        var hasCex = false
-        var hasDex = false
-        for available in showableProviders {
-            switch available.provider.type {
-            case .cex: hasCex = true
-            case .dex, .dexBridge: hasDex = true
-            case .onramp, .unknown: break
-            }
-            if hasCex, hasDex { break }
-        }
+
+        let hasCex = showableProviders.contains(where: \.provider.type.isCEX)
+        let hasDex = showableProviders.contains(where: \.provider.type.isDEX)
+
         guard hasCex, hasDex else { return [] }
+
         return [.all, .cex, .dex]
     }
 
