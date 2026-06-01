@@ -59,7 +59,9 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
-    private let earnDataProvider = CommonMarketsWidgetEarnService()
+    private let earnDataProvider = CommonMarketsWidgetEarnService(
+        ethereumP2PFilter: CommonEarnEthereumP2PFilter()
+    )
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
 
     private var bag = Set<AnyCancellable>()
