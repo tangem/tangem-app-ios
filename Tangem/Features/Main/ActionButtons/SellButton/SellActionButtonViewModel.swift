@@ -58,10 +58,8 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
         switch viewState {
         case .initial:
             handleInitialStateTap()
-        case .loading, .disabled, .unavailable:
+        case .loading, .disabled, .unavailable, .restricted:
             break
-        case .restricted(let reason):
-            alert = .init(title: "", message: reason)
         case .idle:
             let tokenSelectorViewModel = TokenSelectorViewModel.common(
                 walletsProvider: .standardAccountsOnly(),
@@ -94,7 +92,7 @@ private extension SellActionButtonViewModel {
 
     func handleFailedStateTap(reason: String) {
         updateState(to: .restricted(reason: reason))
-        tap()
+        showRestrictionReason()
     }
 
     private func handleInitialStateTap() {
