@@ -68,7 +68,7 @@ struct PendingOnrampTransactionFactory {
             isCustom: transactionRecord.destinationTokenTxInfo.isCustom
         )
         transactionRecord.externalTxId = currentOnrampTransaction.externalTxId
-        transactionRecord.externalTxURL = currentOnrampTransaction.externalTxURL
+        transactionRecord.externalTxURL = currentOnrampTransaction.externalTxURL?.absoluteString
 
         return PendingOnrampTransaction(
             transactionRecord: transactionRecord,

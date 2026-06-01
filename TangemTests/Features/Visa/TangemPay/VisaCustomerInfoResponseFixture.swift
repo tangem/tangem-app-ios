@@ -59,6 +59,7 @@ enum VisaCustomerInfoResponseFixture {
                 "createdAt": "2025-12-01T00:00:00Z",
             ],
             "card": [
+                "id": "card-id-1",
                 "cardNumberEnd": "5123",
                 "expirationMonth": cardExpirationMonth,
                 "expirationYear": cardExpirationYear,
