@@ -353,6 +353,9 @@ extension Analytics {
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
         case swapFastAmountInput = "[Swap] Fast amount input"
 
+        case swapTypeReselection = "[Swap] Swap type re-selection"
+        case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
+
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
