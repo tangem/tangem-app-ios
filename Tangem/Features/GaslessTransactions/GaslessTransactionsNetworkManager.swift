@@ -134,9 +134,12 @@ private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
             ? .prod
             : FeatureStorage.instance.gaslessTransactionsAPIType
 
-        let provider: TangemProvider<GaslessTransactionsAPITarget> = .init(
-            plugins: [GaslessTransactionsAuthorizationPlugin()],
-            sessionConfiguration: .gaslessConfiguration
+        let provider = TangemProvider<GaslessTransactionsAPITarget>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: .gaslessConfiguration
+            ),
+            additionalPlugins: [GaslessTransactionsAuthorizationPlugin()]
         )
 
         let manager = CommonGaslessTransactionsNetworkManager(
