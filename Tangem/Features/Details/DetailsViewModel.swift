@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 import class TangemSdk.BiometricsUtil
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -363,6 +364,7 @@ private extension DetailsViewModel {
         var models = [
             DefaultRowViewModel(
                 title: Localization.detailsBuyWallet,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.buyWalletButton,
                 action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
             ),
         ]
@@ -384,6 +386,7 @@ private extension DetailsViewModel {
     func setupAppSettingsViewModel() {
         appSettingsViewModel = DefaultRowViewModel(
             title: Localization.appSettingsTitle,
+            accessibilityIdentifier: DetailsAccessibilityIdentifiers.appSettings,
             action: weakify(self, forFunction: DetailsViewModel.openAppSettings)
         )
     }
@@ -392,10 +395,12 @@ private extension DetailsViewModel {
         supportSectionModels = [
             DefaultRowViewModel(
                 title: Localization.commonContactSupport,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.contactSupport,
                 action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
                 title: Localization.disclaimerTitle,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.termsOfService,
                 action: weakify(self, forFunction: DetailsViewModel.openTOS)
             ),
         ]

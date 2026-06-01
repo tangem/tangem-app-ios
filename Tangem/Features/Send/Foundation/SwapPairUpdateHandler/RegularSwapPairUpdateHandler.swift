@@ -20,44 +20,24 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressPairsRepository = expressPairsRepository
     }
 
-    func handlePairChange(
-        pair: ExpressManagerSwappingPair,
-        source: SendSwapableToken,
-        destination: SendReceiveToken,
-        sourceAmount: Decimal?,
-        isFullRefresh: Bool
-    ) async throws -> SwapPairUpdateResult {
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType {
+        return .providers
+    }
+
+    func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
         if FeatureProvider.isAvailable(.swapPipelineV2) {
             let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 
             if !isPairCached {
-                try await expressPairsRepository.updatePairs(
-                    for: source.currency,
-                    userWalletInfo: source.userWalletInfo
-                )
+                try await expressPairsRepository.updatePairs(for: source.currency, userWalletInfo: source.userWalletInfo)
             }
         }
 
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+        // In regular swap we clear the cached amount type when the pair changes.
+        let _ = await expressManager.update(amountType: .none)
 
-        guard let sourceAmount else {
-            // No source amount — clear stale receive amount and return pair result
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: .clearReceiveAmount)
-        }
-
-        let result: ExpressManagerUpdatingResult = try await expressManager.update(amountType: .from(sourceAmount))
-
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate
-        if let quote = result.selected?.getState().quote {
-            amountUpdate = .setReceiveAmount(
-                crypto: quote.expectAmount,
-                currencyId: destination.tokenItem.currencyId
-            )
-        } else {
-            amountUpdate = .clearReceiveAmount
-        }
-
-        return SwapPairUpdateResult(expressResult: result, amountUpdate: amountUpdate)
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+        return try await expressManager.update(pair: pair)
     }
 }

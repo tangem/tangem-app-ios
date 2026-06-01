@@ -68,9 +68,17 @@ public struct TangemExpressFactory {
         expressAPIType: ExpressAPIType,
         exchangeDataDecoder: ExpressExchangeDataDecoder
     ) -> ExpressAPIProvider {
+        let plugins: [PluginType] = [
+            ExpressAuthorizationPlugin(
+                apiKey: credential.apiKey,
+                userId: credential.userId,
+                sessionId: credential.sessionId,
+                refcode: credential.refcode
+            ),
+            DeviceInfoPlugin(),
+        ]
         #if DEBUG
         // [REDACTED_TODO_COMMENT]
-        // Using deprecated raw initializer for `TangemProvider` since we have to inject a stub closure for network mocks
         let provider = TangemProvider<ExpressAPITarget>(
             stubClosure: { target in
                 switch target.target {
@@ -80,16 +88,7 @@ public struct TangemExpressFactory {
                     return .never
                 }
             },
-            plugins: [
-                ExpressAuthorizationPlugin(
-                    apiKey: credential.apiKey,
-                    userId: credential.userId,
-                    sessionId: credential.sessionId,
-                    refcode: credential.refcode
-                ),
-                DeviceInfoPlugin(),
-                TangemNetworkLoggerPlugin(logOptions: .verbose),
-            ],
+            plugins: plugins + [TangemNetworkLoggerPlugin(logOptions: .verbose)],
             sessionConfiguration: configuration
         )
         #else
@@ -98,15 +97,7 @@ public struct TangemExpressFactory {
                 logOptions: .verbose,
                 urlSessionConfiguration: configuration
             ),
-            additionalPlugins: [
-                ExpressAuthorizationPlugin(
-                    apiKey: credential.apiKey,
-                    userId: credential.userId,
-                    sessionId: credential.sessionId,
-                    refcode: credential.refcode
-                ),
-                DeviceInfoPlugin(),
-            ]
+            additionalPlugins: plugins
         )
         #endif // DEBUG
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)

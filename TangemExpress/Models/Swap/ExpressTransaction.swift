@@ -13,7 +13,7 @@ public struct ExpressTransaction {
     public let externalStatus: ExpressTransactionStatus
     public let refundedCurrency: ExpressCurrency?
     public let externalTxId: String?
-    public let externalTxUrl: String?
+    public let externalTxURL: URL?
     public let averageDuration: TimeInterval?
     public let createdAt: Date?
 }

@@ -93,7 +93,7 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             otherNativeFee: data.otherNativeFee,
             estimatedGasLimit: data.estimatedGasLimit,
             externalTxId: data.externalTxId,
-            externalTxUrl: data.externalTxUrl
+            externalTxURL: data.externalTxURL
         )
 
         guard let yieldModuleUpgradeHandler else {

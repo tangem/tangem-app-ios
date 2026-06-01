@@ -160,7 +160,8 @@ private extension CEXProviderFlowHelper {
             amountType: .from(reducedAmount),
             rateType: request.rateType,
             approvePolicy: request.approvePolicy,
-            operationType: request.operationType
+            operationType: request.operationType,
+            quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
         )
     }
 
