@@ -122,7 +122,7 @@ struct AllowanceSlot {
 // MARK: - EthereumAccountOverride
 
 /// One Ethereum account's override for `eth_estimateGas` / `eth_call`: which storage slots to pretend
-/// have which values during simulation. Mirrors the per-address `AccountOverride` object from the JSON-RPC spec.
+/// have which values during simulation.
 public struct EthereumAccountOverride: Encodable {
     public let stateDiff: [String: String]
 
