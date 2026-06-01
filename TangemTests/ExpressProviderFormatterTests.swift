@@ -55,6 +55,7 @@ struct ExpressProviderFormatterBadgeTests {
         let context = ExpressProviderFlowContext(
             provider: provider,
             pair: ExpressManagerSwappingPair(source: StubExpressWallet(), destination: StubExpressWallet()),
+            rateType: .float,
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper()
@@ -62,8 +63,7 @@ struct ExpressProviderFormatterBadgeTests {
 
         let available = ExpressAvailableProvider(
             context: context,
-            manager: StubExpressProviderManager(),
-            supportedRateTypes: [.float]
+            manager: StubExpressProviderManager()
         )
         available.update(isBest: isBest)
         return available
@@ -146,18 +146,8 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
 }
 
 private final class StubExpressProviderManager: ExpressProviderManager {
-    var pair: ExpressManagerSwappingPair {
-        fatalError("Not used in tests")
-    }
-
-    var feeProvider: ExpressFeeProvider {
-        fatalError("Not used in tests")
-    }
-
-    func getState() -> ExpressProviderManagerState {
-        .idle
-    }
-
+    func getState() -> ExpressProviderManagerState { .idle }
+    func reset() {}
     func update(request: ExpressManagerSwappingPairRequest) async {}
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
