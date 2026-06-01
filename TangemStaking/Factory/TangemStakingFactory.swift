@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Moya
 import TangemNetworkUtils
 
 public struct TangemStakingFactory {
@@ -52,10 +51,14 @@ public struct TangemStakingFactory {
     public func makeStakeKitAPIProvider(
         credential: StakingAPICredential,
         configuration: URLSessionConfiguration,
-        plugins: [PluginType],
         apiType: StakeKitAPIType = .prod
     ) -> StakeKitAPIProvider {
-        let provider = TangemProvider<StakeKitTarget>(plugins: plugins, sessionConfiguration: configuration)
+        let provider = TangemProvider<StakeKitTarget>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: configuration
+            )
+        )
         let service = CommonStakeKitStakingAPIService(provider: provider, credential: credential, apiType: apiType)
         let mapper = StakeKitMapper()
         return CommonStakeKitAPIProvider(service: service, mapper: mapper)
@@ -64,10 +67,14 @@ public struct TangemStakingFactory {
     public func makeP2PAPIProvider(
         credential: StakingAPICredential,
         configuration: URLSessionConfiguration,
-        plugins: [PluginType],
         network: P2PNetwork
     ) -> P2PAPIProvider {
-        let provider = TangemProvider<P2PTarget>(plugins: plugins, sessionConfiguration: configuration)
+        let provider = TangemProvider<P2PTarget>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: configuration
+            )
+        )
         let service = CommonP2PStakingAPIService(
             provider: provider,
             credential: credential,
