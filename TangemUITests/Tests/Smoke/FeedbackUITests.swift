@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 final class FeedbackUITests: BaseTestCase {
-    func testRequestSupportFromScanOnAppLaunch_SupportEmailOpened() throws {
+    func testRequestSupportFromScanOnAppLaunch_ContactSupportSheetShown() throws {
         setAllureId(892)
         launchApp()
 
@@ -23,10 +23,10 @@ final class FeedbackUITests: BaseTestCase {
 
         TroubleShootSheet(app)
             .requestSupport()
-            .validateMailOpened()
+            .validateFallbackSheet()
     }
 
-    func testRequestSupportFromDetails_SupportEmailOpened() throws {
+    func testRequestSupportFromDetails_ContactSupportSheetShown() throws {
         setAllureId(3960)
 
         launchApp()
@@ -41,10 +41,10 @@ final class FeedbackUITests: BaseTestCase {
 
         TroubleShootSheet(app)
             .requestSupport()
-            .validateMailOpened()
+            .validateFallbackSheet()
     }
 
-    func testRequestSupportFromSend_SupportEmailOpened() throws {
+    func testRequestSupportFromSend_ContactSupportSheetShown() throws {
         setAllureId(893)
 
         let token = "Polygon"
@@ -67,10 +67,10 @@ final class FeedbackUITests: BaseTestCase {
 
         TroubleShootSheet(app)
             .requestSupport()
-            .validateMailOpened()
+            .validateFallbackSheet()
     }
 
-    func testContactSupportFromDetails_SupportEmailOpened() throws {
+    func testContactSupportFromDetails_ContactSupportSheetShown() throws {
         setAllureId(894)
         launchApp()
 
@@ -78,6 +78,6 @@ final class FeedbackUITests: BaseTestCase {
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .contactSupport()
-            .validateMailOpened()
+            .validateFallbackSheet()
     }
 }

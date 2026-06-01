@@ -81,6 +81,68 @@ struct ProductionLogSanitizerPolicyTests {
     }
 
     @Test
+    func shouldPreserveContractAddressesInAccountsTokensPayload() {
+        let input = """
+        {"id":"usd-coin","networkId":"avalanche","name":"USDC","symbol":"USDC","decimals":6,"contractAddress":"0xaf88d065e77c8cc2239327c5edb3a432268e5831"},
+        {"id":"tether","networkId":"ethereum","name":"Tether","symbol":"USDT","decimals":6,"contractAddress":"0xdac17f958d2ee523a2206206994597c13d831ec7"},
+        {"id":"usd-coin","networkId":"stellar","contractAddress":"USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"}
+        """
+
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+        #expect(actual == input)
+    }
+
+    @Test
+    func shouldPreserveContractAddressWhileRedactingSensitiveValuesInSameLog() {
+        let input = """
+        🟠 request: https://api.tangem.org/wallets/REDACTED/tokens¸
+           headers: [
+             "card_id": "C91B0000002A7E4F"¸
+             "api-key": "kR9vTqLmP4xZc8Hs2NwJfYgD7UaB3eQi6XpMoK1rCzVtEyL5hSnFu0WbAjIGdORXl"¸
+             "Content-Type": "application/json"
+           ]¸
+           body: {"tokens":[{"id":"usd-coin","networkId":"avalanche","contractAddress":"0xaf88d065e77c8cc2239327c5edb3a432268e5831"}]}
+        """
+
+        let expected = """
+        🟠 request: https://api.tangem.org/wallets/REDACTED/tokens¸
+           headers: [
+             "card_id": "\(Self.broadHexRedactPlaceholder)"¸
+             "api-key": "\(Self.sensitiveKeyRedactPlaceholder)"¸
+             "Content-Type": "application/json"
+           ]¸
+           body: {"tokens":[{"id":"usd-coin","networkId":"avalanche","contractAddress":"0xaf88d065e77c8cc2239327c5edb3a432268e5831"}]}
+        """
+
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+        #expect(actual == expected)
+    }
+
+    @Test
+    func shouldPreserveAllContractAddressesInRealisticAccountsResponse() {
+        let input = """
+        {"wallet":{"version":1,"group":"network","sort":"manual","totalAccounts":1,"totalArchivedAccounts":0},\
+        "accounts":[{"id":"0c4d2f1e-ab27-4f88-9c3e-7e1d2a8a8d10","derivation":0,"name":null,"icon":"Star","iconColor":"PalatinateBlue","tokens":[\
+        {"id":"bitcoin","networkId":"bitcoin","name":"Bitcoin","symbol":"BTC","decimals":8,"contractAddress":null},\
+        {"id":"usd-coin","networkId":"polygon-pos","name":"USDC","symbol":"USDC","decimals":6,"contractAddress":"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"},\
+        {"id":"usd-coin","networkId":"polygon-pos","name":"USDC","symbol":"USDC","decimals":6,"contractAddress":"0xaf88d065e77c8cc2239327c5edb3a432268e5831"},\
+        {"id":"usd-coin","networkId":"avalanche","name":"USDC","symbol":"USDC","decimals":6,"contractAddress":"0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e"},\
+        {"id":"usd-coin","networkId":"avalanche","name":"USDC","symbol":"USDC","decimals":6,"contractAddress":"0xaf88d065e77c8cc2239327c5edb3a432268e5831"},\
+        {"id":"usd-coin","networkId":"stellar","name":"USDC","symbol":"USDC","decimals":7,"contractAddress":"USDC-GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"},\
+        {"id":"starbro","networkId":"xrp","name":"STARBRO","symbol":"STARBRO","decimals":0,"contractAddress":"5354415242524F00000000000000000000000000.rLfF6rkXsMvNBYosPmwX2kAGQ5oMtab6dW"}\
+        ]}]}
+        """
+
+        let expected = input.replacingOccurrences(
+            of: "0c4d2f1e-ab27-4f88-9c3e-7e1d2a8a8d10",
+            with: Self.broadHexRedactPlaceholder
+        )
+
+        let actual = LogSanitizer.sanitize(input, policy: .production)
+        #expect(actual == expected)
+    }
+
+    @Test
     func shouldBeIdempotent() {
         let input = #"response: <NSHTTPURLResponse: 0x106f3a120>; "#
             + #"timestamp="2026-12-24T00:00:00.000Z"; "#
