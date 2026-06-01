@@ -77,7 +77,6 @@ public struct TangemExpressFactory {
                 refcode: credential.refcode
             ),
             DeviceInfoPlugin(),
-            TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
         #if DEBUG
         // [REDACTED_TODO_COMMENT]
@@ -90,11 +89,17 @@ public struct TangemExpressFactory {
                     return .never
                 }
             },
-            plugins: plugins,
+            plugins: plugins + [TangemNetworkLoggerPlugin(logOptions: .verbose)],
             sessionConfiguration: configuration
         )
         #else
-        let provider = TangemProvider<ExpressAPITarget>(plugins: plugins, sessionConfiguration: configuration)
+        let provider = TangemProvider<ExpressAPITarget>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: configuration
+            ),
+            additionalPlugins: plugins
+        )
         #endif // DEBUG
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
