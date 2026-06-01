@@ -37,7 +37,7 @@ struct P2PMapper {
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: StakingConstants.p2pEnterMinimumRequirements,
-            exitMinimumRequirement: .zero,
+            exitMinimumRequirement: StakingConstants.p2pExitMinimumRequirements,
             targets: vaults,
             preferredTargets: vaults.filter { $0.status != .full },
             item: item,
