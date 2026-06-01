@@ -173,6 +173,11 @@ private extension SwapSummaryViewModel {
             .assign(to: &$mainButtonIsEnabled)
 
         interactor
+            .mainButtonStatePublisher
+            .receiveOnMain()
+            .assign(to: &$mainButtonState)
+
+        interactor
             .isUpdatingPublisher
             .receiveOnMain()
             .assign(to: &$mainButtonIsUpdating)
@@ -199,28 +204,16 @@ extension SwapSummaryViewModel {
     }
 
     @RawCaseName
-    enum MainButtonState: Identifiable {
+    enum MainButtonState: Identifiable, Equatable {
         case swap
-        case insufficientFunds
-        case permitAndSwap
+        case transfer
 
         var title: String {
             switch self {
             case .swap:
                 return Localization.swappingSwapAction
-            case .insufficientFunds:
-                return Localization.swappingInsufficientFunds
-            case .permitAndSwap:
-                return Localization.swappingPermitAndSwap
-            }
-        }
-
-        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
-            switch self {
-            case .swap, .permitAndSwap:
-                return tangemIconProvider.getMainButtonIcon()
-            case .insufficientFunds:
-                return .none
+            case .transfer:
+                return Localization.commonTransfer
             }
         }
     }

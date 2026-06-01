@@ -16,6 +16,7 @@ protocol SwapSummaryInteractor: AnyObject {
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
     var isActionInProcessing: AnyPublisher<Bool, Never> { get }
+    var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
     // [REDACTED_TODO_COMMENT]
@@ -101,6 +102,22 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         }
 
         return input.isReadyToSendPublisher
+    }
+
+    var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> {
+        guard let input else {
+            assertionFailure("SendSummaryInput is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return input.summaryTransactionDataPublisher.map { data in
+            switch data {
+            case .send: .transfer
+            default: .swap
+            }
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
     }
 
     func userDidRequestSwap() {
