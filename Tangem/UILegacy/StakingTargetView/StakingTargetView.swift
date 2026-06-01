@@ -62,7 +62,7 @@ struct StakingTargetView: View {
     }
 
     private var image: some View {
-        IconView(url: data.imageURL, size: CGSize(width: 36, height: 36))
+        StakingTargetIconView(data: data.image, size: CGSize(width: 36, height: 36))
     }
 
     private var topLineView: some View {
@@ -136,14 +136,14 @@ extension StakingTargetView: Setupable {
                     StakingTargetViewData(
                         address: "1",
                         name: "InfStones",
-                        imageURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
+                        image: .url(URL(string: "https://assets.stakek.it/validators/infstones.png")),
                         subtitleType: .none,
                         detailsType: .checkmark
                     ),
                     StakingTargetViewData(
                         address: "2",
                         name: "Coinbase",
-                        imageURL: URL(string: "https://assets.stakek.it/validators/coinbase.png"),
+                        image: .url(URL(string: "https://assets.stakek.it/validators/coinbase.png")),
                         subtitleType: .selection(formatted: "0.08%"),
                         detailsType: .checkmark
                     ),
@@ -156,7 +156,7 @@ extension StakingTargetView: Setupable {
                     StakingTargetViewData(
                         address: UUID().uuidString,
                         name: "InfStones",
-                        imageURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
+                        image: .url(URL(string: "https://assets.stakek.it/validators/infstones.png")),
                         subtitleType: .selection(formatted: "0.08%"),
                         detailsType: .balance(.init(crypto: "543 USD", fiat: "5 SOL"), action: nil)
                     ),
