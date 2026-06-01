@@ -63,7 +63,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     // MARK: - Properties
 
     private(set) var activityState: ActivityState = .active
-    private(set) var readMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
+    private(set) var readMoreURL = TangemBlogUrlBuilder().url(post: .yieldMode)
     private var minimalTopupAmountInFiat: Decimal?
 
     // MARK: - Init
