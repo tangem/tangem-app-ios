@@ -22,10 +22,11 @@ final class NewsDeeplinkCoordinator: ObservableObject, NewsDetailsRoutable {
     // MARK: - Properties
 
     let viewModel: NewsPagerViewModel
+    private let dismissAction: () -> Void
 
     // MARK: - Init
 
-    init(newsId: Int) {
+    init(newsId: Int, dismissAction: @escaping () -> Void) {
         viewModel = NewsPagerViewModel(
             newsIds: [newsId],
             initialIndex: 0,
@@ -34,13 +35,14 @@ final class NewsDeeplinkCoordinator: ObservableObject, NewsDetailsRoutable {
             analyticsSource: .newsSourceNewsLink,
             coordinator: nil
         )
+        self.dismissAction = dismissAction
         viewModel.setCoordinator(self)
     }
 
     // MARK: - NewsDetailsRoutable
 
     func dismissNewsDetails() {
-        UIApplication.dismissTop()
+        dismissAction()
     }
 
     func share(url: String) {

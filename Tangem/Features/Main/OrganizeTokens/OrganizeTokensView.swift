@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
@@ -18,6 +19,8 @@ struct OrganizeTokensView: View {
     // MARK: - Model
 
     @ObservedObject private var viewModel: OrganizeTokensViewModel
+
+    private let onCloseTap: (() -> Void)?
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -71,33 +74,123 @@ struct OrganizeTokensView: View {
         )
     }
 
+    // MARK: - Layout
+
+    @State private var tokenListWidth: CGFloat = .zero
+
+    // MARK: - Colors
+
+    // [REDACTED_INFO]: `.redesign` supersedes `.manageTokensImprovements` here — when both flags are on,
+    // redesign values win. Flag-cleanup order is fixed: retire `.manageTokensImprovements` first
+    // (drop its branch and the `Colors.Background.*` legacy fallback), then retire `.redesign`,
+    // collapsing each property to its `Color.Tangem.Surface.*` value. Final state = redesign colors.
+
+    private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level2
+        }
+        if FeatureProvider.isAvailable(.manageTokensImprovements) {
+            return .clear
+        }
+        return Colors.Background.secondary
+    }
+
+    private var cellBackgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level3
+        }
+        if FeatureProvider.isAvailable(.manageTokensImprovements) {
+            return Colors.Background.action
+        }
+        return Colors.Background.primary
+    }
+
+    // MARK: - Layout (redesign-aware)
+
+    private var contentCornerRadius: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? Constants.redesignContentCornerRadius : Constants.contentCornerRadius
+    }
+
+    private var contentHorizontalInset: CGFloat {
+        FeatureProvider.isAvailable(.redesign) ? Constants.redesignContentHorizontalInset : Constants.contentHorizontalInset
+    }
+
+    private var isModernOrganizeTokensLayout: Bool {
+        FeatureProvider.isAvailable(.redesign) || FeatureProvider.isAvailable(.manageTokensImprovements)
+    }
+
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            tokenList
+            if isModernOrganizeTokensLayout {
+                tokenList
+            } else {
+                legacyTokenList
+            }
 
-            tokenListHeader
+            topContent
 
             tokenListFooter
         }
-        .background(
-            Colors.Background.secondary
-                .ignoresSafeArea(edges: .vertical)
-        )
+        .background(backgroundColor.ignoresSafeArea(edges: .vertical))
+        .toolbar { redesignedToolbarContent }
         .onWillAppear {
             dragAndDropController.dataSource = viewModel
             viewModel.onViewWillAppear()
         }
         .onAppear {
-            viewModel.onViewAppear()
             scrollState.onViewAppear()
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var redesignedToolbarContent: some ToolbarContent {
+        // Standalone-sheet path (no custom `BottomSheetHeaderView`): host the sort menu in the native nav bar.
+        if FeatureProvider.isAvailable(.redesign), onCloseTap == nil, let headerViewModel = viewModel.headerViewModel {
+            ToolbarItem(placement: .topBarTrailing) {
+                OrganizeTokensSortMenuView(viewModel: headerViewModel)
+            }
         }
     }
 
     // MARK: - Subviews
 
     private var tokenList: some View {
+        ScrollViewReader { scrollProxy in
+            tokenListScrollView(scrollProxy: scrollProxy)
+        }
+        .overlay(tokenListDraggableOverlay, alignment: .top)
+        .onGeometryChange(for: CGFloat.self, of: \.size.width) { tokenListWidth in
+            self.tokenListWidth = tokenListWidth
+        }
+        .coordinateSpace(name: CoordinateSpaceName.ScrollView.frame)
+        .onReceive(scrollState.contentOffsetSubject) { newValue in
+            dragAndDropController.contentOffsetSubject.send(newValue)
+            updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
+        }
+        .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
+            guard let oldValue = oldValue, let newValue = newValue else { return }
+
+            dragAndDropController.onItemsMove()
+            viewModel.move(from: oldValue, to: newValue)
+        }
+        .onChange(of: hasActiveDrag) { newValue in
+            if newValue {
+                scrollState.onDragStart()
+            } else {
+                scrollState.onDragEnd()
+                dragAndDropController.stopAutoScrolling()
+                dragAndDropDestinationIndexPath = nil
+                dragAndDropSourceItemFrame = nil
+            }
+        }
+        .onChange(of: dragGestureTranslation) { newValue in
+            updateDragAndDropDestinationIndexPath(using: newValue)
+        }
+    }
+
+    private var legacyTokenList: some View {
         GeometryReader { geometryProxy in
             ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
@@ -112,7 +205,7 @@ struct OrganizeTokensView: View {
                             tokenListContent
                         }
                         .animation(.spring(), value: viewModel.sections)
-                        .padding(.horizontal, Constants.contentHorizontalInset)
+                        .padding(.horizontal, contentHorizontalInset)
                         .coordinateSpace(name: CoordinateSpaceName.ScrollView.content)
                         .readGeometry(
                             \.frame.maxY,
@@ -149,7 +242,7 @@ struct OrganizeTokensView: View {
                 }
             }
             .overlay(
-                makeDraggableComponent(width: geometryProxy.size.width - Constants.contentHorizontalInset * 2.0)
+                makeDraggableComponent(width: geometryProxy.size.width - contentHorizontalInset * 2.0)
                     .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
                 alignment: .top
             )
@@ -184,7 +277,7 @@ struct OrganizeTokensView: View {
     private var tokenListContent: some View {
         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
             sections: viewModel.sections,
-            cornerRadius: Constants.contentCornerRadius
+            cornerRadius: contentCornerRadius
         )
 
         return ForEach(indexed: viewModel.sections.indexed()) { outerSectionIndex, outerSectionViewModel in
@@ -263,33 +356,70 @@ struct OrganizeTokensView: View {
         }
     }
 
+    private var topContent: some View {
+        VStack(spacing: 0) {
+            tokenListTitle
+            tokenListHeader
+        }
+        .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
+        .padding(.bottom, Constants.headerAdditionalBottomInset)
+        .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
+        .infinityFrame(alignment: .top)
+    }
+
+    @ViewBuilder
+    private var tokenListTitle: some View {
+        if let onCloseTap {
+            BottomSheetHeaderView(
+                title: Localization.organizeTokensTitle,
+                trailing: { headerTrailing(onCloseTap: onCloseTap) }
+            )
+            .padding(.top, 4)
+            .padding(.horizontal, contentHorizontalInset)
+        }
+    }
+
+    @ViewBuilder
+    private func headerTrailing(onCloseTap: @escaping () -> Void) -> some View {
+        if FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
+            HStack(spacing: .unit(.x2)) {
+                OrganizeTokensSortMenuView(viewModel: headerViewModel)
+                NavigationBarButton.close(action: onCloseTap)
+            }
+        } else {
+            NavigationBarButton.close(action: onCloseTap)
+        }
+    }
+
     @ViewBuilder
     private var tokenListHeader: some View {
-        if let headerViewModel = viewModel.headerViewModel {
+        // [REDACTED_INFO]: legacy inline sort/group header — hidden under `.redesign` because controls moved into the navbar dropdown
+        if !FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
             OrganizeTokensListHeader(
                 viewModel: headerViewModel,
-                horizontalInset: Constants.contentHorizontalInset,
+                horizontalInset: contentHorizontalInset,
                 bottomInset: Constants.headerBottomInset
             )
-            .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
-            .padding(.bottom, Constants.headerAdditionalBottomInset)
-            .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
-            .infinityFrame(alignment: .top)
         }
     }
 
     private var tokenListFooter: some View {
-        OrganizeTokensListFooter(
-            actionsHandler: viewModel,
-            isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
-            cornerRadius: Constants.contentCornerRadius,
-            contentInsets: EdgeInsets(
-                top: Constants.contentVerticalInset,
-                leading: Constants.contentHorizontalInset,
-                bottom: 0.0,
-                trailing: Constants.contentHorizontalInset
-            )
-        )
+        Group {
+            if FeatureProvider.isAvailable(.redesign) {
+                OrganizeTokensListFooterRedesigned(
+                    actionsHandler: viewModel,
+                    isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
+                    contentInsets: footerContentInsets
+                )
+            } else {
+                OrganizeTokensListFooter(
+                    actionsHandler: viewModel,
+                    isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
+                    cornerRadius: contentCornerRadius,
+                    contentInsets: footerContentInsets
+                )
+            }
+        }
         .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
             scrollState.tokenListFooterFrameMinYSubject.send(geometryInfo.frame.minY + Constants.contentVerticalInset)
@@ -298,10 +428,21 @@ struct OrganizeTokensView: View {
         .infinityFrame(alignment: .bottom)
     }
 
+    private var footerContentInsets: EdgeInsets {
+        EdgeInsets(
+            top: Constants.contentVerticalInset,
+            leading: contentHorizontalInset,
+            bottom: 0.0,
+            trailing: contentHorizontalInset
+        )
+    }
+
     init(
-        viewModel: OrganizeTokensViewModel
+        viewModel: OrganizeTokensViewModel,
+        onCloseTap: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
+        self.onCloseTap = onCloseTap
         _dragAndDropController = .init(
             wrappedValue: OrganizeTokensDragAndDropController(
                 autoScrollFrequency: Constants.autoScrollFrequency,
@@ -387,20 +528,26 @@ struct OrganizeTokensView: View {
         atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
-        OrganizeTokensListItemView(viewModel: viewModel)
-            .accessibilityIdentifier(
-                OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
-                    name: viewModel.name,
-                    outerSection: indexPath.outerSection,
-                    innerSection: indexPath.innerSection,
-                    item: indexPath.item
-                )
+        Group {
+            if FeatureProvider.isAvailable(.redesign) {
+                OrganizeTokensListItemViewRedesigned(viewModel: viewModel)
+            } else {
+                OrganizeTokensListItemView(viewModel: viewModel)
+            }
+        }
+        .accessibilityIdentifier(
+            OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
+                name: viewModel.name,
+                outerSection: indexPath.outerSection,
+                innerSection: indexPath.innerSection,
+                item: indexPath.item
             )
-            .background(Colors.Background.primary)
-            .cornerRadius(
-                parametersProvider.cornerRadius(forItemAt: indexPath),
-                corners: parametersProvider.rectCorners(forItemAt: indexPath)
-            )
+        )
+        .background(cellBackgroundColor)
+        .cornerRadius(
+            parametersProvider.cornerRadius(forItemAt: indexPath),
+            corners: parametersProvider.rectCorners(forItemAt: indexPath)
+        )
     }
 
     @ViewBuilder
@@ -414,16 +561,25 @@ struct OrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .fixed(let title):
-                OrganizeTokensListInnerSectionView(title: title, isDraggable: false)
+                makeInnerSectionView(title: title, identifier: section.model.id, isDraggable: false)
             case .draggable(let title):
-                OrganizeTokensListInnerSectionView(title: title, identifier: section.model.id, isDraggable: true)
+                makeInnerSectionView(title: title, identifier: section.model.id, isDraggable: true)
             }
         }
-        .background(Colors.Background.primary)
+        .background(cellBackgroundColor)
         .cornerRadius(
             parametersProvider.cornerRadius(forInnerSectionAt: indexPath),
             corners: parametersProvider.rectCorners(forInnerSectionAt: indexPath)
         )
+    }
+
+    @ViewBuilder
+    private func makeInnerSectionView(title: String, identifier: AnyHashable, isDraggable: Bool) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            OrganizeTokensListInnerSectionViewRedesigned(title: title, identifier: identifier, isDraggable: isDraggable)
+        } else {
+            OrganizeTokensListInnerSectionView(title: title, identifier: identifier, isDraggable: isDraggable)
+        }
     }
 
     @ViewBuilder
@@ -437,15 +593,24 @@ struct OrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .default(let title, let iconData):
-                OrganizeTokensListOuterSectionView(
-                    title: title,
-                    iconData: iconData,
-                    outerSectionIndex: sectionIndex,
-                    accountId: section.model.id
-                )
+                if FeatureProvider.isAvailable(.redesign) {
+                    OrganizeTokensListOuterSectionViewRedesigned(
+                        title: title,
+                        iconData: iconData,
+                        outerSectionIndex: sectionIndex,
+                        accountId: section.model.id
+                    )
+                } else {
+                    OrganizeTokensListOuterSectionView(
+                        title: title,
+                        iconData: iconData,
+                        outerSectionIndex: sectionIndex,
+                        accountId: section.model.id
+                    )
+                }
             }
         }
-        .background(Colors.Background.primary)
+        .background(cellBackgroundColor)
         .cornerRadius(
             parametersProvider.cornerRadius(forOuterSectionAtIndex: sectionIndex),
             corners: parametersProvider.rectCorners(forOuterSectionAtIndex: sectionIndex)
@@ -652,11 +817,13 @@ private extension AnyTransition {
 private extension OrganizeTokensView {
     enum Constants {
         static let contentCornerRadius = 14.0
+        static let redesignContentCornerRadius: CGFloat = .unit(.x5)
         static let interSectionSpacing = 8.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0
         static let contentHorizontalInset = 16.0
+        static let redesignContentHorizontalInset: CGFloat = .unit(.x3)
         static let dragAndDropGestureDuration = 0.15
         static let dragAndDropGestureAllowableMovement = 5.0
         static let dragLiftAnimationDuration = 0.2
@@ -684,5 +851,66 @@ private extension OrganizeTokensView {
             static let content = prefix + "content"
             static let frame = prefix + "frame"
         }
+    }
+}
+
+// MARK: - Token list subviews
+
+private extension OrganizeTokensView {
+    var tokenListScrollContent: some View {
+        VStack(spacing: 0.0) {
+            LazyVStack(spacing: 0.0) {
+                Spacer(minLength: scrollViewTopContentInset)
+                    .fixedSize()
+                    .id(Identifiers.ScrollView.topContentInsetSpacer)
+
+                tokenListContent
+            }
+            .animation(.spring(), value: viewModel.sections)
+            .padding(.horizontal, contentHorizontalInset)
+            .coordinateSpace(name: CoordinateSpaceName.ScrollView.content)
+            .readGeometry(
+                \.frame.maxY,
+                inCoordinateSpace: .global,
+                bindTo: scrollState.tokenListContentFrameMaxYSubject.asWriteOnlyBinding(.zero)
+            )
+            .readContentOffset(
+                inCoordinateSpace: .named(CoordinateSpaceName.ScrollView.frame),
+                bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
+            )
+            .overlay(makeDragAndDropGestureOverlayView())
+
+            Spacer(minLength: scrollViewBottomContentInset)
+                .fixedSize()
+                .id(Identifiers.ScrollView.bottomContentInsetSpacer)
+        }
+    }
+
+    func tokenListScrollView(scrollProxy: ScrollViewProxy) -> some View {
+        ScrollView(showsIndicators: false) {
+            tokenListScrollContent
+        }
+        .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokensList)
+        .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
+            dragAndDropController.viewportSizeSubject.send(newValue.size)
+            visibleViewportFrame = newValue
+                .divided(atDistance: scrollViewTopContentInset, from: .minYEdge)
+                .remainder
+                .divided(atDistance: scrollViewBottomContentInset, from: .maxYEdge)
+                .remainder
+        }
+        .onChange(of: draggedItemFrame) { newValue in
+            changeAutoScrollStatusIfNeeded(draggedItemFrame: newValue)
+        }
+        .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
+            withAnimation(.linear(duration: Constants.autoScrollFrequency)) {
+                scrollProxy.scrollTo(newValue, anchor: scrollAnchor())
+            }
+        }
+    }
+
+    var tokenListDraggableOverlay: some View {
+        makeDraggableComponent(width: max(0, tokenListWidth - contentHorizontalInset * 2.0))
+            .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag)
     }
 }
