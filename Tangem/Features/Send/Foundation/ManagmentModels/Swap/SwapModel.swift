@@ -1069,6 +1069,15 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             .eraseToAnyPublisher()
     }
 
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
+        _providersState
+            .filter { !$0.isLoading }
+            .withWeakCaptureOf(self)
+            .asyncMap { await $0.mapToReceiveAmountApproximate(state: $1) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     private func mapToAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
         if case .loading(.rates) = state {
             return .loading
@@ -1077,6 +1086,20 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
         switch amount {
         case .none: return .failure(SendAmountError.noAmount)
         case .some(let amount): return .success(amount)
+        }
+    }
+
+    private func mapToReceiveAmountApproximate(state: ProvidersState) async -> Bool {
+        let amountType = await expressManager.getAmountType()
+        switch (state, amountType) {
+        case (.loaded(.swap(.some(let selected), _), _), _) where selected.rateType == .fixed:
+            return false
+        case (.loaded(.transfer, _), _):
+            return false
+        case (_, .to):
+            return false
+        default:
+            return true
         }
     }
 

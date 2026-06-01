@@ -75,16 +75,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         currentRateType == .float && lastUpdateSource != .receive
     }
 
-    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        // Use emitted values directly — @Published emits on willSet,
-        // so reading stored properties in the map would return stale values.
-        Publishers.CombineLatest($lastUpdateSource, $currentRateType)
-            .map { lastUpdateSource, currentRateType in
-                currentRateType == .float && lastUpdateSource != .receive
-            }
-            .eraseToAnyPublisher()
-    }
-
     var compactSourceTokenViewData: SendAmountTokenViewData? {
         sourceAmountTokenViewData.map {
             SendAmountTokenViewData(
