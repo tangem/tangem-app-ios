@@ -80,7 +80,7 @@ struct MoralisChainMapper {
             return isTestnet ? "chiliz testnet" : "chiliz"
         case .pulsechain:
             return "pulse"
-        case .sei(let isTestnet):
+        case .seiEvm(let isTestnet):
             return isTestnet ? "sei-testnet" : "sei"
         case .monad:
             return "monad"
