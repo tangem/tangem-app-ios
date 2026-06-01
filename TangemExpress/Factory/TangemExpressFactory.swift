@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Moya
 import TangemNetworkUtils
 
 public struct TangemExpressFactory {
@@ -69,15 +68,6 @@ public struct TangemExpressFactory {
         expressAPIType: ExpressAPIType,
         exchangeDataDecoder: ExpressExchangeDataDecoder
     ) -> ExpressAPIProvider {
-        let plugins: [PluginType] = [
-            ExpressAuthorizationPlugin(
-                apiKey: credential.apiKey,
-                userId: credential.userId,
-                sessionId: credential.sessionId,
-                refcode: credential.refcode
-            ),
-            DeviceInfoPlugin(),
-        ]
         #if DEBUG
         // [REDACTED_TODO_COMMENT]
         let provider = TangemProvider<ExpressAPITarget>(
@@ -89,7 +79,16 @@ public struct TangemExpressFactory {
                     return .never
                 }
             },
-            plugins: plugins + [TangemNetworkLoggerPlugin(logOptions: .verbose)],
+            plugins: [
+                ExpressAuthorizationPlugin(
+                    apiKey: credential.apiKey,
+                    userId: credential.userId,
+                    sessionId: credential.sessionId,
+                    refcode: credential.refcode
+                ),
+                DeviceInfoPlugin(),
+                TangemNetworkLoggerPlugin(logOptions: .verbose),
+            ],
             sessionConfiguration: configuration
         )
         #else
@@ -98,7 +97,15 @@ public struct TangemExpressFactory {
                 logOptions: .verbose,
                 urlSessionConfiguration: configuration
             ),
-            additionalPlugins: plugins
+            additionalPlugins: [
+                ExpressAuthorizationPlugin(
+                    apiKey: credential.apiKey,
+                    userId: credential.userId,
+                    sessionId: credential.sessionId,
+                    refcode: credential.refcode
+                ),
+                DeviceInfoPlugin(),
+            ]
         )
         #endif // DEBUG
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
