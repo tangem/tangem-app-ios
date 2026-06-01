@@ -10,7 +10,6 @@ import Foundation
 import TangemStaking
 import TangemNetworkUtils
 import BlockchainSdk
-import Moya
 import TangemFoundation
 
 class StakingDependenciesFactory {
@@ -20,23 +19,14 @@ class StakingDependenciesFactory {
     @Injected(\.stakingTargetAmountLimitProvider) var targetAmountLimitProvider: StakingTargetAmountLimitProvider
 
     func makeStakeKitAPIProvider() -> StakeKitAPIProvider {
-        let plugins: [PluginType] = [
-            TangemNetworkLoggerPlugin(logOptions: .verbose),
-        ]
-
         return TangemStakingFactory().makeStakeKitAPIProvider(
             credential: StakingAPICredential(apiKey: keysManager.stakeKitKey),
             configuration: .stakingConfiguration,
-            plugins: plugins,
             apiType: FeatureStorage.instance.stakeKitAPIType
         )
     }
 
     func makeP2PAPIProvider() -> P2PAPIProvider {
-        let plugins: [PluginType] = [
-            TangemNetworkLoggerPlugin(logOptions: .verbose),
-        ]
-
         let network: P2PNetwork
         let apiKey: String
         if AppEnvironment.current.isTestnet {
@@ -50,7 +40,6 @@ class StakingDependenciesFactory {
         return TangemStakingFactory().makeP2PAPIProvider(
             credential: StakingAPICredential(apiKey: apiKey),
             configuration: .stakingConfiguration,
-            plugins: plugins,
             network: network,
         )
     }
