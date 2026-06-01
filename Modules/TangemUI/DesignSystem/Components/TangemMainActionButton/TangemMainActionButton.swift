@@ -1,5 +1,5 @@
 //
-//  MainActionButton.swift
+//  TangemMainActionButton.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,19 +13,21 @@ import TangemUIUtils
 public struct TangemMainActionButton: View {
     private let title: String
     private let icon: ImageType
-    private let buttonState: ButtonState
     private let action: () -> Void
+    private let reasonTapWhenDisabled: (() -> Void)?
+
+    @Environment(\.isEnabled) private var isEnabled
 
     public init(
         title: String,
         icon: ImageType,
-        buttonState: ButtonState = .normal,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        reasonTapWhenDisabled: (() -> Void)? = nil
     ) {
         self.title = title
         self.icon = icon
-        self.buttonState = buttonState
         self.action = action
+        self.reasonTapWhenDisabled = reasonTapWhenDisabled
     }
 
     public var body: some View {
@@ -34,15 +36,24 @@ public struct TangemMainActionButton: View {
                 .setSize(.x15)
                 .setCornerStyle(.rounded)
                 .setStyleType(.secondary)
+                .actionControlDimmed(isEnabled: isEnabled)
 
             Text(title)
                 .style(
                     Fonts.Regular.body,
-                    color: buttonState.isNormal ? Color.Tangem.Text.Neutral.primary : Color.Tangem.Text.Status.disabled
+                    color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
                 .lineLimit(1)
                 .contentShape(.rect)
                 .onTapGesture(perform: action)
+        }
+        .overlay {
+            if !isEnabled, let reasonTapWhenDisabled {
+                Color.clear
+                    .contentShape(.rect)
+                    .onTapGesture(perform: reasonTapWhenDisabled)
+                    .environment(\.isEnabled, true)
+            }
         }
     }
 }
