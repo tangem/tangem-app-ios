@@ -18,14 +18,16 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.fiat.availableBalance
+        keyPath: \.fiat.availableBalance,
+        cachesBalance: true
     )
 
     lazy var availableBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.availableForWithdrawal.amount
+        keyPath: \.availableForWithdrawal.amount,
+        cachesBalance: false
     )
 
     lazy var fiatAvailableBalanceProvider: any TokenBalanceProvider = FiatTokenBalanceProvider(

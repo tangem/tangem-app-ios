@@ -45,11 +45,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private let contextActionTokenRouter: SingleTokenRoutable
     private weak var addFundsRoutable: (any ActionButtonsBuyFlowRoutable)?
 
-    private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
-        for: AddFundsNotificationEvent(),
-        buttonAction: { [weak self] _, _ in self?.openAddFunds() }
-    )
-
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
     private var bag: Set<AnyCancellable> = []
@@ -195,6 +190,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             rateAppController.openFeedbackMail()
         case .openAppStoreReview:
             rateAppController.openAppStoreReview()
+        case .addFunds:
+            openAddFunds()
         default:
             super.didTapNotification(with: id, action: action)
         }
