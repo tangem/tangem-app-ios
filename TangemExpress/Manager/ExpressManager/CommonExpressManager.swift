@@ -81,7 +81,7 @@ extension CommonExpressManager: ExpressManager {
             return update(state: .swap(selected: selected, providers: providers))
 
         // Workaround. We receive Amount.from. But we have only providers with fixed rate
-        case .from(let amount) where providers.availableProviders(rate: .float).isEmpty:
+        case .from where providers.availableProviders(rate: .float).isEmpty:
             let candidates = providers.availableProviders(rate: .fixed)
             return await reloadQuotes(candidates: candidates, type: .amount)
 
