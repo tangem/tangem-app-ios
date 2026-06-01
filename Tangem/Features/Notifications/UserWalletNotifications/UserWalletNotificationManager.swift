@@ -21,6 +21,7 @@ final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
     @Injected(\.userWalletDismissedNotifications) private var dismissedNotifications: UserWalletDismissedNotifications
     @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
+    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
 
     private let analyticsService: NotificationsAnalyticsService
     private let userWalletModel: UserWalletModel
@@ -35,9 +36,11 @@ final class UserWalletNotificationManager {
 
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
+    private var pushPermissionNotificationId: NotificationViewId?
 
     private var shownMobileActivationNotificationId: NotificationViewId?
 
+    private var shouldShowAddFundsBanner = false
     private var showMobileUpgradeNotification = false
     private var shownMobileUpgradeNotificationId: NotificationViewId?
     private var shownTokenSyncNotificationId: NotificationViewId?
@@ -143,9 +146,12 @@ final class UserWalletNotificationManager {
         showMobileUpgradeNotificationIfNeeded()
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
+        showAddFundsBannerIfNeeded()
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
+        guard !shouldShowAddFundsBanner else { return }
+
         pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
 
@@ -154,7 +160,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showAppRateNotificationIfNeeded() {
-        guard showAppRateNotification else {
+        guard showAppRateNotification, !shouldShowAddFundsBanner else {
             hideShownAppRateNotificationIfNeeded()
             return
         }
@@ -200,6 +206,8 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileActivationNotificationIfNeeded() {
+        guard !shouldShowAddFundsBanner else { return }
+
         hideMobileActivationNotificationIfNeeded()
 
         let config = userWalletModel.config
@@ -245,7 +253,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileUpgradeNotificationIfNeeded() {
-        guard showMobileUpgradeNotification else {
+        guard showMobileUpgradeNotification, !shouldShowAddFundsBanner else {
             hideMobileUpgradeNotificationIfNeeded()
             return
         }
@@ -282,6 +290,38 @@ final class UserWalletNotificationManager {
 
         hideNotification(with: shownMobileUpgradeNotificationId)
         self.shownMobileUpgradeNotificationId = nil
+    }
+
+    private func showAddFundsBannerIfNeeded() {
+        guard shouldShowAddFundsBanner else {
+            return
+        }
+
+        hideShownAppRateNotificationIfNeeded()
+        hideMobileUpgradeNotificationIfNeeded()
+        hideMobileActivationNotificationIfNeeded()
+        if let pushPermissionNotificationId {
+            hidePushPermissionNotification(with: pushPermissionNotificationId)
+        }
+
+        let factory = NotificationsFactory()
+
+        let action: NotificationView.NotificationAction = { _ in }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            self?.delegate?.didTapNotification(with: id, action: action)
+        }
+
+        let dismissAction: NotificationView.NotificationAction = { _ in }
+
+        let input = factory.buildNotificationInput(
+            for: .addFunds,
+            action: action,
+            buttonAction: buttonAction,
+            dismissAction: dismissAction
+        )
+
+        addInputIfNeeded(input)
     }
 
     // MARK: - Initial Wallet Token Sync
@@ -354,6 +394,17 @@ final class UserWalletNotificationManager {
             .sink(receiveValue: { manager, notifications in
                 manager.analyticsService.sendEventsIfNeeded(for: notifications)
             })
+            .store(in: &bag)
+
+        addFundsBannerVisibilityProvider
+            .shouldShowPublisher
+            .receiveOnMain()
+            .map { $0 && FeatureProvider.isAvailable(.addFundsStage1) }
+            .withWeakCaptureOf(self)
+            .sink { manager, shouldShow in
+                manager.shouldShowAddFundsBanner = shouldShow
+                manager.createNotifications()
+            }
             .store(in: &bag)
 
         userWalletModel.updatePublisher
@@ -507,6 +558,7 @@ extension UserWalletNotificationManager: NotificationManager {
 
 extension UserWalletNotificationManager: PushPermissionNotificationDelegate {
     func showPushPermissionNotification(input: NotificationViewInput) {
+        pushPermissionNotificationId = input.id
         addInputIfNeeded(input)
     }
 

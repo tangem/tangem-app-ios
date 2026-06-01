@@ -338,7 +338,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF990020", "AF990021", "AF990022":
             return cardsCount == 2 ? Assets.Cards.blushSkyDouble : Assets.Cards.blushSkyTriple
         // Electra Sea summer collection
-        case "AF990023", "AF990024", "AF990025":
+        case "AF990023", "AF990024", "AF990025", "AF990065", "AF990066", "AF990067":
             return cardsCount == 2 ? Assets.Cards.electraSeaDouble : Assets.Cards.electraSeaTriple
         // Hyper Blue summer collection
         case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052":
@@ -364,6 +364,12 @@ extension Wallet2Config: UserWalletConfig {
         // Stronghold
         case "BB000054":
             return cardsCount == 2 ? Assets.Cards.strongholdDouble : Assets.Cards.strongholdTriple
+        // Superteam (Solana)
+        case "BB000051":
+            return cardsCount == 2 ? Assets.Cards.superteamDouble : Assets.Cards.superteamTriple
+        // Nanovest
+        case "BB000052":
+            return cardsCount == 2 ? Assets.Cards.nanovestDouble : Assets.Cards.nanovestTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
@@ -601,7 +607,7 @@ extension Wallet2Config: UserWalletConfig {
                 ? .twoCards(.init(card: CC.blushSky, secondCard: CC.blushSky2))
                 : .threeCards(.init(card: CC.blushSky, secondCard: CC.blushSky2, thirdCard: CC.blushSky3))
         // Electra Sea
-        case "AF990023", "AF990024", "AF990025":
+        case "AF990023", "AF990024", "AF990025", "AF990065", "AF990066", "AF990067":
             return cardsCount == 2
                 ? .twoCards(.init(card: CC.electraSea, secondCard: CC.electraSea2))
                 : .threeCards(.init(card: CC.electraSea, secondCard: CC.electraSea2, thirdCard: CC.electraSea3))
@@ -717,6 +723,12 @@ extension Wallet2Config: UserWalletConfig {
             return defaultWalletThumbnailType()
         // Stronghold
         case "BB000054":
+            return defaultWalletThumbnailType()
+        // Superteam (Solana)
+        case "BB000051":
+            return defaultWalletThumbnailType()
+        // Nanovest
+        case "BB000052":
             return defaultWalletThumbnailType()
         // Tangem Wallet 2.0
         default:
