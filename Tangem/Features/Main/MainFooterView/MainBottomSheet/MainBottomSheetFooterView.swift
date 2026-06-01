@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 import TangemUI
+import TangemLocalization
 
 struct MainBottomSheetFooterView: View {
     @ObservedObject var viewModel: MainBottomSheetFooterViewModel
@@ -17,13 +18,36 @@ struct MainBottomSheetFooterView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignBody
+        } else {
+            legacyBody
+        }
+    }
+
+    var redesignBody: some View {
+        VStack(spacing: .unit(.half)) {
+            GrabberView(style: .redesigned)
+
+            TangemSearchField(text: .constant(""))
+                .placeholder(text: Localization.marketsSearchTitlePlaceholder)
+                .cornerStyle(.capsule)
+                .frame(height: MainBottomSheetHeaderView.Constants.searchFieldHeight)
+                .padding(edgeInsets)
+                .background(backgroundColor)
+                .overlay(alignment: .top) {
+                    snapshotOverlay
+                }
+                .cornerRadius(cornerRadius, corners: .topEdge)
+                .background(alignment: .top) {
+                    MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)
+                }
+        }
+    }
+
+    var legacyBody: some View {
         VStack(spacing: 0.0) {
-            if FeatureProvider.isAvailable(.redesign) {
-                GrabberView(style: .redesigned)
-                    .hidden()
-            } else {
-                FixedSpacer.vertical(14.0)
-            }
+            FixedSpacer.vertical(14.0)
 
             // `MainBottomSheetHeaderInputView` is used here as a dummy view, used for layout calculation (i.e. footer height)
             MainBottomSheetHeaderInputView(
@@ -35,16 +59,14 @@ struct MainBottomSheetFooterView: View {
                 searchBarAccessibilityIdentifier: nil,
                 searchBarClearButtonAccessibilityIdentifier: nil
             )
-            .padding(.bottom, bottomInset)
+            .padding(.bottom, legacyBottomInset)
             .background(backgroundColor) // Fills a small gap at the bottom on notchless devices
             .overlay(alignment: .top) {
                 snapshotOverlay
             }
             .cornerRadius(cornerRadius, corners: .topEdge)
             .overlay(alignment: .top) {
-                if !FeatureProvider.isAvailable(.redesign) {
-                    GrabberView()
-                }
+                GrabberView()
             }
             .background(alignment: .top) {
                 MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)
@@ -79,7 +101,18 @@ struct MainBottomSheetFooterView: View {
         }
     }
 
-    private var bottomInset: CGFloat {
+    private var edgeInsets: EdgeInsets {
+        let inset = MainBottomSheetHeaderView.Constants.searchFieldPadding
+        let bottomInset = UIDevice.current.hasHomeScreenIndicator ? UIApplication.safeAreaInsets.bottom : inset
+        return EdgeInsets(
+            top: inset,
+            leading: inset,
+            bottom: bottomInset,
+            trailing: inset
+        )
+    }
+
+    private var legacyBottomInset: CGFloat {
         return max(
             // Devices with a notch
             UIApplication.safeAreaInsets.bottom - MainBottomSheetHeaderInputView.Constants.bottomInset,
