@@ -375,9 +375,13 @@ extension SwapModel {
         case .idle:
             return .idle
 
-        case .transfer:
+        case .transfer where FeatureProvider.isAvailable(.transfers):
             let loadedState = try await mapToReadyToTransferState()
             return .loaded(state, state: loadedState)
+
+        case .transfer:
+            // Toggle is off. Use just no providers state
+            return .loaded(.swap(selected: .none, providers: .empty), state: .idle)
 
         case .swap(.some(let selected), _):
             let loaded = try await mapToLoadedState(selected: selected)
