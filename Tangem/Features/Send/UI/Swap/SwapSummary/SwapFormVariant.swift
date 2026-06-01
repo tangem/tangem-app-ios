@@ -20,4 +20,11 @@ enum SwapFormVariant: String, CaseIterable, Identifiable {
         case .detailed: return Localization.swapDetailedMode
         }
     }
+
+    var analyticsValue: Analytics.ParameterValue {
+        switch self {
+        case .simple: return .simple
+        case .detailed: return .detailed
+        }
+    }
 }
