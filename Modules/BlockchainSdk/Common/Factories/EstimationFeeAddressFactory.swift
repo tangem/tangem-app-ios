@@ -59,7 +59,7 @@ struct EstimationFeeAddressFactory {
              .zkSync, .moonbeam, .polygonZkEVM, .moonriver, .mantle,
              .flare, .taraxa, .base, .blast, .cyber, .energyWebEVM,
              .core, .canxium, .chiliz, .xodex, .odysseyChain, .bitrock,
-             .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM,
+             .apeChain, .sonic, .vanar, .zkLinkNova, .hyperliquidEVM, .seiEvm,
              .scroll, .linea, .monad, .arbitrumNova, .plasma, .adi:
             return "0x52bb4012854f808CF9BAbd855e44E506dAf6C077"
         case .ethereumClassic:

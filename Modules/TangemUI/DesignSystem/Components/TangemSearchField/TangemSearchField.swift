@@ -32,7 +32,6 @@ public struct TangemSearchField: View, Setupable {
     // MARK: - Scaled properties
 
     @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x3)
-    @ScaledMetric private var fieldHeight: CGFloat = .unit(.x11)
     @ScaledMetric private var fieldHorizontalPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var fieldCornerRadius: CGFloat = .unit(.x4)
     @ScaledMetric private var fieldSearchSpacing: CGFloat = .unit(.x1)
@@ -90,8 +89,7 @@ private extension TangemSearchField {
     var field: some View {
         fieldContent
             .padding(.horizontal, fieldHorizontalPadding)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .frame(height: fieldHeight)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .background(Color.Tangem.Field.backgroundDefault, in: fieldShape)
             .contentShape(.rect)
             .onTapGesture(perform: onFieldTap)
