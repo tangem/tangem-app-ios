@@ -32,6 +32,7 @@ public enum SizeUnit: Sendable {
     case x16
     case x17
     case x18
+    case x19
 
     public var value: CGFloat {
         Self.baseValue * factor
@@ -64,6 +65,7 @@ public enum SizeUnit: Sendable {
         case .x16: 16
         case .x17: 17
         case .x18: 18
+        case .x19: 19
         }
     }
 }

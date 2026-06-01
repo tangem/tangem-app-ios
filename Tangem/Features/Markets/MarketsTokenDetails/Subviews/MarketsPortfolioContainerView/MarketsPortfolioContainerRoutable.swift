@@ -17,4 +17,12 @@ protocol MarketsPortfolioContainerRoutable: AnyObject {
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
     func openStaking(input: SendInput, stakingManager: any StakingManager)
     func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager)
+
+    @MainActor
+    func openMatchedTokenList(
+        walletModels: [any WalletModel],
+        iconURL: URL,
+        addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
+        walletDataProvider: MarketsWalletDataProvider
+    )
 }

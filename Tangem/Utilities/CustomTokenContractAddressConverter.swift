@@ -18,16 +18,6 @@ struct CustomTokenContractAddressConverter {
 
     func convert(_ originalAddress: String, symbol: String?) -> String {
         switch blockchain {
-        case .hedera:
-            do {
-                // This converter has quite strict rules for EVM to Hedera address conversion, and the conversion
-                // will fail if the address is not EVM-like. See `Hiero.SolidityAddress.swift` for implementation details.
-                // In case of failure, we consider the address a not-EVM address and return it as is
-                let converter = HederaTokenContractAddressConverter()
-                return try converter.convertFromEVMToHedera(originalAddress)
-            } catch {
-                return originalAddress
-            }
         case .cardano:
             do {
                 let converter = CardanoTokenContractAddressService()
@@ -135,7 +125,9 @@ struct CustomTokenContractAddressConverter {
              .linea,
              .monad,
              .arbitrumNova,
-             .plasma:
+             .plasma,
+             .adi,
+             .hedera:
             // Did you get a compilation error here? If so, check if the network supports multiple token contract address
             // formats (as Hedera does, for example) and add the appropriate conversion logic here if needed
             return originalAddress
