@@ -651,11 +651,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceTokenFactory = SendWithSwapTokenFactory(
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
         )
-        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)

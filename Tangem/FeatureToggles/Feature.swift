@@ -112,7 +112,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .version("5.39")
         case .swapStoriesV2: return .version("5.38")
-        case .swapProviderTypeFilter: return .unspecified
+        case .swapProviderTypeFilter: return .version("5.39")
         case .swapInProgressV2: return .version("5.39")
         case .swapPendingTxStateDate: return .version("5.39")
         case .dexApproveNotificationV2: return .version("5.39")
