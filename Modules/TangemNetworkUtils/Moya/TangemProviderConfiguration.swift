@@ -35,8 +35,8 @@ public struct TangemProviderConfiguration {
         }
 
         if let credentials {
-            plugins.append(CredentialsPlugin { _ -> URLCredential? in
-                .init(
+            plugins.append(CredentialsPlugin { _ in
+                URLCredential(
                     user: credentials.user,
                     password: credentials.password,
                     persistence: .none
@@ -44,7 +44,9 @@ public struct TangemProviderConfiguration {
             })
         }
 
-        plugins.append(NetworkHeadersPlugin(networkHeaders: headerValues))
+        if headerValues.isNotEmpty {
+            plugins.append(NetworkHeadersPlugin(networkHeaders: headerValues))
+        }
 
         if AppEnvironment.current.isUITest {
             plugins.append(WireMockRedirectPlugin())

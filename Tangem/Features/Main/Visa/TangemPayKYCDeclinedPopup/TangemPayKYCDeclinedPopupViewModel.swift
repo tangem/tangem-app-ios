@@ -85,7 +85,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
             infoProvider: TangemPayKYCDeclinedDataCollector(
                 customerId: tangemPayKYCInteractor.customerId
             ),
-            includeZipLogs: false
+            includeSystemLogs: false
         )
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
