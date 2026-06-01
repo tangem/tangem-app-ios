@@ -83,8 +83,8 @@ struct TangemPayDisplayDataMapper {
         }
 
         return .init(
-            date: dateFormatter.string(from: input.authorizedAt),
-            time: input.authorizedAt.formatted(date: .omitted, time: .shortened),
+            date: dateFormatter.string(from: input.transactionDate),
+            time: input.transactionDate.formatted(date: .omitted, time: .shortened),
             type: type,
             status: .confirmed,
             isOutgoing: true,
@@ -178,7 +178,7 @@ struct TangemPayDisplayDataMapper {
 // MARK: - Inputs
 
 struct TangemPaySpendDisplayInput {
-    let authorizedAt: Date
+    let transactionDate: Date
     let merchantName: String?
     let enrichedMerchantName: String?
     let enrichedMerchantIcon: URL?
@@ -240,7 +240,7 @@ extension TangemPayTransactionRecord {
 private extension TangemPayTransactionHistoryResponse.Spend {
     var displayInput: TangemPaySpendDisplayInput {
         .init(
-            authorizedAt: authorizedAt,
+            transactionDate: transactionDate,
             merchantName: merchantName,
             enrichedMerchantName: enrichedMerchantName,
             enrichedMerchantIcon: enrichedMerchantIcon,
@@ -307,7 +307,7 @@ extension TangemPayPushPayload {
 private extension TangemPayPushPayload.Spend {
     var displayInput: TangemPaySpendDisplayInput {
         .init(
-            authorizedAt: authorizedAt,
+            transactionDate: authorizedAt,
             merchantName: merchantName,
             enrichedMerchantName: enrichedMerchantName,
             enrichedMerchantIcon: enrichedMerchantIcon,
@@ -327,7 +327,7 @@ private extension TangemPayPushPayload.Spend {
 
 private extension TangemPayPushPayload.Collateral {
     func displayInput(isOutgoing: Bool) -> TangemPayCollateralDisplayInput {
-        .init(postedAt: postedAt, amount: amount, isOutgoing: isOutgoing)
+        .init(postedAt: postedAt, amount: isOutgoing ? -amount : amount, isOutgoing: isOutgoing)
     }
 }
 

@@ -27,6 +27,8 @@ struct QuickNodeAPIResolver {
         switch blockchain {
         case .bsc:
             return keysConfig.quickNodeBscCredentials
+        case .xrp:
+            return keysConfig.quickNodeXrpCredentials
         case .solana:
             return keysConfig.quickNodeSolanaCredentials
         case .plasma:

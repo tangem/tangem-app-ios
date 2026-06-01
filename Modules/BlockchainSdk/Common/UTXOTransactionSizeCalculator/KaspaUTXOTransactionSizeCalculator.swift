@@ -15,11 +15,10 @@ struct KaspaUTXOTransactionSizeCalculator: UTXOTransactionSizeCalculator {
         self.network = network
     }
 
-    /// Dust
+    /// Kaspa enforces a fixed dust limit independent of script type and fee rate.
     /// https://kaspa-mdbook.aspectron.com/transactions/constraints/dust.html
     func dust(type: UTXOScriptType) -> Int {
-        // Use the constant value
-        return KaspaTransactionBuilder.dustValue
+        network.dustCalculator.dust(outputSize: 0, type: type)
     }
 
     /// Mass

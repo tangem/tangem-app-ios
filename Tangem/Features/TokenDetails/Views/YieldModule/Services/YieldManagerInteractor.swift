@@ -45,7 +45,7 @@ actor YieldManagerInteractor {
     }
 
     func getIsApproveRequired() -> Bool {
-        guard case .active(let info) = manager.state?.state else {
+        guard case .active(let info, _) = manager.state?.state else {
             return false
         }
 
@@ -53,7 +53,7 @@ actor YieldManagerInteractor {
     }
 
     func getUndepositedAmounts() -> Decimal? {
-        guard case .active(let info) = manager.state?.state, !info.nonYieldModuleBalanceValue.isZero else {
+        guard case .active(let info, _) = manager.state?.state, !info.nonYieldModuleBalanceValue.isZero else {
             return nil
         }
 

@@ -10,6 +10,7 @@ import TangemUI
 
 final class NetworkSelectorViewModel: FloatingSheetContentViewModel {
     private(set) var itemViewModels: [NetworkSelectorItemViewModel] = []
+    let onCancel: (() -> Void)?
 
     private let tokenItems: [TokenItem]
     private let isTokenAdded: (TokenItem) -> Bool
@@ -18,11 +19,13 @@ final class NetworkSelectorViewModel: FloatingSheetContentViewModel {
     init(
         tokenItems: [TokenItem],
         isTokenAdded: @escaping (TokenItem) -> Bool,
-        onSelectNetwork: @escaping (TokenItem) -> Void
+        onSelectNetwork: @escaping (TokenItem) -> Void,
+        onCancel: (() -> Void)? = nil
     ) {
         self.tokenItems = tokenItems
         self.isTokenAdded = isTokenAdded
         self.onSelectNetwork = onSelectNetwork
+        self.onCancel = onCancel
 
         itemViewModels = tokenItems.map { [weak self] tokenItem in
             NetworkSelectorItemViewModel(
@@ -38,5 +41,13 @@ final class NetworkSelectorViewModel: FloatingSheetContentViewModel {
     private func handleNetworkSelection(_ tokenItem: TokenItem) {
         guard !isTokenAdded(tokenItem) else { return }
         onSelectNetwork(tokenItem)
+    }
+}
+
+// MARK: - Equatable
+
+extension NetworkSelectorViewModel: Equatable {
+    static func == (lhs: NetworkSelectorViewModel, rhs: NetworkSelectorViewModel) -> Bool {
+        lhs === rhs
     }
 }
