@@ -32,6 +32,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case backupErrors
     case mobileFinishActivation(hasPositiveBalance: Bool, hasBackup: Bool)
     case mobileUpgrade
+    case addFunds
     case pushNotificationsPermissionRequest
     case initialWalletTokenSyncCompleted
 }
@@ -119,6 +120,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.userPushNotificationBannerTitle)
         case .initialWalletTokenSyncCompleted:
             return .string(Localization.initialWalletSyncBannerTitle)
+        case .addFunds:
+            return .string(Localization.mainAddFundsPromoTitle)
         }
     }
 
@@ -170,6 +173,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.userPushNotificationBannerSubtitle
         case .initialWalletTokenSyncCompleted:
             return Localization.initialWalletSyncBannerDescription
+        case .addFunds:
+            return Localization.mainAddFundsPromoDescription
         }
     }
 
@@ -224,6 +229,11 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
             return .init(iconType: .image(Assets.blueCircleWarning))
+        case .addFunds:
+            return .init(
+                iconType: .image(Assets.coinsSwap),
+                size: CGSize(width: 24, height: 24)
+            )
         }
     }
 
@@ -241,7 +251,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .rateApp,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest,
-             .initialWalletTokenSyncCompleted:
+             .initialWalletTokenSyncCompleted,
+             .addFunds:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -273,7 +284,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
              .mobileUpgrade,
-             .mobileFinishActivation:
+             .mobileFinishActivation,
+             .addFunds:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -359,6 +371,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openManageTokensAfterWalletSuccessImport, isWithLoader: false),
             ])
+        case .addFunds:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .addFunds, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -391,6 +410,7 @@ extension GeneralNotificationEvent {
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         case .initialWalletTokenSyncCompleted: return nil
+        case .addFunds: return .addFundsBannerAppear
         }
     }
 
