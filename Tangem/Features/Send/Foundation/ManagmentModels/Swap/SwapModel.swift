@@ -377,6 +377,7 @@ extension SwapModel {
 
         case .transfer where FeatureProvider.isAvailable(.transfers):
             let loadedState = try await mapToReadyToTransferState()
+            try Task.checkCancellation()
             return .loaded(state, state: loadedState)
 
         case .transfer:
@@ -1273,7 +1274,7 @@ extension SwapModel: SendFeeInput {
         case .loaded(.swap(.some(let selected), _), _):
             return try? selected.getTokenFeeProvidersManager().selectedFeeProvider.selectedTokenFee
 
-        case .loaded(_, .readyToTransfer(let state)):
+        case .loaded(_, .readyToTransfer):
             return tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
 
         default:
