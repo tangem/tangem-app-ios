@@ -16,13 +16,34 @@ import TangemUI
 final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     let title: Title
     let tokenIconInfo: TokenIconInfo
-
     var tokenCurrencySymbol: String { tokenItem.currencySymbol }
 
-    @Published private(set) var amountText: String = ""
-    @Published private(set) var alternativeAmount: String?
-    @Published private(set) var highPriceImpactWarning: HighPriceImpactWarning?
+    var formattedAmount: String? {
+        switch amount?.type {
+        case .none:
+            return nil
+        case _ where isApproximateAmount:
+            return "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
+        case _:
+            return sendAmountFormatter.formatMain(amount: amount)
+        }
+    }
 
+    var formattedAlternativeAmount: String? {
+        switch amount?.type {
+        case .none:
+            return nil
+        case .typical:
+            return sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
+        case .alternative:
+            return sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
+        }
+    }
+
+    @Published private var amount: SendAmount? = nil
+    @Published private var isApproximateAmount: Bool = false
+
+    @Published private(set) var highPriceImpactWarning: HighPriceImpactWarning?
     @Published private(set) var balance: LoadableBalanceView.State?
 
     private let tokenItem: TokenItem
@@ -30,8 +51,6 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     private let sendAmountFormatter: SendAmountFormatter
     private let loadableTokenBalanceViewStateBuilder: LoadableBalanceViewStateBuilder
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
-    private var amountPublisherSubscription: AnyCancellable?
-    private var balancePublisherSubscription: AnyCancellable?
 
     convenience init(receiveToken: SendReceiveToken) {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
@@ -72,31 +91,26 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         loadableTokenBalanceViewStateBuilder = .init()
     }
 
-    func bind(
-        amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>,
-        isApproximateAmount: Bool,
-        isApproximateAmountPublisher: AnyPublisher<Bool, Never>? = nil
-    ) {
-        let approxPublisher: AnyPublisher<Bool, Never> = isApproximateAmountPublisher?
-            .removeDuplicates()
-            .eraseToAnyPublisher() ?? Just(isApproximateAmount).eraseToAnyPublisher()
-
-        amountPublisherSubscription = amountPublisher
-            .combineLatest(approxPublisher)
-            .withWeakCaptureOf(self)
+    func bind(amountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never>) {
+        amountPublisher
+            // Ignore non-amount cases
+            .compactMap { $0.value }
             .receiveOnMain()
-            .sink { viewModel, pair in
-                viewModel.updateAmount(from: pair.0, isApproximate: pair.1)
-            }
+            .assign(to: &$amount)
+    }
+
+    func bind(isApproximateAmountPublisher: AnyPublisher<Bool, Never>) {
+        isApproximateAmountPublisher
+            .receiveOnMain()
+            .assign(to: &$isApproximateAmount)
     }
 
     func bind(balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never>) {
-        balancePublisherSubscription = balanceTypePublisher
+        balanceTypePublisher
             .withWeakCaptureOf(self)
+            .map { $0.loadableTokenBalanceViewStateBuilder.build(type: $1) }
             .receiveOnMain()
-            .sink { viewModel, type in
-                viewModel.balance = viewModel.loadableTokenBalanceViewStateBuilder.build(type: type)
-            }
+            .assign(to: &$balance)
     }
 
     func bind(highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never>) {
@@ -105,30 +119,6 @@ final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         }
         .receiveOnMain()
         .assign(to: &$highPriceImpactWarning)
-    }
-
-    private func updateAmount(from amount: LoadingResult<SendAmount, Error>, isApproximate: Bool) {
-        switch amount {
-        case .loading, .failure:
-            // Do nothing. Just leave a current amount on UI
-            break
-
-        case .success(let amount):
-            switch amount.type {
-            case .typical where isApproximate:
-                amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
-                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
-            case .typical:
-                amountText = sendAmountFormatter.formatMain(amount: amount)
-                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .crypto)
-            case .alternative where isApproximate:
-                amountText = "\(AppConstants.tildeSign) \(sendAmountFormatter.formatMain(amount: amount))"
-                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
-            case .alternative:
-                amountText = sendAmountFormatter.formatMain(amount: amount)
-                alternativeAmount = sendAmountFormatter.formattedAlternative(sendAmount: amount, type: .fiat)
-            }
-        }
     }
 }
 

@@ -31,7 +31,6 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
     weak var router: SendAmountCompactRoutable?
 
     private let expressProviderFormatter: ExpressProviderFormatter = .init()
-    private let isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>?
 
     init(
         initialSourceToken: SendSourceToken,
@@ -40,12 +39,14 @@ class SendAmountCompactViewModel: ObservableObject, Identifiable {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
-        swapProvidersInput: SendSwapProvidersInput? = nil,
-        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>? = nil
+        swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
-        self.isReceiveAmountApproximatePublisher = isReceiveAmountApproximatePublisher
         sendAmountCompactViewModel = .init(sourceToken: initialSourceToken, actionType: actionType)
-        sendAmountCompactViewModel.bind(amountPublisher: sourceTokenAmountInput.sourceAmountPublisher, isApproximateAmount: false)
+
+        sendAmountCompactViewModel.bind(
+            amountPublisher: sourceTokenAmountInput.sourceAmountPublisher
+        )
+
         sendAmountCompactViewModel.bind(
             balanceTypePublisher: initialSourceToken.availableBalanceProvider.formattedBalanceTypePublisher
         )
@@ -122,11 +123,9 @@ private extension SendAmountCompactViewModel {
             return nil
         case .some(let receiveToken):
             let viewModel = SendAmountCompactTokenViewModel(receiveToken: receiveToken)
-            viewModel.bind(
-                amountPublisher: receiveTokenAmountInput.receiveAmountPublisher,
-                isApproximateAmount: true,
-                isApproximateAmountPublisher: isReceiveAmountApproximatePublisher
-            )
+
+            viewModel.bind(amountPublisher: receiveTokenAmountInput.receiveAmountPublisher)
+            viewModel.bind(isApproximateAmountPublisher: receiveTokenAmountInput.isReceiveAmountApproximatePublisher)
             viewModel.bind(highPriceImpactPublisher: receiveTokenAmountInput.highPriceImpactPublisher)
 
             return viewModel
