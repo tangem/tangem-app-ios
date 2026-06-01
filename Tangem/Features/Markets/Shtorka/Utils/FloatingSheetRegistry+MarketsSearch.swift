@@ -13,5 +13,9 @@ extension FloatingSheetRegistry {
         register(MarketsPortfolioTokenListViewModel.self) {
             MarketsPortfolioTokenListView(viewModel: $0)
         }
+
+        register(MarketsPortfolioFlowViewModel.self) {
+            MarketsPortfolioFlowView(viewModel: $0)
+        }
     }
 }

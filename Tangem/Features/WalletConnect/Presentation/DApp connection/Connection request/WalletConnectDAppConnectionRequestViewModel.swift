@@ -292,8 +292,6 @@ extension WalletConnectDAppConnectionRequestViewModel {
         }
 
         do {
-            try await interactor.migrateToAccounts.migrateIfNeeded()
-
             try await interactor.persistConnectedDApp(
                 connectionProposal: proposal,
                 dAppSession: dAppSession,
