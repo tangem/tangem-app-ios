@@ -74,4 +74,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTangemSnackbarDemo() {
         coordinator?.openTangemSnackbarDemo()
     }
+
+    func openTangemShimmerDemo() {
+        coordinator?.openTangemShimmerDemo()
+    }
 }
