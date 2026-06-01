@@ -195,8 +195,10 @@ extension CommonOnrampSummaryInteractor {
                 }
                 .min()
 
+            let nativeApplePaySlot = recent === nativeApplePay ? nil : nativeApplePay
+
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
-                nativeApplePay.map { .nativeApplePay($0) },
+                nativeApplePaySlot.map { .nativeApplePay($0) },
                 recent.map { .recent($0) },
                 great.map { .great($0) },
                 fastest.map { .fastest($0) },
