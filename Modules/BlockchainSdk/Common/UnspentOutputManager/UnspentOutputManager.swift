@@ -17,6 +17,7 @@ protocol UnspentOutputManager {
 
     /// Outputs which possible to spent
     func availableOutputs() -> [ScriptUnspentOutput]
+    func pendingOutputs() -> [ScriptUnspentOutput]
 
     func confirmedBalance() -> UInt64
     func unconfirmedBalance() -> UInt64

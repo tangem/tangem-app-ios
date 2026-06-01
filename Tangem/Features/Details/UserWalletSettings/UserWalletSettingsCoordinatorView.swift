@@ -51,6 +51,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.notificationSettingsCoordinator) {
+                NotificationSettingsCoordinatorView(coordinator: $0)
+            }
     }
 
     private var sheets: some View {
