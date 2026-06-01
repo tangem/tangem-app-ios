@@ -32,6 +32,7 @@ public extension Font {
 
 public extension Font.Tangem.Caption11 {
     static let regular: Font = .caption2.weight(.regular)
+    static let medium: Font = .caption2.weight(.medium)
     static let semibold: Font = .caption2.weight(.semibold)
 }
 
@@ -46,6 +47,7 @@ public extension Font.Tangem.Caption12 {
 
 public extension Font.Tangem.Caption13 {
     static let regular: Font = .footnote.weight(.regular)
+    static let medium: Font = .footnote.weight(.medium)
     static let semibold: Font = .footnote.weight(.semibold)
 }
 
@@ -117,5 +119,5 @@ public extension Font.Tangem.Heading34 {
 
 public extension Font.Tangem.Custom {
     static let titleRegular40: Font = .system(size: 40, weight: .semibold, design: .default)
-    static let titleRegular44: Font = .system(size: 44, weight: .semibold, design: .default)
+    static let titleRegular44: Font = .system(size: 44, weight: .regular, design: .default)
 }

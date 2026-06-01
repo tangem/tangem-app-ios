@@ -10,23 +10,21 @@ import Foundation
 import TangemFoundation
 
 public class ExpressAvailableProvider {
-    public let provider: ExpressProvider
-    public let manager: ExpressProviderManager
+    public var provider: ExpressProvider { context.provider }
+    public var pair: ExpressManagerSwappingPair { context.pair }
+    public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
+
     public let supportedRateTypes: Set<ExpressProviderRateType>
-    public var isBest: Bool { _isBest.read() }
+    public var isBest: Bool { _isBest { $0 } }
 
-    private let _isBest: ThreadSafeContainer<Bool>
+    private let context: ExpressProviderFlowContext
+    private let manager: ExpressProviderManager
+    private let _isBest: OSAllocatedUnfairLock<Bool> = .init(initialState: false)
 
-    init(provider: ExpressProvider, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>, isBest: Bool) {
-        self.provider = provider
+    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>) {
+        self.context = context
         self.manager = manager
         self.supportedRateTypes = supportedRateTypes
-
-        _isBest = .init(isBest)
-    }
-
-    func update(isBest: Bool) {
-        _isBest.mutate { $0 = isBest }
     }
 
     deinit {
@@ -36,28 +34,21 @@ public class ExpressAvailableProvider {
     public func getState() -> ExpressProviderManagerState {
         manager.getState()
     }
+}
 
-    public func getPriority() -> Priority {
-        if isBest {
-            return .highest
-        }
+// MARK: - Internal
 
-        switch getState() {
-        case .permissionRequired(let state), .revokeAndPermissionRequired(let state):
-            return .high(rate: state.quote.rate)
-        case .cexPreview(let state):
-            return .high(rate: state.quote.rate)
-        case .dexPreview(let state):
-            return .high(rate: state.quote.rate)
-        case .restriction(.tooSmallAmount(let amount, _), _):
-            // HACK: We need to use a negative value here because
-            // sorting by priority works from higher to lower.
-            return .medium(minimumAmount: -amount)
-        case .restriction:
-            return .low
-        case .idle, .error:
-            return .lowest
-        }
+extension ExpressAvailableProvider {
+    func update(isBest: Bool) {
+        _isBest { $0 = isBest }
+    }
+
+    func updateState(request: ExpressManagerSwappingPairRequest) async {
+        await manager.update(request: request)
+    }
+
+    func requestData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
+        try await manager.sendData(request: request)
     }
 }
 
@@ -69,37 +60,40 @@ extension ExpressAvailableProvider: CustomStringConvertible {
     }
 }
 
-// MARK: - ExpressAvailableProvider + Priority
-
-public extension ExpressAvailableProvider {
-    enum Priority: Comparable {
-        case lowest
-        case low
-        case medium(minimumAmount: Decimal)
-        case high(rate: Decimal)
-        case highest
-    }
-}
-
 // MARK: - [ExpressAvailableProvider]+
 
 public extension [ExpressAvailableProvider] {
-    func sortedByPriorityAndQuotes() -> [ExpressAvailableProvider] {
-        typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
+    func sortedByAttractively(rateType: ExpressProviderRateType) -> [ExpressAvailableProvider] {
+        sorted { ExpressProviderManagerComparator.isBetter($0, $1, rateType: rateType) }
+    }
 
-        return sorted { lhsProvider, rhsProvider in
-            let lhsPriority = lhsProvider.getPriority()
-            let lhsExpectedAmount = lhsProvider.getState().quote?.expectAmount ?? 0
+    func best(rateType: ExpressProviderRateType) -> ExpressAvailableProvider? {
+        self.min(by: { ExpressProviderManagerComparator.isBetter($0, $1, rateType: rateType) })
+    }
 
-            let rhsPriority = rhsProvider.getPriority()
-            let rhsExpectedAmount = rhsProvider.getState().quote?.expectAmount ?? 0
-
-            if lhsPriority == rhsPriority {
-                return lhsExpectedAmount > rhsExpectedAmount
+    /// Sets `isBest` on the single best provider when there are 2+ ratable candidates
+    /// (state carries a usable quote, not tooSmall/tooBig/error).
+    /// Analytics is intentionally not fired here — call sites trigger `bestProviderSelected`
+    /// only when selection actually changes (see `CommonExpressManager.updateSelectedProvider`).
+    func updateIsBestFlag(rateType: ExpressProviderRateType) {
+        let candidates = filter { provider in
+            guard provider.supportedRateTypes.contains(rateType) else { return false }
+            let state = provider.getState()
+            switch state {
+            case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
+                return false
+            default:
+                return state.quote != nil
             }
-
-            return lhsPriority > rhsPriority
         }
+
+        guard candidates.count > 1 else {
+            forEach { $0.update(isBest: false) }
+            return
+        }
+
+        let bestProvider = candidates.best(rateType: rateType)
+        forEach { $0.update(isBest: $0 === bestProvider) }
     }
 
     func filteredByRateType(_ rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {

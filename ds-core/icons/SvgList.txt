@@ -1,0 +1,58 @@
+Address Polygon / 16, 20, 24 / Regular
+Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Download / 16, 20, 24 / Regular
+Arrow Left / 12, 16, 20, 24, 28 / Regular
+Arrow Refresh / 12, 16, 20, 24, 32 / Regular
+Arrow Right / 12, 16, 20, 24, 28 / Regular
+Arrow Swap Horizontal / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
+Bell / 20, 24, 28 / Regular
+Binoculars / 16, 20, 24, 32 / Regular
+Calendar / 16, 20, 24, 28 / Regular
+Card Plus / 20, 24, 32 / Regular
+Card / 12, 16, 20, 24 / Regular
+Checkmark / 16, 20, 24 / Regular
+Chevron Down / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Left / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
+Clock / 12, 16, 20, 24, 32 / Regular
+Cloud / 12, 16, 20, 24 / Filled & Regular
+Control Box / 20, 24 / Filled & Regular
+Control Checkmark / 20, 24 / Regular
+Control Circle / 20, 24 / Filled & Regular
+Control Indeterminate / 20, 24 / Regular
+Copy / 12, 16, 20, 24 / Regular
+Cross Circle / 16, 20, 24 / Filled
+Cross / 12, 16, 20, 24, 28, 32 / Regular
+Document / 12, 16, 20, 24 / Regular
+Dot / 12, 16, 20, 24, 28, 32 / Filled
+Dots Horizontal / 12, 16, 20, 24 / Regular
+Dots Vertical / 12, 16, 20, 24 / Regular
+Edit / 16, 20, 24 / Regular
+Error / 16, 20, 24, 28 / Regular
+Gauge / 20, 24 / Regular
+Headphones Support / 12, 16, 20, 24 / Regular
+Heart Broken / 16, 20, 24, 32 / Regular
+Heart / 16, 20, 24, 32 / Filled & Regular
+Info / 16, 20, 24, 32 / Regular
+Lightning / 20, 24, 28 / Regular
+Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
+Logo Tangem / 16, 20, 24 / Regular
+Percent Backward / 20, 24, 28 / Regular
+Pincode / 16, 20, 24 / Regular
+Scan / 12, 16, 20, 24, 28 / Regular
+Search / 16, 20, 24 / Regular
+Share Android / 16, 20, 24, 28 / Regular
+Share iOS / 16, 20, 24, 28 / Regular
+Shield Checkmark / 20, 24, 28 / Regular
+Sign Equal / 12, 16, 20, 24, 28, 32 / Regular
+Sign Minus / 12, 16, 20, 24, 28 / Regular
+Sign Plus / 12, 16, 20, 24, 28 / Regular
+Sign USD / 12, 16, 20, 24, 28, 32 / Regular
+Snowflake / 16, 20, 24 / Regular
+Success / 16, 20, 24, 28 / Regular
+Sun / 16, 20, 24 / Regular
+Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
+Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
+Warning / 16, 20, 24, 28 / Regular

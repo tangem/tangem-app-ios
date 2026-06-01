@@ -18,26 +18,18 @@ public struct ExpressSwappableDataItem {
     public let operationType: ExpressOperationType
     public let quoteId: String?
 
-    public init(
-        source: SourceWalletInfo,
-        destination: DestinationWalletInfo,
-        amountType: ExpressAmountType,
-        rateType: ExpressProviderRateType,
-        providerInfo: ProviderInfo,
-        operationType: ExpressOperationType,
-        quoteId: String? = nil
-    ) {
-        self.source = source
-        self.destination = destination
-        self.amountType = amountType
-        self.rateType = rateType
-        self.providerInfo = providerInfo
-        self.operationType = operationType
-        self.quoteId = quoteId
-    }
-
     public var amount: Decimal {
         amountType.amount
+    }
+
+    /// For DEX/DEXBridge providers, returns the yield contract address if available; otherwise falls back to the regular source address.
+    var dexFromAddress: String {
+        switch providerInfo.type {
+        case .dex, .dexBridge:
+            return source.yieldContractAddress ?? source.address
+        case .cex, .onramp, .unknown:
+            return source.address
+        }
     }
 
     func sourceAmountWEI() -> String? {
@@ -64,6 +56,7 @@ public struct ExpressSwappableDataItem {
 public extension ExpressSwappableDataItem {
     struct SourceWalletInfo {
         let address: String
+        let yieldContractAddress: String?
         let currency: ExpressWalletCurrency
         let coinCurrency: ExpressWalletCurrency
     }

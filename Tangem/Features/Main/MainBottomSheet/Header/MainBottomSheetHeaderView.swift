@@ -7,14 +7,14 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
+import TangemAssets
 import TangemUI
 
 struct MainBottomSheetHeaderView: View {
     @ObservedObject var viewModel: MainBottomSheetHeaderViewModel
 
     @FocusState private var isFocused: Bool
-
-    @ScaledMetric private var fieldPadding: CGFloat = .unit(.x4)
 
     var body: some View {
         if FeatureProvider.isAvailable(.redesign) {
@@ -34,8 +34,12 @@ struct MainBottomSheetHeaderView: View {
         )
         .placeholder(text: viewModel.searchPlaceholder)
         .cornerStyle(.capsule)
-        .padding(fieldPadding)
-        .background(.ultraThinMaterial)
+        .containerAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketFieldContainer)
+        .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
+        .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
+        .frame(height: Constants.searchFieldHeight)
+        .padding(Constants.searchFieldPadding)
+        .background(Color.Tangem.Surface.level2)
         .focused($isFocused)
         .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
     }
@@ -48,5 +52,16 @@ struct MainBottomSheetHeaderView: View {
             clearButtonAction: viewModel.clearSearchBarAction,
             cancelButtonAction: viewModel.cancelSearchBarAction
         )
+    }
+}
+
+// MARK: - Constants
+
+extension MainBottomSheetHeaderView {
+    enum Constants {
+        /// Not a scaled property because `RootViewControllerFactory` uses this control internally
+        /// and its `Constants` values cannot be made scaled as it can't be added to the view hierarchy.
+        static let searchFieldPadding: CGFloat = .unit(.x4)
+        static let searchFieldHeight: CGFloat = .unit(.x11)
     }
 }

@@ -6,9 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemExpress
 
-protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
+typealias SendWithSwapToken = SendSwapableToken
+
+protocol SendSwapableToken: SendTransferableToken, ExpressSourceWallet {
     var isExemptFee: Bool { get }
 
     var swapAvailabilityProvider: any SwapAvailabilityProvider { get }
@@ -16,7 +19,8 @@ protocol SendSwapableToken: SendSourceToken, ExpressSourceWallet {
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { get }
 
     var tokenFeeProvidersManagerProvider: any TokenFeeProvidersManagerProvider { get }
-    var expressTransactionValidator: ExpressTransactionValidator { get }
+
+    var sendYieldModuleHelper: SendYieldModuleHelper? { get }
 }
 
 // MARK: ExpressSourceWallet + SendSourceToken
@@ -28,5 +32,6 @@ extension ExpressSourceWallet where Self: SendSwapableToken {
     var coinCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
+    var yieldModuleTransactionHelper: YieldModuleTransactionHelper? { sendYieldModuleHelper }
     var expressFeeProviderFactory: ExpressFeeProviderFactory { tokenFeeProvidersManagerProvider }
 }

@@ -54,9 +54,6 @@ private extension SolanaTransactionHistoryMapper {
         switch amountType {
         case .coin, .reserve:
             amountDelta = solDelta(transaction: transaction, walletAddress: walletAddress)
-            if amountDelta == 0 {
-                return nil
-            }
 
             switch kind {
             case .transfer(let instruction):

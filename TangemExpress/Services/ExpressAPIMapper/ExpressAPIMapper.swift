@@ -135,7 +135,7 @@ struct ExpressAPIMapper {
             otherNativeFee: otherNativeFee,
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
-            externalTxUrl: txDetails.externalTxUrl
+            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:))
         )
     }
 
@@ -164,7 +164,7 @@ struct ExpressAPIMapper {
             externalStatus: response.status,
             refundedCurrency: mapToRefundedExpressCurrency(response: response),
             externalTxId: response.externalTxId,
-            externalTxUrl: response.externalTxUrl,
+            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:)),
             averageDuration: response.averageDuration,
             createdAt: response.createdAt
         )
@@ -256,17 +256,21 @@ struct ExpressAPIMapper {
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
                 externalTxId: codedData.externalTxId,
-                externalTxUrl: codedData.externalTxUrl
+                externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
         case .widget, .none:
+            guard let widgetURL = codedData.widgetUrl else {
+                throw ExpressAPIMapperError.widgetUrlMissing
+            }
+
             return .widget(OnrampRedirectData(
                 txId: response.txId,
-                widgetUrl: codedData.widgetUrl,
-                redirectUrl: codedData.redirectUrl,
+                widgetURL: widgetURL,
+                redirectURL: codedData.redirectUrl,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
                 externalTxId: codedData.externalTxId,
-                externalTxUrl: codedData.externalTxUrl
+                externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
         }
     }
@@ -291,14 +295,18 @@ struct ExpressAPIMapper {
 
         fromAmount /= pow(10, codedData.fromPrecision)
 
+        guard let widgetURL = codedData.widgetUrl else {
+            throw ExpressAPIMapperError.widgetUrlMissing
+        }
+
         return OnrampRedirectData(
             txId: response.txId,
-            widgetUrl: codedData.widgetUrl,
-            redirectUrl: codedData.redirectUrl,
+            widgetURL: widgetURL,
+            redirectURL: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
             externalTxId: codedData.externalTxId,
-            externalTxUrl: codedData.externalTxUrl
+            externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
         )
     }
 
@@ -318,7 +326,161 @@ struct ExpressAPIMapper {
             toAmount: toAmount,
             status: response.status,
             externalTxId: response.externalTxId,
-            externalTxURL: response.externalTxUrl
+            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
+        )
+    }
+
+    // MARK: - History
+
+    func mapToExchangeHistoryPage(response: ExpressDTO.Swap.History.Response) throws -> ExchangeHistoryPage {
+        let records = try response.data.map(mapToExchangeHistoryRecord(record:))
+
+        return ExchangeHistoryPage(
+            records: records,
+            nextCursor: response.nextCursor.value,
+            hasMore: response.hasMore
+        )
+    }
+
+    func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.History.Response) throws -> OnrampHistoryPage {
+        let records = try response.data.map(mapToOnrampHistoryRecord(record:))
+
+        return OnrampHistoryPage(
+            records: records,
+            nextCursor: response.nextCursor.value,
+            hasMore: response.hasMore
+        )
+    }
+
+    private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
+        try ExchangeHistoryRecord(
+            txId: record.txId,
+            status: record.status,
+            provider: mapToExpressHistoryProvider(provider: record.provider),
+            from: mapToExchangeHistoryAsset(asset: record.from),
+            to: mapToExchangeHistoryAsset(asset: record.to),
+            payinHash: record.payinHash,
+            payoutHash: record.payoutHash,
+            externalTxId: record.externalTxId,
+            externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
+            refund: record.refund.map(mapToExpressHistoryRefund(refund:)),
+            rateType: record.rateType,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt
+        )
+    }
+
+    private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
+        try OnrampHistoryRecord(
+            txId: record.txId,
+            status: record.status,
+            provider: mapToExpressHistoryProvider(provider: record.provider),
+            from: mapToOnrampHistoryFiatAsset(asset: record.from),
+            to: mapToOnrampHistoryAsset(asset: record.to),
+            payoutHash: record.payoutHash,
+            externalTxId: record.externalTxId,
+            externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
+            refund: record.refund.map(mapToOnrampHistoryRefund(refund:)),
+            rate: record.rate.map(mapToOnrampHistoryRate(rate:)),
+            failReason: record.failReason,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt
+        )
+    }
+
+    private func mapToExpressHistoryProvider(provider: ExpressDTO.HistoryProvider) -> ExpressHistoryProvider {
+        ExpressHistoryProvider(
+            id: provider.id,
+            name: provider.name,
+            iconURL: URL(string: provider.iconUrl),
+            providerURL: URL(string: provider.providerUrl)
+        )
+    }
+
+    private func mapToExchangeHistoryAsset(asset: ExpressDTO.Swap.History.AssetRef) throws -> ExchangeHistoryAsset {
+        guard let raw = Decimal(string: asset.rawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(asset.rawAmount)
+        }
+
+        let amount = raw / pow(10, asset.decimals)
+
+        return ExchangeHistoryAsset(
+            network: asset.network,
+            tokenId: asset.tokenId,
+            amount: amount,
+            decimals: asset.decimals,
+            isActual: asset.isActual
+        )
+    }
+
+    private func mapToExpressHistoryRefund(refund: ExpressDTO.Swap.History.Refund) throws -> ExpressHistoryRefund {
+        guard let raw = Decimal(string: refund.rawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(refund.rawAmount)
+        }
+
+        let amount = raw / pow(10, refund.decimals)
+
+        return ExpressHistoryRefund(
+            network: refund.network,
+            tokenId: refund.tokenId,
+            amount: amount,
+            decimals: refund.decimals,
+            hash: refund.hash
+        )
+    }
+
+    private func mapToOnrampHistoryFiatAsset(asset: ExpressDTO.Onramp.History.FiatAsset) throws -> OnrampHistoryFiatAsset {
+        guard let amount = Decimal(string: asset.amount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(asset.amount)
+        }
+
+        return OnrampHistoryFiatAsset(currencyCode: asset.currencyCode, amount: amount)
+    }
+
+    private func mapToOnrampHistoryAsset(asset: ExpressDTO.Onramp.History.AssetRef) throws -> OnrampHistoryAsset {
+        guard let expectedRaw = Decimal(string: asset.expectedRawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(asset.expectedRawAmount)
+        }
+
+        let expected = expectedRaw / pow(10, asset.decimals)
+
+        let actual: Decimal? = try asset.actualRawAmount.map { amount in
+            guard let raw = Decimal(string: amount) else {
+                throw ExpressAPIMapperError.mapToDecimalError(amount)
+            }
+
+            return raw / pow(10, asset.decimals)
+        }
+
+        return OnrampHistoryAsset(
+            network: asset.network,
+            tokenId: asset.tokenId,
+            expectedAmount: expected,
+            actualAmount: actual,
+            decimals: asset.decimals
+        )
+    }
+
+    private func mapToOnrampHistoryRefund(refund: ExpressDTO.Onramp.History.Refund) throws -> ExpressHistoryRefund {
+        guard let raw = Decimal(string: refund.rawAmount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(refund.rawAmount)
+        }
+
+        let amount = raw / pow(10, refund.decimals)
+
+        return ExpressHistoryRefund(
+            network: refund.network,
+            tokenId: refund.tokenId,
+            amount: amount,
+            decimals: refund.decimals,
+            hash: refund.hash
+        )
+    }
+
+    private func mapToOnrampHistoryRate(rate: ExpressDTO.Onramp.History.Rate) -> OnrampHistoryRate {
+        OnrampHistoryRate(
+            atCreate: rate.atCreate.flatMap { Decimal(string: $0) },
+            atFinish: rate.atFinish.flatMap { Decimal(string: $0) }
         )
     }
 }
@@ -328,6 +490,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case requestIdNotEqual
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
+    case widgetUrlMissing
 
     var errorDescription: String? {
         switch self {
@@ -335,6 +498,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
+        case .widgetUrlMissing: "Widget url is missing for a widget transaction"
         }
     }
 }

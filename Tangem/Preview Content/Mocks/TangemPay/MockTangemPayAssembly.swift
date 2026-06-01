@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemPay
 
 final class MockTangemPayAssembly: TangemPayAssembly {
@@ -14,5 +15,17 @@ final class MockTangemPayAssembly: TangemPayAssembly {
 
     func makeCardDetailsRepository(for tangemPayAccount: TangemPayAccount) -> TangemPayCardDetailsRepository {
         MockTangemPayCardDetailsRepository()
+    }
+
+    func makeCardDetailsRepository(for card: TangemPayCard) -> TangemPayCardDetailsRepository {
+        MockTangemPayCardDetailsRepository()
+    }
+
+    func makeTransactionDispatcher(
+        withdrawTransactionService: TangemPayWithdrawTransactionService,
+        hasNFCInteraction: Bool,
+        walletPublicKey: Wallet.PublicKey?
+    ) -> TransactionDispatcher {
+        MockTangemPayTransactionDispatcher()
     }
 }

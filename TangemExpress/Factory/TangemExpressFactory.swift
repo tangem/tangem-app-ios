@@ -68,6 +68,31 @@ public struct TangemExpressFactory {
         expressAPIType: ExpressAPIType,
         exchangeDataDecoder: ExpressExchangeDataDecoder
     ) -> ExpressAPIProvider {
+        #if DEBUG
+        // [REDACTED_TODO_COMMENT]
+        // Using deprecated raw initializer for `TangemProvider` since we have to inject a stub closure for network mocks
+        let provider = TangemProvider<ExpressAPITarget>(
+            stubClosure: { target in
+                switch target.target {
+                case .exchangeHistory:
+                    return .immediate
+                default:
+                    return .never
+                }
+            },
+            plugins: [
+                ExpressAuthorizationPlugin(
+                    apiKey: credential.apiKey,
+                    userId: credential.userId,
+                    sessionId: credential.sessionId,
+                    refcode: credential.refcode
+                ),
+                DeviceInfoPlugin(),
+                TangemNetworkLoggerPlugin(logOptions: .verbose),
+            ]
+            sessionConfiguration: configuration
+        )
+        #else
         let provider = TangemProvider<ExpressAPITarget>(
             configuration: TangemProviderConfiguration(
                 logOptions: .verbose,
@@ -83,6 +108,7 @@ public struct TangemExpressFactory {
                 DeviceInfoPlugin(),
             ]
         )
+        #endif // DEBUG
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)

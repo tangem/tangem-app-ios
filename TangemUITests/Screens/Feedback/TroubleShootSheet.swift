@@ -25,11 +25,11 @@ final class TroubleShootSheet: ScreenBase<TroubleShootSheetElement> {
         }
     }
 
-    func requestSupport() -> MailScreen {
+    func requestSupport() -> MailFallbackScreen {
         XCTContext.runActivity(named: "Tap Request Support button") { _ in
             XCTAssertTrue(requestSupportButton.waitForExistence(timeout: .robustUIUpdate), "Request Support button should exist")
             requestSupportButton.waitAndTap()
-            return MailScreen(app)
+            return MailFallbackScreen(app)
         }
     }
 }

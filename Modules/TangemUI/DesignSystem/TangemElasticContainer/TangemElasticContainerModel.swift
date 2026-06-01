@@ -21,6 +21,9 @@ public final class TangemElasticContainerModel: ObservableObject {
 
     private let collapseThreshold: Double = 0.3
     private let expandThreshold: Double = 0.3
+    /// Points-per-millisecond. Above this we snap in the flick direction via natural decel;
+    /// below it we suppress decel and snap by proximity in the `.idle` reducer.
+    private let snapVelocityThreshold: CGFloat = 0.1
 
     private var initialHeight: CGFloat?
 
@@ -31,6 +34,9 @@ public final class TangemElasticContainerModel: ObservableObject {
         self.scrollViewInteractor = scrollViewInteractor
         heightRatioPublisher = heightRatioSubject.eraseToAnyPublisher()
         bind()
+        scrollViewInteractor.targetContentOffsetProvider = { [weak self] proposed, velocity in
+            self?.snapTarget(proposed: proposed, velocity: velocity)
+        }
     }
 }
 
@@ -90,10 +96,8 @@ private extension TangemElasticContainerModel {
                     return 0
                 case .expanded:
                     return 1
-                case .collapsing(let item):
-                    return item.heightRatio
-                case .expanding(let item):
-                    return item.heightRatio
+                case .collapsing(let heightRatio), .expanding(let heightRatio):
+                    return heightRatio
                 }
             }
             .removeDuplicates()
@@ -124,11 +128,9 @@ private extension TangemElasticContainerModel {
 
         switch state {
         case .expanded, .collapsing:
-            let item = CollapsingItem(heightRatio: heightRatio)
-            return .collapsing(item)
+            return .collapsing(heightRatio: heightRatio)
         case .collapsed, .expanding:
-            let item = ExpandingItem(heightRatio: heightRatio)
-            return .expanding(item)
+            return .expanding(heightRatio: heightRatio)
         }
     }
 
@@ -137,11 +139,11 @@ private extension TangemElasticContainerModel {
         let targetState: State
 
         switch state {
-        case .collapsing(let item):
-            let collapseRatio = 1 - item.heightRatio
+        case .collapsing(let heightRatio):
+            let collapseRatio = 1 - heightRatio
             targetState = collapseRatio > collapseThreshold ? .collapsed : .expanded
-        case .expanding(let item):
-            let expandRatio = item.heightRatio
+        case .expanding(let heightRatio):
+            let expandRatio = heightRatio
             targetState = expandRatio > expandThreshold ? .expanded : .collapsed
         case .expanded, .collapsed:
             targetState = state
@@ -164,12 +166,10 @@ private extension TangemElasticContainerModel {
 
         switch targetState {
         case .expanded:
-            // Scroll back to the initial position
             let offset = CGPoint(x: 0, y: initialScrollOffset)
             scrollViewInteractor.setContentOffset(offset, animated: true)
         case .collapsed:
-            // Scroll down by the container's height to hide it
-            let offset = CGPoint(x: 0, y: initialHeight + initialScrollOffset)
+            let offset = CGPoint(x: 0, y: clampToValidOffset(initialHeight + initialScrollOffset))
             scrollViewInteractor.setContentOffset(offset, animated: true)
         case .collapsing, .expanding:
             break
@@ -178,6 +178,48 @@ private extension TangemElasticContainerModel {
 
     func clamped(heightRatio: CGFloat) -> CGFloat {
         clamp(heightRatio, min: 0, max: 1)
+    }
+
+    func snapTarget(proposed: CGPoint, velocity: CGPoint) -> CGPoint? {
+        guard
+            let initialHeight,
+            let initialScrollOffset = scrollViewInteractor.initialScrollOffset?.y,
+            initialHeight > 0
+        else {
+            return nil
+        }
+
+        let expandedY = initialScrollOffset
+        let collapsedY = initialScrollOffset + initialHeight
+
+        guard proposed.y > expandedY, proposed.y < collapsedY else {
+            return nil
+        }
+
+        // Low velocity: UIKit's natural decel curve from ~0 velocity over our snap distance is a slow
+        // creep (~1s). Suppress decel by targeting current offset; `didEndDecelerating` then fires
+        // immediately and the `.idle` reducer drives the explicit snap animation.
+        guard abs(velocity.y) > snapVelocityThreshold else {
+            return scrollViewInteractor.currentScrollOffset ?? proposed
+        }
+
+        // Flick: redirect natural decel to clamped snap point. UIScrollView silently clamps targets
+        // past `contentSize - frameSize`, so we clamp ourselves to avoid bounce-back from overshoot.
+        let snapY = clampToValidOffset(velocity.y > 0 ? collapsedY : expandedY)
+        return CGPoint(x: proposed.x, y: snapY)
+    }
+
+    func clampToValidOffset(_ y: CGFloat) -> CGFloat {
+        guard
+            let frameSize = scrollViewInteractor.frameSize,
+            let contentSize = scrollViewInteractor.contentSize,
+            let initialScrollOffset = scrollViewInteractor.initialScrollOffset?.y
+        else {
+            return y
+        }
+
+        let maxY = max(initialScrollOffset, contentSize.height - frameSize.height)
+        return min(y, maxY)
     }
 }
 
@@ -189,16 +231,8 @@ private extension TangemElasticContainerModel {
 
     enum State: Equatable {
         case expanded
-        case collapsing(CollapsingItem)
+        case collapsing(heightRatio: CGFloat)
         case collapsed
-        case expanding(ExpandingItem)
-    }
-
-    struct CollapsingItem: Equatable {
-        let heightRatio: CGFloat
-    }
-
-    struct ExpandingItem: Equatable {
-        let heightRatio: CGFloat
+        case expanding(heightRatio: CGFloat)
     }
 }

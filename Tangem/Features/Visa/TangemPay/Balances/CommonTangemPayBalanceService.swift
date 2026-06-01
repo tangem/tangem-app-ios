@@ -18,14 +18,18 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.fiat.availableBalance
+        keyPath: \.fiat.availableBalance,
+        cachesBalance: true
     )
 
     lazy var availableBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.availableForWithdrawal.amount
+        keyPath: \.availableForWithdrawal.amount,
+        // The legacy single-card flow caches like `develop`; the multi-card flow opts out so the
+        // two providers don't clobber the shared repository slot during loading.
+        cachesBalance: !FeatureProvider.isAvailable(.tangemPayMultipleCards)
     )
 
     lazy var fiatAvailableBalanceProvider: any TokenBalanceProvider = FiatTokenBalanceProvider(
@@ -48,7 +52,6 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     private let tokenItem = TangemPayUtilities.usdcTokenItem
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
-    /// Provider / Storage  to load `FiatRate` for `AppCurrency`
     private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: tokenItem
     )

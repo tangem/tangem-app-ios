@@ -253,7 +253,7 @@ final class VisaUserWalletModel {
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
             if let authorizationTokensHandler,
                let customerInfo = customerCardInfo.customerInfo,
-               let productInstance = customerInfo.productInstance {
+               let productInstance = customerInfo.productInstance(forCardId: cardId) ?? customerInfo.productInstances.first {
                 setupTransactionHistoryService(
                     productInstanceId: productInstance.id,
                     authorizationTokensHandler: authorizationTokensHandler
@@ -351,11 +351,11 @@ extension VisaUserWalletModel {
                 allowRefresherTask: true
             )
 
-        if authorizationTokensHandler.refreshTokenExpired {
+        if await authorizationTokensHandler.refreshTokenExpired {
             throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
         }
 
-        if authorizationTokensHandler.accessTokenExpired {
+        if await authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
         }
 

@@ -18,6 +18,10 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     let trailing: Trailing
 
     private var iconSettings: AccountIconView.Settings = .defaultSized
+    private var nameFont: Font = Fonts.Bold.subheadline
+    private var nameColor: Color = Colors.Text.primary1
+    private var subtitleFont: Font = Fonts.Regular.caption1
+    private var subtitleColor: Color = Colors.Text.tertiary
 
     public init(
         iconData: AccountIconView.ViewData,
@@ -50,11 +54,11 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     private var contentStack: some View {
         VStack(alignment: .leading, spacing: 2.0) {
             Text(name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(nameFont, color: nameColor)
                 .lineLimit(1)
 
             subtitle
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(subtitleFont, color: subtitleColor)
                 .lineLimit(1)
         }
     }
@@ -65,6 +69,20 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
 extension AccountIconWithContentView: Setupable {
     public func iconSettings(_ settings: AccountIconView.Settings) -> Self {
         map { $0.iconSettings = settings }
+    }
+
+    public func nameStyle(font: Font, color: Color) -> Self {
+        map {
+            $0.nameFont = font
+            $0.nameColor = color
+        }
+    }
+
+    public func subtitleStyle(font: Font, color: Color) -> Self {
+        map {
+            $0.subtitleFont = font
+            $0.subtitleColor = color
+        }
     }
 }
 
@@ -100,3 +118,27 @@ public extension AccountIconWithContentView where Subtitle == EmptyView, Trailin
         )
     }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+@available(iOS 17, *)
+#Preview("Default vs Custom Styles", traits: .sizeThatFitsLayout) {
+    VStack(alignment: .leading, spacing: 16) {
+        AccountIconWithContentView(
+            iconData: .composite(backgroundColor: .blue, nameMode: .letter("M")),
+            name: "Main",
+            subtitle: { Text("Default legacy style") }
+        )
+
+        AccountIconWithContentView(
+            iconData: .composite(backgroundColor: .green, nameMode: .letter("R")),
+            name: "Redesigned",
+            subtitle: { Text("Tangem DS tokens") }
+        )
+        .nameStyle(font: .Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+        .subtitleStyle(font: .Tangem.Caption13.regular, color: .Tangem.Text.Neutral.tertiary)
+    }
+    .padding()
+}
+#endif // DEBUG

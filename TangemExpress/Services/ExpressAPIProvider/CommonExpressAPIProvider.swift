@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AnyCodable
 
 class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
@@ -114,10 +115,12 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         case .fixed: .fixed
         }
 
+        let fromAddress = item.dexFromAddress
+
         let request = ExpressDTO.Swap.ExchangeData.Request(
             requestId: requestId,
             quoteId: item.quoteId,
-            fromAddress: item.source.address,
+            fromAddress: fromAddress,
             fromContractAddress: item.source.currency.contractAddress,
             fromNetwork: item.source.currency.network,
             toContractAddress: item.destination.currency.contractAddress,
@@ -226,7 +229,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.quotesItem.providerInfo.id,
             toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil, // There is no memo on the client side
-            redirectUrl: item.redirectSettings.redirectURL,
+            redirectUrl: item.redirectSettings.redirectURL.absoluteString,
             language: item.redirectSettings.language,
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId
@@ -251,7 +254,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.quotesItem.providerInfo.id,
             toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil,
-            redirectUrl: item.redirectSettings.redirectURL,
+            redirectUrl: item.redirectSettings.redirectURL.absoluteString,
             language: item.redirectSettings.language,
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId,
@@ -265,13 +268,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
                     lastName: item.userData.lastName,
                     billingAddress: item.userData.billingAddress.map { address in
                         .init(
-                            street: address.street,
                             city: address.city,
-                            subAdministrativeArea: address.subAdministrativeArea,
                             state: address.state,
                             postalCode: address.postalCode,
-                            country: address.country,
-                            isoCountryCode: address.isoCountryCode
+                            country: address.country
                         )
                     }
                 )
@@ -287,5 +287,45 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let request = ExpressDTO.Onramp.Status.Request(txId: transactionId)
         let response = try await expressAPIService.onrampStatus(request: request)
         return try expressAPIMapper.mapToOnrampTransaction(response: response)
+    }
+
+    // MARK: - History
+
+    func exchangeHistory(
+        walletAddress: String,
+        cursor: Any?,
+        limit: Int?,
+        network: String?,
+        tokenId: String?
+    ) async throws -> ExchangeHistoryPage {
+        let request = ExpressDTO.HistoryRequest(
+            walletAddress: walletAddress,
+            cursor: cursor.map { AnyEncodable($0) },
+            limit: limit,
+            network: network,
+            tokenId: tokenId
+        )
+        let response = try await expressAPIService.exchangeHistory(request: request)
+
+        return try expressAPIMapper.mapToExchangeHistoryPage(response: response)
+    }
+
+    func onrampHistory(
+        walletAddress: String,
+        cursor: Any?,
+        limit: Int?,
+        network: String?,
+        tokenId: String?
+    ) async throws -> OnrampHistoryPage {
+        let request = ExpressDTO.HistoryRequest(
+            walletAddress: walletAddress,
+            cursor: cursor.map { AnyEncodable($0) },
+            limit: limit,
+            network: network,
+            tokenId: tokenId
+        )
+        let response = try await expressAPIService.onrampHistory(request: request)
+
+        return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
     }
 }
