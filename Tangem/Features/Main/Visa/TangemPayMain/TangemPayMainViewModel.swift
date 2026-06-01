@@ -204,7 +204,7 @@ final class TangemPayMainViewModel: ObservableObject {
             userWalletId: userWalletInfo.id.stringValue,
             customerId: tangemPayAccount.customerId
         )
-        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: EmailConfig.visaDefault(subject: .default).recipient,
