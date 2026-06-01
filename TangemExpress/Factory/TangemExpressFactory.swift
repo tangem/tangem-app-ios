@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Moya
 import TangemNetworkUtils
 
 public struct TangemExpressFactory {
@@ -69,17 +68,21 @@ public struct TangemExpressFactory {
         expressAPIType: ExpressAPIType,
         exchangeDataDecoder: ExpressExchangeDataDecoder
     ) -> ExpressAPIProvider {
-        let plugins: [PluginType] = [
-            ExpressAuthorizationPlugin(
-                apiKey: credential.apiKey,
-                userId: credential.userId,
-                sessionId: credential.sessionId,
-                refcode: credential.refcode
+        let provider = TangemProvider<ExpressAPITarget>(
+            configuration: TangemProviderConfiguration(
+                logOptions: .verbose,
+                urlSessionConfiguration: configuration
             ),
-            DeviceInfoPlugin(),
-            TangemNetworkLoggerPlugin(logOptions: .verbose),
-        ]
-        let provider = TangemProvider<ExpressAPITarget>(plugins: plugins, sessionConfiguration: configuration)
+            additionalPlugins: [
+                ExpressAuthorizationPlugin(
+                    apiKey: credential.apiKey,
+                    userId: credential.userId,
+                    sessionId: credential.sessionId,
+                    refcode: credential.refcode
+                ),
+                DeviceInfoPlugin(),
+            ]
+        )
         let service = CommonExpressAPIService(provider: provider, expressAPIType: expressAPIType)
         let mapper = ExpressAPIMapper(exchangeDataDecoder: exchangeDataDecoder)
         return CommonExpressAPIProvider(expressAPIService: service, expressAPIMapper: mapper)
