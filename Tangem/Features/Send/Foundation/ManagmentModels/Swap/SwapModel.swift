@@ -181,7 +181,11 @@ extension SwapModel {
     func update(sourceAmount: SendAmount?) {
         ExpressLogger.info("Will update source amount to \(sourceAmount as Any)")
 
-        updateTask(loadingType: .rates) { expressManager in
+        let loadingType: (ExpressManager) async -> LoadingType = { manager in
+            await manager.getCurrentPair()?.isTransfer == true ? .fee : .rates
+        }
+
+        updateTask(loadingType: loadingType) { expressManager in
             if sourceAmount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
@@ -200,7 +204,11 @@ extension SwapModel {
     func update(receiveAmount: SendAmount?) {
         ExpressLogger.info("Will update receive amount to \(receiveAmount as Any)")
 
-        updateTask(loadingType: .rates) { expressManager in
+        let loadingType: (ExpressManager) async -> LoadingType = { manager in
+            await manager.getCurrentPair()?.isTransfer == true ? .fee : .rates
+        }
+
+        updateTask(loadingType: loadingType) { expressManager in
             if receiveAmount != nil {
                 // Add some debounce
                 try await Task.sleep(for: .seconds(1))
@@ -233,9 +241,9 @@ extension SwapModel {
 
 private extension SwapModel {
     func swappingPairDidChange() {
-        let loadingType: () async -> LoadingType = { [weak self] in
+        let loadingType: (ExpressManager) async -> LoadingType? = { [weak self] _ in
             guard let self else {
-                return .providers
+                return nil
             }
 
             return await pairUpdateHandler.updatePairLoadingType(
@@ -260,11 +268,11 @@ private extension SwapModel {
         loadingType: LoadingType,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
-        updateTask(loadingType: { loadingType }, block: block)
+        updateTask(loadingType: { _ in loadingType }, block: block)
     }
 
     func updateTask(
-        loadingType: @escaping () async -> LoadingType,
+        loadingType: @escaping (ExpressManager) async -> LoadingType?,
         block: @escaping (_ manager: ExpressManager) async throws -> ExpressManagerState
     ) {
         updateTask?.cancel()
@@ -274,8 +282,9 @@ private extension SwapModel {
                     return input.update(providersState: restrictionProvidersState)
                 }
 
-                let type = await loadingType()
-                input.update(providersState: .loading(type))
+                if let type = await loadingType(input.expressManager) {
+                    input.update(providersState: .loading(type))
+                }
 
                 let state = try await block(input.expressManager)
                 try Task.checkCancellation()
@@ -1219,7 +1228,7 @@ extension SwapModel: SendFeeInput {
 
     var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
         _providersState
-            .filter { $0.filter(loading: [.rates]) }
+            .filter { $0.filter(loading: [.rates, .fee]) }
             .withWeakCaptureOf(self)
             .map { $0.mapToShouldShowFeeSelectorRow(providersState: $1) }
             .eraseToAnyPublisher()
@@ -1258,6 +1267,8 @@ extension SwapModel: SendFeeInput {
             return !previewCEX.isExemptFee
         case .loading(.rates):
             return false
+        case .loading(.fee):
+            return true
         default:
             return false
         }
