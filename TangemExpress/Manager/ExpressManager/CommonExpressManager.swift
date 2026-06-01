@@ -72,12 +72,12 @@ extension CommonExpressManager: ExpressManager {
         return makeUpdatingResult(selected: selected)
     }
 
-    func update(amountType: ExpressAmountType?) async throws -> ExpressManagerUpdatingResult {
+    func update(amountType: ExpressAmountType?) async -> ExpressManagerUpdatingResult {
         _amountType = amountType
-        return try await update(by: .amount)
+        return await update(type: .amount)
     }
 
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult {
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerUpdatingResult {
         selectedProvider = provider
 
         return makeUpdatingResult(selected: selectedProvider)
@@ -92,12 +92,18 @@ extension CommonExpressManager: ExpressManager {
         _approvePolicy = approvePolicy
 
         let request = try makeRequest(for: selectedProvider)
-        await selectedProvider?.manager.update(request: request)
+        await selectedProvider?.updateState(request: request)
         return makeUpdatingResult(selected: selectedProvider)
     }
 
-    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await updateState(by: source)
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult {
+        let selected: ExpressAvailableProvider?
+        do {
+            selected = try await updateState(by: type)
+        } catch {
+            ExpressLogger.warning(self, "update(type: \(type)) failed: \(error)")
+            selected = selectedProvider
+        }
         return makeUpdatingResult(selected: selected)
     }
 
@@ -107,7 +113,7 @@ extension CommonExpressManager: ExpressManager {
         }
 
         let request = try makeRequest(for: selectedProvider)
-        return try await selectedProvider.manager.sendData(request: request)
+        return try await selectedProvider.requestData(request: request)
     }
 }
 
@@ -115,7 +121,7 @@ extension CommonExpressManager: ExpressManager {
 
 private extension CommonExpressManager {
     /// Return the state which checking the all properties
-    func updateState(by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider? {
+    func updateState(by source: ExpressManagerUpdatingType) async throws -> ExpressAvailableProvider? {
         guard let pair = _pair else {
             ExpressLogger.warning("Pair isn't set. Return nil as `selectedProvider`")
             return nil
@@ -152,19 +158,19 @@ private extension CommonExpressManager {
                 return nil
             }
 
-            guard let manager = expressProviderManagerFactory.makeExpressProviderManager(provider: provider, pair: pair) else {
-                throw ExpressManagerError.unsupportedProviderType
-            }
-
             var rateTypes: Set<ExpressProviderRateType> = []
             if floatSet.contains(provider.id) { rateTypes.insert(.float) }
             if fixedSet.contains(provider.id) { rateTypes.insert(.fixed) }
 
-            return ExpressAvailableProvider(provider: provider, manager: manager, supportedRateTypes: rateTypes, isBest: false)
+            return try expressProviderManagerFactory.makeExpressProviderManager(
+                provider: provider,
+                pair: pair,
+                supportedRateTypes: rateTypes
+            )
         }
     }
 
-    func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressProviderUpdateSource) async {
+    func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressManagerUpdatingType) async {
         if source.isRequiredUpdateSelectedProvider || selectedProvider == nil {
             selectedProvider = await bestProvider()
 
@@ -212,7 +218,7 @@ private extension CommonExpressManager {
             candidates.forEach { provider in
                 let providerRequest = request.with(rateType: resolveRateType(for: provider))
                 taskGroup.addTask {
-                    await provider.manager.update(request: providerRequest)
+                    await provider.updateState(request: providerRequest)
                 }
             }
         }

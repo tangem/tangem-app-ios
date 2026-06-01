@@ -47,7 +47,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
         }
     )
 
-    private let _scrollViewInteractor = CommonRefreshScrollViewInteractor()
+    private let _scrollViewInteractor = RefreshScrollViewInteractor()
 
     private let settings: Settings
     private let refreshable: () async -> Void
