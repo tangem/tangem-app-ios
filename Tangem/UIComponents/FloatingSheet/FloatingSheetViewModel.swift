@@ -25,6 +25,14 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         }
     }
 
+    func present(replacingActive sheet: some FloatingSheetContentViewModel) async {
+        if activeSheet != nil {
+            removeActiveSheet()
+            try? await Task.sleep(for: Constants.dismissAnimationDuration)
+        }
+        enqueue(sheet: sheet)
+    }
+
     func removeActiveSheet() {
         guard !isPaused else {
             if sheetsQueue.isNotEmpty {
@@ -65,6 +73,12 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         if !sheetsQueue.isEmpty {
             activeSheet = sheetsQueue.removeFirst()
         }
+    }
+}
+
+private extension FloatingSheetViewModel {
+    enum Constants {
+        static let dismissAnimationDuration: Duration = .milliseconds(350)
     }
 }
 
