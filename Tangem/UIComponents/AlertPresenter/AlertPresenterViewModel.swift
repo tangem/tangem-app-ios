@@ -12,8 +12,6 @@ import struct TangemUIUtils.AlertBinder
 
 final class AlertPresenterViewModel: ObservableObject {
     @Published var alert: AlertBinder?
-
-    init() {}
 }
 
 // MARK: - AlertPresenter

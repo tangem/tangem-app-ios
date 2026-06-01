@@ -22,21 +22,39 @@ struct TransactionHistoryMapper {
     private let isToken: Bool
 
     private let balanceFormatter = BalanceFormatter()
-    private let dateFormatter: DateFormatter = {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
         formatter.dateStyle = .short
         formatter.doesRelativeDateFormatting = true
         return formatter
     }()
 
-    private let timeFormatter: DateFormatter = {
+    private static let longDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.setLocalizedDateFormatFromTemplate("MMMMdy")
+        formatter.doesRelativeDateFormatting = true
+        return formatter
+    }()
+
+    private static let monthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
+        formatter.setLocalizedDateFormatFromTemplate("MMMM, y")
+        return formatter
+    }()
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .autoupdatingCurrent
         formatter.timeStyle = .short
         return formatter
     }()
 
-    private let dateTimeFormatter: DateFormatter = {
+    private static let dateTimeFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = .autoupdatingCurrent
         dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .short
         dateFormatter.doesRelativeDateFormatting = true
@@ -50,36 +68,92 @@ struct TransactionHistoryMapper {
         self.isToken = isToken
     }
 
-    func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
-        let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
+    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `groupingStyle` parameter,
+    // delete the `.day` branch, and inline `.dayThenMonth` as the only behaviour.
+    func mapTransactionListItem(
+        from records: [TransactionRecord],
+        groupingStyle: GroupingStyle = .day,
+        subtitleOwnerResolver: SubtitleOwnerResolver? = nil
+    ) -> [TransactionListItem] {
+        let mapRow = { mapTransactionViewModel($0, subtitleOwnerResolver: subtitleOwnerResolver) }
 
-        return grouped.sorted(by: { $0.key > $1.key }).reduce([]) { result, args in
-            let (key, value) = args
-            let item = TransactionListItem(
-                header: dateFormatter.string(from: key),
-                items: value.map(mapTransactionViewModel)
-            )
+        switch groupingStyle {
+        case .day:
+            let grouped = Dictionary(grouping: records, by: { Calendar.current.startOfDay(for: $0.date ?? Date()) })
 
-            return result + [item]
+            return grouped.sorted(by: { $0.key > $1.key }).map { key, value in
+                TransactionListItem(
+                    header: Self.dateFormatter.string(from: key),
+                    items: value.map(mapRow)
+                )
+            }
+
+        case .dayThenMonth:
+            let calendar = Calendar.current
+            let currentMonthStart = calendar.dateInterval(of: .month, for: Date())?.start ?? Date()
+
+            let grouped = Dictionary(grouping: records) { record -> GroupingKey in
+                let date = record.date ?? Date()
+                if date >= currentMonthStart {
+                    return .day(calendar.startOfDay(for: date))
+                } else {
+                    return .month(calendar.dateInterval(of: .month, for: date)?.start ?? date)
+                }
+            }
+
+            return grouped.sorted(by: { $0.key.sortDate > $1.key.sortDate }).map { key, value in
+                let header: String = switch key {
+                case .day(let date): Self.longDateFormatter.string(from: date)
+                case .month(let date): Self.monthFormatter.string(from: date)
+                }
+                return TransactionListItem(header: header, items: value.map(mapRow))
+            }
         }
     }
 
-    func mapTransactionViewModel(_ record: TransactionRecord) -> TransactionViewModel {
+    enum GroupingStyle {
+        /// All records grouped by day. Legacy transaction history behaviour.
+        case day
+        /// Current-month records grouped by day; older records collapsed into month buckets.
+        case dayThenMonth
+    }
+
+    private enum GroupingKey: Hashable {
+        case day(Date)
+        case month(Date)
+
+        var sortDate: Date {
+            switch self {
+            case .day(let date), .month(let date): date
+            }
+        }
+    }
+
+    func mapTransactionViewModel(
+        _ record: TransactionRecord,
+        subtitleOwnerResolver: SubtitleOwnerResolver? = nil
+    ) -> TransactionViewModel {
         var timeFormatted: String?
         if let date = record.date {
-            timeFormatted = timeFormatter.string(from: date)
+            timeFormatted = Self.timeFormatter.string(from: date)
         }
+
+        let amount = transferAmount(from: record)
+        let interaction = interactionAddress(from: record)
 
         return TransactionViewModel(
             hash: record.hash,
             index: record.index,
-            interactionAddress: interactionAddress(from: record),
+            interactionAddress: interaction,
             timeFormatted: timeFormatted,
-            amount: transferAmount(from: record),
+            amount: amount.formatted,
+            value: amount.value,
+            currencyCode: currencySymbol,
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
             status: status(from: record),
-            isFromYieldContract: record.isFromYieldContract
+            isFromYieldContract: record.isFromYieldContract,
+            subtitleOwner: subtitleOwnerResolver?.resolve(for: interaction)
         )
     }
 
@@ -99,9 +173,9 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let amountFormatted = transferAmount(from: record)
+        let amountFormatted = transferAmount(from: record).formatted
         let date = record.date ?? Date()
-        let dateFormatted = dateTimeFormatter.string(from: date)
+        let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
         return SendDestinationSuggestedTransactionRecord(
             id: record.hash,
@@ -118,7 +192,12 @@ struct TransactionHistoryMapper {
 // MARK: - TransactionHistoryMapper
 
 private extension TransactionHistoryMapper {
-    func transferAmount(from record: TransactionRecord) -> String {
+    struct FormattedAmount {
+        let formatted: String
+        let value: String
+    }
+
+    func transferAmount(from record: TransactionRecord) -> FormattedAmount {
         if record.isOutgoing {
             let sent: Decimal = {
                 switch record.source {
@@ -279,14 +358,15 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    func formatted(amount: Decimal, isOutgoing: Bool) -> String {
+    func formatted(amount: Decimal, isOutgoing: Bool) -> FormattedAmount {
+        let valueOnly = balanceFormatter.formatDecimal(amount)
         let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        if amount.isZero || !showSign {
-            return formatted
+        guard !amount.isZero, showSign else {
+            return FormattedAmount(formatted: formatted, value: valueOnly)
         }
 
         let prefix = isOutgoing ? AppConstants.minusSign : "+"
-        return prefix + formatted
+        return FormattedAmount(formatted: prefix + formatted, value: prefix + valueOnly)
     }
 }
 
@@ -298,12 +378,14 @@ extension TransactionHistoryMapper {
 }
 
 private extension TransactionHistoryMapper {
-    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> String {
+    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> FormattedAmount {
         switch transactionType(from: record) {
-        case .yieldEnter, .yieldTopup, .yieldWithdraw:
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        case .yieldSend where record.isFromYieldContract:
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        case .yieldEnter, .yieldTopup, .yieldWithdraw,
+             .yieldSend where record.isFromYieldContract:
+            return FormattedAmount(
+                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                value: balanceFormatter.formatDecimal(amount)
+            )
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing)
         }
