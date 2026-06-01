@@ -70,6 +70,26 @@ class CommonSendAnalyticsLogger {
 
         return result
     }
+
+    private func buildSwapTokenProviderParams() -> [Analytics.ParameterKey: String] {
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            params[.receiveToken] = receive.tokenItem.currencySymbol
+            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+            params[.provider] = provider.provider.name
+        }
+
+        return params
+    }
 }
 
 // MARK: - SendDestinationAnalyticsLogger
@@ -502,30 +522,27 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
             .percentage: fraction.analyticsValue,
         ])
     }
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant) {
+        Analytics.log(event: .swapTypeReselection, params: [
+            .typeFrom: from.analyticsValue.rawValue,
+            .typeTo: to.analyticsValue.rawValue,
+        ])
+    }
+
+    func logSwapTypeScreenOpened(variant: SwapFormVariant) {
+        Analytics.log(event: .swapTypeSimpleDetailed, params: [
+            .swapType: variant.analyticsValue.rawValue,
+        ])
+    }
 }
 
 // MARK: - SendApproveAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
     func logPermissionScreenOpened(isRevoke: Bool) {
-        var params: [Analytics.ParameterKey: String] = [:]
-
-        if let sourceTokenItem {
-            params[.sendToken] = sourceTokenItem.currencySymbol
-            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
-        }
-
-        if let receive = sendReceiveTokenInput?.receiveToken.value {
-            params[.receiveToken] = receive.tokenItem.currencySymbol
-            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
-        }
-
-        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
-            params[.provider] = provider.provider.name
-        }
-
         let event: Analytics.Event = isRevoke ? .swapPermissionUpdateScreenOpened : .swapPermissionScreenOpened
-        Analytics.log(event: event, params: params)
+        Analytics.log(event: event, params: buildSwapTokenProviderParams())
     }
 
     func logSwapButtonPermissionApprove(policy: ApprovePolicy) {
