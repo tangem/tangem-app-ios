@@ -17,26 +17,42 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressManager = expressManager
     }
 
-    func updatePair(
-        source: SendSwapableToken,
-        destination: SendReceiveToken
-    ) async throws -> SwapPairUpdateResult {
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType {
+        let currentPair = await expressManager.getCurrentPair()
+        let shouldReloadProviders = {
+            guard let currentPair else {
+                return true
+            }
+
+            guard currentPair.source.currency == source?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            guard currentPair.destination.currency == destination?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            return false
+        }()
+
+        let amountType = await expressManager.getAmountType()
+        let hasAmount = amountType != nil
+
+        if shouldReloadProviders {
+            return hasAmount ? .rates : .providers
+        }
+
+        return .autoupdate
+    }
+
+    func updatePair(source: any SendSwapableToken, destination: any SendReceiveToken) async throws -> ExpressManagerState {
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
         let pairResult = try await expressManager.update(pair: pair)
 
         guard let amountType = await expressManager.getAmountType() else {
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
+            return pairResult
         }
 
-        let quoteResult = await expressManager.update(amountType: amountType)
-
-        let quote = quoteResult.selected?.getState().quote
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate? = switch (amountType, quote) {
-        case (.from, .some(let quote)): .setReceiveAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId)
-        case (.to, .some(let quote)): .setSourceAmount(crypto: quote.fromAmount, currencyId: source.tokenItem.currencyId)
-        case (_, .none): .none
-        }
-
-        return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: amountUpdate)
+        return await expressManager.update(amountType: amountType)
     }
 }
