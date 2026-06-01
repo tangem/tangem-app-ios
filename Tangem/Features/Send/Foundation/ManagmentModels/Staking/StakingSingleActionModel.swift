@@ -38,7 +38,7 @@ class StakingSingleActionModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
 
-    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
