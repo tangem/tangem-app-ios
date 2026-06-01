@@ -12,6 +12,6 @@ protocol ExpressProviderManagerFactory {
     func makeExpressProviderManager(
         provider: ExpressProvider,
         pair: ExpressManagerSwappingPair,
-        supportedRateTypes: Set<ExpressProviderRateType>
+        rateType: ExpressProviderRateType
     ) throws -> ExpressAvailableProvider
 }
