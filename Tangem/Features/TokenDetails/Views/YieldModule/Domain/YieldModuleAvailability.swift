@@ -11,6 +11,7 @@
 ///
 /// - checking: Initial state, nothing is shown.
 /// - eligible: Token supports yield but user hasn’t entered yet (show `YieldModuleAvailableNotification`).
+///   Promo styling (APY boost) is handled inside the VM via its `Style`.
 /// - active: User is currently in yield (show `YieldStatusView` with active state).
 /// - enter / exit: User is entering or exiting yield (show `YieldStatusView` with loading indicators).
 /// - notApplicable: Yield not available (non-EVM token or missing data).

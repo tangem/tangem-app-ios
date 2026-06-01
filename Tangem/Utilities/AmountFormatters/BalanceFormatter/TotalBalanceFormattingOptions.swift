@@ -25,4 +25,14 @@ struct TotalBalanceFormattingOptions {
             fractionalPartIncludesDecimalSeparator: false
         )
     }
+
+    static var defaultOptionsRedesign: TotalBalanceFormattingOptions {
+        .init(
+            integerPartFont: .Tangem.Custom.titleRegular44,
+            fractionalPartFont: .Tangem.Heading28.regular,
+            integerPartColor: .Tangem.Text.Neutral.primary,
+            fractionalPartColor: .Tangem.Text.Neutral.primary,
+            fractionalPartIncludesDecimalSeparator: true
+        )
+    }
 }

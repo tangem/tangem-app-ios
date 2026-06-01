@@ -155,7 +155,10 @@ public extension NotificationBannerCarousel where Item: NotificationBannerContai
     init(items: [Item]) {
         self.items = items
         bannerView = { item in
-            NotificationBanner(bannerType: item.bannerType)
+            NotificationBanner(
+                bannerType: item.bannerType,
+                accessibilityIdentifier: item.accessibilityIdentifier
+            )
         }
     }
 }

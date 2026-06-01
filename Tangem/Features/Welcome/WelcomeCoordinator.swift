@@ -31,6 +31,7 @@ final class WelcomeCoordinator: CoordinatorObject {
 
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator? = nil
+    @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -43,6 +44,7 @@ final class WelcomeCoordinator: CoordinatorObject {
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($welcomeOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($tangemPayMobileOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append(mailPresenterLifecycleSubject.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
@@ -64,18 +66,20 @@ final class WelcomeCoordinator: CoordinatorObject {
         storiesModel.setDelegate(delegate: welcomeViewModel)
         storiesModel.setLifecyclePublisher(publisher: lifecyclePublisher)
         rootViewModel = welcomeViewModel
-        showWelcomeOnboardingIfNeeded()
+
+        if let onboarding = WelcomeOnboardingsHelper().getStartupOnboarding() {
+            switch onboarding {
+            case .welcome(let steps):
+                showWelcomeOnboarding(steps: steps)
+            case .tangemPayMobile:
+                showTangemPayMobileOnboarding()
+            }
+        }
     }
 
-    private func showWelcomeOnboardingIfNeeded() {
+    private func showWelcomeOnboarding(steps: [WelcomeOnboardingStep]) {
         let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWelcomeOnboarding(using: pushNotificationsInteractor)
         let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
-        let builder = WelcomeOnboardingStepsBuilder(isPushNotificationsAvailable: availabilityProvider.isAvailable)
-        let steps = builder.buildSteps()
-        guard !steps.isEmpty else {
-            return
-        }
 
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in
             withAnimation(.easeIn) {
@@ -86,6 +90,20 @@ final class WelcomeCoordinator: CoordinatorObject {
         let coordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(steps: steps, pushNotificationsPermissionManager: permissionManager))
         welcomeOnboardingCoordinator = coordinator
+    }
+
+    private func showTangemPayMobileOnboarding() {
+        let dismissAction: Action<TangemPayMobileOnboardingCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+            switch options {
+            case .main(let userWalletModel):
+                dismiss(with: .main(userWalletModel))
+            }
+        }
+
+        let coordinator = TangemPayMobileOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: ())
+        tangemPayMobileOnboardingCoordinator = coordinator
     }
 }
 
