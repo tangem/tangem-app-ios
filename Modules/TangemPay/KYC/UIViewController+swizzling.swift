@@ -59,7 +59,7 @@ private extension UIViewController {
         }
 
         if isInitialScreen {
-            rightBarButtonItem.image = nil
+            rightBarButtonItem.isHidden = true
         } else {
             rightBarButtonItem.image = backIcon
         }
