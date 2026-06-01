@@ -27,9 +27,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
         keyPath: \.availableForWithdrawal.amount,
-        // The legacy single-card flow caches like `develop`; the multi-card flow opts out so the
-        // two providers don't clobber the shared repository slot during loading.
-        cachesBalance: !FeatureProvider.isAvailable(.tangemPayMultipleCards)
+        cachesBalance: false
     )
 
     lazy var fiatAvailableBalanceProvider: any TokenBalanceProvider = FiatTokenBalanceProvider(
