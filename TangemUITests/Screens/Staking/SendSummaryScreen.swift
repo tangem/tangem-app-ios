@@ -67,7 +67,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
             } else {
                 // HoldToConfirmButton requires a long press (1.5s hold duration)
                 waitAndAssertTrue(holdFinishButton, "Hold-to-confirm button should exist")
-                holdFinishButton.press(forDuration: 2.0)
+                holdFinishButton.press(forDuration: 4.0)
             }
         }
         return SendFinishScreen(app)

@@ -13,6 +13,7 @@ struct WalletModelsFactoryProvider {
     let userWalletConfig: UserWalletConfig
     let keysRepository: KeysRepository
     let keysDerivingInteractor: KeysDeriving
+    let transactionHistoryProviderRegistry: TransactionHistoryProviderRegistry
 
     func makeWalletModelsFactory(
         blockchainSettingsUpdater: BlockchainSettingsUpdater,
@@ -25,16 +26,20 @@ struct WalletModelsFactoryProvider {
             userTokensManager: userTokensManager
         )
 
-        let featuresManagerProvider = WalletModelFeaturesManagerProvider(
+        let featuresManagerFactory = WalletModelFeaturesManagerFactory(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
-            dynamicAddressesManagerProvider: dynamicAddressesManagerProvider
+            dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
         )
+
+        let transactionHistoryServiceProvider = TransactionHistoryServiceProvider()
 
         let factory = CommonWalletModelsFactory(
             config: userWalletConfig,
             userWalletId: userWalletId,
-            walletModelFeaturesManagerProvider: featuresManagerProvider
+            walletModelFeaturesManagerFactory: featuresManagerFactory,
+            transactionHistoryServiceProvider: transactionHistoryServiceProvider
         )
 
         if userWalletConfig.isDemo {

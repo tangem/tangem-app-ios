@@ -13,10 +13,26 @@ import TangemExpress
 
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
+    let tokenItem: TokenItem
+    let countryCode: String
     weak var amountInput: OnrampAmountInput?
     weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
 
-    private var countryCode: String { Locale.current.region?.identifier ?? "US" }
+    private let balanceFormatter = BalanceFormatter()
+
+    init(
+        geoEligibilityService: GeoEligibilityService,
+        tokenItem: TokenItem,
+        amountInput: OnrampAmountInput?,
+        authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?,
+        countryCode: String = Locale.current.region?.identifier ?? "US"
+    ) {
+        self.geoEligibilityService = geoEligibilityService
+        self.tokenItem = tokenItem
+        self.countryCode = countryCode
+        self.amountInput = amountInput
+        self.authorizationHandler = authorizationHandler
+    }
 
     func make(
         provider: OnrampProvider,
@@ -48,10 +64,21 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
+        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
+        let summaryItemLabel = balanceFormatter.formatCryptoBalance(
+            quote.expectedAmount,
+            currencyCode: tokenItem.currencySymbol
+        )
+
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: currencyCode,
-            countryCode: countryCode
+            countryCode: countryCode,
+            summaryItemLabel: summaryItemLabel,
+            merchantIdentifier: merchantIdentifier
         )
 
         return .nativeApplePay(request: request) { [self, onWillBuy] phase in
@@ -67,9 +94,17 @@ struct OnrampOfferViewModelBuyActionBuilder {
         switch phase {
         case .willAuthorize:
             onWillBuy()
+            authorizationHandler?.applePaySheetWillPresent()
 
         case .didAuthorize(let payment, let resultHandler):
-            let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
+            guard let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment) else {
+                let error = PKPaymentRequest.paymentContactInvalidError(
+                    withContactField: .emailAddress,
+                    localizedDescription: nil
+                )
+                resultHandler(.init(status: .failure, errors: [error]))
+                return
+            }
             let authorization = ApplePayAuthorizationResult(
                 provider: provider,
                 applePayResult: applePayResult,
@@ -82,7 +117,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
             authorizationHandler.handleApplePayAuthorization(authorization)
 
         case .didFinish:
-            break
+            authorizationHandler?.applePaySheetDidFinish()
 
         @unknown default:
             break

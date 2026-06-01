@@ -15,11 +15,12 @@ import TangemUI
 
 struct ManageTokensView: View {
     @ObservedObject var viewModel: ManageTokensViewModel
-
     @State private var contentOffset: CGPoint = .zero
+    private let style: Style
 
-    private var savingIcon: MainButton.Icon? {
-        viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    init(viewModel: ManageTokensViewModel, style: Style = .legacy) {
+        self.viewModel = viewModel
+        self.style = style
     }
 
     var body: some View {
@@ -28,18 +29,26 @@ struct ManageTokensView: View {
                 CustomSearchBar(
                     searchText: $viewModel.searchText,
                     placeholder: Localization.commonSearch,
+                    style: style.searchBarStyle,
                     cancelButtonAction: nil
                 )
-                .padding(.horizontal, 16)
+                .padding(.horizontal, style.searchBarHorizontalPadding)
                 .padding(.vertical, 12)
 
-                if contentOffset.y > 0 {
+                if style.showsScrollDivider, contentOffset.y > 0 {
                     Divider()
+                }
+
+                if style.addCustomTokenPlacement == .inlineRow, viewModel.canAddCustomToken {
+                    addCustomTokenRow.padding(.bottom, 14)
                 }
 
                 ManageTokensListView(viewModel: viewModel.manageTokensListViewModel, header: customTokensList)
                     .addContentOffsetObserver($contentOffset)
+                    .backgroundColor(style.listBackgroundColor)
+                    .roundedCorners(style.listHasRoundedCorners)
             }
+            .padding(.horizontal, style.outerHorizontalPadding)
 
             VStack {
                 Spacer()
@@ -61,25 +70,55 @@ struct ManageTokensView: View {
                 .animation(.default, value: viewModel.isPendingListEmpty)
             }
         }
-        .background(Colors.Background.primary.ignoresSafeArea())
+        .background(style.viewBackgroundColor.ignoresSafeArea())
         .navigationTitle(Text(Localization.addTokensTitle))
         .scrollDismissesKeyboard(.immediately)
         .keyboardType(.alphabet)
         .bindAlert($viewModel.alert)
-        .if(viewModel.canAddCustomToken) {
+        .if(style.addCustomTokenPlacement == .toolbar && viewModel.canAddCustomToken) {
             $0.toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(
-                        action: {
-                            viewModel.openAddCustomToken()
-                        }, label: {
-                            Assets.plus24.image
-                                .foregroundStyle(Colors.Icon.primary1)
-                        }
-                    )
-                }
+                NavigationToolbarButton.add(
+                    placement: .topBarTrailing,
+                    action: viewModel.openAddCustomToken
+                )
             }
         }
+    }
+
+    private var savingIcon: MainButton.Icon? {
+        viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    }
+
+    private var addCustomTokenRow: some View {
+        Button(action: viewModel.openAddCustomToken) {
+            HStack(spacing: 12) {
+                ZStack(alignment: .center) {
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(Colors.Icon.accent.opacity(0.1))
+                        .frame(width: 36, height: 36)
+
+                    Assets.plus24.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundStyle(Colors.Icon.accent)
+                }
+
+                Text(Localization.addCustomTokenTitle)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Colors.Background.action)
+            )
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 
     private func customTokensList() -> some View {
@@ -92,6 +131,48 @@ struct ManageTokensView: View {
                     }
                 )
             }
+        }
+    }
+}
+
+// MARK: - Style
+
+extension ManageTokensView {
+    struct Style {
+        let searchBarStyle: CustomSearchBar.Style
+        let searchBarHorizontalPadding: CGFloat
+        let showsScrollDivider: Bool
+        let addCustomTokenPlacement: AddCustomTokenPlacement
+        let listBackgroundColor: Color
+        let listHasRoundedCorners: Bool
+        let outerHorizontalPadding: CGFloat
+        let viewBackgroundColor: Color
+
+        static let legacy = Style(
+            searchBarStyle: .default,
+            searchBarHorizontalPadding: 16,
+            showsScrollDivider: true,
+            addCustomTokenPlacement: .toolbar,
+            listBackgroundColor: .clear,
+            listHasRoundedCorners: false,
+            outerHorizontalPadding: 0,
+            viewBackgroundColor: Colors.Background.primary
+        )
+
+        static let addAndManage = Style(
+            searchBarStyle: .focused,
+            searchBarHorizontalPadding: 0,
+            showsScrollDivider: false,
+            addCustomTokenPlacement: .inlineRow,
+            listBackgroundColor: Colors.Background.action,
+            listHasRoundedCorners: true,
+            outerHorizontalPadding: 16,
+            viewBackgroundColor: Colors.Background.tertiary
+        )
+
+        enum AddCustomTokenPlacement {
+            case toolbar
+            case inlineRow
         }
     }
 }
