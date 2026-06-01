@@ -42,12 +42,12 @@ struct FullPagePagerView<Data, Navigation, Header, Body, BottomOverlay>: View
     // MARK: - State
 
     @Binding private var selectedIndex: Int
+    @Binding private var headerHeightRatio: CGFloat
     @State private var viewportHeight: CGFloat = 0
 
     // MARK: - Configuration
 
     private var isScrollDisabled: Bool = false
-    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     // MARK: - Initialization
@@ -56,6 +56,7 @@ struct FullPagePagerView<Data, Navigation, Header, Body, BottomOverlay>: View
         data: Data,
         refreshScrollViewStateObject: RefreshScrollViewStateObject,
         selectedIndex: Binding<Int>,
+        headerHeightRatio: Binding<CGFloat>,
         navigationFactory: @escaping NavigationFactory,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory,
@@ -64,6 +65,7 @@ struct FullPagePagerView<Data, Navigation, Header, Body, BottomOverlay>: View
         self.data = data
         self.refreshScrollViewStateObject = refreshScrollViewStateObject
         _selectedIndex = selectedIndex
+        _headerHeightRatio = headerHeightRatio
         self.navigationFactory = navigationFactory
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -104,10 +106,10 @@ private extension FullPagePagerView {
             FullPagePagerViewModern(
                 data: data,
                 selectedIndex: $selectedIndex,
+                headerHeightRatio: $headerHeightRatio,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
                 refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
-                onHeaderHeightRatioChange: onHeaderHeightRatioChange,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
@@ -116,10 +118,10 @@ private extension FullPagePagerView {
             FullPagePagerViewLegacy(
                 data: data,
                 selectedIndex: $selectedIndex,
+                headerHeightRatio: $headerHeightRatio,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
                 refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
-                onHeaderHeightRatioChange: onHeaderHeightRatioChange,
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
@@ -159,10 +161,6 @@ private extension FullPagePagerView {
 extension FullPagePagerView: Setupable {
     func horizontalScrollDisabled(_ disabled: Bool) -> Self {
         map { $0.isScrollDisabled = disabled }
-    }
-
-    func onHeaderHeightRatioChange(_ callback: @escaping (CGFloat) -> Void) -> Self {
-        map { $0.onHeaderHeightRatioChange = callback }
     }
 
     func onPageChange(_ callback: @escaping (CardsInfoPageChangeReason) -> Void) -> Self {
