@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public protocol OnrampManager: Actor {
     /// Initial loading country by IP
     /// If the country has already been setup then return nil
