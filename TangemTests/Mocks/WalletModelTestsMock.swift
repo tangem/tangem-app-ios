@@ -137,7 +137,7 @@ final class WalletModelTestsMock: WalletModel {
 
     var canFetchHistory: Bool { false }
 
-    func clearHistory() {}
+    func clearHistory() async {}
 
     // MARK: - WalletModel Protocol Stubs
 

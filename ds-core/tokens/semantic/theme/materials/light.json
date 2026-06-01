@@ -1,0 +1,134 @@
+{
+  "color": {
+    "material": {
+      "tint": {
+        "glass": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.10})"
+        }
+      },
+      "fill": {
+        "glass": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.neutral.5}, {opacity.60})"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.neutral.5}, {opacity.95})"
+        }
+      },
+      "lighten": {
+        "glass": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba(247,247,247, {opacity.50})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        }
+      },
+      "soft-light": {
+        "glass": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.black}, {opacity.20})"
+        },
+        "blur": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        },
+        "solid": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "#00000000"
+        }
+      },
+      "border": {
+        "start": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.80})"
+        },
+        "mid": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.0})"
+        },
+        "end": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "color",
+          "$value": "rgba({palette.base.white}, {opacity.60})"
+        }
+      }
+    }
+  },
+  "size": {
+    "material": {
+      "glass": {
+        "intensity": {
+          "$extensions": {
+            "com.figma.hiddenFromPublishing": true
+          },
+          "$type": "dimension",
+          "$value": "100px"
+        }
+      }
+    }
+  }
+}

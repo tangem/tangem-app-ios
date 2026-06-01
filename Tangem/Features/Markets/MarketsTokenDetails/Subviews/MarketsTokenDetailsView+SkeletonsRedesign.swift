@@ -50,15 +50,17 @@ extension MarketsTokenDetailsView {
         // MARK: - Metrics
 
         private var metrics: some View {
-            VStack(spacing: .unit(.x2)) {
-                HStack(spacing: .unit(.x2)) {
-                    metricsCard
-                    metricsCard
-                }
+            VStack(spacing: .unit(.x3)) {
+                VStack(spacing: .unit(.x2)) {
+                    HStack(spacing: .unit(.x2)) {
+                        metricsCard
+                        metricsCard
+                    }
 
-                HStack(spacing: .unit(.x2)) {
-                    metricsCard
-                    metricsCard
+                    HStack(spacing: .unit(.x2)) {
+                        metricsCard
+                        metricsCard
+                    }
                 }
 
                 circulatingSupplyCard
@@ -73,7 +75,7 @@ extension MarketsTokenDetailsView {
             }
             .padding(.unit(.x4))
             .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x5))
+            .cornerRadiusContinuous(.unit(.x6))
         }
 
         private var circulatingSupplyCard: some View {
@@ -97,7 +99,7 @@ extension MarketsTokenDetailsView {
             .roundedBackground(
                 with: .Tangem.Surface.level3,
                 padding: .unit(.x4),
-                radius: .unit(.x5)
+                radius: .unit(.x6)
             )
         }
 
@@ -133,7 +135,7 @@ extension MarketsTokenDetailsView {
             .roundedBackground(
                 with: .Tangem.Surface.level3,
                 padding: .unit(.x4),
-                radius: .unit(.x5)
+                radius: .unit(.x6)
             )
         }
 
@@ -151,7 +153,7 @@ extension MarketsTokenDetailsView {
             .roundedBackground(
                 with: .Tangem.Surface.level3,
                 padding: .unit(.x4),
-                radius: .unit(.x5)
+                radius: .unit(.x6)
             )
         }
 
@@ -181,7 +183,7 @@ extension MarketsTokenDetailsView {
             .padding(.vertical, .unit(.x5))
             .padding(.horizontal, .unit(.x4))
             .background(Color.Tangem.Surface.level3)
-            .cornerRadiusContinuous(.unit(.x5))
+            .cornerRadiusContinuous(.unit(.x6))
             .padding(.vertical, .unit(.x5))
         }
 

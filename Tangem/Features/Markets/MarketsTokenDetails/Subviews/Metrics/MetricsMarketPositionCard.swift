@@ -23,7 +23,7 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        MetricsCardContainer(backgroundColor: rankCardBackground(for: state.rankType)) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
                     marketPositionValue(state: state, rankColor: color)
@@ -37,8 +37,8 @@ struct MetricsMarketPositionCard: View {
                     if let progress = state.progress {
                         MetricsProgressBarWithDot(
                             progress: progress,
-                            dotColor: .Tangem.Fill.Neutral.primaryInvertedConstant,
-                            backgroundColor: Color.Tangem.Fill.Neutral.primaryInvertedConstant.opacity(0.1)
+                            dotColor: .Tangem.Fill.Neutral.primary,
+                            backgroundColor: Color.Tangem.Fill.Neutral.primary.opacity(0.1)
                         )
                     }
 
@@ -117,15 +117,6 @@ struct MetricsMarketPositionCard: View {
         case .silver: .Tangem.Market.textTop2
         case .bronze: .Tangem.Market.textTop3
         case .other: .Tangem.Text.Neutral.primary
-        }
-    }
-
-    private func rankCardBackground(for rankType: RankType) -> Color {
-        switch rankType {
-        case .gold: .Tangem.Market.backgroundTop1
-        case .silver: .Tangem.Market.backgroundTop2
-        case .bronze: .Tangem.Market.backgroundTop3
-        case .other: .Tangem.Surface.level3
         }
     }
 }

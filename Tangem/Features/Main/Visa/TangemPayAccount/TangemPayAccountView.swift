@@ -74,16 +74,24 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .syncNeeded, .rootedDevice, .kycDeclined:
+        case .kycInProgress, .issuingYourCard, .rootedDevice, .kycDeclined:
             EmptyView()
 
         case .failedToIssueCard:
             Assets.redCircleWarning20Outline.image
 
-        case .unavailable(let cached):
-            cachedTrailingContent(cached?.trailing)
+        case .unavailable(let cached), .syncNeeded(let cached):
+            // No cached data → no cloud indicator: the row is just dimmed via opacity above.
+            if let cached {
+                cachedTrailingContent(cached.trailing)
+            } else {
+                EmptyView()
+            }
 
-        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
+        case .normal(_, let balance, _):
+            balanceTrailingContent(balance: balance)
+
+        case .cardDeactivated(let balance), .replacingCard(let balance):
             balanceTrailingContent(balance: balance)
 
         case .skeleton:
@@ -95,15 +103,28 @@ struct TangemPayAccountView: View {
     }
 
     @ViewBuilder
-    private func cachedTrailingContent(_ trailing: TangemPayAccountViewModel.CachedDisplayData.Trailing?) -> some View {
+    private func cachedTrailingContent(_ trailing: TangemPayAccountViewModel.CachedDisplayData.Trailing) -> some View {
         switch trailing {
         case .warningIcon:
             Assets.redCircleWarning20Outline.image
         case .balance(let balance):
-            balanceTrailingContent(balance: balance)
-        case .empty, nil:
-            EmptyView()
+            HStack(spacing: 6) {
+                cachedCloudIcon
+                balanceTrailingContent(balance: balance)
+            }
+        case .empty:
+            // We have a cached payload (e.g. KYC subtitle) without a balance — still surface
+            // the cloud so the user knows the row reflects locally stored data.
+            cachedCloudIcon
         }
+    }
+
+    private var cachedCloudIcon: some View {
+        Assets.failedCloud.image
+            .resizable()
+            .renderingMode(.template)
+            .foregroundColor(Colors.Icon.informative)
+            .frame(width: 16, height: 16)
     }
 
     private func balanceTrailingContent(balance: LoadableBalanceView.State) -> some View {

@@ -8,70 +8,48 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 import BlockchainSdk
 
 public protocol ExpressManager: Actor {
-    func getPair() -> ExpressManagerSwappingPair?
     func getAmountType() -> ExpressAmountType?
     func getRateType() -> ExpressProviderRateType?
-    func getAllProviders() -> [ExpressAvailableProvider]
 
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressAvailableProvider?
-    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider?
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressAvailableProvider?
-    func update(feeOption: ExpressFee.Option) async throws -> ExpressAvailableProvider?
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressAvailableProvider?
-    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressAvailableProvider?
+    /// Recreates providers. Does not update quotes.
+    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult
+
+    /// Updates quotes for providers eligible for the current `ExpressAmountType`.
+    func update(amountType: ExpressAmountType?) async -> ExpressManagerUpdatingResult
+
+    /// Updates state (fee) for the selected provider with a new `ApprovePolicy`.
+    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult
+
+    /// Preserves the selected provider across autoupdate cycles.
+    func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerUpdatingResult
+
+    /// Refreshes quotes for all available providers and changes the selection according to `type`.
+    func update(type: ExpressManagerUpdatingType) async -> ExpressManagerUpdatingResult
 
     /// Use this method for CEX provider
     func requestData() async throws -> ExpressTransactionData
 }
 
-public class ExpressManagerUpdatingResult {
+public struct ExpressManagerUpdatingResult {
     public let providers: [ExpressAvailableProvider]
     public let selected: ExpressAvailableProvider?
 
-    init(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?) {
+    public init(providers: [ExpressAvailableProvider], selected: ExpressAvailableProvider?) {
         self.providers = providers
         self.selected = selected
     }
 }
 
-public extension ExpressManager {
-    func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await update(pair: pair)
-        return makeUpdatingResult(selected: selected)
-    }
-
-    func update(amountType: ExpressAmountType?, by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await update(amountType: amountType, by: source)
-        return makeUpdatingResult(selected: selected)
-    }
-
-    func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await update(approvePolicy: approvePolicy)
-        return makeUpdatingResult(selected: selected)
-    }
-
-    func update(feeOption: ExpressFee.Option) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await update(feeOption: feeOption)
-        return makeUpdatingResult(selected: selected)
-    }
-
-    func updateSelectedProvider(provider: ExpressAvailableProvider) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await updateSelectedProvider(provider: provider)
-        return makeUpdatingResult(selected: selected)
-    }
-
-    func update(by source: ExpressProviderUpdateSource) async throws -> ExpressManagerUpdatingResult {
-        let selected = try await update(by: source)
-        return makeUpdatingResult(selected: selected)
-    }
-}
-
-private extension ExpressManager {
-    func makeUpdatingResult(selected: ExpressAvailableProvider?) -> ExpressManagerUpdatingResult {
-        let providers = getAllProviders()
-        return ExpressManagerUpdatingResult(providers: providers, selected: selected)
+extension ExpressManagerUpdatingResult: CustomStringConvertible {
+    public var description: String {
+        objectDescription("ExpressManagerUpdatingResult", userInfo: [
+            "selected name": selected.map { $0.provider.name } ?? "no selected provider",
+            "selected state": selected.map { $0.getState() } ?? "no selected provider",
+            "providers": providers.map { $0.provider.name },
+        ])
     }
 }

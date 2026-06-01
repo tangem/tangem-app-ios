@@ -18,7 +18,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     let cardNameDisplayMode: CardNameDisplayMode
 
     @Published private(set) var lastFourDigits: String
-    @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
+    @Published var state: TangemPayCardDetailsState
     @Published var isFlipped: Bool = false
     @Published var cardName: String = ""
     @Published var isCardNameEditingDisabled: Bool = false
@@ -35,12 +35,14 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     init(
         userWalletId: UserWalletId,
         repository: TangemPayCardDetailsRepository,
-        cardNameDisplayMode: CardNameDisplayMode = .display
+        cardNameDisplayMode: CardNameDisplayMode = .display,
+        initialState: TangemPayCardDetailsState = .hidden(isFrozen: false)
     ) {
         self.cardNameDisplayMode = cardNameDisplayMode
         self.userWalletId = userWalletId
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
+        state = initialState
 
         repository.lastFourDigitsPublisher
             .receiveOnMain()
@@ -80,6 +82,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func toggleVisibility() {
+        guard !state.isIssuing else { return }
         guard !state.isLoaded else {
             cardDetailsExposureTask?.cancel()
             return

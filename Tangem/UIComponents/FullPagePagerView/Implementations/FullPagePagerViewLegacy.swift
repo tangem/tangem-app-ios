@@ -35,8 +35,11 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     /// Measured header height reported by UIKit, used to constrain header frame
     @State private var headerHeight: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
+    @State private var visibleBodyHeight: CGFloat = 0
 
-    @State private var elasticContainerModel: TangemElasticContainerModel
+    @StateObject private var elasticContainerModel: TangemElasticContainerModel
+
+    private let refreshScrollViewInteractor: RefreshScrollViewInteractor
 
     // MARK: - Configuration
 
@@ -62,7 +65,8 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         _selectedIndex = selectedIndex
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
-        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        self.refreshScrollViewInteractor = refreshScrollViewInteractor
+        _elasticContainerModel = StateObject(wrappedValue: TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor))
         self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
@@ -76,7 +80,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
             headerContainer(pageWidth: pageWidth)
 
             bodyContainer(pageWidth: pageWidth)
-                .frame(minHeight: viewportHeight)
+                .frame(minHeight: max(viewportHeight, visibleBodyHeight))
         }
         .readGeometry(\.size.width) { pageWidth = $0 }
         .onChange(of: selectedIndex) { newValue in
@@ -87,6 +91,9 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
             onHeaderHeightRatioChange?($0)
+        }
+        .onReceive(refreshScrollViewInteractor.$visibleBodyHeight) {
+            visibleBodyHeight = $0
         }
     }
 

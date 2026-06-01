@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemExpress
 
 protocol SendSwapableTokenFactory {
@@ -32,9 +33,14 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             walletModel: walletModel,
             supportingOptions: .swap
         )
+        let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
 
-        let expressTransactionValidator = BSDKExpressTransactionValidator(
+        let transactionValidator = BSDKTransactionValidator(
             transactionValidator: walletModel.transactionValidator
+        )
+
+        let transactionCreator = BSDKTransactionCreator(
+            transactionCreator: walletModel.transactionCreator
         )
 
         let balanceProvider = CommonExpressBalanceProvider(
@@ -61,6 +67,8 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             userWalletConfig: userWalletInfo.config
         )
 
+        let sendYieldModuleHelper = makeSendYieldModuleHelper()
+
         return CommonSendSwapableToken(
             sourceToken: sourceToken,
             isExemptFee: false,
@@ -68,12 +76,47 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            expressTransactionValidator: expressTransactionValidator,
+            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            transactionValidator: transactionValidator,
+            transactionCreator: transactionCreator,
+            sendYieldModuleHelper: sendYieldModuleHelper,
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,
             providerTransactionValidator: providerTransactionValidator,
             operationType: operationType,
             supportedProvidersFilter: supportedProvidersFilter
+        )
+    }
+}
+
+private extension CommonSendSwapableTokenFactory {
+    func makeSendYieldModuleHelper() -> SendYieldModuleHelper? {
+        guard FeatureProvider.isAvailable(.yieldModuleUpdate),
+              walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true,
+              let yieldContractAddress = walletModel.yieldModuleManager?.state?.state.activeInfo?.yieldContractAddress
+        else {
+            return nil
+        }
+
+        return CommonSendYieldModuleHelper(
+            yieldContractAddress: yieldContractAddress,
+            currency: walletModel.tokenItem.expressCurrency,
+            swapExecutionRegistryProvider: walletModel.yieldModuleManager?.swapExecutionRegistryProvider,
+            yieldModuleUpgradeHandler: makeYieldModuleUpgradeHandler()
+        )
+    }
+
+    func makeYieldModuleUpgradeHandler() -> YieldModuleUpgradeHandler? {
+        guard walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true,
+              let versionChecker = walletModel.yieldModuleManager?.versionChecker,
+              let yieldModuleAddress = walletModel.yieldModuleManager?.state?.state.activeInfo?.yieldContractAddress
+        else {
+            return nil
+        }
+
+        return CommonYieldModuleUpgradeHandler(
+            versionChecker: versionChecker,
+            yieldModuleAddress: yieldModuleAddress
         )
     }
 }

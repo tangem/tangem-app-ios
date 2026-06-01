@@ -19,10 +19,6 @@ final class CustomerIOWrapper {
     private var fcmTokenUpdatedCancellable: AnyCancellable?
 
     func configure() {
-        guard FeatureProvider.isAvailable(.customerIO) else {
-            return
-        }
-
         // [REDACTED_USERNAME], this mimics current Firebase - dependent behavior of the app.
         // See ``CommonServicesManager.configureFirebase``.
         guard !AppEnvironment.current.isDebug else {

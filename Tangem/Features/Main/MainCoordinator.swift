@@ -16,7 +16,6 @@ import TangemNFT
 import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
-import struct TangemUIUtils.AlertBinder
 import TangemPay
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
@@ -137,7 +136,9 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             .compactMap { $0 }
             .receiveOnMain()
             .sink { [weak self] deepLink in
-                self?.deeplinkPresenter.present(deepLink: deepLink)
+                MainActor.assumeIsolated {
+                    self?.deeplinkPresenter.present(deepLink: deepLink)
+                }
             }
 
         if pushNotificationsViewModelSubscription == nil {
@@ -306,7 +307,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
 
         mainBottomSheetUIManager.hide()
-        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, isApyBoostPromo: false, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
     }
 
@@ -368,8 +369,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
         organizeTokensViewModel = OrganizeTokensViewModel(
             userWalletModel: userWalletModel,
-            coordinator: self
+            coordinator: self,
+            analyticsLogger: TokensManagementAnalyticsLogger()
         )
+    }
+
+    func openAddAndManageTokens(factory: TokensManagementFlowFactory) {
+        Task { @MainActor in
+            let viewModel = factory.makeFlowViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openManageTokens(for account: any CryptoAccountModel, in userWalletModel: UserWalletModel) {
@@ -462,7 +471,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
+    func openTangemPayMainView(
+        userWalletInfo: UserWalletInfo,
+        tangemPayAccount: TangemPayAccount,
+        userWalletModel: any UserWalletModel
+    ) {
         mainBottomSheetUIManager.hide()
 
         let dismissAction: Action<FeeCurrencyNavigatingDismissOption?> = { [weak self] dismissOptions in
@@ -475,14 +488,22 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             popToRootAction: popToRootAction
         )
 
-        coordinator.start(with: .init(
-            userWalletInfo: userWalletInfo,
-            tangemPayAccount: tangemPayAccount
-        ))
+        coordinator.start(
+            with: .init(
+                userWalletInfo: userWalletInfo,
+                tangemPayAccount: tangemPayAccount,
+                userWalletModel: userWalletModel
+            )
+        )
         tangemPayMainCoordinator = coordinator
     }
 
     private func openTangemPayMainFromDeeplink(customerWalletId: String) {
+        guard !RTCUtil.isRootedDevice else {
+            incomingActionManager.discardIncomingAction()
+            return
+        }
+
         guard let userWalletModel = findUserWalletModel(byCustomerWalletId: customerWalletId) else {
             incomingActionManager.discardIncomingAction()
             return
@@ -493,7 +514,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         if let tangemPayAccount = accountModel?.state?.tangemPayAccount {
             openTangemPayMainView(
                 userWalletInfo: userWalletModel.userWalletInfo,
-                tangemPayAccount: tangemPayAccount
+                tangemPayAccount: tangemPayAccount,
+                userWalletModel: userWalletModel
             )
             return
         }
@@ -515,7 +537,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 receiveValue: { [weak self] tangemPayAccount in
                     self?.openTangemPayMainView(
                         userWalletInfo: userWalletModel.userWalletInfo,
-                        tangemPayAccount: tangemPayAccount
+                        tangemPayAccount: tangemPayAccount,
+                        userWalletModel: userWalletModel
                     )
                 }
             )
@@ -628,11 +651,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceTokenFactory = SendWithSwapTokenFactory(
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
         )
-        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)
@@ -683,7 +707,7 @@ extension MainCoordinator: SingleTokenBaseRoutable {
     func openMarketsTokenDetails(tokenModel: MarketsTokenModel) {
         mainBottomSheetUIManager.hide()
         let coordinator = coordinatorFactory.makeMarketsTokenDetailsCoordinator()
-        coordinator.start(with: .init(info: tokenModel, style: .defaultNavigationStack))
+        coordinator.start(with: .init(info: tokenModel, style: .navigationStack))
         marketsTokenDetailsCoordinator = coordinator
     }
 
@@ -737,6 +761,16 @@ extension MainCoordinator: OrganizeTokensRoutable {
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
+    }
+}
+
+// MARK: - TokensManagementFlowRoutable protocol conformance
+
+extension MainCoordinator: TokensManagementFlowRoutable {
+    func closeTokensManagementFlow() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -810,8 +844,10 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
     func openBuy(userWalletModels: [UserWalletModel]) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
-            dismissAction: { [weak self] _ in
+            dismissAction: { [weak self] payload in
                 self?.actionButtonsBuyCoordinator = nil
+                guard let payload else { return }
+                self?.openTokenDetails(for: payload.walletModel, userWalletModel: payload.userWalletModel)
             }
         )
 
@@ -964,33 +1000,6 @@ extension MainCoordinator: WCTransactionRoutable {
 
     func show(toast: Toast<WarningToast>) {
         toast.present(layout: .top(padding: 20), type: .temporary())
-    }
-}
-
-// MARK: - MainCoordinator
-
-extension MainCoordinator {
-    enum DeepLinkDestination {
-        case expressTransactionStatus(walletModel: any WalletModel, userWalletModel: UserWalletModel, transactionDetails: PendingTransactionDetails)
-        case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-        case buy(userWalletModel: UserWalletModel)
-        case sell(userWalletModel: UserWalletModel)
-        case swap(userWalletModel: UserWalletModel)
-        case swapWithDeferredPairResolution(parameters: PredefinedSwapParameters)
-        case referral(input: ReferralInputModel)
-        case staking(options: StakingDetailsCoordinator.Options)
-        case yield(walletModel: any WalletModel, userWalletModel: UserWalletModel)
-        case marketsTokenDetails(tokenId: String)
-        case tokenExchanges(tokenId: String)
-        case externalLink(url: URL)
-        case markets(filter: MarketsDeeplinkFilter)
-        case onboardVisa(deeplinkString: String)
-        case tangemPayMain(customerWalletId: String)
-        case tangemPayTransactionDetails(payload: TangemPayPushPayload)
-        case newsDetails(newsId: Int)
-        case newsList(initialCategoryId: Int?)
-        case promo(code: String, refcode: String?, campaign: String?)
-        case earn(earnType: EarnFilterType?, networkId: String?)
     }
 }
 

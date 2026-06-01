@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public struct TangemPayOrderResponse: Decodable {
     public let id: String
     public let customerId: String
@@ -14,6 +16,8 @@ public struct TangemPayOrderResponse: Decodable {
     public let step: String?
     public let data: Data?
     public let stepChangeCode: Int?
+    public let createdAt: Date?
+    public let updatedAt: Date?
 }
 
 public extension TangemPayOrderResponse {
@@ -22,6 +26,13 @@ public extension TangemPayOrderResponse {
         case processing = "PROCESSING"
         case completed = "COMPLETED"
         case canceled = "CANCELED"
+        case failed = "FAILED"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 
     struct Data: Decodable {

@@ -43,7 +43,7 @@ struct EarnNetworkFilterBottomSheetViewRedesign: View {
             cancelButton
                 .padding(cancelPadding)
         }
-        .background(Color.Tangem.Surface.level3)
+        .background(Color.Tangem.Surface.level2)
     }
 }
 
@@ -63,7 +63,7 @@ private extension EarnNetworkFilterBottomSheetViewRedesign {
                 EarnNetworkFilterSelectedRowView(data: data, selection: viewModel.selectionBinding)
             }
             .separatorStyle(.none)
-            .settings(\.backgroundColor, Color.Tangem.Surface.level2)
+            .settings(\.backgroundColor, Color.Tangem.Surface.level3)
 
             GroupedSection(
                 viewModel.networkRowInputs,
@@ -76,7 +76,7 @@ private extension EarnNetworkFilterBottomSheetViewRedesign {
                 }
             )
             .separatorStyle(.none)
-            .settings(\.backgroundColor, Color.Tangem.Surface.level2)
+            .settings(\.backgroundColor, Color.Tangem.Surface.level3)
         }
     }
 

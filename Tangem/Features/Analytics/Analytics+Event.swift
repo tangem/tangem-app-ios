@@ -78,6 +78,9 @@ extension Analytics {
         case onboardingButtonChat = "[Onboarding] Button - Chat"
 
         case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
+        case buttonAddAndOrganize = "[Portfolio] Button - Add & Organize"
+        case buttonAddTokens = "[Portfolio] Button - Add tokens"
+        case buttonOrganizeTokens = "[Portfolio] Button - Organize Tokens"
         case organizeTokensScreenOpened = "[Portfolio / Organize Tokens] Organize Tokens Screen Opened"
         case organizeTokensButtonSortByBalance = "[Portfolio / Organize Tokens] Button - By Balance"
         case organizeTokensButtonGroup = "[Portfolio / Organize Tokens] Button - Group"
@@ -348,6 +351,7 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFastAmountInput = "[Swap] Fast amount input"
 
         // MARK: - Seed phrase
 
@@ -630,6 +634,7 @@ extension Analytics {
         // MARK: - Stories
 
         case storiesSwapStory = "[Stories] Swap Story"
+        case storiesYieldPromoStory = "[Stories] Yield Promo Story"
         case storiesError = "[Stories] Error"
 
         // MARK: - Tangem API Service
@@ -675,6 +680,7 @@ extension Analytics {
         case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
         case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
         case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
+        case visaOnboardingVisaShortForHWActivationScreenOpened = "[Visa Onboarding] Visa Short For HW Activation Screen Opened"
 
         case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
         case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
@@ -719,6 +725,8 @@ extension Analytics {
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+        case visaScreenExtraCardIssuancePopupDisplayed = "[Visa Card Management] Visa Extra Card Issuance Popup Displayed"
+        case visaScreenExtraCardIssuanceConfirmed = "[Visa Card Management] Visa Extra Card Issuance Confirmed"
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
@@ -776,6 +784,7 @@ extension Analytics {
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
+        case mainScreenButtonExploreYieldMode = "[Main Screen] Button - Explore Yield mode"
 
         // MARK: - News
 
