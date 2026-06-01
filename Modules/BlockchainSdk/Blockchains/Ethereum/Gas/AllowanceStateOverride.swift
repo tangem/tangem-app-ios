@@ -2,10 +2,7 @@
 //  AllowanceStateOverride.swift
 //  BlockchainSdk
 //
-//  Pre-approve `transferFrom` gas estimation via JSON-RPC state overrides on
-//  `_allowances[owner][spender]`. The contract is simulated as if allowance == uint256.max,
-//  so `eth_estimateGas` doesn't revert before the user has called `approve`.
-//
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -19,8 +16,6 @@ import TangemFoundation
 /// Points at the `_allowances` mapping in one ERC20 contract: a base storage slot plus its layout.
 /// `baseSlot` is a small number for flat layouts, or a pre-computed 32-byte value for ERC-7201 namespaced storage.
 struct AllowanceSlot {
-    /// How a token contract stores its `_allowances` mapping. Solidity and Vyper hash the slot key
-    /// in reversed operand order, so the same logical slot yields different storage keys.
     enum Layout {
         case solidity
         case vyper
@@ -42,50 +37,59 @@ struct AllowanceSlot {
         AllowanceSlot(baseSlot: BigUInt(slot), layout: .vyper)
     }
 
-    /// Storage key for `_allowances[owner][spender]` at this slot. Solidity hashes owner-then-spender,
-    /// Vyper reverses the operand order inside each keccak256.
     func storageKey(owner: String, spender: String) -> Data {
         let ownerBytes = Self.pad32(Data(hexString: owner))
         let spenderBytes = Self.pad32(Data(hexString: spender))
         let slotBytes = Self.pad32(baseSlot.serialize())
 
+        // Inner level is identical for both languages — only the outer concatenation order differs.
+        // Solidity: keccak256(spender . keccak256(owner . slot)); Vyper: keccak256(keccak256(owner . slot) . spender).
+        // https://jellopaper.org/hashed-locations/
+        let inner = (ownerBytes + slotBytes).sha3(.keccak256)
+
         switch layout {
         case .solidity:
-            let inner = (ownerBytes + slotBytes).sha3(.keccak256)
             return (spenderBytes + inner).sha3(.keccak256)
         case .vyper:
-            let inner = (slotBytes + ownerBytes).sha3(.keccak256)
             return (inner + spenderBytes).sha3(.keccak256)
         }
     }
 
     // MARK: Candidates
 
-    /// Pre-computed ERC-7201 base slot for OpenZeppelin v5 ERC20 (`namespace_base + 1`, where the
-    /// namespace is `"openzeppelin.storage.ERC20"`). Verifiable via `erc7201Base(namespace:offsetInStruct:)`.
-    static let ozV5ERC20Allowances = BigUInt(
-        "52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace01",
-        radix: 16
-    )!
-
-    /// OpenZeppelin ERC20Upgradeable v4 layout: `Initializable@0, __gap[50]@1-50, _balances@51, _allowances@52`.
-    private static let ozV4UpgradeableAllowancesSlot: UInt64 = 52
-
     /// All realistic `_allowances` slots — overridden together in one `eth_estimateGas` request.
     /// Overriding a slot the contract doesn't read is a no-op, so we throw every realistic candidate at once.
     static let candidates: [AllowanceSlot] = {
+        // OZ v5 ERC20: ERC-7201 namespace `openzeppelin.storage.ERC20`, base `…bace00`, `_allowances` at
+        // offset 1 → `…bace01`. Re-derivable via `erc7201Base(namespace:offsetInStruct:)` (see tests).
+        // https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/v5.0.0/contracts/token/ERC20/ERC20Upgradeable.sol
+        // ERC-7201 formula: https://eips.ethereum.org/EIPS/eip-7201
+        let ozV5ERC20Allowances = BigUInt(
+            "52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace01",
+            radix: 16
+        )
+
+        // OZ v4 ERC20Upgradeable: `Initializable`@0, `ContextUpgradeable.__gap[50]`@1–50, `_balances`@51,
+        // `_allowances`@52 (canonical chain only, no subclass storage above `_allowances`).
+        // https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/v4.9.6/contracts/token/ERC20/ERC20Upgradeable.sol
+        let ozV4UpgradeableAllowancesSlot: UInt64 = 52
+
         var slots: [AllowanceSlot] = []
 
-        // Flat Solidity range — covers OZ v2-v4, USDT, DAI, WETH, Solmate, governance tokens.
+        // Flat Solidity range — OZ v2-v4 (non-upgradeable), USDT, DAI, WETH, Solmate. Empirical envelope.
         slots += (0 ..< 20).map { AllowanceSlot.solidity(UInt64($0)) }
 
         // The only realistic mid-range slot observed in the wild — OZ v4 upgradeable's `_allowances@52`.
         slots.append(.solidity(ozV4UpgradeableAllowancesSlot))
 
-        // OZ v5 ERC-7201 namespaced storage — far slot derived from the namespace string.
-        slots.append(AllowanceSlot(baseSlot: ozV5ERC20Allowances, layout: .solidity))
+        if let ozV5ERC20Allowances {
+            // OZ v5 ERC-7201 namespaced storage — far slot derived from the namespace string.
+            slots.append(AllowanceSlot(baseSlot: ozV5ERC20Allowances, layout: .solidity))
+        }
 
-        // Vyper-compiled tokens (rare; e.g. Curve) — same indices but reversed keccak operand order.
+        // Vyper-compiled tokens (rare; e.g. Curve). Best-effort: operand order follows jellopaper
+        // (see `storageKey`), but unverified by a golden vector and version-dependent — Vyper moved
+        // toward hash-based slots (vyperlang/vyper#1733), so flat 0..<5 may miss newer contracts.
         slots += (0 ..< 5).map { AllowanceSlot.vyper(UInt64($0)) }
 
         return slots
