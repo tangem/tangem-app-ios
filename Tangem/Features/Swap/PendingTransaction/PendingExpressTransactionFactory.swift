@@ -68,7 +68,7 @@ struct PendingExpressTransactionFactory {
         transactionRecord.refundedTokenItem = refundedTokenItem
 
         transactionRecord.externalTxId = expressTransaction.externalTxId
-        transactionRecord.externalTxURL = expressTransaction.externalTxUrl
+        transactionRecord.externalTxURL = expressTransaction.externalTxURL?.absoluteString
 
         transactionRecord.averageDuration = expressTransaction.averageDuration
         transactionRecord.createdAt = expressTransaction.createdAt

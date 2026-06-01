@@ -6,12 +6,14 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-public struct OnrampRedirectData: Codable, Equatable {
+import Foundation
+
+public struct OnrampRedirectData: Equatable {
     public let txId: String
-    public let widgetUrl: URL
-    public let redirectUrl: URL
+    public let widgetURL: URL
+    public let redirectURL: URL
     public let fromAmount: Decimal
     public let fromCurrencyCode: String
     public let externalTxId: String?
-    public let externalTxUrl: String?
+    public let externalTxURL: URL?
 }
