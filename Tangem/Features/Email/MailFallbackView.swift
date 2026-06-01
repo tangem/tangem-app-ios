@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MailFallbackView: View {
     static let preferredHeight: CGFloat = 240
@@ -25,6 +26,7 @@ struct MailFallbackView: View {
                 Text(Localization.commonContactSupport)
                     .style(Fonts.Bold.title2, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier(MailAccessibilityIdentifiers.fallbackTitle)
 
                 Text(Localization.emailFallbackAlertDescription)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
@@ -45,6 +47,7 @@ struct MailFallbackView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }
+            .accessibilityIdentifier(MailAccessibilityIdentifiers.fallbackOpenMailButton)
 
             Divider()
 
@@ -57,6 +60,7 @@ struct MailFallbackView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }
+            .accessibilityIdentifier(MailAccessibilityIdentifiers.fallbackShareLogsButton)
         }
     }
 }

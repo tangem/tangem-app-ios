@@ -73,8 +73,6 @@ final class HederaTransactionBuilder {
         let feeAmount = try Hbar(feeRoundedValue, .tinybar)
 
         let sourceAccountId = try AccountId.fromSolidityAddressOrString(transaction.sourceAddress)
-        let destinationAccountId = try AccountId.fromSolidityAddressOrString(transaction.destinationAddress)
-
         let transactionId = try makeTransactionId(accountId: sourceAccountId, validStartDate: validStartDate)
         let transactionParams = transaction.params as? HederaTransactionParams
 
@@ -84,8 +82,9 @@ final class HederaTransactionBuilder {
 
         let transferTransaction = try makeTransferTransaction(
             amount: transaction.amount,
+            destinationAddress: transaction.destinationAddress,
             sourceAccountId: sourceAccountId,
-            destinationAccountId: destinationAccountId
+            feeParams: feeParams
         )
         .transactionId(transactionId)
         .maxTransactionFee(feeAmount)
@@ -93,7 +92,7 @@ final class HederaTransactionBuilder {
         .nodeAccountIdsIfNotEmpty(nodeAccountIds)
         .freezeWith(client)
 
-        logTransferTransaction(transferTransaction)
+        logTransaction(transferTransaction)
 
         // Capturing an existing `Hiero.Client` instance here is not required but may come in handy
         // because the client may already have some useful internal state at this point
@@ -140,19 +139,41 @@ final class HederaTransactionBuilder {
 
     private func makeTransferTransaction(
         amount: Amount,
+        destinationAddress: String,
         sourceAccountId: AccountId,
-        destinationAccountId: AccountId
-    ) throws -> TransferTransaction {
+        feeParams: HederaFeeParams
+    ) throws -> Hiero.Transaction {
         let transactionValue = amount.value * pow(Decimal(10), amount.decimals)
         let transactionRoundedValue = transactionValue.rounded(roundingMode: .down)
 
         switch amount.type {
         case .coin:
+            let destinationAccountId = try AccountId.fromSolidityAddressOrString(destinationAddress)
             let transactionAmount = try Hbar(transactionRoundedValue, .tinybar)
             return TransferTransaction()
                 .hbarTransfer(sourceAccountId, transactionAmount.negated())
                 .hbarTransfer(destinationAccountId, transactionAmount)
+        case .token(let token) where HederaTokenContractAddressConverter.isERC20TokenAddress(token.contractAddress):
+            guard let erc20TransferConfiguration = feeParams.erc20TransferConfiguration else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
+            guard let amountValue = amount.bigUIntValue else {
+                throw BlockchainSdkError.failedToBuildTx
+            }
+
+            let contractId = try ContractId.fromSolidityAddressOrString(token.contractAddress)
+            let transferMethod = TransferERC20TokenMethod(
+                destination: erc20TransferConfiguration.recipientEVMAddress.removeHexPrefix(),
+                amount: amountValue
+            )
+
+            return ContractExecuteTransaction()
+                .contractId(contractId)
+                .gas(erc20TransferConfiguration.gasLimit)
+                .functionParameters(transferMethod.data)
         case .token(let token):
+            let destinationAccountId = try AccountId.fromSolidityAddressOrString(destinationAddress)
             let tokenId = try TokenId.fromSolidityAddressOrString(token.contractAddress)
             let transactionAmount = transactionRoundedValue.int64Value
             return TransferTransaction()
@@ -163,7 +184,7 @@ final class HederaTransactionBuilder {
         }
     }
 
-    private func logTransferTransaction(_ transaction: TransferTransaction) {
+    private func logTransaction(_ transaction: Hiero.Transaction) {
         let nodeAccountIds = transaction.nodeAccountIds?.toSet() ?? []
         let transactionId = transaction.transactionId?.toString() ?? "unknown"
         let networkNodes = client.network.filter { nodeAccountIds.contains($0.value) }

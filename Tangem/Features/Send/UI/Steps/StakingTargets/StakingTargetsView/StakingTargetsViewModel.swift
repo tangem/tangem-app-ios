@@ -58,7 +58,7 @@ private extension StakingTargetsViewModel {
                     return StakingTargetViewData(
                         address: targetInfo.address,
                         name: targetInfo.name,
-                        imageURL: targetInfo.iconURL,
+                        image: StakingTargetIconViewData(targetInfo.image),
                         isPartner: targetInfo.partner,
                         subtitleType: .selection(formatted: percentFormatted),
                         detailsType: .checkmark

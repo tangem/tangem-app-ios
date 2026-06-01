@@ -1,0 +1,1229 @@
+{
+  "color": {
+    "text": {
+      "primary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.text.primary",
+            "iOS": "DesignSystem.Tokens.Theme.Text.primary"
+          },
+          "com.figma.scopes": [
+            "TEXT_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.base.white}"
+      },
+      "secondary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.text.secondary",
+            "iOS": "DesignSystem.Tokens.Theme.Text.secondary"
+          },
+          "com.figma.scopes": [
+            "TEXT_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.60}"
+      },
+      "tertiary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.text.tertiary",
+            "iOS": "DesignSystem.Tokens.Theme.Text.tertiary"
+          },
+          "com.figma.scopes": [
+            "TEXT_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.30}"
+      },
+      "brand": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.text.brand",
+            "iOS": "DesignSystem.Tokens.Theme.Text.brand"
+          },
+          "com.figma.scopes": [
+            "TEXT_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.blue.50}"
+      },
+      "static-light": {
+        "primary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.contrastOnlightPrimary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.ContrastOnlight.primary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.base.black}"
+        },
+        "secondary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.contrastOnlightSecondary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.ContrastOnlight.secondary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.60}"
+        },
+        "tertiary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.contrastOnlightTertiary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.ContrastOnlight.tertiary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.40}"
+        }
+      },
+      "static-dark": {
+        "primary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.contrastPrimary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Contrast.primary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.base.white}"
+        },
+        "secondary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.contrastSecondary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Contrast.secondary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.60}"
+        },
+        "tertiary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.contrastTertiary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Contrast.tertiary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.30}"
+        }
+      },
+      "inverse": {
+        "primary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.inversePrimary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Inverse.primary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.95}"
+        },
+        "secondary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.inverseSecondary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Inverse.secondary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.neutral-95.60}"
+        },
+        "tertiary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.inverseTertiary",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Inverse.tertiary"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.neutral-95.40}"
+        }
+      },
+      "status": {
+        "success": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.statusSuccess",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Status.success"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.40}"
+        },
+        "error": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.statusError",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Status.error"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.40}"
+        },
+        "warning": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.statusWarning",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Status.warning"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.40}"
+        },
+        "info": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.statusInfo",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Status.info"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.40}"
+        }
+      },
+      "accent": {
+        "blue": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accentblue",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.blue"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.40}"
+        },
+        "violet": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accentviolet",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.violet"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.violet.40}"
+        },
+        "red": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accentred",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.red"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.40}"
+        },
+        "orange": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accentorange",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.orange"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.orange.40}"
+        },
+        "yellow": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accentyellow",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.yellow"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.40}"
+        },
+        "green": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accentgreen",
+              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.green"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.40}"
+        }
+      }
+    },
+    "bg": {
+      "primary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.primary",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.primary"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.neutral.95}"
+      },
+      "secondary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.secondary",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.secondary"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.neutral.90}"
+      },
+      "tertiary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.tertiary",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.tertiary"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.neutral.80}"
+      },
+      "brand": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.brand",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.brand"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.blue.50}"
+      },
+      "inverse": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.inversePrimary",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.Inverse.primary"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.neutral.5}"
+      },
+      "base": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.primary",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.primary"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.base.black}"
+      },
+      "disabled": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.bg.disabled",
+            "iOS": "DesignSystem.Tokens.Theme.Bg.disabled"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.neutral.70}"
+      },
+      "opaque": {
+        "primary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.opaque",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.opaque"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.5}"
+        },
+        "secondary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.opaque",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.opaque"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.10}"
+        }
+      },
+      "status": {
+        "success": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusSuccess",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.success"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.50}"
+        },
+        "success-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusSuccess",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.success"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.90}"
+        },
+        "error": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusError",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.error"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.50}"
+        },
+        "error-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusError",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.error"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.90}"
+        },
+        "warning": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusWarning",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.warning"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.50}"
+        },
+        "warning-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusWarning",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.warning"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.90}"
+        },
+        "info": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusInfo",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.info"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.50}"
+        },
+        "info-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.statusInfo",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.info"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.90}"
+        }
+      },
+      "accent": {
+        "blue": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accentblue",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.blue"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.50}"
+        },
+        "violet": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accentviolet",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.violet"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.violet.50}"
+        },
+        "red": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accentred",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.red"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.50}"
+        },
+        "orange": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accentorange",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.orange"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.orange.50}"
+        },
+        "yellow": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accentyellow",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.yellow"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.50}"
+        },
+        "green": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accentgreen",
+              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.green"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.50}"
+        }
+      }
+    },
+    "icon": {
+      "primary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.primary",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.primary"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.base.white}"
+      },
+      "secondary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.secondary",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.secondary"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.60}"
+      },
+      "tertiary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.tertiary",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.tertiary"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.30}"
+      },
+      "brand": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.brand",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.brand"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.blue.50}"
+      },
+      "static-light": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.contrastOnlight",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.contrastOnlight"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.base.black}"
+      },
+      "static-dark": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.contrast",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.contrast"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.base.white}"
+      },
+      "inverse": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.icon.inverse",
+            "iOS": "DesignSystem.Tokens.Theme.Icon.inverse"
+          },
+          "com.figma.scopes": [
+            "SHAPE_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.neutral.95}"
+      },
+      "status": {
+        "success": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.statusSuccess",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.success"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.40}"
+        },
+        "error": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.statusError",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.error"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.40}"
+        },
+        "warning": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.statusWarning",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.warning"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.40}"
+        },
+        "info": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.statusInfo",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.info"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.40}"
+        }
+      },
+      "accent": {
+        "blue": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accentblue",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.blue"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.40}"
+        },
+        "violet": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accentviolet",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.violet"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.violet.40}"
+        },
+        "red": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accentred",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.red"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.40}"
+        },
+        "orange": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accentorange",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.orange"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.orange.40}"
+        },
+        "yellow": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accentyellow",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.yellow"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.40}"
+        },
+        "green": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accentgreen",
+              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.green"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.40}"
+        }
+      }
+    },
+    "border": {
+      "primary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.border.primary",
+            "iOS": "DesignSystem.Tokens.Theme.Border.primary"
+          },
+          "com.figma.scopes": [
+            "STROKE_COLOR"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.5}"
+      },
+      "secondary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.border.secondary",
+            "iOS": "DesignSystem.Tokens.Theme.Border.secondary"
+          },
+          "com.figma.scopes": [
+            "STROKE_COLOR"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.10}"
+      },
+      "tertiary": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.border.tertiary",
+            "iOS": "DesignSystem.Tokens.Theme.Border.tertiary"
+          },
+          "com.figma.scopes": [
+            "STROKE_COLOR"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-white.20}"
+      },
+      "brand": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.border.brand",
+            "iOS": "DesignSystem.Tokens.Theme.Border.brand"
+          },
+          "com.figma.scopes": [
+            "STROKE_COLOR"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.blue.50}"
+      },
+      "inverse": {
+        "primary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.inversePrimary",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Inverse.primary"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.5}"
+        },
+        "secondary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.inverseSecondary",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Inverse.secondary"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.10}"
+        },
+        "tertiary": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.inverseTertiary",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Inverse.tertiary"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.20}"
+        }
+      },
+      "status": {
+        "success": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusSuccess",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.success"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.40}"
+        },
+        "success-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusSuccess",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.success"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.80}"
+        },
+        "error": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusError",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.error"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.40}"
+        },
+        "error-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusError",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.error"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.80}"
+        },
+        "warning": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusWarning",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.warning"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.40}"
+        },
+        "warning-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusWarning",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.warning"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.80}"
+        },
+        "info": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusInfo",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.info"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.40}"
+        },
+        "info-subtle": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.statusInfo",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Status.info"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.80}"
+        }
+      },
+      "accent": {
+        "blue": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accentblue",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.blue"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.40}"
+        },
+        "violet": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accentviolet",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.violet"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.violet.40}"
+        },
+        "red": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accentred",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.red"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.red.40}"
+        },
+        "orange": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accentorange",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.orange"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.orange.40}"
+        },
+        "yellow": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accentyellow",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.yellow"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.yellow.40}"
+        },
+        "green": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accentgreen",
+              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.green"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.green.40}"
+        }
+      }
+    },
+    "overlay": {
+      "modal": {
+        "$extensions": {
+          "com.figma.codeSyntax": {
+            "Android": "TangemTheme.colors3.overlay.primary",
+            "iOS": "DesignSystem.Tokens.Theme.Overlay.primary"
+          },
+          "com.figma.scopes": [
+            "FRAME_FILL"
+          ]
+        },
+        "$type": "color",
+        "$value": "{palette.opaque.base-black.80}"
+      }
+    },
+    "interaction": {
+      "press": {
+        "default": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.interaction.press.default",
+              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.default"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.10}"
+        },
+        "static-light": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.interaction.press.staticLight",
+              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.staticLight"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.10}"
+        },
+        "static-dark": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.interaction.press.staticDark",
+              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.staticDark"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-white.10}"
+        },
+        "inverse": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.interaction.press.inverse",
+              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.inverse"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.opaque.base-black.10}"
+        }
+      },
+      "focus-ring": {
+        "default": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.interaction.focusRing.default",
+              "iOS": "DesignSystem.Tokens.Theme.Interaction.FocusRing.Default"
+            },
+            "com.figma.scopes": [
+              "EFFECT_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.5}"
+        },
+        "brand": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.interaction.focusRing.brand",
+              "iOS": "DesignSystem.Tokens.Theme.Interaction.FocusRing.Brand"
+            },
+            "com.figma.scopes": [
+              "EFFECT_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.blue.50}"
+        }
+      }
+    }
+  }
+}
