@@ -56,14 +56,12 @@ struct SingleWalletMainContentView: View {
             NotificationView(input: input)
         }
 
-        if !viewModel.isAddFundsBannerVisible {
-            ForEach(viewModel.tokenNotificationInputs) { input in
-                NotificationView(input: input)
-            }
+        ForEach(viewModel.tokenNotificationInputs) { input in
+            NotificationView(input: input)
+        }
 
-            if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
-                WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
-            }
+        if let walletPromoBannerViewModel = viewModel.walletPromoBannerViewModel {
+            WalletPromoBannerView(viewModel: walletPromoBannerViewModel)
         }
 
         PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
