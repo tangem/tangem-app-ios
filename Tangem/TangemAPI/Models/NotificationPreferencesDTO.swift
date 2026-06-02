@@ -29,7 +29,6 @@ enum NotificationPreferencesDTO {
             let priceAlerts: Bool
         }
     }
-    }
 }
 
 extension NotificationPreferencesDTO.Response.Body {
