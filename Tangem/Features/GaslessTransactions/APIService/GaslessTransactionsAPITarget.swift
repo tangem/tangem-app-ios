@@ -18,6 +18,7 @@ enum GaslessApiTargetConstants {
     // Paths
     static let tokensPath = "/tokens"
     static let signTransactionPath = "/transaction/sign"
+    static let signBatchTransactionPath = "/transaction/batch-sign"
     static let feeRecipientPath = "/config/fee-recipient"
 }
 
@@ -28,6 +29,7 @@ struct GaslessTransactionsAPITarget: TargetType {
     enum TargetType: Equatable {
         case availableTokens
         case sendGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
+        case sendGaslessBatchTransaction(transaction: GaslessTransactionsDTO.Request.GaslessBatchTransaction)
         case feeRecipient
     }
 
@@ -52,6 +54,8 @@ struct GaslessTransactionsAPITarget: TargetType {
             return GaslessApiTargetConstants.tokensPath
         case .sendGaslessTransaction:
             return GaslessApiTargetConstants.signTransactionPath
+        case .sendGaslessBatchTransaction:
+            return GaslessApiTargetConstants.signBatchTransactionPath
         case .feeRecipient:
             return GaslessApiTargetConstants.feeRecipientPath
         }
@@ -61,7 +65,7 @@ struct GaslessTransactionsAPITarget: TargetType {
         switch target {
         case .availableTokens, .feeRecipient:
             return .get
-        case .sendGaslessTransaction:
+        case .sendGaslessTransaction, .sendGaslessBatchTransaction:
             return .post
         }
     }
@@ -69,6 +73,8 @@ struct GaslessTransactionsAPITarget: TargetType {
     var task: Moya.Task {
         switch target {
         case .sendGaslessTransaction(let transaction):
+            return .requestJSONEncodable(transaction)
+        case .sendGaslessBatchTransaction(let transaction):
             return .requestJSONEncodable(transaction)
         case .availableTokens, .feeRecipient:
             return .requestPlain

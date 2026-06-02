@@ -19,6 +19,7 @@ enum Feature: String, Hashable, CaseIterable {
     case surveySparrow
     case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
+    case gaslessYieldFee
     case solanaTxHistoryEnabled
     case solanaScaledUIEnabled
     case dynamicAddresses
@@ -59,6 +60,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return "SurveySparrow service integration"
         case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
+        case .gaslessYieldFee: return "Gasless Fees For Yield Mode"
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
@@ -101,6 +103,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .surveySparrow: return .unspecified
         case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
+        case .gaslessYieldFee: return .unspecified
         case .solanaTxHistoryEnabled: return .version("5.39")
         case .solanaScaledUIEnabled: return .version("5.39")
         case .dynamicAddresses: return .version("5.39")

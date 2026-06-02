@@ -12,6 +12,7 @@ import Foundation
 import Testing
 import Combine
 import BlockchainSdk
+import BigInt
 import TangemFoundation
 @testable import Tangem
 
@@ -369,5 +370,75 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         // ETH fee > balance, no idle, initial(usdt) IS supported (noTokenBalance != notSupported)
         // → fallback to usdt should still happen (fix only kicks in for .notSupported).
         #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
+    }
+}
+
+@Suite("Gasless Yield Fee")
+struct GaslessYieldFeeTests {
+    @Test("WithdrawMethod encodes withdraw(address,uint256) selector and params")
+    func withdrawMethodEncoding() {
+        let tokenAddress = "0x0000000000000000000000000000000000000001"
+        let method = WithdrawMethod(
+            tokenContractAddress: tokenAddress,
+            amount: EthereumFeeParametersConstants.gaslessMinTokenAmount
+        )
+
+        #expect(method.encodedData.hasPrefix("0xf3fef3a3"))
+        #expect(method.encodedData.contains(tokenAddress.removeHexPrefix()))
+    }
+
+    @Test("Gasless yield fee metadata survives gas-limit updates")
+    func yieldFeeMetadataSurvivesGasLimitUpdate() {
+        let yieldWithdraw = EthereumGaslessTransactionFeeParameters.YieldWithdraw(
+            yieldContractAddress: "0x0000000000000000000000000000000000000002",
+            originalGasLimit: 100_000,
+            withdrawGasLimit: 50_000,
+            requiresUpgrade: true,
+            upgradeImplementation: "0x0000000000000000000000000000000000000003"
+        )
+        let parameters = EthereumGaslessTransactionFeeParameters(
+            gasLimit: 210_000,
+            maxFeePerGas: 1_000,
+            priorityFee: 100,
+            nativeToFeeTokenRate: 1,
+            feeTokenTransferGasLimit: 30_000,
+            yieldWithdraw: yieldWithdraw
+        )
+
+        let updated = parameters.changingGasLimit(to: 300_000)
+
+        #expect(updated.gasLimit == 300_000)
+        #expect(updated.yieldWithdraw == yieldWithdraw)
+    }
+
+    @Test("Batch EIP-712 typed data includes transactions array and gasLimit")
+    func batchTypedDataShape() {
+        let transaction = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction(
+            to: "0x0000000000000000000000000000000000000001",
+            value: "0",
+            gasLimit: "21000",
+            data: "0x"
+        )
+        let fee = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee(
+            feeToken: "0x0000000000000000000000000000000000000002",
+            maxTokenFee: "10000",
+            coinPriceInToken: "1",
+            feeTransferGasLimit: "50000",
+            baseGas: "60000",
+            feeReceiver: "0x0000000000000000000000000000000000000003"
+        )
+
+        let typedData = GaslessTransactionBuilder.GaslessTransactionsEIP712Util().makeGaslessBatchTypedData(
+            transactions: [transaction],
+            fee: fee,
+            nonce: "0",
+            chainId: 1,
+            verifyingContract: "0x0000000000000000000000000000000000000004"
+        )
+
+        #expect(typedData.primaryType == "GaslessBatchTransaction")
+        #expect(typedData.types["Transaction"]?.contains { $0.name == "gasLimit" && $0.type == "uint256" } == true)
+        #expect(typedData.types["GaslessBatchTransaction"]?.contains { $0.name == "transactions" && $0.type == "Transaction[]" } == true)
+        #expect(typedData.message.objectValue?["transactions"]?.arrayValue?.first?.objectValue?["gasLimit"]?.stringValue == "21000")
     }
 }

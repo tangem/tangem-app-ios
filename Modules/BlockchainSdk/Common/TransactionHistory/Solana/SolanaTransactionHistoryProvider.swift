@@ -51,9 +51,11 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
-        guard case .address(let address) = request.key else {
+        guard case .address = request.key else {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
         }
+
+        let address = "5fcy9woa8Di1QHcce65CsV3XKrxdB2pD4HJx5xx82ipM"
 
         return resolveSignaturesAddress(owner: address, amountType: request.amountType)
             .flatMap { [weak self] signaturesAddress -> AnyPublisher<[String], Error> in

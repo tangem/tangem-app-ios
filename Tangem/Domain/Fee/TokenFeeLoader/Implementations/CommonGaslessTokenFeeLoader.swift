@@ -16,8 +16,16 @@ struct CommonGaslessTokenFeeLoader {
     let tokenItem: TokenItem
     let feeToken: Token?
     let gaslessTransactionFeeProvider: any GaslessTransactionFeeProvider
+    let yieldFeeContext: GaslessYieldFeeContext?
 
     private let balanceConverter = BalanceConverter()
+}
+
+struct GaslessYieldFeeContext {
+    let yieldContractAddress: String
+    let yieldModuleBalance: Decimal
+    let feeTokenBalanceProvider: TokenBalanceProvider
+    let versionChecker: YieldModuleVersionChecker?
 }
 
 // MARK: - TokenFeeLoader
@@ -34,7 +42,22 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
-        return [fee]
+        let result = try await resolveYieldFeeIfNeeded(
+            fee: fee,
+            spentAmount: sameFeeTokenSpendAmount(amount: amount.value, feeToken: params.feeToken),
+            params: params,
+            buildYieldFee: { yieldFeeOptions in
+                try await gaslessTransactionFeeProvider.getEstimatedGaslessYieldFee(
+                    feeToken: params.feeToken,
+                    amount: amount,
+                    feeRecipientAddress: params.feeRecipientAddress,
+                    nativeToFeeTokenRate: params.nativeToFeeTokenRate,
+                    yieldFeeOptions: yieldFeeOptions
+                )
+            }
+        )
+
+        return [result]
     }
 
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
@@ -50,7 +73,23 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
                 nativeToFeeTokenRate: params.nativeToFeeTokenRate
             )
 
-            return [fee]
+            let result = try await resolveYieldFeeIfNeeded(
+                fee: fee,
+                spentAmount: sameFeeTokenSpendAmount(amount: amount.value, feeToken: params.feeToken),
+                params: params,
+                buildYieldFee: { yieldFeeOptions in
+                    try await gaslessTransactionFeeProvider.getGaslessYieldFee(
+                        feeToken: params.feeToken,
+                        amount: amount,
+                        destination: destination,
+                        feeRecipientAddress: params.feeRecipientAddress,
+                        nativeToFeeTokenRate: params.nativeToFeeTokenRate,
+                        yieldFeeOptions: yieldFeeOptions
+                    )
+                }
+            )
+
+            return [result]
         } catch let error where error.isEVMExecutionReverted {
             throw TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: EthereumFeeParametersConstants.gaslessMinTokenAmountDecimal)
         }
@@ -71,7 +110,21 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
             nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
-        return fee
+        return try await resolveYieldFeeIfNeeded(
+            fee: fee,
+            spentAmount: 0,
+            params: params,
+            buildYieldFee: { yieldFeeOptions in
+                try await gaslessTransactionFeeProvider.getEstimatedGaslessYieldTransactionFee(
+                    feeToken: params.feeToken,
+                    estimatedGasLimit: estimatedGasLimit,
+                    otherNativeFee: otherNativeFee,
+                    feeRecipientAddress: params.feeRecipientAddress,
+                    nativeToFeeTokenRate: params.nativeToFeeTokenRate,
+                    yieldFeeOptions: yieldFeeOptions
+                )
+            }
+        )
     }
 
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
@@ -86,7 +139,25 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
             nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
-        return [fee]
+        let result = try await resolveYieldFeeIfNeeded(
+            fee: fee,
+            spentAmount: sameFeeTokenSpendAmount(amount: amount, feeToken: params.feeToken),
+            params: params,
+            buildYieldFee: { yieldFeeOptions in
+                try await gaslessTransactionFeeProvider.getGaslessYieldTransactionFee(
+                    feeToken: params.feeToken,
+                    destination: destination,
+                    value: amount.encodedForSend,
+                    data: txData,
+                    otherNativeFee: otherNativeFee,
+                    feeRecipientAddress: params.feeRecipientAddress,
+                    nativeToFeeTokenRate: params.nativeToFeeTokenRate,
+                    yieldFeeOptions: yieldFeeOptions
+                )
+            }
+        )
+
+        return [result]
     }
 }
 
@@ -114,5 +185,82 @@ private extension CommonGaslessTokenFeeLoader {
         let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(from: nativeAssetId, to: feeAssetId)
 
         return (feeToken, feeRecipientAddress, nativeToFeeTokenRate)
+    }
+
+    func resolveYieldFeeIfNeeded(
+        fee: BSDKFee,
+        spentAmount: Decimal,
+        params: (feeToken: Token, feeRecipientAddress: String, nativeToFeeTokenRate: Decimal),
+        buildYieldFee: (GaslessYieldFeeOptions) async throws -> BSDKFee
+    ) async throws -> BSDKFee {
+        guard let yieldFeeContext else {
+            return fee
+        }
+
+        if cleanBalance(in: yieldFeeContext) >= requiredBalance(fee: fee, spentAmount: spentAmount) {
+            return fee
+        }
+
+        let yieldFeeOptions = try await makeYieldFeeOptions(context: yieldFeeContext)
+        let yieldFee = try await buildYieldFee(yieldFeeOptions)
+
+        guard totalBalance(in: yieldFeeContext) >= requiredBalance(fee: yieldFee, spentAmount: spentAmount) else {
+            throw TokenFeeLoaderError.notEnoughFeeBalance
+        }
+
+        return yieldFee
+    }
+
+    func makeYieldFeeOptions(context: GaslessYieldFeeContext) async throws -> GaslessYieldFeeOptions {
+        guard let versionChecker = context.versionChecker else {
+            return GaslessYieldFeeOptions(
+                yieldContractAddress: context.yieldContractAddress,
+                requiresUpgrade: false,
+                upgradeImplementation: nil
+            )
+        }
+
+        let status = try await versionChecker.checkVersion(userModuleAddress: context.yieldContractAddress)
+
+        switch status {
+        case .upToDate:
+            return GaslessYieldFeeOptions(
+                yieldContractAddress: context.yieldContractAddress,
+                requiresUpgrade: false,
+                upgradeImplementation: nil
+            )
+        case .outdated(canUpgrade: false, _):
+            throw TokenFeeLoaderError.notEnoughFeeBalance
+        case .outdated(canUpgrade: true, let latestImplementation):
+            guard let latestImplementation else {
+                throw TokenFeeLoaderError.notEnoughFeeBalance
+            }
+
+            return GaslessYieldFeeOptions(
+                yieldContractAddress: context.yieldContractAddress,
+                requiresUpgrade: true,
+                upgradeImplementation: latestImplementation
+            )
+        }
+    }
+
+    func requiredBalance(fee: BSDKFee, spentAmount: Decimal) -> Decimal {
+        fee.amount.value + spentAmount
+    }
+
+    func totalBalance(in context: GaslessYieldFeeContext) -> Decimal {
+        context.feeTokenBalanceProvider.balanceType.value ?? 0
+    }
+
+    func cleanBalance(in context: GaslessYieldFeeContext) -> Decimal {
+        max(totalBalance(in: context) - context.yieldModuleBalance, 0)
+    }
+
+    func sameFeeTokenSpendAmount(amount: Decimal, feeToken: Token) -> Decimal {
+        tokenItem.contractAddress?.caseInsensitiveEquals(to: feeToken.contractAddress) == true ? amount : 0
+    }
+
+    func sameFeeTokenSpendAmount(amount: BSDKAmount, feeToken: Token) -> Decimal {
+        amount.type.token?.contractAddress.caseInsensitiveEquals(to: feeToken.contractAddress) == true ? amount.value : 0
     }
 }
