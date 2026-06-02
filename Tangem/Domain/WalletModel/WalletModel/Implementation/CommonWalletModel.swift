@@ -406,11 +406,41 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     func updateTransactionHistory() async {
-        guard let _transactionHistoryService else {
-            return
-        }
+        async let transactionHistoryV2Update = updateV2TransactionHistory()
+        async let bsdkTransactionHistoryUpdate = updateBSDKTransactionHistory()
+        _ = await (transactionHistoryV2Update, bsdkTransactionHistoryUpdate)
+    }
 
-        try? await _transactionHistoryService.update().async()
+    private func updateV2TransactionHistory() async {
+        // Some networks may support different, non-BSDK-driven tx history sources,
+        // so we need to trigger update for them even if the `_transactionHistoryService` is absent
+        do {
+            let transactionHistoryProviders = try await featureManager
+                .featuresPublisher
+                .compactMapMany { feature in
+                    switch feature {
+                    case .transactionHistory(let transactionHistoryProvider):
+                        return transactionHistoryProvider
+                    case .dynamicAddresses,
+                         .nft:
+                        return nil
+                    }
+                }
+                .async()
+
+            // 1. `syncInitial` calls are re-entrant and synchronized, so they can be safely called multiple times
+            // 2. In almost all cases there is a single provider, so `TaskGroup` is an overkill here, simple `for` loop is enough
+            for provider in transactionHistoryProviders {
+                Task { await provider.syncInitial() }
+            }
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            AppLogger.error(self, "Failed to update V2 transaction history", error: error)
+        }
+    }
+
+    private func updateBSDKTransactionHistory() async {
+        try? await _transactionHistoryService?.update().async()
     }
 }
 
