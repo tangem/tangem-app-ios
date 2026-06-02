@@ -46,7 +46,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var promotionNotificationsViewModel: PromotionNotificationsViewModel
 
     @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
-    @Published private(set) var isAddFundsBannerVisible: Bool = false
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -329,12 +328,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         notificationBannerItemsProvider.$items
             .assign(to: &$notificationBannerItems)
-
-        addFundsBannerVisibilityProvider
-            .shouldShowPublisher
-            .receiveOnMain()
-            .assign(to: \.isAddFundsBannerVisible, on: self, ownership: .weak)
-            .store(in: &bag)
 
         rateAppController.bind(
             isPageSelectedPublisher: isPageSelectedSubject,
