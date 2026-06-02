@@ -144,7 +144,8 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .monad),
              (_, .arbitrumNova),
              (_, .plasma),
-             (_, .adi):
+             (_, .adi),
+             (_, .seiEvm):
             // No additional notifications for these blockchains
             return baseNotificationInputs
         }

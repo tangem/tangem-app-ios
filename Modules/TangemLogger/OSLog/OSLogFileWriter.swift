@@ -20,6 +20,9 @@ public final class OSLogFileWriter {
         .urls(for: .cachesDirectory, in: .userDomainMask)[0]
         .appendingPathComponent(OSLogConstants.fileName)
 
+    /// Production redacts persisted logs, non-production keeps the full trace.
+    private static let sanitizerPolicy: LogSanitizerPolicy = AppEnvironment.current.isProduction ? .production : .disabled
+
     /// Cached once per process, matching the pattern used in `DateFormatter+.swift` (BlockchainSdk).
     /// Both formatters are touched only from `loggerSerialQueue`, so they are thread-safe by confinement.
     private static let dateFormatter: DateFormatter = {
@@ -79,10 +82,10 @@ public extension OSLogFileWriter {
         }
     }
 
-    func zipLogFile(infoData: Data? = nil, completion: @escaping (Result<URL, Error>) -> Void) {
+    func zipLogFile(infoData: Data? = nil, includeSystemLogs: Bool = true, completion: @escaping (Result<URL, Error>) -> Void) {
         loggerSerialQueue.async { [weak self] in
             guard let self else { return }
-            completion(Result { try self.zipLogFileSynchronously(infoData: infoData) })
+            completion(Result { try self.zipLogFileSynchronously(infoData: infoData, includeSystemLogs: includeSystemLogs) })
         }
     }
 
@@ -121,7 +124,7 @@ extension OSLogFileWriter {
 
 private extension OSLogFileWriter {
     func writeSynchronously(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date) throws {
-        var message = LogSanitizer.sanitize(message, policy: .production)
+        var message = LogSanitizer.sanitize(message, policy: Self.sanitizerPolicy)
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {
@@ -170,7 +173,7 @@ private extension OSLogFileWriter {
             }
     }
 
-    func zipLogFileSynchronously(infoData: Data? = nil) throws -> URL {
+    func zipLogFileSynchronously(infoData: Data? = nil, includeSystemLogs: Bool = true) throws -> URL {
         let zipFile = logFileURL
             .deletingLastPathComponent()
             .appendingPathComponent(OSLogConstants.zipFileName)
@@ -179,17 +182,18 @@ private extension OSLogFileWriter {
             try fileManager.removeItem(at: zipFile)
         }
 
-        guard let infoData else {
-            try fileManager.zipItem(at: logFileURL, to: zipFile)
-            return zipFile
-        }
-
         let tempDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try fileManager.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? fileManager.removeItem(at: tempDir) }
 
-        try fileManager.copyItem(at: logFileURL, to: tempDir.appendingPathComponent(logFileURL.lastPathComponent))
-        try infoData.write(to: tempDir.appendingPathComponent(OSLogConstants.infoLogs))
+        if includeSystemLogs {
+            try fileManager.copyItem(at: logFileURL, to: tempDir.appendingPathComponent(logFileURL.lastPathComponent))
+        }
+
+        if let infoData {
+            try infoData.write(to: tempDir.appendingPathComponent(OSLogConstants.infoLogs))
+        }
+
         try fileManager.zipItem(at: tempDir, to: zipFile, shouldKeepParent: false)
 
         return zipFile

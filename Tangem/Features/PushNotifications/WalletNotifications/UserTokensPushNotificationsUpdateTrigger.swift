@@ -61,7 +61,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private func seedInitialAuthorizationState(permissionService: PushNotificationsPermissionService) {
         // Seed `isAuthorizedSubject` with the current system permission so downstream pipelines
         // have a baseline even if the trigger is created after the cold-start `didBecomeActive`.
-        Task { [weak self, permissionService] in
+        Task { @MainActor [weak self, permissionService] in
             let initial = await permissionService.isAuthorized
             self?.isAuthorizedSubject.send(.value(initial))
         }
