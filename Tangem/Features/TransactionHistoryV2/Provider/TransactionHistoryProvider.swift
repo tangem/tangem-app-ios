@@ -8,6 +8,7 @@
 
 import Foundation
 import CryptoSwift
+import TangemExpress
 import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
@@ -95,13 +96,19 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncInitial() async {
+        TransactionHistoryLogger.debug(self, "Initial sync requested")
+
         guard await !syncMetadataStorage().hasCompletedInitialSync else {
+            TransactionHistoryLogger.debug(self, "Skipping initial sync: already completed")
             return
         }
 
         if let inFlightSyncTask = inFlightInitialSyncTask {
+            TransactionHistoryLogger.debug(self, "Joining in-flight initial sync")
             return await inFlightSyncTask.value
         }
+
+        TransactionHistoryLogger.debug(self, "Starting initial sync")
 
         let newSyncTask = runTask(in: self) { provider in
             await provider.performInitialSync()
@@ -110,16 +117,24 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         inFlightInitialSyncTask = newSyncTask
         await newSyncTask.value
         inFlightInitialSyncTask = nil
+
+        TransactionHistoryLogger.debug(self, "Initial sync finished")
     }
 
     func syncDelta() async {
+        TransactionHistoryLogger.debug(self, "Delta sync requested")
+
         guard await syncMetadataStorage().hasCompletedInitialSync else {
+            TransactionHistoryLogger.debug(self, "Skipping delta sync: initial sync not completed yet")
             return
         }
 
         if let inFlightSyncTask = inFlightInitialSyncTask ?? inFlightIncrementalSyncTask {
+            TransactionHistoryLogger.debug(self, "Joining in-flight sync")
             return await inFlightSyncTask.value
         }
+
+        TransactionHistoryLogger.debug(self, "Starting delta sync")
 
         let newSyncTask = runTask(in: self) { provider in
             await provider.performDeltaSync()
@@ -128,26 +143,36 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         inFlightIncrementalSyncTask = newSyncTask
         await newSyncTask.value
         inFlightIncrementalSyncTask = nil
+
+        TransactionHistoryLogger.debug(self, "Delta sync finished")
     }
 
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
+        TransactionHistoryLogger.debug(self, "User-initiated sync requested: \(kind)")
+
         guard await syncMetadataStorage().hasCompletedInitialSync else {
+            TransactionHistoryLogger.debug(self, "Skipping user-initiated sync: initial sync not completed yet")
             return
         }
 
         switch kind {
         case .pullToRefresh:
             if let last = lastSuccessfulPullToRefreshAt, Date().timeIntervalSince(last) < Constants.pullToRefreshThrottle {
+                TransactionHistoryLogger.debug(self, "Skipping pull-to-refresh: throttled")
                 return
             }
         case .postBroadcast:
             // Waiting for the transaction to be broadcasted into a mempool
+            TransactionHistoryLogger.debug(self, "Delaying post-broadcast sync by \(Constants.postBroadcastDelay)")
             try? await Task.sleep(for: Constants.postBroadcastDelay)
         }
 
         if let inFlightSyncTask = inFlightIncrementalSyncTask {
+            TransactionHistoryLogger.debug(self, "Joining in-flight sync")
             return await inFlightSyncTask.value
         }
+
+        TransactionHistoryLogger.debug(self, "Starting user-initiated sync: \(kind)")
 
         let newSyncTask = runTask(in: self) { provider in
             await provider.performUserInitiatedSync(kind: kind)
@@ -160,6 +185,16 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         if case .pullToRefresh = kind {
             lastSuccessfulPullToRefreshAt = Date()
         }
+
+        TransactionHistoryLogger.debug(self, "User-initiated sync finished: \(kind)")
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension TransactionHistoryProvider: CustomStringConvertible {
+    nonisolated var description: String {
+        objectDescription(self)
     }
 }
 
