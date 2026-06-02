@@ -17,7 +17,7 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressManager = expressManager
     }
 
-    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType {
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType? {
         let currentPair = await expressManager.getCurrentPair()
         let shouldReloadProviders = {
             guard let currentPair else {
