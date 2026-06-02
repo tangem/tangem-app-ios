@@ -253,7 +253,7 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
         // The `txValue` is always coin
         let amount = BSDKAmount(with: blockchain, type: .coin, value: dexData.txValue)
-        
+
         update(input: .dex(.ethereum(
             amount: amount,
             destination: dexData.destinationAddress,
