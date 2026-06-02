@@ -7,24 +7,27 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemFoundation
 
 public class ExpressAvailableProvider {
-    public var provider: ExpressProvider { context.provider }
-    public var pair: ExpressManagerSwappingPair { context.pair }
-    public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
-
-    public let supportedRateTypes: Set<ExpressProviderRateType>
-    public var isBest: Bool { _isBest { $0 } }
-
     private let context: ExpressProviderFlowContext
     private let manager: ExpressProviderManager
-    private let _isBest: OSAllocatedUnfairLock<Bool> = .init(initialState: false)
 
-    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager, supportedRateTypes: Set<ExpressProviderRateType>) {
+    public var provider: ExpressProvider { context.provider }
+    public var pair: ExpressManagerSwappingPair { context.pair }
+    public var rateType: ExpressProviderRateType { context.rateType }
+    public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
+
+    public var isBest: Bool { _isBest { $0 } }
+
+    // MARK: - Updatable state
+
+    private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
+
+    init(context: ExpressProviderFlowContext, manager: ExpressProviderManager) {
         self.context = context
         self.manager = manager
-        self.supportedRateTypes = supportedRateTypes
     }
 
     deinit {
@@ -43,12 +46,53 @@ extension ExpressAvailableProvider {
         _isBest { $0 = isBest }
     }
 
-    func updateState(request: ExpressManagerSwappingPairRequest) async {
+    func update(request: ExpressAvailableProviderUpdatingRequest) async {
+        guard let request = makeRequest(request: request) else {
+            ExpressLogger.info(self, "Skip updateState: amount is empty (nil or zero)")
+            return
+        }
+
         await manager.update(request: request)
     }
 
-    func requestData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        try await manager.sendData(request: request)
+    func requestData(request: ExpressAvailableProviderUpdatingRequest) async throws -> ExpressTransactionData {
+        guard let request = makeRequest(request: request) else {
+            throw ExpressManagerError.amountNotFound
+        }
+
+        return try await manager.sendData(request: request)
+    }
+
+    func reset() {
+        _isBest { $0 = false }
+
+        manager.reset()
+    }
+}
+
+// MARK: - Private
+
+private extension ExpressAvailableProvider {
+    func makeRequest(request: ExpressAvailableProviderUpdatingRequest) -> ExpressManagerSwappingPairRequest? {
+        guard let amountType = request.amountType, amountType.amount > 0 else {
+            return nil
+        }
+
+        return ExpressManagerSwappingPairRequest(
+            amountType: amountType,
+            rateType: rateType,
+            approvePolicy: request.approvePolicy,
+            operationType: pair.source.operationType,
+            quotesLoadingPerformanceTracker: request.quotesLoadingPerformanceTracker
+        )
+    }
+}
+
+// MARK: - Equatable
+
+extension ExpressAvailableProvider: Equatable {
+    public static func == (lhs: ExpressAvailableProvider, rhs: ExpressAvailableProvider) -> Bool {
+        lhs === rhs
     }
 }
 
@@ -60,24 +104,25 @@ extension ExpressAvailableProvider: CustomStringConvertible {
     }
 }
 
+struct ExpressAvailableProviderUpdatingRequest {
+    let amountType: ExpressAmountType?
+    let approvePolicy: ApprovePolicy
+    let quotesLoadingPerformanceTracker: ExpressQuotesLoadingPerformanceTracker?
+}
+
 // MARK: - [ExpressAvailableProvider]+
 
-public extension [ExpressAvailableProvider] {
-    func sortedByAttractively(rateType: ExpressProviderRateType) -> [ExpressAvailableProvider] {
-        sorted { ExpressProviderManagerComparator.isBetter($0, $1, rateType: rateType) }
+public extension Array where Element == ExpressAvailableProvider {
+    func sortedByAttractively() -> [ExpressAvailableProvider] {
+        sorted(by: ExpressProviderManagerComparator.isBetter)
     }
 
-    func best(rateType: ExpressProviderRateType) -> ExpressAvailableProvider? {
-        self.min(by: { ExpressProviderManagerComparator.isBetter($0, $1, rateType: rateType) })
+    func best() -> ExpressAvailableProvider? {
+        self.min(by: ExpressProviderManagerComparator.isBetter)
     }
 
-    /// Sets `isBest` on the single best provider when there are 2+ ratable candidates
-    /// (state carries a usable quote, not tooSmall/tooBig/error).
-    /// Analytics is intentionally not fired here — call sites trigger `bestProviderSelected`
-    /// only when selection actually changes (see `CommonExpressManager.updateSelectedProvider`).
-    func updateIsBestFlag(rateType: ExpressProviderRateType) {
+    func updateIsBestFlag() {
         let candidates = filter { provider in
-            guard provider.supportedRateTypes.contains(rateType) else { return false }
             let state = provider.getState()
             switch state {
             case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
@@ -92,33 +137,27 @@ public extension [ExpressAvailableProvider] {
             return
         }
 
-        let bestProvider = candidates.best(rateType: rateType)
-        forEach { $0.update(isBest: $0 === bestProvider) }
-    }
+        let best = candidates.best()
 
-    func filteredByRateType(_ rateType: ExpressProviderRateType?) -> [ExpressAvailableProvider] {
-        guard let rateType else {
-            return self
+        forEach { provider in
+            provider.update(isBest: provider === best)
         }
 
-        return filter { $0.supportedRateTypes.contains(rateType) }
+        let providers = map(\.provider.name).joined(separator: ", ")
+        ExpressLogger.info("Update providers \(providers). Best: \(best?.provider.name ?? "no best provider")")
     }
 
     func showableProviders() -> [ExpressAvailableProvider] {
-        filter { provider in
-            let isAvailableToShow = !provider.getState().isError
-            return isAvailableToShow
-        }
+        filter { $0.getState().isShowable }
     }
 
-    func showableProviders(selectedProviderId: String?, rateType: ExpressProviderRateType? = nil) -> [ExpressAvailableProvider] {
+    func showableProviders(selectedProviderId: String?) -> [ExpressAvailableProvider] {
         filter { provider in
             // If the provider `isSelected` we are forced to show it anyway
             let isSelected = selectedProviderId == provider.provider.id
-            let isAvailableToShow = !provider.getState().isError
-            let isSupportedRateType = rateType.map { provider.supportedRateTypes.contains($0) } ?? true
+            let isAvailableToShow = provider.getState().isShowable
 
-            return (isSelected || isAvailableToShow) && isSupportedRateType
+            return isSelected || isAvailableToShow
         }
     }
 }

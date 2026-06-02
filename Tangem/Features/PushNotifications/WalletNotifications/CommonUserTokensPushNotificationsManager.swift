@@ -129,7 +129,7 @@ private extension CommonUserTokensPushNotificationsManager {
     /// changes due to system permission (e.g. `.enabled` → `.needSystemPermission`).
     private func shouldSyncRemoteStatus(
         previousRemote: PushRemoteValueState<Bool>,
-        newRemote: PushRemoteValueState<Bool>,
+        newRemote: PushRemoteValueState<Bool>
     ) -> Bool {
         guard
             case .ready(let newValue) = newRemote,
@@ -204,7 +204,10 @@ private extension CommonUserTokensPushNotificationsManager {
     }
 
     func applySyncFailure() {
-        runTask(in: self) { @MainActor manager in
+        updateTask?.cancel()
+
+        updateTask = runTask(in: self) { @MainActor manager in
+            manager._userWalletPushRemoteStatusSubject.send(.failed)
             await manager.updateWalletPushNotifyStatus(.failed)
         }
     }

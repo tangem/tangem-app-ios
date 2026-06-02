@@ -231,7 +231,7 @@ private extension TransactionNotificationsRowToggleViewModel {
             // Intentionally keep `pendingEnable = true`: the alert points the user at iOS Settings,
             // and if they return with permission granted, `isAuthorizedPublisher` will fire `true`
             // and the `.isAuthorizedPublisher` branch above will execute the pending enable
-            // automatically. Tap OFF on the toggle still clears pending via `handleToggle(value:)`.
+            // automatically.
             showPushSettingsAlert?()
         }
     }
