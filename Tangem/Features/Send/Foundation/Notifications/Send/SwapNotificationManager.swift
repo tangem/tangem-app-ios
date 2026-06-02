@@ -180,7 +180,11 @@ private extension CommonSwapNotificationManager {
             return [.hasPendingApproveTransaction]
 
         case .restriction(.notEnoughBalanceForSwapping, _):
-            return [.notEnoughBalanceForSwapping]
+            let noticeAnalyticsParams: [Analytics.ParameterKey: String] = [
+                .token: source.tokenItem.currencySymbol,
+                .blockchain: source.tokenItem.blockchain.displayName,
+            ]
+            return [.notEnoughBalanceForSwapping(analyticsParams: noticeAnalyticsParams)]
 
         case .restriction(.validationError(let validationError), _):
             if let event = mapValidationError(source: source, validationError: validationError) {
