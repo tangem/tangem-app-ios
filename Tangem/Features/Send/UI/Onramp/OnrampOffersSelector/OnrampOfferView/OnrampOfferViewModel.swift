@@ -8,7 +8,6 @@
 
 import Combine
 import TangemMacro
-import PassKit
 import SwiftUI
 import TangemAssets
 import TangemExpress
@@ -86,9 +85,6 @@ extension OnrampOfferViewModel {
     @CaseFlagable
     enum BuyAction {
         case button(() -> Void)
-        case nativeApplePay(
-            request: PKPaymentRequest,
-            onPhaseChange: (PayWithApplePayButtonPaymentAuthorizationPhase) -> Void
-        )
+        case nativeApplePay(onTap: @MainActor () -> Void)
     }
 }

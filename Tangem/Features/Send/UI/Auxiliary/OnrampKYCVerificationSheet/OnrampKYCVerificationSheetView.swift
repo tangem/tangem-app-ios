@@ -114,6 +114,7 @@ struct OnrampKYCVerificationSheetView: View {
 private final class OnrampKYCVerificationSheetRoutableMock: OnrampKYCVerificationSheetRoutable {
     func onChooseAnother() {}
     func onProceedToWidget() {}
+    func onClose() {}
 }
 
 struct OnrampKYCVerificationSheetView_Previews: PreviewProvider {
