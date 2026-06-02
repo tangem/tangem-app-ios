@@ -19,9 +19,9 @@ extension BlockBookAddressResponse.TokenTransfer {
 }
 
 extension BlockBookAddressResponse.Compat where T == BlockBookAddressResponse.Transaction {
-    /// Has a value only for UTXO and Ethereum-like blockchains.
+    /// Has a value for blockchains whose Blockbook response uses the vin/vout model (UTXO, Ethereum-like, Tron).
     var vin: [BlockBookAddressResponse.Vin] { wrapped.vin ?? [] }
-    /// Has a value only for UTXO and Ethereum-like blockchains.
+    /// Has a value for blockchains whose Blockbook response uses the vin/vout model (UTXO, Ethereum-like, Tron).
     var vout: [BlockBookAddressResponse.Vout] { wrapped.vout ?? [] }
 }
 
