@@ -135,6 +135,7 @@ extension Analytics {
         case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
         case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
         case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
+        case addFundsPromoButton = "[Main Screen] Button - Add Funds Promo"
 
         // MARK: - Send
 
@@ -353,6 +354,9 @@ extension Analytics {
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
         case swapFastAmountInput = "[Swap] Fast amount input"
 
+        case swapTypeReselection = "[Swap] Swap type re-selection"
+        case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
+
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
@@ -411,6 +415,7 @@ extension Analytics {
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
+        case addFundsBannerAppear = "[Main Screen] Notice - Add Funds"
 
         // MARK: - BlockchainSdk exceptions
 
