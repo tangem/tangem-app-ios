@@ -32,11 +32,10 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
 
     func chooseAnotherMethod() {
         routable?.onChooseAnother()
-        dismiss()
     }
 
     func close() {
-        routable?.onChooseAnother()
+        routable?.onClose()
         dismiss()
     }
 

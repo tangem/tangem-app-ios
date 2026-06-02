@@ -11,4 +11,5 @@ import Foundation
 protocol OnrampKYCVerificationSheetRoutable: AnyObject {
     func onChooseAnother()
     func onProceedToWidget()
+    func onClose()
 }
