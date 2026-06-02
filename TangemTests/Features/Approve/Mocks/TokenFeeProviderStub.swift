@@ -39,4 +39,8 @@ final class TokenFeeProviderStub: TokenFeeProvider {
 
     @discardableResult
     func updateFees() -> Task<Void, Never> { Task {} }
+
+    func estimateFee(input: TokenFeeProviderInputData) async throws -> [Fee] {
+        _selectedTokenFee.value.value.value.map { [$0] } ?? []
+    }
 }

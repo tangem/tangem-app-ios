@@ -58,7 +58,8 @@ struct ExpressProviderFormatterBadgeTests {
             rateType: .float,
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
-            mapper: ExpressManagerMapper()
+            mapper: ExpressManagerMapper(),
+            featureFlags: ExpressFeatureFlags(isApproveWithSwapEnabled: false)
         )
 
         let available = ExpressAvailableProvider(
