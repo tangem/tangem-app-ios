@@ -242,8 +242,7 @@ private extension CommonUserWalletModelDependencies {
         return CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: remoteStatusSyncing,
-            notificationPreferencesProvider: CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
+            remoteStatusSyncing: remoteStatusSyncing
         )
     }
 
