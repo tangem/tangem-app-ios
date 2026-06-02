@@ -121,7 +121,7 @@ struct AllowanceSlot {
 
 /// One Ethereum account's override for `eth_estimateGas` / `eth_call`: which storage slots to pretend
 /// have which values during simulation.
-public struct EthereumAccountOverride: Encodable {
+public struct EthereumAccountOverride: Encodable, Hashable {
     public let stateDiff: [String: String]
 
     public init(stateDiff: [String: String]) {

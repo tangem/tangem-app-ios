@@ -18,6 +18,9 @@ public protocol FeeProvider {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee
+    /// Estimates the swap fee with the token's allowance slots overridden to unlimited,
+    /// so the EVM gas estimate already covers `transferFrom` before the approve is on-chain.
+    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride) async throws -> BSDKFee
     func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee
 }
 
@@ -28,6 +31,18 @@ public extension FeeProvider {
 
     func feeCurrencyHasPositiveBalance() throws -> Bool {
         try feeCurrencyBalance() > .zero
+    }
+}
+
+public struct AllowanceOverride {
+    public let tokenContractAddress: String
+    public let owner: String
+    public let spender: String
+
+    public init(tokenContractAddress: String, owner: String, spender: String) {
+        self.tokenContractAddress = tokenContractAddress
+        self.owner = owner
+        self.spender = spender
     }
 }
 

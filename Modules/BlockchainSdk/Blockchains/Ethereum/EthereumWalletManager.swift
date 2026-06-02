@@ -550,12 +550,13 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         destination: String,
         value: String?,
         data: Data?,
+        stateOverride: [String: EthereumAccountOverride]?,
         otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee {
         // Get fee for the transaction using pre-built calldata. Pick the market fee (index 1).
-        let fees = try await getFee(destination: destination, value: value, data: data).async()
+        let fees = try await getFee(destination: destination, value: value, data: data, stateOverride: stateOverride).async()
 
         guard let params = fees[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee

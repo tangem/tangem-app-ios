@@ -196,8 +196,8 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
             return try await updateFees(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)
 
-        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
-            return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
+        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee, let stateOverride)):
+            return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee, stateOverride: stateOverride)
 
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
@@ -372,12 +372,13 @@ private extension CommonTokenFeeProvider {
         return [fee]
     }
 
-    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, stateOverride: [String: BSDKEthereumAccountOverride]? = nil) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
             amount: amount,
             destination: destination,
             txData: txData,
-            otherNativeFee: otherNativeFee
+            otherNativeFee: otherNativeFee,
+            stateOverride: stateOverride
         )
         try Task.checkCancellation()
         return fees

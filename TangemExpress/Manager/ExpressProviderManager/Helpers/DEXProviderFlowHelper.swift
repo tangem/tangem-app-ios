@@ -35,28 +35,31 @@ struct DEXProviderFlowHelper {
             sourceAmount = quote.fromAmount
         }
 
-        if let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote) {
-            return restriction
-        }
+        let restriction = await checkRestriction(sourceAmount: sourceAmount, request: request, quote: quote)
 
-        do {
-            try await yieldModuleTransactionHelper?.prepareForYieldModuleDEXSwap(provider: provider)
-
-            let dataItem = try mapper.makeExpressSwappableDataItem(
-                pair: pair,
+        switch restriction {
+        case .some(.permissionRequired(let permissionRequired)) where context.featureFlags.isApproveWithSwapEnabled:
+            let approveWithSwapState = await fetchExchangeDataAndProceed(
+                sourceAmount: sourceAmount,
                 request: request,
-                providerId: provider.id,
-                providerType: provider.type,
-                quoteId: quote.quoteId
+                quote: quote,
+                requiredApprove: permissionRequired
             )
-            let data = try await expressAPIProvider.exchangeData(item: dataItem)
-            try Task.checkCancellation()
 
-            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+            if case .error = approveWithSwapState {
+                return .permissionRequired(permissionRequired)
+            }
 
-            return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: yieldModuleData)
-        } catch {
-            return mapError(error, quote: quote, amountType: request.amountType)
+            return approveWithSwapState
+
+        case .some(.permissionRequired(let permissionRequired)):
+            return .permissionRequired(permissionRequired)
+
+        case .some(let state):
+            return state
+
+        case .none:
+            return await fetchExchangeDataAndProceed(sourceAmount: sourceAmount, request: request, quote: quote)
         }
     }
 
@@ -132,6 +135,39 @@ private extension DEXProviderFlowHelper {
         return nil
     }
 
+    func fetchExchangeDataAndProceed(
+        sourceAmount: Decimal,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired? = nil
+    ) async -> ExpressProviderManagerState {
+        do {
+            try await yieldModuleTransactionHelper?.prepareForYieldModuleDEXSwap(provider: provider)
+
+            let dataItem = try mapper.makeExpressSwappableDataItem(
+                pair: pair,
+                request: request,
+                providerId: provider.id,
+                providerType: provider.type,
+                quoteId: quote.quoteId
+            )
+            let data = try await expressAPIProvider.exchangeData(item: dataItem)
+            try Task.checkCancellation()
+
+            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+
+            return try await proceed(
+                sourceAmount: sourceAmount,
+                request: request,
+                quote: quote,
+                data: yieldModuleData,
+                requiredApprove: requiredApprove
+            )
+        } catch {
+            return mapError(error, quote: quote, amountType: request.amountType)
+        }
+    }
+
     func makeYieldModuleDEXSwapDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
         guard isYieldModuleDEXSwap else {
             return data
@@ -152,7 +188,8 @@ private extension DEXProviderFlowHelper {
         sourceAmount: Decimal,
         request: ExpressManagerSwappingPairRequest,
         quote: ExpressQuote,
-        data: ExpressTransactionData
+        data: ExpressTransactionData,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired?
     ) async throws -> ExpressProviderManagerState {
         let coinBalance = try pair.source.balanceProvider.getCoinBalance()
         if data.txValue > coinBalance {
@@ -165,7 +202,7 @@ private extension DEXProviderFlowHelper {
         }
 
         do {
-            let ready = try await ready(request: request, quote: quote, data: data)
+            let ready = try await ready(request: request, quote: quote, data: data, requiredApprove: requiredApprove)
             return .dexPreview(ready)
         } catch {
             return .error(error, quote: quote)
@@ -189,14 +226,43 @@ private extension DEXProviderFlowHelper {
         return .insufficientBalance(estimatedAmount)
     }
 
-    func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState.DEXPreview {
-        let fee = try await expressFeeProvider.transactionFee(data: .dex(data: data))
+    func ready(
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote,
+        data: ExpressTransactionData,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired?
+    ) async throws -> ExpressProviderManagerState.DEXPreview {
+        let fee = try await fee(for: data, requiredApprove: requiredApprove)
 
         try Task.checkCancellation()
 
         // better to make the quote from the data
-        let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract, quoteId: quote.quoteId, txType: quote.txType)
-        return .init(provider: provider, data: data, fee: fee, quote: quoteData)
+        let quoteData = ExpressQuote(
+            fromAmount: data.fromAmount,
+            expectAmount: data.toAmount,
+            allowanceContract: quote.allowanceContract,
+            quoteId: quote.quoteId,
+            txType: quote.txType
+        )
+
+        return .init(provider: provider, data: data, fee: fee, quote: quoteData, requiredApprove: requiredApprove)
+    }
+
+    func fee(
+        for data: ExpressTransactionData,
+        requiredApprove: ExpressProviderManagerState.PermissionRequired?
+    ) async throws -> BSDKFee {
+        guard let requiredApprove, let owner = pair.source.address else {
+            return try await expressFeeProvider.transactionFee(data: .dex(data: data))
+        }
+
+        let allowanceOverride = AllowanceOverride(
+            tokenContractAddress: pair.source.currency.contractAddress,
+            owner: owner,
+            spender: requiredApprove.data.spender
+        )
+
+        return try await expressFeeProvider.transactionFee(data: .dex(data: data), allowanceOverride: allowanceOverride)
     }
 
     func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {

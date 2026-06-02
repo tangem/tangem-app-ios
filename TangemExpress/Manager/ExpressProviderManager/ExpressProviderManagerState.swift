@@ -95,6 +95,7 @@ public extension ExpressProviderManagerState {
         public let data: ExpressTransactionData
         public let fee: Fee
         public let quote: ExpressQuote
+        public let requiredApprove: PermissionRequired?
     }
 }
 

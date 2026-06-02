@@ -45,29 +45,64 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
 
         switch walletModel.tokenItem.blockchain {
         case let blockchain where blockchain.isEvm:
-            let transaction = try await buildTransaction(data: data, fee: fee)
-            let result = try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
-            return result
+            return try await sendEVM(data: data, fee: fee)
 
         case .solana:
-            guard let sender = walletModel.compiledTransactionSender else {
-                throw TransactionDispatcherResult.Error.actionNotSupported
-            }
-
-            let compiled = try buildRawCompiledTransaction(data: data, fee: fee)
-            let transactionSendResult = try await sender
-                .send(compiledTransaction: compiled, signer: transactionSigner)
-
-            let mapper = TransactionDispatcherResultMapper()
-            return mapper.mapResult(
-                transactionSendResult,
-                blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType,
-                isToken: walletModel.tokenItem.isToken
-            )
+            return try await sendSolana(data: data, fee: fee)
 
         case let blockchain:
             throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
+        }
+    }
+
+    func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
+        guard let lastTransaction = transactions.last else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        guard transactions.count > 1 else {
+            return [try await send(transaction: lastTransaction)]
+        }
+
+        let blockchain = walletModel.tokenItem.blockchain
+
+        guard blockchain.isEvm else {
+            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
+        }
+
+        var builtTransactions: [BSDKTransaction] = []
+        for transaction in transactions {
+            switch transaction {
+            case .approve(let data, let fee):
+                builtTransactions.append(try await buildApproveTransaction(data: data, fee: fee))
+            case .dex(let data, let fee):
+                builtTransactions.append(try await buildTransaction(data: data, fee: fee))
+            default:
+                throw TransactionDispatcherResult.Error.transactionNotFound
+            }
+        }
+
+        guard let multipleTransactionsSender = walletModel.multipleTransactionsSender else {
+            throw TransactionDispatcherProviderError.transactionNotSupported(
+                reason: "MultipleTransactionsSender is not available"
+            )
+        }
+
+        let mapper = TransactionDispatcherResultMapper()
+
+        do {
+            let hashes = try await multipleTransactionsSender.send(builtTransactions, signer: transactionSigner).async()
+
+            return hashes.map { hash in
+                mapper.mapResult(
+                    hash,
+                    blockchain: feeTokenItem.blockchain,
+                    signer: transactionSigner.latestSignerType,
+                    isToken: feeTokenItem.isToken
+                )
+            }
+        } catch {
+            throw mapper.mapError(error.toUniversalError(), transaction: lastTransaction)
         }
     }
 }
@@ -75,6 +110,29 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
 // MARK: - Private
 
 private extension ExpressDEXTransactionDispatcher {
+    func sendEVM(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
+        let transaction = try await buildTransaction(data: data, fee: fee)
+        return try await transferTransactionDispatcher.send(transaction: .transfer(transaction))
+    }
+
+    func sendSolana(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
+        guard let sender = walletModel.compiledTransactionSender else {
+            throw TransactionDispatcherResult.Error.actionNotSupported
+        }
+
+        let compiled = try buildRawCompiledTransaction(data: data, fee: fee)
+        let transactionSendResult = try await sender
+            .send(compiledTransaction: compiled, signer: transactionSigner)
+
+        let mapper = TransactionDispatcherResultMapper()
+        return mapper.mapResult(
+            transactionSendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType,
+            isToken: walletModel.tokenItem.isToken
+        )
+    }
+
     func buildTransaction(data: ExpressTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
         guard let txData = data.txData else {
             throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
@@ -99,6 +157,19 @@ private extension ExpressDEXTransactionDispatcher {
         }
 
         return unsignedData
+    }
+
+    func buildApproveTransaction(data: ApproveTransactionData, fee: BSDKFee) async throws -> BSDKTransaction {
+        let amount = BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0)
+        let transaction = try await transactionCreator.createTransaction(
+            amount: amount,
+            fee: fee,
+            destinationAddress: data.toContractAddress,
+            contractAddress: data.toContractAddress,
+            params: EthereumTransactionParams(data: data.txData)
+        )
+
+        return transaction
     }
 }
 

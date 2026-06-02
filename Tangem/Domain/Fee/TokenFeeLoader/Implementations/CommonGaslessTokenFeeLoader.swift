@@ -74,13 +74,14 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
         return fee
     }
 
-    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, stateOverride: [String: BSDKEthereumAccountOverride]?) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
         let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
             feeToken: params.feeToken,
             destination: destination,
             value: amount.encodedForSend,
             data: txData,
+            stateOverride: stateOverride,
             otherNativeFee: otherNativeFee,
             feeRecipientAddress: params.feeRecipientAddress,
             nativeToFeeTokenRate: params.nativeToFeeTokenRate

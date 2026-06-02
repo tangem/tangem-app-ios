@@ -17,7 +17,15 @@ protocol TokenFeeLoader {
 
 protocol EthereumTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
-    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee]
+
+    /// `stateOverride` fakes unlimited allowance for pre-approve `transferFrom` gas estimation (`nil` = normal estimate).
+    func getFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: BSDKEthereumAccountOverride]?
+    ) async throws -> [BSDKFee]
 }
 
 // MARK: - SolanaTokenFeeLoader
