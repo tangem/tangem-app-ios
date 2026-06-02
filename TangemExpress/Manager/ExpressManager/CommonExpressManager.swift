@@ -52,10 +52,12 @@ extension CommonExpressManager: ExpressManager {
     }
 
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState {
-        pair.map { assert($0.source.currency != $0.destination.currency, "Pair has equal currencies") }
         _pair = pair
 
         switch pair {
+        case .some(let pair) where pair.isTransfer:
+            return update(state: .transfer)
+
         case .some(let pair):
             let providers = try await makeAvailableProviders(pair: pair)
             let selected = providers.availableProviders(rate: .float).best()
