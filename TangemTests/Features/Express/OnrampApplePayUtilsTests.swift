@@ -66,7 +66,7 @@ struct OnrampApplePayUtilsTests {
             )
         )
 
-        let result = try #require(OnrampApplePayUtils.mapPaymentResult(payment))
+        let result = try OnrampApplePayUtils.mapPaymentResult(payment)
 
         #expect(result.paymentToken == tokenBytes.base64EncodedString())
         #expect(result.userData.email == "user@example.com")
@@ -78,28 +78,28 @@ struct OnrampApplePayUtilsTests {
         #expect(result.userData.billingAddress?.country == "United States")
     }
 
-    @Test("mapPaymentResult returns nil when shipping contact has no email")
+    @Test("mapPaymentResult throws when shipping contact has no email")
     func mapPaymentResultNoEmail() {
         let payment = StubPKPayment(tokenData: Data())
 
-        #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
+        #expect(throws: (any Error).self) { try OnrampApplePayUtils.mapPaymentResult(payment) }
     }
 
-    @Test("mapPaymentResult returns nil when shipping email is empty")
+    @Test("mapPaymentResult throws when shipping email is empty")
     func mapPaymentResultEmptyEmail() {
         let payment = StubPKPayment(tokenData: Data(), shippingEmail: "")
 
-        #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
+        #expect(throws: (any Error).self) { try OnrampApplePayUtils.mapPaymentResult(payment) }
     }
 
-    @Test("mapPaymentResult ignores email set on billing contact only")
+    @Test("mapPaymentResult throws when email is set on billing contact only")
     func mapPaymentResultIgnoresBillingEmail() {
         let payment = StubPKPayment(
             tokenData: Data(),
             billingEmail: "billing@example.com"
         )
 
-        #expect(OnrampApplePayUtils.mapPaymentResult(payment) == nil)
+        #expect(throws: (any Error).self) { try OnrampApplePayUtils.mapPaymentResult(payment) }
     }
 }
 
