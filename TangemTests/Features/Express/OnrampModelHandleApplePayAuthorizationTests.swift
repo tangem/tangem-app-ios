@@ -52,7 +52,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
     /// Widget fallback now opens the KYC sheet (giving the user a chance to opt
     /// out of the widget). Pending-tx + WebView fire only when the user taps
     /// Verify, which calls back through the `onProceedToWidget` closure.
-    @Test("Widget fallback opens KYC sheet before calling result.fail()")
+    @Test("Widget fallback opens KYC sheet on applePaySheetDidFinish after calling result.fail()")
     func widgetFallbackOpensSheetBeforeFail() async {
         let manager = StubOnrampManager(mode: .widget(StubFixtures.makeRedirectData()))
         let router = StubOnrampModelRoutable(eventLog: eventLog)
@@ -60,8 +60,12 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         model.router = router
 
         _ = await runHandleAndAwaitResult(on: model)
+        #expect(eventLog.events == [.resultHandler])
+        #expect(router.openKYCCallCount == 0)
 
-        #expect(eventLog.events == [.kycSheetOpened, .resultHandler])
+        await runOnMain { model.applePaySheetDidFinish() }
+
+        #expect(eventLog.events == [.resultHandler, .kycSheetOpened])
         #expect(router.openKYCCallCount == 1)
     }
 
@@ -73,6 +77,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
         model.router = router
 
         _ = await runHandleAndAwaitResult(on: model)
+        await runOnMain { model.applePaySheetDidFinish() }
 
         await runOnMain { router.lastOnProceedToWidget?() }
 
