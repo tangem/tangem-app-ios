@@ -177,8 +177,9 @@ private struct StubExpressFeeProvider: ExpressFeeProvider {
     func estimatedFee(amount: Decimal) async throws -> BSDKFee { fatalError("Not used in tests") }
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { fatalError("Not used in tests") }
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func estimateApproveFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { fatalError("Not used in tests") }
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee { fatalError("Not used in tests") }
-    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveFee: BSDKFee) async throws -> BSDKFee { fatalError("Not used in tests") }
     func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee { fatalError("Not used in tests") }
 }
 

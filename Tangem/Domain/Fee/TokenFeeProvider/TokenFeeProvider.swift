@@ -31,6 +31,9 @@ protocol TokenFeeProvider {
 
     @discardableResult
     func updateFees() -> Task<Void, Never>
+
+    /// Returns the fee as a value without touching `state` — unlike `updateFees()`, the displayed fee is untouched.
+    func estimateFee(input: TokenFeeProviderInputData) async throws -> [BSDKFee]
 }
 
 // MARK: - TokenFeeProvider+

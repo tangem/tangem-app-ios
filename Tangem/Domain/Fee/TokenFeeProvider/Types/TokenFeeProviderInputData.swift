@@ -32,7 +32,8 @@ enum TokenFeeProviderInputDataDEXType: Hashable {
         destination: String,
         txData: Data,
         otherNativeFee: Decimal?,
-        stateOverride: [String: BSDKEthereumAccountOverride]? = nil
+        stateOverride: [String: BSDKEthereumAccountOverride]? = nil,
+        additionalFeeAmount: Decimal? = nil
     )
 
     case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
