@@ -18,14 +18,17 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
     nonisolated init() {}
 
     func enqueue(sheet: some FloatingSheetContentViewModel) {
+        AppLogger.info("[FloatingSheet.enqueue] sheet=\(type(of: sheet)) active=\(activeSheetTypeDescription) queueCount=\(sheetsQueue.count) isPaused=\(isPaused)")
         if activeSheet == nil, !isPaused {
             activeSheet = sheet
         } else {
             sheetsQueue.append(sheet)
         }
+        AppLogger.info("[FloatingSheet.enqueue] after active=\(activeSheetTypeDescription) queueCount=\(sheetsQueue.count)")
     }
 
     func replaceActive(with sheet: some FloatingSheetContentViewModel) async {
+        AppLogger.info("[FloatingSheet.replaceActive] sheet=\(type(of: sheet)) active=\(activeSheetTypeDescription) queueCount=\(sheetsQueue.count) isPaused=\(isPaused)")
         let hadActive = activeSheet != nil
         if hadActive {
             activeSheet = nil
@@ -37,9 +40,11 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         } else {
             activeSheet = sheet
         }
+        AppLogger.info("[FloatingSheet.replaceActive] after active=\(activeSheetTypeDescription) queueCount=\(sheetsQueue.count)")
     }
 
     func removeActiveSheet() {
+        AppLogger.info("[FloatingSheet.removeActiveSheet] active=\(activeSheetTypeDescription) queueCount=\(sheetsQueue.count) isPaused=\(isPaused)")
         guard !isPaused else {
             if sheetsQueue.isNotEmpty {
                 sheetsQueue.removeFirst()
@@ -51,6 +56,11 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
         activeSheet = sheetsQueue.isEmpty
             ? nil
             : sheetsQueue.removeFirst()
+        AppLogger.info("[FloatingSheet.removeActiveSheet] after active=\(activeSheetTypeDescription) queueCount=\(sheetsQueue.count)")
+    }
+
+    private var activeSheetTypeDescription: String {
+        activeSheet.map { String(describing: type(of: $0)) } ?? "nil"
     }
 
     func removeAllSheets() {

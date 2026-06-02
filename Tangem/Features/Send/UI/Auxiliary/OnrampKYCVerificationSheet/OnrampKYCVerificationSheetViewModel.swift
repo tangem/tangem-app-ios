@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemExpress
 import TangemUI
 
 class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, ObservableObject {
@@ -26,20 +27,25 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
     }
 
     func verify() {
+        ExpressLogger.tag("Onramp").info(self, "[KYCSheetVM.verify] entry routable=\(routable == nil ? "nil" : "set")")
         routable?.onProceedToWidget()
+        ExpressLogger.tag("Onramp").info(self, "[KYCSheetVM.verify] onProceedToWidget returned; calling dismiss")
         dismiss()
     }
 
     func chooseAnotherMethod() {
+        ExpressLogger.tag("Onramp").info(self, "[KYCSheetVM.chooseAnotherMethod] entry routable=\(routable == nil ? "nil" : "set")")
         routable?.onChooseAnother()
     }
 
     func close() {
+        ExpressLogger.tag("Onramp").info(self, "[KYCSheetVM.close] entry routable=\(routable == nil ? "nil" : "set")")
         routable?.onClose()
         dismiss()
     }
 
     private func dismiss() {
+        ExpressLogger.tag("Onramp").info(self, "[KYCSheetVM.dismiss] scheduling removeActiveSheet")
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 }

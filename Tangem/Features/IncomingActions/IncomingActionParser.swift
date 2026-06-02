@@ -34,16 +34,20 @@ public class IncomingActionParser {
     // MARK: - Public Implementation
 
     public func parseIncomingURL(_ url: URL) -> IncomingAction? {
+        AppLogger.info("[IncomingActionParser.parseIncomingURL] url=\(url.absoluteString)")
         guard urlValidator.validate(url) else {
+            AppLogger.info("[IncomingActionParser.parseIncomingURL] validator rejected url; returning nil")
             return nil
         }
 
         for parser in incomingActionURLParsers {
             if let action = try? parser.parse(url) {
+                AppLogger.info("[IncomingActionParser.parseIncomingURL] matched parser=\(type(of: parser)) action=\(action)")
                 return action
             }
         }
 
+        AppLogger.warning("[IncomingActionParser.parseIncomingURL] no parser matched url=\(url.absoluteString)")
         return nil
     }
 

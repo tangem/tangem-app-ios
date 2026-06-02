@@ -74,7 +74,7 @@ class CommonSafariManager: NSObject, SafariManager {
         onDismiss: @escaping () -> Void,
         onSuccess: @escaping (URL) -> Void
     ) -> SafariHandle {
-        AppLogger.info("Open URL: \(url)")
+        AppLogger.info("[SafariManager.openURL] url=\(url.absoluteString)")
         let controller = SFSafariViewController(url: url)
         controller.modalPresentationStyle = .pageSheet
         controller.dismissButtonStyle = configuration.dismissButtonStyle.sfDismissButtonStyle
@@ -87,13 +87,16 @@ class CommonSafariManager: NSObject, SafariManager {
     }
 
     func dismiss(with url: URL) {
+        AppLogger.info("[SafariManager.dismiss] url=\(url.absoluteString) controllerPresented=\(context?.controller.presentingViewController != nil)")
         // already dismissed by user, but we received an url from Safari
         if context?.controller.presentingViewController == nil {
+            AppLogger.info("[SafariManager.dismiss] controller already dismissed; firing onSuccess directly")
             context?.onSuccess(url)
             return
         }
 
         context?.controller.dismiss(animated: true, completion: { [weak self] in
+            AppLogger.info("[SafariManager.dismiss.completion] firing onSuccess url=\(url.absoluteString)")
             self?.context?.onSuccess(url)
         })
     }
@@ -103,10 +106,12 @@ class CommonSafariManager: NSObject, SafariManager {
 
 extension CommonSafariManager: SFSafariViewControllerDelegate, UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        AppLogger.info("[SafariManager.presentationControllerDidDismiss] firing onDismiss")
         context?.onDismiss()
     }
 
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        AppLogger.info("[SafariManager.safariViewControllerDidFinish] user Done tap; firing onDismiss")
         context?.onDismiss()
     }
 }
@@ -115,10 +120,13 @@ extension CommonSafariManager: SFSafariViewControllerDelegate, UIAdaptivePresent
 
 extension CommonSafariManager: IncomingActionResponder {
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
+        AppLogger.info("[SafariManager.didReceiveIncomingAction] action=\(action)")
         guard case .dismissSafari(let url) = action else {
+            AppLogger.info("[SafariManager.didReceiveIncomingAction] action not .dismissSafari; ignoring")
             return false
         }
 
+        AppLogger.info("[SafariManager.didReceiveIncomingAction] .dismissSafari url=\(url.absoluteString); dispatching to dismiss(with:)")
         dismiss(with: url)
         return true
     }

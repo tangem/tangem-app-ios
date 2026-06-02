@@ -392,6 +392,7 @@ private extension OnrampModel {
     }
 
     func nativePaymentDataDidLoad(data: OnrampNativePaymentData, provider: OnrampProvider) {
+        log("[OnrampModel.nativePaymentDataDidLoad] entry txId=\(data.txId) provider=\(provider.provider.id) fromAmount=\(data.fromAmount) fromCurrency=\(data.fromCurrencyCode)")
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
@@ -411,11 +412,21 @@ private extension OnrampModel {
         stopTimer()
         _transactionTime.send(Date())
         _expressTransactionId.send(data.txId)
+        log("[OnrampModel.nativePaymentDataDidLoad] _transactionTime/_expressTransactionId sent; pendingApplePayCompletion=.finishStep")
         pendingApplePayCompletion = .finishStep
     }
 
     func log(_ message: String) {
         ExpressLogger.tag("Onramp").info(self, message)
+    }
+
+    private var pendingApplePayCompletionDescription: String {
+        switch pendingApplePayCompletion {
+        case .none: return "nil"
+        case .finishStep: return ".finishStep"
+        case .error(let error): return ".error(\(error.localizedDescription))"
+        case .openKYC(let provider, let data): return ".openKYC(provider=\(provider.provider.id), txId=\(data.txId))"
+        }
     }
 }
 
@@ -493,7 +504,9 @@ extension OnrampModel: OnrampRedirectingInput {}
 
 extension OnrampModel: OnrampRedirectingOutput {
     func redirectDataDidLoad(data: OnrampRedirectData) {
+        log("[OnrampModel.redirectDataDidLoad] (no provider) entry txId=\(data.txId)")
         guard let provider = selectedOnrampProvider else {
+            log("[OnrampModel.redirectDataDidLoad] selectedOnrampProvider nil; aborting")
             assertionFailure("selectedOnrampProvider is unexpectedly nil")
             return
         }
@@ -501,6 +514,7 @@ extension OnrampModel: OnrampRedirectingOutput {
     }
 
     func redirectDataDidLoad(data: OnrampRedirectData, provider: OnrampProvider) {
+        log("[OnrampModel.redirectDataDidLoad] entry txId=\(data.txId) provider=\(provider.provider.id) widgetUrl=\(data.widgetUrl.absoluteString) redirectUrl=\(data.redirectUrl.absoluteString)")
         let txData = SentOnrampTransactionData(
             txId: data.txId,
             provider: provider.provider,
@@ -519,9 +533,12 @@ extension OnrampModel: OnrampRedirectingOutput {
 
         stopTimer()
         DispatchQueue.main.async {
+            self.log("[OnrampModel.redirectDataDidLoad.main] calling router?.openOnrampWebView (router=\(self.router == nil ? "nil" : "set"))")
             self.router?.openOnrampWebView(url: data.widgetUrl, onDismiss: { [weak self] in
+                self?.log("[OnrampModel.openOnrampWebView.onDismiss] Safari dismissed without success url; restartTimer")
                 self?.restartTimer()
             }, onSuccess: { [weak self] url in
+                self?.log("[OnrampModel.openOnrampWebView.onSuccess] url=\(url.absoluteString)")
                 self?.proceedSuccess(txID: data.txId, redirectUrl: data.redirectUrl, url: url)
             })
         }
@@ -529,10 +546,17 @@ extension OnrampModel: OnrampRedirectingOutput {
 
     func proceedSuccess(txID: String, redirectUrl: URL, url: URL) {
         let parser = OnrampRedirectResultParser()
-        switch parser.parse(url: url) {
-        case .none, .cancel:
+        let parsed = parser.parse(url: url)
+        log("[OnrampModel.proceedSuccess] txID=\(txID) redirectUrl=\(redirectUrl.absoluteString) url=\(url.absoluteString) parsed=\(parsed.map { String(describing: $0) } ?? "nil")")
+        switch parsed {
+        case .none:
+            log("[OnrampModel.proceedSuccess] branch=.none -> restartTimer (no result query item)")
+            restartTimer()
+        case .cancel:
+            log("[OnrampModel.proceedSuccess] branch=.cancel -> restartTimer")
             restartTimer()
         case .success:
+            log("[OnrampModel.proceedSuccess] branch=.success -> _transactionTime.send, _expressTransactionId.send(\(txID)), router?.openFinishStep (router=\(router == nil ? "nil" : "set"))")
             _transactionTime.send(Date())
             _expressTransactionId.send(txID)
             router?.openFinishStep()
@@ -553,34 +577,42 @@ extension OnrampModel: OnrampSummaryOutput {
 
 extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetWillPresent() {
+        log("[OnrampModel.applePaySheetWillPresent] isApplePaySheetPresented=true")
         isApplePaySheetPresented = true
     }
 
     func applePaySheetDidFinish() {
+        log("[OnrampModel.applePaySheetDidFinish] entry pendingApplePayCompletion=\(pendingApplePayCompletionDescription)")
         isApplePaySheetPresented = false
 
         switch pendingApplePayCompletion {
         case .finishStep:
+            log("[OnrampModel.applePaySheetDidFinish] branch=.finishStep -> router?.openFinishStep (router=\(router == nil ? "nil" : "set"))")
             router?.openFinishStep()
         case .error(let error):
+            log("[OnrampModel.applePaySheetDidFinish] branch=.error -> alert (error=\(error.localizedDescription))")
             alertPresenter?.showAlert(error.alertBinder)
         case .openKYC(let provider, let data):
+            log("[OnrampModel.applePaySheetDidFinish] branch=.openKYC provider=\(provider.provider.id) data.txId=\(data.txId) -> openOnrampKYCVerification")
             router?.openOnrampKYCVerification(provider: provider) { [weak self] in
+                self?.log("[OnrampModel.applePaySheetDidFinish.kycProceed] firing redirectDataDidLoad for provider=\(provider.provider.id)")
                 self?.redirectDataDidLoad(data: data, provider: provider)
             }
         case .none:
-            break
+            log("[OnrampModel.applePaySheetDidFinish] branch=.none (no pending action)")
         }
         pendingApplePayCompletion = nil
     }
 
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
         let provider = result.provider
+        log("[OnrampModel.handleApplePayAuthorization] entry provider=\(provider.provider.id) paymentMethod=\(provider.paymentMethod.type)")
         _selectedOnrampProvider.send(.success(provider))
 
         runTask(in: self) { model in
             do {
                 let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
+                model.log("[OnrampModel.handleApplePayAuthorization] redirectSettings built (successURL/failURL configured); calling loadNativePaymentData")
                 let onrampResult = try await model.onrampManager.loadNativePaymentData(
                     provider: provider,
                     redirectSettings: redirectSettings,
@@ -592,17 +624,23 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                 await runOnMain {
                     switch onrampResult {
                     case .nativePayment(let data):
+                        model.log("[OnrampModel.handleApplePayAuthorization] onrampResult=.nativePayment data.txId=\(data.txId) fromAmount=\(data.fromAmount)")
                         model.nativePaymentDataDidLoad(data: data, provider: provider)
                         result.succeed()
                     case .widget(let data):
+                        model.log("[OnrampModel.handleApplePayAuthorization] onrampResult=.widget data.txId=\(data.txId) widgetUrl=\(data.widgetUrl.absoluteString) redirectUrl=\(data.redirectUrl.absoluteString) -> set pendingApplePayCompletion=.openKYC; result.fail()")
                         model.pendingApplePayCompletion = .openKYC(provider: provider, data: data)
                         result.fail()
                     }
                 }
             } catch is CancellationError {
-                await runOnMain { result.fail() }
+                await runOnMain {
+                    model.log("[OnrampModel.handleApplePayAuthorization] CancellationError -> result.fail()")
+                    result.fail()
+                }
             } catch {
                 await runOnMain {
+                    model.log("[OnrampModel.handleApplePayAuthorization] error=\(error.localizedDescription) isPassKitError=\(error.isPassKitError)")
                     if !error.isPassKitError {
                         model.pendingApplePayCompletion = .error(error)
                     }
@@ -727,18 +765,26 @@ extension OnrampModel: CustomStringConvertible {
 extension OnrampModel {
     struct OnrampRedirectResultParser {
         func parse(url: URL) -> Result? {
+            ExpressLogger.tag("Onramp").info("[OnrampRedirectResultParser.parse] url=\(url.absoluteString)")
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                ExpressLogger.tag("Onramp").info("[OnrampRedirectResultParser.parse] URLComponents nil -> nil")
                 return nil
             }
 
+            let allQueryItems = components.queryItems?.map { "\($0.name)=\($0.value ?? "")" }.joined(separator: "&") ?? "<no query items>"
+            ExpressLogger.tag("Onramp").info("[OnrampRedirectResultParser.parse] queryItems=[\(allQueryItems)]")
+
             guard let resultValue = components.queryItems?.first(where: { $0.name == "result" })?.value else {
+                ExpressLogger.tag("Onramp").info("[OnrampRedirectResultParser.parse] no `result` query item -> nil")
                 return nil
             }
 
             guard let result = Result(rawValue: resultValue) else {
+                ExpressLogger.tag("Onramp").info("[OnrampRedirectResultParser.parse] resultValue=\(resultValue) unmatched -> nil")
                 return nil
             }
 
+            ExpressLogger.tag("Onramp").info("[OnrampRedirectResultParser.parse] matched result=\(result.rawValue)")
             return result
         }
 

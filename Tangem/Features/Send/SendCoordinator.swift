@@ -346,7 +346,9 @@ extension SendCoordinator: OnrampRoutable {
     }
 
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
+        ExpressLogger.tag("Onramp").info(self, "[Coordinator.openOnrampWebView] url=\(url.absoluteString)")
         safariHandle = safariManager.openURL(url, configuration: .init(), onDismiss: onDismiss, onSuccess: { [weak self] url in
+            ExpressLogger.tag("Onramp").info("[Coordinator.openOnrampWebView.onSuccessWrapper] url=\(url.absoluteString); clearing safariHandle")
             self?.safariHandle = nil
             onSuccess(url)
         })
@@ -355,13 +357,16 @@ extension SendCoordinator: OnrampRoutable {
     }
 
     func openOnrampKYCVerification(providerName: String, routable: OnrampKYCVerificationSheetRoutable) {
+        ExpressLogger.tag("Onramp").info(self, "[Coordinator.openOnrampKYCVerification] providerName=\(providerName)")
         let viewModel = OnrampKYCVerificationSheetViewModel(
             providerName: providerName,
             routable: routable
         )
         Task { @MainActor in
             UIApplication.shared.endEditing()
+            ExpressLogger.tag("Onramp").info("[Coordinator.openOnrampKYCVerification.main] calling floatingSheetPresenter.replaceActive")
             await floatingSheetPresenter.replaceActive(with: viewModel)
+            ExpressLogger.tag("Onramp").info("[Coordinator.openOnrampKYCVerification.main] replaceActive returned")
         }
     }
 }
@@ -418,6 +423,7 @@ extension SendCoordinator: OnrampCurrencySelectorRoutable {
 
 extension SendCoordinator: OnrampRedirectingRoutable {
     func dismissOnrampRedirecting() {
+        ExpressLogger.tag("Onramp").info(self, "[Coordinator.dismissOnrampRedirecting] onrampRedirectingViewModel=\(onrampRedirectingViewModel == nil ? "nil" : "set")")
         onrampRedirectingViewModel = nil
     }
 }

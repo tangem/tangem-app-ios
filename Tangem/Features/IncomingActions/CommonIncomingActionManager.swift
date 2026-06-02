@@ -149,15 +149,20 @@ extension CommonIncomingActionManager: IncomingActionManaging {
 
     private func tryHandleLastAction() {
         guard let pendingAction else {
+            AppLogger.info("[IncomingActionManager.tryHandleLastAction] no pendingAction")
             return
         }
 
+        AppLogger.info("[IncomingActionManager.tryHandleLastAction] pendingAction=\(pendingAction) responders=\(responders.allDelegates.count)")
         for responder in responders.allDelegates.reversed() {
             if responder.didReceiveIncomingAction(pendingAction) {
                 self.pendingAction = nil // handled
-                AppLogger.info("Incoming action handled: \(pendingAction)")
+                AppLogger.info("Incoming action handled: \(pendingAction) by \(type(of: responder))")
                 break
             }
+        }
+        if self.pendingAction != nil {
+            AppLogger.warning("[IncomingActionManager.tryHandleLastAction] no responder accepted pendingAction=\(pendingAction)")
         }
     }
 }
