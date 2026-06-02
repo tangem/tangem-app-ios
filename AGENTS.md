@@ -260,7 +260,7 @@ The type is re-exported via `Modules/TangemFoundation/Extensions/Foundation/OSAl
 
 ## Documentation
 
-Always use Context7 MCP for fetching library/API documentation, code generation, or configuration steps.
+For Apple platform documentation (iOS/macOS APIs, frameworks, WWDC content) use the sosumi MCP. For all other library/API documentation, code generation, or configuration steps use Context7 MCP.
 
 ## Xcode MCP Tools
 
