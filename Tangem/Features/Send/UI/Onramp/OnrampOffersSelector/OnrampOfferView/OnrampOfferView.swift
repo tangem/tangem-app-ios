@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import PassKit
 import SwiftUI
 import TangemAssets
 import TangemLocalization
@@ -159,9 +158,8 @@ struct OnrampOfferView: View {
                 .size(.medium)
                 .style(.primary)
                 .disabled(!viewModel.isAvailable)
-        case .nativeApplePay(let request, let onPhaseChange):
-            PayWithApplePayButton(.plain, request: request, onPaymentAuthorizationChange: onPhaseChange)
-                .payWithApplePayButtonStyle(.automatic)
+        case .nativeApplePay(let onTap):
+            PKPaymentButtonRepresentable(action: onTap)
                 .frame(width: 66, height: 32)
                 .clipShape(Capsule())
                 .disabled(!viewModel.isAvailable)
