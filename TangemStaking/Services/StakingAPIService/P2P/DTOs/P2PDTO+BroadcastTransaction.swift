@@ -19,17 +19,11 @@ extension P2PDTO {
         struct BroadcastTransactionInfo: Decodable {
             let hash: String
             let status: Status
-            let blockNumber: Int
-            let transactionIndex: Int
-            let gasUsed: String
-            let cumulativeGasUsed: String
-            let effectiveGasPrice: String?
-            let from: String
-            let to: String
 
             enum Status: String, Decodable {
                 case success
                 case failed
+                case pending
             }
         }
     }
