@@ -131,6 +131,34 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
         #expect(applePayEntries.count == 1)
     }
 
+    @Test("Native Apple Pay suppresses Fastest slot when a widget Apple Pay provider would have won it")
+    func nativeApplePaySuppressesFastestSlot() {
+        let nativeApplePay = OnrampTestFixtures.makeProvider(
+            providerId: "provider-native",
+            paymentMethodId: "apple-pay",
+            amount: 100,
+            state: .loaded(OnrampQuote(expectedAmount: 100, nativePaymentAvailable: true, quoteId: "q1"))
+        )
+        let widgetApplePay = OnrampTestFixtures.makeProvider(
+            providerId: "provider-widget",
+            paymentMethodId: "apple-pay",
+            amount: 100,
+            state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2"))
+        )
+
+        let list = makeProvidersList([nativeApplePay, widgetApplePay])
+
+        let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
+            selectedProvider: .success(nativeApplePay),
+            providers: .success(list),
+            recentOnrampTransaction: nil
+        )
+
+        let offers = unwrapSuccess(result)
+        #expect(offers.contains(where: { firstCaseFor($0) == .nativeApplePay }))
+        #expect(!offers.contains(where: { firstCaseFor($0) == .fastest }))
+    }
+
     @Test("Same provider qualifying for nativeApplePay and great keeps a single entry at index 0")
     func dedupKeepsNativeApplePaySlot() {
         let onlyProvider = OnrampTestFixtures.makeProvider(
