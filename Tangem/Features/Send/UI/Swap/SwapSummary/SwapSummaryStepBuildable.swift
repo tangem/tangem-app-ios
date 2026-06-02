@@ -35,6 +35,7 @@ enum SwapSummaryStepBuilder {
         let sourceTokenAmountInput: SendSourceTokenAmountInput
         let receiveTokenInput: SendReceiveTokenInput
         let receiveTokenAmountInput: SendReceiveTokenAmountInput
+        let swapModelStateProvider: SwapModelStateProvider
     }
 
     struct Dependencies {
@@ -57,6 +58,7 @@ enum SwapSummaryStepBuilder {
             input: io.input,
             output: io.output,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
+            swapModelStateProvider: io.swapModelStateProvider,
             swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
         )
 
