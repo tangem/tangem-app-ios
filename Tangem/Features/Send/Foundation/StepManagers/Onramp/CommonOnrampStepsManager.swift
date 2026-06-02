@@ -52,10 +52,10 @@ final class CommonOnrampStepsManager {
     }
 
     private func next(step: SendStep) {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.next] step=\(String(describing: step.type)) output=\(output == nil ? "nil" : "set")")
+        ExpressLogger.tag("Onramp").info("[StepsManager.next] step=\(String(describing: step.type)) output=\(output == nil ? "nil" : "set")")
         stack.append(step)
         output?.update(step: step)
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.next] output.update returned")
+        ExpressLogger.tag("Onramp").info("[StepsManager.next] output.update returned")
     }
 }
 
@@ -96,7 +96,7 @@ extension CommonOnrampStepsManager: SendStepsManager {
     }
 
     func performFinish() {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.performFinish] -> next(finishStep)")
+        ExpressLogger.tag("Onramp").info("[StepsManager.performFinish] -> next(finishStep)")
         next(step: finishStep)
     }
 }
@@ -133,17 +133,17 @@ extension CommonOnrampStepsManager: OnrampModelRoutable {
     }
 
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.openOnrampWebView] url=\(url.absoluteString) router=\(router == nil ? "nil" : "set")")
+        ExpressLogger.tag("Onramp").info("[StepsManager.openOnrampWebView] url=\(url.absoluteString) router=\(router == nil ? "nil" : "set")")
         router?.openOnrampWebView(url: url, onDismiss: onDismiss, onSuccess: onSuccess)
     }
 
     func openFinishStep() {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.openFinishStep] output=\(output == nil ? "nil" : "set") -> performFinish")
+        ExpressLogger.tag("Onramp").info("[StepsManager.openFinishStep] output=\(output == nil ? "nil" : "set") -> performFinish")
         performFinish()
     }
 
     func openOnrampKYCVerification(provider: OnrampProvider, onProceedToWidget: @escaping () -> Void) {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.openOnrampKYCVerification] provider=\(provider.provider.id) router=\(router == nil ? "nil" : "set"); storing pendingKYCProceedToWidget")
+        ExpressLogger.tag("Onramp").info("[StepsManager.openOnrampKYCVerification] provider=\(provider.provider.id) router=\(router == nil ? "nil" : "set"); storing pendingKYCProceedToWidget")
         pendingKYCProceedToWidget = onProceedToWidget
         router?.openOnrampKYCVerification(
             providerName: provider.provider.name,
@@ -156,22 +156,22 @@ extension CommonOnrampStepsManager: OnrampModelRoutable {
 
 extension CommonOnrampStepsManager: OnrampKYCVerificationSheetRoutable {
     func onProceedToWidget() {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.onProceedToWidget] entry pendingKYCProceedToWidget=\(pendingKYCProceedToWidget == nil ? "nil" : "set")")
+        ExpressLogger.tag("Onramp").info("[StepsManager.onProceedToWidget] entry pendingKYCProceedToWidget=\(pendingKYCProceedToWidget == nil ? "nil" : "set")")
         let proceed = pendingKYCProceedToWidget
         pendingKYCProceedToWidget = nil
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.onProceedToWidget] firing closure")
+        ExpressLogger.tag("Onramp").info("[StepsManager.onProceedToWidget] firing closure")
         proceed?()
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.onProceedToWidget] closure returned")
+        ExpressLogger.tag("Onramp").info("[StepsManager.onProceedToWidget] closure returned")
     }
 
     func onChooseAnother() {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.onChooseAnother] entry -> openOnrampAllOffers")
+        ExpressLogger.tag("Onramp").info("[StepsManager.onChooseAnother] entry -> openOnrampAllOffers")
         pendingKYCProceedToWidget = nil
         openOnrampAllOffers()
     }
 
     func onClose() {
-        ExpressLogger.tag("Onramp").info(self, "[StepsManager.onClose] entry; clearing pendingKYCProceedToWidget")
+        ExpressLogger.tag("Onramp").info("[StepsManager.onClose] entry; clearing pendingKYCProceedToWidget")
         pendingKYCProceedToWidget = nil
     }
 }
