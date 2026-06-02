@@ -82,6 +82,17 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return SwapStoriesScreen(app)
     }
 
+    /// Express-unreachable keeps the Swap button rendered but `.disabled` — `waitAndTap`'s `isEnabled` wait would time out.
+    @discardableResult
+    func tapSwapButtonWhenUnavailable() -> Self {
+        XCTContext.runActivity(named: "Tap Swap action button (disabled state)") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            XCTAssertFalse(swapButton.isEnabled, "Swap button should be disabled when Express is unavailable")
+            swapButton.tap()
+            return self
+        }
+    }
+
     @discardableResult
     func tapSendButton() -> SendScreen {
         tapActionButton(.send)
@@ -236,6 +247,21 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
             if requireSendOrTransfer {
                 waitForEither(sendButton, or: transferButton, "Send or Transfer entry should be visible")
             }
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifySendUnavailable() -> Self {
+        XCTContext.runActivity(named: "Verify Send is unavailable on token details") { _ in
+            XCTAssertFalse(
+                sendButton.waitForExistence(timeout: .conditional),
+                "Send button should not be visible when sending is unavailable"
+            )
+            XCTAssertFalse(
+                transferButton.waitForExistence(timeout: .conditional),
+                "Transfer entry should not be visible when sending is unavailable"
+            )
             return self
         }
     }
