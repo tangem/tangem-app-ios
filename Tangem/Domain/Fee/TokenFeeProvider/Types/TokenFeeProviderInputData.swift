@@ -27,8 +27,14 @@ enum FeeMultiplier: Decimal, Hashable {
 }
 
 enum TokenFeeProviderInputDataDEXType: Hashable {
-    case ethereum(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?)
-    case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
+    case ethereum(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: BSDKEthereumAccountOverride]? = nil
+    )
 
+    case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
     case solana(compiledTransaction: Data)
 }

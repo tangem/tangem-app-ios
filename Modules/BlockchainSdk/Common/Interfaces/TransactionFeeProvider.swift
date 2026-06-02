@@ -49,11 +49,13 @@ public protocol GaslessTransactionFeeProvider {
     ) async throws -> Fee
 
     /// Estimates the gasless fee for a transaction with pre-built calldata (approve, DEX swap, etc.).
+    /// `stateOverride` fakes unlimited allowance for pre-approve `transferFrom` gas estimation (`nil` = normal estimate).
     func getGaslessTransactionFee(
         feeToken: Token,
         destination: String,
         value: String?,
         data: Data?,
+        stateOverride: [String: EthereumAccountOverride]?,
         otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal

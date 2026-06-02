@@ -567,7 +567,13 @@ extension SwapModel {
             return .restriction(restriction, quote: quote)
         }
 
-        let readyToSwapState = ReadyToSwapState(quote: quote, data: dexPreview.data, fee: fee)
+        let readyToSwapState = ReadyToSwapState(
+            quote: quote,
+            data: dexPreview.data,
+            fee: fee,
+            requiredApprove: dexPreview.requiredApprove
+        )
+
         return .readyToSwap(readyToSwapState)
     }
 
@@ -763,7 +769,20 @@ extension SwapModel {
                 let didUpgrade = source.sendYieldModuleHelper?.isUpgradeWrapped(data) == true
 
                 let dispatcher = source.transactionDispatcherProvider.makeDEXTransactionDispatcher()
-                let result = try await dispatcher.send(transaction: .dex(data: data, fee: readyToSwap.fee))
+
+                let approveTx = readyToSwap.requiredApprove.map {
+                    TransactionDispatcherTransactionType.approve(data: $0.data, fee: $0.fee)
+                }
+
+                let swapTx = TransactionDispatcherTransactionType.dex(data: data, fee: readyToSwap.fee)
+                let transactions = [approveTx, swapTx].compactMap { $0 }
+
+                let results = try await dispatcher.send(transactions: transactions)
+
+                guard let result = results.last else {
+                    throw SwapModel.SwapModelError.transactionDataNotFound
+                }
+
                 analyticsLogger.logSwapTransactionSent(result: result)
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
 
@@ -1867,6 +1886,7 @@ extension SwapModel {
         let quote: Quote
         let data: ExpressTransactionData
         let fee: BSDKFee
+        let requiredApprove: ExpressProviderManagerState.PermissionRequired?
     }
 
     struct TransactionSendResultState {
