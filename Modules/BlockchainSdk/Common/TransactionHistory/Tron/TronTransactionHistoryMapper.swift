@@ -257,8 +257,8 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
         return transactions
             .reduce(into: []) { partialResult, transaction in
                 guard
-                    let sourceAddress = transaction.fromAddress,
-                    let destinationAddress = transaction.toAddress,
+                    let sourceAddress = transaction.sourceAddress,
+                    let destinationAddress = transaction.destinationAddress,
                     let fees = Decimal(stringValue: transaction.fees)
                 else {
                     BSDKLogger.error(error: "Transaction \(transaction) doesn't contain a required information")
@@ -387,5 +387,17 @@ private extension BlockBookAddressResponse.Transaction {
     var isContractInteraction: Bool {
         contractType != nil
             && contractType != TronTransactionHistoryMapper.TronContractType.transferContractType.rawValue
+    }
+
+    /// NowNodes changed the Tron Blockbook API contract: the dedicated `fromAddress`/`toAddress` fields
+    /// may now be absent, in which case the addresses are delivered via the `vin`/`vout` arrays (as in
+    /// other Blockbook-based networks like Bitcoin or Ethereum). Fall back to those fields when the
+    /// dedicated ones are missing.
+    var sourceAddress: String? {
+        fromAddress ?? vin?.first?.addresses?.first
+    }
+
+    var destinationAddress: String? {
+        toAddress ?? vout?.first?.addresses?.first
     }
 }
