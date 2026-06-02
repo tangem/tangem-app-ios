@@ -56,32 +56,23 @@ struct MultiWalletMainContentView: View {
 
     @ViewBuilder
     private var bannersSection: some View {
-        if viewModel.isAddFundsBannerVisible {
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
-            }
+        ForEach(viewModel.notificationInputs) { input in
+            NotificationView(input: input)
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
+        }
 
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
-        } else {
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
-            }
+        ForEach(viewModel.tokensNotificationInputs) { input in
+            NotificationView(input: input)
+        }
 
-            ForEach(viewModel.tokensNotificationInputs) { input in
-                NotificationView(input: input)
-            }
+        PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+        if let viewModel = viewModel.tangemPayBannerViewModel {
+            GetTangemPayBannerView(viewModel: viewModel)
+        }
 
-            if let viewModel = viewModel.tangemPayBannerViewModel {
-                GetTangemPayBannerView(viewModel: viewModel)
-            }
-
-            ForEach(viewModel.tangemPayNotificationInputs) { input in
-                NotificationView(input: input)
-            }
+        ForEach(viewModel.tangemPayNotificationInputs) { input in
+            NotificationView(input: input)
         }
     }
 
