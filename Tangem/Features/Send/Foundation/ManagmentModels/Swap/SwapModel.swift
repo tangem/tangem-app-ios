@@ -1093,7 +1093,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
 extension SwapModel: SendSwapProvidersInput {
     var expressProviders: [ExpressAvailableProvider] {
-        mapToExpressProviders(providersState: _providersState.value)
+        _providersState.value.providers
     }
 
     var expressProvidersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
@@ -1768,15 +1768,6 @@ extension SwapModel {
             case .readyToSwap(let state): state.quote
             }
         }
-    }
-
-    struct Providers {
-        static let empty = Providers(available: [], supportedRateTypes: [])
-
-        let available: [ExpressAvailableProvider]
-        let supportedRateTypes: Set<ExpressProviderRateType>
-
-        var isEmpty: Bool { available.isEmpty }
     }
 
     struct Quote: Hashable {
