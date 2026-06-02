@@ -120,6 +120,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .yieldTopup: Localization.yieldModuleTransactionTopup
         case .yieldWithdraw, .yieldWithdrawCoin: Localization.yieldModuleTransactionExit
         case .gaslessTransactionFee: Localization.gaslessTransactionFee
+        case .gaslessTransfer: Localization.transactionHistoryOperation
         }
     }
 
@@ -204,6 +205,7 @@ extension TransactionViewModel {
         case yieldWithdraw
         case yieldWithdrawCoin
         case gaslessTransactionFee
+        case gaslessTransfer
 
         case tangemPay(TangemPayTransactionType)
     }
