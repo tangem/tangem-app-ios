@@ -131,6 +131,9 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
                     guard scrollPhase == .tracking else { return }
                     updateScrolledID(from: newIndex)
                 }
+                .task {
+                    updateScrolledID(from: selectedIndex)
+                }
         }
     }
 
