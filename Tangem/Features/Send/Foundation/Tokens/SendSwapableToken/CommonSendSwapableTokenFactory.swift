@@ -28,10 +28,14 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
 
-        // with `.swap` supportingOptions
+        // `.swap` keeps only market+fast; regular Send via `.swapAndSend` needs all four (slow/market/fast/custom).
+        let supportingFeeOptions: TokenFeeProviderSupportingOptions = switch operationType {
+        case .swap, .onramp: .swap
+        case .swapAndSend: .all
+        }
         let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: .swap
+            supportingOptions: supportingFeeOptions
         )
         let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
 
