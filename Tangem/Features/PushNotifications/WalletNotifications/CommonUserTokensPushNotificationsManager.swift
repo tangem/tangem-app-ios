@@ -100,6 +100,11 @@ private extension CommonUserTokensPushNotificationsManager {
         let isAuthorized = await pushNotificationsPermission.isAuthorized
         let currentRemoteStatus = _userWalletPushRemoteStatusSubject.value
 
+        // If remote status is still loading (idle), return loading
+        guard currentRemoteStatus != .loading else {
+            return .loading
+        }
+
         // If system permission is not granted
         guard isAuthorized else {
             if case .ready(let isEnabled) = currentRemoteStatus, !isEnabled {

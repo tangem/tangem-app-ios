@@ -36,25 +36,23 @@ public protocol ExpressManager: Actor {
 
 public enum ExpressManagerState {
     case idle
-
-    @available(*, unavailable, message: "This is not implemented yet")
     case transfer
-
     case swap(selected: ExpressAvailableProvider?, providers: Providers)
 
     public struct Providers {
+        public static let empty = Providers(float: [], fixed: [])
+
+        public var isEmpty: Bool { all.isEmpty }
+
+        public var supportedRateTypes: Set<ExpressProviderRateType> {
+            all.map(\.rateType).toSet()
+        }
+
         private let float: [ExpressAvailableProvider]
         private let fixed: [ExpressAvailableProvider]
 
         /// Internal — used only inside the module
         var all: [ExpressAvailableProvider] { float + fixed }
-
-        /// All providers deduplicated by `provider`. If a provider supports both rate types, the float-rate instance is kept.
-        public var allUnique: [ExpressAvailableProvider] { all.unique(by: \.provider) }
-
-        public var supportedRateTypes: Set<ExpressProviderRateType> {
-            all.map(\.rateType).toSet()
-        }
 
         init(float: [ExpressAvailableProvider], fixed: [ExpressAvailableProvider]) {
             self.float = float
@@ -75,6 +73,8 @@ extension ExpressManagerState: CustomStringConvertible {
         switch self {
         case .idle:
             return objectDescription("ExpressManagerState", userInfo: ["mode": "idle"])
+        case .transfer:
+            return objectDescription("ExpressManagerState", userInfo: ["mode": "transfer"])
         case .swap(let selected, let providers):
             return objectDescription("ExpressManagerState", userInfo: [
                 "mode": "swap",
