@@ -118,7 +118,6 @@ class CommonWalletModel {
         _ = fiatAvailableBalanceProvider
         _ = fiatStakingBalanceProvider
         _ = fiatTotalTokenBalanceProvider
-
         _ = _yieldModuleManager
         _ = _rate
     }
@@ -392,7 +391,7 @@ extension CommonWalletModel: WalletModelUpdater {
             if features.contains(.transactionHistory) {
                 await _transactionHistoryService?.clearHistory()
 
-                await updateTransactionsHistory()
+                await updateTransactionHistory()
             }
         }()
 
@@ -406,7 +405,7 @@ extension CommonWalletModel: WalletModelUpdater {
         startUpdatingTimer()
     }
 
-    func updateTransactionsHistory() async {
+    func updateTransactionHistory() async {
         guard let _transactionHistoryService else {
             return
         }
