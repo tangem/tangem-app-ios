@@ -337,6 +337,7 @@ extension Analytics {
         case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeNotEnoughFunds = "[Swap] Notice - Not Enough Funds"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
         case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"

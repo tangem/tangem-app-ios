@@ -456,11 +456,17 @@ extension SwapModel {
         let amount = makeAmount(value: amountValue, tokenItem: source.tokenItem)
         let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
 
-        source.tokenFeeProvidersManager.update(input: .common(amount: amountValue, destination: address))
-        await source.tokenFeeProvidersManager.updateFees().value
-
         do {
+            // 1. Validate just amount before fee calculation
+            if let restriction = try validate(amount: amount) {
+                return .restriction(restriction, quote: quote)
+            }
+
+            source.tokenFeeProvidersManager.update(input: .common(amount: amountValue, destination: address))
+            await source.tokenFeeProvidersManager.updateFees().value
             let fee = try source.tokenFeeProvidersManager.selectedTokenFee.value.get()
+
+            // 2. Validate amount and fee
             if let restriction = try validate(amount: amount, fee: fee) {
                 return .restriction(restriction, quote: quote)
             }
@@ -613,24 +619,40 @@ extension SwapModel {
         return .previewCEX(previewCEXState)
     }
 
+    func validate(amount: Amount) throws -> RestrictionType? {
+        do {
+            let source = try _sourceToken.value.get()
+            try source.transactionValidator.validate(amount: amount)
+            // All good
+            return nil
+        } catch {
+            return try proceedValidationError(error)
+        }
+    }
+
     func validate(amount: Amount, fee: Fee) throws -> RestrictionType? {
         do {
             let source = try _sourceToken.value.get()
             try source.transactionValidator.validate(amount: amount, fee: fee)
-        } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
-            return .notEnoughBalanceForSwapping
-        } catch ValidationError.feeExceedsBalance {
-            let isFeeCurrency = fee.amount.type == amount.type
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
-        } catch let error as ValidationError {
-            return .validationError(error: error)
+            // All good
+            return nil
         } catch {
+            return try proceedValidationError(error)
+        }
+    }
+
+    func proceedValidationError(_ error: Error) throws -> RestrictionType? {
+        switch error {
+        case ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance:
+            return .notEnoughBalanceForSwapping
+        case ValidationError.feeExceedsBalance(_, _, let isFeeCurrency):
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+        case let error as ValidationError:
+            return .validationError(error: error)
+        case let error:
             ExpressLogger.error(error: "Not expected error: \(error)")
             throw error
         }
-
-        // All good
-        return nil
     }
 
     func validateMemoRequired() throws -> RestrictionType? {
