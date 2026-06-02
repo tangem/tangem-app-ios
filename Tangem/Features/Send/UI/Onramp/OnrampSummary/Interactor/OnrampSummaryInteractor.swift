@@ -190,8 +190,8 @@ extension CommonOnrampSummaryInteractor {
             let nativeApplePay = successfullyLoadedProviders.nativeApplePay()
 
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
-                nativeApplePay.map { .nativeApplePay($0) },
                 recent.map { .recent($0) },
+                nativeApplePay.map { .nativeApplePay($0) },
                 great.map { .great($0) },
                 fastest.map { .fastest($0) },
             ]
