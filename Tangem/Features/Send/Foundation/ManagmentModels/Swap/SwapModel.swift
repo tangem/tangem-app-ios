@@ -770,18 +770,10 @@ extension SwapModel {
 
                 let dispatcher = source.transactionDispatcherProvider.makeDEXTransactionDispatcher()
 
-                let approveTx = readyToSwap.requiredApprove.map {
-                    TransactionDispatcherTransactionType.approve(data: $0.data, fee: $0.fee)
-                }
-
-                let swapTx = TransactionDispatcherTransactionType.dex(data: data, fee: readyToSwap.fee)
-                let transactions = [approveTx, swapTx].compactMap { $0 }
-
-                let results = try await dispatcher.send(transactions: transactions)
-
-                guard let result = results.last else {
-                    throw SwapModel.SwapModelError.transactionDataNotFound
-                }
+                let result = try await dispatcher.sendDexSwap(
+                    swap: (data: data, fee: readyToSwap.fee),
+                    approve: readyToSwap.requiredApprove.map { (data: $0.data, fee: $0.fee) }
+                )
 
                 analyticsLogger.logSwapTransactionSent(result: result)
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
