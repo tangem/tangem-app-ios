@@ -58,7 +58,7 @@ extension VisaWalletModel: WalletModelUpdater {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func updateTransactionsHistory() async {
+    func updateTransactionHistory() async {
         // [REDACTED_TODO_COMMENT]
     }
 
