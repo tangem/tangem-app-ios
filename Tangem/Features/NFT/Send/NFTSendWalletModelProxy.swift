@@ -168,8 +168,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         await mainTokenWalletModel.update(silent: silent, features: features)
     }
 
-    func updateTransactionsHistory() async {
-        await mainTokenWalletModel.updateTransactionsHistory()
+    func updateTransactionHistory() async {
+        await mainTokenWalletModel.updateTransactionHistory()
     }
 
     func updateAfterSendingTransaction() {

@@ -120,7 +120,7 @@ final class WalletModelTestsMock: WalletModel {
 
     func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
 
-    func updateTransactionsHistory() async {}
+    func updateTransactionHistory() async {}
 
     func updateAfterSendingTransaction() {}
 

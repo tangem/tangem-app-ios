@@ -29,7 +29,7 @@ protocol SendDestinationInteractor {
     func update(destination: String, source: Analytics.DestinationAddressSource) async
     func update(additionalField: String)
 
-    func preloadTransactionsHistoryIfNeeded()
+    func preloadTransactionHistoryIfNeeded()
 }
 
 class CommonSendDestinationInteractor {
@@ -277,8 +277,8 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
         }
     }
 
-    func preloadTransactionsHistoryIfNeeded() {
-        dependenciesBuilder.transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
+    func preloadTransactionHistoryIfNeeded() {
+        dependenciesBuilder.transactionHistoryProvider.preloadTransactionHistoryIfNeeded()
     }
 }
 
