@@ -127,7 +127,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
             let token = tokenElement(named: label)
-            scrollTokensListToHittable(token)
+            scrollTokensListToVisible(token)
             token.waitAndTap()
             return TokenScreen(app)
         }
@@ -485,7 +485,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
-            scrollTokensListToHittable(token)
+            scrollTokensListToVisible(token)
 
             // Wait for balance to load — context menu captures content at presentation time
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
@@ -504,7 +504,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 if attempt < maxAttempts {
                     app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
                     _ = token.waitForExistence(timeout: .quick)
-                    scrollTokensListToHittable(token)
+                    scrollTokensListToVisible(token)
                 }
             }
 
@@ -582,7 +582,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenCount(tokenName: String) -> Int {
         XCTContext.runActivity(named: "Get count of tokens with name: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollTokensListToHittable(tokenElement(named: tokenName))
+            scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -602,7 +602,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getAllTokenBalances(tokenName: String) -> [String] {
         XCTContext.runActivity(named: "Get all balances for token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollTokensListToHittable(tokenElement(named: tokenName))
+            scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -639,7 +639,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenBalance(tokenName: String, tokenIndex: Int = 0) -> String {
         XCTContext.runActivity(named: "Get balance for token: \(tokenName) at index: \(tokenIndex)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollTokensListToHittable(tokenElement(named: tokenName))
+            scrollTokensListToVisible(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -830,13 +830,14 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     /// Scrolls inside `tokensList` (not the whole app) and pushes the row above the Markets sheet grabber when they overlap.
     @discardableResult
-    private func scrollTokensListToHittable(_ element: XCUIElement, attempts: Int = 5) -> Bool {
+    private func scrollTokensListToVisible(_ element: XCUIElement, attempts: Int = 5) -> Bool {
         waitAndAssertTrue(tokensList, "Tokens list should exist before scrolling")
 
         for _ in 0 ..< attempts {
-            if element.exists, element.isHittable {
-                if grabber.exists, element.frame.maxY > grabber.frame.minY {
-                    scrollTokensList(byOffset: -(element.frame.maxY - grabber.frame.minY + 50))
+            if hasVisibleFrame(element) {
+                let frame = element.frame
+                if grabber.exists, frame.maxY > grabber.frame.minY {
+                    scrollTokensList(byOffset: -(frame.maxY - grabber.frame.minY + 50))
                     continue
                 }
                 return true
@@ -844,7 +845,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             scrollTokensList(byOffset: -250)
         }
 
-        return element.exists && element.isHittable
+        return hasVisibleFrame(element)
+    }
+
+    /// Avoids `.isHittable` because it aborts the test with "Activation point invalid" when a SwiftUI row is mid-animation.
+    private func hasVisibleFrame(_ element: XCUIElement) -> Bool {
+        guard element.exists else { return false }
+        let frame = element.frame
+        guard frame.width > 0, frame.height > 0 else { return false }
+        return app.frame.intersects(frame)
     }
 
     private func scrollTokensList(byOffset dy: CGFloat) {
