@@ -100,6 +100,52 @@ extension BlockBookAddressResponse {
             toAddress = try container.decodeIfPresent(String.self, forKey: CodingKeys.toAddress)
             voteList = try container.decodeIfPresent([String: Int].self, forKey: CodingKeys.voteList)
         }
+
+        /// Memberwise initializer. A custom `Decodable` implementation suppresses the synthesized one,
+        /// so it's declared explicitly to keep the type constructible (e.g. in tests).
+        init(
+            txid: String,
+            contractType: Int?,
+            contractName: String?,
+            version: Int?,
+            vin: [Vin]?,
+            vout: [Vout]?,
+            blockHash: String?,
+            blockHeight: Int,
+            confirmations: Int,
+            blockTime: Int,
+            value: String,
+            valueIn: String?,
+            fees: String,
+            hex: String?,
+            tokenTransfers: [TokenTransfer]?,
+            ethereumSpecific: EthereumSpecific?,
+            tronTXReceipt: TronTXReceipt?,
+            fromAddress: String?,
+            toAddress: String?,
+            voteList: [String: Int]?
+        ) {
+            self.txid = txid
+            self.contractType = contractType
+            self.contractName = contractName
+            self.version = version
+            self.vin = vin
+            self.vout = vout
+            self.blockHash = blockHash
+            self.blockHeight = blockHeight
+            self.confirmations = confirmations
+            self.blockTime = blockTime
+            self.value = value
+            self.valueIn = valueIn
+            self.fees = fees
+            self.hex = hex
+            self.tokenTransfers = tokenTransfers
+            self.ethereumSpecific = ethereumSpecific
+            self.tronTXReceipt = tronTXReceipt
+            self.fromAddress = fromAddress
+            self.toAddress = toAddress
+            self.voteList = voteList
+        }
     }
 
     struct Vin: Decodable {
