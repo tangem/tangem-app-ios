@@ -20,9 +20,9 @@ struct TronTransactionHistoryMapperTests {
     @Test
     func mapsCoinTransferUsingFromAndToAddresses() throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = try decodeResponse(
-            transaction: transactionJSON(fromAddress: walletAddress, toAddress: otherAddress)
-        )
+        let response = makeResponse(transactions: [
+            .init(fromAddress: walletAddress, toAddress: otherAddress),
+        ])
 
         let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
 
@@ -38,9 +38,9 @@ struct TronTransactionHistoryMapperTests {
     @Test
     func mapsOutgoingCoinTransferFallingBackToVinVoutAddresses() throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = try decodeResponse(
-            transaction: transactionJSON(vinAddress: walletAddress, voutAddress: otherAddress)
-        )
+        let response = makeResponse(transactions: [
+            .init(vin: [.init(address: walletAddress)], vout: [.init(address: otherAddress)]),
+        ])
 
         let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
 
@@ -53,9 +53,9 @@ struct TronTransactionHistoryMapperTests {
     @Test
     func mapsIncomingCoinTransferFallingBackToVinVoutAddresses() throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = try decodeResponse(
-            transaction: transactionJSON(vinAddress: otherAddress, voutAddress: walletAddress)
-        )
+        let response = makeResponse(transactions: [
+            .init(vin: [.init(address: otherAddress)], vout: [.init(address: walletAddress)]),
+        ])
 
         let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
 
@@ -68,14 +68,14 @@ struct TronTransactionHistoryMapperTests {
     @Test
     func prefersDedicatedAddressFieldsOverVinVout() throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = try decodeResponse(
-            transaction: transactionJSON(
+        let response = makeResponse(transactions: [
+            .init(
+                vin: [.init(address: "TWrongVinAddress0000000000000000000")],
+                vout: [.init(address: "TWrongVoutAddress000000000000000000")],
                 fromAddress: walletAddress,
-                toAddress: otherAddress,
-                vinAddress: "TWrongVinAddress0000000000000000000",
-                voutAddress: "TWrongVoutAddress000000000000000000"
-            )
-        )
+                toAddress: otherAddress
+            ),
+        ])
 
         let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
 
@@ -87,63 +87,183 @@ struct TronTransactionHistoryMapperTests {
     @Test
     func skipsCoinTransferWhenNeitherAddressNorVinVoutPresent() throws {
         let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
-        let response = try decodeResponse(transaction: transactionJSON())
+        let response = makeResponse(transactions: [.init()])
 
         let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
 
         #expect(records.isEmpty)
     }
 
-    // MARK: - Helpers
+    // MARK: - Type extraction from `chainExtraData` (integer `contract_type` absent, [REDACTED_INFO])
 
-    private func transactionJSON(
-        fromAddress: String? = nil,
-        toAddress: String? = nil,
-        vinAddress: String? = nil,
-        voutAddress: String? = nil
-    ) -> String {
-        var fields: [String] = [
-            "\"txid\": \"abc123deadbeef\"",
-            "\"contract_type\": 1",
-            "\"blockHeight\": 1",
-            "\"confirmations\": 1",
-            "\"blockTime\": 1700000000",
-            "\"value\": \"1000000\"",
-            "\"fees\": \"0\"",
-            "\"tronTXReceipt\": { \"status\": 1 }",
-        ]
-
-        if let fromAddress {
-            fields.append("\"fromAddress\": \"\(fromAddress)\"")
-        }
-        if let toAddress {
-            fields.append("\"toAddress\": \"\(toAddress)\"")
-        }
-        if let vinAddress {
-            fields.append("\"vin\": [{ \"n\": 0, \"isAddress\": true, \"addresses\": [\"\(vinAddress)\"] }]")
-        }
-        if let voutAddress {
-            fields.append(
-                "\"vout\": [{ \"value\": \"1000000\", \"n\": 0, \"isAddress\": true, \"addresses\": [\"\(voutAddress)\"] }]"
-            )
-        }
-
-        return "{ \(fields.joined(separator: ", ")) }"
+    @Test
+    func v2NilChainExtraDataMapsToTransfer() throws {
+        #expect(try coinTransactionType(chainExtraData: nil) == .transfer)
     }
 
-    private func decodeResponse(transaction: String) throws -> BlockBookAddressResponse {
-        let json = """
-        {
-          "page": 1,
-          "totalPages": 1,
-          "itemsOnPage": 25,
-          "address": "\(walletAddress)",
-          "balance": "0",
-          "txs": 1,
-          "transactions": [\(transaction)]
-        }
-        """
+    @Test
+    func v2NonTronPayloadTypeMapsToTransfer() throws {
+        let extraData = makeChainExtraData(payloadType: "ethereum", contractType: "VoteWitnessContract")
+        #expect(try coinTransactionType(chainExtraData: extraData) == .transfer)
+    }
 
-        return try JSONDecoder().decode(BlockBookAddressResponse.self, from: Data(json.utf8))
+    @Test
+    func v2NilPayloadContractTypeMapsToTransfer() throws {
+        #expect(try coinTransactionType(chainExtraData: makeChainExtraData(contractType: nil)) == .transfer)
+    }
+
+    @Test
+    func v2TransferContractMapsToTransfer() throws {
+        #expect(try coinTransactionType(chainExtraData: makeChainExtraData(contractType: "TransferContract")) == .transfer)
+    }
+
+    @Test
+    func v2TriggerSmartContractMapsToTransfer() throws {
+        #expect(try coinTransactionType(chainExtraData: makeChainExtraData(contractType: "TriggerSmartContract")) == .transfer)
+    }
+
+    @Test
+    func v2VoteWitnessContractExposesValidatorFromVotes() throws {
+        let validator = "TKSXDA8HfE9E1y39RczVQ1ZascUEtaSToF"
+        let extraData = makeChainExtraData(
+            contractType: "VoteWitnessContract",
+            votes: [.init(address: validator, count: "1")]
+        )
+        #expect(try coinTransactionType(chainExtraData: extraData) == .staking(type: .vote, target: validator))
+    }
+
+    @Test
+    func v2VoteWitnessContractWithNilVotesHasNilTarget() throws {
+        let extraData = makeChainExtraData(contractType: "VoteWitnessContract", votes: nil)
+        #expect(try coinTransactionType(chainExtraData: extraData) == .staking(type: .vote, target: nil))
+    }
+
+    @Test
+    func v2WithdrawBalanceContractMapsToClaimRewards() throws {
+        let extraData = makeChainExtraData(contractType: "WithdrawBalanceContract")
+        #expect(try coinTransactionType(chainExtraData: extraData) == .staking(type: .claimRewards, target: nil))
+    }
+
+    @Test
+    func v2FreezeBalanceV2ContractMapsToStake() throws {
+        let extraData = makeChainExtraData(contractType: "FreezeBalanceV2Contract")
+        #expect(try coinTransactionType(chainExtraData: extraData) == .staking(type: .stake, target: nil))
+    }
+
+    @Test
+    func v2UnfreezeBalanceV2ContractMapsToUnstake() throws {
+        let extraData = makeChainExtraData(contractType: "UnfreezeBalanceV2Contract")
+        #expect(try coinTransactionType(chainExtraData: extraData) == .staking(type: .unstake, target: nil))
+    }
+
+    @Test
+    func v2WithdrawExpireUnfreezeContractMapsToWithdraw() throws {
+        let extraData = makeChainExtraData(contractType: "WithdrawExpireUnfreezeContract")
+        #expect(try coinTransactionType(chainExtraData: extraData) == .staking(type: .withdraw, target: nil))
+    }
+
+    @Test
+    func v2UnknownContractTypeMapsToTransfer() throws {
+        let extraData = makeChainExtraData(contractType: "SomethingUnknownContract")
+        #expect(try coinTransactionType(chainExtraData: extraData) == .transfer)
+    }
+
+    // MARK: - Helpers
+
+    /// Maps a single coin transaction whose integer `contract_type` is absent (so the type is taken
+    /// from `chainExtraData`) and returns its resolved transaction type.
+    private func coinTransactionType(
+        chainExtraData: BlockBookAddressResponse.ChainExtraData?
+    ) throws -> TransactionRecord.TransactionType {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(fromAddress: walletAddress, toAddress: otherAddress, contractType: nil, chainExtraData: chainExtraData),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+        #expect(records.count == 1)
+        return records[0].type
+    }
+
+    private func makeChainExtraData(
+        payloadType: String? = "tron",
+        contractType: String?,
+        votes: [BlockBookAddressResponse.ChainExtraData.Payload.Vote]? = nil
+    ) -> BlockBookAddressResponse.ChainExtraData {
+        BlockBookAddressResponse.ChainExtraData(
+            payloadType: payloadType,
+            payload: .init(contractType: contractType, operation: nil, bandwidthUsage: nil, votes: votes)
+        )
+    }
+
+    private func makeResponse(transactions: [BlockBookAddressResponse.Transaction]) -> BlockBookAddressResponse {
+        BlockBookAddressResponse(
+            page: 1,
+            totalPages: 1,
+            itemsOnPage: 25,
+            address: walletAddress,
+            balance: "0",
+            unconfirmedBalance: nil,
+            unconfirmedTxs: nil,
+            txs: transactions.count,
+            nonTokenTxs: nil,
+            transactions: transactions,
+            tokens: nil
+        )
+    }
+}
+
+// MARK: - Test fixtures
+
+private extension BlockBookAddressResponse.Transaction {
+    init(
+        vin: [BlockBookAddressResponse.Vin]? = nil,
+        vout: [BlockBookAddressResponse.Vout]? = nil,
+        fromAddress: String? = nil,
+        toAddress: String? = nil,
+        value: String = "1000000",
+        fees: String = "0",
+        contractType: Int? = 1,
+        contractName: String? = nil,
+        voteList: [String: Int]? = nil,
+        chainExtraData: BlockBookAddressResponse.ChainExtraData? = nil,
+        tokenTransfers: [BlockBookAddressResponse.TokenTransfer]? = nil,
+        tronTXReceipt: BlockBookAddressResponse.TronTXReceipt? = .init(status: .ok)
+    ) {
+        self.init(
+            txid: "abc123deadbeef",
+            contractType: contractType,
+            contractName: contractName,
+            version: nil,
+            vin: vin,
+            vout: vout,
+            blockHash: nil,
+            blockHeight: 1,
+            confirmations: 1,
+            blockTime: 1_700_000_000,
+            value: value,
+            valueIn: nil,
+            fees: fees,
+            hex: nil,
+            tokenTransfers: tokenTransfers,
+            ethereumSpecific: nil,
+            chainExtraData: chainExtraData,
+            tronTXReceipt: tronTXReceipt,
+            fromAddress: fromAddress,
+            toAddress: toAddress,
+            voteList: voteList
+        )
+    }
+}
+
+private extension BlockBookAddressResponse.Vin {
+    init(address: String) {
+        self.init(txid: nil, sequence: nil, n: 0, addresses: [address], isAddress: true, value: nil, hex: nil, vout: nil, isOwn: nil)
+    }
+}
+
+private extension BlockBookAddressResponse.Vout {
+    init(address: String) {
+        self.init(value: "1000000", n: 0, hex: nil, addresses: [address], isAddress: true, spent: nil, isOwn: nil)
     }
 }
