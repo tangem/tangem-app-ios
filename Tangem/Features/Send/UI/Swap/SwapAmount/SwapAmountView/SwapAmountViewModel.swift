@@ -194,12 +194,12 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 private extension SwapAmountViewModel {
     func updateSourceExpressCurrencyState(providersState: SwapModel.ProvidersState) {
         switch providersState {
-        case .loaded(_, _, .restriction(.notEnoughBalanceForSwapping, quote: _)):
+        case .loaded(_, .restriction(.notEnoughBalanceForSwapping, quote: _)):
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
-             .loaded(_, _, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
+        case .loaded(_, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
+             .loaded(_, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
+        case .loaded(_, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sourceExpressCurrencyViewModel.update(errorState: .error(errorText))
         default:
@@ -213,7 +213,7 @@ private extension SwapAmountViewModel {
         providersState: SwapModel.ProvidersState
     ) {
         switch (sourceToken, receiveToken, providersState) {
-        case (.success, .success, .loaded(let providers, _, .idle)):
+        case (.success, .success, .loaded(.swap(_, let providers), .idle)):
             isInputDisabled = providers.isEmpty
         case (_, .failure, _), (.failure, _, _):
             isInputDisabled = true
