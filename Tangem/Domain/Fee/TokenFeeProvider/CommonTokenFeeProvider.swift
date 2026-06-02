@@ -185,6 +185,11 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         }
     }
 
+    func estimateFee(input: TokenFeeProviderInputData) async throws -> [BSDKFee] {
+        // Same loading path as `updateFees()` but bypasses `updateState` — never publishes to `stateSubject`.
+        try await loadFees(input: input)
+    }
+
     private func loadFees(input: TokenFeeProviderInputData) async throws -> [BSDKFee] {
         switch input {
         case .common(let amount, let destination):
@@ -196,8 +201,22 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
             return try await updateFees(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)
 
-        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee, let stateOverride)):
-            return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee, stateOverride: stateOverride)
+        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee, let stateOverride, let additionalFeeAmount)):
+            let fees = try await updateFees(
+                amount: amount,
+                destination: destination,
+                txData: txData,
+                otherNativeFee: otherNativeFee,
+                stateOverride: stateOverride
+            )
+
+            guard let additionalFeeAmount else { return fees }
+
+            return fees.map { fee in
+                var feeAmount = fee.amount
+                feeAmount.value += additionalFeeAmount
+                return BSDKFee(feeAmount, parameters: fee.parameters)
+            }
 
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)

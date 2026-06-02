@@ -71,7 +71,10 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
     // Updating
 
     func update(feeOption: FeeOption) {
-        feeProviders.forEach { $0.select(feeOption: feeOption) }
+        feeProviders.forEach { provider in
+            guard provider.feeTokenItem.isBlockchain || feeOption == .market else { return }
+            provider.select(feeOption: feeOption)
+        }
     }
 
     func update(input: TokenFeeProviderInputData) {
@@ -150,6 +153,21 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         return fee
     }
 
+    func estimateApproveFee(approveData: ApproveTransactionData) async throws -> BSDKFee {
+        // Pure estimate — does not publish to the selected provider's state, so the displayed swap fee
+        // is never transiently overwritten with the approve-only (market-only) shape.
+        let fees = try await selectedFeeProvider.estimateFee(
+            input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress)
+        )
+
+        // The `.approve` input yields a single market fee.
+        guard let approveFee = fees.first else {
+            throw TokenFeeProviderError.feeNotFound
+        }
+
+        return approveFee
+    }
+
     func revokeAndApproveTransactionFee(revokeData: ApproveTransactionData) async throws -> RevokeAndApproveFee {
         update(input: .approve(txData: revokeData.txData, toContractAddress: revokeData.toContractAddress, feeMultiplier: .triple))
         await updateFees().value
@@ -209,8 +227,14 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
     }
 
     /// Override-aware variant for pre-approve swap-fee estimation: feeds the EVM-DEX input with a faked
-    /// unlimited-allowance `stateOverride`. Everything else falls back to the regular path.
-    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride) async throws -> BSDKFee {
+    /// unlimited-allowance `stateOverride`, and folds the separate `approveFee` into every fee option's
+    /// displayed total (the swap gas `parameters` per option stay untouched). Everything else falls back
+    /// to the regular path.
+    func transactionFee(
+        data: ExpressTransactionDataType,
+        allowanceOverride: AllowanceOverride,
+        approveFee: BSDKFee
+    ) async throws -> BSDKFee {
         let blockchain = initialSelectedProvider.feeTokenItem.blockchain
 
         guard case .dex(let dexData) = data, blockchain.isEvm else {
@@ -229,12 +253,14 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
         // The `txValue` is always coin
         let amount = BSDKAmount(with: blockchain, type: .coin, value: dexData.txValue)
+        
         update(input: .dex(.ethereum(
             amount: amount,
             destination: dexData.destinationAddress,
             txData: txData,
             otherNativeFee: dexData.otherNativeFee,
-            stateOverride: stateOverride
+            stateOverride: stateOverride,
+            additionalFeeAmount: approveFee.amount.value
         )))
 
         await updateFees().value

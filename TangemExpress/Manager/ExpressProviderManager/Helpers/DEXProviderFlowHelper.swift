@@ -114,7 +114,18 @@ private extension DEXProviderFlowHelper {
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let data):
-                    let fee = try await expressFeeProvider.transactionFee(approveData: data)
+                    let fee: BSDKFee
+                    if context.featureFlags.isApproveWithSwapEnabled {
+                        // One-tap: compute the approve fee as a pure value. The single authoritative
+                        // state write is the combined swap+approve fee in `fee(for:requiredApprove:)`,
+                        // so the displayed fee is never transiently the approve-only shape.
+                        fee = try await expressFeeProvider.estimateApproveFee(approveData: data)
+                    } else {
+                        // Two-step: the permission screen reads its fee from the provider state, so this
+                        // state-mutating estimate is intended.
+                        fee = try await expressFeeProvider.transactionFee(approveData: data)
+                    }
+
                     return .permissionRequired(
                         .init(provider: provider, policy: request.approvePolicy, data: data, approvalFlow: .approve, fee: fee, quote: quote)
                     )
@@ -262,7 +273,11 @@ private extension DEXProviderFlowHelper {
             spender: requiredApprove.data.spender
         )
 
-        return try await expressFeeProvider.transactionFee(data: .dex(data: data), allowanceOverride: allowanceOverride)
+        return try await expressFeeProvider.transactionFee(
+            data: .dex(data: data),
+            allowanceOverride: allowanceOverride,
+            approveFee: requiredApprove.fee
+        )
     }
 
     func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {

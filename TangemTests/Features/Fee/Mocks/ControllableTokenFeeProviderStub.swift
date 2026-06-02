@@ -62,4 +62,8 @@ final class ControllableTokenFeeProviderStub: TokenFeeProvider {
         updateFeesCallCount += 1
         return Task {}
     }
+
+    func estimateFee(input: TokenFeeProviderInputData) async throws -> [BSDKFee] {
+        _selectedTokenFee.value.value.value.map { [$0] } ?? []
+    }
 }
