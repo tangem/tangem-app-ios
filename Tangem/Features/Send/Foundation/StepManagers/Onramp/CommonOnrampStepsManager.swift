@@ -159,6 +159,10 @@ extension CommonOnrampStepsManager: OnrampKYCVerificationSheetRoutable {
         pendingKYCProceedToWidget = nil
         openOnrampAllOffers()
     }
+
+    func onClose() {
+        pendingKYCProceedToWidget = nil
+    }
 }
 
 // MARK: - OnrampSummaryRoutable

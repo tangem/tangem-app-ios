@@ -31,9 +31,12 @@ enum OnrampApplePayUtils {
         return request
     }
 
-    static func mapPaymentResult(_ payment: PKPayment) -> OnrampApplePayResult? {
+    static func mapPaymentResult(_ payment: PKPayment) throws -> OnrampApplePayResult {
         guard let email = payment.shippingContact?.emailAddress, !email.isEmpty else {
-            return nil
+            throw PKPaymentRequest.paymentContactInvalidError(
+                withContactField: .emailAddress,
+                localizedDescription: nil
+            )
         }
 
         let tokenString = payment.token.paymentData.base64EncodedString()

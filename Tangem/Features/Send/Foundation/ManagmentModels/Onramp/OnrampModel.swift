@@ -45,6 +45,7 @@ class OnrampModel {
     private var autoupdatingTimerSubscription: AnyCancellable?
     private var task: Task<Void, Never>?
     private var pendingApplePayCompletion: PendingApplePayCompletion?
+    private var isApplePaySheetPresented = false
 
     private var bag: Set<AnyCancellable> = []
 
@@ -362,6 +363,12 @@ private extension OnrampModel {
     }
 
     func autoupdateTask() async throws {
+        guard !isApplePaySheetPresented else {
+            log("Apple Pay sheet presented. Skip autoupdate")
+            restartTimer()
+            return
+        }
+
         guard _selectedOnrampProvider.value?.value?.isSuccessfullyLoaded == true else {
             log("Selected provider has an error. Do not start autoupdate")
             return
@@ -546,17 +553,21 @@ extension OnrampModel: OnrampSummaryOutput {
 
 extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
     func applePaySheetWillPresent() {
-        autoupdatingTimer.pauseTimer()
+        isApplePaySheetPresented = true
     }
 
     func applePaySheetDidFinish() {
-        autoupdatingTimer.resumeTimer()
+        isApplePaySheetPresented = false
 
         switch pendingApplePayCompletion {
         case .finishStep:
             router?.openFinishStep()
         case .error(let error):
             alertPresenter?.showAlert(error.alertBinder)
+        case .openKYC(let provider, let data):
+            router?.openOnrampKYCVerification(provider: provider) { [weak self] in
+                self?.redirectDataDidLoad(data: data, provider: provider)
+            }
         case .none:
             break
         }
@@ -570,7 +581,6 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         runTask(in: self) { model in
             do {
                 let redirectSettings = model.redirectSettingsBuilder.make(provider: provider, theme: .light)
-
                 let onrampResult = try await model.onrampManager.loadNativePaymentData(
                     provider: provider,
                     redirectSettings: redirectSettings,
@@ -585,9 +595,7 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
                         model.nativePaymentDataDidLoad(data: data, provider: provider)
                         result.succeed()
                     case .widget(let data):
-                        model.router?.openOnrampKYCVerification(provider: provider) { [weak model] in
-                            model?.redirectDataDidLoad(data: data, provider: provider)
-                        }
+                        model.pendingApplePayCompletion = .openKYC(provider: provider, data: data)
                         result.fail()
                     }
                 }
@@ -751,5 +759,6 @@ private extension OnrampModel {
     enum PendingApplePayCompletion {
         case finishStep
         case error(Error)
+        case openKYC(provider: OnrampProvider, data: OnrampRedirectData)
     }
 }
