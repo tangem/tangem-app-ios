@@ -23,11 +23,12 @@ enum NotificationPreferencesDTO {
     }
 
     enum Update {
-        struct Request: Codable, Equatable {
+        struct Request: Encodable, Equatable {
             let transactionAlerts: Bool
             let offersUpdates: Bool
             let priceAlerts: Bool
         }
+    }
     }
 }
 
