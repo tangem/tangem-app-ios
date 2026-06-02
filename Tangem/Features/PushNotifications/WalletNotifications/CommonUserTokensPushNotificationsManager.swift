@@ -22,8 +22,6 @@ final class CommonUserTokensPushNotificationsManager {
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
 
-    private lazy var notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
-
     private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
         userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
@@ -31,8 +29,8 @@ final class CommonUserTokensPushNotificationsManager {
         remoteTransactionAlertsStatePublisher: _userWalletPushRemoteStatusSubject.eraseToAnyPublisher()
     )
 
-    private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
     private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<PushRemoteValueState<Bool>, Never> = .init(.loading)
+    private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(.loading)
 
     private var updateTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
