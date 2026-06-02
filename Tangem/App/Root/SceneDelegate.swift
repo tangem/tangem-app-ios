@@ -146,17 +146,23 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     @discardableResult
     private func handleActivities(_ userActivities: Set<NSUserActivity>) -> Bool {
+        AppLogger.info("[SceneDelegate.handleActivities] count=\(userActivities.count)")
         for activity in userActivities {
+            AppLogger.info("[SceneDelegate.handleActivities] activityType=\(activity.activityType) webpageURL=\(activity.webpageURL?.absoluteString ?? "nil")")
             switch activity.activityType {
             case NSUserActivityTypeBrowsingWeb:
                 if let url = activity.webpageURL {
-                    if incomingActionHandler.handleIncomingURL(url) {
+                    let handled = incomingActionHandler.handleIncomingURL(url)
+                    AppLogger.info("[SceneDelegate.handleActivities] handleIncomingURL returned \(handled) for url=\(url.absoluteString)")
+                    if handled {
                         return true
                     }
                 }
 
             default:
-                if incomingActionHandler.handleIntent(activity.activityType) {
+                let handled = incomingActionHandler.handleIntent(activity.activityType)
+                AppLogger.info("[SceneDelegate.handleActivities] handleIntent returned \(handled) for type=\(activity.activityType)")
+                if handled {
                     return true
                 }
             }
@@ -167,8 +173,12 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     @discardableResult
     private func handleUrlContexts(_ urlContexts: Set<UIOpenURLContext>) -> Bool {
+        AppLogger.info("[SceneDelegate.handleUrlContexts] count=\(urlContexts.count)")
         for context in urlContexts {
-            if incomingActionHandler.handleIncomingURL(context.url) {
+            AppLogger.info("[SceneDelegate.handleUrlContexts] url=\(context.url.absoluteString)")
+            let handled = incomingActionHandler.handleIncomingURL(context.url)
+            AppLogger.info("[SceneDelegate.handleUrlContexts] handleIncomingURL returned \(handled)")
+            if handled {
                 return true
             }
         }
