@@ -170,7 +170,7 @@ extension CommonPendingOnrampTransactionsManager: PendingExpressTransactionsMana
     }
 
     func hideTransaction(with id: String) {
-        onrampPendingTransactionsRepository.hideSwapTransaction(with: id)
+        onrampPendingTransactionsRepository.hideOnrampTransaction(with: id)
     }
 }
 
