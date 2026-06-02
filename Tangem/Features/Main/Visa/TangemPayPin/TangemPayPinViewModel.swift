@@ -85,6 +85,9 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
 
     func submit() {
         Analytics.log(.visaScreenChangePinSubmitClicked, contextParams: .userWallet(userWalletId))
+
+        UIApplication.shared.endEditing()
+
         isLoading = true
 
         runTask(in: self) { [pin] viewModel in
