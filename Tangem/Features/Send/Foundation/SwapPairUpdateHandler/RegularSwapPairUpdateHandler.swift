@@ -20,12 +20,26 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressPairsRepository = expressPairsRepository
     }
 
-    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType {
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType? {
+        guard let source, let destination else {
+            return nil
+        }
+
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+
+        // No loading for pair with the transfer type
+        if pair.isTransfer {
+            return nil
+        }
+
+        // Always update only providers. Not reload rates
         return .providers
     }
 
     func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+
+        if FeatureProvider.isAvailable(.swapPipelineV2), !pair.isTransfer {
             let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 
@@ -37,7 +51,6 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         // In regular swap we clear the cached amount type when the pair changes.
         let _ = await expressManager.update(amountType: .none)
 
-        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
         return try await expressManager.update(pair: pair)
     }
 }
