@@ -72,14 +72,14 @@ public final class KYCService {
         sdk.theme.fonts.caption = UIFonts.Regular.caption1
         sdk.theme.fonts.body = UIFonts.Regular.subheadline
 
-        sdk.theme.colors.contentStrong = UIColor(Colors.Text.primary1) // Title
-        sdk.theme.colors.contentNeutral = UIColor(Colors.Text.secondary) // Subtitle
-        sdk.theme.colors.contentSuccess = UIColor(Colors.Button.positive).withAlphaComponent(0.33) // Status color when accepted
-        sdk.theme.colors.primaryButtonContent = UIColor(Colors.Text.primary2)
-        sdk.theme.colors.primaryButtonBackground = UIColor(Colors.Text.primary1)
-        sdk.theme.colors.primaryButtonBackgroundDisabled = UIColor(Colors.Text.primary1).withAlphaComponent(0.5)
-        sdk.theme.colors.primaryButtonBackgroundHighlighted = UIColor(Colors.Text.primary1).withAlphaComponent(0.8)
-        sdk.theme.colors.fieldBorder = UIColor(Colors.Button.positive)
+        sdk.theme.colors.contentStrong = .textPrimary1 // Title
+        sdk.theme.colors.contentNeutral = .textSecondary // Subtitle
+        sdk.theme.colors.contentSuccess = .buttonPositive.withDynamicAlphaComponent(0.33) // Status color when accepted
+        sdk.theme.colors.primaryButtonContent = .textPrimary2
+        sdk.theme.colors.primaryButtonBackground = .textPrimary1
+        sdk.theme.colors.primaryButtonBackgroundDisabled = .textPrimary1.withDynamicAlphaComponent(0.5)
+        sdk.theme.colors.primaryButtonBackgroundHighlighted = .textPrimary1.withDynamicAlphaComponent(0.8)
+        sdk.theme.colors.fieldBorder = .buttonPositive
 
         sdk.theme.metrics.verificationStepCardStyle = .plain
         sdk.theme.metrics.documentTypeCardStyle = .plain

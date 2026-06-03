@@ -40,6 +40,8 @@ struct DEXProviderFlowHelper {
         }
 
         do {
+            try await yieldModuleTransactionHelper?.prepareForYieldModuleDEXSwap(provider: provider)
+
             let dataItem = try mapper.makeExpressSwappableDataItem(
                 pair: pair,
                 request: request,
@@ -50,7 +52,9 @@ struct DEXProviderFlowHelper {
             let data = try await expressAPIProvider.exchangeData(item: dataItem)
             try Task.checkCancellation()
 
-            return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: data)
+            let yieldModuleData = try await makeYieldModuleDEXSwapDataIfNeeded(data: data, quote: quote)
+
+            return try await proceed(sourceAmount: sourceAmount, request: request, quote: quote, data: yieldModuleData)
         } catch {
             return mapError(error, quote: quote, amountType: request.amountType)
         }
@@ -93,7 +97,7 @@ private extension DEXProviderFlowHelper {
         }
 
         // Check Permission
-        if let spender = quote.allowanceContract {
+        if let spender = quote.allowanceContract, !isYieldModuleDEXSwap {
             do {
                 let allowanceState = try await pair.source.allowanceProvider?.allowanceState(
                     request: request,
@@ -126,6 +130,22 @@ private extension DEXProviderFlowHelper {
         }
 
         return nil
+    }
+
+    func makeYieldModuleDEXSwapDataIfNeeded(data: ExpressTransactionData, quote: ExpressQuote) async throws -> ExpressTransactionData {
+        guard isYieldModuleDEXSwap else {
+            return data
+        }
+
+        guard let spender = quote.allowanceContract else {
+            throw ExpressProviderError.yieldModuleSwapUnavailable(.spenderNotFound)
+        }
+
+        guard let yieldModuleTransactionHelper else {
+            return data
+        }
+
+        return try await yieldModuleTransactionHelper.yieldModuleDEXSwapData(data: data, provider: provider, spender: spender)
     }
 
     func proceed(
@@ -185,6 +205,19 @@ private extension DEXProviderFlowHelper {
             return .mapError(apiError, quote: quote, currencySymbol: currencySymbol)
         }
         return .error(error, quote: quote)
+    }
+
+    var isYieldModuleDEXSwap: Bool {
+        switch provider.type {
+        case .dex, .dexBridge:
+            return yieldModuleTransactionHelper?.yieldContractAddress != nil
+        case .cex, .onramp, .unknown:
+            return false
+        }
+    }
+
+    var yieldModuleTransactionHelper: YieldModuleTransactionHelper? {
+        pair.source.yieldModuleTransactionHelper
     }
 }
 

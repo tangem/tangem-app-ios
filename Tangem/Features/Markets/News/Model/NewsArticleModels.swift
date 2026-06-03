@@ -23,7 +23,7 @@ struct NewsArticleModel: Equatable, Identifiable {
     let newsUrl: String
     let sources: [NewsSource]
 
-    init(from response: NewsDTO.Details.Response, dateFormatter: NewsDateFormatter) {
+    init(from response: NewsDTO.Details.Response, dateFormatter: RelativeDateFormatter) {
         id = response.id
         title = response.title
         score = String(format: "%.1f", response.score)
@@ -109,7 +109,7 @@ struct NewsSource: Identifiable, Equatable {
     let url: URL?
     let imageUrl: URL?
 
-    init(from article: NewsDTO.Details.RelatedArticle, dateFormatter: NewsDateFormatter) {
+    init(from article: NewsDTO.Details.RelatedArticle, dateFormatter: RelativeDateFormatter) {
         id = article.id
         title = article.title ?? ""
         sourceName = article.sourceName ?? ""

@@ -11,12 +11,10 @@ import UIKit
 import SwiftUI
 import class TangemSdk.BiometricsUtil
 
-class CommonAppLockController {
+final class CommonAppLockController {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let minimizedAppTimer = MinimizedAppTimer(interval: 5 * 60)
-
-    init() {}
 }
 
 extension CommonAppLockController: AppLockController {

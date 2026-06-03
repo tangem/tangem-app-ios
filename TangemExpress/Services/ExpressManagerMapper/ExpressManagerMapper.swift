@@ -41,6 +41,7 @@ struct ExpressManagerMapper {
 
         let source = ExpressSwappableDataItem.SourceWalletInfo(
             address: sourceAddress,
+            yieldContractAddress: pair.source.yieldModuleTransactionHelper?.yieldContractAddress,
             currency: pair.source.currency,
             coinCurrency: pair.source.coinCurrency
         )
