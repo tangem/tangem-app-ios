@@ -22,11 +22,11 @@ final class CommonUserTokensPushNotificationsManager {
     private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
 
-    private lazy var updateTrigger: UserWalletPushNotificationsUpdateTrigger = .init(
+    private lazy var updateTrigger: UserTokensPushNotificationsUpdateTrigger = .init(
         userWalletId: userWalletId,
         accountModelsManager: accountModelsManager,
         permissionService: pushNotificationsPermission,
-        notificationPreferencesProvider: notificationPreferencesProvider
+        remoteTransactionAlertsStatePublisher: _userWalletPushRemoteStatusSubject.eraseToAnyPublisher()
     )
 
     private let _userWalletPushRemoteStatusSubject: CurrentValueSubject<PushRemoteValueState<Bool>, Never> = .init(.loading)
