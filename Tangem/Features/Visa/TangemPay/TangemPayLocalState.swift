@@ -47,6 +47,13 @@ extension TangemPayLocalState {
         return false
     }
 
+    var isUnavailable: Bool {
+        if case .unavailable = self {
+            return true
+        }
+        return false
+    }
+
     var tangemPayAccount: TangemPayAccount? {
         switch self {
         case .tangemPayAccount(let tangemPayAccount), .cardDeactivated(let tangemPayAccount):

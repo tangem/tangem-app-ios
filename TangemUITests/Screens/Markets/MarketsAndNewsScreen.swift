@@ -12,6 +12,7 @@ import XCTest
 final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     private lazy var seeAllButton = button(.seeAllButton)
     private lazy var searchField = textField(.searchThroughMarketField)
+    private lazy var searchFieldContainer = button(.searchThroughMarketFieldContainer)
 
     @discardableResult
     func tapSeeAll() -> MarketsScreen {
@@ -25,7 +26,7 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     @discardableResult
     func searchForToken(_ tokenName: String) -> MarketsScreen {
         XCTContext.runActivity(named: "Search for token: \(tokenName)") { _ in
-            searchField.waitAndTap()
+            tapSearchField()
             searchField.typeText(tokenName)
             return MarketsScreen(app)
         }
@@ -34,7 +35,7 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     @discardableResult
     func pasteIntoSearchField() -> MarketsScreen {
         XCTContext.runActivity(named: "Paste into Markets search field") { _ in
-            searchField.waitAndTap()
+            tapSearchField()
             searchField.press(forDuration: 1.0)
 
             let pasteMenuItem = app.menuItems["Paste"]
@@ -47,7 +48,7 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     @discardableResult
     func tapSearchFieldAndVerifyKeyboard() -> MarketsScreen {
         XCTContext.runActivity(named: "Tap Markets search field and verify keyboard") { _ in
-            searchField.waitAndTap()
+            tapSearchField()
             waitAndAssertTrue(app.keyboards.firstMatch, "Keyboard should appear after tapping search field")
             return MarketsScreen(app)
         }
@@ -69,11 +70,22 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
             return self
         }
     }
+
+    /// Temporary fallback to support both the legacy and redesigned Markets layouts.
+    private func tapSearchField() {
+        if searchFieldContainer.exists {
+            searchFieldContainer.waitAndTap()
+            waitAndAssertTrue(app.keyboards.firstMatch, "Keyboard should appear after tapping search container")
+        } else {
+            searchField.waitAndTap()
+        }
+    }
 }
 
 enum MarketsAndNewsScreenElement: String, UIElement {
     case seeAllButton
     case searchThroughMarketField
+    case searchThroughMarketFieldContainer
 
     var accessibilityIdentifier: String {
         switch self {
@@ -81,6 +93,8 @@ enum MarketsAndNewsScreenElement: String, UIElement {
             return MarketsAccessibilityIdentifiers.marketsSeeAllButton
         case .searchThroughMarketField:
             return MainAccessibilityIdentifiers.searchThroughMarketField
+        case .searchThroughMarketFieldContainer:
+            return MainAccessibilityIdentifiers.searchThroughMarketFieldContainer
         }
     }
 }

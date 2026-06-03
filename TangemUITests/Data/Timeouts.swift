@@ -9,6 +9,7 @@
 import Foundation
 
 enum Timeouts {
+    static let shortUIUpdate = 2.0
     static let quick = 5.0
     static let conditional = 10.0
     static let robustUIUpdate = 60.0
@@ -16,6 +17,7 @@ enum Timeouts {
 }
 
 extension TimeInterval {
+    static let shortUIUpdate: TimeInterval = Timeouts.shortUIUpdate
     static let quick: TimeInterval = Timeouts.quick
     static let conditional: TimeInterval = Timeouts.conditional
     static let robustUIUpdate: TimeInterval = Timeouts.robustUIUpdate

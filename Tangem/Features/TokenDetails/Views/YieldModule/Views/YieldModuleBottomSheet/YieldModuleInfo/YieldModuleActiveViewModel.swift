@@ -20,6 +20,9 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: any UserWalletRepository
 
+    @Injected(\.yieldAPYBoostPromoRepository)
+    private var yieldAPYBoostPromoRepository: YieldAPYBoostPromoRepository
+
     // MARK: - Published
 
     @Published
@@ -47,6 +50,35 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var apyTrend: ApyTrend = .none
 
     private var maxFee: String?
+
+    // MARK: - Promo State
+
+    @Published
+    private(set) var promoStatus: YieldPromoStatus = .undefined
+
+    @Published
+    private var isBonusPaidOutBannerDismissed = false
+
+    private var promoActivationDate: Date?
+
+    var promoBonusText: String? {
+        switch promoStatus {
+        case .active:
+            daysLeftToUnlockBonus().map { days in
+                "\(days) \(Localization.commonDaysNoParam(days)) \(Localization.yieldPromoLeftTitle)"
+            }
+
+        case .completed:
+            Localization.yieldPromoCompleted
+
+        case .notStarted, .undefined:
+            nil
+        }
+    }
+
+    var showsBonusPaidOutBanner: Bool {
+        promoStatus == .completed && !isBonusPaidOutBannerDismissed
+    }
 
     // MARK: - Dependencies
 
@@ -102,6 +134,10 @@ final class YieldModuleActiveViewModel: ObservableObject {
         )
     }
 
+    func onPromoBonusTap() {
+        coordinator?.openYieldApyBoostStory()
+    }
+
     // MARK: - Public Implementation
 
     func openReadMore() {
@@ -138,6 +174,31 @@ final class YieldModuleActiveViewModel: ObservableObject {
         }
         Task { await getApy() }
         Task { await fetchChartData() }
+        Task { await getYieldPromoData() }
+    }
+
+    private func daysLeftToUnlockBonus() -> Int? {
+        guard let promoActivationDate else { return nil }
+        return YieldBonusUnlockCalculator.daysLeft(activationDate: promoActivationDate)
+    }
+
+    @MainActor
+    private func getYieldPromoData() async {
+        guard let campaign = await yieldAPYBoostPromoRepository.campaign(userWalletId: walletModel.userWalletId.stringValue),
+              walletModel.tokenItem.contractAddress == campaign.contractAddress,
+              walletModel.tokenItem.blockchain.networkId == campaign.networkId
+        else {
+            return
+        }
+
+        promoActivationDate = campaign.activationDate
+
+        switch campaign.promoEnrollmentStatus {
+        case .notStarted: promoStatus = .notStarted
+        case .active: promoStatus = .active
+        case .completed: promoStatus = .completed
+        case .disqualified: promoStatus = .undefined
+        }
     }
 
     @MainActor
@@ -330,5 +391,11 @@ private extension YieldModuleActiveViewModel {
 
     func createHasUndepositedAmountsNotification(undepositedAmount: String) -> YieldModuleNotificationBannerParams {
         notificationManager.createHasUndepositedAmountsNotification(undepositedAmount: undepositedAmount)
+    }
+}
+
+extension YieldModuleActiveViewModel {
+    func onBonusPaidOutBannerDismiss() {
+        isBonusPaidOutBannerDismissed = true
     }
 }
