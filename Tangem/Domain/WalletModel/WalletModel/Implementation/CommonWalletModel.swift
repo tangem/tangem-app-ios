@@ -417,13 +417,16 @@ extension CommonWalletModel: WalletModelUpdater {
         do {
             let transactionHistoryProviders = try await featureManager
                 .featuresPublisher
-                .compactMapMany { feature in
-                    switch feature {
-                    case .transactionHistory(let transactionHistoryProvider):
-                        return transactionHistoryProvider
-                    case .dynamicAddresses,
-                         .nft:
-                        return nil
+                .first() // [REDACTED_TODO_COMMENT]
+                .map { features in
+                    return features.compactMap { feature in
+                        switch feature {
+                        case .transactionHistory(let transactionHistoryProvider):
+                            return transactionHistoryProvider
+                        case .dynamicAddresses,
+                             .nft:
+                            return nil
+                        }
                     }
                 }
                 .async()
