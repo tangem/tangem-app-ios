@@ -140,9 +140,9 @@ private extension SolanaTransactionHistoryMapper {
                     return .transfer
                 }
 
-                return .contractMethodName(name: Constants.operationType)
+                return .unknownOperation
             case .otherOperation:
-                return .contractMethodName(name: Constants.operationType)
+                return .unknownOperation
             }
         }()
 
@@ -440,6 +440,5 @@ private extension SolanaTransactionHistoryMapper {
         static let stakeDelegateType = "delegate"
         static let stakeDeactivateType = "deactivate"
         static let withdrawType = "withdraw"
-        static let operationType = "operation"
     }
 }
