@@ -15,6 +15,8 @@ extension ExpressAPITarget {
         switch target {
         case .exchangeHistory(let request):
             return ExchangeHistoryMockLoader.data(forRequest: request)
+        case .onrampHistory(let request):
+            return OnrampHistoryMockLoader.data(forRequest: request)
         default:
             preconditionFailure("Sample data is not implemented for \(target) target")
         }
