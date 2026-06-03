@@ -59,7 +59,7 @@ private extension UIViewController {
         }
 
         if isInitialScreen {
-            rightBarButtonItem.image = nil
+            rightBarButtonItem.isHidden = true
         } else {
             rightBarButtonItem.image = backIcon
         }
@@ -111,8 +111,8 @@ private extension UIViewController {
             .withCircleBackground(
                 circleSize: 36,
                 iconSize: 20,
-                circleColor: UIColor(Colors.Button.secondary),
-                iconColor: UIColor(Colors.Icon.informative)
+                circleColor: .buttonSecondary,
+                iconColor: .iconInformative
             )
     }
 
@@ -121,8 +121,8 @@ private extension UIViewController {
             .withCircleBackground(
                 circleSize: 36,
                 iconSize: 20,
-                circleColor: UIColor(Colors.Button.secondary),
-                iconColor: UIColor(Colors.Icon.informative)
+                circleColor: .buttonSecondary,
+                iconColor: .iconInformative
             )
     }
 }
@@ -134,26 +134,32 @@ private extension UIImage {
         circleColor: UIColor,
         iconColor: UIColor
     ) -> UIImage {
-        UIGraphicsImageRenderer(size: CGSize(width: circleSize, height: circleSize))
-            .image { context in
-                let rect = CGRect(origin: .zero, size: CGSize(width: circleSize, height: circleSize))
-                circleColor.setFill()
-                context.cgContext.fillEllipse(in: rect)
+        let canvasSize = CGSize(width: circleSize, height: circleSize)
+        let iconInset = (circleSize - iconSize) / 2
+        let iconFrame = CGRect(x: iconInset, y: iconInset, width: iconSize, height: iconSize)
+        let imageAsset = UIImageAsset()
 
-                let finalIcon = self
-                    .withRenderingMode(.alwaysOriginal)
-                    .withTintColor(iconColor, renderingMode: .alwaysOriginal)
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            let appearance = UITraitCollection(userInterfaceStyle: style)
 
-                let iconOffset = (circleSize - iconSize) / 2
-                finalIcon.draw(
-                    in: CGRect(
-                        x: iconOffset,
-                        y: iconOffset,
-                        width: iconSize,
-                        height: iconSize
-                    )
-                )
-            }
-            .withRenderingMode(.alwaysOriginal)
+            let variant = UIGraphicsImageRenderer(size: canvasSize)
+                .image { context in
+                    circleColor.resolvedColor(with: appearance).setFill()
+                    context.cgContext.fillEllipse(in: CGRect(origin: .zero, size: canvasSize))
+
+                    let tintedIcon = self.withRenderingMode(.alwaysOriginal)
+                        .withTintColor(iconColor.resolvedColor(with: appearance), renderingMode: .alwaysOriginal)
+                    tintedIcon.draw(in: iconFrame)
+                }
+                .withRenderingMode(.alwaysOriginal)
+
+            let variantTraits = UITraitCollection(traitsFrom: [
+                appearance,
+                UITraitCollection(displayScale: variant.scale),
+            ])
+            imageAsset.register(variant, with: variantTraits)
+        }
+
+        return imageAsset.image(with: .current)
     }
 }

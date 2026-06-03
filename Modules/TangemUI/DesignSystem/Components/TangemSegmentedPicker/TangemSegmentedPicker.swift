@@ -29,6 +29,7 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
 
     private var style: TangemSegmentedPickerStyle = .fixed
     private var showSeparators: Bool = true
+    private var accessibilityIdentifierFactory: ((Data.Element) -> String)?
 
     @State private var frameHeight: CGFloat?
     @State private var segmentsPreference: [SegmentPreference] = []
@@ -135,6 +136,8 @@ private extension TangemSegmentedPicker {
             )
             .contentShape(.rect)
             .onTapGesture { selection = item }
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier(accessibilityIdentifierFactory?(item))
     }
 
     func itemContent(_ item: Item) -> some View {
@@ -245,6 +248,10 @@ public extension TangemSegmentedPicker {
 
     func style(_ style: TangemSegmentedPickerStyle) -> Self {
         map { $0.style = style }
+    }
+
+    func accessibilityIdentifier(factory: @escaping (Data.Element) -> String) -> Self {
+        map { $0.accessibilityIdentifierFactory = factory }
     }
 }
 

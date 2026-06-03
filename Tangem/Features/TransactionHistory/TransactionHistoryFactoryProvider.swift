@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemNetworkUtils
 
-class TransactionHistoryFactoryProvider {
+final class TransactionHistoryFactoryProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
 
@@ -20,8 +20,7 @@ class TransactionHistoryFactoryProvider {
         keysConfig: keysManager.blockchainSdkKeysConfig,
         tangemProviderConfig: .ephemeralConfiguration,
         apiList: apiListProvider.apiList,
-        isSolanaTransactionHistoryEnabled: FeatureProvider.isAvailable(.solanaTxHistoryEnabled)
+        isSolanaTransactionHistoryEnabled: FeatureProvider.isAvailable(.solanaTxHistoryEnabled),
+        isXrpTransactionHistoryEnabled: FeatureProvider.isAvailable(.xrplTransactionHistory)
     )
-
-    init() {}
 }
