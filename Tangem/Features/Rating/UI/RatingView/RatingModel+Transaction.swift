@@ -19,7 +19,6 @@ extension RatingModel {
 extension RatingModel.Transaction {
     init?(from transaction: PendingTransaction) {
         guard case .swap = transaction.type else { return nil }
-        guard transaction.transactionStatus.canBeUsedAsRecent else { return nil }
         guard let externalTxId = transaction.externalTxId else { return nil }
 
         self.externalTxId = externalTxId
