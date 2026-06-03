@@ -8,6 +8,7 @@
 
 import Combine
 import BlockchainSdk
+import SurveySparrowSdk
 import TangemVisa
 
 extension MainCoordinator {
@@ -20,6 +21,7 @@ extension MainCoordinator {
         @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
         @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
         @Injected(\.newsDeeplinkValidationService) private var newsDeeplinkValidationService: NewsDeeplinkValidating
+        @Injected(\.keysManager) private var keysManager: any KeysManager
 
         weak var coordinator: MainRoutable?
 
@@ -104,7 +106,28 @@ extension MainCoordinator {
 
             case .earn:
                 return routeEarnAction(params: navigationAction.params)
+
+            case .survey:
+                return routeSurveyAction(params: navigationAction.params)
             }
+        }
+
+        private func routeSurveyAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let token = params.surveyToken?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            let surveyViewController = SsSurveyViewController()
+            surveyViewController.domain = keysManager.surveySparrow.domain
+            surveyViewController.token = token
+            // `.CLASSIC` controls the SDK rendering mode (full-screen survey UI).
+            // The survey methodology (NPS / CSAT / CES) is determined by the token
+            // on SurveySparrow's side, not by this flag.
+            surveyViewController.surveyType = .CLASSIC
+
+            AppPresenter.shared.show(surveyViewController)
+            return true
         }
 
         /// Universal-link deeplink to a specific article: `https://tangem.com/news/{category}/{id}-{slug}`.
