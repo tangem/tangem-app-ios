@@ -43,6 +43,14 @@ public extension String {
         return hexPrefix.appending(self)
     }
 
+    func hexToInt() -> Int? {
+        Int(removeHexPrefix(), radix: 16)
+    }
+
+    var isEvmAddress: Bool {
+        hasHexPrefix() && count == 42 && dropFirst(2).allSatisfy(\.isHexDigit)
+    }
+
     func stripLeadingZeroes() -> String {
         replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
     }
@@ -113,6 +121,10 @@ public extension String {
     func base64URLDecodedData() -> Data? {
         let base64 = base64URLToBase64()
         return Data(base64Encoded: base64)
+    }
+
+    func trimmed() -> String {
+        trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

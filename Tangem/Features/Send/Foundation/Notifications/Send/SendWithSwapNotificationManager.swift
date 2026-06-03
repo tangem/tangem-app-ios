@@ -77,11 +77,13 @@ extension SendWithSwapNotificationManager: SendAmountNotificationService {
 
 extension SendWithSwapNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        switch receiveTokenInput?.receiveToken.value {
-        case .none:
-            return sendNotificationManager.notificationInputs
-        case .some:
-            return swapNotificationManager.notificationInputs
+        get async {
+            switch receiveTokenInput?.receiveToken.value {
+            case .none:
+                return await sendNotificationManager.notificationInputs
+            case .some:
+                return await swapNotificationManager.notificationInputs
+            }
         }
     }
 

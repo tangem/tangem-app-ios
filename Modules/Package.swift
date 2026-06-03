@@ -42,6 +42,7 @@ let package = Package(
         // even if it is not explicitly specified as a dependency.
         // The workaround for this issue is to place the Swift macros target (`TangemMacro`) in a separate local package (`TangemMacro`).
         .package(path: "../TangemMacro"),
+        .package(path: "../TangemFirebaseDynamicShim"),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.44.0")),
         .package(url: "https://github.com/TimOliver/BlurUIKit.git", .upToNextMajor(from: "1.4.0")),
         // BSDK only dependencies:
@@ -119,6 +120,18 @@ var serviceModules: [PackageDescription.Target] {
             name: "TangemAccessibilityIdentifiers"
         ),
         .tangemTarget(
+            name: "TangemAnalytics",
+            dependencies: [
+                .product(name: "TangemFirebaseDynamicShim", package: "TangemFirebaseDynamicShim"),
+                "TangemFoundation",
+                "TangemLogger",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTarget(
             name: "TangemAssets",
             dependencies: [
                 .product(name: "Lottie", package: "lottie-spm"),
@@ -189,6 +202,7 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAccessibilityIdentifiers",
                 "TangemLogger",
                 .product(name: "BlurSwiftUI", package: "BlurUIKit"),
+                .product(name: "TangemMacro", package: "TangemMacro"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -275,6 +289,7 @@ var featureModules: [PackageDescription.Target] {
             dependencies: [
                 .product(name: "TangemSdk", package: "tangem-sdk-ios"),
                 .product(name: "IdensicMobileSDK", package: "idensicmobilesdk-ios"),
+                "BlockchainSdk",
                 "CryptoSwift",
                 "TangemAssets",
                 "TangemFoundation",
@@ -321,6 +336,16 @@ var unitTestsModules: [PackageDescription.Target] {
                 .product(name: "ScaleCodec", package: "ScaleCodec.swift"),
                 .product(name: "stellarsdk", package: "stellar-ios-mac-sdk"),
                 .product(name: "Hiero", package: "hiero-sdk-swift"),
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
+        .tangemTestTarget(
+            name: "TangemAnalyticsTests",
+            dependencies: [
+                "TangemAnalytics",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]

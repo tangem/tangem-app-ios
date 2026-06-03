@@ -9,16 +9,19 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct NotificationBanner: View, Setupable {
     private let bannerType: BannerType
+    private let accessibilityIdentifier: String?
 
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
     @ScaledMetric private var iconHeight: CGFloat
 
-    public init(bannerType: BannerType) {
+    public init(bannerType: BannerType, accessibilityIdentifier: String?) {
         self.bannerType = bannerType
+        self.accessibilityIdentifier = accessibilityIdentifier
         let iconSize = bannerType.content.iconSize
         _padding = ScaledMetric(wrappedValue: SizeUnit.x3.value)
         _iconWidth = ScaledMetric(wrappedValue: iconSize.width)
@@ -28,23 +31,52 @@ public struct NotificationBanner: View, Setupable {
     private var content: Content { bannerType.content }
 
     private var isCentered: Bool {
-        switch content {
-        case .text: return true
-        case .textWithIcon: return false
+        switch bannerType.textAlignment {
+        case .leading: return false
+        case .center:
+            switch content {
+            case .text: return true
+            case .textWithIcon: return false
+            }
+        }
+    }
+
+    private var iconIsLeading: Bool {
+        switch bannerType {
+        case .promo:
+            true
+        case .status, .critical, .warning, .survey, .informational:
+            false
         }
     }
 
     public var body: some View {
+        bannerContent
+            .accessibilityIdentifier(accessibilityIdentifier)
+            .overlay(alignment: .topTrailing) {
+                if bannerType.isClosable {
+                    closeButton
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var bannerContent: some View {
         switch bannerType.bannerAction {
+        case .buttons(.none):
+            bannerBody()
+                .accessibilityElement(children: .combine)
         case .buttons(let buttons):
             bannerBody {
                 buttonsView(buttons: buttons)
             }
+            .accessibilityElement(children: .contain)
         case .tappable(let tapAction):
-            Button(action: { tapAction() }) {
+            Button(action: tapAction.action) {
                 bannerBody()
             }
             .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
         }
     }
 
@@ -52,17 +84,12 @@ public struct NotificationBanner: View, Setupable {
     private func bannerBody<Buttons: View>(
         @ViewBuilder buttons: () -> Buttons = { EmptyView() }
     ) -> some View {
-        VStack(spacing: SizeUnit.x4.value) {
+        VStack(alignment: isCentered ? .center : .leading, spacing: SizeUnit.x4.value) {
             contentView
             buttons()
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
-        .overlay(alignment: .topTrailing) {
-            if bannerType.isClosable {
-                closeButton
-            }
-        }
         .glowBorder(effect: bannerType.effect)
     }
 
@@ -87,33 +114,34 @@ public struct NotificationBanner: View, Setupable {
 
     @ViewBuilder
     private var contentView: some View {
-        if bannerType.isClosable {
-            textStack(title: content.text.title, subtitle: content.text.subtitle)
-        } else {
-            switch content {
-            case .text(let textOnly):
-                textStack(title: textOnly.title, subtitle: textOnly.subtitle)
+        switch content {
+        case .text(let textOnly):
+            textStack(title: textOnly.title, subtitle: textOnly.subtitle)
 
-            case .textWithIcon(let data):
-                HStack(
-                    alignment: data.icon.alignment.verticalAlignment,
-                    spacing: SizeUnit.x2.value
-                ) {
+        case .textWithIcon(let data):
+            HStack(
+                alignment: data.icon.alignment.verticalAlignment,
+                spacing: iconIsLeading ? SizeUnit.x1.value : SizeUnit.x2.value
+            ) {
+                if iconIsLeading {
+                    iconImage(for: data.icon)
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
-
+                    Spacer(minLength: 0)
+                } else {
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer()
-
-                    data.icon.imageType.image
-                        .renderingMode(data.icon.renderingMode)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(
-                            width: iconWidth,
-                            height: iconHeight
-                        )
+                    iconImage(for: data.icon)
                 }
             }
         }
+    }
+
+    private func iconImage(for icon: Icon) -> some View {
+        icon.imageType.image
+            .renderingMode(icon.renderingMode)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: iconWidth, height: iconHeight)
     }
 
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {
@@ -127,6 +155,7 @@ public struct NotificationBanner: View, Setupable {
                     color: Color.Tangem.Text.Neutral.primary
                 )
                 .multilineTextAlignment(textAlignment)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
 
             Text(subtitle)
                 .style(
@@ -134,6 +163,7 @@ public struct NotificationBanner: View, Setupable {
                     color: Color.Tangem.Text.Neutral.tertiary
                 )
                 .multilineTextAlignment(textAlignment)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
         }
         .padding(.horizontal, SizeUnit.x1.value)
         .padding(.top, SizeUnit.x1.value)
@@ -144,12 +174,15 @@ public struct NotificationBanner: View, Setupable {
         switch buttons {
         case .none:
             EmptyView()
-        case .one(let model):
+        case .one(let model, let identifier):
             TangemButton(model: model)
-        case .two(let left, let right):
+                .accessibilityIdentifier(identifier)
+        case .two(let left, let right, let leftIdentifier, let rightIdentifier):
             HStack(spacing: SizeUnit.x3.value) {
                 TangemButton(model: left)
+                    .accessibilityIdentifier(leftIdentifier)
                 TangemButton(model: right)
+                    .accessibilityIdentifier(rightIdentifier)
             }
         }
     }

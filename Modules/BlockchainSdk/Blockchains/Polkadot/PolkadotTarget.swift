@@ -17,7 +17,14 @@ enum PolkadotBlockhashType {
 }
 
 struct PolkadotTarget: JSONRPCTargetType {
-    static var id: ThreadSafeContainer<Int> = .init(0)
+    private static let requestIDCounter = OSAllocatedUnfairLock<Int>(initialState: 0)
+
+    static func nextRequestID() -> Int {
+        requestIDCounter { state in
+            state += 1
+            return state
+        }
+    }
 
     enum Target {
         case storage(key: String)

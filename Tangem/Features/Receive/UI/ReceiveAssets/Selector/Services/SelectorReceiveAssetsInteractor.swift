@@ -40,10 +40,9 @@ class CommonSelectorReceiveAssetsInteractor {
         addressTypesSubscription = addressTypesProvider
             .receiveAddressTypesPublisher
             .withWeakCaptureOf(_addressTypesSubject)
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { addressTypesSubject, value in addressTypesSubject.send(value) }
-            )
+            .receiveValue { addressTypesSubject, value in
+                addressTypesSubject.send(value)
+            }
     }
 }
 

@@ -46,6 +46,8 @@ public struct TangemDropDownShowcase: View {
 
     private let categories: [Category] = [.all, .fruits, .vegetables]
     @State private var selectedCategory: Category = .all
+    @State private var sortByBalance = false
+    @State private var groupByNetwork = false
 
     public init() {}
 
@@ -71,7 +73,32 @@ public struct TangemDropDownShowcase: View {
 
     private var preview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            TangemDropDown(data: categories, selection: $selectedCategory)
+            TangemDropDown(singleSelection: $selectedCategory, in: categories)
+
+            HStack {
+                Text("Mixed items + custom label")
+                    .font(.caption)
+                Spacer()
+                TangemDropDown(
+                    items: [
+                        TangemDropDownItem(
+                            text: "Group by network",
+                            isChecked: groupByNetwork,
+                            action: { groupByNetwork.toggle() }
+                        ),
+                        TangemDropDownItem(
+                            text: "Sort by balance",
+                            isEnabled: !sortByBalance,
+                            action: { sortByBalance = true }
+                        ),
+                    ],
+                    label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .resizable()
+                            .frame(width: 28, height: 28)
+                    }
+                )
+            }
 
             ScrollView {
                 LazyVStack(spacing: 8) {
