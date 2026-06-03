@@ -16,6 +16,16 @@ struct MainBottomSheetHeaderView: View {
 
     @FocusState private var isFocused: Bool
 
+    private let backgroundColor: Color
+
+    init(
+        viewModel: MainBottomSheetHeaderViewModel,
+        backgroundColor: Color = .Tangem.Surface.level2
+    ) {
+        self.viewModel = viewModel
+        self.backgroundColor = backgroundColor
+    }
+
     var body: some View {
         if FeatureProvider.isAvailable(.redesign) {
             bodyRedesign
@@ -39,7 +49,7 @@ struct MainBottomSheetHeaderView: View {
         .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
         .frame(height: Constants.searchFieldHeight)
         .padding(Constants.searchFieldPadding)
-        .background(Color.Tangem.Surface.level2)
+        .background(backgroundColor)
         .focused($isFocused)
         .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
     }
