@@ -15,6 +15,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
     let tokenItem: TokenItem
     let countryCode: String
     let applePayPresenter: any OnrampApplePayPresenting
+    let analyticsLogger: any SendOnrampNAPAnalyticsLogger
 
     weak var amountInput: OnrampAmountInput?
 
@@ -25,6 +26,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
         tokenItem: TokenItem,
         amountInput: OnrampAmountInput,
         applePayPresenter: any OnrampApplePayPresenting,
+        analyticsLogger: any SendOnrampNAPAnalyticsLogger,
         countryCode: String = Locale.current.region?.identifier ?? "US"
     ) {
         self.geoEligibilityService = geoEligibilityService
@@ -32,6 +34,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
         self.countryCode = countryCode
         self.amountInput = amountInput
         self.applePayPresenter = applePayPresenter
+        self.analyticsLogger = analyticsLogger
     }
 
     func make(
@@ -83,7 +86,8 @@ struct OnrampOfferViewModelBuyActionBuilder {
             merchantIdentifier: merchantIdentifier
         )
 
-        return .nativeApplePay { [applePayPresenter] in
+        return .nativeApplePay { [applePayPresenter, analyticsLogger] in
+            analyticsLogger.logOnrampButtonNAP(amount: amount, currencyCode: currencyCode)
             applePayPresenter.present(request: request, provider: provider, onWillBuy: onWillBuy)
         }
     }
