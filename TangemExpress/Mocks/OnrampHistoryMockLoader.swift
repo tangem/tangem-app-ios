@@ -10,7 +10,7 @@
 import Foundation
 
 // [REDACTED_TODO_COMMENT]
-final class OnrampHistoryMockLoader {
+enum OnrampHistoryMockLoader {
     static func data(forRequest request: ExpressDTO.HistoryRequest) -> Data {
         let cursor = request.cursor?.value as? String
         let payload: String
@@ -29,8 +29,6 @@ final class OnrampHistoryMockLoader {
 
         return Data(payload.utf8)
     }
-
-    private init() {}
 }
 
 // MARK: - Page payloads
