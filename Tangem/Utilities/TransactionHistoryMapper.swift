@@ -397,12 +397,19 @@ extension TransactionHistoryMapper {
 }
 
 private extension TransactionHistoryMapper {
-    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> String {
+    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> FormattedAmount {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            return FormattedAmount(
+                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                value: balanceFormatter.formatDecimal(amount)
+            )
+        // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+            return FormattedAmount(
+                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                value: balanceFormatter.formatDecimal(amount)
+            )
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing)
         }
