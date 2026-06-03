@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 struct TokenItemMapper {
     let supportedBlockchains: Set<Blockchain>

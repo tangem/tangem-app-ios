@@ -10,10 +10,12 @@ import TangemStories
 
 final class StoryAnalyticsService {
     func reportShown(_ storyId: TangemStory.ID, lastViewedPageIndex: Int, source: Analytics.StoriesSource) {
-        switch storyId {
-        case .swap:
-            reportSwapStoryShown(lastViewedPageIndex: lastViewedPageIndex, source: source)
+        let event = switch storyId {
+        case .swap: Analytics.Event.storiesSwapStory
+        case .yieldFirstActivationAPYBoost: Analytics.Event.storiesYieldPromoStory
         }
+
+        reportStoryShown(event: event, lastViewedPageIndex: lastViewedPageIndex, source: source)
     }
 
     func reportLoadingFailed(_ storyId: TangemStory.ID) {
@@ -25,10 +27,8 @@ final class StoryAnalyticsService {
         Analytics.log(event: event, params: params)
     }
 
-    private func reportSwapStoryShown(lastViewedPageIndex: Int, source: Analytics.StoriesSource) {
+    private func reportStoryShown(event: Analytics.Event, lastViewedPageIndex: Int, source: Analytics.StoriesSource) {
         let humanReadablePageIndex = lastViewedPageIndex + 1
-
-        let event = Analytics.Event.storiesSwapStory
         let params = [
             Analytics.ParameterKey.source: source.rawValue,
             Analytics.ParameterKey.watched: "\(humanReadablePageIndex)",
@@ -42,6 +42,7 @@ private extension TangemStory.ID {
     var asAnalyticsType: Analytics.StoryType {
         switch self {
         case .swap: .swap
+        case .yieldFirstActivationAPYBoost: .yieldFirstActivationAPYBoost
         }
     }
 }

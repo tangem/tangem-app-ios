@@ -53,6 +53,8 @@ struct VisaTransactionHistoryMapper {
             interactionAddress: .custom(message: leadingSubtitle),
             timeFormatted: balanceFormatter.formatFiatBalance(record.transactionAmount, numericCurrencyCode: record.transactionCurrencyCode),
             amount: balanceFormatter.formatCryptoBalance(record.blockchainAmount, currencyCode: currencySymbol),
+            value: balanceFormatter.formatDecimal(record.blockchainAmount),
+            currencyCode: currencySymbol,
             isOutgoing: true,
             transactionType: .operation(name: record.merchantName ?? .unknown),
             status: .confirmed,
