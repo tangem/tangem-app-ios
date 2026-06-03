@@ -31,7 +31,7 @@ private struct TangemPayAccountTile: View {
     @ScaledMetric private var iconSize: CGFloat = 40
     @ScaledMetric private var cachedIconSize: CGFloat = 16
     @ScaledMetric private var cachedIndicatorSpacing: CGFloat = 6
-    @ScaledSize private var loaderSize = CGSize(width: 40, height: 12)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         Button(action: onTap) {
@@ -144,7 +144,7 @@ private struct TangemPayAccountTile: View {
                     textColor: TangemPayAccountTile.balanceIntegerColor
                 ),
                 loader: LoadableBalanceView.LoaderStyle(
-                    size: loaderSize,
+                    size: CGSize(width: 40, height: 12) * scaleFactor,
                     cornerRadiusStyle: .capsule
                 )
             )

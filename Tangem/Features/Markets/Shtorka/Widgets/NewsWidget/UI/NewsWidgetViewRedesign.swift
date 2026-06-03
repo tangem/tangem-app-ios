@@ -16,7 +16,7 @@ import TangemLocalization
 struct NewsWidgetViewRedesign: View {
     @ObservedObject var viewModel: NewsWidgetViewModel
 
-    @ScaledSize private var headerSkeletonSize = CGSize(width: 120, height: 24)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
@@ -49,7 +49,7 @@ struct NewsWidgetViewRedesign: View {
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .skeletonable(
                     isShown: viewModel.headerLoadingState.isHeaderSkeletonable,
-                    size: headerSkeletonSize,
+                    size: CGSize(width: 120, height: 24) * scaleFactor,
                     cornerStyle: .capsule
                 )
 
