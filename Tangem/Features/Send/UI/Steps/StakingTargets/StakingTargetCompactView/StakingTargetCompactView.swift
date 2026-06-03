@@ -16,7 +16,7 @@ struct StakingTargetCompactViewData: Identifiable, Hashable {
 
     let address: String
     let name: String
-    let imageURL: URL?
+    let image: StakingTargetIconViewData
     let aprFormatted: String?
 }
 
@@ -25,7 +25,7 @@ struct StakingTargetCompactView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            IconView(url: data.imageURL, size: CGSize(width: 24, height: 24))
+            StakingTargetIconView(data: data.image, size: CGSize(width: 24, height: 24))
 
             HStack(spacing: 0) {
                 Text(data.name)

@@ -12,7 +12,8 @@ import TangemFoundation
 
 final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
     Mapper: TransactionHistoryMapper,
-    Mapper.Response == BlockBookAddressResponse {
+    Mapper.Response == BlockBookAddressResponse,
+    Mapper.WalletAddress == [String] {
     var currentProviderIndex: Int = 0
     var providers: [BlockBookUTXOProvider] {
         blockBookProviders
@@ -75,13 +76,28 @@ extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
                 requestPage = 0
             }
 
-            let parameters = BlockBookTarget.AddressRequestParameters(
-                page: requestPage,
-                pageSize: request.limit,
-                details: [.txslight]
-            )
+            let dataPublisher: AnyPublisher<BlockBookAddressResponse, Error>
 
-            return provider.addressData(address: request.address, parameters: parameters)
+            switch request.key {
+            case .address(let address):
+                let parameters = BlockBookTarget.AddressRequestParameters(
+                    page: requestPage,
+                    pageSize: request.limit,
+                    details: [.txslight]
+                )
+                dataPublisher = provider.addressData(address: address, parameters: parameters)
+
+            case .xpub(let xpub):
+                let parameters = BlockBookTarget.XPUBRequestParameters(
+                    page: requestPage,
+                    pageSize: request.limit,
+                    details: .txslight,
+                    tokens: nil
+                )
+                dataPublisher = provider.addressData(xpub: xpub, parameters: parameters)
+            }
+
+            return dataPublisher
                 .tryMap { [weak self] response -> TransactionHistory.Response in
                     guard let self else {
                         throw BlockchainSdkError.empty
@@ -89,7 +105,7 @@ extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
 
                     let records = try mapper.mapToTransactionRecords(
                         response,
-                        walletAddress: request.address,
+                        walletAddress: request.walletAddressType.addresses,
                         amountType: .coin
                     )
                     .filter { record in

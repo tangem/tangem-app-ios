@@ -174,5 +174,9 @@ extension Analytics {
 
         case preselectedToken = "Pre-selected Token"
         case selectedToken = "Selected Token"
+        case percentage = "Percentage"
+        case swapType = "Swap type"
+        case typeFrom = "Type from"
+        case typeTo = "Type to"
     }
 }

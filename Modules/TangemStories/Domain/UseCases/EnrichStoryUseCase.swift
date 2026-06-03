@@ -18,39 +18,42 @@ public final class EnrichStoryUseCase {
     public func callAsFunction(_ story: TangemStory) async -> TangemStory {
         switch story {
         case .swap(let data):
-            return await enrichSwapStoryData(data, wrap: { enrichedData in TangemStory.swap(enrichedData) })
+            return await enrichStoryData(data, storyId: .swap, wrap: TangemStory.swap)
         case .swapLegacy(let data):
-            return await enrichSwapStoryData(data, wrap: { enrichedData in TangemStory.swapLegacy(enrichedData) })
+            return await enrichStoryData(data, storyId: .swap, wrap: TangemStory.swapLegacy)
+        case .yieldFirstActivationAPYBoost(let data):
+            return await enrichStoryData(data, storyId: .yieldFirstActivationAPYBoost, wrap: TangemStory.yieldFirstActivationAPYBoost)
         }
     }
 
-    private func enrichSwapStoryData<StoryData: SwapStoryDataPagesContainer>(
-        _ swapStoryData: StoryData,
+    private func enrichStoryData<StoryData: StoryPagesContainer>(
+        _ storyData: StoryData,
+        storyId: TangemStory.ID,
         wrap: (StoryData) -> TangemStory
     ) async -> TangemStory {
-        if let cachedStory = await storyDataCache.retrieveStory(with: .swap) {
+        if let cachedStory = await storyDataCache.retrieveStory(with: storyId) {
             return cachedStory
         }
 
         do {
             try Task.checkCancellation()
 
-            let storyImages = try await storyDataService.fetchStoryImages(with: .swap)
-            var enrichedSwapStoryData = swapStoryData
+            let storyImages = try await storyDataService.fetchStoryImages(with: storyId)
+            var enrichedStoryData = storyData
 
-            for (index, storyImage) in storyImages.prefix(swapStoryData.pagesKeyPaths.count).enumerated() {
-                let pageKeyPath = swapStoryData.pagesKeyPaths[index]
-                enrichedSwapStoryData[keyPath: pageKeyPath].image = storyImage
+            for (index, storyImage) in storyImages.prefix(storyData.pagesKeyPaths.count).enumerated() {
+                let pageKeyPath = storyData.pagesKeyPaths[index]
+                enrichedStoryData[keyPath: pageKeyPath].image = storyImage
             }
 
             try Task.checkCancellation()
 
-            let enrichedSwapStory = wrap(enrichedSwapStoryData)
-            await storyDataCache.store(story: enrichedSwapStory)
+            let enrichedStory = wrap(enrichedStoryData)
+            await storyDataCache.store(story: enrichedStory)
 
-            return enrichedSwapStory
+            return enrichedStory
         } catch {
-            return wrap(swapStoryData)
+            return wrap(storyData)
         }
     }
 }
