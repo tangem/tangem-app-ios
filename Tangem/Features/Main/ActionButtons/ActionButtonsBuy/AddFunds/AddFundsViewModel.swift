@@ -12,12 +12,13 @@ import TangemUI
 @MainActor
 final class AddFundsViewModel: ObservableObject {
     let tokenIconInfo: TokenIconInfo
-    let fiatBalanceText: String
-    let cryptoBalanceText: String
+    @Published private(set) var fiatBalanceText: String
+    @Published private(set) var cryptoBalanceText: String
 
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
     private weak var coordinator: AddFundsCoordinator?
+    private var bag = Set<AnyCancellable>()
 
     init(
         walletModel: any WalletModel,
@@ -37,6 +38,8 @@ final class AddFundsViewModel: ObservableObject {
             walletModel.availableBalanceProvider.balanceType.value,
             currencyCode: walletModel.tokenItem.currencySymbol
         )
+
+        bind()
     }
 
     func onBuy() {
@@ -57,5 +60,29 @@ final class AddFundsViewModel: ObservableObject {
 
     func onClose() {
         coordinator?.closeAddFunds()
+    }
+
+    private func bind() {
+        let formatter = BalanceFormatter()
+
+        walletModel.fiatAvailableBalanceProvider
+            .balanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] balanceType in
+                self?.fiatBalanceText = formatter.formatFiatBalance(balanceType.value)
+            }
+            .store(in: &bag)
+
+        walletModel.availableBalanceProvider
+            .balanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] balanceType in
+                guard let self else { return }
+                cryptoBalanceText = formatter.formatCryptoBalance(
+                    balanceType.value,
+                    currencyCode: walletModel.tokenItem.currencySymbol
+                )
+            }
+            .store(in: &bag)
     }
 }
