@@ -19,7 +19,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     @Published var notificationBannerItems: [NotificationBannerItem] = []
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
     @Published var promotionNotificationsViewModel: PromotionNotificationsViewModel
-    @Published private(set) var isAddFundsBannerVisible: Bool = false
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
@@ -232,12 +231,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             isPageSelectedPublisher: isPageSelectedSubject,
             notificationsPublisher: $notificationInputs
         )
-
-        addFundsBannerVisibilityProvider
-            .shouldShowPublisher
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isAddFundsBannerVisible, on: self, ownership: .weak)
-            .store(in: &bag)
     }
 
     private func openAddFunds() {

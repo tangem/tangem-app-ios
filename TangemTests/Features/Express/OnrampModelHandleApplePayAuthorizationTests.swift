@@ -478,6 +478,9 @@ private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     // OnrampSendAnalyticsLogger own
     func setup(onrampProvidersInput: OnrampProvidersInput) {}
     func logOnrampSelectedProvider(provider: OnrampProvider) {}
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String) {}
+    func logOnrampNAPScreenOpened() {}
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {}
 }
 
 // MARK: - Fixtures
