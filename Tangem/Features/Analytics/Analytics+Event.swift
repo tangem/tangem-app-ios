@@ -618,6 +618,11 @@ extension Analytics {
         case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
         case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
         case onrampButtonAllOffers = "[Onramp] Button - All Offers"
+        case onrampButtonNAP = "[Onramp] Button - NAP"
+        case onrampNAPScreenOpened = "[Onramp] NAP Screen Opened"
+        case onrampVerifyScreenOpened = "[Onramp] Verify Screen Opened"
+        case onrampButtonVerify = "[Onramp] Button - Verify"
+        case onrampButtonChooseAnotherMethod = "[Onramp] Button - Choose Another Method"
 
         // MARK: - Action Buttons
 
