@@ -193,6 +193,8 @@ private struct TokenItemContainerView: View {
     let roundedBottomCorners: Bool
     let promoBubbleViewModel: TokenItemPromoBubbleViewModel?
 
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
     var body: some View {
         VStack(alignment: .twoLineRowLeading, spacing: 0) {
             MainPageTangemTokenRow(viewModel: item)
@@ -220,7 +222,9 @@ private struct TokenItemContainerView: View {
                     )
                     .icon(promoBubbleViewModel.leadingImage)
                     .colorPalette(.green)
-                    .arrowAligned(to: .twoLineRowLeading)
+                    .alignmentGuide(.twoLineRowLeading) { _ in
+                        TangemCallout.Sizes.arrowSide * scaleFactor * 2
+                    }
                 }
                 .padding(.bottom, .unit(.x3))
                 .transition(.opacity.combined(with: .move(edge: .top)))
