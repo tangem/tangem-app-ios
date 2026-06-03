@@ -162,6 +162,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         openProvider()
     }
 
+    func share() {
+        let activityVC = UIActivityViewController(activityItems: [buildShareText()], applicationActivities: nil)
+        AppPresenter.shared.show(activityVC)
+    }
+
     private func openProvider() {
         guard let url = externalProviderTxURL else {
             return
