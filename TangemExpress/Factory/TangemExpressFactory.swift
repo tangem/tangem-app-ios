@@ -73,7 +73,8 @@ public struct TangemExpressFactory {
         let provider = TangemProvider<ExpressAPITarget>(
             stubClosure: { target in
                 switch target.target {
-                case .exchangeHistory:
+                case .exchangeHistory,
+                     .onrampHistory:
                     return .immediate
                 default:
                     return .never
