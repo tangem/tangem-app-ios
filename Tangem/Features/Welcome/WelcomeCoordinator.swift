@@ -51,6 +51,8 @@ final class WelcomeCoordinator: CoordinatorObject {
             .eraseToAnyPublisher()
     }
 
+    private var tangemPayMobileOnboardingObserver: AnyCancellable?
+
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -75,6 +77,24 @@ final class WelcomeCoordinator: CoordinatorObject {
                 showTangemPayMobileOnboarding()
             }
         }
+
+        bindTangemPayMobileOnboarding()
+    }
+
+    private func bindTangemPayMobileOnboarding() {
+        tangemPayMobileOnboardingObserver = AppSettings.shared.$needsTangemPayMobileOnboarding
+            .dropFirst()
+            .first()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { coordinator, isOnboardingNeeded in
+                guard coordinator.tangemPayMobileOnboardingCoordinator == nil, isOnboardingNeeded else {
+                    return
+                }
+
+                coordinator.welcomeOnboardingCoordinator = nil
+                coordinator.showTangemPayMobileOnboarding()
+            }
     }
 
     private func showWelcomeOnboarding(steps: [WelcomeOnboardingStep]) {
