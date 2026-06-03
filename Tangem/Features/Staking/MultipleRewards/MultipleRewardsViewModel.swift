@@ -91,7 +91,7 @@ private extension MultipleRewardsViewModel {
         return StakingTargetViewData(
             address: target.address,
             name: target.name,
-            imageURL: target.iconURL,
+            image: StakingTargetIconViewData(target.image),
             subtitleType: subtitleType,
             detailsType: .balance(.init(crypto: balanceCryptoFormatted, fiat: balanceFiatFormatted)) { [weak self] in
                 self?.openStakingSingleActionFlow(balance: balance, validators: yield.targets)

@@ -12,7 +12,7 @@ import TangemAssets
 typealias ThumbnailRingCardView = ThumbnailPathBuilderView<ThumbnailRingCardPathBuilder>
 
 public enum ThumbnailRingCardPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors {
+    public struct FillColors: Equatable {
         public let ring: Color
         public let card: Color
 

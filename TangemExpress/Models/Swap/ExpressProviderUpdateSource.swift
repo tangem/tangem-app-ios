@@ -7,14 +7,14 @@
 //
 
 public enum ExpressProviderUpdateSource {
-    case amountChange
-    case autoUpdate
-    case pairChange
+    case amount
+    case autoupdate
+    case pair
 
     public var isRequiredUpdateSelectedProvider: Bool {
         switch self {
-        case .amountChange, .pairChange: true
-        case .autoUpdate: false
+        case .amount, .pair: true
+        case .autoupdate: false
         }
     }
 }

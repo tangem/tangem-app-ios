@@ -14,9 +14,7 @@ import TangemFoundation
 final class NewsPromotionNotificationsManager {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let cache: ThreadSafeContainer<[UserWalletId: PromotionNotificationsManager]> = [:]
-
-    init() {}
+    private let cache = Cache()
 
     private var selectedUserWalletId: UserWalletId? {
         userWalletRepository.selectedModel?.userWalletId
@@ -37,14 +35,8 @@ final class NewsPromotionNotificationsManager {
             .eraseToAnyPublisher()
     }
 
-    private func manager(for userWalletId: UserWalletId) -> PromotionNotificationsManager {
-        if let cached = cache.read()[userWalletId] {
-            return cached
-        }
-
-        let newManager = CommonPromotionNotificationsManager(userWalletId: userWalletId, placement: .news)
-        cache.mutate { $0[userWalletId] = newManager }
-        return newManager
+    private func manager(for userWalletId: UserWalletId) async -> PromotionNotificationsManager {
+        await cache.manager(for: userWalletId)
     }
 }
 
@@ -52,19 +44,22 @@ final class NewsPromotionNotificationsManager {
 
 extension NewsPromotionNotificationsManager: PromotionNotificationsManager {
     var notificationInputs: [NotificationViewInput] {
-        guard let userWalletId = selectedUserWalletId else {
-            return []
-        }
+        get async {
+            guard let userWalletId = selectedUserWalletId else {
+                return []
+            }
 
-        return manager(for: userWalletId).notificationInputs
+            return await manager(for: userWalletId).notificationInputs
+        }
     }
 
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
         selectedUserWalletIdPublisher
             .withWeakCaptureOf(self)
-            .flatMapLatest { wrapper, userWalletId in
-                wrapper.manager(for: userWalletId).notificationPublisher
+            .asyncMap { wrapper, userWalletId in
+                await wrapper.manager(for: userWalletId).notificationPublisher
             }
+            .switchToLatest()
             .eraseToAnyPublisher()
     }
 
@@ -77,7 +72,9 @@ extension NewsPromotionNotificationsManager: PromotionNotificationsManager {
             return
         }
 
-        manager(for: userWalletId).dismissNotification(with: id)
+        runTask(in: self) { manager in
+            await manager.manager(for: userWalletId).dismissNotification(with: id)
+        }
     }
 
     func loadPromotions() async {
@@ -86,5 +83,24 @@ extension NewsPromotionNotificationsManager: PromotionNotificationsManager {
         }
 
         await manager(for: userWalletId).loadPromotions()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension NewsPromotionNotificationsManager {
+    actor Cache {
+        private var managers: [UserWalletId: PromotionNotificationsManager] = [:]
+
+        func manager(for userWalletId: UserWalletId) -> PromotionNotificationsManager {
+            if let cached = managers[userWalletId] {
+                return cached
+            }
+
+            let newManager = CommonPromotionNotificationsManager(userWalletId: userWalletId, placement: .news)
+            managers[userWalletId] = newManager
+
+            return newManager
+        }
     }
 }

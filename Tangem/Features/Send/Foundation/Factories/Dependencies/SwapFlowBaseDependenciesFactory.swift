@@ -36,8 +36,9 @@ extension SwapFlowBaseDependenciesFactory {
             analyticsLogger: analyticsLogger,
             autoupdatingTimer: autoupdatingTimer,
             pairUpdateHandler: pairUpdateHandler,
+            balanceRestrictionFeatureChecker: makeSwapBalanceRestrictionFeatureChecker(),
+            swapTokenPairResolver: swapTokenPairResolver,
             shouldStartInitialLoading: shouldStartInitialLoading,
-            swapTokenPairResolver: swapTokenPairResolver
         )
     }
 
@@ -47,5 +48,9 @@ extension SwapFlowBaseDependenciesFactory {
 
     func makeSwapAlertBuilder() -> SendAlertBuilder {
         CommonSendAlertBuilder()
+    }
+
+    func makeSwapBalanceRestrictionFeatureChecker() -> SwapBalanceRestrictionFeatureChecker {
+        CommonSwapBalanceRestrictionFeatureChecker()
     }
 }

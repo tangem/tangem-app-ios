@@ -207,6 +207,8 @@ public struct ExternalLinkProviderFactory {
             return ArbitrumNovaExternalLinkProvider()
         case .plasma:
             return PlasmaExternalLinkProvider(isTestnet: isTestnet)
+        case .adi:
+            return ADIExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
