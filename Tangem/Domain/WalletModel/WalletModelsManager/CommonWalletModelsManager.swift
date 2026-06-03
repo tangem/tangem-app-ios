@@ -12,6 +12,7 @@ import CombineExt
 import BlockchainSdk
 import TangemSdk
 import TangemFoundation
+import TangemAnalytics
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository

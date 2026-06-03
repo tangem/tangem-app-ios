@@ -109,6 +109,7 @@ extension WalletNetworkServiceFactory {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .decimal,
              .xdc,
              .rsk:
@@ -151,7 +152,7 @@ extension WalletNetworkServiceFactory {
         case .near:
             return makeNEARNetworkService(for: blockchain)
         case .hedera:
-            throw Error.notImplemeneted
+            return makeHederaNetworkService(for: blockchain)
         case .joystream:
             return try makeSubstrateNetworkService(for: blockchain)
         case .bittensor:
@@ -217,6 +218,26 @@ private extension WalletNetworkServiceFactory {
             )),
             abiEncoder: WalletCoreABIEncoder(),
             blockchainName: blockchain.displayName
+        )
+
+        return networkService
+    }
+
+    /// Hedera
+    func makeHederaNetworkService(for blockchain: Blockchain) -> HederaNetworkService {
+        let restProviders = APIResolver(blockchain: blockchain, keysConfig: blockchainSdkKeysConfig)
+            .resolveProviders(apiInfos: apiList[blockchain.networkId] ?? []) { nodeInfo, _ in
+                HederaRESTNetworkProvider(targetConfiguration: nodeInfo, providerConfiguration: tangemProviderConfig)
+            }
+
+        let consensusProvider = HederaConsensusNetworkProvider(
+            isTestnet: blockchain.isTestnet,
+            timeout: tangemProviderConfig.urlSessionConfiguration.timeoutIntervalForRequest
+        )
+
+        let networkService = HederaNetworkService(
+            consensusProvider: consensusProvider,
+            restProviders: restProviders
         )
 
         return networkService
