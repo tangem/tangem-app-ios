@@ -14,6 +14,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     private let repository: TransactionHistoryRepository
+    private let syncMetadataStorage: () async -> SyncMetadataStorage
     private let tokenItem: TokenItem
 
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
@@ -21,9 +22,6 @@ final actor TransactionHistoryProvider {
 
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
-
-    @AppStorageCompat<StorageKey, Bool>
-    private var hasCompletedInitialSync: Bool
 
     private var lastSuccessfulPullToRefreshAt: Date?
 
@@ -35,7 +33,9 @@ final actor TransactionHistoryProvider {
     ) {
         self.repository = repository
         self.tokenItem = tokenItem
-        _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
+        syncMetadataStorage = { @MainActor in
+            SyncMetadataStorage(userWalletId: userWalletId, address: address)
+        }
     }
 
     private func emit(_ newState: TransactionHistorySyncState) {
@@ -47,7 +47,8 @@ final actor TransactionHistoryProvider {
         emit(.syncing(.initial))
         do {
             try await repository.syncInitial()
-            await MainActor.run { hasCompletedInitialSync = true }
+            let storage = await syncMetadataStorage() // Can't be fetched inside the synchronous `MainActor.run` call
+            await MainActor.run { storage.hasCompletedInitialSync = true }
             emit(.idle(.ready))
         } catch {
             // [REDACTED_TODO_COMMENT]
@@ -100,7 +101,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     func syncInitial() async {
         TransactionHistoryLogger.debug(self, "Initial sync requested")
 
-        guard await !hasCompletedInitialSync else {
+        guard await !syncMetadataStorage().hasCompletedInitialSync else {
             TransactionHistoryLogger.debug(self, "Skipping initial sync: already completed")
             return
         }
@@ -126,7 +127,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     func syncDelta() async {
         TransactionHistoryLogger.debug(self, "Delta sync requested")
 
-        guard await hasCompletedInitialSync else {
+        guard await syncMetadataStorage().hasCompletedInitialSync else {
             TransactionHistoryLogger.debug(self, "Skipping delta sync: initial sync not completed yet")
             return
         }
@@ -152,7 +153,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
         TransactionHistoryLogger.debug(self, "User-initiated sync requested: \(kind)")
 
-        guard await hasCompletedInitialSync else {
+        guard await syncMetadataStorage().hasCompletedInitialSync else {
             TransactionHistoryLogger.debug(self, "Skipping user-initiated sync: initial sync not completed yet")
             return
         }
@@ -219,14 +220,32 @@ private extension TransactionHistoryProvider {
 // MARK: - Auxiliary types
 
 private extension TransactionHistoryProvider {
-    struct StorageKey: RawRepresentable {
+    // [REDACTED_TODO_COMMENT]
+    /// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instance inside
+    /// the synchronous and implicitly isolated init of the `TransactionHistoryProvider` actor.
+    /// Without it, we either would have to make that init async or silence the compiler warning
+    /// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
+    final class SyncMetadataStorage {
+        @AppStorageCompat<SyncMetadataStorageKey, Bool>
+        private(set) var hasCompletedInitialSync: Bool
+
+        init(
+            userWalletId: UserWalletId,
+            address: String
+        ) {
+            _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    struct SyncMetadataStorageKey: RawRepresentable {
         let rawValue: String
 
         static func makeKey(
             userWalletId: UserWalletId,
             address: String
-        ) -> StorageKey {
-            StorageKey(rawValue: "TransactionHistoryV2InitialSyncCompleted_\(userWalletId.stringValue)_\(address.sha256())")
+        ) -> Self {
+            Self(rawValue: "TransactionHistoryV2InitialSyncCompleted_\(userWalletId.stringValue)_\(address.sha256())")
         }
     }
 }

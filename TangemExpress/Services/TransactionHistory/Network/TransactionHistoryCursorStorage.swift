@@ -8,6 +8,7 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 /// A storage for the opaque (hence `Any`) cursor for the next page.
 public protocol TransactionHistoryCursorStorage: Sendable {
     var cursor: Any? { get async }
