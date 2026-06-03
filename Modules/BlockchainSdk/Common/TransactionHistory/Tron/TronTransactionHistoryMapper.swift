@@ -195,7 +195,13 @@ final class TronTransactionHistoryMapper {
     ) -> TransactionRecord.TransactionType {
         switch amountType {
         case .coin:
-            switch transaction.contractType {
+            // NowNodes may omit the integer `contract_type` field and instead deliver the transaction
+            // type via the `chainExtraData` payload. Fall back to that payload in such cases.
+            guard let contractType = transaction.contractType else {
+                return transactionType(from: transaction.chainExtraData)
+            }
+
+            switch contractType {
             case TronContractType.transferContractType.rawValue,
                  TronContractType.transferAssetContractType.rawValue:
                 return .transfer
@@ -220,6 +226,37 @@ final class TronTransactionHistoryMapper {
         default:
             // All TRC10 and TRC20 token transactions are considered simple & plain transfers
             return .transfer
+        }
+    }
+
+    /// Extracts the coin transaction type from the `chainExtraData` payload, which NowNodes started
+    /// delivering instead of the integer `contract_type` field. The contract type arrives as a string.
+    private func transactionType(
+        from chainExtraData: BlockBookAddressResponse.ChainExtraData?
+    ) -> TransactionRecord.TransactionType {
+        guard
+            let chainExtraData,
+            chainExtraData.payloadType == Constants.tronPayloadType,
+            let rawContractType = chainExtraData.payload?.contractType,
+            let contractType = TronChainExtraDataContractType(rawValue: rawContractType)
+        else {
+            return .transfer
+        }
+
+        switch contractType {
+        case .transferContract, .triggerSmartContract:
+            return .transfer
+        case .voteWitnessContract:
+            let target = chainExtraData.payload?.votes?.first?.address
+            return .staking(type: .vote, target: target)
+        case .withdrawBalanceContract:
+            return .staking(type: .claimRewards, target: nil)
+        case .freezeBalanceV2Contract:
+            return .staking(type: .stake, target: nil)
+        case .unfreezeBalanceV2Contract:
+            return .staking(type: .unstake, target: nil)
+        case .withdrawExpireUnfreezeContract:
+            return .staking(type: .withdraw, target: nil)
         }
     }
 
@@ -257,8 +294,8 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
         return transactions
             .reduce(into: []) { partialResult, transaction in
                 guard
-                    let sourceAddress = transaction.fromAddress,
-                    let destinationAddress = transaction.toAddress,
+                    let sourceAddress = transaction.sourceAddress,
+                    let destinationAddress = transaction.destinationAddress,
                     let fees = Decimal(stringValue: transaction.fees)
                 else {
                     BSDKLogger.error(error: "Transaction \(transaction) doesn't contain a required information")
@@ -363,6 +400,22 @@ private extension TronTransactionHistoryMapper {
         case unfreezeBalanceV2ContractType = 55
         case withdrawExpireUnfreezeContractType = 56
     }
+
+    /// Contract types delivered as strings via `chainExtraData.payload.contractType` (NowNodes V2 contract),
+    /// used when the integer `contract_type` field is absent.
+    enum TronChainExtraDataContractType: String {
+        case transferContract = "TransferContract"
+        case triggerSmartContract = "TriggerSmartContract"
+        case voteWitnessContract = "VoteWitnessContract"
+        case freezeBalanceV2Contract = "FreezeBalanceV2Contract"
+        case unfreezeBalanceV2Contract = "UnfreezeBalanceV2Contract"
+        case withdrawBalanceContract = "WithdrawBalanceContract"
+        case withdrawExpireUnfreezeContract = "WithdrawExpireUnfreezeContract"
+    }
+
+    enum Constants {
+        static let tronPayloadType = "tron"
+    }
 }
 
 // MARK: - Convenience extensions
@@ -387,5 +440,17 @@ private extension BlockBookAddressResponse.Transaction {
     var isContractInteraction: Bool {
         contractType != nil
             && contractType != TronTransactionHistoryMapper.TronContractType.transferContractType.rawValue
+    }
+
+    /// NowNodes changed the Tron Blockbook API contract: the dedicated `fromAddress`/`toAddress` fields
+    /// may now be absent, in which case the addresses are delivered via the `vin`/`vout` arrays (as in
+    /// other Blockbook-based networks like Bitcoin or Ethereum). Fall back to those fields when the
+    /// dedicated ones are missing.
+    var sourceAddress: String? {
+        fromAddress ?? compat.vin.first?.addresses?.first
+    }
+
+    var destinationAddress: String? {
+        toAddress ?? compat.vout.first?.addresses?.first
     }
 }
