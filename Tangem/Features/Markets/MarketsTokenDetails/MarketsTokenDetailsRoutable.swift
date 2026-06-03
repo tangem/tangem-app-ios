@@ -14,7 +14,7 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
     func closeModule()
-    func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int, presentationStyle: MarketsTokenDetailsPresentationStyle)
+    func openExchangesList(tokenId: String, numberOfExchangesListedOn: Int)
     @MainActor
     func openNews(newsIds: [Int], selectedIndex: Int)
     func shareTokenDetails(url: URL)

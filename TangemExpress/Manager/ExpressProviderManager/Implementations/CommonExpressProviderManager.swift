@@ -27,7 +27,7 @@ final class CommonExpressProviderManager {
 
     // MARK: - State
 
-    private var _state: ThreadSafeContainer<ExpressProviderManagerState> = .init(.idle)
+    private let _state = OSAllocatedUnfairLock<ExpressProviderManagerState>(initialState: .idle)
 
     init(
         context: ExpressProviderFlowContext,
@@ -48,17 +48,17 @@ extension CommonExpressProviderManager: ExpressProviderManager {
     var feeProvider: any ExpressFeeProvider { context.expressFeeProvider }
 
     func getState() -> ExpressProviderManagerState {
-        _state.read()
+        _state { $0 }
     }
 
     func update(request: ExpressManagerSwappingPairRequest) async {
         let state = await getState(request: request)
         ExpressLogger.info(self, "Update to \(state)")
-        _state.mutate { $0 = state }
+        _state { $0 = state }
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let state = _state.read()
+        let state = _state { $0 }
 
         switch state {
         case .cexPreview:
@@ -84,6 +84,8 @@ private extension CommonExpressProviderManager {
     func getState(request: ExpressManagerSwappingPairRequest) async -> ExpressProviderManagerState {
         do {
             let quote = try await fetchQuote(request: request)
+            request.quotesLoadingPerformanceTracker?.fulfill(hasError: false)
+
             let flowType = flowTypeResolver.resolveFlowType(quote: quote, provider: context.provider)
 
             switch flowType {
@@ -93,9 +95,14 @@ private extension CommonExpressProviderManager {
                 return await dexHelper.processAfterQuote(quote: quote, request: request)
             }
         } catch let error as ExpressAPIError {
+            request.quotesLoadingPerformanceTracker?.fulfill(hasError: true)
             let currencySymbol = context.pair.currencySymbol(for: request.amountType)
             return .mapError(error, currencySymbol: currencySymbol)
+        } catch let error as CancellationError {
+            // Skip fulfilling the performance tracker: it ends the trace with `.unspecified` on deinit
+            return .error(error, quote: .none)
         } catch {
+            request.quotesLoadingPerformanceTracker?.fulfill(hasError: true)
             return .error(error, quote: .none)
         }
     }

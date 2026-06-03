@@ -8,22 +8,43 @@
 
 import Foundation
 import PassKit
-import SwiftUI
 import TangemExpress
 
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
-    weak var amountInput: OnrampAmountInput?
-    weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
+    let tokenItem: TokenItem
+    let countryCode: String
+    let applePayPresenter: any OnrampApplePayPresenting
+    let analyticsLogger: any SendOnrampNAPAnalyticsLogger
 
-    private var countryCode: String { Locale.current.region?.identifier ?? "US" }
+    weak var amountInput: OnrampAmountInput?
+
+    private let balanceFormatter = BalanceFormatter()
+
+    init(
+        geoEligibilityService: GeoEligibilityService,
+        tokenItem: TokenItem,
+        amountInput: OnrampAmountInput,
+        applePayPresenter: any OnrampApplePayPresenting,
+        analyticsLogger: any SendOnrampNAPAnalyticsLogger,
+        countryCode: String = Locale.current.region?.identifier ?? "US"
+    ) {
+        self.geoEligibilityService = geoEligibilityService
+        self.tokenItem = tokenItem
+        self.countryCode = countryCode
+        self.amountInput = amountInput
+        self.applePayPresenter = applePayPresenter
+        self.analyticsLogger = analyticsLogger
+    }
 
     func make(
         provider: OnrampProvider,
         onWillBuy: @escaping () -> Void,
         onWidgetBuy: @escaping () -> Void
     ) -> OnrampOfferViewModel.BuyAction {
-        return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        guard FeatureProvider.isAvailable(.onrampNativePayment) else {
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
 
         // Native Apple Pay is restricted in some regions; fall back to the web widget there.
         guard geoEligibilityService.isApplePayAllowed else {
@@ -48,44 +69,26 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
+        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
+            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
+        }
+
+        let summaryItemLabel = balanceFormatter.formatCryptoBalance(
+            quote.expectedAmount,
+            currencyCode: tokenItem.currencySymbol
+        )
+
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: currencyCode,
-            countryCode: countryCode
+            countryCode: countryCode,
+            summaryItemLabel: summaryItemLabel,
+            merchantIdentifier: merchantIdentifier
         )
 
-        return .nativeApplePay(request: request) { [self, onWillBuy] phase in
-            handle(phase: phase, provider: provider, onWillBuy: onWillBuy)
-        }
-    }
-
-    private func handle(
-        phase: PayWithApplePayButtonPaymentAuthorizationPhase,
-        provider: OnrampProvider,
-        onWillBuy: () -> Void
-    ) {
-        switch phase {
-        case .willAuthorize:
-            onWillBuy()
-
-        case .didAuthorize(let payment, let resultHandler):
-            let applePayResult = OnrampApplePayUtils.mapPaymentResult(payment)
-            let authorization = ApplePayAuthorizationResult(
-                provider: provider,
-                applePayResult: applePayResult,
-                resultHandler: resultHandler
-            )
-            guard let authorizationHandler else {
-                authorization.fail()
-                return
-            }
-            authorizationHandler.handleApplePayAuthorization(authorization)
-
-        case .didFinish:
-            break
-
-        @unknown default:
-            break
+        return .nativeApplePay { [applePayPresenter, analyticsLogger] in
+            analyticsLogger.logOnrampButtonNAP(amount: amount, currencyCode: currencyCode)
+            applePayPresenter.present(request: request, provider: provider, onWillBuy: onWillBuy)
         }
     }
 

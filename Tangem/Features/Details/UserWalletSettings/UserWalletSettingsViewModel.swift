@@ -44,6 +44,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
     @Published var pushNotificationsViewModel: TransactionNotificationsRowToggleViewModel?
+    @Published var notificationSettingsViewModel: DefaultRowViewModel?
 
     @Published var forgetViewModel: DefaultRowViewModel?
 
@@ -216,6 +217,7 @@ private extension UserWalletSettingsViewModel {
         referralViewModel = nil
         nftViewModel = nil
         pushNotificationsViewModel = nil
+        notificationSettingsViewModel = nil
         mobileAccessCodeViewModel = nil
         mobileBackupViewModel = nil
     }
@@ -262,11 +264,18 @@ private extension UserWalletSettingsViewModel {
         }
 
         if userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
-            pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
-                userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
-                coordinator: coordinator,
-                showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
-            )
+            if FeatureProvider.isAvailable(.pushNotificationsSettings) {
+                notificationSettingsViewModel = DefaultRowViewModel(
+                    title: Localization.pushNotificationSettingsTitle,
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
+                )
+            } else {
+                pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
+                    userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
+                    coordinator: coordinator,
+                    showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
+                )
+            }
         }
 
         if userWalletModel.config.hasFeature(.userWalletBackup) {
@@ -477,6 +486,10 @@ private extension UserWalletSettingsViewModel {
                 cardScanner: scanner
             )
         )
+    }
+
+    func openNotificationSettings() {
+        coordinator?.openNotificationSettings(userWalletModel: userWalletModel)
     }
 
     func openReferral() {
