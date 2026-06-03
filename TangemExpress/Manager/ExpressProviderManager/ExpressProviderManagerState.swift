@@ -47,6 +47,15 @@ public enum ExpressProviderManagerState {
         }
     }
 
+    public var isShowable: Bool {
+        switch self {
+        case .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview:
+            return true
+        case .idle, .error:
+            return false
+        }
+    }
+
     public var isPermissionRequired: Bool {
         switch self {
         case .permissionRequired, .revokeAndPermissionRequired:

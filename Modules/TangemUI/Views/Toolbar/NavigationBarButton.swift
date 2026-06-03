@@ -22,6 +22,8 @@ public struct NavigationBarButton: View {
     private let iconAsset: ImageType
     private let action: () -> Void
 
+    @Environment(\.isRedesign) private var isRedesign
+
     /// Creates a navigation bar button.
     /// - Parameters:
     ///   - sfSymbol: The name of the system symbol image. Use the SF Symbols app to look up the names of system symbol images.
@@ -36,22 +38,21 @@ public struct NavigationBarButton: View {
     public var body: some View {
         if #available(iOS 26.0, *) {
             systemLabelButton
+                .glassEffect(.regular.interactive(), in: .circle)
+        } else if isRedesign {
+            systemLabelButton
         } else {
             circleIconButton
         }
     }
 
-    @available(iOS 26.0, *)
     private var systemLabelButton: some View {
         Button(action: action) {
-            Image(systemName: sfSymbol)
+            Text(Image(systemName: sfSymbol))
                 .foregroundStyle(Colors.Text.primary1)
                 .font(.title2)
-                .fontWeight(.medium)
-                .frame(width: 20, height: 20)
-                .padding(12)
+                .frame(width: 44, height: 44)
         }
-        .glassEffect(.regular.interactive(), in: .circle)
     }
 
     private var circleIconButton: some View {
@@ -80,6 +81,11 @@ public extension NavigationBarButton {
 
     static func close(action: @escaping () -> Void) -> some View {
         navigationBarButton(for: .close, action: action)
+    }
+
+    static func share(action: @escaping () -> Void) -> some View {
+        navigationBarButton(for: .share, action: action)
+            .baselineOffset(2)
     }
 
     private static func navigationBarButton(for role: NavigationBarButtonRole, action: @escaping () -> Void) -> some View {

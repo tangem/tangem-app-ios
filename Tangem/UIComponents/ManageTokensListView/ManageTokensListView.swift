@@ -19,6 +19,8 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
     let footer: Footer?
 
     private var contentOffsetObserver: Binding<CGPoint>? = nil
+    private var backgroundColor: Color = .clear
+    private var roundedCornersEnabled: Bool = false
     private let bottomPadding: CGFloat
 
     init(
@@ -78,6 +80,8 @@ struct ManageTokensListView<Header, Footer>: View where Header: View, Footer: Vi
                 contentOffsetObserver?.wrappedValue = value
             }
         }
+        .background(backgroundColor.ignoresSafeArea())
+        .clipShape(RoundedRectangle(cornerRadius: roundedCornersEnabled ? Constants.cornerRadius : .zero, style: .continuous))
         .coordinateSpace(name: CoordinateSpaceName.scrollView)
     }
 
@@ -101,11 +105,24 @@ extension ManageTokensListView: Setupable {
             $0.contentOffsetObserver = observer
         }
     }
+
+    func backgroundColor(_ color: Color) -> Self {
+        map {
+            $0.backgroundColor = color
+        }
+    }
+
+    func roundedCorners(_ enabled: Bool) -> Self {
+        map {
+            $0.roundedCornersEnabled = enabled
+        }
+    }
 }
 
 extension ManageTokensListView {
     enum Constants {
         static var bottomPadding: CGFloat { 60 }
+        static var cornerRadius: CGFloat { 14 }
     }
 }
 
