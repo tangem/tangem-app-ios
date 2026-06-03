@@ -49,6 +49,7 @@ struct TransactionViewAmountViewData: Hashable {
         case .vote, .withdraw:
             return nil
         case .transfer,
+             .gaslessTransfer,
              .swap,
              .operation,
              .unknownOperation,
