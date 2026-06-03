@@ -297,18 +297,7 @@ extension TransactionHistoryMapper {
     }
 }
 
-private extension TransactionHistoryMapper {
-    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> String {
-        switch transactionType(from: record) {
-        case .yieldEnter, .yieldTopup, .yieldWithdraw:
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        case .yieldSend where record.isFromYieldContract:
-            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        default:
-            return formatted(amount: amount, isOutgoing: record.isOutgoing)
-        }
-    }
-
+extension TransactionHistoryMapper {
     func mapGaslessTransaction(contractMethodName: String, transactionRecord: TransactionRecord) -> TransactionViewModel.TransactionType {
         guard contractMethodName == "gaslessTransaction" else {
             assertionFailure("mapGaslessTransaction called with non-gasless transaction method")
@@ -323,7 +312,20 @@ private extension TransactionHistoryMapper {
             return .gaslessTransactionFee
         }
 
-        return .transfer
+        return .gaslessTransfer
+    }
+}
+
+private extension TransactionHistoryMapper {
+    func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> String {
+        switch transactionType(from: record) {
+        case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        case .yieldSend where record.isFromYieldContract:
+            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        default:
+            return formatted(amount: amount, isOutgoing: record.isOutgoing)
+        }
     }
 
     func makeGaslessTransactionInteractionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType? {
@@ -334,10 +336,9 @@ private extension TransactionHistoryMapper {
             return nil
         }
 
-        // Gasless transactions are only supported on EVM chains, which always have a single destination/source
         switch (record.isOutgoing, record.destination, record.source) {
         case (true, .single(let destination), _):
-            return .user(destination.address.string)
+            return mapToInteractionAddressType(destination: .single(destination))
 
         case (false, _, .single(let source)):
             return .user(source.address)
