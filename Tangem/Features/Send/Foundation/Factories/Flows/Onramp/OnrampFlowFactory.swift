@@ -39,7 +39,11 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         geoEligibilityService: geoEligibilityService,
         tokenItem: tokenItem,
         amountInput: onrampModel,
-        applePayPresenter: OnrampApplePayPresenter(authorizationHandler: onrampModel)
+        applePayPresenter: OnrampApplePayPresenter(
+            authorizationHandler: onrampModel,
+            analyticsLogger: analyticsLogger
+        ),
+        analyticsLogger: analyticsLogger
     )
 
     init(

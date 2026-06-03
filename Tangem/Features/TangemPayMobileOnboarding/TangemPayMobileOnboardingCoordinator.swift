@@ -116,11 +116,11 @@ private extension TangemPayMobileOnboardingCoordinator {
         _ = await tangemPayAvailabilityRepository.requestEligibleDistributionChannels()
 
         let values = await tangemPayAvailabilityRepository
-            .tangemPayBannerEntrypointEligibleWalletSelectionPublisher(for: customerWalletId)
+            .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
             .values
 
         for await selection in values {
-            return selection != nil
+            return selection?.userWalletModelsIds.contains(customerWalletId) == true
         }
 
         return false
