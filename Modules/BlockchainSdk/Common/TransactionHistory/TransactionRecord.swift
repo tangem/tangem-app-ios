@@ -67,7 +67,7 @@ public extension TransactionRecord {
         /// Contains contract method id (like `0x357a150b`).
         case contractMethodIdentifier(id: String)
         /// Contains human-readable contract method name (like `swap`).
-        case contractMethodName(name: String)
+        case contractMethodName(name: String?)
         case staking(type: StakingTransactionType, target: String?)
 
         public enum StakingTransactionType {
@@ -79,6 +79,10 @@ public extension TransactionRecord {
             case restake
         }
     }
+}
+
+extension TransactionRecord.TransactionType {
+    static var unknownOperation: Self { .contractMethodName(name: nil) }
 }
 
 // MARK: - TransactionStatus
