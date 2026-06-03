@@ -28,7 +28,9 @@ public final class RefreshScrollViewInteractor: ObservableObject {
     private weak var scrollView: UIScrollView?
 
     init() {
-        eventPublisher = eventSubject.eraseToAnyPublisher()
+        eventPublisher = eventSubject
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     public func setContentOffset(_ offset: CGPoint, animated: Bool) {
