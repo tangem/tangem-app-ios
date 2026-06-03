@@ -43,7 +43,7 @@ public struct TokenIcon: View {
     private var tokenIcon: some View {
         IconView(url: imageURL, size: size, forceKingfisher: forceKingfisher)
             .ifLet(blockchainIconAsset) { view, imageAsset in
-                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor)
+                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor, isShimmerEnabled: false)
             }
             .overlay(customTokenIndicator, alignment: .bottomTrailing)
     }
@@ -89,7 +89,7 @@ public struct TokenIcon: View {
             )
             .frame(size: size)
             .ifLet(blockchainIconAsset) { view, imageAsset in
-                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor)
+                view.networkIconOverlay(imageAsset: imageAsset, borderColor: networkBorderColor, isShimmerEnabled: false)
             }
             .overlay(customTokenIndicator, alignment: .bottomTrailing)
     }
