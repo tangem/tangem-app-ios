@@ -17,6 +17,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
     /// Stored to keep the `weak var amountInput` reference inside the builder alive for the duration of each test.
     private let amountInput = StubOnrampAmountInput(fiatCurrency: .makeUSD())
     private let presenter = SpyOnrampApplePayPresenter()
+    private let analyticsLogger = NoOpOnrampSendAnalyticsLogger()
 
     // MARK: - Widget (button) path
 
@@ -107,7 +108,8 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: true),
             tokenItem: Self.testTokenItem,
             amountInput: nilCurrencyInput,
-            applePayPresenter: presenter
+            applePayPresenter: presenter,
+            analyticsLogger: analyticsLogger
         )
 
         let action = builder.make(
@@ -197,6 +199,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             tokenItem: Self.testTokenItem,
             amountInput: amountInput,
             applePayPresenter: presenter,
+            analyticsLogger: analyticsLogger,
             countryCode: countryCode
         )
     }
@@ -237,6 +240,35 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
 
     func initialize() {}
     func waitForGeoIpRegionIfNeeded() async {}
+}
+
+private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
+    func logSendBaseViewOpened() {}
+    func logRequestSupport() {}
+    func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {}
+    func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {}
+
+    func logOnrampOfferButtonBuy(provider: OnrampProvider) {}
+    func logOnrampRecentlyUsedClicked(provider: OnrampProvider) {}
+    func logOnrampFastestMethodClicked(provider: OnrampProvider) {}
+    func logOnrampBestRateClicked(provider: OnrampProvider) {}
+    func logOnrampButtonAllOffers() {}
+
+    func logOnrampProvidersScreenOpened() {}
+    func logOnrampProviderChosen(provider: ExpressProvider) {}
+
+    func logOnrampPaymentMethodScreenOpened() {}
+    func logOnrampPaymentMethodChosen(paymentMethod: OnrampPaymentMethod) {}
+
+    func logFinishStepOpened() {}
+    func logShareButton() {}
+    func logExploreButton() {}
+
+    func setup(onrampProvidersInput: OnrampProvidersInput) {}
+    func logOnrampSelectedProvider(provider: OnrampProvider) {}
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String) {}
+    func logOnrampNAPScreenOpened() {}
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {}
 }
 
 private extension OnrampFiatCurrency {
