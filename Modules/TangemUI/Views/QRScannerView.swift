@@ -109,13 +109,25 @@ public final class QRScannerUIView: UIView {
 
         backgroundColor = .black
         clipsToBounds = true
-
-        startSession()
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override public func didMoveToWindow() {
+        super.didMoveToWindow()
+
+        guard window != nil else {
+            return
+        }
+
+        if isSessionConfigured {
+            restartSessionIfNeeded()
+        } else {
+            startSession()
+        }
     }
 
     override public class var layerClass: AnyClass {
