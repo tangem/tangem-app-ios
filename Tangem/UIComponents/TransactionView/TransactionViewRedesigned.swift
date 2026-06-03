@@ -15,7 +15,7 @@ import TangemUIUtils
 struct TransactionViewRedesigned: View {
     let viewModel: TransactionViewModel
 
-    @ScaledSize private var iconContainerSize = CGSize(bothDimensions: 40)
+    @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
 
@@ -45,7 +45,7 @@ struct TransactionViewRedesigned: View {
                 .frame(width: glyphSize, height: glyphSize)
                 .foregroundStyle(iconGlyphColor)
         }
-        .frame(width: iconContainerSize.width, height: iconContainerSize.height)
+        .frame(width: iconContainerSide, height: iconContainerSide)
     }
 
     private var nameView: some View {

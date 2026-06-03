@@ -85,7 +85,9 @@ struct FullPagePagerView<Data, Navigation, Header, Body, BottomOverlay>: View
             selectedIndex: selectedIndex,
             navigationFactory: navigationFactory
         ))
-        .readGeometry(\.size.height) { viewportHeight = $0 }
+        .onGeometryChange(for: CGFloat.self, of: \.size.height) {
+            viewportHeight = $0
+        }
     }
 }
 
