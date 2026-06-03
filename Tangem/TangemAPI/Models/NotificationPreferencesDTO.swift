@@ -30,13 +30,3 @@ enum NotificationPreferencesDTO {
         }
     }
 }
-
-extension NotificationPreferencesDTO.Response.Body {
-    func preference(for channel: PushChannel) -> NotificationPreferencesDTO.Preference {
-        switch channel {
-        case .transactionAlerts: transactionAlerts
-        case .offersUpdates: offersUpdates
-        case .priceAlerts: priceAlerts
-        }
-    }
-}
