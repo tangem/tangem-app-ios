@@ -352,7 +352,9 @@ extension AppCoordinator {
     func openMain(with userWalletModel: UserWalletModel) {
         let coordinatorFactory = CommonMainCoordinatorChildFactory()
         let navigationActionHandler = MainCoordinator.MainNavigationActionHandler()
-        let deeplinkPresenter = CommonDeeplinkPresenter(coordinatorFactory: coordinatorFactory)
+        let deeplinkPresenter: DeeplinkPresenter = FeatureProvider.isAvailable(.deeplinkPresentationWay)
+            ? CommonDeeplinkPresenterV2(coordinatorFactory: coordinatorFactory)
+            : CommonDeeplinkPresenter(coordinatorFactory: coordinatorFactory)
 
         let coordinator = MainCoordinator(
             coordinatorFactory: coordinatorFactory,

@@ -10,7 +10,9 @@ import SwiftUI
 
 protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonDemo()
+    func openTangemButtonV2Demo()
     func openTangemBadgeDemo()
+    func openTangemBadgeV2Demo()
     func openTangemCalloutDemo()
     func openTangemTabsDemo()
     func openTangemMainActionButtonDemo()
@@ -19,6 +21,8 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openNotificationBannerDemo()
     func openTypographyDemo()
     func openTangemDropDownDemo()
+    func openTangemLoaderDemo()
+    func openTangemTokenRowDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -27,7 +31,9 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
 
     @Published var rootViewModel: DesignSystemDemoViewModel?
     @Published var tangemButtonDemoViewModel: TangemButtonDemoViewModel?
+    @Published var tangemButtonV2DemoViewModel: TangemButtonV2DemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
+    @Published var tangemBadgeV2DemoViewModel: TangemBadgeV2DemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
     @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
     @Published var tangemMainActionButtonDemoViewModel: TangemMainActionButtonDemoViewModel?
@@ -36,6 +42,8 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var typographyDemoViewModel: TypographyDemoViewModel?
     @Published var tangemSearchFieldDemoViewModel: TangemSearchFieldDemoViewModel?
     @Published var tangemDropDownDemoViewModel: TangemDropDownDemoViewModel?
+    @Published var tangemLoaderDemoViewModel: TangemLoaderDemoViewModel?
+    @Published var tangemTokenRowDemoViewModel: TangemTokenRowDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -55,8 +63,16 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
         tangemButtonDemoViewModel = .init()
     }
 
+    func openTangemButtonV2Demo() {
+        tangemButtonV2DemoViewModel = .init()
+    }
+
     func openTangemBadgeDemo() {
         tangemBadgeDemoViewModel = .init()
+    }
+
+    func openTangemBadgeV2Demo() {
+        tangemBadgeV2DemoViewModel = .init()
     }
 
     func openTangemCalloutDemo() {
@@ -89,6 +105,14 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemDropDownDemo() {
         tangemDropDownDemoViewModel = .init()
+    }
+
+    func openTangemLoaderDemo() {
+        tangemLoaderDemoViewModel = .init()
+    }
+
+    func openTangemTokenRowDemo() {
+        tangemTokenRowDemoViewModel = .init()
     }
 }
 
