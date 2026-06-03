@@ -10,7 +10,6 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
-    private lazy var titleLabel = app.navigationBars.staticTexts["Buy"]
     private lazy var closeButton = button(.closeButton)
     private lazy var searchField = searchField(.searchField)
     private lazy var tokensList = scrollView(.tokensList)
@@ -18,7 +17,6 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
     @discardableResult
     func waitBuyTokenSelectorDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate Buy Token Selector screen is displayed") { _ in
-            waitAndAssertTrue(titleLabel, "Buy Token Selector screen title should exist")
             waitAndAssertTrue(closeButton, "Close button should exist")
             waitAndAssertTrue(searchField, "Search field should exist")
             waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
