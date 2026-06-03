@@ -24,8 +24,8 @@ struct ApplePayAuthorizationResultTests {
         #expect(captured?.errors.isEmpty == true)
     }
 
-    @Test("fail with error forwards .failure status and the wrapped error")
-    func failWithErrorForwardsFailure() {
+    @Test("fail with non-PassKit error forwards .failure status and scrubs the error")
+    func failWithNonPassKitErrorScrubsErrors() {
         let stubError = NSError(domain: "TestDomain", code: 42, userInfo: nil)
         var captured: PKPaymentAuthorizationResult?
         let result = makeResult { captured = $0 }
@@ -33,9 +33,26 @@ struct ApplePayAuthorizationResultTests {
         result.fail(stubError)
 
         #expect(captured?.status == .failure)
+        // Non-PKPaymentErrorDomain errors are dropped — see ApplePayAuthorizationResult.fail.
+        #expect(captured?.errors.isEmpty == true)
+    }
+
+    @Test("fail with PassKit error forwards .failure status and the wrapped error")
+    func failWithPassKitErrorForwardsError() {
+        let passKitError = NSError(
+            domain: PKPaymentErrorDomain,
+            code: PKPaymentError.Code.billingContactInvalidError.rawValue,
+            userInfo: nil
+        )
+        var captured: PKPaymentAuthorizationResult?
+        let result = makeResult { captured = $0 }
+
+        result.fail(passKitError)
+
+        #expect(captured?.status == .failure)
         #expect(captured?.errors.count == 1)
-        #expect((captured?.errors.first as NSError?)?.domain == "TestDomain")
-        #expect((captured?.errors.first as NSError?)?.code == 42)
+        #expect((captured?.errors.first as NSError?)?.domain == PKPaymentErrorDomain)
+        #expect((captured?.errors.first as NSError?)?.code == PKPaymentError.Code.billingContactInvalidError.rawValue)
     }
 
     @Test("fail with no error forwards .failure status and no errors")
@@ -55,7 +72,7 @@ struct ApplePayAuthorizationResultTests {
         let applePayResult = OnrampApplePayResult(
             paymentToken: "token",
             userData: OnrampNativePaymentRequestItem.UserData(
-                email: nil, firstName: nil, lastName: nil, billingAddress: nil
+                email: "user@example.com", firstName: nil, lastName: nil, billingAddress: nil
             )
         )
         let result = ApplePayAuthorizationResult(
@@ -78,7 +95,7 @@ struct ApplePayAuthorizationResultTests {
             applePayResult: OnrampApplePayResult(
                 paymentToken: "",
                 userData: OnrampNativePaymentRequestItem.UserData(
-                    email: nil, firstName: nil, lastName: nil, billingAddress: nil
+                    email: "user@example.com", firstName: nil, lastName: nil, billingAddress: nil
                 )
             ),
             resultHandler: resultHandler
