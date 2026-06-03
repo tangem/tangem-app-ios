@@ -328,8 +328,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.canFetchHistory
     }
 
-    func clearHistory() {
-        mainTokenWalletModel.clearHistory()
+    func clearHistory() async {
+        await mainTokenWalletModel.clearHistory()
     }
 
     var stakingManagerState: StakingManagerState {
