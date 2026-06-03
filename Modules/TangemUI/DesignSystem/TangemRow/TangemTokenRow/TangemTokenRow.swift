@@ -18,11 +18,7 @@ public struct TangemTokenRow: View {
     private let viewData: TangemTokenRowViewData
 
     @ScaledMetric private var priceChangeIconSpacing: CGFloat = TangemTokenRowConstants.Spacings.priceChangeIconSpacing
-
-    @ScaledSize private var fiatLoaderSize: CGSize = TangemTokenRowConstants.Sizes.fiatBalanceLoaderSize
-    @ScaledSize private var cryptoLoaderSize: CGSize = TangemTokenRowConstants.Sizes.cryptoBalanceLoaderSize
-    @ScaledSize private var priceLoaderSize: CGSize = TangemTokenRowConstants.Sizes.tokenPriceLoaderSize
-    @ScaledSize private var iconSize = CGSize(width: Constants.Sizes.iconSize, height: Constants.Sizes.iconSize)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     public init(viewData: TangemTokenRowViewData) {
         self.viewData = viewData
@@ -37,7 +33,7 @@ public struct TangemTokenRow: View {
     private var tokenIconView: some View {
         TokenIcon(
             tokenIconInfo: viewData.tokenIconInfo,
-            size: iconSize
+            size: CGSize(width: SizeUnit.x10.value, height: SizeUnit.x10.value) * scaleFactor
         )
         .saturation(viewData.hasMonochromeIcon ? 0 : 1)
     }
@@ -222,7 +218,7 @@ public struct TangemTokenRow: View {
                 textColor: Constants.Style.FiatBalance.integerColor
             ),
             loader: .init(
-                size: fiatLoaderSize,
+                size: CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value) * scaleFactor,
                 cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: viewData.accessibilityIdentifiers?.fiatBalance
@@ -253,7 +249,6 @@ public struct TangemTokenRow: View {
 
     // MARK: - Crypto Balance
 
-    @ViewBuilder
     private func cryptoBalanceLoadingView(cached: String?) -> some View {
         LoadableBalanceView(
             state: .loading(cached: cached.map { .string($0) }),
@@ -337,6 +332,14 @@ public struct TangemTokenRow: View {
                 useRedesignColors: true
             )
         }
+    }
+
+    private var cryptoLoaderSize: CGSize {
+        CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value) * scaleFactor
+    }
+
+    private var priceLoaderSize: CGSize {
+        CGSize(width: SizeUnit.x13.value, height: SizeUnit.x3.value) * scaleFactor
     }
 }
 
