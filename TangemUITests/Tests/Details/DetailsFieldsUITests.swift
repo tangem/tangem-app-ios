@@ -48,4 +48,46 @@ final class DetailsFieldsUITests: BaseTestCase {
             .openDetails()
             .verifySections(walletConnect: true)
     }
+
+    func testDetailsFields_V3Multi() {
+        setAllureId(838)
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .v3seckp)
+            .openDetails()
+            .verifySections(walletConnect: true)
+    }
+
+    func testDetailsFields_SingleCurrency() {
+        setAllureId(9832)
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .xlmBird)
+            .openDetails()
+            .verifySections(walletConnect: false)
+    }
+
+    func testDetailsFields_S2C() {
+        setAllureId(841)
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .s2c)
+            .openDetails()
+            .verifySections(walletConnect: false)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func S2C_NoTradeButtonsAndStandardDetails() {
+        setAllureId(2869)
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .s2c)
+            .verifyTradeActionButtonsHidden()
+            .openDetails()
+            .verifySections(walletConnect: false)
+    }
 }
