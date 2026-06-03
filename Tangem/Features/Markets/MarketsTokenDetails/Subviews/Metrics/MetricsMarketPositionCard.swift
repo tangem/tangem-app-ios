@@ -14,7 +14,7 @@ import TangemUI
 struct MetricsMarketPositionCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
-    @ScaledSize private var trendImageSize = CGSize(bothDimensions: .unit(.x3))
+    @ScaledMetric private var trendImageSide = CGFloat.unit(.x3)
 
     private typealias RankType = MarketsTokenDetailsMetricsViewModel.MarketPositionState.RankType
     private typealias RatingChange = MarketsTokenDetailsMetricsViewModel.MarketPositionState.RatingChange
@@ -84,7 +84,7 @@ struct MetricsMarketPositionCard: View {
                 Assets.DesignSystem.upDynamic.image
                     .resizable()
                     .renderingMode(.template)
-                    .frame(size: trendImageSize)
+                    .frame(width: trendImageSide, height: trendImageSide)
                     .foregroundStyle(Color.Tangem.Graphic.Status.positive)
 
                 Text("\(value)")
@@ -97,7 +97,7 @@ struct MetricsMarketPositionCard: View {
                 Assets.DesignSystem.upDynamic.image
                     .resizable()
                     .renderingMode(.template)
-                    .frame(size: trendImageSize)
+                    .frame(width: trendImageSide, height: trendImageSide)
                     .rotationEffect(.degrees(180))
                     .foregroundStyle(Color.Tangem.Graphic.Status.warning)
 
