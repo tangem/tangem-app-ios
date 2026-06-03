@@ -83,8 +83,16 @@ struct OnrampSummaryView: View {
                 DefaultHeaderView(Localization.onrampRecommendedTitle)
                     .padding(.leading, 14)
 
-                ForEach(offers.recommended) {
-                    OnrampOfferView(viewModel: $0)
+                ForEach(offers.recommended) { item in
+                    VStack(alignment: .leading, spacing: 8) {
+                        OnrampOfferView(viewModel: item.viewModel)
+
+                        if let footnote = item.footnote {
+                            Text(footnote)
+                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                                .padding(.horizontal, 14)
+                        }
+                    }
                 }
             }
             .padding(.top, 12)

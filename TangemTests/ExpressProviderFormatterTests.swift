@@ -63,6 +63,71 @@ struct ExpressProviderFormatterBadgeTests {
     }
 }
 
+@Suite("ExpressProviderFormatter — rate subtitle ordering", .serialized)
+struct ExpressProviderFormatterRateSubtitleTests {
+    @Test("ETH → USDT preserves source-is-base ordering: ETH on the left, USDT on the right")
+    func ethToUsdt_sourceIsBase() {
+        let formatter = ExpressProviderFormatter(isStablecoinOrderingEnabled: true)
+        let eth = TokenItem.blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
+        let usdt = TokenItem.token(
+            .init(name: "USDT", symbol: "USDT", contractAddress: "0xUSDT", decimalCount: 6, id: "tether"),
+            .init(.ethereum(testnet: false), derivationPath: nil)
+        )
+
+        let subtitle = formatter.mapToRateSubtitle(
+            fromAmount: 1,
+            toAmount: 3000,
+            senderTokenItem: eth,
+            destinationTokenItem: usdt,
+            option: .exchangeRate
+        )
+
+        try? expectRateOrdering(subtitle, baseSymbol: "ETH", quoteSymbol: "USDT")
+    }
+
+    @Test("USDT → ETH flips ordering so ETH is the base, USDT is the quote")
+    func usdtToEth_receiveIsBase() {
+        let formatter = ExpressProviderFormatter(isStablecoinOrderingEnabled: true)
+        let eth = TokenItem.blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
+        let usdt = TokenItem.token(
+            .init(name: "USDT", symbol: "USDT", contractAddress: "0xUSDT", decimalCount: 6, id: "tether"),
+            .init(.ethereum(testnet: false), derivationPath: nil)
+        )
+
+        // Sending 3000 USDT → receiving 1 ETH
+        let subtitle = formatter.mapToRateSubtitle(
+            fromAmount: 3000,
+            toAmount: 1,
+            senderTokenItem: usdt,
+            destinationTokenItem: eth,
+            option: .exchangeRate
+        )
+
+        try? expectRateOrdering(subtitle, baseSymbol: "ETH", quoteSymbol: "USDT")
+    }
+
+    // MARK: - Helpers
+
+    private func expectRateOrdering(_ subtitle: ProviderRowViewModel.Subtitle, baseSymbol: String, quoteSymbol: String) throws {
+        guard case .text(let text) = subtitle else {
+            Issue.record("Expected .text subtitle")
+            return
+        }
+
+        guard
+            let baseRange = text.range(of: baseSymbol),
+            let quoteRange = text.range(of: quoteSymbol),
+            let separatorRange = text.range(of: "≈")
+        else {
+            Issue.record("Subtitle '\(text)' missing one of: \(baseSymbol), \(quoteSymbol), ≈")
+            return
+        }
+
+        #expect(baseRange.lowerBound < separatorRange.lowerBound, "\(baseSymbol) must appear before ≈ in '\(text)'")
+        #expect(quoteRange.lowerBound > separatorRange.upperBound, "\(quoteSymbol) must appear after ≈ in '\(text)'")
+    }
+}
+
 // MARK: - Stubs
 
 private struct StubGeoEligibilityService: GeoEligibilityService {
