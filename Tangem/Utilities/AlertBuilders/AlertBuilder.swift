@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemLocalization
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 enum AlertBuilder {

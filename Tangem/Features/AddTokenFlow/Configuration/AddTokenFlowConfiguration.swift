@@ -17,9 +17,6 @@ struct AddTokenFlowConfiguration {
     /// Check if token is already added to account (for readonly marking in network list)
     let isTokenAdded: (TokenItem, any CryptoAccountModel) -> Bool
 
-    /// When to allow changing account from the add-token screen (e.g. account cell tappable).
-    let accountSelectionAvailability: AccountSelectionAvailability
-
     /// What happens after account is selected
     let accountSelectionBehavior: AccountSelectionBehavior
 
@@ -36,22 +33,24 @@ struct AddTokenFlowConfiguration {
 
     init(
         getAvailableTokenItems: @escaping (AccountSelectorCellModel) -> [TokenItem],
-        isTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Bool,
-        accountSelectionAvailability: AccountSelectionAvailability = .enabledWhenNotSingleAccount,
+        isTokenAdded: ((TokenItem, any CryptoAccountModel) -> Bool)? = nil,
         accountSelectionBehavior: AccountSelectionBehavior = .executeAccountSelection,
         postAddBehavior: PostAddBehavior,
         accountFilter: ((AccountContext) -> Bool)? = nil,
         accountAvailabilityProvider: ((AccountContext) -> AccountAvailability)? = nil,
-        analyticsLogger: AddTokenFlowAnalyticsLogger
+        analyticsLogger: AddTokenFlowAnalyticsLogger = NoOpAddTokenFlowAnalyticsLogger()
     ) {
         self.getAvailableTokenItems = getAvailableTokenItems
-        self.isTokenAdded = isTokenAdded
-        self.accountSelectionAvailability = accountSelectionAvailability
+        self.isTokenAdded = isTokenAdded ?? Self.defaultIsTokenAdded
         self.accountSelectionBehavior = accountSelectionBehavior
         self.postAddBehavior = postAddBehavior
         self.accountFilter = accountFilter
         self.accountAvailabilityProvider = accountAvailabilityProvider
         self.analyticsLogger = analyticsLogger
+    }
+
+    private static func defaultIsTokenAdded(_ tokenItem: TokenItem, _ account: any CryptoAccountModel) -> Bool {
+        account.userTokensManager.contains(tokenItem, derivationInsensitive: true)
     }
 }
 
@@ -59,12 +58,6 @@ struct AddTokenFlowConfiguration {
 
 extension AddTokenFlowConfiguration {
     typealias AccountSelectionActionWithContinuation = (TokenItem, AccountSelectorCellModel, @escaping () -> Void) -> Void
-
-    enum AccountSelectionAvailability {
-        case disabled
-        /// Allow account selection only when there is not exactly one account (i.e. when there are 0 or 2+ accounts).
-        case enabledWhenNotSingleAccount
-    }
 
     enum AccountSelectionBehavior {
         case executeAccountSelection

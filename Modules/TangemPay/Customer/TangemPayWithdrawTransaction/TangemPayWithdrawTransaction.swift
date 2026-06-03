@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 public enum TangemPayWithdraw {
     public enum SignableData {
@@ -16,12 +17,10 @@ public enum TangemPayWithdraw {
         }
 
         struct Response: Decodable {
-            // If needed to work with this EIP712 format
-            // We have to move `EIP712TypedData` to `TangemFoundation` or `BSDK` layer
-            // let structuredData: EIP712TypedData?
             let hash: String
             let salt: String
             let senderAddress: String
+            let structuredData: EIP712TypedData
         }
     }
 

@@ -28,6 +28,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
 
     private let optionsProviding: OrganizeTokensOptionsProviding
     private let optionsEditing: OrganizeTokensOptionsEditing
+    private let analyticsLogger: TokensManagementAnalyticsLogger
 
     private let onToggleSortState = PassthroughSubject<Void, Never>()
     private let onToggleGroupState = PassthroughSubject<Void, Never>()
@@ -37,10 +38,12 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
 
     init(
         optionsProviding: OrganizeTokensOptionsProviding,
-        optionsEditing: OrganizeTokensOptionsEditing
+        optionsEditing: OrganizeTokensOptionsEditing,
+        analyticsLogger: TokensManagementAnalyticsLogger
     ) {
         self.optionsProviding = optionsProviding
         self.optionsEditing = optionsEditing
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -76,8 +79,7 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .sink { viewModel, _ in
                 // The 'sort-by-balance' button only allows to enable balance sorting but not to disable it
                 if viewModel.isSortByBalanceEnabled { return }
-
-                Analytics.log(.organizeTokensButtonSortByBalance)
+                viewModel.analyticsLogger.logButtonByBalance()
                 viewModel.optionsEditing.sort(
                     by: viewModel.isSortByBalanceEnabled ? .dragAndDrop : .byBalance
                 )
@@ -88,10 +90,8 @@ final class OrganizeTokensHeaderViewModel: ObservableObject {
             .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
-                Analytics.log(.organizeTokensButtonGroup)
-                viewModel.optionsEditing.group(
-                    by: viewModel.isGroupingEnabled ? .none : .byBlockchainNetwork
-                )
+                viewModel.analyticsLogger.logButtonGroup()
+                viewModel.optionsEditing.group(by: viewModel.isGroupingEnabled ? .none : .byBlockchainNetwork)
             }
             .store(in: &bag)
 

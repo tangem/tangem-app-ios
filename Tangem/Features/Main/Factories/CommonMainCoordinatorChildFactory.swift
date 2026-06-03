@@ -13,7 +13,7 @@ final class CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         TokenDetailsCoordinator(dismissAction: dismissAction)
     }
 
-    func makeBuyCoordinator(dismissAction: @escaping Action<Void>) -> ActionButtonsBuyCoordinator {
+    func makeBuyCoordinator(dismissAction: @escaping Action<ActionButtonsBuyDismissPayload?>) -> ActionButtonsBuyCoordinator {
         ActionButtonsBuyCoordinator(dismissAction: dismissAction)
     }
 
