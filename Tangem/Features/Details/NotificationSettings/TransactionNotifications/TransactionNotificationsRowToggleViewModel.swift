@@ -50,7 +50,7 @@ final class TransactionNotificationsRowToggleViewModel: ObservableObject {
     // MARK: - Pending state
 
     private var pendingEnable: Bool = false
-    private var requestAuthorizationTask: Task<Void, Never>?
+    private var toggleTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = .init()
 
     // MARK: - Init
@@ -182,13 +182,13 @@ private extension TransactionNotificationsRowToggleViewModel {
     func handleToggle(value: Bool) {
         Analytics.log(.pushToggleClicked, params: [.state: value ? .on : .off])
 
-        requestAuthorizationTask?.cancel()
+        toggleTask?.cancel()
 
-        if value, !isSystemPermissionGranted {
-            pendingEnable = true
+        toggleTask = Task { @MainActor [weak self] in
+            guard let self else { return }
 
-            requestAuthorizationTask = Task { @MainActor [weak self] in
-                guard let self else { return }
+            if value, !isSystemPermissionGranted {
+                pendingEnable = true
                 await pushNotificationsPermission.requestAuthorizationAndRegister()
 
                 // If iOS prompt wasn't shown (already-denied), `isAuthorizedPublisher` may not emit.
@@ -198,15 +198,15 @@ private extension TransactionNotificationsRowToggleViewModel {
                     isAuthorized: isAuthorized,
                     source: .authorizationRequestFallback
                 )
+                return
             }
-            return
-        }
 
-        if !value, pendingEnable {
-            pendingEnable = false
-        }
+            if !value, pendingEnable {
+                pendingEnable = false
+            }
 
-        userTokensPushNotificationsManager.tryUpdateEnableState(value: value)
+            await updateEnableState(value)
+        }
     }
 
     func handlePendingEnableAuthorizationUpdate(
@@ -219,7 +219,7 @@ private extension TransactionNotificationsRowToggleViewModel {
 
         if isAuthorized {
             pendingEnable = false
-            userTokensPushNotificationsManager.tryUpdateEnableState(value: true)
+            tryEnablePending()
             return
         }
 
@@ -233,6 +233,25 @@ private extension TransactionNotificationsRowToggleViewModel {
             // and the `.isAuthorizedPublisher` branch above will execute the pending enable
             // automatically.
             showPushSettingsAlert?()
+        }
+    }
+
+    func tryEnablePending() {
+        toggleTask?.cancel()
+        toggleTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await updateEnableState(true)
+        }
+    }
+
+    /// On failure the `statusPublisher` subscription rolls the toggle back through `refreshUI()`.
+    func updateEnableState(_ value: Bool) async {
+        do {
+            try await userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: .transactionAlerts)
+        } catch is CancellationError {
+            return
+        } catch {
+            refreshUI()
         }
     }
 
