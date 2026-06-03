@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum RefreshScrollViewEvent {
+public enum RefreshScrollViewEvent: Equatable {
     case didScroll(offset: CGPoint)
     case didEndDragging(willDecelerate: Bool)
     case didEndDecelerating
