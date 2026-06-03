@@ -18,14 +18,16 @@ public extension View {
         imageAsset: ImageType,
         iconSize: CGSize = .init(bothDimensions: 14.0),
         borderWidth: Double = 2.0,
-        borderColor: Color = Colors.Background.primary
+        borderColor: Color = Colors.Background.primary,
+        isShimmerEnabled: Bool = true
     ) -> some View {
         return modifier(
             NetworkIconOverlayViewModifier(
                 imageAsset: imageAsset,
                 iconSize: iconSize,
                 borderWidth: borderWidth,
-                borderColor: borderColor
+                borderColor: borderColor,
+                isShimmerEnabled: isShimmerEnabled
             )
         )
     }
@@ -38,6 +40,7 @@ private struct NetworkIconOverlayViewModifier: ViewModifier {
     let iconSize: CGSize
     let borderWidth: Double
     let borderColor: Color
+    let isShimmerEnabled: Bool
 
     func body(content: Content) -> some View {
         content
@@ -48,7 +51,7 @@ private struct NetworkIconOverlayViewModifier: ViewModifier {
                     isMainIndicatorVisible: false,
                     size: iconSize
                 )
-                .shimmer()
+                .shimmer(isEnabled: isShimmerEnabled)
                 .background(
                     borderColor
                         .clipShape(Circle())
