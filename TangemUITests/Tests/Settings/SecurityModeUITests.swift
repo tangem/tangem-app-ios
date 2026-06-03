@@ -25,7 +25,7 @@ final class SecurityModeUITests: BaseTestCase {
     }
 
     func testSecurityMode_OtherCards_RowDisabled() {
-        setAllureId(2267)
+        setAllureId(9831)
         launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
