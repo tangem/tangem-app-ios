@@ -35,10 +35,8 @@ struct TangemPayMobileOnboardingView: View {
 
             Spacer()
 
-            VStack(spacing: 8) {
+            VStack(spacing: 16) {
                 getCardButton
-
-                termsFeesAndLimitsButton
 
                 OnboardingTermsOfServiceFooter(onTap: viewModel.onTosTap)
             }
@@ -110,12 +108,5 @@ struct TangemPayMobileOnboardingView: View {
             action: viewModel.getCard
         )
         .setIsLoading(to: viewModel.isCreating)
-    }
-
-    private var termsFeesAndLimitsButton: some View {
-        Button(action: viewModel.onTermsTap) {
-            Text(Localization.tangemPayTermsFeesLimits)
-                .style(Fonts.Bold.callout, color: Colors.Text.constantWhite)
-        }
     }
 }
