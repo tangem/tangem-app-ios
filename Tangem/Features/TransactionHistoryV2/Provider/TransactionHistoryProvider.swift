@@ -175,6 +175,7 @@ private extension TransactionHistoryProvider {
 // MARK: - Auxiliary types
 
 private extension TransactionHistoryProvider {
+    // [REDACTED_TODO_COMMENT]
     /// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instance inside
     /// the synchronous and implicitly isolated init of the `TransactionHistoryProvider` actor.
     /// Without it, we either would have to make that init async or silence the compiler warning
@@ -191,6 +192,7 @@ private extension TransactionHistoryProvider {
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     struct SyncMetadataStorageKey: RawRepresentable {
         let rawValue: String
 
