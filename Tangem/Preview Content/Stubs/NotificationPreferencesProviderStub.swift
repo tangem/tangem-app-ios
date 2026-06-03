@@ -40,7 +40,7 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         case .ready(let isEnabled):
             var updated = preferencesSubject.value
             updated.setEnabled(isEnabled, for: channel)
-            serverPreferences?[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: true)
+            setServerPreference(isEnabled, for: channel)
             preferencesSubject.send(updated)
         }
     }
@@ -63,6 +63,7 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         var optimistic = snapshot
         optimistic.setEnabled(isEnabled, for: channel)
         preferencesSubject.send(optimistic)
+        setServerPreference(isEnabled, for: channel)
 
         do {
             try await Task.sleep(for: Self.simulatedNetworkDelay)
@@ -100,6 +101,14 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
 // MARK: - Private Helpers
 
 private extension NotificationPreferencesProviderStub {
+    /// Seeds the in-memory "server" state on first write so optimistic updates aren't dropped
+    /// before the first `fetchPreferences`, and persists the channel value into it.
+    func setServerPreference(_ isEnabled: Bool, for channel: PushChannel) {
+        var preferences = serverPreferences ?? Self.makeRandomPreferences()
+        preferences[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: true)
+        serverPreferences = preferences
+    }
+
     static func makeRandomPreferences() -> RemotePushPreferences.Preferences {
         Dictionary(uniqueKeysWithValues: PushChannel.allCases.map { channel in
             (channel, PushChannelPreference(isEnabled: Bool.random(), isVisible: true))

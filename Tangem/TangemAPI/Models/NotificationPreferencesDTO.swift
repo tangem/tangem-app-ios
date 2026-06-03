@@ -23,20 +23,10 @@ enum NotificationPreferencesDTO {
     }
 
     enum Update {
-        struct Request: Codable, Equatable {
+        struct Request: Encodable, Equatable {
             let transactionAlerts: Bool
             let offersUpdates: Bool
             let priceAlerts: Bool
-        }
-    }
-}
-
-extension NotificationPreferencesDTO.Response.Body {
-    func preference(for channel: PushChannel) -> NotificationPreferencesDTO.Preference {
-        switch channel {
-        case .transactionAlerts: transactionAlerts
-        case .offersUpdates: offersUpdates
-        case .priceAlerts: priceAlerts
         }
     }
 }

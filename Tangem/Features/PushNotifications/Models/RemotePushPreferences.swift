@@ -82,3 +82,13 @@ extension NotificationPreferencesDTO.Update.Request {
         priceAlerts = preferences.preference(for: .priceAlerts).isEnabled
     }
 }
+
+private extension NotificationPreferencesDTO.Response.Body {
+    func preference(for channel: PushChannel) -> NotificationPreferencesDTO.Preference {
+        switch channel {
+        case .transactionAlerts: transactionAlerts
+        case .offersUpdates: offersUpdates
+        case .priceAlerts: priceAlerts
+        }
+    }
+}

@@ -187,17 +187,11 @@ extension CommonOnrampSummaryInteractor {
             let great = list.great() ?? list.best()
             let fastest = list.fastest()
             let successfullyLoadedProviders = list.successfullyLoadedProviders()
-            let nativeApplePay: OnrampProvider? = successfullyLoadedProviders
-                .filter { provider in
-                    provider.paymentMethod.type == .applePay
-                        && provider.quote?.nativePaymentAvailable == true
-                        && provider.quote?.quoteId != nil
-                }
-                .min()
+            let nativeApplePay = successfullyLoadedProviders.nativeApplePay()
 
             var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
-                nativeApplePay.map { .nativeApplePay($0) },
                 recent.map { .recent($0) },
+                nativeApplePay.map { .nativeApplePay($0) },
                 great.map { .great($0) },
                 fastest.map { .fastest($0) },
             ]
