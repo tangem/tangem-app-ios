@@ -16,13 +16,18 @@ protocol OnrampApplePayPresenting: AnyObject {
 
 final class OnrampApplePayPresenter: NSObject, OnrampApplePayPresenting, @unchecked Sendable {
     private weak var authorizationHandler: ApplePayButtonPaymentAuthorizationHandler?
+    private let analyticsLogger: any SendOnrampNAPAnalyticsLogger
 
     private var currentController: PKPaymentAuthorizationController?
     private var currentProvider: OnrampProvider?
     private var currentOnWillBuy: (() -> Void)?
 
-    init(authorizationHandler: ApplePayButtonPaymentAuthorizationHandler) {
+    init(
+        authorizationHandler: ApplePayButtonPaymentAuthorizationHandler,
+        analyticsLogger: any SendOnrampNAPAnalyticsLogger
+    ) {
         self.authorizationHandler = authorizationHandler
+        self.analyticsLogger = analyticsLogger
     }
 
     @MainActor
@@ -41,13 +46,16 @@ final class OnrampApplePayPresenter: NSObject, OnrampApplePayPresenting, @unchec
 
         authorizationHandler?.applePaySheetWillPresent()
         controller.present { [weak self] presented in
-            guard !presented else { return }
-            Task { @MainActor in
-                guard let self else { return }
-                ExpressLogger.warning(self, "PKPaymentAuthorizationController.present rejected; releasing session")
-                self.releaseSession()
-                self.authorizationHandler?.applePaySheetDidFinish()
+            guard presented else {
+                Task { @MainActor in
+                    guard let self else { return }
+                    ExpressLogger.warning(self, "PKPaymentAuthorizationController.present rejected; releasing session")
+                    self.releaseSession()
+                    self.authorizationHandler?.applePaySheetDidFinish()
+                }
+                return
             }
+            self?.analyticsLogger.logOnrampNAPScreenOpened()
         }
     }
 
