@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemFoundation
 import TangemNetworkUtils
 
 struct EthereumTarget: TargetType {
@@ -28,8 +29,7 @@ struct EthereumTarget: TargetType {
     }
 
     var task: Task {
-        EthereumTarget.id += 1
-        let request = JSONRPC.Request(id: EthereumTarget.id, method: rpcMethod, params: params)
+        let request = JSONRPC.Request(id: EthereumTarget.nextRequestID(), method: rpcMethod, params: params)
         return .requestJSONEncodable(request)
     }
 
@@ -51,7 +51,14 @@ struct EthereumTarget: TargetType {
 }
 
 private extension EthereumTarget {
-    static var id: Int = 0
+    static let requestIDCounter = OSAllocatedUnfairLock<Int>(initialState: 0)
+
+    static func nextRequestID() -> Int {
+        requestIDCounter { state in
+            state += 1
+            return state
+        }
+    }
 
     var rpcMethod: String {
         networkPrefix.makeRPC(method: targetType.rpcMethod)
@@ -79,6 +86,8 @@ private extension EthereumTarget {
             return AnyEncodable([AnyEncodable(5), AnyEncodable("latest"), AnyEncodable([25, 50, 75])])
         case .getTransactionByHash(let hash):
             return AnyEncodable([AnyEncodable(hash)])
+        case .getStorageAt(let address, let slot):
+            return AnyEncodable([AnyEncodable(address), AnyEncodable(slot), AnyEncodable("latest")])
         }
     }
 }
@@ -94,6 +103,7 @@ extension EthereumTarget {
         case call(params: CallParams)
         case priorityFee
         case getTransactionByHash(_ hash: String)
+        case getStorageAt(address: String, slot: String)
 
         /// https://www.quicknode.com/docs/ethereum/eth_feeHistory
         case feeHistory
@@ -120,6 +130,8 @@ extension EthereumTarget {
                 return "feeHistory"
             case .getTransactionByHash:
                 return "getTransactionByHash"
+            case .getStorageAt:
+                return "getStorageAt"
             }
         }
     }

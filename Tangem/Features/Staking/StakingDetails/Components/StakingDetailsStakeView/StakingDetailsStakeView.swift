@@ -55,8 +55,8 @@ struct StakingDetailsStakeView: View {
                     .renderingMode(.template)
                     .foregroundColor(colors.foreground)
             }
-        case .image(let url):
-            IconView(url: url, size: CGSize(width: 36, height: 36))
+        case .image(let data):
+            StakingTargetIconView(data: data, size: CGSize(width: 36, height: 36))
         }
     }
 
@@ -98,7 +98,7 @@ struct StakingDetailsStakeView: View {
                     [
                         StakingDetailsStakeViewData(
                             title: "InfStones",
-                            icon: .image(url: URL(string: "https://assets.stakek.it/validators/infstones.png")!),
+                            icon: .image(.url(URL(string: "https://assets.stakek.it/validators/infstones.png"))),
                             inProgress: true,
                             subtitleType: .active(type: "APR", rate: "3,5%"),
                             balance: .init(crypto: "543 USD", fiat: "5 SOL"),
@@ -106,7 +106,7 @@ struct StakingDetailsStakeView: View {
                         ),
                         StakingDetailsStakeViewData(
                             title: "Coinbase",
-                            icon: .image(url: URL(string: "https://assets.stakek.it/validators/coinbase.png")!),
+                            icon: .image(.url(URL(string: "https://assets.stakek.it/validators/coinbase.png"))),
                             inProgress: true,
                             subtitleType: .active(type: "APR", rate: "3,5%"),
                             balance: .init(crypto: "543 USD", fiat: "5 SOL"),
@@ -114,7 +114,7 @@ struct StakingDetailsStakeView: View {
                         ),
                         StakingDetailsStakeViewData(
                             title: "Binance",
-                            icon: .image(url: URL(string: "https://assets.stakek.it/validators/infstones.png")!),
+                            icon: .image(.url(URL(string: "https://assets.stakek.it/validators/infstones.png"))),
                             inProgress: false,
                             subtitleType: .active(type: "APR", rate: "3,5%"),
                             balance: .init(crypto: "543 USD", fiat: "5 SOL"),
