@@ -68,6 +68,31 @@ extension CommonOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     }
 }
 
+// MARK: - SendOnrampNAPAnalyticsLogger
+
+extension CommonOnrampSendAnalyticsLogger: SendOnrampNAPAnalyticsLogger {
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String) {
+        Analytics.log(event: .onrampButtonNAP, params: napParams(amount: amount, currencyCode: currencyCode))
+    }
+
+    func logOnrampNAPScreenOpened() {
+        Analytics.log(.onrampNAPScreenOpened)
+    }
+
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {
+        Analytics.log(event: .onrampVerifyScreenOpened, params: napParams(amount: amount, currencyCode: currencyCode))
+    }
+
+    private func napParams(amount: Decimal, currencyCode: String) -> [Analytics.ParameterKey: String] {
+        [
+            .amount: NSDecimalNumber(decimal: amount).stringValue,
+            .currency: currencyCode,
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+        ]
+    }
+}
+
 // MARK: - SendBaseViewAnalyticsLogger
 
 extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
