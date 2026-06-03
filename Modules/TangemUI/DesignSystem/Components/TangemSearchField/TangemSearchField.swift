@@ -36,8 +36,8 @@ public struct TangemSearchField: View, Setupable {
     @ScaledMetric private var fieldCornerRadius: CGFloat = .unit(.x4)
     @ScaledMetric private var fieldSearchSpacing: CGFloat = .unit(.x1)
     @ScaledMetric private var fieldClearSpacing: CGFloat = .unit(.x1)
-    @ScaledSize private var searchIconSize: CGSize = .init(bothDimensions: .unit(.x5))
-    @ScaledSize private var clearIconSize: CGSize = .init(bothDimensions: .unit(.x6))
+    @ScaledMetric private var searchIconSide: CGFloat = .unit(.x5)
+    @ScaledMetric private var clearIconSide: CGFloat = .unit(.x6)
 
     // MARK: - Configuration
 
@@ -135,7 +135,7 @@ private extension TangemSearchField {
             .resizable()
             .scaledToFit()
             .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
-            .frame(size: searchIconSize)
+            .frame(width: searchIconSide, height: searchIconSide)
     }
 
     var textInput: some View {
@@ -157,7 +157,7 @@ private extension TangemSearchField {
             .resizable()
             .scaledToFit()
             .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
-            .frame(size: clearIconSize)
+            .frame(width: clearIconSide, height: clearIconSide)
             .contentShape(.rect)
             .onTapGesture(perform: onClear)
             .accessibilityAddTraits(clearAction != nil ? .isButton : [])
