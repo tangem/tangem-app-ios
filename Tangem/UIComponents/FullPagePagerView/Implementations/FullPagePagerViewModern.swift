@@ -88,9 +88,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
             bodyOffsetView(pageWidth: pageWidth)
                 .frame(minHeight: max(viewportHeight, visibleBodyHeight))
         }
-        .onGeometryChange(for: CGFloat.self) { proxy in
-            proxy.size.width
-        } action: { newWidth in
+        .onGeometryChange(for: CGFloat.self, of: \.size.width) { newWidth in
             pageWidth = newWidth
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
