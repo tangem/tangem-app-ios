@@ -74,18 +74,18 @@ public extension AsyncStream {
         onSubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: ID, _ continuation: Continuation) -> Void,
         onUnsubscribe: @escaping @Sendable (_ holder: isolated Holder, _ id: ID) -> Void
     ) -> AsyncStream<Element> {
-        AsyncStream(bufferingPolicy: bufferingPolicy) { [weak holder] continuation in
-            continuation.onTermination = { @Sendable _ in
-                guard let holder else {
-                    return
-                }
-
+        AsyncStream(bufferingPolicy: bufferingPolicy) { continuation in
+            continuation.onTermination = { @Sendable [weak holder] _ in
                 Task {
+                    guard let holder else {
+                        return
+                    }
+
                     await onUnsubscribe(holder, id)
                 }
             }
 
-            Task {
+            Task { [weak holder] in
                 guard let holder else {
                     continuation.finish()
                     return
