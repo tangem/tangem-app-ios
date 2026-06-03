@@ -11,6 +11,7 @@ import TangemMobileWalletSdk
 enum MobileOnboardingFlow {
     case walletImport(source: MobileOnboardingFlowSource)
     case walletActivate(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
+    case tangemPayActivate(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
     case accessCode(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, context: MobileWalletContext)
     case seedPhraseBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
     case seedPhraseReveal(context: MobileWalletContext)
