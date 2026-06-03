@@ -182,7 +182,7 @@ private extension TransactionHistoryProvider {
     /// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
     final class SyncMetadataStorage {
         @AppStorageCompat<SyncMetadataStorageKey, Bool>
-        private(set) var hasCompletedInitialSync: Bool
+        var hasCompletedInitialSync: Bool
 
         init(
             userWalletId: UserWalletId,
