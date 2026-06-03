@@ -62,6 +62,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyTradeActionButtonsHidden() -> Self {
+        XCTContext.runActivity(named: "Verify Buy/Sell/Swap action buttons are hidden") { _ in
+            waitAndAssertTrue(detailsButton, "Main screen should be loaded")
+            XCTAssertFalse(buyActionButton.waitForExistence(timeout: .conditional), "Buy button should be hidden for S2C cards")
+            XCTAssertFalse(swapActionButton.exists, "Swap button should be hidden for S2C cards")
+            XCTAssertFalse(sellActionButton.exists, "Sell button should be hidden for S2C cards")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapSendButton() -> SendScreen {
         XCTContext.runActivity(named: "Tap Send action button on main screen") { _ in
             waitAndAssertTrue(actionButtonsList, "Action buttons list should exist")
