@@ -12,8 +12,8 @@ import TangemUIUtils
 import TangemFoundation
 import TangemLogger
 
-public class RefreshScrollViewStateObject: ObservableObject {
-    @Published var refreshControlStateObject: CustomRefreshControlStateObject
+public final class RefreshScrollViewStateObject: ObservableObject {
+    let refreshControlStateObject: CustomRefreshControlStateObject
     @Published var refreshingPadding: CGFloat = .zero
 
     var contentOffset: CGPoint = .zero {
@@ -26,9 +26,7 @@ public class RefreshScrollViewStateObject: ObservableObject {
         stateSubject.eraseToAnyPublisher()
     }
 
-    public var scrollViewInteractor: RefreshScrollViewInteractor {
-        _scrollViewInteractor
-    }
+    public private(set) var scrollViewInteractor = RefreshScrollViewInteractor()
 
     var draggingStartFromTop: Bool {
         guard let dragging = scrollViewDelegate.dragging else {
@@ -40,14 +38,12 @@ public class RefreshScrollViewStateObject: ObservableObject {
         return (0 ... settings.refreshAreaHeight).contains(-dragging.startOffset.y.rounded())
     }
 
-    lazy var scrollViewDelegate = RefreshScrollViewDelegate(
-        interactor: _scrollViewInteractor,
+    private(set) lazy var scrollViewDelegate = RefreshScrollViewDelegate(
+        interactor: scrollViewInteractor,
         willEndDraggingAt: { [weak self] targetOffset in
             self?.targetContentOffset(draggingWillEndAt: targetOffset)
         }
     )
-
-    private let _scrollViewInteractor = RefreshScrollViewInteractor()
 
     private let settings: Settings
     private let refreshable: () async -> Void
