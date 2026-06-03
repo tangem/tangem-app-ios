@@ -16,6 +16,8 @@ import Testing
 final class OnrampOfferViewModelBuyActionBuilderTests {
     /// Stored to keep the `weak var amountInput` reference inside the builder alive for the duration of each test.
     private let amountInput = StubOnrampAmountInput(fiatCurrency: .makeUSD())
+    private let presenter = SpyOnrampApplePayPresenter()
+    private let analyticsLogger = NoOpOnrampSendAnalyticsLogger()
 
     // MARK: - Widget (button) path
 
@@ -104,8 +106,10 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
         let nilCurrencyInput = StubOnrampAmountInput(fiatCurrency: nil)
         let builder = OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: true),
+            tokenItem: Self.testTokenItem,
             amountInput: nilCurrencyInput,
-            authorizationHandler: nil
+            applePayPresenter: presenter,
+            analyticsLogger: analyticsLogger
         )
 
         let action = builder.make(
@@ -142,7 +146,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
 
     // MARK: - Native Apple Pay path
 
-    @Test("Returns .nativeApplePay with a configured PKPaymentRequest when all conditions are met")
+    @Test("Returns .nativeApplePay when all conditions are met")
     func nativeApplePayReturnedWhenAllConditionsMet() {
         let builder = makeBuilder()
 
@@ -152,42 +156,14 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             onWidgetBuy: {}
         )
 
-        guard case .nativeApplePay(let request, _) = action else {
-            Issue.record("Expected .nativeApplePay, got \(action)")
-            return
-        }
-
-        #expect(request.merchantIdentifier == OnrampApplePayConstants.merchantIdentifier)
-        #expect(request.currencyCode == "USD")
-        #expect(request.countryCode == (Locale.current.region?.identifier ?? "US"))
+        #expect(action.isNativeApplePay)
     }
 
-    @Test("Phase .willAuthorize triggers onWillBuy")
-    func willAuthorizeFiresOnWillBuy() {
-        let builder = makeBuilder()
-
-        var willBuyCalled = false
-        let action = builder.make(
-            provider: OnrampTestFixtures.makeProvider(),
-            onWillBuy: { willBuyCalled = true },
-            onWidgetBuy: {}
-        )
-
-        guard case .nativeApplePay(_, let onPhaseChange) = action else {
-            Issue.record("Expected .nativeApplePay")
-            return
-        }
-
-        onPhaseChange(.willAuthorize)
-
-        #expect(willBuyCalled)
-    }
-
-    @Test("Phase .didAuthorize forwards a bundled ApplePayAuthorizationResult to the handler")
-    func didAuthorizeForwardsToHandler() {
-        let handler = SpyApplePayButtonPaymentAuthorizationHandler()
+    @Test("Tapping .nativeApplePay forwards a configured request + provider + onWillBuy to the presenter")
+    @MainActor
+    func nativeApplePayTapForwardsToPresenter() {
         let provider = OnrampTestFixtures.makeProvider()
-        let builder = makeBuilder(authorizationHandler: handler)
+        let builder = makeBuilder()
 
         var willBuyCalled = false
         let action = builder.make(
@@ -196,68 +172,54 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             onWidgetBuy: {}
         )
 
-        guard case .nativeApplePay(_, let onPhaseChange) = action else {
-            Issue.record("Expected .nativeApplePay")
+        guard case .nativeApplePay(let onTap) = action else {
+            Issue.record("Expected .nativeApplePay, got \(action)")
             return
         }
 
-        var resultHandlerInvocations = 0
-        onPhaseChange(.didAuthorize(payment: StubPKPayment(), resultHandler: { _ in resultHandlerInvocations += 1 }))
+        onTap()
 
-        #expect(!willBuyCalled)
-        #expect(handler.callCount == 1)
-        #expect(handler.lastResult?.provider === provider)
+        #expect(presenter.presentCallCount == 1)
+        #expect(presenter.lastRequest?.currencyCode == "USD")
+        #expect(presenter.lastRequest?.countryCode == "US")
+        #expect(presenter.lastProvider === provider)
 
-        handler.lastResult?.succeed()
-        #expect(resultHandlerInvocations == 1)
-    }
-
-    @Test("Phase .didAuthorize fails the authorization when the handler is nil")
-    func didAuthorizeFailsWhenHandlerNil() {
-        let builder = makeBuilder(authorizationHandler: nil)
-
-        let action = builder.make(
-            provider: OnrampTestFixtures.makeProvider(),
-            onWillBuy: {},
-            onWidgetBuy: {}
-        )
-
-        guard case .nativeApplePay(_, let onPhaseChange) = action else {
-            Issue.record("Expected .nativeApplePay")
-            return
-        }
-
-        var capturedStatus: PKPaymentAuthorizationStatus?
-        onPhaseChange(.didAuthorize(payment: StubPKPayment(), resultHandler: { result in
-            capturedStatus = result.status
-        }))
-
-        #expect(capturedStatus == .failure)
+        presenter.lastOnWillBuy?()
+        #expect(willBuyCalled)
     }
 
     // MARK: - Helpers
 
     private func makeBuilder(
-        authorizationHandler: ApplePayButtonPaymentAuthorizationHandler? = nil,
-        isApplePayAllowed: Bool = true
+        isApplePayAllowed: Bool = true,
+        countryCode: String = "US"
     ) -> OnrampOfferViewModelBuyActionBuilder {
         OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: isApplePayAllowed),
+            tokenItem: Self.testTokenItem,
             amountInput: amountInput,
-            authorizationHandler: authorizationHandler
+            applePayPresenter: presenter,
+            analyticsLogger: analyticsLogger,
+            countryCode: countryCode
         )
     }
+
+    fileprivate static let testTokenItem: TokenItem = .blockchain(.init(.ethereum(testnet: false), derivationPath: nil))
 }
 
 // MARK: - Spies / Stubs
 
-private final class SpyApplePayButtonPaymentAuthorizationHandler: ApplePayButtonPaymentAuthorizationHandler {
-    private(set) var lastResult: ApplePayAuthorizationResult?
-    private(set) var callCount: Int = 0
+private final class SpyOnrampApplePayPresenter: OnrampApplePayPresenting {
+    private(set) var presentCallCount = 0
+    private(set) var lastRequest: PKPaymentRequest?
+    private(set) var lastProvider: OnrampProvider?
+    private(set) var lastOnWillBuy: (() -> Void)?
 
-    func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult) {
-        lastResult = result
-        callCount += 1
+    func present(request: PKPaymentRequest, provider: OnrampProvider, onWillBuy: @escaping () -> Void) {
+        presentCallCount += 1
+        lastRequest = request
+        lastProvider = provider
+        lastOnWillBuy = onWillBuy
     }
 }
 
@@ -280,13 +242,33 @@ private struct StubGeoEligibilityService: GeoEligibilityService {
     func waitForGeoIpRegionIfNeeded() async {}
 }
 
-private final class StubPKPaymentToken: PKPaymentToken {
-    override var paymentData: Data { Data() }
-}
+private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
+    func logSendBaseViewOpened() {}
+    func logRequestSupport() {}
+    func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {}
+    func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {}
 
-private final class StubPKPayment: PKPayment {
-    override var token: PKPaymentToken { StubPKPaymentToken() }
-    override var billingContact: PKContact? { nil }
+    func logOnrampOfferButtonBuy(provider: OnrampProvider) {}
+    func logOnrampRecentlyUsedClicked(provider: OnrampProvider) {}
+    func logOnrampFastestMethodClicked(provider: OnrampProvider) {}
+    func logOnrampBestRateClicked(provider: OnrampProvider) {}
+    func logOnrampButtonAllOffers() {}
+
+    func logOnrampProvidersScreenOpened() {}
+    func logOnrampProviderChosen(provider: ExpressProvider) {}
+
+    func logOnrampPaymentMethodScreenOpened() {}
+    func logOnrampPaymentMethodChosen(paymentMethod: OnrampPaymentMethod) {}
+
+    func logFinishStepOpened() {}
+    func logShareButton() {}
+    func logExploreButton() {}
+
+    func setup(onrampProvidersInput: OnrampProvidersInput) {}
+    func logOnrampSelectedProvider(provider: OnrampProvider) {}
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String) {}
+    func logOnrampNAPScreenOpened() {}
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {}
 }
 
 private extension OnrampFiatCurrency {
