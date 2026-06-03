@@ -138,7 +138,8 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    await walletModels[index].update(silent: silent, features: .balances)
+                    // [REDACTED_TODO_COMMENT]
+                    await walletModels[index].update(silent: silent, features: FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances)
                 }
             }
             await group.waitForAll()
