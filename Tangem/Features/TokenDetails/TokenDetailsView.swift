@@ -27,7 +27,9 @@ struct TokenDetailsView: View {
         // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
-                TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+                if !viewModel.isRedesign {
+                    TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+                }
 
                 if viewModel.isRedesign {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
