@@ -9,17 +9,17 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct MarketTokenRowView: View {
     @ObservedObject var viewModel: MarketTokenItemViewModel
 
-    @ScaledSize private var iconSize: CGSize = .init(bothDimensions: 40)
-    @ScaledSize private var chartSize: CGSize = .init(width: 56, height: 24)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+    @ScaledMetric private var iconSide: CGFloat = 40
     @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x4.value
     @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
     @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x2.value
-    @ScaledSize private var oliveSize: CGSize = .init(width: 12, height: 16)
 
     var body: some View {
         Button(action: { viewModel.didTapAction?() }) {
@@ -47,7 +47,7 @@ struct MarketTokenRowView: View {
     // MARK: - Subviews
 
     private var iconView: some View {
-        IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
+        IconView(url: viewModel.imageURL, size: CGSize(width: iconSide, height: iconSide), forceKingfisher: true)
             // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
             // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
             .padding(.trailing, SizeUnit.x1.value)
@@ -162,6 +162,14 @@ struct MarketTokenRowView: View {
         case 3: (oliveColor: .Tangem.Market.iconTop3, textColor: .Tangem.Market.textTop3)
         default: (oliveColor: .Tangem.Graphic.Neutral.secondary, textColor: .Tangem.Text.Neutral.secondary)
         }
+    }
+
+    private var oliveSize: CGSize {
+        CGSize(width: 12, height: 16) * scaleFactor
+    }
+
+    private var chartSize: CGSize {
+        CGSize(width: 56, height: 24) * scaleFactor
     }
 }
 

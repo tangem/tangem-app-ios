@@ -12,7 +12,7 @@ import TangemFoundation
 
 /// `ExpressAPIProvider` factory that caches one instance per `(userWalletId, refcode)` pair, creating
 /// each lazily on first request to avoid re-building on every polling cycle.
-/// - Note: No mutable state, so this type is considered to be `Sendable` by definition.
+/// - Note: Uses an internal lock to guard the mutable cache; therefore `@unchecked Sendable` is intentional.
 final class CachingExpressAPIProviderFactory: @unchecked Sendable {
     typealias Factory = (_ userWalletId: String, _ refcode: Refcode?) -> ExpressAPIProvider
 
