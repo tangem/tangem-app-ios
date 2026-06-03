@@ -34,13 +34,17 @@ public enum XPUBUtils {
         return try extendedKey.serialize(for: isTestnet ? .testnet : .mainnet)
     }
 
-    public static func prefix(blockchain: Blockchain) throws -> Prefix {
+    public static func scriptTypes(blockchain: Blockchain, xpub: String) throws -> [UTXOXpubScriptType] {
         switch blockchain {
-        // `bitcoin` and `litecoin` uses WPKH as default address key.
+        // `bitcoin` and `litecoin` use P2WPKH as default and P2PKH as legacy
+        // (see `AddressTypesConfig` — both blockchains have `.legacy`).
         case .bitcoin, .litecoin:
-            return .wpkh
+            return [.p2wpkh(xpub: xpub), .p2pkh(xpub: xpub)]
+        // All other UTXO chains use a single P2PKH descriptor.
+        // Legacy and default address types collapse to the same `pkh(...)` format,
+        // so duplicating them would yield identical descriptor strings.
         case let blockchain where blockchain.isUTXO:
-            return .pkh
+            return [.p2pkh(xpub: xpub)]
         default:
             throw Error.xpubNotSupported
         }
@@ -69,18 +73,6 @@ public enum XPUBUtils {
 // MARK: - Types
 
 extension XPUBUtils {
-    public enum Prefix {
-        case pkh
-        case wpkh
-
-        func wrap(xpub: String) -> String {
-            switch self {
-            case .pkh: "pkh(\(xpub))"
-            case .wpkh: "wpkh(\(xpub))"
-            }
-        }
-    }
-
     enum Error: LocalizedError {
         case wrongDerivationPath
         case failedToGenerateXPUB
