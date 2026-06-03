@@ -31,7 +31,7 @@ struct MarketsPortfolioTokenListView: View {
     @ScaledMetric private var accountHeaderLeadingPadding: CGFloat = .unit(.x1)
     @ScaledMetric private var tokenRowsSpacing: CGFloat = .unit(.x6)
     @ScaledMetric private var promoFadeHeight: CGFloat = 60
-    @ScaledSize private var thumbnailSize: CGSize = .init(bothDimensions: .unit(.x5))
+    @ScaledMetric private var thumbnailSide = CGFloat.unit(.x5)
 
     var body: some View {
         ZStack {
@@ -150,7 +150,7 @@ private extension MarketsPortfolioTokenListView {
 
             thumbnail.map {
                 MiniatureWalletView(type: $0)
-                    .frame(size: thumbnailSize)
+                    .frame(width: thumbnailSide, height: thumbnailSide)
             }
         }
     }
