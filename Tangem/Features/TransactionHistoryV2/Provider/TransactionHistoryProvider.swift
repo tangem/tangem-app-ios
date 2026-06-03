@@ -14,6 +14,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
     private let repository: TransactionHistoryRepository
+    private let tokenItem: TokenItem
 
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
     private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
@@ -29,9 +30,11 @@ final actor TransactionHistoryProvider {
     init(
         repository: TransactionHistoryRepository,
         userWalletId: UserWalletId,
+        tokenItem: TokenItem,
         address: String
     ) {
         self.repository = repository
+        self.tokenItem = tokenItem
         _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
     }
 
@@ -193,7 +196,14 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
 extension TransactionHistoryProvider: CustomStringConvertible {
     nonisolated var description: String {
-        objectDescription(self)
+        objectDescription(
+            self,
+            userInfo: [
+                "name": tokenItem.name,
+                "type": tokenItem.isToken ? "Token" : "Coin",
+                "derivation": tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
+            ]
+        )
     }
 }
 
