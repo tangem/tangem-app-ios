@@ -1358,6 +1358,8 @@
 "story_web3_title" = "Web 3.0 Compatible";
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
+"support_selector_view_chat_button" = "Open mail";
+"support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Fixed Rate";
@@ -1445,6 +1447,7 @@
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Other";
 "tangem_pay_pin_code_title" = "PIN-code";
+"tangem_pay_purchase" = "Purchase";
 "tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "Completed";
 "tangem_pay_status_declined" = "Declined";
@@ -1453,6 +1456,8 @@
 "tangem_pay_terms_fees_limits" = "Terms, Fees & Limits";
 "tangem_pay_terms_limits" = "Terms and fees";
 "tangem_pay_transaction_declined_notification_text" = "The bank rejected this transaction request.";
+"tangem_pay_transaction_details_category" = "Category";
+"tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "A fee is charged in accordance with the service tariffs";
 "tangem_pay_transaction_reversed_notification_text" = "The transaction was partially or fully reversed by the merchant";
 "tangem_pay_unfreeze_card_alert_body" = "Keep using your money. You can freeze anytime.";
@@ -1617,6 +1622,8 @@
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
 "tangempay_set_pin_code" = "Set \nPIN code";
+"tangempay_set_pin_header" = "Set up new PIN";
+"tangempay_set_pin_title" = "Set PIN";
 "tangempay_status_deactivated" = "Account closed";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Use your card or ring to renew session";
@@ -1630,7 +1637,7 @@
 "tangempay_topup_receive_body" = "Send USDC Polygon to your account’s address ";
 "tangempay_topup_receive_title" = "From another wallet or exchange";
 "tangempay_topup_swap_body" = "Use crypto from your wallet to top up your payment account";
-"tangempay_topup_swap_title" = "Swap from Tangem Wallet";
+"tangempay_topup_swap_title" = "From your Tangem Wallet";
 "tangempay_usdc_on_polygon_network" = "USDC on Polygon network";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Click the button below to restore access";
 "tangempay_withdrawal_note_description" = "Funds from refunded purchases won’t be returned your on-chain Polygon balance or be available for withdrawal, but will stay on your card balance for purchases";
@@ -2118,7 +2125,8 @@
 "yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
 "yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
 "yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
-"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
+"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost";
+"yield_apy_boost_promo_terms_and_conditions" = "Terms and Conditions apply";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";

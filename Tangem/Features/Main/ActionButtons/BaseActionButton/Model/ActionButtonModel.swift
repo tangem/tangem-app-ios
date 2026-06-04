@@ -34,7 +34,7 @@ enum ActionButtonModel: Hashable {
         case .buy:
             return isAddFundsStage1Enabled ? Assets.arrowDownMini : Assets.plusMini
         case .swap:
-            return isAddFundsStage1Enabled ? Assets.refreshWarningIcon : Assets.exchangeMini
+            return isAddFundsStage1Enabled ? Assets.addfundsSwap : Assets.exchangeMini
         case .sell:
             return isAddFundsStage1Enabled ? Assets.arrowUpMini : Assets.dollarMini
         }

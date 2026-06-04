@@ -29,7 +29,7 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         preferencesSubject.value
     }
 
-    init() {}
+    nonisolated init() {}
 
     func updateRemoteEnabled(_ state: PushRemoteValueState<Bool>, for channel: PushChannel) {
         switch state {
@@ -67,31 +67,8 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
 
         do {
             try await Task.sleep(for: Self.simulatedNetworkDelay)
-            serverPreferences?[channel] = PushChannelPreference(isEnabled: isEnabled, isVisible: true)
         } catch {
             // Rollback on cancellation
-            preferencesSubject.send(snapshot)
-            throw error
-        }
-    }
-
-    func enableAll() async throws {
-        let snapshot = preferencesSubject.value
-
-        var optimistic = snapshot
-        for channel in PushChannel.allCases {
-            optimistic.setEnabled(true, for: channel)
-        }
-        preferencesSubject.send(optimistic)
-
-        do {
-            try await Task.sleep(for: Self.simulatedNetworkDelay)
-
-            for channel in PushChannel.allCases {
-                let current = serverPreferences?[channel] ?? PushChannelPreference(isEnabled: false, isVisible: true)
-                serverPreferences?[channel] = PushChannelPreference(isEnabled: true, isVisible: current.isVisible)
-            }
-        } catch {
             preferencesSubject.send(snapshot)
             throw error
         }

@@ -8,13 +8,22 @@
 
 import Foundation
 
+/// Serializes notification-preference state for one wallet.
+///
+/// The screen drives this as a single-flight writer: a channel toggle is disabled while its PUT
+/// is in flight, so at most one write runs at a time. The store also enforces that defensively —
+/// `beginUpdate` refuses while a write is in flight — which is what keeps the coordination this
+/// small: with no overlapping writes there is no out-of-order completion to disambiguate, so no
+/// per-operation tokens are needed.
+///
+/// `preferences` is the optimistic value the UI observes; `lastConfirmedPreferences` is the last
+/// server-confirmed snapshot, used as the rollback baseline.
 actor NotificationPreferencesStateStore {
     private(set) var preferences: RemotePushPreferences = .loading
     private var lastConfirmedPreferences: RemotePushPreferences = .loading
 
-    private var inFlightUpdateCount: Int = 0
-    private var latestFetchToken: Int = 0
-    private var latestUpdateToken: Int = 0
+    private var isWriteInFlight = false
+    private var pendingFetchReconciliation = false
 
     func updateRemoteEnabled(
         _ state: PushRemoteValueState<Bool>,
@@ -34,37 +43,25 @@ actor NotificationPreferencesStateStore {
         return preferences
     }
 
-    func beginFetch() -> Int {
-        latestFetchToken += 1
-        return latestFetchToken
-    }
-
     func applyFetchResponse(
-        _ response: NotificationPreferencesDTO.Response.Body,
-        for token: Int
+        _ response: NotificationPreferencesDTO.Response.Body
     ) -> RemotePushPreferences? {
-        guard token == latestFetchToken else {
-            return nil
-        }
-
-        // An optimistic write that hasn't reached the backend yet would be lost if we
-        // applied this (now stale) server snapshot. Skip; the in-flight write will
-        // update `lastConfirmedPreferences` itself, and a subsequent fetch will reconcile.
-        guard inFlightUpdateCount == 0 else {
+        // Applying a server snapshot now would clobber an optimistic write that hasn't reached
+        // the backend yet. Skip it, but remember we owe a reconciliation fetch once the write
+        // settles — otherwise this snapshot is lost until the next external fetch.
+        guard !isWriteInFlight else {
+            pendingFetchReconciliation = true
             return nil
         }
 
         let newPreferences = RemotePushPreferences(response: response)
         preferences = newPreferences
         lastConfirmedPreferences = newPreferences
+        pendingFetchReconciliation = false
         return newPreferences
     }
 
-    func applyFetchFailure(for token: Int) -> RemotePushPreferences? {
-        guard token == latestFetchToken else {
-            return nil
-        }
-
+    func applyFetchFailure() -> RemotePushPreferences? {
         guard case .loading = preferences.state else {
             return nil
         }
@@ -74,42 +71,47 @@ actor NotificationPreferencesStateStore {
         return failed
     }
 
-    func beginUpdate(channel: PushChannel, isEnabled: Bool) -> UpdateContext {
+    /// Returns `true` once a fetch that was dropped during a write can be safely retried — i.e.
+    /// the write has settled. The caller is then expected to re-fetch.
+    func consumePendingFetchReconciliation() -> Bool {
+        guard pendingFetchReconciliation, !isWriteInFlight else {
+            return false
+        }
+
+        pendingFetchReconciliation = false
+        return true
+    }
+
+    func beginUpdate(channel: PushChannel, isEnabled: Bool) -> UpdateContext? {
+        // A full-replace PUT derives all three channel values from `preferences`, so we need a
+        // genuine server-confirmed baseline to merge into. Checking `preferences.state` alone is
+        // not enough: `updateRemoteEnabled` can flip `preferences` to `.ready` built from
+        // all-`false` defaults before the first fetch, and the PUT would then push the untouched
+        // channels as `false` and overwrite the user's real settings. `lastConfirmedPreferences`
+        // is only set by a successful fetch or write, so require it to be `.ready` too. We also
+        // keep at most one write in flight; a toggle arriving mid-write is refused.
+        guard case .ready = preferences.state,
+              case .ready = lastConfirmedPreferences.state,
+              !isWriteInFlight else {
+            return nil
+        }
+
+        isWriteInFlight = true
+
         var optimisticPreferences = preferences
         optimisticPreferences.setEnabled(isEnabled, for: channel)
-        return beginUpdate(optimisticPreferences: optimisticPreferences)
-    }
 
-    func beginEnableAllUpdate() -> UpdateContext {
-        var optimisticPreferences = preferences
-        PushChannel.allCases.forEach { optimisticPreferences.setEnabled(true, for: $0) }
-        return beginUpdate(optimisticPreferences: optimisticPreferences)
-    }
-
-    private func beginUpdate(optimisticPreferences: RemotePushPreferences) -> UpdateContext {
-        latestUpdateToken += 1
-        inFlightUpdateCount += 1
-
-        // Always revert to a server-confirmed snapshot, never to whatever happens to be in
-        // `preferences` right now — that value can already be optimistic from an
-        // earlier rapid toggle whose PUT is still in flight.
         let rollbackPreferences = lastConfirmedPreferences
-
         preferences = optimisticPreferences
 
         return .init(
-            token: latestUpdateToken,
             optimisticPreferences: optimisticPreferences,
             rollbackPreferences: rollbackPreferences
         )
     }
 
-    func finishUpdate(token: Int, completion: UpdateCompletion) -> RemotePushPreferences? {
-        inFlightUpdateCount = max(0, inFlightUpdateCount - 1)
-
-        guard token == latestUpdateToken else {
-            return nil
-        }
+    func finishUpdate(completion: UpdateCompletion) -> RemotePushPreferences? {
+        isWriteInFlight = false
 
         switch completion {
         case .success(let optimisticPreferences):
@@ -119,15 +121,12 @@ actor NotificationPreferencesStateStore {
         case .failure(let rollbackPreferences):
             preferences = rollbackPreferences
             return rollbackPreferences
-        case .cancelled:
-            return nil
         }
     }
 }
 
 extension NotificationPreferencesStateStore {
     struct UpdateContext {
-        let token: Int
         let optimisticPreferences: RemotePushPreferences
         let rollbackPreferences: RemotePushPreferences
     }
@@ -135,6 +134,5 @@ extension NotificationPreferencesStateStore {
     enum UpdateCompletion {
         case success(RemotePushPreferences)
         case failure(RemotePushPreferences)
-        case cancelled
     }
 }
