@@ -358,6 +358,10 @@ extension Analytics {
         case swapTypeReselection = "[Swap] Swap type re-selection"
         case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
 
+        case swapTransferModeSwitched = "[Swap] Transfer Mode Switched"
+        case swapButtonTransfer = "[Swap] Button - Transfer"
+        case swapTransferInProgressScreenOpened = "[Swap] Transfer in Progress Screen Opened"
+
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
