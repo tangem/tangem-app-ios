@@ -79,6 +79,27 @@
 "addfunds_receive_row_description" = "Share your address or QR-code";
 "addfunds_swap_row_description" = "Between your portfolios";
 "addfunds_you_receive_title" = "You receive";
+"address_book_add_address_description" = "Add address and select network";
+"address_book_add_address" = "Add address";
+"address_book_add_contact" = "Add contact";
+"address_book_contact_name" = "Contact name";
+"address_book_copy_address" = "Copy address";
+"address_book_creating_error" = "We couldn’t create contact. Please try again later.";
+"address_book_delete_contact_description" = "This contact will be deleted from all your address book";
+"address_book_deleting_error" = "We couldn’t delete contact. Please try again later.";
+"address_book_discard" = "Discard";
+"address_book_edit_address" = "Edit address";
+"address_book_enter_address" = "Enter address";
+"address_book_keep_editing" = "Keep editing";
+"address_book_new_contact" = "New contact";
+"address_book_no_contacts_description" = "Contacts you add will appear here";
+"address_book_no_contacts" = "No contacts yet";
+"address_book_remove_address" = "Remove address";
+"address_book_save_wallet_to_description" = "This contact will be linked to this wallet’s address book.";
+"address_book_select_network" = "Select network";
+"address_book_title" = "Address book";
+"address_book_unsaved_changes_description" = "Are you sure you want to discard edits?";
+"address_book_unsaved_changes" = "Unsaved Changes";
 "address_qr_code_message_format" = "Надсилайте тільки %1$@ (%2$@) в мережі %3$@ на цю адресу. Використання іншої мережі може призвести до втрати коштів.";
 "address_type_default" = "За замовчуванням";
 "address_type_legacy" = "Застарілий";
@@ -266,6 +287,7 @@
 "common_more" = "More";
 "common_network_fee_title" = "Комісія мережі";
 "common_network_fee_warning_content" = "Сума відправлення буде зменшена на %1$@ (%2$@) для покриття обраного рівня комісії";
+"common_network" = "Network";
 "common_news" = "Новини";
 "common_next" = "Далі";
 "common_nft" = "NFT";
@@ -349,6 +371,7 @@
 "common_unreachable" = "Недоступно";
 "common_unstake" = "Скасувати стейкінг";
 "common_value_copied" = "Скопійовано";
+"common_view_all" = "View all";
 "common_voting" = "Voting";
 "common_wallets" = "Гаманці";
 "common_warning" = "Увага";
@@ -951,7 +974,7 @@
 "onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
 "onramp_kyc_verification_choose_another" = "Виберіть інший метод";
 "onramp_kyc_verification_subtitle" = "Згідно з вимогами законодавства, %@ вимагає пройти верифікацію особи.";
-"onramp_kyc_verification_title" = "Identity verification required by payment provider";
+"onramp_kyc_verification_title" = "Провайдер платежів вимагає підтвердження особи";
 "onramp_kyc_verification_verify_button" = "Верифікувати";
 "onramp_kyc_verification_whats_important" = "Що важливо знати";
 "onramp_legal_text" = "Послуга надається зовнішнім провайдером.\nTangem не несе відповідальності.";
@@ -1029,7 +1052,7 @@
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
-"quick_top_up_title" = "Quick top up";
+"quick_top_up_title" = "Швидке поповнення";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не вимагається";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ у мережі %2$@";
 "receive_bottom_sheet_warning_message_description" = "Використання іншої мережі може призвести до втрати коштів.";
@@ -1230,7 +1253,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Винагороди автоматично накопичуються на вашому балансі щодня.";
-"staking_details_autocompound_rewards_earned" = "Винагороди реінвестуються у ваш баланс стейкінгу. Зароблено коштів: %@";
+"staking_details_autocompound_rewards_earned" = "Винагороди реінвестуються у ваш баланс стейкінгу. Зароблено: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Середня ставка винагороди";
 "staking_details_banner_text" = "Що таке стейкінг?";
@@ -1358,6 +1381,8 @@
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
+"support_selector_view_chat_button" = "Open chat";
+"support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
 "swap_detailed_mode" = "Детальний режим";
 "swap_fixed_rate" = "Фіксований курс";
@@ -1445,6 +1470,7 @@
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Інше";
 "tangem_pay_pin_code_title" = "PIN-code";
+"tangem_pay_purchase" = "Purchase";
 "tangem_pay_rooted_device_subtitle" = "Неможливо використовувати на пристроях з root-правами.";
 "tangem_pay_status_completed" = "Завершено";
 "tangem_pay_status_declined" = "Відхилено";
@@ -1453,6 +1479,8 @@
 "tangem_pay_terms_fees_limits" = "Умови, комісії та ліміти";
 "tangem_pay_terms_limits" = "Умови та обмеження";
 "tangem_pay_transaction_declined_notification_text" = "Банк відхилив цей запит на транзакцію.";
+"tangem_pay_transaction_details_category" = "Category";
+"tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комісія стягується відповідно до тарифів обслуговування";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакцію було частково або повністю скасовано продавцем";
 "tangem_pay_unfreeze_card_alert_body" = "Продовжуйте користуватися карткою. Заморозити можна в будь-який момент.";
@@ -1596,8 +1624,8 @@
 "tangempay_onboarding_purchases_title" = "Платіть стільки, скільки бачите";
 "tangempay_onboarding_security_description" = "Буде створено окремий платіжний рахунок без розкриття ваших адрес та активів";
 "tangempay_onboarding_security_title" = "Неперевершена конфіденційність";
-"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
-"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
+"tangempay_onboarding_setup_wallet_description" = "І прив’яжемо Tangem Pay до нього";
+"tangempay_onboarding_setup_wallet_title" = "Ми створимо новий гаманець";
 "tangempay_onboarding_title" = "Отримайте картку Tangem Pay за лічені хвилини";
 "tangempay_pay_support" = "Підтримка Pay";
 "tangempay_payment_account_sync_needed" = "Tangem Pay · Сесія закінчилася";
@@ -1617,6 +1645,8 @@
 "tangempay_service_unavailable_title" = "Сервіс тимчасово недоступний";
 "tangempay_service_unreachable_try_later" = "Не можемо показати дані картки, але оплати продовжують працювати.";
 "tangempay_set_pin_code" = "Встановіть \nPIN-код";
+"tangempay_set_pin_header" = "Set up new PIN";
+"tangempay_set_pin_title" = "Set PIN";
 "tangempay_status_deactivated" = "Рахунок закрито";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Використайте картку або кільце для поновлення сесії";
@@ -2118,7 +2148,8 @@
 "yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
 "yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
 "yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
-"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
+"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost";
+"yield_apy_boost_promo_terms_and_conditions" = "Terms and Conditions apply";
 "yield_apy_boost_story_first_subtitle" = "Увімкніть режим дохідності вперше та отримайте до 3x доходу за перші 30 днів";
 "yield_apy_boost_story_first_title" = "Бонус APR за перший місяць";
 "yield_apy_boost_story_fourth_subtitle" = "Ви отримуєте ринковий дохід + Бонус. Бонус виплачується одноразово в USDT або USDC протягом 14 днів після закінчення 30-денного періоду. Акція діє, доки є промо-бюджет. Діють правила та умови";
