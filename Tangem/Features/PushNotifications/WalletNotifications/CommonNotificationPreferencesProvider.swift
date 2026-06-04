@@ -15,11 +15,11 @@ import TangemFoundation
 final class CommonNotificationPreferencesProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let userWalletId: UserWalletId
+    private let userWalletId: String
     private let stateStore = NotificationPreferencesStateStore()
     private let preferencesSubject = CurrentValueSubject<RemotePushPreferences, Never>(.loading)
 
-    nonisolated init(userWalletId: UserWalletId) {
+    nonisolated init(userWalletId: String) {
         self.userWalletId = userWalletId
     }
 }
@@ -43,30 +43,25 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
     }
 
     func fetchPreferences() async throws {
-        let fetchToken = await stateStore.beginFetch()
-
         do {
             let response = try await tangemApiService.getNotificationPreferences(
-                userWalletId: userWalletId.stringValue
+                userWalletId: userWalletId
             )
 
             try Task.checkCancellation()
 
-            guard let newPreferences = await stateStore.applyFetchResponse(
-                response,
-                for: fetchToken
-            ) else {
+            guard let newPreferences = await stateStore.applyFetchResponse(response) else {
                 return
             }
 
             await publish(newPreferences)
         } catch {
             if error is CancellationError || Task.isCancelled {
-                // A newer fetch has taken over; do not turn loading into `.failed`.
+                // The fetch was cancelled (e.g. the screen went away); do not turn loading into `.failed`.
                 throw error
             }
 
-            if let failedPreferences = await stateStore.applyFetchFailure(for: fetchToken) {
+            if let failedPreferences = await stateStore.applyFetchFailure() {
                 await publish(failedPreferences)
             }
 
@@ -75,61 +70,66 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
     }
 
     func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {
-        let context = await stateStore.beginUpdate(channel: channel, isEnabled: isEnabled)
-        try await performPreferencesUpdate(context: context)
-    }
+        guard let context = await stateStore.beginUpdate(channel: channel, isEnabled: isEnabled) else {
+            throw NotificationPreferencesUpdateError.writeRejected
+        }
 
-    func enableAll() async throws {
-        let context = await stateStore.beginEnableAllUpdate()
-        try await performPreferencesUpdate(context: context)
-        try await fetchPreferences()
-    }
-}
-
-// MARK: - Helpers
-
-private extension CommonNotificationPreferencesProvider {
-    func performPreferencesUpdate(context: NotificationPreferencesStateStore.UpdateContext) async throws {
         await publish(context.optimisticPreferences)
 
         let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
-                userWalletId: userWalletId.stringValue,
+                userWalletId: userWalletId,
                 preferences: request
             )
 
             try Task.checkCancellation()
 
-            _ = await stateStore.finishUpdate(
-                token: context.token,
-                completion: .success(context.optimisticPreferences)
-            )
+            _ = await stateStore.finishUpdate(completion: .success(context.optimisticPreferences))
+            scheduleReconciliationFetchIfNeeded()
         } catch {
-            if error is CancellationError || Task.isCancelled {
-                // A newer write has taken over and captured its own rollback target; leaving
-                // `preferencesSubject` on the latest optimistic value is intentional.
-                _ = await stateStore.finishUpdate(
-                    token: context.token,
-                    completion: .cancelled
-                )
-                throw error
-            }
-
-            if let rollbackPreferences = await stateStore.finishUpdate(
-                token: context.token,
-                completion: .failure(context.rollbackPreferences)
-            ) {
+            // Roll back to the last server-confirmed snapshot on both failure and cancellation.
+            // Single-flight means a cancelled write is never superseded by a newer one, so leaving
+            // its unconfirmed optimistic value in `preferencesSubject` would desync it from
+            // `lastConfirmedPreferences` and let the next write compose from an unconfirmed snapshot.
+            if let rollbackPreferences = await stateStore.finishUpdate(completion: .failure(context.rollbackPreferences)) {
                 await publish(rollbackPreferences)
             }
 
+            scheduleReconciliationFetchIfNeeded()
             throw error
         }
     }
+}
 
+// MARK: - Helpers
+
+private extension CommonNotificationPreferencesProvider {
     @MainActor
     func publish(_ preferences: RemotePushPreferences) {
         preferencesSubject.send(preferences)
     }
+
+    /// Re-fetches the server snapshot that `applyFetchResponse` had to drop while a write was
+    /// in flight, now that those writes have settled. Fire-and-forget so the triggering update
+    /// doesn't block on an extra round-trip.
+    func scheduleReconciliationFetchIfNeeded() {
+        runTask(in: self) { provider in
+            guard await provider.stateStore.consumePendingFetchReconciliation() else {
+                return
+            }
+
+            try? await provider.fetchPreferences()
+        }
+    }
+}
+
+// MARK: - Errors
+
+enum NotificationPreferencesUpdateError: Error {
+    /// The store refused the write: either there's no server-confirmed snapshot yet (a
+    /// full-replace PUT would push all-`false` defaults for the untouched channels), or another
+    /// write is still in flight (the screen is expected to keep the toggle disabled meanwhile).
+    case writeRejected
 }

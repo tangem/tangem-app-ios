@@ -33,6 +33,13 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.id)
     }
 
+    /// SurveySparrow tokens have no fixed format by contract — opaque vendor identifiers
+    /// of arbitrary shape (e.g. `ntt-…`, `tt-…`, future base64-like values). We only
+    /// check presence, not character set, to avoid rejecting valid tokens.
+    private func hasEnoughSurveyParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        params.surveyToken?.nilIfEmpty != nil
+    }
+
     /// Universal news-article link: `https://tangem.com/news/{category}/{id}-{slug}`.
     /// Numeric article id is mandatory — an article screen cannot be opened without it.
     private func hasEnoughNewsArticleParams(params: DeeplinkNavigationAction.Params) -> Bool {
@@ -122,6 +129,9 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .earn:
             return paramsHaveOnlyValidCharacters([params.earnType, params.networkId].compactMap { $0 })
+
+        case .survey:
+            return hasEnoughSurveyParams(params: params)
 
         case .onboardVisa:
             return hasEnoughOnboardVisaParams(params: params)
