@@ -14,10 +14,16 @@ import TangemExpress
 final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
     private let expressManager: ExpressManager
     private let expressPairsRepository: ExpressPairsRepository
+    private let analyticsLogger: SwapManagementModelAnalyticsLogger
 
-    init(expressManager: ExpressManager, expressPairsRepository: ExpressPairsRepository) {
+    init(
+        expressManager: ExpressManager,
+        expressPairsRepository: ExpressPairsRepository,
+        analyticsLogger: SwapManagementModelAnalyticsLogger
+    ) {
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
+        self.analyticsLogger = analyticsLogger
     }
 
     func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType? {
@@ -38,6 +44,10 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
 
     func updatePair(source: SendSwapableToken, destination: SendReceiveToken) async throws -> ExpressManagerState {
         let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+
+        if pair.isTransfer {
+            analyticsLogger.logSwapTransferModeSwitched()
+        }
 
         if FeatureProvider.isAvailable(.swapPipelineV2), !pair.isTransfer {
             let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
