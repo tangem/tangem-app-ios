@@ -106,7 +106,7 @@ private extension XRPTransactionHistoryMapper {
         let transactionType: TransactionRecord.TransactionType = if item.tx.transactionType == Constants.paymentTransactionType {
             .transfer
         } else {
-            .contractMethodName(name: item.tx.transactionType ?? Constants.operationType)
+            .contractMethodName(name: item.tx.transactionType)
         }
 
         let index = transactionIndicesCounter[hash, default: 0]
@@ -161,7 +161,6 @@ private extension XRPTransactionHistoryMapper {
     enum Constants {
         static let paymentTransactionType = "Payment"
         static let trustSetTransactionType = "TrustSet"
-        static let operationType = "operation"
         static let successResult = "tesSUCCESS"
         /// Offset between Ripple Epoch and Unix Epoch
         /// https://xrpl.org/docs/references/protocol/data-types/basic-data-types#specifying-time

@@ -565,6 +565,9 @@ extension OnrampModel: ApplePayButtonPaymentAuthorizationHandler {
         case .error(let error):
             alertPresenter?.showAlert(error.alertBinder)
         case .openKYC(let provider, let data):
+            if let amount, let currencyCode = fiatCurrency?.identity.code {
+                analyticsLogger.logOnrampVerifyScreenOpened(amount: amount, currencyCode: currencyCode)
+            }
             router?.openOnrampKYCVerification(provider: provider) { [weak self] in
                 self?.redirectDataDidLoad(data: data, provider: provider)
             }

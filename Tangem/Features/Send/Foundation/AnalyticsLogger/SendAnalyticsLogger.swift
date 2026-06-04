@@ -46,6 +46,7 @@ protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
     SendOnrampOffersAnalyticsLogger,
     SendOnrampProvidersAnalyticsLogger,
     SendOnrampPaymentMethodAnalyticsLogger,
+    SendOnrampNAPAnalyticsLogger,
     SendFinishAnalyticsLogger {
     func setup(onrampProvidersInput: OnrampProvidersInput)
 
@@ -102,6 +103,8 @@ protocol SendApproveAnalyticsLogger {
 
 protocol SwapManagementModelAnalyticsLogger {
     func logSwapButtonSwap()
+    func logSwapButtonTransfer()
+    func logSwapTransferModeSwitched()
     func logSwapTransactionSent(result: TransactionDispatcherResult)
     func logSwapPreselectedTokenChanged(
         direction: Analytics.ParameterValue,
@@ -196,6 +199,12 @@ protocol SendOnrampProvidersAnalyticsLogger {
 protocol SendOnrampPaymentMethodAnalyticsLogger {
     func logOnrampPaymentMethodScreenOpened()
     func logOnrampPaymentMethodChosen(paymentMethod: OnrampPaymentMethod)
+}
+
+protocol SendOnrampNAPAnalyticsLogger {
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String)
+    func logOnrampNAPScreenOpened()
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String)
 }
 
 protocol SendSwapProvidersAnalyticsLogger {
