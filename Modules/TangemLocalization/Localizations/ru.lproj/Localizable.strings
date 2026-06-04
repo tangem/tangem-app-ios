@@ -951,7 +951,7 @@
 "onramp_kyc_verification_bullet_unlocks" = "Verification unlocks full access to future transactions with this provider";
 "onramp_kyc_verification_choose_another" = "Выберите другой метод";
 "onramp_kyc_verification_subtitle" = "Согласно требованиям законодательства, %@ требует пройти верификацию личности.";
-"onramp_kyc_verification_title" = "Identity verification required by payment provider";
+"onramp_kyc_verification_title" = "Провайдер платежей требует подтверждения личности";
 "onramp_kyc_verification_verify_button" = "Верифицировать";
 "onramp_kyc_verification_whats_important" = "Что важно знать";
 "onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
@@ -1029,7 +1029,7 @@
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
-"quick_top_up_title" = "Quick top up";
+"quick_top_up_title" = "Быстрое пополнение";
 "receive_bottom_sheet_no_memo_required_message" = "Memo не требуется";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ в %2$@ сети";
 "receive_bottom_sheet_warning_message_description" = "Использование другой сети может привести к утрате средств.";
@@ -1230,7 +1230,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Награда автоматически аккумулируется на вашем стейкинг балансе.";
-"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
+"staking_details_autocompound_rewards_earned" = "Вознаграждения реинвестируются в ваш баланс стейкинга. Заработано: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Средння ставка вознаграждения";
 "staking_details_banner_text" = "Что такое Стейкинг?";
@@ -1358,6 +1358,8 @@
 "story_web3_title" = "Поддержка Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Для отправки требуется входящая транзакция на сумму не менее %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостаточно средств";
+"support_selector_view_chat_button" = "Open mail";
+"support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "Подтверждая, вы разрешаете смарт-контракту использовать ваши токены в будущих транзакциях.";
 "swap_detailed_mode" = "Детальный режим";
 "swap_fixed_rate" = "Фиксированный курс";
@@ -1445,6 +1447,7 @@
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Другое";
 "tangem_pay_pin_code_title" = "PIN-code";
+"tangem_pay_purchase" = "Purchase";
 "tangem_pay_rooted_device_subtitle" = "Нельзя использовать на устройствах с root-доступом";
 "tangem_pay_status_completed" = "Успешно завершено";
 "tangem_pay_status_declined" = "Отклонено";
@@ -1453,6 +1456,8 @@
 "tangem_pay_terms_fees_limits" = "Тарифы и полные условия";
 "tangem_pay_terms_limits" = "Тарифы и лимиты";
 "tangem_pay_transaction_declined_notification_text" = "Банк отклонил транзакцию";
+"tangem_pay_transaction_details_category" = "Category";
+"tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комиссия взимается в соответствии с тарифами обслуживания";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакция частично или полностью возвращена продавцом";
 "tangem_pay_unfreeze_card_alert_body" = "Продолжайте пользоваться картой, заморозить всегда успеете";
@@ -1596,9 +1601,9 @@
 "tangempay_onboarding_purchases_title" = "Сколько видишь – столько платишь";
 "tangempay_onboarding_security_description" = "Мы создадим отдельный платежный счет без раскрытия ваших активов \nи их адресов";
 "tangempay_onboarding_security_title" = "Абсолютная приватность";
-"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
-"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
-"tangempay_onboarding_title" = "Откройте виртуальную \nTangem Pay Card";
+"tangempay_onboarding_setup_wallet_description" = "И привяжем Tangem Pay к нему";
+"tangempay_onboarding_setup_wallet_title" = "Настроим новый кошелёк";
+"tangempay_onboarding_title" = "Откройте виртуальную\nTangem Pay Card";
 "tangempay_pay_support" = "Поддержка Pay";
 "tangempay_payment_account_sync_needed" = "Tangem Pay · Cессия истекла";
 "tangempay_payment_account" = "Платежный аккаунт";
@@ -1617,6 +1622,8 @@
 "tangempay_service_unavailable_title" = "Сервис временно недоступен";
 "tangempay_service_unreachable_try_later" = "Не можем показать данные карты, но оплаты продолжают работать.";
 "tangempay_set_pin_code" = "Set \nPIN code";
+"tangempay_set_pin_header" = "Set up new PIN";
+"tangempay_set_pin_title" = "Set PIN";
 "tangempay_status_deactivated" = "Аккаунт закрыт";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "Используйте карту или кольцо для обновления сессии";
@@ -2118,7 +2125,8 @@
 "yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
 "yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
 "yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
-"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
+"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost";
+"yield_apy_boost_promo_terms_and_conditions" = "Terms and Conditions apply";
 "yield_apy_boost_story_first_subtitle" = "Включите режим доходности впервые и получите до 3x дохода за первые 30 дней";
 "yield_apy_boost_story_first_title" = "Бонус APR за первый месяц";
 "yield_apy_boost_story_fourth_subtitle" = "Вы получаете рыночный доход + бонус. Бонус выплачивается единоразово в USDT или USDC в течение 14 дней после окончания 30-дневного периода. Акция действует, пока есть промо-бюджет. Действуют правила и условия";
