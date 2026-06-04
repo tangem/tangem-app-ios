@@ -132,13 +132,14 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
         // Receive token / amount updating
 
-        receiveTokenCancellable = Publishers.CombineLatest(
+        receiveTokenCancellable = Publishers.CombineLatest3(
             interactor.receivedTokenAmountPublisher,
-            interactor.receivedTokenPublisher
+            interactor.receivedTokenPublisher,
+            interactor.isReceiveAmountApproximatePublisher.prepend(true)
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1) }
+        .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1, isApproximate: $1.2) }
 
         highPriceImpactCancellable = interactor
             .highPriceImpactPublisher
@@ -268,7 +269,11 @@ private extension SwapAmountViewModel {
         }
     }
 
-    func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
+    func updateReceive(
+        amount: LoadingResult<SendAmount, any Error>,
+        receiveToken: LoadingResult<SendReceiveToken, any Error>,
+        isApproximate: Bool
+    ) {
         receiveExpressCurrencyViewModel.update(
             wallet: receiveToken.mapValue { $0 as SendGenericToken },
             initialWalletId: .init(tokenItem: initialTokenItem)
@@ -280,14 +285,14 @@ private extension SwapAmountViewModel {
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loading)
 
         case (_, .failure), (.failure, _):
-            receiveCryptoAmountState = .loaded(text: "0")
+            receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount("0", isApproximate: isApproximate))
 
             let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
 
         case (.success(let token), .success(let amount)):
             guard let crypto = amount.crypto else {
-                receiveCryptoAmountState = .loaded(text: "0")
+                receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount("0", isApproximate: isApproximate))
 
                 let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
                 receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
@@ -296,7 +301,7 @@ private extension SwapAmountViewModel {
 
             let formatter = DecimalNumberFormatter(maximumFractionDigits: token.tokenItem.decimalCount)
             let cryptoFormatted: String = formatter.format(value: crypto)
-            receiveCryptoAmountState = .loaded(text: cryptoFormatted)
+            receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount(cryptoFormatted, isApproximate: isApproximate))
 
             let fiatFormatted = balanceFormatter.formatFiatBalance(amount.fiat)
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
