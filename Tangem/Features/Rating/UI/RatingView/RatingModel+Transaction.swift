@@ -10,7 +10,7 @@ import Foundation
 
 extension RatingModel {
     struct Transaction {
-        let externalTxId: String
+        let transactionId: String
         let providerName: String
         let txUrl: String?
     }
@@ -19,9 +19,9 @@ extension RatingModel {
 extension RatingModel.Transaction {
     init?(from transaction: PendingTransaction) {
         guard case .swap = transaction.type else { return nil }
-        guard let externalTxId = transaction.externalTxId else { return nil }
 
-        self.externalTxId = externalTxId
+        // Prefer externalTxId when available; otherwise fall back to expressTransactionId (e.g., DEX swaps)
+        transactionId = transaction.externalTxId ?? transaction.expressTransactionId
         providerName = transaction.provider.name
         txUrl = transaction.externalTxURL
     }
