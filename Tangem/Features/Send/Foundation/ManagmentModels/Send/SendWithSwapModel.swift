@@ -336,6 +336,15 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             }
             .eraseToAnyPublisher()
     }
+
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap -> AnyPublisher<Bool, Never> in
+                isSwap ? model.swapModel.isReceiveAmountApproximatePublisher : .just(output: false)
+            }
+            .eraseToAnyPublisher()
+    }
 }
 
 // MARK: - SendReceiveTokenAmountOutput
