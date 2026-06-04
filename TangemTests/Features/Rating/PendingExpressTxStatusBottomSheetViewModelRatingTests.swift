@@ -27,20 +27,30 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
         InjectedValues[\.keysManager] = StubKeysManager()
     }
 
-    @Test("ratingViewModel is nil when externalTxId is nil")
-    func ratingViewModelNilWithoutExternalTxId() {
-        let (sut, _) = makeSUT(externalTxId: nil)
+    @Test("CEX: ratingViewModel is created when externalTxId exists")
+    func cexRatingViewModelCreated() throws {
+        let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: anyExternalID)
 
-        #expect(sut.ratingViewModel == nil)
+        _ = try #require(sut.ratingViewModel)
+    }
+
+    @Test("DEX: ratingViewModel is created using expressTransactionId when externalTxId is nil")
+    func dexRatingViewModelCreated() throws {
+        let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
+
+        _ = try #require(sut.ratingViewModel)
     }
 
     @Test("ratingViewModel created after transaction updates with externalTxId")
-    func ratingViewModelCreatedOnUpdate() async throws {
-        let (sut, subject) = makeSUT(externalTxId: nil)
+    func ratingViewModelUpdatedWithExternalTxId() async throws {
+        let (sut, subject) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
+
+        let firstInstance = try #require(sut.ratingViewModel)
 
         await sendUpdate(to: subject, externalTxId: anyExternalID)
 
-        _ = try #require(sut.ratingViewModel)
+        // Should keep the same instance (created only once)
+        #expect(sut.ratingViewModel === firstInstance)
     }
 
     @Test("ratingViewModel created only once")
@@ -54,18 +64,17 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
         #expect(sut.ratingViewModel === firstInstance)
     }
 
-    @Test("ratingViewModel publishes changes")
-    func ratingViewModelPublishesChanges() async throws {
-        let (sut, subject) = makeSUT(externalTxId: nil)
+    @Test("ratingViewModel is available immediately for DEX transactions")
+    func ratingViewModelAvailableImmediatelyForDex() throws {
+        let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
 
         var receivedValues: [RatingViewModel?] = []
         let cancellable = sut.$ratingViewModel.sink { receivedValues.append($0) }
 
-        await sendUpdate(to: subject, externalTxId: anyExternalID)
-
-        #expect(receivedValues.count >= 2)
-        let lastValue = try #require(receivedValues.last)
-        _ = try #require(lastValue)
+        // Should have ratingViewModel immediately (using expressTransactionId)
+        #expect(receivedValues.count >= 1)
+        let firstValue = try #require(receivedValues.first)
+        _ = try #require(firstValue)
 
         cancellable.cancel()
     }
@@ -75,7 +84,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 
 private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
     var anyExternalID: String { "external_123" }
-
+    var anyExpressTransactionId: String { "express_tx_1" }
     func sendUpdate(
         to subject: CurrentValueSubject<[PendingTransaction], Never>,
         externalTxId: String
