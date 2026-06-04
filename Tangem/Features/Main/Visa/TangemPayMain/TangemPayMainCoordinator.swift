@@ -483,6 +483,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
     private static func formatFee(amount: Decimal, currency: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")
         formatter.currencyCode = currency
         return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
     }
