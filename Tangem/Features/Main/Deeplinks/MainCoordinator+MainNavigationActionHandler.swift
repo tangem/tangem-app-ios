@@ -23,7 +23,14 @@ extension MainCoordinator {
         @Injected(\.newsDeeplinkValidationService) private var newsDeeplinkValidationService: NewsDeeplinkValidating
         @Injected(\.keysManager) private var keysManager: any KeysManager
 
-        weak var coordinator: MainRoutable?
+        weak var coordinator: MainRoutable? {
+            didSet {
+                tokenDeeplinkHandler.coordinator = coordinator
+            }
+        }
+
+        private let walletModelLocator = DeeplinkWalletModelLocator()
+        private lazy var tokenDeeplinkHandler = TokenDeeplinkHandler(walletModelLocator: walletModelLocator)
 
         // MARK: - Public Implementation
 
@@ -315,63 +322,7 @@ extension MainCoordinator {
         }
 
         private func routeTokenAction(params: DeeplinkNavigationAction.Params) -> Bool {
-            guard
-                let coordinator,
-                let userWalletModel = findUserWalletModel(userWalletModelId: params.userWalletId),
-                let tokenId = params.tokenId,
-                let networkId = params.networkId,
-                let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
-            else {
-                incomingActionManager.discardIncomingAction()
-                return false
-            }
-
-            // Trigger the update without awaiting completion
-            walletModel.startUpdateTask()
-
-            if case .some(let type) = params.type, type == .onrampStatusUpdate || type == .swapStatusUpdate, let txId = params.transactionId {
-                return routeExpressTransactionStatusAction(
-                    coordinator: coordinator,
-                    deeplinkType: type,
-                    transactionId: txId,
-                    walletModel: walletModel,
-                    userWalletModel: userWalletModel
-                )
-            } else {
-                coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
-                return true
-            }
-        }
-
-        private func routeExpressTransactionStatusAction(
-            coordinator: MainRoutable,
-            deeplinkType: IncomingActionConstants.DeeplinkType,
-            transactionId: String,
-            walletModel: any WalletModel,
-            userWalletModel: UserWalletModel
-        ) -> Bool {
-            let transactionType: PendingTransactionDetails.TransactionType
-
-            switch deeplinkType {
-            case .onrampStatusUpdate:
-                transactionType = .onramp
-            case .swapStatusUpdate:
-                transactionType = .swap
-            case .incomeTransaction:
-                // Transaction status deeplinks are not supported for these types
-                return false
-            }
-
-            coordinator.openDeepLink(
-                .expressTransactionStatus(
-                    walletModel: walletModel,
-                    userWalletModel: userWalletModel,
-                    transactionDetails: .init(type: transactionType, id: transactionId)
-                )
-            )
-
-            return true
+            return tokenDeeplinkHandler.handle(params: params)
         }
 
         private func routeReferralAction(userWalletId: String?) -> Bool {
@@ -484,11 +435,7 @@ extension MainCoordinator.MainNavigationActionHandler {
     }
 
     private func findUserWalletModel(userWalletModelId: String?) -> (any UserWalletModel)? {
-        guard let userWalletModelId else {
-            return userWalletRepository.selectedModel
-        }
-
-        return userWalletRepository.models.first { $0.userWalletId.stringValue == userWalletModelId }
+        walletModelLocator.findUserWalletModel(userWalletModelId: userWalletModelId)
     }
 
     private func findWalletModel(
@@ -497,44 +444,7 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
-        var walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
-
-        // If derivation is missing, prefer main account's wallet model - this is why we sort them here
-        walletModels.sort { first, second in
-            let isFirstMainAccount = first.account?.isMainAccount ?? false
-            let isSecondMainAccount = second.account?.isMainAccount ?? false
-            return isFirstMainAccount && !isSecondMainAccount
-        }
-
-        return findWalletModel(
-            in: walletModels,
-            tokenId: tokenId,
-            networkId: networkId,
-            derivation: derivation
-        )
-    }
-
-    private func findWalletModel(
-        in walletModels: [any WalletModel],
-        tokenId: String,
-        networkId: String,
-        derivation: String?
-    ) -> (any WalletModel)? {
-        // Strict match if derivation is provided
-        if let derivation = derivation?.nilIfEmpty {
-            return walletModels.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
-        }
-
-        // Loose match with fallback if derivation is not provided
-        let matchingModels = walletModels.filter { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: nil) }
-        return matchingModels.first(where: { !$0.isCustom }) ?? matchingModels.first
-    }
-
-    private func isMatch(_ model: any WalletModel, tokenId: String, networkId: String, derivationPath: String?) -> Bool {
-        let idMatch = model.tokenItem.id == tokenId
-        let networkMatch = model.tokenItem.blockchain.networkId == networkId
-        let derivationPathMatch = derivationPath.map { $0 == model.tokenItem.blockchainNetwork.derivationPath?.rawPath } ?? true
-        return idMatch && networkMatch && derivationPathMatch
+        walletModelLocator.findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: derivation)
     }
 }
 
