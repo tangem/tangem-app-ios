@@ -358,6 +358,10 @@ extension Analytics {
         case swapTypeReselection = "[Swap] Swap type re-selection"
         case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
 
+        case swapTransferModeSwitched = "[Swap] Transfer Mode Switched"
+        case swapButtonTransfer = "[Swap] Button - Transfer"
+        case swapTransferInProgressScreenOpened = "[Swap] Transfer in Progress Screen Opened"
+
         // MARK: - Seed phrase
 
         case onboardingSeedButtonOtherCreateWalletOptions = "[Onboarding / Create Wallet] Button - Other Options"
@@ -619,6 +623,11 @@ extension Analytics {
         case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
         case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
         case onrampButtonAllOffers = "[Onramp] Button - All Offers"
+        case onrampButtonNAP = "[Onramp] Button - NAP"
+        case onrampNAPScreenOpened = "[Onramp] NAP Screen Opened"
+        case onrampVerifyScreenOpened = "[Onramp] Verify Screen Opened"
+        case onrampButtonVerify = "[Onramp] Button - Verify"
+        case onrampButtonChooseAnotherMethod = "[Onramp] Button - Choose Another Method"
 
         // MARK: - Action Buttons
 
