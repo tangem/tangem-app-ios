@@ -709,8 +709,6 @@ extension SwapModel {
         let source = try _sourceToken.value.get()
         let receive = try receiveToken.get()
 
-        analyticsLogger.logSwapButtonSwap()
-
         let result = try await {
             switch _providersState.value {
             case .loaded(_, .permissionRequired):
@@ -718,6 +716,8 @@ extension SwapModel {
                 throw SwapModel.SwapModelError.transactionDataNotFound
 
             case .loaded(_, .readyToTransfer(let transferState)):
+                analyticsLogger.logSwapButtonTransfer()
+
                 guard let destinationAddress = receive.address else {
                     throw SwapModel.SwapModelError.destinationNotFound
                 }
@@ -737,6 +737,8 @@ extension SwapModel {
                 return result
 
             case .loaded(.swap(.some(let selected), _), .previewCEX(let previewCEX)):
+                analyticsLogger.logSwapButtonSwap()
+
                 let data = try await expressManager.requestData()
                 let dispatcher = source.transactionDispatcherProvider.makeCEXTransactionDispatcher()
                 let result = try await dispatcher.send(transaction: .cex(data: data, fee: previewCEX.fee))
@@ -755,6 +757,8 @@ extension SwapModel {
                 return result
 
             case .loaded(.swap(.some(let selected), _), .readyToSwap(let readyToSwap)):
+                analyticsLogger.logSwapButtonSwap()
+
                 let data = readyToSwap.data
                 let didUpgrade = source.sendYieldModuleHelper?.isUpgradeWrapped(data) == true
 
