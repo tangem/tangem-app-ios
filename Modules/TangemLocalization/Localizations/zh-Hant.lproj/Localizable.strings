@@ -1358,6 +1358,8 @@
 "story_web3_title" = "兼容Web3.0";
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
+"support_selector_view_chat_button" = "Open mail";
+"support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
 "swap_detailed_mode" = "Detailed mode";
 "swap_fixed_rate" = "Fixed Rate";
@@ -1445,6 +1447,7 @@
 "tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "其他";
 "tangem_pay_pin_code_title" = "PIN-code";
+"tangem_pay_purchase" = "Purchase";
 "tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "已完成";
 "tangem_pay_status_declined" = "已拒絕";
@@ -1453,6 +1456,8 @@
 "tangem_pay_terms_fees_limits" = "條款、費用與限制";
 "tangem_pay_terms_limits" = "條款與限制";
 "tangem_pay_transaction_declined_notification_text" = "銀行拒絕了此交易請求。";
+"tangem_pay_transaction_details_category" = "Category";
+"tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "費用依服務費率收取";
 "tangem_pay_transaction_reversed_notification_text" = "該交易已被商家部分或全額撤銷";
 "tangem_pay_unfreeze_card_alert_body" = "繼續使用您的資金。您可以隨時凍結。";
@@ -1596,8 +1601,8 @@
 "tangempay_onboarding_purchases_title" = "所見即所付";
 "tangempay_onboarding_security_description" = "將創建單獨的支付帳戶，且不會透露您的地址和資產";
 "tangempay_onboarding_security_title" = "無與倫比的隱私";
-"tangempay_onboarding_setup_wallet_description" = "And link a payment card to it";
-"tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
+"tangempay_onboarding_setup_wallet_description" = "並將 Tangem Pay 綁定到該錢包";
+"tangempay_onboarding_setup_wallet_title" = "我們將建立新錢包";
 "tangempay_onboarding_title" = "立即獲取你的 Tangem Pay 卡";
 "tangempay_pay_support" = "Pay 客服";
 "tangempay_payment_account_sync_needed" = "Tangem Pay 工作階段已過期";
@@ -1617,6 +1622,8 @@
 "tangempay_service_unavailable_title" = "服務暫時無法使用";
 "tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
 "tangempay_set_pin_code" = "Set \nPIN code";
+"tangempay_set_pin_header" = "Set up new PIN";
+"tangempay_set_pin_title" = "Set PIN";
 "tangempay_status_deactivated" = "帳戶已關閉";
 "tangempay_status_replacing" = "Replacing your card";
 "tangempay_sync_needed_body" = "用卡或戒指續期會話";
@@ -2118,7 +2125,8 @@
 "yield_apy_boost_promo_bonus_paid_out_subtitle" = "Check transaction history for details";
 "yield_apy_boost_promo_bonus_paid_out_title" = "Yield mode bonus paid out";
 "yield_apy_boost_promo_days_left_to_unlock" = "%1$@ days left to unlock your bonus";
-"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost, T&C apply, learn more";
+"yield_apy_boost_promo_eligibility_text" = "You are eligible for 30 days APY boost";
+"yield_apy_boost_promo_terms_and_conditions" = "Terms and Conditions apply";
 "yield_apy_boost_story_first_subtitle" = "Activate Yield Mode for the first time and get up to 3x yield for your first 30 days";
 "yield_apy_boost_story_first_title" = "First month APR bonus";
 "yield_apy_boost_story_fourth_subtitle" = "You get market yield + Bonus. Bonus is paid once in USDT or USDC within 14 days after the 30-day period ends. Available while promo budget lasts. Terms and conditions apply";
