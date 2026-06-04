@@ -18,7 +18,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     var tokenItem: TokenItem { initialTokenItem }
 
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSwapAnalyticsLogger()
+    lazy var analyticsLogger: SwapAnalyticsLogger = makeSwapAnalyticsLogger()
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: receiveToken,
