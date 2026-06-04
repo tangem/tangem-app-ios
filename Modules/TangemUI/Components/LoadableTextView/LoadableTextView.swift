@@ -15,7 +15,6 @@ public struct LoadableTextView: View {
     private let textColor: Color
     private let loaderSize: CGSize
     private let loaderCornerRadiusStyle: CornerRadiusStyle
-    private let prefix: String?
     private let lineLimit: Int
     private let isSensitiveText: Bool
 
@@ -25,7 +24,6 @@ public struct LoadableTextView: View {
         textColor: Color,
         loaderSize: CGSize,
         loaderCornerRadiusStyle: CornerRadiusStyle = .rounded(3.0),
-        prefix: String? = nil,
         lineLimit: Int = 1,
         isSensitiveText: Bool = false
     ) {
@@ -34,7 +32,6 @@ public struct LoadableTextView: View {
         self.textColor = textColor
         self.loaderSize = loaderSize
         self.loaderCornerRadiusStyle = loaderCornerRadiusStyle
-        self.prefix = prefix
         self.lineLimit = lineLimit
         self.isSensitiveText = isSensitiveText
     }
@@ -46,7 +43,6 @@ public struct LoadableTextView: View {
         textColor: Color,
         loaderSize: CGSize,
         loaderCornerRadius: CGFloat,
-        prefix: String? = nil,
         lineLimit: Int = 1,
         isSensitiveText: Bool = false
     ) {
@@ -56,7 +52,6 @@ public struct LoadableTextView: View {
             textColor: textColor,
             loaderSize: loaderSize,
             loaderCornerRadiusStyle: .rounded(loaderCornerRadius),
-            prefix: prefix,
             lineLimit: lineLimit,
             isSensitiveText: isSensitiveText
         )
@@ -82,11 +77,7 @@ public struct LoadableTextView: View {
                     .frame(width: loaderSize.width, height: loaderSize.height)
             }
         case .loaded(let text):
-            if let prefix {
-                styledText("\(prefix)\(String.unbreakableSpace)\(text)", isSensitive: isSensitiveText)
-            } else {
-                styledText(text, isSensitive: isSensitiveText)
-            }
+            styledText(text, isSensitive: isSensitiveText)
         }
     }
 
