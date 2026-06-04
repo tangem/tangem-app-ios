@@ -22,6 +22,9 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
+    // Hidden by default: keep the fractions off-screen until the source token balance
+    // is confirmed to be strictly positive, otherwise they would flash on a zero balance.
+    @Published private(set) var areAmountFractionsHidden: Bool = true
     @Published private(set) var isActionInProcessing: Bool = false
 
     @Published private(set) var mainButtonIsUpdating: Bool = false
@@ -168,6 +171,11 @@ private extension SwapSummaryViewModel {
             .isMaxAmountButtonHiddenPublisher
             .receiveOnMain()
             .assign(to: &$isMaxAmountButtonHidden)
+
+        interactor
+            .areAmountFractionsHiddenPublisher
+            .receiveOnMain()
+            .assign(to: &$areAmountFractionsHidden)
 
         interactor
             .isNotificationButtonIsLoading
