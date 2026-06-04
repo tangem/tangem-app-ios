@@ -50,7 +50,7 @@ final class SwapModel {
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
     private let expressUserWalletId: UserWalletId
-    private let analyticsLogger: any SendAnalyticsLogger
+    private let analyticsLogger: any SwapAnalyticsLogger
     private let autoupdatingTimer: AutoupdatingTimer
     private let pairUpdateHandler: SwapPairUpdateHandler
     private let balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker
@@ -69,7 +69,7 @@ final class SwapModel {
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
         expressUserWalletId: UserWalletId,
-        analyticsLogger: any SendAnalyticsLogger,
+        analyticsLogger: any SwapAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         pairUpdateHandler: SwapPairUpdateHandler,
         balanceRestrictionFeatureChecker: SwapBalanceRestrictionFeatureChecker,

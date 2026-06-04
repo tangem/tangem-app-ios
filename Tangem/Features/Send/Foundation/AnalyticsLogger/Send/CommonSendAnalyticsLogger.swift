@@ -999,3 +999,9 @@ extension ExpressProviderRateType {
         }
     }
 }
+
+// MARK: - SwapAnalyticsLogger / SendWithSwapAnalyticsLogger
+
+extension CommonSendAnalyticsLogger: SwapAnalyticsLogger {}
+
+extension CommonSendAnalyticsLogger: SendWithSwapAnalyticsLogger {}

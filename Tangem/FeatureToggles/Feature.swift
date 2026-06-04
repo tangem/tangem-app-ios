@@ -47,6 +47,7 @@ enum Feature: String, Hashable, CaseIterable {
     case adiMainScreenDefault
     case tangemPayMultipleCards
     case transfers
+    case sendSwapAnalyticsLoggerSeparation
 
     var name: String {
         switch self {
@@ -88,6 +89,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
+        case .sendSwapAnalyticsLoggerSeparation: return "14249_Send_Swap_Analytics_Logger_separation"
         }
     }
 
@@ -131,6 +133,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addFundsStage1: return .version("5.39")
         case .tangemPayMultipleCards: return .unspecified
         case .transfers: return .version("5.40")
+        case .sendSwapAnalyticsLoggerSeparation: return .unspecified
         }
     }
 }
