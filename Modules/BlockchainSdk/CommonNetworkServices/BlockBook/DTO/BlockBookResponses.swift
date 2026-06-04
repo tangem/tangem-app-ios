@@ -46,6 +46,7 @@ extension BlockBookAddressResponse {
         let hex: String?
         let tokenTransfers: [TokenTransfer]?
         let ethereumSpecific: EthereumSpecific?
+        let chainExtraData: ChainExtraData?
         let tronTXReceipt: TronTXReceipt?
         let fromAddress: String?
         let toAddress: String?
@@ -69,6 +70,7 @@ extension BlockBookAddressResponse {
             case hex
             case tokenTransfers
             case ethereumSpecific
+            case chainExtraData
             case tronTXReceipt
             case fromAddress
             case toAddress
@@ -95,10 +97,57 @@ extension BlockBookAddressResponse {
             hex = try container.decodeIfPresent(String.self, forKey: CodingKeys.hex)
             tokenTransfers = try container.decodeIfPresent([TokenTransfer].self, forKey: CodingKeys.tokenTransfers)
             ethereumSpecific = try container.decodeIfPresent(EthereumSpecific.self, forKey: CodingKeys.ethereumSpecific)
+            chainExtraData = try container.decodeIfPresent(ChainExtraData.self, forKey: CodingKeys.chainExtraData)
             tronTXReceipt = try container.decodeIfPresent(TronTXReceipt.self, forKey: CodingKeys.tronTXReceipt)
             fromAddress = try container.decodeIfPresent(String.self, forKey: CodingKeys.fromAddress)
             toAddress = try container.decodeIfPresent(String.self, forKey: CodingKeys.toAddress)
             voteList = try container.decodeIfPresent([String: Int].self, forKey: CodingKeys.voteList)
+        }
+
+        init(
+            txid: String,
+            contractType: Int?,
+            contractName: String?,
+            version: Int?,
+            vin: [Vin]?,
+            vout: [Vout]?,
+            blockHash: String?,
+            blockHeight: Int,
+            confirmations: Int,
+            blockTime: Int,
+            value: String,
+            valueIn: String?,
+            fees: String,
+            hex: String?,
+            tokenTransfers: [TokenTransfer]?,
+            ethereumSpecific: EthereumSpecific?,
+            chainExtraData: ChainExtraData?,
+            tronTXReceipt: TronTXReceipt?,
+            fromAddress: String?,
+            toAddress: String?,
+            voteList: [String: Int]?
+        ) {
+            self.txid = txid
+            self.contractType = contractType
+            self.contractName = contractName
+            self.version = version
+            self.vin = vin
+            self.vout = vout
+            self.blockHash = blockHash
+            self.blockHeight = blockHeight
+            self.confirmations = confirmations
+            self.blockTime = blockTime
+            self.value = value
+            self.valueIn = valueIn
+            self.fees = fees
+            self.hex = hex
+            self.tokenTransfers = tokenTransfers
+            self.ethereumSpecific = ethereumSpecific
+            self.chainExtraData = chainExtraData
+            self.tronTXReceipt = tronTXReceipt
+            self.fromAddress = fromAddress
+            self.toAddress = toAddress
+            self.voteList = voteList
         }
     }
 
@@ -168,6 +217,26 @@ extension BlockBookAddressResponse {
     /// There are many more fields in this response, but we map only the required ones.
     struct TronTXReceipt: Decodable {
         let status: StatusType?
+    }
+
+    /// Tron-specific transaction info that NowNodes started delivering instead of the integer `contract_type`
+    /// field. There are more fields in this response, but we map only the required ones.
+    struct ChainExtraData: Decodable {
+        let payloadType: String?
+        let payload: Payload?
+
+        struct Payload: Decodable {
+            /// String contract type, e.g. `TransferContract`, `VoteWitnessContract`, `FreezeBalanceV2Contract`.
+            let contractType: String?
+            let operation: String?
+            let bandwidthUsage: String?
+            let votes: [Vote]?
+
+            struct Vote: Decodable {
+                let address: String?
+                let count: String?
+            }
+        }
     }
 
     struct Token: Decodable {
