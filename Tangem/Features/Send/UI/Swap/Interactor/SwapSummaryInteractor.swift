@@ -8,11 +8,13 @@
 
 import Combine
 import Foundation
+import TangemFoundation
 
 protocol SwapSummaryInteractor: AnyObject {
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> { get }
     var isMaxAmountButtonHiddenPublisher: AnyPublisher<Bool, Never> { get }
+    var areAmountFractionsHiddenPublisher: AnyPublisher<Bool, Never> { get }
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
     var isActionInProcessing: AnyPublisher<Bool, Never> { get }
@@ -27,17 +29,20 @@ protocol SwapSummaryInteractor: AnyObject {
 class CommonSwapSummaryInteractor {
     private weak var input: SwapSummaryInput?
     private weak var output: SwapSummaryOutput?
+    private weak var sourceTokenInput: SendSourceTokenInput?
 
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
 
     init(
         input: SwapSummaryInput,
         output: SwapSummaryOutput,
+        sourceTokenInput: SendSourceTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
     ) {
         self.input = input
         self.output = output
+        self.sourceTokenInput = sourceTokenInput
         self.swapDescriptionBuilder = swapDescriptionBuilder
     }
 }
@@ -65,6 +70,29 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         }
 
         return input.isMaxAmountButtonHiddenPublisher
+    }
+
+    var areAmountFractionsHiddenPublisher: AnyPublisher<Bool, Never> {
+        guard let sourceTokenInput else {
+            assertionFailure("SendSourceTokenInput is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return sourceTokenInput
+            .sourceTokenPublisher
+            .compactMap(\.value)
+            .flatMapLatest { $0.availableBalanceProvider.balanceTypePublisher }
+            .map { balanceType in
+                // Show the fractions only for a strictly positive balance.
+                // While the balance is loading/empty/failed (`loaded == nil`) or zero
+                // the buttons can't produce a meaningful amount, so hide them.
+                guard let balance = balanceType.loaded else {
+                    return true
+                }
+
+                return balance <= 0
+            }
+            .eraseToAnyPublisher()
     }
 
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> {
