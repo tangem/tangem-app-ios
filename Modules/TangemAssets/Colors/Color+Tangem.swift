@@ -225,7 +225,7 @@ public extension Color.Tangem.Visa {
     static let cardDetailBackground: Color = Primitives.Visa.background
 }
 
-private extension Color {
+extension Color {
     static func dynamic(light: Color, dark: Color) -> Color {
         let uiColor = UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
