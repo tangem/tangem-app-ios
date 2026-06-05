@@ -36,8 +36,6 @@ struct TransactionViewRedesigned: View {
         ZStack {
             Circle().fill(iconBackgroundColor)
 
-            Circle().strokeBorder(iconBorderColor, lineWidth: iconBorderWidth)
-
             viewModel.icon.icon
                 .renderingMode(.template)
                 .resizable()
@@ -123,19 +121,11 @@ private extension TransactionViewRedesigned {
         }
     }
 
-    var iconBorderColor: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.borderTintedRed
-        case .inProgress: .Tangem.Markers.borderTintedBlue
-        case .confirmed: .Tangem.Markers.borderGray
-        }
-    }
-
     var iconGlyphColor: Color {
         switch viewModel.icon.status {
         case .failed, .undefined: .Tangem.Markers.iconRed
         case .inProgress: .Tangem.Markers.iconBlue
-        case .confirmed: .Tangem.Markers.iconGray
+        case .confirmed: .Tangem.Graphic.Neutral.secondary
         }
     }
 }
