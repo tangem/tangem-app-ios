@@ -15,7 +15,7 @@ import TangemUIUtils
 struct TransactionViewRedesigned: View {
     let viewModel: TransactionViewModel
 
-    @ScaledSize private var iconContainerSize = CGSize(bothDimensions: 40)
+    @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
 
@@ -36,8 +36,6 @@ struct TransactionViewRedesigned: View {
         ZStack {
             Circle().fill(iconBackgroundColor)
 
-            Circle().strokeBorder(iconBorderColor, lineWidth: iconBorderWidth)
-
             viewModel.icon.icon
                 .renderingMode(.template)
                 .resizable()
@@ -45,7 +43,7 @@ struct TransactionViewRedesigned: View {
                 .frame(width: glyphSize, height: glyphSize)
                 .foregroundStyle(iconGlyphColor)
         }
-        .frame(width: iconContainerSize.width, height: iconContainerSize.height)
+        .frame(width: iconContainerSide, height: iconContainerSide)
     }
 
     private var nameView: some View {
@@ -123,19 +121,11 @@ private extension TransactionViewRedesigned {
         }
     }
 
-    var iconBorderColor: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.borderTintedRed
-        case .inProgress: .Tangem.Markers.borderTintedBlue
-        case .confirmed: .Tangem.Markers.borderGray
-        }
-    }
-
     var iconGlyphColor: Color {
         switch viewModel.icon.status {
         case .failed, .undefined: .Tangem.Markers.iconRed
         case .inProgress: .Tangem.Markers.iconBlue
-        case .confirmed: .Tangem.Markers.iconGray
+        case .confirmed: .Tangem.Graphic.Neutral.secondary
         }
     }
 }
