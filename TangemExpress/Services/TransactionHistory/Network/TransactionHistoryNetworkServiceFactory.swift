@@ -20,7 +20,7 @@ public enum TransactionHistoryNetworkServiceFactory {
             initialPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.exchangeHistory(
                     walletAddress: walletAddress,
-                    afterCursor: cursor as? String,
+                    cursor: cursor as? String,
                     limit: pageSize
                 )
 
@@ -29,7 +29,7 @@ public enum TransactionHistoryNetworkServiceFactory {
             deltaPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.exchangeHistoryDelta(
                     walletAddress: walletAddress,
-                    beforeCursor: cursor as? String,
+                    cursor: cursor as? String,
                     limit: pageSize
                 )
 
@@ -49,7 +49,7 @@ public enum TransactionHistoryNetworkServiceFactory {
             initialPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.onrampHistory(
                     walletAddress: walletAddress,
-                    afterCursor: cursor as? String,
+                    cursor: cursor as? String,
                     limit: pageSize
                 )
 
@@ -58,7 +58,7 @@ public enum TransactionHistoryNetworkServiceFactory {
             deltaPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.onrampHistoryDelta(
                     walletAddress: walletAddress,
-                    beforeCursor: cursor as? String,
+                    cursor: cursor as? String,
                     limit: pageSize
                 )
 

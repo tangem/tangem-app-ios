@@ -198,8 +198,8 @@ private final class StubExpressAPIProvider: ExpressAPIProvider {
     func onrampData(item: OnrampRedirectDataRequestItem) async throws -> OnrampRedirectData { fatalError("Not used in tests") }
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult { fatalError("Not used in tests") }
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction { fatalError("Not used in tests") }
-    func exchangeHistory(walletAddress: String, afterCursor: String?, limit: Int?) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
-    func exchangeHistoryDelta(walletAddress: String, beforeCursor: String?, limit: Int?) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
-    func onrampHistory(walletAddress: String, afterCursor: String?, limit: Int?) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
-    func onrampHistoryDelta(walletAddress: String, beforeCursor: String?, limit: Int?) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
+    func exchangeHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
+    func exchangeHistoryDelta(walletAddress: String, cursor: String?, limit: Int?) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
+    func onrampHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
+    func onrampHistoryDelta(walletAddress: String, cursor: String?, limit: Int?) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
 }
