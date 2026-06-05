@@ -49,10 +49,8 @@ private extension TokenDetailsBalanceView {
     }
 
     var tokenIcon: some View {
-        TokenIcon(
-            tokenIconInfo: viewModel.tokenIconInfo,
-            size: CGSize(width: tokenIconSide, height: tokenIconSide)
-        )
+        TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(width: tokenIconSide, height: tokenIconSide))
+            .redesigned()
     }
 
     var balancePicker: some View {
@@ -78,8 +76,11 @@ private extension TokenDetailsBalanceView {
     }
 
     var fiatBalance: some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: 243, height: 48) * scaleFactor)
-            .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
+        TokenDetailsBalanceStateView(
+            state: viewModel.fiatBalanceState,
+            skeletonSize: CGSize(width: 243, height: 48) * scaleFactor
+        )
+        .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
     }
 
     var fiatBalanceAccessibilityIdentifier: String {
@@ -92,13 +93,9 @@ private extension TokenDetailsBalanceView {
     }
 
     var cryptoBalance: some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: 115, height: 24) * scaleFactor)
-    }
-
-    func balanceState(_ state: TokenDetailsBalanceState, skeletonSize: CGSize) -> some View {
         TokenDetailsBalanceStateView(
-            state: state,
-            skeletonSize: skeletonSize
+            state: viewModel.cryptoBalanceState,
+            skeletonSize: CGSize(width: 115, height: 24) * scaleFactor
         )
     }
 }
