@@ -24,7 +24,7 @@ class CommonExpressAPIService {
     init(provider: TangemProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
         assert(
             provider.plugins.contains(where: { $0 is ExpressAuthorizationPlugin }),
-            "Should contains ExpressHeaderMoyaPlugin"
+            "Should contains ExpressAuthorizationPlugin"
         )
 
         self.provider = provider

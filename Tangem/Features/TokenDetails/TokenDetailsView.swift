@@ -356,23 +356,20 @@ private extension TokenDetailsView {
         walletModelsManager: cryptoAccountModel.walletModelsManager,
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
-    let apiProviderFactory = ExpressAPIProviderFactory()
-    let expressAPIProviderResolver = ExpressAPIProviderResolver(
-        providerFactory: { userWalletId, refcode in
-            apiProviderFactory.makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-        }
-    )
+    let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+    }
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
         walletModelUpdater: walletModel,
-        expressAPIProviderResolver: expressAPIProviderResolver,
+        cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
+        expressAPIProvider: cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
