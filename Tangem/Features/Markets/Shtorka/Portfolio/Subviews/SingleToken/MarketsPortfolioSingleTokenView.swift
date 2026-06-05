@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MarketsPortfolioSingleTokenView: View {
@@ -18,10 +19,8 @@ struct MarketsPortfolioSingleTokenView: View {
     @ScaledMetric private var padding: CGFloat = .unit(.x3)
     @ScaledMetric private var backgroundCornerRadius: CGFloat = .unit(.x5)
     @ScaledMetric private var priceWithChangeSpacing: CGFloat = .unit(.x1)
-    @ScaledSize private var tokenIconSize = CGSize(width: .unit(.x10), height: .unit(.x10))
-    @ScaledSize private var priceLoaderSize = CGSize(width: .unit(.x13), height: .unit(.x3))
-    @ScaledSize private var fiatBalanceSkeletonSize = CGSize(width: .unit(.x16), height: .unit(.x5))
-    @ScaledSize private var cryptoBalanceSkeletonSize = CGSize(width: .unit(.x13), height: .unit(.x4))
+
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         content
@@ -54,7 +53,7 @@ private extension MarketsPortfolioSingleTokenView {
     func icon() -> some View {
         TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: tokenIconSize
+            size: CGSize(width: .unit(.x10), height: .unit(.x10)) * scaleFactor
         )
     }
 
@@ -65,7 +64,7 @@ private extension MarketsPortfolioSingleTokenView {
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: fiatBalanceSkeletonSize)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: .unit(.x16), height: .unit(.x5)) * scaleFactor)
     }
 
     func priceWithChange() -> some View {
@@ -74,7 +73,7 @@ private extension MarketsPortfolioSingleTokenView {
                 state: viewModel.priceWithChangeState.priceState,
                 font: Fonts.Regular.caption1,
                 textColor: Colors.Text.tertiary,
-                loaderSize: priceLoaderSize
+                loaderSize: CGSize(width: .unit(.x13), height: .unit(.x3)) * scaleFactor
             )
 
             PriceChangeView(
@@ -85,7 +84,7 @@ private extension MarketsPortfolioSingleTokenView {
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: cryptoBalanceSkeletonSize)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: .unit(.x13), height: .unit(.x4)) * scaleFactor)
     }
 
     func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {

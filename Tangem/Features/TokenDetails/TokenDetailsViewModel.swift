@@ -27,6 +27,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
+    @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
@@ -64,6 +65,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
     @Published private(set) var stakingState: TokenDetailsStakingState?
+    @Published private(set) var yieldState: TokenDetailsYieldState?
 
     var iconUrl: URL? {
         guard let id = walletModel.tokenItem.id else {
@@ -85,6 +87,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
+
+    private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
+        walletModel: walletModel,
+        coordinator: coordinator,
+        factoryBuilder: { [weak self] manager in
+            self?.makeYieldModuleFlowFactory(manager: manager)
+        }
+    )
 
     private lazy var yieldAvailabilityBuilder = TokenDetailsYieldAvailabilityFactory(
         walletModel: walletModel,
@@ -477,8 +487,8 @@ private extension TokenDetailsViewModel {
             .filter { !$0.state.isLoading }
             .receiveOnMain()
             .removeDuplicates()
-            .sink { [weak self] state in
-                self?.updateYieldAvailability(state: state)
+            .sink { [weak self] info in
+                self?.updateYield(info: info)
             }
             .store(in: &bag)
 
@@ -517,6 +527,32 @@ private extension TokenDetailsViewModel {
                 }
             }
             .store(in: &bag)
+
+        walletModel.availableBalanceProvider
+            .balanceTypePublisher
+            .removeDuplicates()
+            .compactMap { balance in
+                balance.value ?? .zero == .zero
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isZeroBalance in
+                // [REDACTED_TODO_COMMENT]
+                self?.isZeroBalance = isZeroBalance
+            }
+            .store(in: &bag)
+    }
+
+    private func updateYield(info: YieldModuleManagerStateInfo) {
+        if isRedesign {
+            updateRedesignYield(info: info)
+        } else {
+            updateYieldAvailability(state: info)
+        }
+    }
+
+    private func updateRedesignYield(info: YieldModuleManagerStateInfo) {
+        yieldState = yieldStateFactory.make(info: info)
     }
 
     private func updateStaking(state: StakingManagerState) {
