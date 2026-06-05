@@ -57,10 +57,8 @@ final class SwapActionButtonViewModel: ActionButtonViewModel {
         switch viewState {
         case .initial:
             handleInitialStateTap()
-        case .loading, .disabled, .unavailable:
+        case .loading, .disabled, .unavailable, .restricted:
             break
-        case .restricted(let reason):
-            alert = .init(title: "", message: reason)
         case .idle:
             openSwap()
         }
@@ -122,7 +120,7 @@ private extension SwapActionButtonViewModel {
 
     func handleFailedStateTap(reason: String) {
         updateState(to: .restricted(reason: reason))
-        tap()
+        showRestrictionReason()
     }
 
     func handleInitialStateTap() {
