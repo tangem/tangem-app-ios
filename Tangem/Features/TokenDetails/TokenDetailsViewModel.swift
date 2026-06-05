@@ -27,6 +27,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published private(set) var quickTopUpBannerViewModel: QuickTopUpBannerViewModel?
     @Published var dotsMenuItems: [DotsMenuItem] = []
 
+    @Published private(set) var isZeroBalance = true
     @Published private(set) var marketPriceViewModel: TokenDetailsMarketPriceViewModel?
 
     private(set) lazy var navigationBarViewModel = makeNavigationBarViewModel()
@@ -524,6 +525,20 @@ private extension TokenDetailsViewModel {
                 MainActor.assumeIsolated {
                     self?.updateMarketPrice(miniChartData: chartData)
                 }
+            }
+            .store(in: &bag)
+
+        walletModel.availableBalanceProvider
+            .balanceTypePublisher
+            .removeDuplicates()
+            .compactMap { balance in
+                balance.value ?? .zero == .zero
+            }
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isZeroBalance in
+                // [REDACTED_TODO_COMMENT]
+                self?.isZeroBalance = isZeroBalance
             }
             .store(in: &bag)
     }
