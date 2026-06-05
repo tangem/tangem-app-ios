@@ -17,9 +17,6 @@ protocol FloatingSheetPresentingStateProvider: AnyObject {
 protocol FloatingSheetPresenter: AnyObject {
     func enqueue(sheet: some FloatingSheetContentViewModel)
 
-    // [REDACTED_TODO_COMMENT]
-    func replaceActive(with sheet: some FloatingSheetContentViewModel) async
-
     func removeActiveSheet()
     func removeAllSheets()
 
