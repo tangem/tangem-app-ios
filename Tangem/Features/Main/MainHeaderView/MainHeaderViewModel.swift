@@ -32,7 +32,7 @@ final class MainHeaderViewModel: ObservableObject {
     private weak var supplementInfoProvider: MainHeaderSupplementInfoProvider?
     private let subtitleProviderSubject: CurrentValueSubject<MainHeaderSubtitleProvider, Never>
     private let balanceProvider: MainHeaderBalanceProvider
-    private let walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+    private let walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     private let updatePublisher: AnyPublisher<UpdateResult, Never>
 
     private var bag: Set<AnyCancellable> = []
@@ -44,7 +44,7 @@ final class MainHeaderViewModel: ObservableObject {
         supplementInfoProvider: MainHeaderSupplementInfoProvider,
         subtitleProvider: MainHeaderSubtitleProvider,
         balanceProvider: MainHeaderBalanceProvider,
-        walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider,
+        walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider,
         updatePublisher: AnyPublisher<UpdateResult, Never>
     ) {
         self.userWalletId = userWalletId
@@ -53,13 +53,13 @@ final class MainHeaderViewModel: ObservableObject {
         self.supplementInfoProvider = supplementInfoProvider
         subtitleProviderSubject = CurrentValueSubject(subtitleProvider)
         self.balanceProvider = balanceProvider
-        self.walletTokenSyncProgressProvider = walletTokenSyncProgressProvider
+        self.walletAssetsDiscoveryProgressProvider = walletAssetsDiscoveryProgressProvider
         self.updatePublisher = updatePublisher
         userWalletName = supplementInfoProvider.name
         balance = balanceProvider.balance
 
         bind()
-        bindWalletTokenSyncProvider()
+        bindWalletAssetsDiscoveryProgressProvider()
     }
 
     private func bind() {
@@ -114,10 +114,10 @@ final class MainHeaderViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func bindWalletTokenSyncProvider() {
+    private func bindWalletAssetsDiscoveryProgressProvider() {
         Task { @MainActor in
-            if let walletTokenSyncProgressPublisher = await walletTokenSyncProgressProvider.progressPublisher(for: userWalletId) {
-                walletTokenSyncProgressPublisher
+            if let walletAssetsDiscoveryProgressPublisher = await walletAssetsDiscoveryProgressProvider.progressPublisher(for: userWalletId) {
+                walletAssetsDiscoveryProgressPublisher
                     .map { percent in
                         (1 ..< 100).contains(percent) ? .progress(value: percent) : .text
                     }
