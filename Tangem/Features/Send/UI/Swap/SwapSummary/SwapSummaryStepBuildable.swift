@@ -57,6 +57,7 @@ enum SwapSummaryStepBuilder {
         let interactor = CommonSwapSummaryInteractor(
             input: io.input,
             output: io.output,
+            sourceTokenInput: io.sourceTokenInput,
             receiveTokenAmountInput: io.receiveTokenAmountInput,
             swapModelStateProvider: io.swapModelStateProvider,
             swapDescriptionBuilder: dependencies.swapDescriptionBuilder,
