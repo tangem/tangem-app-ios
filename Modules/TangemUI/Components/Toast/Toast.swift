@@ -9,7 +9,11 @@
 import SwiftUI
 import class TangemUIUtils.PassThroughWindow
 
-public final class Toast<V: View> {
+public protocol DismissibleToast: AnyObject {
+    func dismiss(animated: Bool, completion: @escaping () -> Void)
+}
+
+public final class Toast<V: View>: DismissibleToast {
     private var timer: Timer?
 
     private lazy var hostingController: UIHostingController<some View> = {

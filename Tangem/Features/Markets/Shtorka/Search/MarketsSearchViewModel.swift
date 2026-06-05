@@ -21,6 +21,7 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
     @Published private(set) var isSearching: Bool = false
+    @Published private(set) var isSearchFieldFocused: Bool = false
 
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
@@ -94,6 +95,10 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
+
+        if FeatureProvider.isAvailable(.redesign) {
+            searchFocusBind()
+        }
     }
 
     deinit {
@@ -158,6 +163,20 @@ private extension MarketsSearchViewModel {
         tokenListViewModel.onResetShowItemsBelowCapFlag()
         currentSearchValue = ""
         tokenListViewModel.onFetch(with: "", by: filterProvider.currentFilterValue)
+    }
+
+    func searchFocusBind() {
+        headerViewModel.$inputShouldBecomeFocused
+            .withWeakCaptureOf(self)
+            .sink { viewModel, isFocused in
+                viewModel.isSearchFieldFocused = isFocused
+
+                guard isFocused, !viewModel.isSearching else { return }
+
+                Analytics.log(.marketsTokenSearchedClicked)
+                viewModel.isSearching = true
+            }
+            .store(in: &bag)
     }
 
     private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {

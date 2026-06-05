@@ -18,6 +18,7 @@ public enum ThumbnailWalletViewType: Equatable {
     case ring(ThumbnailRingPathBuilder.FillColors)
     case ringCard(ThumbnailRingCardPathBuilder.FillColors)
     case ringTwoCards(ThumbnailRingTwoCardsPathBuilder.FillColors)
+    case mobileWallet(ThumbnailMobileWalletPathBuilder.FillColors)
 
     func buildParts(for size: CGSize, colorScheme: ColorScheme) -> [ThumbnailPathFillMode] {
         switch self {
@@ -39,6 +40,8 @@ public enum ThumbnailWalletViewType: Equatable {
             ThumbnailRingCardPathBuilder.build(for: size, with: colors, colorScheme: colorScheme)
         case .ringTwoCards(let colors):
             ThumbnailRingTwoCardsPathBuilder.build(for: size, with: colors, colorScheme: colorScheme)
+        case .mobileWallet(let colors):
+            ThumbnailMobileWalletPathBuilder.build(for: size, with: colors, colorScheme: colorScheme)
         }
     }
 }
@@ -79,6 +82,7 @@ import TangemAssets
             ("ring", .ring(.init(ring: CC.tangem))),
             ("ringCard", .ringCard(.init(ring: CC.tangem, card: CC.tangem))),
             ("ringTwoCards", .ringTwoCards(.init(ring: CC.tangem, card: CC.tangem, secondCard: CC.tangem))),
+            ("mobileWallet", .mobileWallet(.init(icon: .Tangem.Graphic.Status.attention))),
         ]
     }()
 
