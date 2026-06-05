@@ -637,6 +637,7 @@ extension SwapModel {
     }
 
     func validate(amount: Amount, fee: Fee) throws -> RestrictionType? {
+        print("ДЕБАГ [SwapModel.validate] валидируем фи: \(fee.amount.value), комбинированная=\(fee.parameters is ApproveWithSwapFeeParameters), approve-компонент=\(String(describing: (fee.parameters as? ApproveWithSwapFeeParameters)?.approveFee.amount.value))")
         do {
             let source = try _sourceToken.value.get()
             try source.transactionValidator.validate(amount: amount, fee: fee)
@@ -1269,6 +1270,9 @@ extension SwapModel: SendFeeInput {
         )
         .withWeakCaptureOf(self)
         .compactMap { $0.mapToSelectedFee(providersState: $1.0, tokenFeeProvidersManager: $1.1) }
+        .handleEvents(receiveOutput: { tokenFee in
+            print("ДЕБАГ [SwapSummary] selected фи для UI: option=\(tokenFee.option), value=\(String(describing: tokenFee.value.value?.amount.value)), комбинированная=\((tokenFee.value.value?.parameters as? ApproveWithSwapFeeParameters) != nil)")
+        })
         .eraseToAnyPublisher()
     }
 

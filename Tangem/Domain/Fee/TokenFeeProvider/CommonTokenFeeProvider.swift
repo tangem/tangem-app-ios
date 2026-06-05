@@ -10,7 +10,6 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemMacro
-import enum BlockchainSdk.EthereumFeeParametersConstants
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -201,22 +200,22 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
             return try await updateFees(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)
 
-        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee, let stateOverride, let additionalFeeAmount)):
-            let fees = try await updateFees(
+        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
+            return try await updateFees(
+                amount: amount,
+                destination: destination,
+                txData: txData,
+                otherNativeFee: otherNativeFee
+            )
+
+        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approve):
+            return try await updateFees(
                 amount: amount,
                 destination: destination,
                 txData: txData,
                 otherNativeFee: otherNativeFee,
-                stateOverride: stateOverride
+                approve: approve
             )
-
-            guard let additionalFeeAmount else { return fees }
-
-            return fees.map { fee in
-                var feeAmount = fee.amount
-                feeAmount.value += additionalFeeAmount
-                return BSDKFee(feeAmount, parameters: fee.parameters)
-            }
 
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
@@ -291,6 +290,11 @@ private extension CommonTokenFeeProvider {
             break
         case .approve:
             // Approve but tokenFeeLoader is not EthereumTokenFeeLoader
+            updateState(state: .unavailable(.notSupported))
+        case .approveWithSwap where tokenFeeLoader is EthereumTokenFeeLoader:
+            // One-tap approve+swap is EVM-only (allowance + state override)
+            break
+        case .approveWithSwap:
             updateState(state: .unavailable(.notSupported))
         }
     }
@@ -391,13 +395,13 @@ private extension CommonTokenFeeProvider {
         return [fee]
     }
 
-    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, stateOverride: [String: BSDKEthereumAccountOverride]? = nil) async throws -> [BSDKFee] {
+    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, approve: ApproveWithSwapInput? = nil) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
             amount: amount,
             destination: destination,
             txData: txData,
             otherNativeFee: otherNativeFee,
-            stateOverride: stateOverride
+            approveInput: approve
         )
         try Task.checkCancellation()
         return fees

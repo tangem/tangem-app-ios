@@ -120,6 +120,7 @@ private extension DEXProviderFlowHelper {
                         // state write is the combined swap+approve fee in `fee(for:requiredApprove:)`,
                         // so the displayed fee is never transiently the approve-only shape.
                         fee = try await expressFeeProvider.estimateApproveFee(approveData: data)
+                        print("ДЕБАГ [FlowHelper] approve-фи (чистая оценка, мимо стейта): \(fee.amount.value)")
                     } else {
                         // Two-step: the permission screen reads its fee from the provider state, so this
                         // state-mutating estimate is intended.
@@ -273,11 +274,13 @@ private extension DEXProviderFlowHelper {
             spender: requiredApprove.data.spender
         )
 
-        return try await expressFeeProvider.transactionFee(
+        let combined = try await expressFeeProvider.transactionFee(
             data: .dex(data: data),
             allowanceOverride: allowanceOverride,
             approveFee: requiredApprove.fee
         )
+        print("ДЕБАГ [FlowHelper] комбинированная фи для DEXPreview: \(combined.amount.value), approve-фи в requiredApprove: \(requiredApprove.fee.amount.value)")
+        return combined
     }
 
     func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {

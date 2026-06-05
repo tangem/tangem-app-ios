@@ -205,6 +205,7 @@ private extension UnstakingModel {
              .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .loadTransactionInfo,
              .actionNotSupported:
             break

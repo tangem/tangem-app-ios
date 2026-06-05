@@ -74,8 +74,25 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
         return fee
     }
 
-    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, stateOverride: [String: BSDKEthereumAccountOverride]?) async throws -> [BSDKFee] {
+    func getFee(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        approveInput: ApproveWithSwapInput?
+    ) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
+
+        // The swap gas estimate would revert while the allowance is missing, so it runs
+        // with the allowance overridden to unlimited — covering the `transferFrom` gas.
+        let stateOverride = approveInput.map {
+            EthereumAccountOverride.unlimitedAllowance(
+                tokenAddress: $0.tokenContractAddress,
+                owner: $0.owner,
+                spender: $0.spender
+            )
+        }
+
         let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
             feeToken: params.feeToken,
             destination: destination,
@@ -87,7 +104,24 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
             nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
 
-        return [fee]
+        guard let approveInput else {
+            return [fee]
+        }
+
+        // Fold the pre-estimated approve fee into the total. The approve component travels
+        // inside the parameters, so the send path can split the total back into two per-tx fees.
+        var combinedAmount = fee.amount
+        combinedAmount.value += approveInput.fee.amount.value
+        print("ДЕБАГ [GaslessLoader] swap-фи до фолда: \(fee.amount.value), approve-фи: \(approveInput.fee.amount.value), комбинированная: \(combinedAmount.value)")
+
+        guard let swapParameters = fee.parameters as? any EthereumFeeParameters else {
+            return [BSDKFee(combinedAmount, parameters: fee.parameters)]
+        }
+
+        return [BSDKFee(
+            combinedAmount,
+            parameters: ApproveWithSwapFeeParameters(swapParameters: swapParameters, approveFee: approveInput.fee)
+        )]
     }
 }
 

@@ -17,6 +17,24 @@ enum TokenFeeProviderInputData: Hashable {
     case dex(_ type: TokenFeeProviderInputDataDEXType)
     /// Fee multiplier applied after estimation (e.g. 3x for revoke+approve flows).
     case approve(txData: Data, toContractAddress: String, feeMultiplier: FeeMultiplier = .single)
+    /// One-tap approve+swap: the swap is estimated with an unlimited-allowance state override
+    /// (the estimate would revert while the allowance is missing), and the pre-estimated approve
+    /// fee is folded into every option's total.
+    case approveWithSwap(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        approve: ApproveWithSwapInput
+    )
+}
+
+struct ApproveWithSwapInput: Hashable {
+    /// Pre-estimated approve fee with its own gas parameters.
+    let fee: BSDKFee
+    let tokenContractAddress: String
+    let owner: String
+    let spender: String
 }
 
 enum FeeMultiplier: Decimal, Hashable {
@@ -31,9 +49,7 @@ enum TokenFeeProviderInputDataDEXType: Hashable {
         amount: BSDKAmount,
         destination: String,
         txData: Data,
-        otherNativeFee: Decimal?,
-        stateOverride: [String: BSDKEthereumAccountOverride]? = nil,
-        additionalFeeAmount: Decimal? = nil
+        otherNativeFee: Decimal?
     )
 
     case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)

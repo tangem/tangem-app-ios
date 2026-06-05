@@ -226,9 +226,9 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         }
     }
 
-    /// Override-aware variant for pre-approve swap-fee estimation: feeds the EVM-DEX input with a faked
-    /// unlimited-allowance `stateOverride`, and folds the separate `approveFee` into every fee option's
-    /// displayed total (the swap gas `parameters` per option stay untouched). Everything else falls back
+    /// Override-aware variant for pre-approve swap-fee estimation: the `.approveWithSwap` input makes
+    /// the provider estimate the swap with a faked unlimited-allowance state override and fold the
+    /// separate `approveFee` into every fee option's displayed total. Everything else falls back
     /// to the regular path.
     func transactionFee(
         data: ExpressTransactionDataType,
@@ -245,26 +245,26 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             throw ExpressProviderError.transactionDataNotFound
         }
 
-        let stateOverride = EthereumAccountOverride.unlimitedAllowance(
-            tokenAddress: allowanceOverride.tokenContractAddress,
-            owner: allowanceOverride.owner,
-            spender: allowanceOverride.spender
-        )
-
         // The `txValue` is always coin
         let amount = BSDKAmount(with: blockchain, type: .coin, value: dexData.txValue)
 
-        update(input: .dex(.ethereum(
+        update(input: .approveWithSwap(
             amount: amount,
             destination: dexData.destinationAddress,
             txData: txData,
             otherNativeFee: dexData.otherNativeFee,
-            stateOverride: stateOverride,
-            additionalFeeAmount: approveFee.amount.value
-        )))
+            approve: ApproveWithSwapInput(
+                fee: approveFee,
+                tokenContractAddress: allowanceOverride.tokenContractAddress,
+                owner: allowanceOverride.owner,
+                spender: allowanceOverride.spender
+            )
+        ))
 
         await updateFees().value
-        return try selectedFeeProvider.selectedTokenFee.value.get()
+        let total = try selectedFeeProvider.selectedTokenFee.value.get()
+        print("ДЕБАГ [Manager] итог из стейта провайдера: total=\(total.amount.value), approve-компонент=\(String(describing: (total.parameters as? ApproveWithSwapFeeParameters)?.approveFee.amount.value))")
+        return total
     }
 }
 
