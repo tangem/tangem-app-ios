@@ -108,7 +108,7 @@ private extension CommonEthereumTokenFeeLoader {
         destination: String,
         txData: Data,
         otherNativeFee: Decimal?,
-        stateOverride: [String: EthereumAccountOverride]?
+        stateOverride: EthereumStateOverride?
     ) async throws -> [BSDKFee] {
         var fees = try await ethereumNetworkProvider
             .getFee(destination: destination, value: amount.encodedForSend, data: txData, stateOverride: stateOverride)

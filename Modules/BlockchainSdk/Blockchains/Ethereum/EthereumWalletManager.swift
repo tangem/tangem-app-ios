@@ -74,7 +74,7 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         let fromPublisher = addressConverter.convertToETHAddressPublisher(defaultSourceAddress)
         let destinationPublisher = addressConverter.convertToETHAddressPublisher(destination)
@@ -338,7 +338,7 @@ private extension EthereumWalletManager {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         return networkService.getEIP1559Fee(
             to: destination,
@@ -388,7 +388,7 @@ private extension EthereumWalletManager {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         return networkService.getLegacyFee(
             to: destination,
@@ -550,7 +550,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]?,
+        stateOverride: EthereumStateOverride?,
         otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal

@@ -56,6 +56,12 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
     }
 
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
+        let blockchain = walletModel.tokenItem.blockchain
+
+        guard blockchain.isEvm else {
+            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
+        }
+
         guard let lastTransaction = transactions.last else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
@@ -64,23 +70,22 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
             return [try await send(transaction: lastTransaction)]
         }
 
-        let blockchain = walletModel.tokenItem.blockchain
+        var approveTransactions: [BSDKTransaction] = []
+        var swapTransactions: [BSDKTransaction] = []
 
-        guard blockchain.isEvm else {
-            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
-        }
-
-        var builtTransactions: [BSDKTransaction] = []
         for transaction in transactions {
             switch transaction {
             case .approve(let data, let fee):
-                builtTransactions.append(try await buildApproveTransaction(data: data, fee: fee))
+                approveTransactions.append(try await buildApproveTransaction(data: data, fee: fee))
             case .dex(let data, let fee):
-                builtTransactions.append(try await buildTransaction(data: data, fee: fee))
+                swapTransactions.append(try await buildTransaction(data: data, fee: fee))
             default:
                 throw TransactionDispatcherResult.Error.transactionNotFound
             }
         }
+
+        // Approve must be mined first — the swap spends its allowance.
+        let builtTransactions = approveTransactions + swapTransactions
 
         guard let multipleTransactionsSender = walletModel.multipleTransactionsSender else {
             throw TransactionDispatcherProviderError.transactionNotSupported(
