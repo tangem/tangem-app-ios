@@ -286,24 +286,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
-    @discardableResult
-    func waitForSwapButtonDisabled() -> Self {
-        XCTContext.runActivity(named: "Verify Swap button shows unavailability alert on tap") { _ in
-            waitAndAssertTrue(swapButton, "Swap button should exist")
-            swapButton.waitAndTap()
-
-            // An alert should appear indicating swap is not available
-            let alert = app.alerts.firstMatch
-            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Unavailability alert should appear for a non-swappable token")
-
-            // Dismiss the alert
-            let okButton = alert.buttons.firstMatch
-            XCTAssertTrue(okButton.exists, "Alert should have a dismiss button")
-            okButton.tap()
-            return self
-        }
-    }
-
     /// Direct button first (legacy/inlineList); otherwise tap the group (buttonsRow) and its bottom sheet.
     private func resolveActionButton(_ direct: XCUIElement, viaGroup group: XCUIElement) {
         waitForEither(direct, or: group, "Neither direct nor grouped action button appeared")
