@@ -63,7 +63,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(rankColor)
 
                 Text(ratingText)
-                    .style(.Tangem.Heading22.regular, color: rankColor)
+                    .style(.Tangem.Heading20.semibold, color: rankColor)
 
                 Assets.DesignSystem.oliveRight.image
                     .renderingMode(.template)
