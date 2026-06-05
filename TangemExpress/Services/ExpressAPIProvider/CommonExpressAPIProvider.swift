@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AnyCodable
 
 class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
@@ -291,40 +290,30 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     // MARK: - History
 
-    func exchangeHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> ExchangeHistoryPage {
-        let request = ExpressDTO.HistoryRequest(
-            walletAddress: walletAddress,
-            cursor: cursor.map { AnyEncodable($0) },
-            limit: limit,
-            network: network,
-            tokenId: tokenId
-        )
+    func exchangeHistory(walletAddress: String, afterCursor: String?, limit: Int?) async throws -> ExchangeHistoryPage {
+        let request = ExpressDTO.Swap.History.Request(fromAddress: walletAddress, afterCursor: afterCursor, limit: limit)
         let response = try await expressAPIService.exchangeHistory(request: request)
 
         return try expressAPIMapper.mapToExchangeHistoryPage(response: response)
     }
 
-    func onrampHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> OnrampHistoryPage {
-        let request = ExpressDTO.HistoryRequest(
-            walletAddress: walletAddress,
-            cursor: cursor.map { AnyEncodable($0) },
-            limit: limit,
-            network: network,
-            tokenId: tokenId
-        )
+    func exchangeHistoryDelta(walletAddress: String, beforeCursor: String?, limit: Int?) async throws -> ExchangeHistoryPage {
+        let request = ExpressDTO.Swap.HistoryDelta.Request(fromAddress: walletAddress, beforeCursor: beforeCursor, limit: limit)
+        let response = try await expressAPIService.exchangeHistoryDelta(request: request)
+
+        return try expressAPIMapper.mapToExchangeHistoryPage(response: response)
+    }
+
+    func onrampHistory(walletAddress: String, afterCursor: String?, limit: Int?) async throws -> OnrampHistoryPage {
+        let request = ExpressDTO.Onramp.History.Request(payoutAddress: walletAddress, afterCursor: afterCursor, limit: limit)
         let response = try await expressAPIService.onrampHistory(request: request)
+
+        return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
+    }
+
+    func onrampHistoryDelta(walletAddress: String, beforeCursor: String?, limit: Int?) async throws -> OnrampHistoryPage {
+        let request = ExpressDTO.Onramp.HistoryDelta.Request(payoutAddress: walletAddress, beforeCursor: beforeCursor, limit: limit)
+        let response = try await expressAPIService.onrampHistoryDelta(request: request)
 
         return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
     }

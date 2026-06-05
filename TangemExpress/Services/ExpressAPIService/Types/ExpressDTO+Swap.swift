@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AnyCodable
 
 extension ExpressDTO {
     enum Swap {
@@ -172,50 +171,80 @@ extension ExpressDTO {
             }
         }
 
-        // MARK: - History
+        // MARK: - History (initial)
 
         enum History {
+            struct Request: Encodable {
+                let fromAddress: String
+                let afterCursor: String?
+                let limit: Int?
+            }
+
             struct Response: Decodable {
-                let data: [Record]
-                let nextCursor: AnyDecodable
+                let items: [Record]
+                let pagination: Pagination
+            }
+
+            struct Pagination: Decodable {
+                let endCursor: String?
+                let startDeltaCursor: String?
                 let hasMore: Bool
             }
 
             struct Record: Decodable {
                 let txId: String
-                let status: ExpressTransactionStatus
-                let provider: ExpressDTO.HistoryProvider
-                let from: AssetRef
-                let to: AssetRef
+                let providerId: String
+                let fromAddress: String
+                let payinAddress: String
+                let payinExtraId: String?
+                let payoutAddress: String
+                let refundAddress: String?
+                let refundExtraId: String?
+                let rateType: String
+                let status: String
+                let externalTxId: String?
+                let externalTxStatus: String?
+                let externalTxUrl: String?
                 let payinHash: String?
                 let payoutHash: String?
-                let externalTxId: String?
-                let externalTxUrl: String?
-                let refund: Refund?
-                let rateType: ExpressProviderRateType
-                // [REDACTED_TODO_COMMENT]
-                /*
-                 let createdAt: Int
-                 let updatedAt: Int
-                  */
+                let refundNetwork: String?
+                let refundContractAddress: String?
                 let createdAt: Date
-                let updatedAt: Date
+                let payTill: Date?
+                let averageDuration: TimeInterval?
+
+                // fromAsset info
+                let fromContractAddress: String
+                let fromNetwork: String
+                let fromDecimals: Int
+                let fromAmount: String
+
+                // toAsset info
+                let toContractAddress: String
+                let toNetwork: String
+                let toDecimals: Int
+                let toAmount: String
+                let toActualAmount: String?
+            }
+        }
+
+        // MARK: - History (delta)
+
+        enum HistoryDelta {
+            struct Request: Encodable {
+                let fromAddress: String
+                let beforeCursor: String?
+                let limit: Int?
             }
 
-            struct AssetRef: Decodable {
-                let network: String
-                let tokenId: String?
-                let rawAmount: String
-                let decimals: Int
-                let isActual: Bool?
+            struct Response: Decodable {
+                let items: [History.Record]
+                let pagination: Pagination
             }
 
-            struct Refund: Decodable {
-                let network: String
-                let tokenId: String?
-                let rawAmount: String
-                let decimals: Int
-                let hash: String?
+            struct Pagination: Decodable {
+                let startCursor: String?
+                let hasMore: Bool
             }
         }
     }
