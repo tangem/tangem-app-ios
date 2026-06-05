@@ -33,11 +33,11 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
         }
     }
 
-    func tapToken(_ label: String) -> OnrampScreen {
+    func tapToken(_ label: String) -> AddFundsScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
             tokensList.staticTextByLabel(label: label).waitAndTap()
-            return OnrampScreen(app)
+            return AddFundsScreen(app)
         }
     }
 }
