@@ -228,6 +228,7 @@ private extension TransferModel {
         case .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .demoAlert,
              .userCancelled,
              .loadTransactionInfo,

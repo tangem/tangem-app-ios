@@ -18,13 +18,15 @@ protocol TokenFeeLoader {
 protocol EthereumTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
 
-    /// `stateOverride` fakes unlimited allowance for pre-approve `transferFrom` gas estimation (`nil` = normal estimate).
+    /// `approveInput` switches the estimate to the one-tap approve+swap mode: the swap gas is estimated
+    /// with the allowance overridden to unlimited (the estimate would revert otherwise), and the
+    /// pre-estimated approve fee is folded into every option's total (`nil` = normal estimate).
     func getFee(
         amount: BSDKAmount,
         destination: String,
         txData: Data,
         otherNativeFee: Decimal?,
-        stateOverride: [String: BSDKEthereumAccountOverride]?
+        approveInput: ApproveWithSwapInput?
     ) async throws -> [BSDKFee]
 }
 

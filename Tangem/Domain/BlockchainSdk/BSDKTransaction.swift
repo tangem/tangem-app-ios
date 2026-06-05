@@ -18,4 +18,3 @@ typealias BSDKAmount = BlockchainSdk.Amount
 typealias BSDKFee = BlockchainSdk.Fee
 
 typealias BSDKApprovePolicy = BlockchainSdk.ApprovePolicy
-typealias BSDKEthereumAccountOverride = BlockchainSdk.EthereumAccountOverride
