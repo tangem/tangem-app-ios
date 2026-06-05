@@ -45,8 +45,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     @Published var hideTransactionAlert: AlertBinder?
 
     @Published private(set) var isHideButtonShowed = false
-
-    private(set) var ratingViewModel: RatingViewModel?
+    @Published private(set) var ratingViewModel: RatingViewModel?
 
     private let expressProviderFormatter = ExpressProviderFormatter(balanceFormatter: .init())
     private weak var pendingTransactionsManager: (any PendingExpressTransactionsManager)?
@@ -65,19 +64,22 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     private var alreadyTrackedTokenNoticeLongTimeTransactionEvent: Bool = false
+    private let isRatingFeatureAvailable: Bool
 
     init(
         pendingTransaction: PendingTransaction,
         currentTokenItem: TokenItem,
         userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager,
-        router: PendingExpressTxStatusRoutable
+        router: PendingExpressTxStatusRoutable,
+        isRatingFeatureAvailable: Bool = FeatureProvider.isAvailable(.swapRateExperience)
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
         self.userWalletInfo = userWalletInfo
         self.pendingTransactionsManager = pendingTransactionsManager
         self.router = router
+        self.isRatingFeatureAvailable = isRatingFeatureAvailable
 
         let provider = pendingTransaction.provider
         let iconBuilder = TokenIconInfoBuilder()
@@ -162,6 +164,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         openProvider()
     }
 
+    func share() {
+        let activityVC = UIActivityViewController(activityItems: [buildShareText()], applicationActivities: nil)
+        AppPresenter.shared.show(activityVC)
+    }
+
     private func openProvider() {
         guard let url = externalProviderTxURL else {
             return
@@ -230,29 +237,20 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private func bind() {
         subscription = pendingTransactionsManager?.pendingTransactionsPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, pendingTransactions in
-                guard let first = pendingTransactions.first(where: { tx in
-                    tx.expressTransactionId == viewModel.pendingTransaction.expressTransactionId
-                }) else {
-                    return (viewModel, nil)
-                }
-
-                return (viewModel, first)
-            }
             .receive(on: DispatchQueue.main)
-            .sink { (viewModel: PendingExpressTxStatusBottomSheetViewModel, pendingTx: PendingTransaction?) in
-                // If we've failed to find this transaction in manager it means that it was finished in either way on the provider side
-                // We can remove subscription and just display final state of transaction
-                guard let pendingTx else {
+            .withWeakCaptureOf(self)
+            .sink { viewModel, pendingTransactions in
+                guard let pendingTx = pendingTransactions.first(where: {
+                    $0.expressTransactionId == viewModel.pendingTransaction.expressTransactionId
+                }) else {
+                    // Transaction not found in manager — finished on provider side
                     viewModel.subscription = nil
                     return
                 }
 
-                // Update the stored transaction to reflect current state
                 viewModel.pendingTransaction = pendingTx
+                viewModel.setupRatingViewModel()
 
-                // We will hide it via separate notification in case of refunded token
                 if pendingTx.transactionStatus.isCanBeHideAutomatically, pendingTx.refundedTokenItem == nil {
                     viewModel.hidePendingTx(expressTransactionId: pendingTx.expressTransactionId)
                 }
@@ -512,13 +510,12 @@ private extension PendingExpressTxStatusBottomSheetViewModel {
     // MARK: - Setup rating
 
     func setupRatingViewModel() {
-        guard
-            FeatureProvider.isAvailable(.swapRateExperience),
-            InjectedValues[\.keysManager].surveySparrow.isSwapRatingConfigured,
-            let transaction = RatingModel.Transaction(from: pendingTransaction)
-        else {
-            return
-        }
+        guard ratingViewModel == nil else { return }
+
+        let isConfigured = InjectedValues[\.keysManager].surveySparrow.isSwapRatingConfigured
+        let transaction = RatingModel.Transaction(from: pendingTransaction)
+
+        guard isRatingFeatureAvailable, isConfigured, let transaction else { return }
 
         ratingViewModel = RatingViewModel(
             model: RatingModel(
