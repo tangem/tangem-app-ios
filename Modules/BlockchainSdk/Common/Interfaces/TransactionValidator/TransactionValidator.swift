@@ -10,15 +10,13 @@ import Foundation
 import Combine
 
 public protocol TransactionValidator: WalletProvider {
-    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
     func validate(amount: Amount, fee: Fee) throws
-
-    func validate(transaction: Transaction) async throws
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
 }
 
-public enum DestinationType: Hashable {
-    /// The specified address will be used for verification
-    case address(String)
+public enum DestinationType {
+    /// The specified address and optional transaction params will be used for verification
+    case address(String, params: TransactionParams?)
 }
 
 // MARK: - Default implementation
@@ -31,11 +29,6 @@ public extension TransactionValidator {
 
     func validate(amount: Amount, fee: Fee) throws {
         try validateAmounts(amount: amount, fee: fee)
-    }
-
-    /// Validation will be doing with `amount`, `fee` and `destinationAddress`  from the `Transaction`
-    func validate(transaction: Transaction) async throws {
-        try await validate(amount: transaction.amount, fee: transaction.fee, destination: .address(transaction.destinationAddress))
     }
 }
 
@@ -200,19 +193,23 @@ extension TransactionValidator where Self: ReserveAmountRestrictable {
         try validateAmounts(amount: amount, fee: fee)
 
         switch destination {
-        case .address(let address):
+        case .address(let address, _):
             try await validateReserveAmount(amount: amount, address: address)
         }
     }
 }
 
-// MARK: - RequiredMemoRestrictable & ReserveAmountRestrictable e.g. XRPWalletManager
+// MARK: - RequiredMemoRestrictable & ReserveAmountRestrictable e.g. XRPWalletManager, StellarWalletManager
 
 extension TransactionValidator where Self: RequiredMemoRestrictable, Self: ReserveAmountRestrictable {
-    func validate(transaction: Transaction) async throws {
-        try validateAmounts(amount: transaction.amount, fee: transaction.fee)
-        try await validateReserveAmount(amount: transaction.amount, address: transaction.destinationAddress)
-        try await validateRequiredMemo(destination: transaction.destinationAddress, transactionParams: transaction.params)
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        try validateAmounts(amount: amount, fee: fee)
+
+        switch destination {
+        case .address(let address, let params):
+            try await validateReserveAmount(amount: amount, address: address)
+            try await validateRequiredMemo(destination: address, transactionParams: params)
+        }
     }
 }
 

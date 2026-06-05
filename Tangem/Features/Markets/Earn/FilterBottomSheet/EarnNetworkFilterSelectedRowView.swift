@@ -12,24 +12,15 @@ import TangemUIUtils
 import TangemAssets
 
 struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
-    private let data: DefaultSelectableRowViewModel<ID>
-    private let selection: Binding<ID>
+    let data: DefaultSelectableRowViewModel<ID>
+    let selection: Binding<ID>
 
-    @ScaledMetric private var verticalPadding: CGFloat
-    @ScaledMetric private var horizontalMinLength: CGFloat
-    @ScaledSize private var iconSize: CGSize
+    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x3) + .unit(.half)
+    @ScaledMetric private var horizontalMinLength = CGFloat.unit(.x1)
+    @ScaledMetric private var iconSide = CGFloat.unit(.x5)
 
     private var isSelected: Bool {
         selection.isActive(compare: data.id).wrappedValue
-    }
-
-    init(data: DefaultSelectableRowViewModel<ID>, selection: Binding<ID>) {
-        self.data = data
-        self.selection = selection
-
-        _verticalPadding = ScaledMetric(wrappedValue: .unit(.x3) + .unit(.half))
-        _horizontalMinLength = ScaledMetric(wrappedValue: .unit(.x1))
-        _iconSize = ScaledSize(wrappedValue: CGSize(bothDimensions: .unit(.x5)))
     }
 
     var body: some View {
@@ -67,6 +58,6 @@ private extension EarnNetworkFilterSelectedRowView {
                     .foregroundStyle(Color.Tangem.Border.Neutral.secondary)
             }
         }
-        .frame(size: iconSize)
+        .frame(width: iconSide, height: iconSide)
     }
 }

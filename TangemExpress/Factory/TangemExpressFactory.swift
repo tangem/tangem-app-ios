@@ -70,7 +70,6 @@ public struct TangemExpressFactory {
     ) -> ExpressAPIProvider {
         #if DEBUG
         // [REDACTED_TODO_COMMENT]
-        // Using deprecated raw initializer for `TangemProvider` since we have to inject a stub closure for network mocks
         let provider = TangemProvider<ExpressAPITarget>(
             stubClosure: { target in
                 switch target.target {

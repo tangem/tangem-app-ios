@@ -29,4 +29,9 @@ public enum ActionButtonsAccessibilityIdentifiers {
 
     /// Buy token selector screen
     public static let buyTokenSelectorTokensList = "\(prefix)BuyTokenSelectorTokensList"
+
+    /// Add funds screen
+    public static let addFundsBuyRow = "\(prefix)AddFundsBuyRow"
+    public static let addFundsSwapRow = "\(prefix)AddFundsSwapRow"
+    public static let addFundsReceiveRow = "\(prefix)AddFundsReceiveRow"
 }
