@@ -24,15 +24,23 @@ struct RedesignActionButtonsView: View {
     }
 
     var body: some View {
+        let visibility = viewModel.actionButtonsVisibility
+
         HStack(alignment: .top, spacing: spacing) {
-            RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
-                .frame(maxWidth: .infinity)
+            if visibility.isExchangeVisible {
+                RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
+                    .frame(maxWidth: .infinity)
+            }
 
-            RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
-                .frame(maxWidth: .infinity)
+            if visibility.isSwappingVisible {
+                RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
+                    .frame(maxWidth: .infinity)
+            }
 
-            RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
-                .frame(maxWidth: .infinity)
+            if visibility.isExchangeVisible {
+                RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
+                    .frame(maxWidth: .infinity)
+            }
         }
         .padding(.horizontal, dynamicHorizontalPadding)
         .accessibilityElement(children: .contain)
