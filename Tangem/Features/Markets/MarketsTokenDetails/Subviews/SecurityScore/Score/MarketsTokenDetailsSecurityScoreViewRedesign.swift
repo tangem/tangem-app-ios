@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemUI
 
 struct MarketsTokenDetailsSecurityScoreViewRedesign: View {
     let viewModel: MarketsTokenDetailsSecurityScoreViewModel
@@ -23,7 +24,7 @@ struct MarketsTokenDetailsSecurityScoreViewRedesign: View {
 
             bottomRow
         }
-        .padding(.vertical, .unit(.x5))
+        .roundedBackground(with: .Tangem.Surface.level3, padding: .unit(.x4), radius: .unit(.x6))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreBlock)
     }
