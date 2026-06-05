@@ -118,6 +118,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         infoProvider
             .balanceTypePublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupBalance(type)
@@ -126,6 +127,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         infoProvider
             .fiatBalanceTypePublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupFiatBalance(type)
