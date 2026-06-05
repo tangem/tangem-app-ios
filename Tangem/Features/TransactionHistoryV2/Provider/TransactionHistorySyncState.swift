@@ -21,12 +21,14 @@ extension TransactionHistorySyncState {
         case userInitiated(UserInitiatedSyncKind)
     }
 
+    // [REDACTED_TODO_COMMENT]
     enum IdleReason: Sendable, Hashable {
         case waitingForInitial
         case ready
         case noHistory
     }
 
+    // [REDACTED_TODO_COMMENT]
     struct Failure: Sendable {
         enum Reason: Sendable {
             case cursorReset
