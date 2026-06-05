@@ -9,11 +9,11 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct RedesignedAccountSkeletonCardView: View {
+    @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var iconDimension: CGFloat = 36
-    @ScaledSize private var topLineSize = CGSize(width: 80, height: 16)
-    @ScaledSize private var bottomLineSize = CGSize(width: 42, height: 12)
 
     var body: some View {
         HStack(spacing: 0) {
@@ -41,11 +41,11 @@ struct RedesignedAccountSkeletonCardView: View {
     private func makeSkeletonsStack(alignment: HorizontalAlignment) -> some View {
         VStack(alignment: alignment, spacing: .unit(.x1_5)) {
             SkeletonView()
-                .frame(size: topLineSize)
+                .frame(size: CGSize(width: 80, height: 16) * scaleFactor)
                 .clipShape(Capsule(style: .continuous))
 
             SkeletonView()
-                .frame(size: bottomLineSize)
+                .frame(size: CGSize(width: 42, height: 12) * scaleFactor)
                 .clipShape(Capsule(style: .continuous))
         }
     }
