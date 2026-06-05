@@ -40,10 +40,12 @@ public struct TangemMainActionButton: View {
 
             Text(title)
                 .style(
-                    Fonts.Regular.body,
+                    .Tangem.Subheadline.medium,
                     color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
-                .lineLimit(1)
+                .lineLimit(nil)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .contentShape(.rect)
                 .onTapGesture(perform: action)
         }
