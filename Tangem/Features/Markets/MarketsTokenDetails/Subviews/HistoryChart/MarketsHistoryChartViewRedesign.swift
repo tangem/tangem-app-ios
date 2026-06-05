@@ -172,7 +172,7 @@ private extension MarketsHistoryChartViewRedesign {
         static let labelFont: UIFont = UIFonts.Regular.caption2
         static let labelTextColor: UIColor = .init(Color.Tangem.Text.Neutral.tertiary)
         static let labelOffset: CGFloat = .unit(.x3)
-        static let gridLineColor: UIColor = .init(Color.Tangem.Border.Neutral.secondary)
+        static let gridLineColor: UIColor = .init(Color.Tangem.Border.Neutral.secondary).withAlphaComponent(0.3)
         static let gridLineWidth: CGFloat = .unit(.quarter)
     }
 }
