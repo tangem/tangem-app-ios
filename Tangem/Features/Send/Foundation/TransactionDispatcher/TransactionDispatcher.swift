@@ -35,20 +35,21 @@ extension TransactionDispatcher {
         swap: (data: ExpressTransactionData, fee: BSDKFee),
         approve: (data: ApproveTransactionData, fee: BSDKFee)?
     ) async throws -> TransactionDispatcherResult {
-        // The displayed fee is the approve+swap total — the swap tx itself goes out with its own component.
-        let swapTransactionFee: BSDKFee
-        if let combinedFeeParameters = swap.fee.parameters as? ApproveWithSwapFeeParameters {
-            swapTransactionFee = combinedFeeParameters.swapFee(total: swap.fee)
-        } else if approve != nil {
-            // One-tap send requires the combined fee shape — refuse to send with an inconsistent split.
-            throw TransactionDispatcherResult.Error.feeNotFound
-        } else {
-            swapTransactionFee = swap.fee
+        guard let approve else {
+            // Legacy path — a single swap transaction (incl. non-EVM DEX like Solana)
+            return try await send(transaction: .dex(data: swap.data, fee: swap.fee))
         }
 
-        let approveTransaction = approve.map { TransactionDispatcherTransactionType.approve(data: $0.data, fee: $0.fee) }
-        let swapTransaction = TransactionDispatcherTransactionType.dex(data: swap.data, fee: swapTransactionFee)
-        let transactions = [approveTransaction, swapTransaction].compactMap { $0 }
+        // The displayed fee is the approve+swap total — the swap tx itself goes out with its own component.
+        guard let combinedFeeParameters = swap.fee.parameters as? ApproveWithSwapFeeParameters else {
+            throw TransactionDispatcherResult.Error.feeNotFound
+        }
+
+        let swapTransactionFee = combinedFeeParameters.swapFee(total: swap.fee)
+        let transactions: [TransactionDispatcherTransactionType] = [
+            .approve(data: approve.data, fee: approve.fee),
+            .dex(data: swap.data, fee: swapTransactionFee),
+        ]
 
         let results = try await send(transactions: transactions)
         guard let result = results.last else {
