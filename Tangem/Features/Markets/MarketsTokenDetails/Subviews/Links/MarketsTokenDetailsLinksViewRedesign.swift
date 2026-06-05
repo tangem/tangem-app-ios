@@ -59,15 +59,18 @@ private extension MarketsTokenDetailsLinksViewRedesign {
     }
 
     func linkButton(for item: LinkItem) -> some View {
+        var text = AttributedString(item.data.text)
+        text.font = .Tangem.Body16.semibold
+
         let content: TangemButton.Content = {
             if let imageType = item.iconImageType {
                 return .combined(
-                    text: AttributedString(item.data.text),
+                    text: text,
                     icon: imageType,
                     iconPosition: .left
                 )
             }
-            return .text(AttributedString(item.data.text))
+            return .text(text)
         }()
 
         return TangemButton(content: content, action: item.data.action)

@@ -49,14 +49,14 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
     }
 
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
-        let transferTransactions = transactions.compactMap { transactionType -> BSDKTransaction? in
+        let bsdkTransactions = transactions.compactMap { transactionType -> BSDKTransaction? in
             switch transactionType {
             case .staking, .dex, .cex, .approve: return nil
             case .transfer(let transaction): return transaction
             }
         }
 
-        guard let firstTransaction = transferTransactions.first else {
+        guard let firstTransaction = bsdkTransactions.first else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
@@ -68,7 +68,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             }
 
             let hashes = try await transactionsSender.send(
-                transferTransactions,
+                bsdkTransactions,
                 signer: transactionSigner
             ).async()
 

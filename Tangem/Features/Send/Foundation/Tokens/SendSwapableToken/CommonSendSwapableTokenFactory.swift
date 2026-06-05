@@ -28,14 +28,23 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
 
-        // with `.swap` supportingOptions
+        // `.swap` keeps only market+fast; regular Send via `.swapAndSend` needs all four (slow/market/fast/custom).
+        let supportingFeeOptions: TokenFeeProviderSupportingOptions = switch operationType {
+        case .swap, .onramp: .swap
+        case .swapAndSend: .all
+        }
         let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: .swap
+            supportingOptions: supportingFeeOptions
+        )
+        let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
+
+        let transactionValidator = BSDKTransactionValidator(
+            transactionValidator: walletModel.transactionValidator
         )
 
-        let expressTransactionValidator = BSDKExpressTransactionValidator(
-            transactionValidator: walletModel.transactionValidator
+        let transactionCreator = BSDKTransactionCreator(
+            transactionCreator: walletModel.transactionCreator
         )
 
         let balanceProvider = CommonExpressBalanceProvider(
@@ -71,7 +80,9 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            expressTransactionValidator: expressTransactionValidator,
+            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            transactionValidator: transactionValidator,
+            transactionCreator: transactionCreator,
             sendYieldModuleHelper: sendYieldModuleHelper,
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,
