@@ -1,5 +1,5 @@
 //
-//  MainActionButton.swift
+//  TangemMainActionButton.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,36 +13,47 @@ import TangemUIUtils
 public struct TangemMainActionButton: View {
     private let title: String
     private let icon: ImageType
-    private let buttonState: ButtonState
     private let action: () -> Void
+    private let reasonTapWhenDisabled: (() -> Void)?
+
+    @Environment(\.isEnabled) private var isEnabled
 
     public init(
         title: String,
         icon: ImageType,
-        buttonState: ButtonState = .normal,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        reasonTapWhenDisabled: (() -> Void)? = nil
     ) {
         self.title = title
         self.icon = icon
-        self.buttonState = buttonState
         self.action = action
+        self.reasonTapWhenDisabled = reasonTapWhenDisabled
     }
 
     public var body: some View {
         VStack(spacing: SizeUnit.x2.value) {
-            TangemButton(content: .icon(icon), action: action)
-                .setSize(.x15)
-                .setCornerStyle(.rounded)
-                .setStyleType(.secondary)
+            TangemButtonV2(icon: icon, accessibilityLabel: nil, action: action)
+                .size(.x14)
+                .styleType(.material(.glass))
 
             Text(title)
                 .style(
-                    Fonts.Regular.body,
-                    color: buttonState.isNormal ? Color.Tangem.Text.Neutral.primary : Color.Tangem.Text.Status.disabled
+                    .Tangem.Subheadline.medium,
+                    color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
-                .lineLimit(1)
+                .lineLimit(nil)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .contentShape(.rect)
                 .onTapGesture(perform: action)
+        }
+        .overlay {
+            if !isEnabled, let reasonTapWhenDisabled {
+                Color.clear
+                    .contentShape(.rect)
+                    .onTapGesture(perform: reasonTapWhenDisabled)
+                    .environment(\.isEnabled, true)
+            }
         }
     }
 }
