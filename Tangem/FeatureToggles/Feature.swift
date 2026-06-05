@@ -120,7 +120,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .adiMainScreenDefault: return .unspecified
         case .swapExchangeRateDisplay: return .version("5.39")
-        case .swapRateExperience: return .unspecified
+        case .swapRateExperience: return .version("5.39")
         case .yieldApyBoostPromo: return .version("5.39")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
