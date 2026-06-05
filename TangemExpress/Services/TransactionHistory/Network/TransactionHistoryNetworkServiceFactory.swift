@@ -19,18 +19,14 @@ public enum TransactionHistoryNetworkServiceFactory {
             cursorStorage: InMemoryTransactionHistoryCursorStorage(),
             initialPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.exchangeHistory(
-                    walletAddress: walletAddress,
-                    cursor: cursor as? String,
-                    limit: pageSize
+                    item: .init(walletAddress: walletAddress, cursor: cursor as? String, limit: pageSize)
                 )
 
                 return .init(records: page.records, nextCursor: page.nextCursor, hasMore: page.hasMore)
             },
             deltaPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.exchangeHistoryDelta(
-                    walletAddress: walletAddress,
-                    cursor: cursor as? String,
-                    limit: pageSize
+                    item: .init(walletAddress: walletAddress, cursor: cursor as? String, limit: pageSize)
                 )
 
                 return .init(records: page.records, nextCursor: page.nextCursor, hasMore: page.hasMore)
@@ -48,18 +44,14 @@ public enum TransactionHistoryNetworkServiceFactory {
             cursorStorage: InMemoryTransactionHistoryCursorStorage(),
             initialPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.onrampHistory(
-                    walletAddress: walletAddress,
-                    cursor: cursor as? String,
-                    limit: pageSize
+                    item: .init(walletAddress: walletAddress, cursor: cursor as? String, limit: pageSize)
                 )
 
                 return .init(records: page.records, nextCursor: page.nextCursor, hasMore: page.hasMore)
             },
             deltaPageFetcher: { apiProvider, cursor in
                 let page = try await apiProvider.onrampHistoryDelta(
-                    walletAddress: walletAddress,
-                    cursor: cursor as? String,
-                    limit: pageSize
+                    item: .init(walletAddress: walletAddress, cursor: cursor as? String, limit: pageSize)
                 )
 
                 return .init(records: page.records, nextCursor: page.nextCursor, hasMore: page.hasMore)

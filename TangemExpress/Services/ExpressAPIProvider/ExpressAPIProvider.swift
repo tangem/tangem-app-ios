@@ -30,9 +30,9 @@ public protocol ExpressAPIProvider {
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction
 
-    func exchangeHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> ExchangeHistoryPage
-    func exchangeHistoryDelta(walletAddress: String, cursor: String?, limit: Int?) async throws -> ExchangeHistoryPage
+    func exchangeHistory(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage
+    func exchangeHistoryDelta(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage
 
-    func onrampHistory(walletAddress: String, cursor: String?, limit: Int?) async throws -> OnrampHistoryPage
-    func onrampHistoryDelta(walletAddress: String, cursor: String?, limit: Int?) async throws -> OnrampHistoryPage
+    func onrampHistory(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage
+    func onrampHistoryDelta(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage
 }
