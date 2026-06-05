@@ -9,6 +9,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct AddFundsView: View {
     @ObservedObject var viewModel: AddFundsViewModel
@@ -28,6 +29,7 @@ struct AddFundsView: View {
                     action: viewModel.onBuy
                 )
                 .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addFundsBuyRow)
 
                 actionRow(
                     icon: Assets.exchangeMini,
@@ -36,6 +38,7 @@ struct AddFundsView: View {
                     action: viewModel.onSwap
                 )
                 .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addFundsSwapRow)
 
                 actionRow(
                     icon: Assets.qrCode,
@@ -44,6 +47,7 @@ struct AddFundsView: View {
                     action: viewModel.onReceive
                 )
                 .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addFundsReceiveRow)
             }
             .padding(.bottom, 24)
 
