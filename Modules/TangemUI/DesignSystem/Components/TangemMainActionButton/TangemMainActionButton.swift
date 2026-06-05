@@ -32,11 +32,9 @@ public struct TangemMainActionButton: View {
 
     public var body: some View {
         VStack(spacing: SizeUnit.x2.value) {
-            TangemButton(content: .icon(icon), action: action)
-                .setSize(.x15)
-                .setCornerStyle(.rounded)
-                .setStyleType(.secondary)
-                .actionControlDimmed(isEnabled: isEnabled)
+            TangemButtonV2(icon: icon, accessibilityLabel: nil, action: action)
+                .size(.x14)
+                .styleType(.material(.glass))
 
             Text(title)
                 .style(
