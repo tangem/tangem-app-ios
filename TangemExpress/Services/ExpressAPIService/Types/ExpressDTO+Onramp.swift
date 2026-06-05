@@ -289,6 +289,7 @@ extension ExpressDTO {
                 let refundNetwork: String?
                 let refundContractAddress: String?
                 let createdAt: Date
+                let updatedAt: Date?
                 let payTill: Date?
                 let averageDuration: TimeInterval?
 
