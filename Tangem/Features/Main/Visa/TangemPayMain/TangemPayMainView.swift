@@ -461,7 +461,7 @@ struct TangemPayMainView: View {
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-            Menu("", systemImage: "ellipsis") {
+            Menu {
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
@@ -469,6 +469,8 @@ struct TangemPayMainView: View {
                 Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
+            } label: {
+                NavbarDotsImage()
             }
         }
     }

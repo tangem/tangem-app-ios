@@ -755,3 +755,80 @@ private extension TangemPayFreezingState {
         }
     }
 }
+
+// MARK: - Redesigned card management actions
+
+extension TangemPayCardManagementViewModel {
+    var cardActionsDisabled: Bool {
+        freezingState.isFreezingUnfreezingInProgress
+    }
+
+    var addToApplePayBannerType: NotificationBanner.BannerType {
+        .promo(
+            .text(.init(
+                title: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationTitleApple),
+                subtitle: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple)
+            )),
+            .tappable(NotificationBanner.Action { [weak self] in self?.openAddToApplePayGuide() }),
+            NotificationBanner.CloseAction { [weak self] in self?.dismissAddToApplePayGuideBanner() },
+            .bannerMagic,
+            .leading
+        )
+    }
+
+    func onDetailsButton() {
+        currentRedesignedDetailsViewModel?.toggleVisibility()
+    }
+
+    func onFreezeButton() {
+        if multipleCardsEnabled {
+            if freezingState.isFrozen {
+                unfreeze()
+            } else {
+                showFreezePopup()
+            }
+        } else {
+            if freezingState.isFrozen {
+                unfreezeLegacy()
+            } else {
+                showFreezePopupLegacy()
+            }
+        }
+    }
+
+    func onPinButton() {
+        if multipleCardsEnabled {
+            onPin()
+        } else {
+            onPinLegacy()
+        }
+    }
+
+    func onReplaceButton() {
+        if multipleCardsEnabled {
+            onReplaceCard()
+        } else {
+            onReplaceCardLegacy()
+        }
+    }
+
+    private var currentRedesignedDetailsViewModel: TangemPayCardDetailsViewModel? {
+        guard multipleCardsEnabled else {
+            return tangemPayCardDetailsViewModel
+        }
+
+        guard let selectedCardId else {
+            return nil
+        }
+
+        return cardDetailsItems
+            .first { $0.id == selectedCardId }
+            .flatMap { item in
+                if case .issued(let detailsViewModel) = item.content {
+                    return detailsViewModel
+                }
+
+                return nil
+            }
+    }
+}
