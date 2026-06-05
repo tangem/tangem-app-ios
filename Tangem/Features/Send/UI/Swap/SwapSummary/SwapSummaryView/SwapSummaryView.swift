@@ -201,7 +201,11 @@ struct SwapSummaryView: View {
     }
 
     private var visibleAmountFractions: [SwapAmountFraction] {
-        SwapAmountFraction.allCases.filter { !viewModel.isMaxAmountButtonHidden || $0 != .max }
+        guard !viewModel.areAmountFractionsHidden else {
+            return []
+        }
+
+        return SwapAmountFraction.allCases.filter { !viewModel.isMaxAmountButtonHidden || $0 != .max }
     }
 
     private var regularChipsToolbarContent: some View {
@@ -217,6 +221,11 @@ struct SwapSummaryView: View {
                         .background(Capsule().fill(Colors.Button.secondary))
                 }
                 .accessibilityIdentifier(SwapAccessibilityIdentifiers.amountFraction(fraction.accessibilityIdentifierToken))
+            }
+
+            // Without fraction chips the lone dismiss button would be centered, so pin it to the trailing edge.
+            if visibleAmountFractions.isEmpty {
+                Spacer(minLength: .zero)
             }
 
             Button(action: { keyboardActive = false }) {
@@ -245,6 +254,11 @@ struct SwapSummaryView: View {
                 .glassEffect(.regular.interactive())
                 .glassEffectTransition(.materialize)
                 .accessibilityIdentifier(SwapAccessibilityIdentifiers.amountFraction(fraction.accessibilityIdentifierToken))
+            }
+
+            // Without fraction chips the lone dismiss button would be centered, so pin it to the trailing edge.
+            if visibleAmountFractions.isEmpty {
+                Spacer(minLength: .zero)
             }
 
             Button(action: { keyboardActive = false }) {
