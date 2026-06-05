@@ -16,19 +16,25 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
 
     private let apiProvider: ExpressAPIProvider
     private let cursorStorage: TransactionHistoryCursorStorage
-    private let pageFetcher: PageFetcher
+    private let initialPageFetcher: PageFetcher
+    private let deltaPageFetcher: PageFetcher
 
     init(
         apiProvider: ExpressAPIProvider,
         cursorStorage: TransactionHistoryCursorStorage,
-        pageFetcher: @escaping PageFetcher
+        initialPageFetcher: @escaping PageFetcher,
+        deltaPageFetcher: @escaping PageFetcher
     ) {
         self.apiProvider = apiProvider
         self.cursorStorage = cursorStorage
-        self.pageFetcher = pageFetcher
+        self.initialPageFetcher = initialPageFetcher
+        self.deltaPageFetcher = deltaPageFetcher
     }
 
-    private func fetchPages(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
+    private func fetchPages(
+        using pageFetcher: PageFetcher,
+        handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction
+    ) async throws {
         var cursor = await cursorStorage.cursor
 
         while !Task.isCancelled {
@@ -60,11 +66,14 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
 extension CommonTransactionHistoryNetworkService: TransactionHistoryNetworkService {
     func syncInitial(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
         await cursorStorage.clear()
-        try await fetchPages(handleRecordsPage: handleRecordsPage)
+        try await fetchPages(using: initialPageFetcher, handleRecordsPage: handleRecordsPage)
     }
 
+    // [REDACTED_TODO_COMMENT]
+    // starts from ~now instead of the initial walk's oldest cursor; needs the richer page model + persistent
+    // sync-metadata storage ([REDACTED_INFO])
     func syncDelta(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
-        try await fetchPages(handleRecordsPage: handleRecordsPage)
+        try await fetchPages(using: deltaPageFetcher, handleRecordsPage: handleRecordsPage)
     }
 }
 

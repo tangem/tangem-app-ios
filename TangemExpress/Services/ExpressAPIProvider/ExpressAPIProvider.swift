@@ -30,45 +30,9 @@ public protocol ExpressAPIProvider {
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction
 
-    func exchangeHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> ExchangeHistoryPage
+    func exchangeHistory(walletAddress: String, afterCursor: String?, limit: Int?) async throws -> ExchangeHistoryPage
+    func exchangeHistoryDelta(walletAddress: String, beforeCursor: String?, limit: Int?) async throws -> ExchangeHistoryPage
 
-    func onrampHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> OnrampHistoryPage
-}
-
-// MARK: - Convenience extensions
-
-public extension ExpressAPIProvider {
-    /// History w/o network and tokenId filters.
-    func exchangeHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> ExchangeHistoryPage {
-        try await exchangeHistory(
-            walletAddress: walletAddress,
-            cursor: cursor,
-            limit: limit,
-            network: nil,
-            tokenId: nil
-        )
-    }
-
-    /// History w/o network and tokenId filters.
-    func onrampHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> OnrampHistoryPage {
-        try await onrampHistory(
-            walletAddress: walletAddress,
-            cursor: cursor,
-            limit: limit,
-            network: nil,
-            tokenId: nil
-        )
-    }
+    func onrampHistory(walletAddress: String, afterCursor: String?, limit: Int?) async throws -> OnrampHistoryPage
+    func onrampHistoryDelta(walletAddress: String, beforeCursor: String?, limit: Int?) async throws -> OnrampHistoryPage
 }
