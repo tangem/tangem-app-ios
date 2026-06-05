@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAccounts
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsNavigationBar: View {
     let viewModel: TokenDetailsNavigationBarViewModel
@@ -27,6 +28,7 @@ struct TokenDetailsNavigationBar: View {
         HStack(spacing: .unit(.x1)) {
             Text(viewModel.title.tokenName)
                 .layoutPriority(1)
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.tokenNameLabel)
 
             storage
         }
