@@ -17,9 +17,6 @@ public protocol FeeProvider {
     func estimatedFee(amount: Decimal) async throws -> BSDKFee
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee
-    /// Estimates the market approve fee as a pure value, without mutating the displayed swap fee state.
-    /// Used by the one-tap approve+swap flow, where the only state write is the combined fee below.
-    func estimateApproveFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee
     /// One-tap approve+swap: estimates the swap with allowance set to unlimited (so the gas estimate covers
     /// `transferFrom` before approve is on-chain) and the approve fee — both in the selected fee currency.
