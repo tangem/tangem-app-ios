@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MarketsPortfolioTokenListRowView: View {
@@ -15,11 +16,7 @@ struct MarketsPortfolioTokenListRowView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @ScaledMetric private var priceWithChangeSpacing: CGFloat = .unit(.x1)
-    @ScaledSize private var tokenIconSize = CGSize(width: .unit(.x10), height: .unit(.x10))
-    @ScaledSize private var priceLoaderSize = CGSize(width: .unit(.x13), height: .unit(.x3))
-    @ScaledSize private var fiatBalanceSkeletonSize = CGSize(width: .unit(.x16), height: .unit(.x5))
-    @ScaledSize private var cryptoBalanceSkeletonSize = CGSize(width: .unit(.x13), height: .unit(.x4))
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         content
@@ -44,7 +41,7 @@ private extension MarketsPortfolioTokenListRowView {
     func icon() -> some View {
         TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: tokenIconSize
+            size: CGSize(width: .unit(.x10), height: .unit(.x10)) * scaleFactor
         )
     }
 
@@ -55,7 +52,7 @@ private extension MarketsPortfolioTokenListRowView {
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: fiatBalanceSkeletonSize)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: .unit(.x16), height: .unit(.x5)) * scaleFactor)
     }
 
     func networkName() -> some View {
@@ -65,7 +62,7 @@ private extension MarketsPortfolioTokenListRowView {
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: cryptoBalanceSkeletonSize)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: .unit(.x13), height: .unit(.x4)) * scaleFactor)
     }
 
     func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {

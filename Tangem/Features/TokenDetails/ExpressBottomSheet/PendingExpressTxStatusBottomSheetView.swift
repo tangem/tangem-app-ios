@@ -10,9 +10,12 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUIUtils
+import TangemUI
 
 struct PendingExpressTxStatusBottomSheetView: View {
     @ObservedObject var viewModel: PendingExpressTxStatusBottomSheetViewModel
+
+    @State private var contentHeight: CGFloat = 0
 
     /// This animation is created explicitly to synchronise them with the delayed appearance of the notification
     private var animation: Animation {
@@ -20,14 +23,20 @@ struct PendingExpressTxStatusBottomSheetView: View {
     }
 
     var body: some View {
-        content
-            .onAppear(perform: viewModel.onAppear)
-            // This animations are set explicitly to synchronise them with the delayed appearance of the notification
-            .animation(animation, value: viewModel.statusesList)
-            .animation(animation, value: viewModel.currentStatusIndex)
-            .animation(animation, value: viewModel.notificationViewInputs)
-            .animation(animation, value: viewModel.showGoToProviderHeaderButton)
-            .bindAlert($viewModel.hideTransactionAlert)
+        ScrollView {
+            content
+                .padding(.top, 30)
+                .readGeometry(\.size.height) { contentHeight = $0 }
+        }
+        .background(Colors.Background.tertiary)
+        .modifier(ShareButtonModifier(contentHeight: contentHeight, shareAction: viewModel.share))
+        .onAppear(perform: viewModel.onAppear)
+        // This animations are set explicitly to synchronise them with the delayed appearance of the notification
+        .animation(animation, value: viewModel.statusesList)
+        .animation(animation, value: viewModel.currentStatusIndex)
+        .animation(animation, value: viewModel.notificationViewInputs)
+        .animation(animation, value: viewModel.showGoToProviderHeaderButton)
+        .bindAlert($viewModel.hideTransactionAlert)
     }
 
     private var content: some View {
@@ -143,5 +152,34 @@ private extension PendingExpressTxStatusBottomSheetView {
                 }
             )
         }
+    }
+}
+
+// MARK: - Share Button
+
+private struct ShareButtonModifier: ViewModifier {
+    let contentHeight: CGFloat
+    let shareAction: () -> Void
+
+    private let buttonAreaHeight: CGFloat = MainButton.Size.default.height + 8
+    private let dragIndicatorHeight: CGFloat = 20
+
+    private var totalHeight: CGFloat {
+        contentHeight + buttonAreaHeight + dragIndicatorHeight
+    }
+
+    func body(content: Content) -> some View {
+        content.safeAreaInset(edge: .bottom) {
+            MainButton(
+                title: Localization.commonShare,
+                icon: .leading(Assets.share),
+                style: .secondary,
+                action: shareAction
+            )
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
+        }
+        .presentationDetents([.height(totalHeight)])
+        .presentationDragIndicator(.visible)
     }
 }
