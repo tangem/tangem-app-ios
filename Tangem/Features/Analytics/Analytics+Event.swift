@@ -632,6 +632,7 @@ extension Analytics {
         // MARK: - Action Buttons
 
         case actionButtonsBuyButton = "[Main Screen] Button - Buy"
+        case mainScreenButtonAddFunds = "[Main Screen] Button - Add Funds"
         case actionButtonsSellButton = "[Main Screen] Button - Sell"
         case actionButtonsSwapButton = "[Main Screen] Button - Swap"
         case actionButtonsSwapScreenOpened = "[Main Screen] Swap Screen Opened"
@@ -645,6 +646,13 @@ extension Analytics {
         case actionButtonsButtonClose = "[Main Screen] Button - Close"
         case actionButtonsHotTokenClicked = "[Main Screen] Hot Token Clicked"
         case actionButtonsHotTokenError = "[Main Screen] Hot Token Error"
+
+        // MARK: - Add Funds
+
+        case addFundsButtonBuy = "[Add Funds] Button - Buy"
+        case addFundsButtonSwap = "[Add Funds] Button - Swap"
+        case addFundsButtonReceive = "[Add Funds] Button - Receive"
+        case addFundsButtonGoToToken = "[Add Funds] Button - Go to Token"
 
         // MARK: - Stories
 
