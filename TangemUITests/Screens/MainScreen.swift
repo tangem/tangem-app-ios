@@ -134,6 +134,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    @discardableResult
+    func tapMainBuyWhenUnavailable() -> Self {
+        XCTContext.runActivity(named: "Tap Buy action on main screen (unavailable state)") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
+            buyActionButton.tap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func tapMainSwapWhenUnavailable() -> Self {
+        XCTContext.runActivity(named: "Tap Exchange action on main screen (unavailable state)") { _ in
+            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
+            swapActionButton.tap()
+            return self
+        }
+    }
+
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
