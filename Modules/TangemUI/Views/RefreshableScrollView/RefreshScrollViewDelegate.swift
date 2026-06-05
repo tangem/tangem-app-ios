@@ -10,7 +10,7 @@ import UIKit
 import TangemFoundation
 
 final class RefreshScrollViewDelegate: NSObject {
-    private let interactor: CommonRefreshScrollViewInteractor
+    private let interactor: RefreshScrollViewInteractor
     private let willEndDraggingAt: (CGPoint) -> TargetContentOffset?
 
     private weak var scrollView: UIScrollView?
@@ -20,7 +20,7 @@ final class RefreshScrollViewDelegate: NSObject {
     private(set) var dragging: Dragging?
 
     init(
-        interactor: CommonRefreshScrollViewInteractor,
+        interactor: RefreshScrollViewInteractor,
         willEndDraggingAt: @escaping (CGPoint) -> TargetContentOffset?
     ) {
         self.interactor = interactor
@@ -124,6 +124,11 @@ extension RefreshScrollViewDelegate: UIScrollViewDelegate {
         targetContentOffset: UnsafeMutablePointer<CGPoint>
     ) {
         interactor.send(event: .willEndDragging(velocity: velocity))
+
+        if let snapped = interactor.targetContentOffsetProvider?(targetContentOffset.pointee, velocity) {
+            targetContentOffset.pointee = snapped
+        }
+
         willEndDragging(scrollView, targetContentOffset: targetContentOffset)
     }
 

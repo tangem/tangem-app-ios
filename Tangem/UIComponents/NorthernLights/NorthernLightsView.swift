@@ -4,6 +4,8 @@ import MetalKit
 struct NorthernLightsView: UIViewRepresentable {
     let backgroundColor: Color
 
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeUIView(context: Context) -> MTKView {
         guard let device = MTLCreateSystemDefaultDevice(),
               let renderer = try? NorthernLightsRenderer(device: device) else {
@@ -24,7 +26,7 @@ struct NorthernLightsView: UIViewRepresentable {
 
     func updateUIView(_ mtkView: MTKView, context: Context) {
         context.coordinator.renderer?.backgroundRGB = UIColor(backgroundColor).resolvedRGB(in: mtkView.traitCollection)
-        context.coordinator.renderer?.updateColors(isDarkMode: mtkView.traitCollection.userInterfaceStyle == .dark)
+        context.coordinator.renderer?.updateColors(isDarkMode: colorScheme == .dark)
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }

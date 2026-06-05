@@ -631,4 +631,60 @@ struct CommonDeepLinkValidatorTests {
         )
         #expect(!validator.hasMinimumDataForHandling(deeplink: action))
     }
+
+    // MARK: - Survey deeplink
+
+    @Test
+    func surveyWithToken_shouldPass() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(surveyToken: "ntt-abc123"),
+            deeplinkString: ""
+        )
+        #expect(validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func surveyWithoutToken_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    @Test
+    func surveyWithEmptyToken_shouldFail() {
+        let action = DeeplinkNavigationAction(
+            destination: .survey,
+            params: .init(surveyToken: ""),
+            deeplinkString: ""
+        )
+        #expect(!validator.hasMinimumDataForHandling(deeplink: action))
+    }
+
+    /// SurveySparrow tokens are opaque vendor identifiers without a fixed format,
+    /// so the validator must accept arbitrary non-empty strings (e.g. `tt-…`, base64-like).
+    @Test
+    func surveyWithUnusualTokenShapes_shouldPass() {
+        let tokens = [
+            "tt-5xtkamxzdOD",
+            "ntt-84iF22PDajmervYneMW4kv",
+            "abc+def/ghi=",
+            "token with spaces",
+        ]
+
+        for token in tokens {
+            let action = DeeplinkNavigationAction(
+                destination: .survey,
+                params: .init(surveyToken: token),
+                deeplinkString: ""
+            )
+            #expect(
+                validator.hasMinimumDataForHandling(deeplink: action),
+                "Expected token \(token) to be accepted"
+            )
+        }
+    }
 }

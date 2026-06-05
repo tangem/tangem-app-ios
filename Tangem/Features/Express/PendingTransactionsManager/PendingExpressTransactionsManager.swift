@@ -26,7 +26,7 @@ class CommonPendingExpressTransactionsManager {
     private let userWalletId: String
     private let tokenItem: TokenItem
     private let walletModelUpdater: WalletModelUpdater?
-    private let expressAPIProviderResolver: ExpressAPIProviderResolver
+    private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
     private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
@@ -41,13 +41,13 @@ class CommonPendingExpressTransactionsManager {
         userWalletId: String,
         tokenItem: TokenItem,
         walletModelUpdater: WalletModelUpdater?,
-        expressAPIProviderResolver: ExpressAPIProviderResolver,
+        cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.walletModelUpdater = walletModelUpdater
-        self.expressAPIProviderResolver = expressAPIProviderResolver
+        self.cachingExpressAPIProviderFactory = cachingExpressAPIProviderFactory
         self.expressRefundedTokenHandler = expressRefundedTokenHandler
 
         bind()
@@ -217,7 +217,7 @@ class CommonPendingExpressTransactionsManager {
             let refcode = userWalletRepository.models
                 .first(where: { $0.userWalletId.stringValue == sourceUserWalletId })?
                 .refcodeProvider?.getRefcode()
-            let provider = expressAPIProviderResolver.provider(for: sourceUserWalletId, refcode: refcode)
+            let provider = cachingExpressAPIProviderFactory.provider(for: sourceUserWalletId, refcode: refcode)
             let expressTransaction = try await provider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
             let refundedTokenItem = await handleRefundedTokenIfNeeded(
                 blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,

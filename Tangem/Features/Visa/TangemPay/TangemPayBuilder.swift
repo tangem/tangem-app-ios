@@ -35,7 +35,8 @@ final class TangemPayBuilder {
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerService: customerService
+        customerService: customerService,
+        multipleCardsEnabled: FeatureProvider.isAvailable(.tangemPayMultipleCards)
     )
 
     private lazy var tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
@@ -51,8 +52,9 @@ final class TangemPayBuilder {
         signer: signer
     )
 
-    private lazy var expressCEXTransactionDispatcher = tangemPayAssembly.makeExpressCEXTransactionDispatcher(
+    private lazy var transactionDispatcher = tangemPayAssembly.makeTransactionDispatcher(
         withdrawTransactionService: withdrawTransactionService,
+        hasNFCInteraction: signer.hasNFCInteraction,
         walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
     )
 
@@ -66,6 +68,8 @@ final class TangemPayBuilder {
     )
 
     private lazy var feeRepository = TangemPayFeeRepository()
+
+    private lazy var orderResolver = TangemPayOrderResolver(customerService: customerService)
 
     init(
         userWalletId: UserWalletId,
@@ -108,10 +112,11 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
-            expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
+            transactionDispatcher: transactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider,
+            orderResolver: orderResolver,
             feeRepository: feeRepository,
             account: account
         )

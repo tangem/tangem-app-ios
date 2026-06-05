@@ -20,7 +20,7 @@ struct TokenDetailsMarketPriceView: View {
 
                 Spacer(minLength: .zero)
 
-                HStack(spacing: .unit(.x10)) {
+                HStack(spacing: .unit(.x4)) {
                     miniChart
                     expandButton
                 }
@@ -33,14 +33,14 @@ struct TokenDetailsMarketPriceView: View {
             .if(!isLiquidGlassSupported) { view in
                 view.background(Color.Tangem.Surface.level3)
             }
-            .clipShape(shape)
-            .contentShape(shape)
+            .clipShape(.capsule)
+            .contentShape(.capsule)
         }
         .modifyView { view in
             if #available(iOS 26.0, *) {
                 // [REDACTED_USERNAME], liquid glass + scaling causes flicker glitches. `Glass.interactive(:)` + no scaling has decent visuals.
                 view
-                    .glassEffect(.regular.interactive(), in: shape)
+                    .glassEffect(.regular.interactive(), in: .capsule)
                     .buttonStyle(NoOpButtonStyle())
             } else {
                 view.buttonStyle(.scaled(scaleAmount: 0.95, dimmingAmount: 1, animation: .easeInOut))
@@ -92,10 +92,6 @@ struct TokenDetailsMarketPriceView: View {
         )
         .size(.x10)
         .styleType(.secondary)
-    }
-
-    private var shape: some Shape {
-        RoundedRectangle(cornerRadius: .unit(.x5))
     }
 }
 

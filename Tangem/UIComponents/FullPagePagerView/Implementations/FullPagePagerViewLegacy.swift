@@ -30,15 +30,16 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     // MARK: - State
 
     @Binding private var selectedIndex: Int
-    @Binding private var headerHeightRatio: CGFloat
-
     /// Tracks the current scroll offset for smooth body synchronization during gestures
     @State private var scrollOffset: CGFloat = 0
     /// Measured header height reported by UIKit, used to constrain header frame
     @State private var headerHeight: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
+    @State private var visibleBodyHeight: CGFloat = 0
 
     @StateObject private var elasticContainerModel: TangemElasticContainerModel
+
+    private let refreshScrollViewInteractor: RefreshScrollViewInteractor
 
     // MARK: - Configuration
 
@@ -52,22 +53,21 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     init(
         data: Data,
         selectedIndex: Binding<Int>,
-        headerHeightRatio: Binding<CGFloat>,
         isScrollDisabled: Bool,
         viewportHeight: CGFloat,
         refreshScrollViewInteractor: RefreshScrollViewInteractor,
+        onHeaderHeightRatioChange: ((CGFloat) -> Void)?,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
     ) {
         self.data = data
         _selectedIndex = selectedIndex
-        _headerHeightRatio = headerHeightRatio
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
-        _elasticContainerModel = StateObject(
-            wrappedValue: TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
-        )
+        self.refreshScrollViewInteractor = refreshScrollViewInteractor
+        _elasticContainerModel = StateObject(wrappedValue: TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor))
+        self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -80,7 +80,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
             headerContainer(pageWidth: pageWidth)
 
             bodyContainer(pageWidth: pageWidth)
-                .frame(minHeight: viewportHeight)
+                .frame(minHeight: max(viewportHeight, visibleBodyHeight))
         }
         .readGeometry(\.size.width) { pageWidth = $0 }
         .onChange(of: selectedIndex) { newValue in
@@ -90,7 +90,10 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
             scrollOffset = CGFloat(selectedIndex) * newPageWidth
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
-            headerHeightRatio = $0
+            onHeaderHeightRatioChange?($0)
+        }
+        .onReceive(refreshScrollViewInteractor.$visibleBodyHeight) {
+            visibleBodyHeight = $0
         }
     }
 
