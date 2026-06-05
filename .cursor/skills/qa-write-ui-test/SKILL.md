@@ -1,5 +1,5 @@
 ---
-name: write-ui-test
+name: qa-write-ui-test
 description: Use this skill when writing, modifying, or debugging UI tests for the Tangem iOS app — anything under `TangemUITests/`, page objects under `TangemUITests/Screens/`, accessibility identifiers in `Modules/TangemAccessibilityIdentifiers/`, or API mocks in `../tangem-api-mocks`. Triggers include "write UI test", "add UI test", "create page object", "add accessibility identifier for test", "fix flaky UI test", or any direct request to touch files in those locations. Do NOT use for unit tests (`Tangem*Tests/`), SPM module tests (`Modules/*Tests`), SwiftUI previews, or general production code work — those are different workflows with different rules.
 ---
 
