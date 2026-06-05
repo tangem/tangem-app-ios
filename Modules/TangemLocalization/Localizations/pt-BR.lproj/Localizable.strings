@@ -87,6 +87,7 @@
 "address_book_creating_error" = "We couldn’t create contact. Please try again later.";
 "address_book_delete_contact_description" = "This contact will be deleted from all your address book";
 "address_book_deleting_error" = "We couldn’t delete contact. Please try again later.";
+"address_book_description" = "Manage contacts & addresses";
 "address_book_discard" = "Discard";
 "address_book_edit_address" = "Edit address";
 "address_book_enter_address" = "Enter address";
