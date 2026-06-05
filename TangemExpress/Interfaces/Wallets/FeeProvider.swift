@@ -21,9 +21,10 @@ public protocol FeeProvider {
     /// Used by the one-tap approve+swap flow, where the only state write is the combined fee below.
     func estimateApproveFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee
-    /// Estimates the swap fee with allowance set to unlimited, so the gas estimate covers `transferFrom`
-    /// before approve is on-chain. `approveFee` is folded into each option's displayed total (gas `parameters` stay swap-only).
-    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveFee: BSDKFee) async throws -> BSDKFee
+    /// One-tap approve+swap: estimates the swap with allowance set to unlimited (so the gas estimate covers
+    /// `transferFrom` before approve is on-chain) and the approve fee — both in the selected fee currency.
+    /// `total` is the displayed combined fee; `approve` is the same estimate's approve component.
+    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveData: BSDKApproveTransactionData) async throws -> ApproveWithSwapFee
     func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee
 }
 
@@ -34,6 +35,18 @@ public extension FeeProvider {
 
     func feeCurrencyHasPositiveBalance() throws -> Bool {
         try feeCurrencyBalance() > .zero
+    }
+}
+
+public struct ApproveWithSwapFee {
+    /// Combined approve+swap fee — what the user sees and what validation runs against.
+    public let total: BSDKFee
+    /// Approve component with its own gas parameters — used to build the approve tx at send.
+    public let approve: BSDKFee
+
+    public init(total: BSDKFee, approve: BSDKFee) {
+        self.total = total
+        self.approve = approve
     }
 }
 

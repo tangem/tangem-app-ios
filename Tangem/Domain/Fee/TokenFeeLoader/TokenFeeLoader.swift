@@ -19,8 +19,9 @@ protocol EthereumTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
 
     /// `approveInput` switches the estimate to the one-tap approve+swap mode: the swap gas is estimated
-    /// with the allowance overridden to unlimited (the estimate would revert otherwise), and the
-    /// pre-estimated approve fee is folded into every option's total (`nil` = normal estimate).
+    /// with the allowance overridden to unlimited (the estimate would revert otherwise), the approve fee
+    /// is estimated by the same loader — always in its own fee currency — and folded into every option's
+    /// total (`nil` = normal estimate).
     func getFee(
         amount: BSDKAmount,
         destination: String,
@@ -58,6 +59,7 @@ extension TokenFeeLoader {
 
 enum TokenFeeLoaderError: LocalizedError {
     case tokenFeeLoaderNotFound
+    case approveFeeNotFound
     case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
@@ -67,6 +69,7 @@ enum TokenFeeLoaderError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .tokenFeeLoaderNotFound: "TokenFeeLoader not found"
+        case .approveFeeNotFound: "Approve fee not found"
         case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"

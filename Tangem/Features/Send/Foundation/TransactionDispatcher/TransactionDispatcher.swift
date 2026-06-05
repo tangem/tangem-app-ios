@@ -36,20 +36,18 @@ extension TransactionDispatcher {
         approve: (data: ApproveTransactionData, fee: BSDKFee)?
     ) async throws -> TransactionDispatcherResult {
         // The displayed fee is the approve+swap total — the swap tx itself goes out with its own component.
-        let swapFee: BSDKFee
-        if let combined = swap.fee.parameters as? ApproveWithSwapFeeParameters {
-            swapFee = combined.swapFee(total: swap.fee)
+        let swapTransactionFee: BSDKFee
+        if let combinedFeeParameters = swap.fee.parameters as? ApproveWithSwapFeeParameters {
+            swapTransactionFee = combinedFeeParameters.swapFee(total: swap.fee)
         } else if approve != nil {
             // One-tap send requires the combined fee shape — refuse to send with an inconsistent split.
             throw TransactionDispatcherResult.Error.feeNotFound
         } else {
-            swapFee = swap.fee
+            swapTransactionFee = swap.fee
         }
 
-        print("ДЕБАГ [Dispatcher] отправка: total=\(swap.fee.amount.value), swap-компонент=\(swapFee.amount.value), approve-фи=\(String(describing: approve?.fee.amount.value))")
-
         let approveTransaction = approve.map { TransactionDispatcherTransactionType.approve(data: $0.data, fee: $0.fee) }
-        let swapTransaction = TransactionDispatcherTransactionType.dex(data: swap.data, fee: swapFee)
+        let swapTransaction = TransactionDispatcherTransactionType.dex(data: swap.data, fee: swapTransactionFee)
         let transactions = [approveTransaction, swapTransaction].compactMap { $0 }
 
         let results = try await send(transactions: transactions)

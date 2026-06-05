@@ -120,7 +120,6 @@ private extension DEXProviderFlowHelper {
                         // state write is the combined swap+approve fee in `fee(for:requiredApprove:)`,
                         // so the displayed fee is never transiently the approve-only shape.
                         fee = try await expressFeeProvider.estimateApproveFee(approveData: data)
-                        print("ДЕБАГ [FlowHelper] approve-фи (чистая оценка, мимо стейта): \(fee.amount.value)")
                     } else {
                         // Two-step: the permission screen reads its fee from the provider state, so this
                         // state-mutating estimate is intended.
@@ -244,7 +243,7 @@ private extension DEXProviderFlowHelper {
         data: ExpressTransactionData,
         requiredApprove: ExpressProviderManagerState.PermissionRequired?
     ) async throws -> ExpressProviderManagerState.DEXPreview {
-        let fee = try await fee(for: data, requiredApprove: requiredApprove)
+        let (fee, updatedRequiredApprove) = try await fee(for: data, requiredApprove: requiredApprove)
 
         try Task.checkCancellation()
 
@@ -257,15 +256,15 @@ private extension DEXProviderFlowHelper {
             txType: quote.txType
         )
 
-        return .init(provider: provider, data: data, fee: fee, quote: quoteData, requiredApprove: requiredApprove)
+        return .init(provider: provider, data: data, fee: fee, quote: quoteData, requiredApprove: updatedRequiredApprove)
     }
 
     func fee(
         for data: ExpressTransactionData,
         requiredApprove: ExpressProviderManagerState.PermissionRequired?
-    ) async throws -> BSDKFee {
+    ) async throws -> (fee: BSDKFee, requiredApprove: ExpressProviderManagerState.PermissionRequired?) {
         guard let requiredApprove, let owner = pair.source.address else {
-            return try await expressFeeProvider.transactionFee(data: .dex(data: data))
+            return (try await expressFeeProvider.transactionFee(data: .dex(data: data)), nil)
         }
 
         let allowanceOverride = AllowanceOverride(
@@ -274,13 +273,24 @@ private extension DEXProviderFlowHelper {
             spender: requiredApprove.data.spender
         )
 
-        let combined = try await expressFeeProvider.transactionFee(
+        let combinedSwapAndApproveFee = try await expressFeeProvider.transactionFee(
             data: .dex(data: data),
             allowanceOverride: allowanceOverride,
-            approveFee: requiredApprove.fee
+            approveData: requiredApprove.data
         )
-        print("ДЕБАГ [FlowHelper] комбинированная фи для DEXPreview: \(combined.amount.value), approve-фи в requiredApprove: \(requiredApprove.fee.amount.value)")
-        return combined
+
+        // The approve fee was re-estimated inside the combined pass — in the currently selected
+        // fee currency — so the earlier `checkRestriction` estimate is replaced with it.
+        let updatedRequiredApprove = ExpressProviderManagerState.PermissionRequired(
+            provider: requiredApprove.provider,
+            policy: requiredApprove.policy,
+            data: requiredApprove.data,
+            approvalFlow: requiredApprove.approvalFlow,
+            fee: combinedSwapAndApproveFee.approve,
+            quote: requiredApprove.quote
+        )
+
+        return (combinedSwapAndApproveFee.total, updatedRequiredApprove)
     }
 
     func mapError(_ error: Error, quote: ExpressQuote?, amountType: ExpressAmountType) -> ExpressProviderManagerState {
