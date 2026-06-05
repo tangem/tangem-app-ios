@@ -235,7 +235,7 @@ private func previewViewModel(for token: MarketsTokenModel) -> MarketTokenItemVi
 
 #Preview {
     ScrollView(.vertical) {
-        ForEach(previewTokens.indexed(), id: \.1.id) { _, token in
+        ForEach(previewTokens) { token in
             MarketTokenRowView(viewModel: previewViewModel(for: token))
         }
     }
@@ -243,7 +243,7 @@ private func previewViewModel(for token: MarketsTokenModel) -> MarketTokenItemVi
 
 #Preview("Dynamic Type - Accessibility1") {
     ScrollView(.vertical) {
-        ForEach(previewTokens.indexed(), id: \.1.id) { _, token in
+        ForEach(previewTokens) { token in
             MarketTokenRowView(viewModel: previewViewModel(for: token))
         }
     }
