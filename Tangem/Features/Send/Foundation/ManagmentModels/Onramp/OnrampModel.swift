@@ -402,7 +402,7 @@ private extension OnrampModel {
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
             externalTxId: data.externalTxId,
-            externalTxUrl: data.externalTxUrl
+            externalTxUrl: data.externalTxURL?.absoluteString
         )
 
         onrampPendingTransactionsRepository
@@ -511,7 +511,7 @@ extension OnrampModel: OnrampRedirectingOutput {
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
             externalTxId: data.externalTxId,
-            externalTxUrl: data.externalTxUrl
+            externalTxUrl: data.externalTxURL?.absoluteString
         )
 
         onrampPendingTransactionsRepository
@@ -519,15 +519,15 @@ extension OnrampModel: OnrampRedirectingOutput {
 
         stopTimer()
         DispatchQueue.main.async {
-            self.router?.openOnrampWebView(url: data.widgetUrl, onDismiss: { [weak self] in
+            self.router?.openOnrampWebView(url: data.widgetURL, onDismiss: { [weak self] in
                 self?.restartTimer()
             }, onSuccess: { [weak self] url in
-                self?.proceedSuccess(txID: data.txId, redirectUrl: data.redirectUrl, url: url)
+                self?.proceedSuccess(txID: data.txId, redirectURL: data.redirectURL, url: url)
             })
         }
     }
 
-    func proceedSuccess(txID: String, redirectUrl: URL, url: URL) {
+    func proceedSuccess(txID: String, redirectURL: URL, url: URL) {
         let parser = OnrampRedirectResultParser()
         switch parser.parse(url: url) {
         case .none, .cancel:

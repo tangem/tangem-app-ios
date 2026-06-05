@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MarketsPortfolioMultipleTokenView: View {
@@ -19,9 +20,8 @@ struct MarketsPortfolioMultipleTokenView: View {
     @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x3)
     @ScaledMetric private var backgroundCornerRadius: CGFloat = .unit(.x5)
     @ScaledMetric private var tokenIconSetWidth: CGFloat = .unit(.x12)
-    @ScaledSize private var tokenIconSize = CGSize(width: .unit(.x10), height: .unit(.x10))
-    @ScaledSize private var fiatBalanceSkeletonSize = CGSize(width: .unit(.x16), height: .unit(.x5))
-    @ScaledSize private var cryptoBalanceSkeletonSize = CGSize(width: .unit(.x13), height: .unit(.x4))
+    @ScaledMetric private var tokenIconSide = CGFloat.unit(.x10)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         content
@@ -68,12 +68,12 @@ private extension MarketsPortfolioMultipleTokenView {
     func iconSet() -> some View {
         let icon = TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: tokenIconSize
+            size: CGSize(width: tokenIconSide, height: tokenIconSide)
         )
 
         let offsetStep = viewModel.tokenIconSetOffset(
             totalWidth: tokenIconSetWidth,
-            iconWidth: tokenIconSize.width
+            iconWidth: tokenIconSide
         )
 
         return ZStack {
@@ -97,7 +97,7 @@ private extension MarketsPortfolioMultipleTokenView {
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: fiatBalanceSkeletonSize)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: .unit(.x16), height: .unit(.x5)) * scaleFactor)
     }
 
     func tokensCount() -> some View {
@@ -107,7 +107,7 @@ private extension MarketsPortfolioMultipleTokenView {
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: cryptoBalanceSkeletonSize)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: .unit(.x13), height: .unit(.x4)) * scaleFactor)
     }
 
     func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {

@@ -28,7 +28,7 @@ struct TotalBalanceFormattingOptions {
 
     static var defaultOptionsRedesign: TotalBalanceFormattingOptions {
         .init(
-            integerPartFont: .Tangem.Custom.titleRegular44,
+            integerPartFont: .Tangem.Title44.semibold,
             fractionalPartFont: .Tangem.Heading28.regular,
             integerPartColor: .Tangem.Text.Neutral.primary,
             fractionalPartColor: .Tangem.Text.Neutral.primary,
