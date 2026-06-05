@@ -14,33 +14,28 @@ import TangemAccessibilityIdentifiers
 struct RedesignActionButtonsView: View {
     @ObservedObject var viewModel: ActionButtonsViewModel
 
-    @State private var widestButtonWidth: CGFloat?
+    @ScaledMetric private var spacing: CGFloat = .unit(.x3)
+    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x15)
 
-    var body: some View {
-        HStack(spacing: SizeUnit.x6.value) {
-            RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
-                .fixedSize(horizontal: true, vertical: false)
-                .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateWidestButtonWidth)
-                .frame(width: widestButtonWidth)
-
-            RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
-                .fixedSize(horizontal: true, vertical: false)
-                .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateWidestButtonWidth)
-                .frame(width: widestButtonWidth)
-
-            RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
-                .fixedSize(horizontal: true, vertical: false)
-                .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateWidestButtonWidth)
-                .frame(width: widestButtonWidth)
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier(TokenAccessibilityIdentifiers.actionButtonsList)
+    private var dynamicHorizontalPadding: CGFloat {
+        let screenWidth = UIScreen.main.bounds.width
+        let defaultScreenWidth: CGFloat = 390
+        return horizontalPadding * screenWidth / defaultScreenWidth
     }
 
-    private func updateWidestButtonWidth(to width: CGFloat) {
-        let newWidth = max(widestButtonWidth ?? .zero, width)
-        guard newWidth > 0 else { return }
+    var body: some View {
+        HStack(alignment: .top, spacing: spacing) {
+            RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
+                .frame(maxWidth: .infinity)
 
-        widestButtonWidth = newWidth
+            RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
+                .frame(maxWidth: .infinity)
+
+            RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, dynamicHorizontalPadding)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.actionButtonsList)
     }
 }
