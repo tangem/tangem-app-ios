@@ -33,6 +33,15 @@ struct TokenDetailsView: View {
 
                 if viewModel.isRedesign {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                        .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
+
+                    if viewModel.isZeroBalance {
+                        VStack(spacing: .unit(.x2)) {
+                            redesignNotificationBanners
+                            redesignYieldView
+                            redesignStakingView
+                        }
+                    }
 
                     if let actionsViewModel = viewModel.actionsViewModel {
                         TokenDetailsActionsView(viewModel: actionsViewModel)
@@ -184,7 +193,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var yieldView: some View {
-        if viewModel.isRedesign {
+        if viewModel.isRedesign, !viewModel.isZeroBalance {
             redesignYieldView
         } else {
             yieldStatusView
@@ -203,7 +212,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var stakingView: some View {
-        if viewModel.isRedesign {
+        if viewModel.isRedesign, !viewModel.isZeroBalance {
             redesignStakingView
         } else {
             legacyStakingView
@@ -244,19 +253,23 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var notifications: some View {
-        if viewModel.isRedesign {
-            VStack(spacing: .unit(.x2)) {
-                ForEach(viewModel.notifications) { notification in
-                    NotificationBanner(
-                        bannerType: notification.bannerType,
-                        accessibilityIdentifier: notification.accessibilityIdentifier
-                    )
-                }
-            }
+        if viewModel.isRedesign, !viewModel.isZeroBalance {
+            redesignNotificationBanners
         } else {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
+            }
+        }
+    }
+
+    private var redesignNotificationBanners: some View {
+        VStack(spacing: .unit(.x2)) {
+            ForEach(viewModel.notifications) { notification in
+                NotificationBanner(
+                    bannerType: notification.bannerType,
+                    accessibilityIdentifier: notification.accessibilityIdentifier
+                )
             }
         }
     }
@@ -280,7 +293,10 @@ struct TokenDetailsView: View {
             TokenDetailsMarketPriceView(viewModel: viewModel)
                 .padding(.horizontal, .unit(.x4))
                 .padding(.vertical, .unit(.x2))
-                .ignoresSafeArea(.keyboard)
+                .background {
+                    LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                        .ignoresSafeArea()
+                }
         }
     }
 
