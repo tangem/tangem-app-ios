@@ -184,11 +184,6 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         }
     }
 
-    func estimateFee(input: TokenFeeProviderInputData) async throws -> [BSDKFee] {
-        // Same loading path as `updateFees()` but bypasses `updateState` — never publishes to `stateSubject`.
-        try await loadFees(input: input)
-    }
-
     private func loadFees(input: TokenFeeProviderInputData) async throws -> [BSDKFee] {
         switch input {
         case .common(let amount, let destination):

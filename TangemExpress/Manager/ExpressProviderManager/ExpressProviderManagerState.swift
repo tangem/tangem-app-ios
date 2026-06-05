@@ -72,7 +72,7 @@ public extension ExpressProviderManagerState {
         public let policy: ApprovePolicy
         public let data: ApproveTransactionData
         public let approvalFlow: ApprovalFlow
-        public let fee: Fee
+        public let fee: Fee?
         public let quote: ExpressQuote
     }
 

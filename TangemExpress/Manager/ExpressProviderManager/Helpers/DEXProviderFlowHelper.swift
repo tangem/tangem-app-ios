@@ -47,7 +47,7 @@ struct DEXProviderFlowHelper {
             )
 
             if case .error = approveWithSwapState {
-                return .permissionRequired(permissionRequired)
+                return await fallbackToTwoStepApprove(permissionRequired) ?? approveWithSwapState
             }
 
             return approveWithSwapState
@@ -114,16 +114,10 @@ private extension DEXProviderFlowHelper {
                 case .enoughAllowance:
                     break
                 case .permissionRequired(let data):
-                    let fee: BSDKFee
-                    if context.featureFlags.isApproveWithSwapEnabled {
-                        // One-tap: compute the approve fee as a pure value. The single authoritative
-                        // state write is the combined swap+approve fee in `fee(for:requiredApprove:)`,
-                        // so the displayed fee is never transiently the approve-only shape.
-                        fee = try await expressFeeProvider.estimateApproveFee(approveData: data)
+                    let fee: BSDKFee? = if context.featureFlags.isApproveWithSwapEnabled {
+                        nil
                     } else {
-                        // Two-step: the permission screen reads its fee from the provider state, so this
-                        // state-mutating estimate is intended.
-                        fee = try await expressFeeProvider.transactionFee(approveData: data)
+                        try await expressFeeProvider.transactionFee(approveData: data)
                     }
 
                     return .permissionRequired(
@@ -144,6 +138,25 @@ private extension DEXProviderFlowHelper {
         }
 
         return nil
+    }
+
+    func fallbackToTwoStepApprove(_ permissionRequired: ExpressProviderManagerState.PermissionRequired) async -> ExpressProviderManagerState? {
+        do {
+            let fee = try await expressFeeProvider.transactionFee(approveData: permissionRequired.data)
+            return .permissionRequired(
+                .init(
+                    provider: permissionRequired.provider,
+                    policy: permissionRequired.policy,
+                    data: permissionRequired.data,
+                    approvalFlow: permissionRequired.approvalFlow,
+                    fee: fee,
+                    quote: permissionRequired.quote
+                )
+            )
+        } catch {
+            ExpressLogger.error(self, error: error)
+            return nil
+        }
     }
 
     func fetchExchangeDataAndProceed(

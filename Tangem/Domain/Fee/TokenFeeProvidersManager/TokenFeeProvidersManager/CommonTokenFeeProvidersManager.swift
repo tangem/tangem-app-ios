@@ -153,21 +153,6 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         return fee
     }
 
-    func estimateApproveFee(approveData: ApproveTransactionData) async throws -> BSDKFee {
-        // Pure estimate — does not publish to the selected provider's state, so the displayed swap fee
-        // is never transiently overwritten with the approve-only (market-only) shape.
-        let fees = try await selectedFeeProvider.estimateFee(
-            input: .approve(txData: approveData.txData, toContractAddress: approveData.toContractAddress)
-        )
-
-        // The `.approve` input yields a single market fee.
-        guard let approveFee = fees.first else {
-            throw TokenFeeProviderError.feeNotFound
-        }
-
-        return approveFee
-    }
-
     func revokeAndApproveTransactionFee(revokeData: ApproveTransactionData) async throws -> RevokeAndApproveFee {
         update(input: .approve(txData: revokeData.txData, toContractAddress: revokeData.toContractAddress, feeMultiplier: .triple))
         await updateFees().value

@@ -538,7 +538,9 @@ extension SwapModel {
     ) async throws -> LoadedState {
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
 
-        let fee = permissionRequired.fee
+        guard let fee = permissionRequired.fee else {
+            throw SwapModelError.feeNotFound
+        }
 
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
 
@@ -772,7 +774,12 @@ extension SwapModel {
 
                 let result = try await dispatcher.sendDexSwap(
                     swap: (data: data, fee: readyToSwap.fee),
-                    approve: readyToSwap.requiredApprove.map { (data: $0.data, fee: $0.fee) }
+                    approve: readyToSwap.requiredApprove.map {
+                        guard let approveFee = $0.fee else {
+                            throw SwapModelError.feeNotFound
+                        }
+                        return (data: $0.data, fee: approveFee)
+                    }
                 )
 
                 analyticsLogger.logSwapTransactionSent(result: result)
