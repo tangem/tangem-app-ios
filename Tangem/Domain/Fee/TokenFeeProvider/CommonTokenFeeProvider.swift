@@ -208,13 +208,13 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
                 otherNativeFee: otherNativeFee
             )
 
-        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approve):
+        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approveInput):
             return try await updateFees(
                 amount: amount,
                 destination: destination,
                 txData: txData,
                 otherNativeFee: otherNativeFee,
-                approve: approve
+                approveInput: approveInput
             )
 
         case .dex(.solana(let data)):
@@ -395,13 +395,13 @@ private extension CommonTokenFeeProvider {
         return [fee]
     }
 
-    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, approve: ApproveWithSwapInput? = nil) async throws -> [BSDKFee] {
+    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, approveInput: ApproveWithSwapInput? = nil) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
             amount: amount,
             destination: destination,
             txData: txData,
             otherNativeFee: otherNativeFee,
-            approveInput: approve
+            approveInput: approveInput
         )
         try Task.checkCancellation()
         return fees

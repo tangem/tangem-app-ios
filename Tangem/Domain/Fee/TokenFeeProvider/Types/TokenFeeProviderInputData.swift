@@ -18,8 +18,8 @@ enum TokenFeeProviderInputData: Hashable {
     /// Fee multiplier applied after estimation (e.g. 3x for revoke+approve flows).
     case approve(txData: Data, toContractAddress: String, feeMultiplier: FeeMultiplier = .single)
     /// One-tap approve+swap: the swap is estimated with an unlimited-allowance state override
-    /// (the estimate would revert while the allowance is missing), and the pre-estimated approve
-    /// fee is folded into every option's total.
+    /// (the estimate would revert while the allowance is missing); the approve fee is estimated
+    /// by the same loader — always in its own fee currency — and folded into every option's total.
     case approveWithSwap(
         amount: BSDKAmount,
         destination: String,
@@ -30,8 +30,8 @@ enum TokenFeeProviderInputData: Hashable {
 }
 
 struct ApproveWithSwapInput: Hashable {
-    /// Pre-estimated approve fee with its own gas parameters.
-    let fee: BSDKFee
+    let txData: Data
+    /// Approve tx destination == the token contract being approved.
     let tokenContractAddress: String
     let owner: String
     let spender: String

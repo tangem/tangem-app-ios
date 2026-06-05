@@ -83,44 +83,64 @@ extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
     ) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
 
-        // The swap gas estimate would revert while the allowance is missing, so it runs
-        // with the allowance overridden to unlimited — covering the `transferFrom` gas.
-        let stateOverride = approveInput.map {
-            EthereumAccountOverride.unlimitedAllowance(
-                tokenAddress: $0.tokenContractAddress,
-                owner: $0.owner,
-                spender: $0.spender
+        guard let approveInput else {
+            let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
+                feeToken: params.feeToken,
+                destination: destination,
+                value: amount.encodedForSend,
+                data: txData,
+                stateOverride: nil,
+                otherNativeFee: otherNativeFee,
+                feeRecipientAddress: params.feeRecipientAddress,
+                nativeToFeeTokenRate: params.nativeToFeeTokenRate
             )
+
+            return [fee]
         }
 
-        let fee = try await gaslessTransactionFeeProvider.getGaslessTransactionFee(
+        // The swap gas estimate would revert while the allowance is missing, so it runs
+        // with the allowance overridden to unlimited — covering the `transferFrom` gas.
+        let unlimitedAllowanceOverride = EthereumAccountOverride.unlimitedAllowance(
+            tokenAddress: approveInput.tokenContractAddress,
+            owner: approveInput.owner,
+            spender: approveInput.spender
+        )
+
+        // Both estimates run through the gasless provider, so the approve fee is always
+        // denominated in the fee token.
+        async let swapFeeTask = gaslessTransactionFeeProvider.getGaslessTransactionFee(
             feeToken: params.feeToken,
             destination: destination,
             value: amount.encodedForSend,
             data: txData,
-            stateOverride: stateOverride,
+            stateOverride: unlimitedAllowanceOverride,
             otherNativeFee: otherNativeFee,
             feeRecipientAddress: params.feeRecipientAddress,
             nativeToFeeTokenRate: params.nativeToFeeTokenRate
         )
+        async let approveFeeTask = gaslessTransactionFeeProvider.getGaslessTransactionFee(
+            feeToken: params.feeToken,
+            destination: approveInput.tokenContractAddress,
+            value: BSDKAmount(with: tokenItem.blockchain, type: .coin, value: 0).encodedForSend,
+            data: approveInput.txData,
+            stateOverride: nil,
+            otherNativeFee: nil,
+            feeRecipientAddress: params.feeRecipientAddress,
+            nativeToFeeTokenRate: params.nativeToFeeTokenRate
+        )
 
-        guard let approveInput else {
-            return [fee]
-        }
+        let (swapFee, approveFee) = try await (swapFeeTask, approveFeeTask)
 
-        // Fold the pre-estimated approve fee into the total. The approve component travels
-        // inside the parameters, so the send path can split the total back into two per-tx fees.
-        var combinedAmount = fee.amount
-        combinedAmount.value += approveInput.fee.amount.value
-        print("ДЕБАГ [GaslessLoader] swap-фи до фолда: \(fee.amount.value), approve-фи: \(approveInput.fee.amount.value), комбинированная: \(combinedAmount.value)")
+        var combinedFeeAmount = swapFee.amount
+        combinedFeeAmount.value += approveFee.amount.value
 
-        guard let swapParameters = fee.parameters as? any EthereumFeeParameters else {
-            return [BSDKFee(combinedAmount, parameters: fee.parameters)]
+        guard let swapParameters = swapFee.parameters as? any EthereumFeeParameters else {
+            return [BSDKFee(combinedFeeAmount, parameters: swapFee.parameters)]
         }
 
         return [BSDKFee(
-            combinedAmount,
-            parameters: ApproveWithSwapFeeParameters(swapParameters: swapParameters, approveFee: approveInput.fee)
+            combinedFeeAmount,
+            parameters: ApproveWithSwapFeeParameters(swapParameters: swapParameters, approveFee: approveFee)
         )]
     }
 }

@@ -103,10 +103,6 @@ extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
         selectedTokenFeeProviderPublisher
             .flatMapLatest { $0.feesPublisher }
-            .handleEvents(receiveOutput: { fees in
-                let rows = fees.map { "\($0.option)=\(String(describing: $0.value.value?.amount.value)) комбинированная=\(($0.value.value?.parameters as? ApproveWithSwapFeeParameters) != nil)" }
-                print("ДЕБАГ [FeeSelector] опции в селекторе: \(rows)")
-            })
             .eraseToAnyPublisher()
     }
 }

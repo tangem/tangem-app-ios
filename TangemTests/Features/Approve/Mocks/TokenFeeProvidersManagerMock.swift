@@ -86,7 +86,7 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
         fatalError("Not used in tests")
     }
 
-    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveFee: Fee) async throws -> Fee {
+    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveData: ApproveTransactionData) async throws -> ApproveWithSwapFee {
         fatalError("Not used in tests")
     }
 

@@ -45,14 +45,71 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
         otherNativeFee: Decimal?,
         approveInput: ApproveWithSwapInput?
     ) async throws -> [BSDKFee] {
-        let stateOverride = approveInput.map {
-            EthereumAccountOverride.unlimitedAllowance(
-                tokenAddress: $0.tokenContractAddress,
-                owner: $0.owner,
-                spender: $0.spender
+        guard let approveInput else {
+            return try await estimateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee, stateOverride: nil)
+        }
+
+        // The swap gas estimate would revert while the allowance is missing, so it runs
+        // with the allowance overridden to unlimited — covering the `transferFrom` gas.
+        let unlimitedAllowanceOverride = EthereumAccountOverride.unlimitedAllowance(
+            tokenAddress: approveInput.tokenContractAddress,
+            owner: approveInput.owner,
+            spender: approveInput.spender
+        )
+
+        // Both estimates run through this loader, so the approve fee is always
+        // denominated in this loader's fee currency.
+        async let swapFeesTask = estimateFees(
+            amount: amount,
+            destination: destination,
+            txData: txData,
+            otherNativeFee: otherNativeFee,
+            stateOverride: unlimitedAllowanceOverride
+        )
+        async let approveFeesTask = estimateFees(
+            amount: BSDKAmount(with: feeBlockchain, type: .coin, value: 0),
+            destination: approveInput.tokenContractAddress,
+            txData: approveInput.txData,
+            otherNativeFee: nil,
+            stateOverride: nil
+        )
+
+        let (swapFees, approveFees) = try await (swapFeesTask, approveFeesTask)
+
+        // Approve never shows a speed selector — only the market fee is needed.
+        // [safe: 1] = market for EIP-1559 (3 fees), fallback to [safe: 0] for single-fee.
+        guard let marketApproveFee = approveFees[safe: 1] ?? approveFees[safe: 0] else {
+            throw TokenFeeLoaderError.approveFeeNotFound
+        }
+
+        let combinedSwapAndApproveFees = swapFees.map { swapFee in
+            var combinedFeeAmount = swapFee.amount
+            combinedFeeAmount.value += marketApproveFee.amount.value
+
+            guard let swapParameters = swapFee.parameters as? any EthereumFeeParameters else {
+                return BSDKFee(combinedFeeAmount, parameters: swapFee.parameters)
+            }
+
+            return BSDKFee(
+                combinedFeeAmount,
+                parameters: ApproveWithSwapFeeParameters(swapParameters: swapParameters, approveFee: marketApproveFee)
             )
         }
 
+        return combinedSwapAndApproveFees
+    }
+}
+
+// MARK: - Private
+
+private extension CommonEthereumTokenFeeLoader {
+    func estimateFees(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        stateOverride: [String: EthereumAccountOverride]?
+    ) async throws -> [BSDKFee] {
         var fees = try await ethereumNetworkProvider
             .getFee(destination: destination, value: amount.encodedForSend, data: txData, stateOverride: stateOverride)
             .async()
@@ -72,24 +129,6 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
             fees = fees.map { fee in
                 BSDKFee(.init(with: fee.amount, value: fee.amount.value + otherNativeFee), parameters: fee.parameters)
             }
-        }
-
-        if let approveInput {
-            print("ДЕБАГ [EthLoader] swap-фи до фолда: \(fees.map(\.amount.value)), approve-фи: \(approveInput.fee.amount.value)")
-            fees = fees.map { swapFee in
-                var combinedAmount = swapFee.amount
-                combinedAmount.value += approveInput.fee.amount.value
-
-                guard let swapParameters = swapFee.parameters as? any EthereumFeeParameters else {
-                    return BSDKFee(combinedAmount, parameters: swapFee.parameters)
-                }
-
-                return BSDKFee(
-                    combinedAmount,
-                    parameters: ApproveWithSwapFeeParameters(swapParameters: swapParameters, approveFee: approveInput.fee)
-                )
-            }
-            print("ДЕБАГ [EthLoader] комбинированная фи по опциям: \(fees.map(\.amount.value))")
         }
 
         return fees
