@@ -100,7 +100,7 @@ extension EthereumTarget {
         case transactions(address: String)
         case pending(address: String)
         case send(transaction: String)
-        case gasLimit(params: GasLimitParams, stateOverride: [String: EthereumAccountOverride]?)
+        case gasLimit(params: GasLimitParams, stateOverride: EthereumStateOverride?)
         case gasPrice
         case call(params: CallParams)
         case priorityFee
