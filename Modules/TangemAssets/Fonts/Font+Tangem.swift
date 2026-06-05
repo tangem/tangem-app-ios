@@ -120,4 +120,5 @@ public extension Font.Tangem.Heading34 {
 public extension Font.Tangem.Custom {
     static let titleRegular40: Font = .system(size: 40, weight: .semibold, design: .default)
     static let titleRegular44: Font = .system(size: 44, weight: .regular, design: .default)
+    static let titleSemibold44: Font = .system(size: 44, weight: .semibold, design: .default)
 }
