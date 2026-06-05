@@ -43,18 +43,22 @@ final class AddFundsViewModel: ObservableObject {
     }
 
     func onBuy() {
+        Analytics.log(.addFundsButtonBuy)
         coordinator?.openBuy(userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 
     func onSwap() {
+        Analytics.log(.addFundsButtonSwap)
         coordinator?.openSwap(userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 
     func onReceive() {
+        Analytics.log(.addFundsButtonReceive)
         coordinator?.openReceive(walletModel: walletModel)
     }
 
     func onGoToToken() {
+        Analytics.log(.addFundsButtonGoToToken)
         coordinator?.openTokenDetails(userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 
