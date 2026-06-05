@@ -99,13 +99,9 @@ private extension TangemPayMobileOnboardingCoordinator {
 
         isProcessing = true
 
-        let isEligible = await isUserEligibleForTangemPay(customerWalletId: userWalletModel.userWalletId.stringValue)
-
-        if isEligible {
-            await userWalletModel.accountModelsManager.acceptTangemPayOffer(
-                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
-            )
-        }
+        await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+            authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+        )
 
         isProcessing = false
         onboardingCoordinator = nil

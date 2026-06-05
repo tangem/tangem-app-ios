@@ -52,6 +52,7 @@ final class WelcomeCoordinator: CoordinatorObject {
     }
 
     private var tangemPayMobileOnboardingObserver: AnyCancellable?
+    private var needsToShowTangemPayMobileOnboarding = false
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -92,8 +93,14 @@ final class WelcomeCoordinator: CoordinatorObject {
                     return
                 }
 
-                coordinator.welcomeOnboardingCoordinator = nil
-                coordinator.showTangemPayMobileOnboarding()
+                // If the notification-permission (welcome) onboarding is still on screen,
+                // defer Tangem Pay onboarding until the user dismisses it, so the screens
+                // are shown sequentially instead of racing.
+                if coordinator.welcomeOnboardingCoordinator != nil {
+                    coordinator.needsToShowTangemPayMobileOnboarding = true
+                } else {
+                    coordinator.showTangemPayMobileOnboarding()
+                }
             }
     }
 
@@ -102,8 +109,14 @@ final class WelcomeCoordinator: CoordinatorObject {
         let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
 
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in
+            guard let self else { return }
             withAnimation(.easeIn) {
-                self?.welcomeOnboardingCoordinator = nil
+                self.welcomeOnboardingCoordinator = nil
+            }
+
+            if needsToShowTangemPayMobileOnboarding {
+                needsToShowTangemPayMobileOnboarding = false
+                showTangemPayMobileOnboarding()
             }
         }
 
