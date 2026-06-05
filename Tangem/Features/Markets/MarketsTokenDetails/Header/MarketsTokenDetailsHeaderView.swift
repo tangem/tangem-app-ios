@@ -63,7 +63,7 @@ private extension MarketsTokenDetailsHeaderView {
             // This `Text` view acts as an invisible container, maintaining constant height
             // to prevent UI from jumping when the font of the price label is scaled down
             Text(Constants.priceStubText)
-                .style(.Tangem.Custom.titleRegular44, color: .Tangem.Text.Neutral.primary)
+                .style(.Tangem.Custom.titleSemibold44, color: .Tangem.Text.Neutral.primary)
                 .opacity(.zero)
                 .accessibilityHidden(true)
 
