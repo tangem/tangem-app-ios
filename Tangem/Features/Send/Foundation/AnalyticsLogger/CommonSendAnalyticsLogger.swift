@@ -24,6 +24,10 @@ class CommonSendAnalyticsLogger {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
     }
 
+    private var receiveTokenItem: TokenItem? {
+        sendReceiveTokenInput?.receiveToken.value?.tokenItem
+    }
+
     private var feeTokenItem: TokenItem? {
         sendFeeInput?.selectedFee?.tokenItem
     }
@@ -71,7 +75,7 @@ class CommonSendAnalyticsLogger {
         return result
     }
 
-    private func buildSwapTokenProviderParams() -> [Analytics.ParameterKey: String] {
+    private func buildSwapTokenParams() -> [Analytics.ParameterKey: String] {
         var params: [Analytics.ParameterKey: String] = [:]
 
         if let sourceTokenItem {
@@ -83,6 +87,12 @@ class CommonSendAnalyticsLogger {
             params[.receiveToken] = receive.tokenItem.currencySymbol
             params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
         }
+
+        return params
+    }
+
+    private func buildSwapTokenProviderParams() -> [Analytics.ParameterKey: String] {
+        var params = buildSwapTokenParams()
 
         if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
             params[.provider] = provider.provider.name
@@ -615,6 +625,14 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
     }
 
+    func logSwapButtonTransfer() {
+        Analytics.log(event: .swapButtonTransfer, params: buildSwapTokenParams())
+    }
+
+    func logSwapTransferModeSwitched() {
+        Analytics.log(event: .swapTransferModeSwitched, params: buildSwapTokenParams())
+    }
+
     func logSwapPreselectedTokenChanged(
         direction: Analytics.ParameterValue,
         preselectedSymbol: String,
@@ -722,7 +740,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     private func logSwapFinishScreenOpened() {
-        logFinishScreenWithSwapParameters(event: .swapSwapInProgressScreenOpened)
+        let isTransfer = sourceTokenItem?.expressCurrency == receiveTokenItem?.expressCurrency
+        let event: Analytics.Event = isTransfer ? .swapTransferInProgressScreenOpened : .swapSwapInProgressScreenOpened
+        logFinishScreenWithSwapParameters(event: event)
     }
 
     private func logFinishScreenWithSwapParameters(event: Analytics.Event) {
