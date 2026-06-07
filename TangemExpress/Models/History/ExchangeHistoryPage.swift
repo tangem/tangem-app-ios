@@ -12,9 +12,9 @@ import struct TangemFoundation.IgnoredEquatable
 public struct ExchangeHistoryPage: Hashable {
     public let records: [ExchangeHistoryRecord]
 
-    /// Opaque cursor for the next page.
+    /// Opaque cursor (hence `Any`) for the next page.
     @IgnoredEquatable
-    public private(set) var nextCursor: Any
+    public private(set) var nextCursor: Any?
 
     public let hasMore: Bool
 
