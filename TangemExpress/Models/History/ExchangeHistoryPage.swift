@@ -19,7 +19,7 @@ public struct ExchangeHistoryPage: Hashable {
     public let hasMore: Bool
 
     /// Needed because `private(set)` on `nextCursor` makes the synthesized memberwise init private.
-    init(records: [ExchangeHistoryRecord], nextCursor: Any, hasMore: Bool) {
+    init(records: [ExchangeHistoryRecord], nextCursor: Any?, hasMore: Bool) {
         self.records = records
         self.nextCursor = nextCursor
         self.hasMore = hasMore
