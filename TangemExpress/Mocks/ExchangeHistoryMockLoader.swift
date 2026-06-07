@@ -12,9 +12,10 @@ import Foundation
 // [REDACTED_TODO_COMMENT]
 final class ExchangeHistoryMockLoader {
     static func data(forRequest request: ExpressDTO.Swap.History.Request) -> Data {
+        let cursor = request.afterCursor?.value as? String
         let payload: String
 
-        switch request.afterCursor {
+        switch cursor {
         case nil:
             // According to the API contract, the first page is requested with no `afterCursor`
             payload = page1
@@ -23,7 +24,7 @@ final class ExchangeHistoryMockLoader {
         case .some("p3"):
             payload = page3
         default:
-            preconditionFailure("Invalid cursor: \(String(describing: request.afterCursor))")
+            preconditionFailure("Invalid cursor: \(String(describing: cursor))")
         }
 
         return Data(payload.utf8)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AnyCodable
 
 extension ExpressDTO {
     enum Swap {
@@ -176,7 +177,8 @@ extension ExpressDTO {
         enum History {
             struct Request: Encodable {
                 let fromAddress: String
-                let afterCursor: String?
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let afterCursor: AnyEncodable?
                 let limit: Int?
             }
 
@@ -186,8 +188,10 @@ extension ExpressDTO {
             }
 
             struct Pagination: Decodable {
-                let endCursor: String?
-                let startDeltaCursor: String?
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let endCursor: AnyDecodable?
+                /// Opaque cursor (hence `AnyDecodable`) for the next page (delta sync).
+                let startDeltaCursor: AnyDecodable?
                 let hasMore: Bool
             }
 
@@ -234,7 +238,8 @@ extension ExpressDTO {
         enum HistoryDelta {
             struct Request: Encodable {
                 let fromAddress: String
-                let beforeCursor: String?
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let beforeCursor: AnyEncodable?
                 let limit: Int?
             }
 
@@ -244,7 +249,8 @@ extension ExpressDTO {
             }
 
             struct Pagination: Decodable {
-                let startCursor: String?
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let startCursor: AnyDecodable?
                 let hasMore: Bool
             }
         }

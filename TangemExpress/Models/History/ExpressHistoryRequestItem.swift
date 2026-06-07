@@ -8,6 +8,9 @@
 
 public struct ExpressHistoryRequestItem {
     public let walletAddress: String
-    public let cursor: String?
+
+    /// Opaque cursor (hence `Any`) for the next page.
+    public let cursor: Any?
+
     public let limit: Int?
 }

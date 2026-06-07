@@ -90,8 +90,8 @@ extension CommonTransactionHistoryNetworkService: CustomStringConvertible {
 extension CommonTransactionHistoryNetworkService {
     struct Page: @unchecked Sendable {
         let records: [Record]
-        /// Opaque cursor for the next page.
-        let nextCursor: Any
+        /// Opaque cursor (hence `Any`) for the next page.
+        let nextCursor: Any?
         let hasMore: Bool
     }
 }
