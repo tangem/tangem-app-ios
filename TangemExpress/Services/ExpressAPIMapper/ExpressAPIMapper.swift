@@ -447,12 +447,12 @@ struct ExpressAPIMapper {
         amount: String,
         actualAmount: String?
     ) throws -> ExpressHistoryAsset {
-        guard let rawAmount = Decimal(string: amount) else {
+        guard let rawAmount = Decimal(stringValue: amount) else {
             throw ExpressAPIMapperError.mapToDecimalError(amount)
         }
 
         let actual: Decimal? = try actualAmount.map { value in
-            guard let rawActual = Decimal(string: value) else {
+            guard let rawActual = Decimal(stringValue: value) else {
                 throw ExpressAPIMapperError.mapToDecimalError(value)
             }
 
@@ -467,8 +467,12 @@ struct ExpressAPIMapper {
         )
     }
 
-    private func mapToOnrampHistoryFiatAsset(currencyCode: String, amount: String, precision: Int) throws -> OnrampHistoryFiatAsset {
-        guard let rawAmount = Decimal(string: amount) else {
+    private func mapToOnrampHistoryFiatAsset(
+        currencyCode: String,
+        amount: String,
+        precision: Int
+    ) throws -> OnrampHistoryFiatAsset {
+        guard let rawAmount = Decimal(stringValue: amount) else {
             throw ExpressAPIMapperError.mapToDecimalError(amount)
         }
 
