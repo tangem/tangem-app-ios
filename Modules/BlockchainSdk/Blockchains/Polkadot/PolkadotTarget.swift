@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 import TangemFoundation
+import struct AnyCodable.AnyEncodable
 
 enum PolkadotBlockhashType {
     case genesis
