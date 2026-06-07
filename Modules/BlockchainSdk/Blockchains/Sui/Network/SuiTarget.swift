@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import struct AnyCodable.AnyEncodable
 
 struct SuiTarget: TargetType {
     let baseURL: URL

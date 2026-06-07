@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import struct AnyCodable.AnyEncodable
 
 /// Adapter for existing BlockBookUTXOProvider
 final class BitcoinCashBlockBookUTXOProvider {
