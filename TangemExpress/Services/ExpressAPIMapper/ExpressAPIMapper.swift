@@ -332,24 +332,155 @@ struct ExpressAPIMapper {
 
     // MARK: - History
 
-    // [REDACTED_TODO_COMMENT]
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.History.Response) throws -> ExchangeHistoryPage {
-        throw ExpressAPIMapperError.notImplemented
+        try ExchangeHistoryPage(
+            records: response.items.map(mapToExchangeHistoryRecord(record:)),
+            nextCursor: response.pagination.endCursor?.value,
+            hasMore: response.pagination.hasMore
+        )
     }
 
-    // [REDACTED_TODO_COMMENT]
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.HistoryDelta.Response) throws -> ExchangeHistoryPage {
-        throw ExpressAPIMapperError.notImplemented
+        try ExchangeHistoryPage(
+            records: response.items.map(mapToExchangeHistoryRecord(record:)),
+            nextCursor: response.pagination.startCursor?.value,
+            hasMore: response.pagination.hasMore
+        )
     }
 
-    // [REDACTED_TODO_COMMENT]
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.History.Response) throws -> OnrampHistoryPage {
-        throw ExpressAPIMapperError.notImplemented
+        try OnrampHistoryPage(
+            records: response.items.map(mapToOnrampHistoryRecord(record:)),
+            nextCursor: response.pagination.endCursor?.value,
+            hasMore: response.pagination.hasMore
+        )
     }
 
-    // [REDACTED_TODO_COMMENT]
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.HistoryDelta.Response) throws -> OnrampHistoryPage {
-        throw ExpressAPIMapperError.notImplemented
+        try OnrampHistoryPage(
+            records: response.items.map(mapToOnrampHistoryRecord(record:)),
+            nextCursor: response.pagination.startCursor?.value,
+            hasMore: response.pagination.hasMore
+        )
+    }
+
+    private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
+        try ExchangeHistoryRecord(
+            txId: record.txId,
+            providerId: record.providerId,
+            status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
+            rateType: ExpressProviderRateType(rawValue: record.rateType),
+            externalTxId: record.externalTxId,
+            externalTxStatus: record.externalTxStatus,
+            externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
+            fromAddress: record.fromAddress,
+            payinAddress: record.payinAddress,
+            payinExtraId: record.payinExtraId,
+            payoutAddress: record.payoutAddress,
+            payinHash: record.payinHash,
+            payoutHash: record.payoutHash,
+            refundAddress: record.refundAddress,
+            refundExtraId: record.refundExtraId,
+            refundedCurrency: mapToRefundedCurrency(network: record.refundNetwork, contractAddress: record.refundContractAddress),
+            from: mapToExpressHistoryAsset(
+                contractAddress: record.fromContractAddress,
+                network: record.fromNetwork,
+                decimals: record.fromDecimals,
+                amount: record.fromAmount,
+                actualAmount: nil
+            ),
+            to: mapToExpressHistoryAsset(
+                contractAddress: record.toContractAddress,
+                network: record.toNetwork,
+                decimals: record.toDecimals,
+                amount: record.toAmount,
+                actualAmount: record.toActualAmount
+            ),
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt ?? record.createdAt,
+            payTill: record.payTill,
+            averageDuration: record.averageDuration
+        )
+    }
+
+    private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
+        try OnrampHistoryRecord(
+            txId: record.txId,
+            providerId: record.providerId,
+            status: OnrampTransactionStatus(rawValue: record.status),
+            rateType: ExpressProviderRateType(rawValue: record.rateType),
+            externalTxId: record.externalTxId,
+            externalTxStatus: record.externalTxStatus,
+            externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
+            fromAddress: record.fromAddress,
+            payinAddress: record.payinAddress,
+            payinExtraId: record.payinExtraId,
+            payoutAddress: record.payoutAddress,
+            payinHash: record.payinHash,
+            payoutHash: record.payoutHash,
+            refundAddress: record.refundAddress,
+            refundExtraId: record.refundExtraId,
+            refundedCurrency: mapToRefundedCurrency(network: record.refundNetwork, contractAddress: record.refundContractAddress),
+            from: mapToOnrampHistoryFiatAsset(
+                currencyCode: record.fromCurrencyCode,
+                amount: record.fromAmount,
+                precision: record.fromPrecision
+            ),
+            to: mapToExpressHistoryAsset(
+                contractAddress: record.toContractAddress,
+                network: record.toNetwork,
+                decimals: record.toDecimals,
+                amount: record.toAmount,
+                actualAmount: record.toActualAmount
+            ),
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt ?? record.createdAt,
+            payTill: record.payTill,
+            averageDuration: record.averageDuration
+        )
+    }
+
+    private func mapToExpressHistoryAsset(
+        contractAddress: String,
+        network: String,
+        decimals: Int,
+        amount: String,
+        actualAmount: String?
+    ) throws -> ExpressHistoryAsset {
+        guard let rawAmount = Decimal(string: amount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(amount)
+        }
+
+        let actual: Decimal? = try actualAmount.map { value in
+            guard let rawActual = Decimal(string: value) else {
+                throw ExpressAPIMapperError.mapToDecimalError(value)
+            }
+
+            return rawActual / pow(10, decimals)
+        }
+
+        return ExpressHistoryAsset(
+            currency: ExpressCurrency(contractAddress: contractAddress, network: network),
+            amount: rawAmount / pow(10, decimals),
+            actualAmount: actual,
+            decimals: decimals
+        )
+    }
+
+    private func mapToOnrampHistoryFiatAsset(currencyCode: String, amount: String, precision: Int) throws -> OnrampHistoryFiatAsset {
+        guard let rawAmount = Decimal(string: amount) else {
+            throw ExpressAPIMapperError.mapToDecimalError(amount)
+        }
+
+        return OnrampHistoryFiatAsset(currencyCode: currencyCode, amount: rawAmount / pow(10, precision))
+    }
+
+    private func mapToRefundedCurrency(network: String?, contractAddress: String?) -> ExpressCurrency? {
+        guard let network, let contractAddress else {
+            return nil
+        }
+
+        return ExpressCurrency(contractAddress: contractAddress, network: network)
     }
 }
 
@@ -359,7 +490,6 @@ enum ExpressAPIMapperError: LocalizedError {
     case payoutAddressNotEqual
     case payoutExtraIdNotEqual
     case widgetUrlMissing
-    case notImplemented
 
     var errorDescription: String? {
         switch self {
@@ -368,7 +498,6 @@ enum ExpressAPIMapperError: LocalizedError {
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .widgetUrlMissing: "Widget url is missing for a widget transaction"
-        case .notImplemented: "Mapping is not implemented yet"
         }
     }
 }
