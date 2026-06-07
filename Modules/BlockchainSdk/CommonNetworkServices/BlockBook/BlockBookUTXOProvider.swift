@@ -11,6 +11,7 @@ import Combine
 import TangemSdk
 import TangemFoundation
 import TangemNetworkUtils
+import struct AnyCodable.AnyEncodable
 
 /// Documentation: https://github.com/trezor/blockbook/blob/master/docs/api.md
 class BlockBookUTXOProvider {
