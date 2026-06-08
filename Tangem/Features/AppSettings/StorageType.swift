@@ -63,4 +63,6 @@ enum StorageType: String {
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
     case swapFormVariant = "swap_form_variant"
     case yieldApyBoostHiddenPromos = "yield_apy_boost_hidden_promos"
+    case yieldApyBoostQualificationEndDates = "yield_apy_boost_qualification_end_dates"
+    case yieldApyBoostFirstSeenCompletedDates = "yield_apy_boost_first_seen_completed_dates"
 }
