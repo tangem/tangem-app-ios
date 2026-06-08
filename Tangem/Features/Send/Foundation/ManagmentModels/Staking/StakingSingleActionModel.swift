@@ -38,7 +38,7 @@ class StakingSingleActionModel {
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
 
-    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
@@ -172,7 +172,8 @@ private extension StakingSingleActionModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(
+        analyticsLogger.logStakingTransactionSent(
+            amount: .none,
             fee: .market,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
@@ -190,7 +191,7 @@ private extension StakingSingleActionModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            analyticsLogger.logTransactionRejected(error: error)
+            analyticsLogger.logStakingTransactionRejected(error: error)
         }
     }
 }

@@ -50,15 +50,17 @@ extension MarketsTokenDetailsView {
         // MARK: - Metrics
 
         private var metrics: some View {
-            VStack(spacing: .unit(.x2)) {
-                HStack(spacing: .unit(.x2)) {
-                    metricsCard
-                    metricsCard
-                }
+            VStack(spacing: .unit(.x3)) {
+                VStack(spacing: .unit(.x2)) {
+                    HStack(spacing: .unit(.x2)) {
+                        metricsCard
+                        metricsCard
+                    }
 
-                HStack(spacing: .unit(.x2)) {
-                    metricsCard
-                    metricsCard
+                    HStack(spacing: .unit(.x2)) {
+                        metricsCard
+                        metricsCard
+                    }
                 }
 
                 circulatingSupplyCard
