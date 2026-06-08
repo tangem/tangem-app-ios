@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import struct AnyCodable.AnyEncodable
+import AnyCodable
 
 class ElectrumWebSocketProvider: HostProvider {
     var host: String { webSocketProvider.host }
