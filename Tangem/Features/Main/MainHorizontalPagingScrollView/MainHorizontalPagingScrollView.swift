@@ -21,6 +21,8 @@ struct MainHorizontalPagingScrollView: View {
     @State private var userWalletIndexToScrollAdjustedValues = [Int: ScrollAdjustedValues]()
     @State private var safeAreaInsetsTop = CGFloat.zero
 
+    @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
+
     var body: some View {
         horizontalScrollView
             .northernLightsBackground(
@@ -50,7 +52,7 @@ struct MainHorizontalPagingScrollView: View {
                 onHeaderMinYChanged: { index, headerMinY in
                     var scrollAdjustedValues = userWalletIndexToScrollAdjustedValues[index, default: .initial]
 
-                    let navigationBarProgress = clamp(-headerMinY / Sizes.headerBalanceTextHeight, min: 0, max: 1)
+                    let navigationBarProgress = clamp(-headerMinY / headerBalanceTextHeight, min: 0, max: 1)
 
                     scrollAdjustedValues.navigationBarBalanceOpacity = navigationBarBalanceOpacity(for: navigationBarProgress)
                     scrollAdjustedValues.navigationBarBalanceOffsetY = navigationBarBalanceOffsetY(for: navigationBarProgress)
@@ -64,8 +66,6 @@ struct MainHorizontalPagingScrollView: View {
             EmptyView()
         }
     }
-
-    // [REDACTED_TODO_COMMENT]
 
     private var isHorizontalScrollDisabled: Bool {
         isPullToRefreshRunning || selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity >= 1
@@ -84,14 +84,9 @@ struct MainHorizontalPagingScrollView: View {
     }
 
     private func northernLightsBackgroundOpacity(for headerMinY: CGFloat) -> CGFloat {
-        let startY = safeAreaInsetsTop + UserWalletView.Paddings.headerTop
-        let endY = -Sizes.headerBalanceTextHeight
-
-        let progress = clamp(
-            (startY - headerMinY) / (startY - endY),
-            min: 0,
-            max: 1
-        )
+        let startY = safeAreaInsetsTop
+        let endY = headerBalanceTextHeight
+        let progress = clamp((startY - headerMinY) / (startY + endY), min: 0, max: 1)
 
         return 1 - pow(progress, 1.25)
     }
@@ -150,7 +145,6 @@ extension MainHorizontalPagingScrollView {
 
 extension MainHorizontalPagingScrollView {
     private enum Sizes {
-        static let headerBalanceTextHeight: CGFloat = 48.0
         static let navigationBalanceMaxYOffset: CGFloat = 16.0
     }
 
