@@ -192,7 +192,9 @@ extension ExpressDTO {
                 let endCursor: AnyDecodable?
                 /// Opaque cursor (hence `AnyDecodable`) for the next page (delta sync).
                 let startDeltaCursor: AnyDecodable?
-                let hasMore: Bool
+                let hasMore: Bool? // [REDACTED_TODO_COMMENT]
+                @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
+                let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
             }
 
             struct Record: Decodable {
