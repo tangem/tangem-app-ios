@@ -68,7 +68,6 @@ struct MainUserWalletHeader: View {
         case progress
     }
 
-    @ViewBuilder
     private var walletNameWithThumbnail: some View {
         HStack(spacing: SizeUnit.x1.value) {
             Text(headerViewModel.userWalletName)

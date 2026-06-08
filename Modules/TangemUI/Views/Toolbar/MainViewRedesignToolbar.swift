@@ -17,8 +17,22 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
     private let scanQRCodeAction: () -> Void
     private let detailsAction: () -> Void
 
-    public init(principalContent: PrincipalContent, scanQRCodeAction: @escaping () -> Void, detailsAction: @escaping () -> Void) {
+    public init(
+        principalContent: PrincipalContent,
+        scanQRCodeAction: @escaping () -> Void,
+        detailsAction: @escaping () -> Void
+    ) {
         self.principalContent = principalContent
+        self.scanQRCodeAction = scanQRCodeAction
+        self.detailsAction = detailsAction
+    }
+
+    public init(
+        @ViewBuilder principalContent: () -> PrincipalContent,
+        scanQRCodeAction: @escaping () -> Void,
+        detailsAction: @escaping () -> Void
+    ) {
+        self.principalContent = principalContent()
         self.scanQRCodeAction = scanQRCodeAction
         self.detailsAction = detailsAction
     }
