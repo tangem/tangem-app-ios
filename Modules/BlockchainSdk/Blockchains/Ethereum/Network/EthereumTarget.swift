@@ -8,9 +8,9 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import TangemFoundation
 import TangemNetworkUtils
-import struct AnyCodable.AnyEncodable
 
 struct EthereumTarget: TargetType {
     private let targetType: EthereumTargetType
