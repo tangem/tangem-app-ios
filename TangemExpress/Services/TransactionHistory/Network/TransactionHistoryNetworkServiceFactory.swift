@@ -19,27 +19,13 @@ public enum TransactionHistoryNetworkServiceFactory {
             initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
             deltaCursorStorage: InMemoryTransactionHistoryCursorStorage(),
             initialPageFetcher: { apiProvider, cursor in
-                let page = try await apiProvider.exchangeHistory(
+                try await apiProvider.exchangeHistory(
                     item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
-                )
-
-                return .init(
-                    records: page.records,
-                    nextCursor: page.nextCursor,
-                    startDeltaCursor: page.startDeltaCursor,
-                    hasMore: page.hasMore
                 )
             },
             deltaPageFetcher: { apiProvider, cursor in
-                let page = try await apiProvider.exchangeHistoryDelta(
+                try await apiProvider.exchangeHistoryDelta(
                     item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
-                )
-
-                return .init(
-                    records: page.records,
-                    nextCursor: page.nextCursor,
-                    startDeltaCursor: nil,
-                    hasMore: page.hasMore
                 )
             }
         )
@@ -55,27 +41,13 @@ public enum TransactionHistoryNetworkServiceFactory {
             initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
             deltaCursorStorage: InMemoryTransactionHistoryCursorStorage(),
             initialPageFetcher: { apiProvider, cursor in
-                let page = try await apiProvider.onrampHistory(
+                try await apiProvider.onrampHistory(
                     item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
-                )
-
-                return .init(
-                    records: page.records,
-                    nextCursor: page.nextCursor,
-                    startDeltaCursor: page.startDeltaCursor,
-                    hasMore: page.hasMore
                 )
             },
             deltaPageFetcher: { apiProvider, cursor in
-                let page = try await apiProvider.onrampHistoryDelta(
+                try await apiProvider.onrampHistoryDelta(
                     item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
-                )
-
-                return .init(
-                    records: page.records,
-                    nextCursor: page.nextCursor,
-                    startDeltaCursor: nil,
-                    hasMore: page.hasMore
                 )
             }
         )
