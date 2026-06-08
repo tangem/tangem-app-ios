@@ -50,32 +50,17 @@ struct EarnTokenTileView: View {
                     .style(.Tangem.Caption12.semibold, color: Color.Tangem.Text.Status.positive)
             }
             .frame(width: RedesignLayout.tileWidth, alignment: .topLeading)
-            .background {
-                blurredBackground
-            }
             .padding(.bottom, .unit(.x1))
             .defaultRoundedBackground(
-                with: Colors.Background.action,
+                with: .Tangem.Surface.level3,
                 cornerRadius: RedesignLayout.cornerRadius
             )
-            .clipShape(RoundedRectangle(cornerRadius: RedesignLayout.cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: RedesignLayout.cornerRadius)
-                    .stroke(Color.Tangem.Border.Neutral.tertiary, lineWidth: 1.0)
+                    .strokeBorder(Color.Tangem.Border.Neutral.tertiary, lineWidth: 1.0)
             )
         }
         .buttonStyle(.plain)
-    }
-
-    private var blurredBackground: some View {
-        IconView(
-            url: viewModel.imageUrl,
-            size: .init(bothDimensions: RedesignLayout.tileWidth),
-            cornerRadius: 0,
-            forceKingfisher: true
-        )
-        .blur(radius: 20.0)
-        .opacity(0.5)
     }
 
     private var redesignedTokenIcon: some View {
