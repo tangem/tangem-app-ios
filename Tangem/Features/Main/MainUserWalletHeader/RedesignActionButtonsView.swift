@@ -14,14 +14,35 @@ import TangemAccessibilityIdentifiers
 struct RedesignActionButtonsView: View {
     @ObservedObject var viewModel: ActionButtonsViewModel
 
+    @ScaledMetric private var spacing: CGFloat = .unit(.x3)
+    @ScaledMetric private var horizontalPadding: CGFloat = .unit(.x15)
+
+    private var dynamicHorizontalPadding: CGFloat {
+        let screenWidth = UIScreen.main.bounds.width
+        let defaultScreenWidth: CGFloat = 390
+        return horizontalPadding * screenWidth / defaultScreenWidth
+    }
+
     var body: some View {
-        HStack(spacing: SizeUnit.x6.value) {
-            RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
+        let visibility = viewModel.actionButtonsVisibility
 
-            RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
+        HStack(alignment: .top, spacing: spacing) {
+            if visibility.isExchangeVisible {
+                RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
+                    .frame(maxWidth: .infinity)
+            }
 
-            RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
+            if visibility.isSwappingVisible {
+                RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
+                    .frame(maxWidth: .infinity)
+            }
+
+            if visibility.isExchangeVisible {
+                RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
+                    .frame(maxWidth: .infinity)
+            }
         }
+        .padding(.horizontal, dynamicHorizontalPadding)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.actionButtonsList)
     }
