@@ -191,7 +191,8 @@ private extension UnstakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(
+        analyticsLogger.logStakingTransactionSent(
+            amount: .none,
             fee: .market,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
@@ -209,7 +210,7 @@ private extension UnstakingModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            analyticsLogger.logTransactionRejected(error: error)
+            analyticsLogger.logStakingTransactionRejected(error: error)
         }
     }
 }
