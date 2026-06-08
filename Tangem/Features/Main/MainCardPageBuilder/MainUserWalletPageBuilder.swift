@@ -69,7 +69,7 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var headerModel: MainHeaderViewModel {
+    var headerModel: MainHeaderViewModel {
         switch self {
         case .singleWallet(_, _, let headerModel, _): headerModel
         case .multiWallet(_, _, let headerModel, _): headerModel
@@ -78,7 +78,7 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var actionButtonsViewModel: ActionButtonsViewModel? {
+    var actionButtonsViewModel: ActionButtonsViewModel? {
         switch self {
         case .singleWallet(_, _, _, let bodyModel):
             return bodyModel?.actionButtonsViewModel

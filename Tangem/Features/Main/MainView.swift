@@ -32,6 +32,15 @@ struct MainView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isRedesignEnabled {
+            MainHorizontalPagingScrollView(
+                userWalletPageBuilders: viewModel.pages,
+                selectedCardIndex: $viewModel.selectedCardIndex,
+                refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
+                isHorizontalScrollDisabled: viewModel.isHorizontalScrollDisabled,
+                scanQRCodeAction: viewModel.openQRScan,
+                detailsAction: viewModel.openDetails
+            )
+        } else if viewModel.isRedesignEnabled, false {
             fullPagePagerContent
                 .northernLightsBackground(
                     backgroundColor: .Tangem.Surface.level2,
