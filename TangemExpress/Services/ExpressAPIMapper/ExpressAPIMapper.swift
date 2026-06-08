@@ -325,7 +325,7 @@ struct ExpressAPIMapper {
         return OnrampTransaction(
             fromAmount: fromAmount,
             toAmount: toAmount,
-            status: response.status,
+            status: OnrampTransactionStatus(rawValue: response.status) ?? .unknown,
             externalTxId: response.externalTxId,
             externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
         )
