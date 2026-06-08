@@ -229,7 +229,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         multiWalletContentDelegate: MultiWalletMainContentDelegate?,
         nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> [MainUserWalletPageBuilder] {
-        return models.compactMap {
+        models.map {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
