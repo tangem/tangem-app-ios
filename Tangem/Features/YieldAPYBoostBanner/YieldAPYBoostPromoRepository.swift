@@ -10,25 +10,38 @@ import Foundation
 import TangemFoundation
 
 struct YieldAPYBoostCampaign {
-    let eligibleTokens: [BannerPromotion.Response.Token]
-    let startDate: Date
-    let endDate: Date
-    let campaignStatus: BannerPromotion.Response.Status
-    let promoEnrollmentStatus: YieldBoostPromotionDTO.PromoEnrollmentStatus
-    let contractAddress: String?
-    let networkId: String?
-    let activationDate: Date?
-}
+    /// Marketing campaign data from the promotions list (`loadPromotionCampaigns`). `nil` when the
+    /// `yield-apr-boost` campaign isn't currently listed — drives the main-screen "join promo" banner.
+    let bannerData: BannerData?
+    /// Per-wallet enrollment status (`loadYieldBoostPromotionStatus`). Independent of the promotions list.
+    let enrollmentStatus: EnrollmentStatus?
 
-private typealias Cache = [String: YieldAPYBoostCampaign?]
+    struct BannerData {
+        let eligibleTokens: [BannerPromotion.Response.Token]
+        let startDate: Date
+        let endDate: Date
+        let campaignStatus: BannerPromotion.Response.Status
+    }
+
+    struct EnrollmentStatus {
+        let promoEnrollmentStatus: YieldBoostPromotionDTO.PromoEnrollmentStatus
+        let contractAddress: String?
+        let networkId: String?
+        let qualificationEndDate: Date?
+    }
+}
 
 /// Singleton — token details screens read the cache to gate the per-token promo / active campaign UI.
 actor YieldAPYBoostPromoRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private var campaignsCache: Cache = [:]
-    private var inflight: [String: Task<YieldAPYBoostCampaign?, Never>] = [:]
+    private var campaignsCache: [String: YieldAPYBoostCampaign?] = [:]
+    private var campaignInflight: [String: Task<YieldAPYBoostCampaign?, Never>] = [:]
 
+    private var enrollmentStatusCache: [String: YieldAPYBoostCampaign.EnrollmentStatus] = [:]
+    private var enrollmentStatusInflight: [String: Task<YieldAPYBoostCampaign.EnrollmentStatus?, Never>] = [:]
+
+    /// Full campaign for the main-screen banner. Fetched once per session.
     func campaign(userWalletId: String) async -> YieldAPYBoostCampaign? {
         guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
               !FeatureProvider.isAvailable(.redesign)
@@ -40,41 +53,87 @@ actor YieldAPYBoostPromoRepository {
             return cached
         }
 
-        if let task = inflight[userWalletId] {
+        if let task = campaignInflight[userWalletId] {
             return await task.value
         }
 
-        let task = Task<YieldAPYBoostCampaign?, Never> {
-            async let promotionsTask = tangemApiService.loadPromotionCampaigns(userWalletId: userWalletId)
-            async let statusTask = tangemApiService.loadYieldBoostPromotionStatus(userWalletId: userWalletId)
+        let task = Task<YieldAPYBoostCampaign?, Never> { [self] in
+            async let bannerData = loadBannerData(userWalletId: userWalletId)
+            async let enrollmentStatus = enrollmentStatus(userWalletId: userWalletId)
 
+            let (resolvedBannerData, resolvedEnrollmentStatus) = await (bannerData, enrollmentStatus)
+            guard resolvedBannerData != nil || resolvedEnrollmentStatus != nil else {
+                return nil
+            }
+
+            return YieldAPYBoostCampaign(bannerData: resolvedBannerData, enrollmentStatus: resolvedEnrollmentStatus)
+        }
+
+        campaignInflight[userWalletId] = task
+
+        let campaign = await task.value
+        campaignInflight[userWalletId] = nil
+        campaignsCache[userWalletId] = campaign
+        return campaign
+    }
+
+    /// Per-wallet enrollment status only — does not depend on the promotions list. Successful responses are
+    /// cached for the session; failures are NOT cached so a transient error can recover on the next request.
+    func enrollmentStatus(userWalletId: String) async -> YieldAPYBoostCampaign.EnrollmentStatus? {
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
+              !FeatureProvider.isAvailable(.redesign)
+        else {
+            return nil
+        }
+
+        if let cached = enrollmentStatusCache[userWalletId] {
+            return cached
+        }
+
+        if let task = enrollmentStatusInflight[userWalletId] {
+            return await task.value
+        }
+
+        let task = Task<YieldAPYBoostCampaign.EnrollmentStatus?, Never> {
             do {
-                let (promotions, status) = try await (promotionsTask, statusTask)
-                guard let promotion = promotions.first(where: { $0.name == Self.campaignName }) else {
-                    return nil
-                }
-
-                return YieldAPYBoostCampaign(
-                    eligibleTokens: promotion.all.tokens,
-                    startDate: promotion.all.timeline.start,
-                    endDate: promotion.all.timeline.end,
-                    campaignStatus: promotion.all.status,
+                let status = try await tangemApiService.loadYieldBoostPromotionStatus(userWalletId: userWalletId)
+                return YieldAPYBoostCampaign.EnrollmentStatus(
                     promoEnrollmentStatus: status.promoEnrollmentStatus,
                     contractAddress: status.contractAddress,
                     networkId: status.networkId,
-                    activationDate: status.activationDate
+                    qualificationEndDate: status.qualificationEndDate
                 )
             } catch {
                 return nil
             }
         }
 
-        inflight[userWalletId] = task
+        enrollmentStatusInflight[userWalletId] = task
 
-        let campaign = await task.value
-        inflight[userWalletId] = nil
-        campaignsCache[userWalletId] = campaign
-        return campaign
+        let status = await task.value
+        enrollmentStatusInflight[userWalletId] = nil
+        if let status {
+            enrollmentStatusCache[userWalletId] = status
+        }
+        return status
+    }
+
+    private func loadBannerData(userWalletId: String) async -> YieldAPYBoostCampaign.BannerData? {
+        do {
+            let promotions = try await tangemApiService.loadPromotionCampaigns(userWalletId: userWalletId)
+            guard let promotion = promotions.first(where: { $0.name == Self.campaignName }) else {
+                return nil
+            }
+
+            return YieldAPYBoostCampaign.BannerData(
+                eligibleTokens: promotion.all.tokens,
+                startDate: promotion.all.timeline.start,
+                endDate: promotion.all.timeline.end,
+                campaignStatus: promotion.all.status
+            )
+        } catch {
+            return nil
+        }
     }
 }
 

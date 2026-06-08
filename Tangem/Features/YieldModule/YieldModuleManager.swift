@@ -738,16 +738,17 @@ private extension CommonYieldModuleManager {
     }
 
     func resolvePromoStatus(from campaign: YieldAPYBoostCampaign) -> YieldPromoStatus {
-        switch campaign.promoEnrollmentStatus {
+        switch campaign.enrollmentStatus?.promoEnrollmentStatus {
         case .notStarted:
-            let isEligible = campaign.eligibleTokens.contains { eligible in
+            // Eligibility to newly join the promo depends on the currently listed campaign tokens.
+            let isEligible = campaign.bannerData?.eligibleTokens.contains { eligible in
                 eligible.networkId == blockchain.networkId
                     && eligible.tokenAddress.caseInsensitiveCompare(token.contractAddress) == .orderedSame
-            }
+            } ?? false
             return isEligible ? .notStarted : .undefined
         case .active:
-            let networkMatch = campaign.networkId == blockchain.networkId
-            let addressMatch = campaign.contractAddress?.caseInsensitiveCompare(token.contractAddress) == .orderedSame
+            let networkMatch = campaign.enrollmentStatus?.networkId == blockchain.networkId
+            let addressMatch = campaign.enrollmentStatus?.contractAddress?.caseInsensitiveCompare(token.contractAddress) == .orderedSame
 
             if networkMatch, addressMatch {
                 return .active
@@ -756,7 +757,7 @@ private extension CommonYieldModuleManager {
             return .undefined
         case .completed:
             return .completed
-        case .disqualified:
+        case .disqualified, .none:
             return .undefined
         }
     }
