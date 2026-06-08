@@ -30,13 +30,17 @@ enum ActionButtonModel: Hashable {
 
     var icon: ImageType {
         let isAddFundsStage1Enabled = FeatureProvider.isAvailable(.addFundsStage1)
+        let isRedesign = FeatureProvider.isAvailable(.redesign)
         switch self {
         case .buy:
-            return isAddFundsStage1Enabled ? Assets.arrowDownMini : Assets.plusMini
+            let stage1Icon: ImageType = isRedesign ? Assets.DesignSystem.arrowDown : Assets.arrowDownMini
+            return isAddFundsStage1Enabled ? stage1Icon : Assets.plusMini
         case .swap:
-            return isAddFundsStage1Enabled ? Assets.addfundsSwap : Assets.exchangeMini
+            let stage1Icon: ImageType = isRedesign ? Assets.DesignSystem.exchange : Assets.addfundsSwap
+            return isAddFundsStage1Enabled ? stage1Icon : Assets.exchangeMini
         case .sell:
-            return isAddFundsStage1Enabled ? Assets.arrowUpMini : Assets.dollarMini
+            let stage1Icon: ImageType = isRedesign ? Assets.DesignSystem.arrowUp : Assets.arrowUpMini
+            return isAddFundsStage1Enabled ? stage1Icon : Assets.dollarMini
         }
     }
 

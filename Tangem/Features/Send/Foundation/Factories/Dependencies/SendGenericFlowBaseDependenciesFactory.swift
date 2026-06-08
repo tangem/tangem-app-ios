@@ -66,4 +66,15 @@ extension SendGenericFlowBaseDependenciesFactory {
     func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType, coordinatorSource: SendCoordinator.Source = .main) -> SendAnalyticsLogger {
         CommonSendAnalyticsLogger(sendType: sendType, coordinatorSource: coordinatorSource)
     }
+
+    func makeSwapAnalyticsLogger() -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(sendType: .swap, coordinatorSource: .main)
+    }
+
+    func makeSendWithSwapAnalyticsLogger(
+        sendType: CommonSendAnalyticsLogger.SendType,
+        coordinatorSource: SendCoordinator.Source = .main
+    ) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(sendType: sendType, coordinatorSource: coordinatorSource)
+    }
 }

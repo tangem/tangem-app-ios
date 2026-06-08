@@ -26,4 +26,18 @@ public enum ExpressProviderType: String, Hashable, Decodable, CaseIterable {
             return "DEX/Bridge"
         }
     }
+
+    public var isCEX: Bool {
+        switch self {
+        case .cex: true
+        default: false
+        }
+    }
+
+    public var isDEX: Bool {
+        switch self {
+        case .dex, .dexBridge: true
+        default: false
+        }
+    }
 }

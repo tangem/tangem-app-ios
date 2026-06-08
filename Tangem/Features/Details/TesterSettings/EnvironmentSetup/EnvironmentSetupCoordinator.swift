@@ -27,6 +27,7 @@ final class EnvironmentSetupCoordinator: CoordinatorObject {
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
     @Published var addressesInfoViewModel: AddressesInfoViewModel?
     @Published var designSystemDemoCoordinator: DesignSystemDemoCoordinator?
+    @Published var silentPushTesterViewModel: SilentPushTesterViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -76,6 +77,10 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
 
     func openAddressesInfo() {
         addressesInfoViewModel = AddressesInfoViewModel()
+    }
+
+    func openSilentPushTester() {
+        silentPushTesterViewModel = SilentPushTesterViewModel()
     }
 
     func openDesignSystemDemo() {

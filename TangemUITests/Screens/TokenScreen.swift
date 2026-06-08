@@ -82,6 +82,17 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return SwapStoriesScreen(app)
     }
 
+    /// Express-unreachable keeps the Swap button rendered but `.disabled` — `waitAndTap`'s `isEnabled` wait would time out.
+    @discardableResult
+    func tapSwapButtonWhenUnavailable() -> Self {
+        XCTContext.runActivity(named: "Tap Swap action button (disabled state)") { _ in
+            waitAndAssertTrue(swapButton, "Swap button should exist")
+            XCTAssertFalse(swapButton.isEnabled, "Swap button should be disabled when Express is unavailable")
+            swapButton.tap()
+            return self
+        }
+    }
+
     @discardableResult
     func tapSendButton() -> SendScreen {
         tapActionButton(.send)
@@ -194,6 +205,19 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    @discardableResult
+    func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate token total balance contains currency symbol: \(currencySymbol)") { _ in
+            waitAndAssertTrue(totalBalance, "Total balance element should exist")
+            let balanceText = totalBalance.label
+            XCTAssertTrue(
+                balanceText.contains(currencySymbol),
+                "Token total balance should contain '\(currencySymbol)' but was '\(balanceText)'"
+            )
+            return self
+        }
+    }
+
     func getAvailableBalance() -> String {
         XCTContext.runActivity(named: "Get available balance") { _ in
             waitAndAssertTrue(availableBalance, "Available balance element should exist")
@@ -227,6 +251,21 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifySendUnavailable() -> Self {
+        XCTContext.runActivity(named: "Verify Send is unavailable on token details") { _ in
+            XCTAssertFalse(
+                sendButton.waitForExistence(timeout: .conditional),
+                "Send button should not be visible when sending is unavailable"
+            )
+            XCTAssertFalse(
+                transferButton.waitForExistence(timeout: .conditional),
+                "Transfer entry should not be visible when sending is unavailable"
+            )
+            return self
+        }
+    }
+
     // MARK: - Notification Validation Methods
 
     @discardableResult
@@ -243,24 +282,6 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func waitForSwapButtonEnabled() -> Self {
         XCTContext.runActivity(named: "Verify Swap button is available") { _ in
             waitAndAssertTrue(swapButton, "Swap button should exist")
-            return self
-        }
-    }
-
-    @discardableResult
-    func waitForSwapButtonDisabled() -> Self {
-        XCTContext.runActivity(named: "Verify Swap button shows unavailability alert on tap") { _ in
-            waitAndAssertTrue(swapButton, "Swap button should exist")
-            swapButton.waitAndTap()
-
-            // An alert should appear indicating swap is not available
-            let alert = app.alerts.firstMatch
-            XCTAssertTrue(alert.waitForExistence(timeout: .robustUIUpdate), "Unavailability alert should appear for a non-swappable token")
-
-            // Dismiss the alert
-            let okButton = alert.buttons.firstMatch
-            XCTAssertTrue(okButton.exists, "Alert should have a dismiss button")
-            okButton.tap()
             return self
         }
     }
