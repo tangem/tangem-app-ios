@@ -20,9 +20,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: any UserWalletRepository
 
-    @Injected(\.yieldAPYBoostPromoRepository)
-    private var yieldAPYBoostPromoRepository: YieldAPYBoostPromoRepository
-
     // MARK: - Published
 
     @Published
@@ -59,12 +56,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
     @Published
     private var isBonusPaidOutBannerDismissed = false
 
-    private var promoActivationDate: Date?
+    private let yieldPromoStatusProvider = YieldPromoStatusProvider()
+    private var daysLeftToUnlockBonus: Int?
 
     var promoBonusText: String? {
         switch promoStatus {
         case .active:
-            daysLeftToUnlockBonus().map { days in
+            daysLeftToUnlockBonus.map { days in
                 "\(days) \(Localization.commonDaysNoParam(days)) \(Localization.yieldPromoLeftTitle)"
             }
 
@@ -177,28 +175,15 @@ final class YieldModuleActiveViewModel: ObservableObject {
         Task { await getYieldPromoData() }
     }
 
-    private func daysLeftToUnlockBonus() -> Int? {
-        guard let promoActivationDate else { return nil }
-        return YieldBonusUnlockCalculator.daysLeft(activationDate: promoActivationDate)
-    }
-
     @MainActor
     private func getYieldPromoData() async {
-        guard let campaign = await yieldAPYBoostPromoRepository.campaign(userWalletId: walletModel.userWalletId.stringValue),
-              walletModel.tokenItem.contractAddress == campaign.contractAddress,
-              walletModel.tokenItem.blockchain.networkId == campaign.networkId
-        else {
-            return
-        }
+        let promoState = await yieldPromoStatusProvider.promoState(
+            userWalletId: walletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem
+        )
 
-        promoActivationDate = campaign.activationDate
-
-        switch campaign.promoEnrollmentStatus {
-        case .notStarted: promoStatus = .notStarted
-        case .active: promoStatus = .active
-        case .completed: promoStatus = .completed
-        case .disqualified: promoStatus = .undefined
-        }
+        daysLeftToUnlockBonus = promoState.daysLeftToUnlockBonus
+        promoStatus = promoState.status
     }
 
     @MainActor
