@@ -50,17 +50,17 @@ private extension RatingView {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
-    struct PreviewStub: RatingProvider {
-        func checkExisting(for transactionId: String) async throws -> ExistingRating? { nil }
-        func submit(request: RatingRequest) async throws {}
-    }
+private struct RatingViewPreviewStub: RatingProvider {
+    func checkExisting(for transactionId: String) async throws -> ExistingRating? { nil }
+    func submit(request: RatingRequest) async throws {}
+}
 
-    return RatingView(
+#Preview {
+    RatingView(
         viewModel: RatingViewModel(
             model: RatingModel(
-                ratingProvider: PreviewStub(),
-                transaction: .init(externalTxId: "tx_123", providerName: "1inch", txUrl: nil),
+                ratingProvider: RatingViewPreviewStub(),
+                transaction: .init(transactionId: "tx_123", providerName: "1inch", txUrl: nil),
                 userWalletIdHash: "hash"
             )
         )
