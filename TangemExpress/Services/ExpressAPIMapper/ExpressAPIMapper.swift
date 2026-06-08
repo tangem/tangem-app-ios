@@ -162,7 +162,7 @@ struct ExpressAPIMapper {
     func mapToExpressTransaction(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressTransaction {
         ExpressTransaction(
             providerId: .init(response.providerId),
-            externalStatus: response.status,
+            externalStatus: ExpressTransactionStatus(rawValue: response.status) ?? .unknown,
             refundedCurrency: mapToRefundedExpressCurrency(response: response),
             externalTxId: response.externalTxId,
             externalTxURL: response.externalTxUrl.flatMap(URL.init(string:)),
