@@ -12,7 +12,7 @@ import TangemFoundation
 /// - Note: No mutable state, so this type is considered to be `Sendable` by definition.
 final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRecord>: @unchecked Sendable {
     /// - Parameter cursor: Opaque cursor for the next page.
-    typealias PageFetcher = @Sendable (_ apiProvider: ExpressAPIProvider, _ cursor: Any?) async throws -> Page
+    typealias PageFetcher = @Sendable (_ apiProvider: ExpressAPIProvider, _ cursor: Any?) async throws -> TransactionHistoryPage<Record>
 
     private let apiProvider: ExpressAPIProvider
     private let initialCursorStorage: TransactionHistoryCursorStorage
@@ -99,25 +99,5 @@ extension CommonTransactionHistoryNetworkService: TransactionHistoryNetworkServi
 extension CommonTransactionHistoryNetworkService: CustomStringConvertible {
     var description: String {
         objectDescription(self)
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension CommonTransactionHistoryNetworkService {
-    struct Page: @unchecked Sendable {
-        let records: [Record]
-        /// Opaque cursor (hence `Any`) for the next page.
-        let nextCursor: Any?
-        /// Opaque cursor (hence `Any`) to seed the delta sync.
-        let startDeltaCursor: Any?
-        let hasMore: Bool
-
-        init(records: [Record], nextCursor: Any?, startDeltaCursor: Any?, hasMore: Bool) {
-            self.records = records
-            self.nextCursor = nextCursor
-            self.startDeltaCursor = startDeltaCursor
-            self.hasMore = hasMore
-        }
     }
 }
