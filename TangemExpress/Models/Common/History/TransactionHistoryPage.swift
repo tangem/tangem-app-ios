@@ -18,7 +18,7 @@ public struct TransactionHistoryPage<Record: TransactionHistoryRecord>: @uncheck
     @IgnoredEquatable
     public private(set) var nextCursor: Any?
 
-    /// Opaque cursor (hence `Any`) to seed the delta sync; only the initial endpoint provides it.
+    /// Opaque cursor (hence `Any`) to seed the delta sync.
     @IgnoredEquatable
     public private(set) var startDeltaCursor: Any?
 
@@ -33,9 +33,10 @@ public struct TransactionHistoryPage<Record: TransactionHistoryRecord>: @uncheck
     }
 }
 
+// MARK: - Equatable protocol conformance
+
 extension TransactionHistoryPage: Equatable where Record: Equatable {}
 
-extension TransactionHistoryPage: Hashable where Record: Hashable {}
+// MARK: - Hashable protocol conformance
 
-public typealias ExchangeHistoryPage = TransactionHistoryPage<ExchangeHistoryRecord>
-public typealias OnrampHistoryPage = TransactionHistoryPage<OnrampHistoryRecord>
+extension TransactionHistoryPage: Hashable where Record: Hashable {}
