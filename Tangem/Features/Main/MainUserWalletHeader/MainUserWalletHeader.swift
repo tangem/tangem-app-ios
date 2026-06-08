@@ -24,7 +24,6 @@ struct MainUserWalletHeader: View {
     }
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
-    @ScaledMetric private var height: CGFloat = 84
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
     var body: some View {
@@ -34,6 +33,7 @@ struct MainUserWalletHeader: View {
             switch headerViewModel.subtitleViewState {
             case .progress(let value):
                 RestoreProgressChip(progress: value)
+
             case .text:
                 walletNameWithThumbnail
             }
@@ -48,7 +48,7 @@ struct MainUserWalletHeader: View {
 
             if let actionButtonsViewModel = model.actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
-                    .padding(.top, .unit(.x2))
+                    .padding(.top, .unit(.x6))
                     .padding(.bottom, .unit(.x6))
             }
         }
@@ -88,14 +88,13 @@ struct MainUserWalletHeader: View {
                 textColor: Color.Tangem.Text.Neutral.primary
             ),
             loader: .init(
-                size: CGSize(width: 222, height: 36) * scaleFactor,
+                size: CGSize(width: 222, height: 48) * scaleFactor,
                 cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance
         )
         .lineLimit(1)
         .minimumScaleFactor(0.7)
-        .frame(height: height)
     }
 }
 

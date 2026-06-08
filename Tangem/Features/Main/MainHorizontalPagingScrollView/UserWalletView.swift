@@ -21,6 +21,8 @@ struct UserWalletView: View {
         RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: .zero) {
                 header
+                    .padding(.top, Paddings.headerTop)
+
                 content
             }
         }
@@ -36,7 +38,6 @@ struct UserWalletView: View {
                     : nil
             )
         )
-        .border(.red, width: 0.5)
         .onGeometryChange(
             for: CGFloat.self,
             of: { proxy in
@@ -53,5 +54,11 @@ struct UserWalletView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
 //                Color.clear.frame(height: overlayCollapsedHeight)
             }
+    }
+}
+
+extension UserWalletView {
+    enum Paddings {
+        static let headerTop = CGFloat.unit(.x13)
     }
 }
