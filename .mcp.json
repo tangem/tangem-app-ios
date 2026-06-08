@@ -44,6 +44,10 @@
     "Amplitude": {
       "type": "http",
       "url": "https://mcp.amplitude.com/mcp"
+    },
+    "sosumi": {
+      "type": "http",
+      "url": "https://sosumi.ai/mcp"
     }
   }
 }
