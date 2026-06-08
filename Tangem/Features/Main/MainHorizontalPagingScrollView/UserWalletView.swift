@@ -12,7 +12,7 @@ import TangemUI
 struct UserWalletView: View {
     let pageBuilder: MainUserWalletPageBuilder
     let refreshScrollViewStateObject: RefreshScrollViewStateObject
-    @Binding var headerMinY: CGFloat
+    let onHeaderMinYChanged: (CGFloat) -> Void
 
     let totalPages: Int
     let currentIndex: Int
@@ -43,9 +43,7 @@ struct UserWalletView: View {
             of: { proxy in
                 proxy.frame(in: .global).minY
             },
-            action: { headerMinY in
-                self.headerMinY = headerMinY
-            }
+            action: onHeaderMinYChanged
         )
     }
 
