@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsCommonWidgetHeaderViewRedesign: View {
     let headerTitle: String
@@ -18,8 +19,8 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
     let buttonAction: (() -> Void)?
     let isLoadingState: MarketsCommonWidgetHeaderView.LoadingState
 
-    @ScaledSize private var chevronSize = CGSize(width: 24, height: 24)
-    @ScaledSize private var headerSkeletonSize = CGSize(width: 120, height: 24)
+    @ScaledMetric private var chevronSide: CGFloat = 24
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     private var isDisplayButton: Bool {
         return buttonTitle != nil && isLoadingState.isButtonVisibility
@@ -32,7 +33,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .skeletonable(
                     isShown: isLoadingState.isHeaderSkeletonable,
-                    size: headerSkeletonSize,
+                    size: CGSize(width: 120, height: 24) * scaleFactor,
                     cornerStyle: .capsule
                 )
 
@@ -67,7 +68,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
                 Assets.chevron.image
                     .renderingMode(.template)
                     .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
-                    .frame(size: chevronSize)
+                    .frame(width: chevronSide, height: chevronSide)
             }
         }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSeeAllButton)
