@@ -14,17 +14,19 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
-            HStack(spacing: .unit(.x2)) {
-                MetricsMarketCapCard(viewModel: viewModel)
+        VStack(spacing: .unit(.x3)) {
+            VStack(spacing: .unit(.x2)) {
+                HStack(spacing: .unit(.x2)) {
+                    MetricsMarketCapCard(viewModel: viewModel)
 
-                MetricsTradingVolumeCard(viewModel: viewModel)
-            }
+                    MetricsTradingVolumeCard(viewModel: viewModel)
+                }
 
-            HStack(spacing: .unit(.x2)) {
-                MetricsMarketPositionCard(viewModel: viewModel)
+                HStack(spacing: .unit(.x2)) {
+                    MetricsMarketPositionCard(viewModel: viewModel)
 
-                MetricsFDVCard(viewModel: viewModel)
+                    MetricsFDVCard(viewModel: viewModel)
+                }
             }
 
             MetricsCirculatingSupplyCard(viewModel: viewModel)

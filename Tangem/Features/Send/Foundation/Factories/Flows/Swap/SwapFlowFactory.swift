@@ -18,7 +18,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     var tokenItem: TokenItem { initialTokenItem }
 
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSwapAnalyticsLogger()
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: receiveToken,
@@ -26,7 +26,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: RegularSwapPairUpdateHandler(
             expressManager: expressDependenciesFactory.expressManager,
-            expressPairsRepository: expressDependenciesFactory.expressPairsRepository
+            expressPairsRepository: expressDependenciesFactory.expressPairsRepository,
+            analyticsLogger: analyticsLogger
         ),
         shouldStartInitialLoading: true,
         swapTokenPairResolver: swapTokenPairResolver
@@ -195,7 +196,8 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             sourceTokenInput: swapModel,
             sourceTokenAmountInput: swapModel,
             receiveTokenInput: swapModel,
-            receiveTokenAmountInput: swapModel
+            receiveTokenAmountInput: swapModel,
+            swapModelStateProvider: swapModel
         )
     }
 
