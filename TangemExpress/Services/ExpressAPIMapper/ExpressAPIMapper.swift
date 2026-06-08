@@ -375,18 +375,16 @@ struct ExpressAPIMapper {
             providerId: record.providerId,
             status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
             rateType: ExpressProviderRateType(rawValue: record.rateType),
-            externalTxId: record.externalTxId,
-            externalTxStatus: record.externalTxStatus,
-            externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: record.externalTxStatus, url: record.externalTxUrl),
             fromAddress: record.fromAddress,
-            payinAddress: record.payinAddress,
-            payinExtraId: record.payinExtraId,
-            payoutAddress: record.payoutAddress,
-            payinHash: record.payinHash,
-            payoutHash: record.payoutHash,
-            refundAddress: record.refundAddress,
-            refundExtraId: record.refundExtraId,
-            refundedCurrency: mapToRefundedCurrency(network: record.refundNetwork, contractAddress: record.refundContractAddress),
+            payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
+            payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
+            refund: mapToRefundInfo(
+                address: record.refundAddress,
+                extraId: record.refundExtraId,
+                network: record.refundNetwork,
+                contractAddress: record.refundContractAddress
+            ),
             from: mapToExpressHistoryAsset(
                 contractAddress: record.fromContractAddress,
                 network: record.fromNetwork,
@@ -414,18 +412,16 @@ struct ExpressAPIMapper {
             providerId: record.providerId,
             status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
             rateType: ExpressProviderRateType(rawValue: record.rateType),
-            externalTxId: record.externalTxId,
-            externalTxStatus: record.externalTxStatus,
-            externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: record.externalTxStatus, url: record.externalTxUrl),
             fromAddress: record.fromAddress,
-            payinAddress: record.payinAddress,
-            payinExtraId: record.payinExtraId,
-            payoutAddress: record.payoutAddress,
-            payinHash: record.payinHash,
-            payoutHash: record.payoutHash,
-            refundAddress: record.refundAddress,
-            refundExtraId: record.refundExtraId,
-            refundedCurrency: mapToRefundedCurrency(network: record.refundNetwork, contractAddress: record.refundContractAddress),
+            payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
+            payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
+            refund: mapToRefundInfo(
+                address: record.refundAddress,
+                extraId: record.refundExtraId,
+                network: record.refundNetwork,
+                contractAddress: record.refundContractAddress
+            ),
             from: mapToOnrampHistoryFiatAsset(
                 currencyCode: record.fromCurrencyCode,
                 amount: record.fromAmount,
@@ -442,6 +438,26 @@ struct ExpressAPIMapper {
             updatedAt: record.updatedAt ?? record.createdAt,
             payTill: record.payTill,
             averageDuration: record.averageDuration
+        )
+    }
+
+    private func mapToExternalTxInfo(id: String?, status: String?, url: String?) -> ExternalTxInfo? {
+        guard let id else {
+            return nil
+        }
+
+        return ExternalTxInfo(id: id, status: status, url: url.flatMap(URL.init(string:)))
+    }
+
+    private func mapToRefundInfo(address: String?, extraId: String?, network: String?, contractAddress: String?) -> RefundInfo? {
+        guard let address else {
+            return nil
+        }
+
+        return RefundInfo(
+            address: address,
+            extraId: extraId,
+            currency: mapToRefundedCurrency(network: network, contractAddress: contractAddress)
         )
     }
 
