@@ -78,10 +78,19 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 
     func openAddFunds(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         Task { @MainActor [weak self] in
-            guard let self else { return }
+            guard let self,
+                  let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletInfo.id })
+            else {
+                return
+            }
+
             let viewModel = AddFundsViewModel(
-                walletModel: walletModel,
-                userWalletInfo: userWalletInfo,
+                input: .init(
+                    mode: .stack,
+                    primaryAction: .goToToken,
+                    walletModel: walletModel,
+                    userWalletModel: userWalletModel
+                ),
                 coordinator: self
             )
             viewState = .addFunds(viewModel)
@@ -114,21 +123,21 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
     }
 }
 
-// MARK: - AddFundsCoordinator
+// MARK: - AddFundsRoutable
 
-extension ActionButtonsBuyCoordinator: AddFundsCoordinator {
-    func openBuy(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+extension ActionButtonsBuyCoordinator: AddFundsRoutable {
+    func addFundsRequestBuy(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         Task { @MainActor [weak self] in
-            let input = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             self?.openOnramp(input: input, parameters: .none)
         }
     }
 
-    func openSwap(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+    func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
             origin: .tokenDetails(walletModel: walletModel),
-            userWalletInfo: userWalletInfo
+            userWalletInfo: userWalletModel.userWalletInfo
         ) else { return }
 
         Task { @MainActor [weak self] in
@@ -142,30 +151,19 @@ extension ActionButtonsBuyCoordinator: AddFundsCoordinator {
         }
     }
 
-    func openReceive(walletModel: any WalletModel) {
-        let factory = AvailabilityReceiveFlowFactory(
-            flow: .crypto,
-            tokenItem: walletModel.tokenItem,
-            addressTypesProvider: walletModel
-        )
-        let receiveViewModel = factory.makeAvailabilityReceiveFlow()
-
+    func addFundsRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor [weak self] in
-            self?.floatingSheetPresenter.enqueue(sheet: receiveViewModel)
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
-    func openTokenDetails(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
-        guard let userWalletModel = userWalletModels.first(where: { $0.userWalletId == userWalletInfo.id }) else {
-            return
-        }
-
+    func addFundsRequestGoToToken(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         Task { @MainActor [weak self] in
             self?.dismiss(with: ActionButtonsBuyDismissPayload(walletModel: walletModel, userWalletModel: userWalletModel))
         }
     }
 
-    func closeAddFunds() {
+    func addFundsClose() {
         dismiss()
     }
 }
