@@ -27,7 +27,7 @@ struct ExpressAPIMapper {
     func mapToExpressPair(response: ExpressDTO.Swap.Pairs.Response) -> ExpressPair {
         let providers = response.providers.map { provider in
             let rates = provider.rateTypes
-                .compactMap { ExpressProviderRateType(rawValue: $0.rawValue) }
+                .compactMap { ExpressProviderRateType(rawValue: $0) }
 
             return ExpressPairProvider(id: provider.providerId, rates: rates)
         }
@@ -51,7 +51,7 @@ struct ExpressAPIMapper {
         ExpressProvider(
             id: .init(provider.id),
             name: provider.name,
-            type: provider.type ?? .unknown,
+            type: provider.type.flatMap(ExpressProviderType.init(rawValue:)) ?? .unknown,
             exchangeOnlyWithinSingleAddress: provider.exchangeOnlyWithinSingleAddress ?? false,
             imageURL: provider.imageSmall.flatMap(URL.init(string:)),
             termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
