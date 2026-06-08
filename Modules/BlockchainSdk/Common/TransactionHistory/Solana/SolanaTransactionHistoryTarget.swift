@@ -8,9 +8,9 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import TangemFoundation
 import TangemNetworkUtils
-import struct AnyCodable.AnyEncodable
 
 struct SolanaTransactionHistoryTarget {
     let configuration: Configuration
@@ -23,42 +23,39 @@ extension SolanaTransactionHistoryTarget {
     }
 
     enum Request {
-        case getTokenAccountsByOwner(owner: String, mint: String)
-        case getSignaturesForAddress(address: String, limit: Int, before: String?)
-        case getTransaction(signature: String)
+        case getTransactionsForAddress(
+            address: String,
+            limit: Int,
+            paginationToken: String?,
+            tokenAccountsFilter: TokenAccountsFilter
+        )
 
         var id: Int { 1 }
 
         var method: String {
             switch self {
-            case .getTokenAccountsByOwner:
-                return "getTokenAccountsByOwner"
-            case .getSignaturesForAddress:
-                return "getSignaturesForAddress"
-            case .getTransaction:
-                return "getTransaction"
+            case .getTransactionsForAddress:
+                return "getTransactionsForAddress"
             }
         }
 
         var params: (any Encodable)? {
             switch self {
-            case .getTokenAccountsByOwner(let owner, let mint):
-                return [
-                    AnyEncodable(owner),
-                    AnyEncodable(GetTokenAccountsFilter(mint: mint)),
-                    AnyEncodable(JsonParsedEncodingConfig()),
-                ]
-            case .getSignaturesForAddress(let address, let limit, let before):
+            case .getTransactionsForAddress(let address, let limit, let paginationToken, let tokenAccountsFilter):
                 return [
                     AnyEncodable(address),
-                    AnyEncodable(GetSignaturesConfig(limit: limit, before: before)),
-                ]
-            case .getTransaction(let signature):
-                return [
-                    AnyEncodable(signature),
-                    AnyEncodable(GetTransactionConfig()),
+                    AnyEncodable(GetTransactionsConfig(
+                        limit: limit,
+                        paginationToken: paginationToken,
+                        tokenAccountsFilter: tokenAccountsFilter
+                    )),
                 ]
             }
+        }
+
+        enum TokenAccountsFilter {
+            case `default`
+            case balanceChanged
         }
     }
 }
@@ -93,23 +90,38 @@ extension SolanaTransactionHistoryTarget: TargetType {
 }
 
 extension SolanaTransactionHistoryTarget {
-    private struct GetTokenAccountsFilter: Encodable {
-        let mint: String
-    }
-
-    private struct JsonParsedEncodingConfig: Encodable {
-        let encoding: String = "jsonParsed"
-    }
-
-    private struct GetSignaturesConfig: Encodable {
+    private struct GetTransactionsConfig: Encodable {
+        let transactionDetails: String = "full"
+        let sortOrder: String = "desc"
         let commitment: String = "finalized"
-        let limit: Int
-        let before: String?
-    }
-
-    private struct GetTransactionConfig: Encodable {
         let encoding: String = "jsonParsed"
         let maxSupportedTransactionVersion: Int = 0
+        let limit: Int
+        let paginationToken: String?
+        let filters: GetTransactionsFilters?
+
+        init(
+            limit: Int,
+            paginationToken: String?,
+            tokenAccountsFilter: Request.TokenAccountsFilter
+        ) {
+            self.limit = limit
+            self.paginationToken = paginationToken
+            filters = GetTransactionsFilters(tokenAccountsFilter: tokenAccountsFilter)
+        }
+    }
+
+    private struct GetTransactionsFilters: Encodable {
+        let tokenAccounts: String
+
+        init?(tokenAccountsFilter: Request.TokenAccountsFilter) {
+            switch tokenAccountsFilter {
+            case .default:
+                return nil
+            case .balanceChanged:
+                tokenAccounts = "balanceChanged"
+            }
+        }
     }
 }
 

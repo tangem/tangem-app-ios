@@ -7,24 +7,12 @@
 //
 
 import Foundation
-import struct AnyCodable.AnyDecodable
+import AnyCodable
 
 enum SolanaTransactionHistoryDTO {
-    struct TokenAccounts: Decodable {
-        let value: [TokenAccount]
-
-        struct TokenAccount: Decodable {
-            let pubkey: String
-        }
-    }
-
-    struct SignatureItem: Decodable {
-        let blockTime: Int?
-        let confirmationStatus: String?
-        let err: AnyDecodable?
-        let memo: String?
-        let signature: String
-        let slot: UInt64?
+    struct TransactionsForAddress: Decodable {
+        let data: [TransactionDetails]
+        let paginationToken: String?
     }
 
     struct TransactionDetails: Decodable {

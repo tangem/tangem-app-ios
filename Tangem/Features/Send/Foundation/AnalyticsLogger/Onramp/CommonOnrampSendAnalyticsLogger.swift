@@ -46,7 +46,11 @@ extension CommonOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     func setup(onrampProvidersInput: any OnrampProvidersInput) {
         self.onrampProvidersInput = onrampProvidersInput
     }
+}
 
+// MARK: - OnrampManagementModelAnalyticsLogger
+
+extension CommonOnrampSendAnalyticsLogger: OnrampManagementModelAnalyticsLogger {
     func logOnrampSelectedProvider(provider: OnrampProvider) {
         switch provider.state {
         case .restriction(.tooSmallAmount):
@@ -66,6 +70,10 @@ extension CommonOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
             break
         }
     }
+
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {
+        Analytics.log(event: .onrampVerifyScreenOpened, params: napParams(amount: amount, currencyCode: currencyCode))
+    }
 }
 
 // MARK: - SendOnrampNAPAnalyticsLogger
@@ -77,10 +85,6 @@ extension CommonOnrampSendAnalyticsLogger: SendOnrampNAPAnalyticsLogger {
 
     func logOnrampNAPScreenOpened() {
         Analytics.log(.onrampNAPScreenOpened)
-    }
-
-    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String) {
-        Analytics.log(event: .onrampVerifyScreenOpened, params: napParams(amount: amount, currencyCode: currencyCode))
     }
 
     private func napParams(amount: Decimal, currencyCode: String) -> [Analytics.ParameterKey: String] {

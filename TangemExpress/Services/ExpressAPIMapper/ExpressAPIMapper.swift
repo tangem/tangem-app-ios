@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct ExpressAPIMapper {
     let exchangeDataDecoder: ExpressExchangeDataDecoder
@@ -61,11 +62,11 @@ struct ExpressAPIMapper {
     }
 
     func mapToExpressQuote(response: ExpressDTO.Swap.ExchangeQuote.Response) throws -> ExpressQuote {
-        guard var fromAmount = Decimal(string: response.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
-        guard var toAmount = Decimal(string: response.toAmount) else {
+        guard var toAmount = Decimal(stringValue: response.toAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
@@ -104,11 +105,11 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutExtraIdNotEqual
         }
 
-        guard var fromAmount = Decimal(string: response.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
-        guard var toAmount = Decimal(string: response.toAmount) else {
+        guard var toAmount = Decimal(stringValue: response.toAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
@@ -118,7 +119,7 @@ struct ExpressAPIMapper {
         let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue, txType: txDetails.txType)
 
         let otherNativeFee = txDetails.otherNativeFee
-            .flatMap(Decimal.init)
+            .flatMap { Decimal(stringValue: $0) }
             .map { $0 / pow(10, item.source.coinCurrency.decimalCount) }
 
         return ExpressTransactionData(
@@ -142,14 +143,14 @@ struct ExpressAPIMapper {
     func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?, txType: ExpressTransactionType) throws -> Decimal {
         switch txType {
         case .send:
-            guard let txValue, let decimalTxValue = Decimal(string: txValue) else {
+            guard let txValue, let decimalTxValue = Decimal(stringValue: txValue) else {
                 throw ExpressAPIMapperError.mapToDecimalError(txValue ?? "")
             }
 
             // For CEX/send we have txValue amount as value which have to be sent
             return decimalTxValue / pow(10, item.source.currency.decimalCount)
         case .swap:
-            if let txValue, let decimalTxValue = Decimal(string: txValue) {
+            if let txValue, let decimalTxValue = Decimal(stringValue: txValue) {
                 // For DEX/swap we have txValue amount as coin. Because it's EVM or Solana DEX
                 return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
@@ -213,7 +214,7 @@ struct ExpressAPIMapper {
     }
 
     func mapToOnrampQuote(response: ExpressDTO.Onramp.Quote.Response) throws -> OnrampQuote {
-        guard var toAmount = Decimal(string: response.toAmount) else {
+        guard var toAmount = Decimal(stringValue: response.toAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
@@ -243,7 +244,7 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutAddressNotEqual
         }
 
-        guard var fromAmount = Decimal(string: codedData.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: codedData.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
         }
 
@@ -289,7 +290,7 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.requestIdNotEqual
         }
 
-        guard var fromAmount = Decimal(string: codedData.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: codedData.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
         }
 
@@ -311,14 +312,14 @@ struct ExpressAPIMapper {
     }
 
     func mapToOnrampTransaction(response: ExpressDTO.Onramp.Status.Response) throws -> OnrampTransaction {
-        guard var fromAmount = Decimal(string: response.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
         fromAmount /= pow(10, response.fromPrecision)
 
         let toAmount = response.toAmount
-            .flatMap(Decimal.init)
+            .flatMap { Decimal(stringValue: $0) }
             .map { $0 / pow(10, response.toDecimals) }
 
         return OnrampTransaction(
