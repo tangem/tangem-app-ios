@@ -337,7 +337,7 @@ struct ExpressAPIMapper {
             records: response.items.map(mapToExchangeHistoryRecord(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
-            hasMore: response.pagination.hasMore
+            hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
         )
     }
 
@@ -355,7 +355,7 @@ struct ExpressAPIMapper {
             records: response.items.map(mapToOnrampHistoryRecord(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
-            hasMore: response.pagination.hasMore
+            hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
         )
     }
 
