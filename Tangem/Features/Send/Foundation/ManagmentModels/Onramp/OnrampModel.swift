@@ -38,7 +38,7 @@ class OnrampModel {
     private let onrampManager: OnrampManager
     private let onrampDataRepository: OnrampDataRepository
     private let onrampRepository: OnrampRepository
-    private let analyticsLogger: OnrampSendAnalyticsLogger
+    private let analyticsLogger: OnrampManagementModelAnalyticsLogger
     private let redirectSettingsBuilder: OnrampRedirectSettingsBuilder
 
     private let autoupdatingTimer: AutoupdatingTimer
@@ -56,7 +56,7 @@ class OnrampModel {
         onrampManager: OnrampManager,
         onrampDataRepository: OnrampDataRepository,
         onrampRepository: OnrampRepository,
-        analyticsLogger: OnrampSendAnalyticsLogger,
+        analyticsLogger: OnrampManagementModelAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         redirectSettingsBuilder: OnrampRedirectSettingsBuilder,
         predefinedValues: PredefinedValues,

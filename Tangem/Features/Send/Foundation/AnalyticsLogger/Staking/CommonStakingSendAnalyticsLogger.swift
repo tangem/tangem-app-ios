@@ -109,15 +109,6 @@ extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
         self.stakingTargetsInput = stakingTargetsInput
     }
 
-    func logNoticeUninitializedAddress() {
-        Analytics.log(
-            event: .stakingNoticeUninitializedAddress, params: [
-                .blockchain: tokenItem.blockchain.displayName,
-                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
-            ]
-        )
-    }
-
     func logNoticeNotEnoughFee() {
         Analytics.log(
             event: .stakingNoticeNotEnoughFee, params: [
@@ -246,8 +237,17 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
 // MARK: - SendManagementModelAnalyticsLogger
 
-extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
-    func logTransactionRejected(error: SendTxError) {
+extension CommonStakingSendAnalyticsLogger: StakingManagementModelAnalyticsLogger {
+    func logNoticeUninitializedAddress() {
+        Analytics.log(
+            event: .stakingNoticeUninitializedAddress, params: [
+                .blockchain: tokenItem.blockchain.displayName,
+                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            ]
+        )
+    }
+
+    func logStakingTransactionRejected(error: SendTxError) {
         Analytics.log(event: .stakingErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
@@ -256,13 +256,11 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         ])
     }
 
-    func logTransactionSent(
+    func logStakingTransactionSent(
         amount: SendAmount?,
-        additionalField: SendDestinationAdditionalField?,
         fee: FeeOption,
         signerType: String,
-        currentProviderHost: String,
-        tokenFee: TokenFee? = nil
+        currentProviderHost: String
     ) {
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
