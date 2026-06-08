@@ -228,7 +228,7 @@ extension ExpressDTO {
                 let txId: String
                 let providerId: String // Provider's alphanumeric ID
                 let payoutAddress: String // Address to which the coins are sent
-                let status: OnrampTransactionStatus // Status of the transaction
+                let status: String // Status of the transaction
                 let failReason: String? // Optional field for failure reason
                 let externalTxId: String? // External transaction ID
                 let externalTxUrl: String? // Optional URL to track the external transaction
