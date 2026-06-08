@@ -146,7 +146,7 @@ extension ExpressDTO {
 
             struct Response: Decodable {
                 let providerId: Provider.Id
-                let status: ExpressTransactionStatus
+                let status: String
                 let refundNetwork: String?
                 let refundContractAddress: String?
                 let externalTxId: String?
@@ -168,7 +168,7 @@ extension ExpressDTO {
 
             struct Response: Decodable {
                 let txId: String
-                let status: ExpressTransactionStatus
+                let status: String
             }
         }
 
