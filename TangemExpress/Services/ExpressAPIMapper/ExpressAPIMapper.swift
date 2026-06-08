@@ -356,7 +356,7 @@ struct ExpressAPIMapper {
     private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
         try ExchangeHistoryRecord(
             txId: record.txId,
-            status: record.status,
+            status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
             provider: mapToExpressHistoryProvider(provider: record.provider),
             from: mapToExchangeHistoryAsset(asset: record.from),
             to: mapToExchangeHistoryAsset(asset: record.to),
@@ -365,7 +365,7 @@ struct ExpressAPIMapper {
             externalTxId: record.externalTxId,
             externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
             refund: record.refund.map(mapToExpressHistoryRefund(refund:)),
-            rateType: record.rateType,
+            rateType: ExpressProviderRateType(rawValue: record.rateType),
             createdAt: record.createdAt,
             updatedAt: record.updatedAt
         )
@@ -374,7 +374,7 @@ struct ExpressAPIMapper {
     private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
         try OnrampHistoryRecord(
             txId: record.txId,
-            status: record.status,
+            status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
             provider: mapToExpressHistoryProvider(provider: record.provider),
             from: mapToOnrampHistoryFiatAsset(asset: record.from),
             to: mapToOnrampHistoryAsset(asset: record.to),
