@@ -183,7 +183,7 @@ extension ExpressDTO {
 
             struct Record: Decodable {
                 let txId: String
-                let status: ExpressTransactionStatus
+                let status: String
                 let provider: ExpressDTO.HistoryProvider
                 let from: AssetRef
                 let to: AssetRef
@@ -192,7 +192,7 @@ extension ExpressDTO {
                 let externalTxId: String?
                 let externalTxUrl: String?
                 let refund: Refund?
-                let rateType: ExpressProviderRateType
+                let rateType: String
                 // [REDACTED_TODO_COMMENT]
                 /*
                  let createdAt: Int
