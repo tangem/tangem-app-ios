@@ -28,16 +28,15 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
 
-        // `.swap` keeps only market+fast; regular Send via `.swapAndSend` needs all four (slow/market/fast/custom).
-        let supportingFeeOptions: TokenFeeProviderSupportingOptions = switch operationType {
-        case .swap, .onramp: .swap
-        case .swapAndSend: .all
-        }
-        let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+        let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: supportingFeeOptions
+            supportingOptions: .swap
         )
-        let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
+
+        let transferTokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: .all
+        ).makeTokenFeeProvidersManager()
 
         let transactionValidator = BSDKTransactionValidator(
             transactionValidator: walletModel.transactionValidator
@@ -79,8 +78,8 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
-            tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            tokenFeeProvidersManagerProvider: swapTokenFeeProvidersManagerProvider,
+            tokenFeeProvidersManager: transferTokenFeeProvidersManager,
             transactionValidator: transactionValidator,
             transactionCreator: transactionCreator,
             sendYieldModuleHelper: sendYieldModuleHelper,
