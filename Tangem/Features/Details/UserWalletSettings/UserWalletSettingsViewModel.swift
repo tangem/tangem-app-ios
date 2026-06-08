@@ -23,7 +23,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.nftAvailabilityProvider) private var nftAvailabilityProvider: NFTAvailabilityProvider
-    @Injected(\.userTokensPushNotificationsService) private var userTokensPushNotificationsService: UserTokensPushNotificationsService
 
     // MARK: - ViewState
 
@@ -263,19 +262,17 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if userTokensPushNotificationsService.entries.contains(where: { $0.id == userWalletModel.userWalletId.stringValue }) {
-            if FeatureProvider.isAvailable(.pushNotificationsSettings) {
-                notificationSettingsViewModel = DefaultRowViewModel(
-                    title: Localization.pushNotificationSettingsTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
-                )
-            } else {
-                pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
-                    userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
-                    coordinator: coordinator,
-                    showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
-                )
-            }
+        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
+            notificationSettingsViewModel = DefaultRowViewModel(
+                title: Localization.pushNotificationSettingsTitle,
+                action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
+            )
+        } else {
+            pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
+                userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
+                coordinator: coordinator,
+                showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
+            )
         }
 
         if userWalletModel.config.hasFeature(.userWalletBackup) {

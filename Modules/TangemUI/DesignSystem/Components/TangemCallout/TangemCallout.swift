@@ -14,11 +14,7 @@ public struct TangemCallout: View, Setupable {
     private let arrowAlignment: ArrowAlignment
     private let action: Action
 
-    @ScaledMetric private var horizontalSpacing: CGFloat
-    @ScaledSize private var arrowSize: CGSize
-    @ScaledSize private var iconSize: CGSize
-    @ScaledInsets private var padding: EdgeInsets
-    @ScaledInsets private var buttonPadding: EdgeInsets
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     private var icon: Image?
     private var colorPalette: ColorPalette = .green
@@ -31,22 +27,6 @@ public struct TangemCallout: View, Setupable {
         self.text = text
         self.arrowAlignment = arrowAlignment
         self.action = action
-
-        _horizontalSpacing = ScaledMetric(wrappedValue: SizeUnit.x1.value)
-        _arrowSize = ScaledSize(wrappedValue: CGSize(bothDimensions: SizeUnit.x2.value))
-        _iconSize = ScaledSize(wrappedValue: CGSize(bothDimensions: SizeUnit.x3.value))
-        _padding = ScaledInsets(wrappedValue: EdgeInsets(
-            top: SizeUnit.half.value,
-            leading: SizeUnit.x2.value,
-            bottom: SizeUnit.half.value,
-            trailing: SizeUnit.half.value
-        ))
-        _buttonPadding = ScaledInsets(wrappedValue: EdgeInsets(
-            top: SizeUnit.half.value,
-            leading: SizeUnit.x1_5.value,
-            bottom: SizeUnit.half.value,
-            trailing: SizeUnit.x1_5.value
-        ))
     }
 
     public var body: some View {
@@ -61,7 +41,7 @@ public struct TangemCallout: View, Setupable {
 
 private extension TangemCallout {
     var contentView: some View {
-        HStack(spacing: horizontalSpacing) {
+        HStack(spacing: .unit(.x1) * scaleFactor) {
             if let icon {
                 iconView(icon)
             }
@@ -71,7 +51,15 @@ private extension TangemCallout {
 
             actionView(action)
         }
-        .padding(padding)
+        .padding(
+            EdgeInsets(
+                top: SizeUnit.half.value,
+                leading: SizeUnit.x2.value,
+                bottom: SizeUnit.half.value,
+                trailing: SizeUnit.half.value
+            )
+            .scaled(factor: scaleFactor)
+        )
         .background(colorPalette.background, in: shape)
     }
 
@@ -82,7 +70,7 @@ private extension TangemCallout {
             .alignmentGuide(.top) { $0.height }
             .alignmentGuide(.bottom) { _ in .zero }
             .scaleEffect(x: 1, y: arrowScaleFactorY, anchor: .center)
-            .frame(size: arrowSize)
+            .frame(width: Sizes.arrowSide * scaleFactor, height: Sizes.arrowSide * scaleFactor)
     }
 
     func iconView(_ icon: Image) -> some View {
@@ -91,12 +79,20 @@ private extension TangemCallout {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .foregroundStyle(colorPalette.icon)
-            .frame(size: iconSize)
+            .frame(width: SizeUnit.x3.value * scaleFactor, height: SizeUnit.x3.value * scaleFactor)
     }
 
     func actionView(_ action: Action) -> some View {
         iconView(action.icon)
-            .padding(buttonPadding)
+            .padding(
+                EdgeInsets(
+                    top: SizeUnit.half.value,
+                    leading: SizeUnit.x1_5.value,
+                    bottom: SizeUnit.half.value,
+                    trailing: SizeUnit.x1_5.value
+                )
+                .scaled(factor: scaleFactor)
+            )
             .background(colorPalette.background, in: shape)
             .contentShape(shape)
             .onTapGesture(perform: action.closure)
@@ -134,12 +130,9 @@ public extension TangemCallout {
     }
 }
 
-// MARK: - Alignment
-
 public extension TangemCallout {
-    func arrowAligned(to alignment: HorizontalAlignment) -> some View {
-        let arrowTipOffset = arrowSize.width * 2
-        return alignmentGuide(alignment) { _ in arrowTipOffset }
+    enum Sizes {
+        public static let arrowSide = CGFloat.unit(.x2)
     }
 }
 
@@ -166,5 +159,11 @@ private struct ArrowShape: Shape {
         path.closeSubpath()
 
         return path
+    }
+}
+
+private extension EdgeInsets {
+    func scaled(factor: CGFloat) -> EdgeInsets {
+        EdgeInsets(top: top * factor, leading: leading * factor, bottom: bottom * factor, trailing: trailing * factor)
     }
 }
