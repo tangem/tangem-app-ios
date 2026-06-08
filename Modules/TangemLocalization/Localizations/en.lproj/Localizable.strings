@@ -73,6 +73,17 @@
 "add_and_manage_sheet_organize_title" = "Organize tokens";
 "add_custom_token_choose_network" = "Choose network";
 "add_custom_token_title" = "Add custom token";
+// TODO: Lokalise — sync the following keys to other locales
+"add_funds_add_in_other_network_subtitle" = "Pick a different network or account";
+"add_funds_add_in_other_network_title" = "Add token in another network or account";
+"add_funds_buy_subtitle" = "Credit card or bank account";
+"add_funds_buy_title" = "Buy";
+"add_funds_go_to_token" = "Go to token";
+"add_funds_receive_subtitle" = "Share your address or QR-code";
+"add_funds_receive_title" = "Receive";
+"add_funds_swap_subtitle" = "Between your portfolios";
+"add_funds_swap_title" = "Swap";
+"add_funds_title" = "Get %1$@";
 "add_tokens_title" = "Manage tokens";
 "addfunds_buy_row_description" = "Credit card or bank account";
 "addfunds_fund_token" = "Fund token";
