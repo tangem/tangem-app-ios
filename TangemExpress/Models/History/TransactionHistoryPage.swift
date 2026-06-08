@@ -33,6 +33,8 @@ public struct TransactionHistoryPage<Record: TransactionHistoryRecord>: @uncheck
     }
 }
 
+extension TransactionHistoryPage: Equatable where Record: Equatable {}
+
 extension TransactionHistoryPage: Hashable where Record: Hashable {}
 
 public typealias ExchangeHistoryPage = TransactionHistoryPage<ExchangeHistoryRecord>
