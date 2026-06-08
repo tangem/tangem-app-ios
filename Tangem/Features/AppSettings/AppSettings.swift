@@ -159,6 +159,12 @@ final class AppSettings {
     @AppStorageCompat(StorageType.yieldApyBoostHiddenPromos)
     var yieldApyBoostHiddenPromos: [String] = []
 
+    @AppStorageCompat(StorageType.yieldApyBoostQualificationEndDates)
+    var yieldApyBoostQualificationEndDates: [String: Date] = [:]
+
+    @AppStorageCompat(StorageType.yieldApyBoostFirstSeenCompletedDates)
+    var yieldApyBoostFirstSeenCompletedDates: [String: Date] = [:]
+
     @AppStorageCompat(StorageType.needsTangemPayMobileOnboarding)
     var needsTangemPayMobileOnboarding: Bool = false
 
