@@ -7,7 +7,7 @@
 //
 
 import Moya
-import struct AnyCodable.AnyEncodable
+import AnyCodable
 
 protocol JSONRPCTargetType: TargetType {
     static func nextRequestID() -> Int
