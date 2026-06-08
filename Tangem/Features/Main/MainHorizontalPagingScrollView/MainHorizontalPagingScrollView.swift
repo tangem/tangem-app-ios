@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import TangemFoundation
+import func TangemFoundation.clamp
 import TangemUI
 
 struct MainHorizontalPagingScrollView: View {
@@ -18,27 +18,26 @@ struct MainHorizontalPagingScrollView: View {
     let scanQRCodeAction: () -> Void
     let detailsAction: () -> Void
 
-    @State private var userWalletIndexToHeaderMinY = [Int: CGFloat]()
-    @State private var selectedUserWalletHeaderMinY = CGFloat.zero
+    @State private var userWalletIndexToScrollAdjustedValues = [Int: ScrollAdjustedValues]()
     @State private var safeAreaInsetsTop = CGFloat.zero
 
     var body: some View {
         horizontalScrollView
-            .northernLightsBackground(backgroundColor: .Tangem.Surface.level2, opacity: northernLightsBackgroundOpacity)
+            .northernLightsBackground(
+                backgroundColor: .Tangem.Surface.level2,
+                opacity: selectedUserWalletScrollAdjustedValues.northernLightsBackgroundOpacity
+            )
             .redesignToolbar(
                 pageBuilder: userWalletPageBuilders[selectedCardIndex.wrappedValue],
-                principalContentOpacity: navigationBarBalanceOpacity,
-                principalContentOffset: navigationBarBalanceOffsetY,
+                principalContentOpacity: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity,
+                principalContentOffset: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOffsetY,
                 scanQRCodeAction: scanQRCodeAction,
                 detailsAction: detailsAction
             )
             .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
                 self.safeAreaInsetsTop = safeAreaInsetsTop
             }
-//            .onChange(of: selectedCardIndex.wrappedValue) { _ in
-//                selectedUserWalletHeaderMinY = safeAreaInsetsTop
-//            }
-//            .animation(.default, value: selectedUserWalletHeaderMinY)
+            .animation(.default, value: selectedCardIndex.wrappedValue)
     }
 
     @ViewBuilder
@@ -48,7 +47,17 @@ struct MainHorizontalPagingScrollView: View {
                 userWalletPageBuilders: userWalletPageBuilders,
                 selectedCardIndex: selectedCardIndex,
                 refreshScrollViewStateObject: refreshScrollViewStateObject,
-                headerMinY: $selectedUserWalletHeaderMinY,
+                onHeaderMinYChanged: { index, headerMinY in
+                    var scrollAdjustedValues = userWalletIndexToScrollAdjustedValues[index, default: .initial]
+
+                    let navigationBarProgress = clamp(-headerMinY / Sizes.headerBalanceTextHeight, min: 0, max: 1)
+
+                    scrollAdjustedValues.navigationBarBalanceOpacity = navigationBarBalanceOpacity(for: navigationBarProgress)
+                    scrollAdjustedValues.navigationBarBalanceOffsetY = navigationBarBalanceOffsetY(for: navigationBarProgress)
+                    scrollAdjustedValues.northernLightsBackgroundOpacity = northernLightsBackgroundOpacity(for: headerMinY)
+
+                    userWalletIndexToScrollAdjustedValues[index] = scrollAdjustedValues
+                },
                 isHorizontalScrollDisabled: isHorizontalScrollDisabled
             )
         } else {
@@ -58,34 +67,24 @@ struct MainHorizontalPagingScrollView: View {
 
     // [REDACTED_TODO_COMMENT]
 
-    private var navigationBarBalanceOpacity: CGFloat {
-        let progress = clamp(
-            -selectedUserWalletHeaderMinY / Sizes.headerBalanceTextHeight,
-            min: 0,
-            max: 1
-        )
-
-        return pow(progress, 3)
+    private var selectedUserWalletScrollAdjustedValues: ScrollAdjustedValues {
+        userWalletIndexToScrollAdjustedValues[selectedCardIndex.wrappedValue, default: .initial]
     }
 
-    private var navigationBarBalanceOffsetY: CGFloat {
-        let progress = clamp(
-            -selectedUserWalletHeaderMinY / Sizes.headerBalanceTextHeight,
-            min: 0,
-            max: 1
-        )
-
-        let maximumTravelDistance: CGFloat = 16
-
-        return (1 - pow(progress, 3)) * maximumTravelDistance
+    private func navigationBarBalanceOpacity(for progress: CGFloat) -> CGFloat {
+        pow(progress, 3)
     }
 
-    private var northernLightsBackgroundOpacity: CGFloat {
+    private func navigationBarBalanceOffsetY(for progress: CGFloat) -> CGFloat {
+        (1 - pow(progress, 3)) * Sizes.navigationBalanceMaxYOffset
+    }
+
+    private func northernLightsBackgroundOpacity(for headerMinY: CGFloat) -> CGFloat {
         let startY = safeAreaInsetsTop + UserWalletView.Paddings.headerTop
         let endY = -Sizes.headerBalanceTextHeight
 
         let progress = clamp(
-            (startY - selectedUserWalletHeaderMinY) / (startY - endY),
+            (startY - headerMinY) / (startY - endY),
             min: 0,
             max: 1
         )
@@ -100,7 +99,7 @@ extension MainHorizontalPagingScrollView {
         let userWalletPageBuilders: [MainUserWalletPageBuilder]
         let selectedCardIndex: Binding<Int>
         let refreshScrollViewStateObject: RefreshScrollViewStateObject
-        let headerMinY: Binding<CGFloat>
+        let onHeaderMinYChanged: (Int, CGFloat) -> Void
         let scrollPositionID: Binding<Int?>
         let isHorizontalScrollDisabled: Bool
 
@@ -108,13 +107,13 @@ extension MainHorizontalPagingScrollView {
             userWalletPageBuilders: [MainUserWalletPageBuilder],
             selectedCardIndex: Binding<Int>,
             refreshScrollViewStateObject: RefreshScrollViewStateObject,
-            headerMinY: Binding<CGFloat>,
+            onHeaderMinYChanged: @escaping (Int, CGFloat) -> Void,
             isHorizontalScrollDisabled: Bool
         ) {
             self.userWalletPageBuilders = userWalletPageBuilders
             self.selectedCardIndex = selectedCardIndex
             self.refreshScrollViewStateObject = refreshScrollViewStateObject
-            self.headerMinY = headerMinY
+            self.onHeaderMinYChanged = onHeaderMinYChanged
             scrollPositionID = Binding(selectedCardIndex)
             self.isHorizontalScrollDisabled = isHorizontalScrollDisabled
         }
@@ -126,7 +125,9 @@ extension MainHorizontalPagingScrollView {
                         UserWalletView(
                             pageBuilder: userWalletPageBuilder,
                             refreshScrollViewStateObject: refreshScrollViewStateObject,
-                            headerMinY: headerMinY,
+                            onHeaderMinYChanged: { headerMinY in
+                                onHeaderMinYChanged(index, headerMinY)
+                            },
                             totalPages: userWalletPageBuilders.count,
                             currentIndex: selectedCardIndex.wrappedValue
                         )
@@ -146,6 +147,19 @@ extension MainHorizontalPagingScrollView {
 extension MainHorizontalPagingScrollView {
     private enum Sizes {
         static let headerBalanceTextHeight: CGFloat = 48.0
+        static let navigationBalanceMaxYOffset: CGFloat = 16.0
+    }
+
+    private struct ScrollAdjustedValues: Equatable {
+        var navigationBarBalanceOpacity: CGFloat
+        var navigationBarBalanceOffsetY: CGFloat
+        var northernLightsBackgroundOpacity: CGFloat
+
+        static let initial = ScrollAdjustedValues(
+            navigationBarBalanceOpacity: 1,
+            navigationBarBalanceOffsetY: 0,
+            northernLightsBackgroundOpacity: 1
+        )
     }
 }
 
