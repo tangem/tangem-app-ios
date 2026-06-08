@@ -262,7 +262,7 @@ extension ExpressDTO {
 
             struct Record: Decodable {
                 let txId: String
-                let status: OnrampTransactionStatus
+                let status: String
                 let provider: ExpressDTO.HistoryProvider
                 let from: FiatAsset
                 let to: AssetRef
