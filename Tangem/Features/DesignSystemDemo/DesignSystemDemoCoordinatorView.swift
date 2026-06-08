@@ -18,8 +18,6 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
                 DesignSystemDemoView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
-
-            sheets
         }
     }
 
@@ -73,10 +71,6 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemShimmerDemoViewModel) {
                 TangemShimmerDemoView(viewModel: $0)
             }
-    }
-
-    private var sheets: some View {
-        EmptyView()
     }
 }
 
