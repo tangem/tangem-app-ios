@@ -17,7 +17,7 @@ extension ExpressDTO {
             typealias Id = String
 
             let providerId: Id
-            let rateTypes: [RateType]
+            let rateTypes: [String]
 
             enum RateType: String, Codable {
                 case float
@@ -61,7 +61,7 @@ extension ExpressDTO {
             struct Response: Decodable {
                 let id: Provider.Id
                 let name: String
-                let type: ExpressProviderType?
+                let type: String?
                 let exchangeOnlyWithinSingleAddress: Bool?
                 let imageLarge: String?
                 let imageSmall: String?
