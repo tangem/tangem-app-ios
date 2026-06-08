@@ -172,10 +172,7 @@ final class MainQRScanViewModel: ObservableObject {
             defer { camera.unlockForConfiguration() }
 
             camera.torchMode = isActive ? .on : .off
-
-            withAnimation(nil) {
-                isFlashActive = camera.isTorchActive
-            }
+            isFlashActive = isActive
         } catch {
             withAnimation(nil) {
                 isFlashActive = false
