@@ -32,6 +32,7 @@ final class YieldModulePromoViewModel {
     private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
     private(set) var howIrWorksUrl = TangemBlogUrlBuilder().url(post: .yieldMode)
     private(set) var apyBoostPromoTerms = URL(string: "https://tangem.com/docs/en/yield-mode-terms.pdf")!
+    private static let apyBoostLearnMoreLink = URL(string: "yield-apy-boost-promo://learn-more")!
 
     // MARK: - Init
 
@@ -147,18 +148,31 @@ final class YieldModulePromoViewModel {
     }
 
     func makeApyBoostEligibilityString() -> AttributedString {
-        var attributed = styled(
-            Localization.yieldApyBoostPromoEligibilityText,
-            font: Fonts.Regular.footnote,
-            color: Colors.Text.tertiary
-        )
+        let learnMoreText = Localization.commonLearnMore.lowercased()
+        let termsText = Localization.yieldApyBoostPromoTermsAndConditions
+        let fullText = "\(Localization.yieldApyBoostPromoEligibilityText) \(learnMoreText) \(termsText)"
 
-        if let range = attributed.range(of: Localization.commonLearnMore.lowercased()) {
-            attributed[range].link = apyBoostPromoTerms
-            attributed[range].foregroundColor = Colors.Text.accent
+        var attributed = styled(fullText, font: Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
+        if let learnMoreRange = attributed.range(of: learnMoreText) {
+            attributed[learnMoreRange].link = Self.apyBoostLearnMoreLink
+            attributed[learnMoreRange].foregroundColor = Colors.Text.accent
+        }
+
+        if let termsRange = attributed.range(of: termsText) {
+            attributed[termsRange].link = apyBoostPromoTerms
+            attributed[termsRange].foregroundColor = Colors.Text.accent
         }
 
         return attributed
+    }
+
+    func onApyBoostEligibilityLinkTap(_ url: URL) {
+        if url == Self.apyBoostLearnMoreLink {
+            coordinator?.openYieldApyBoostStory()
+        } else {
+            openUrl(url)
+        }
     }
 }
 
