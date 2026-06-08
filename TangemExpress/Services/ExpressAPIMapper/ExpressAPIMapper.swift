@@ -324,7 +324,7 @@ struct ExpressAPIMapper {
         return OnrampTransaction(
             fromAmount: fromAmount,
             toAmount: toAmount,
-            status: response.status,
+            status: OnrampTransactionStatus(rawValue: response.status) ?? .unknown,
             externalTxId: response.externalTxId,
             externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
         )
@@ -411,7 +411,7 @@ struct ExpressAPIMapper {
         try OnrampHistoryRecord(
             txId: record.txId,
             providerId: record.providerId,
-            status: OnrampTransactionStatus(rawValue: record.status),
+            status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
             rateType: ExpressProviderRateType(rawValue: record.rateType),
             externalTxId: record.externalTxId,
             externalTxStatus: record.externalTxStatus,

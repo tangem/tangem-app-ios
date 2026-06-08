@@ -11,7 +11,7 @@ import Foundation
 public struct OnrampHistoryRecord: TransactionHistoryRecord, Hashable, @unchecked Sendable {
     public let txId: String
     public let providerId: ExpressProvider.Id
-    public let status: OnrampTransactionStatus?
+    public let status: OnrampTransactionStatus
     public let rateType: ExpressProviderRateType?
     public let externalTxId: String?
     public let externalTxStatus: String?

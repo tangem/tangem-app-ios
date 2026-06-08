@@ -7,6 +7,7 @@
 //
 
 public enum OnrampTransactionStatus: String, Codable {
+    case unknown
     case created
     case expired
     case waitingForPayment = "waiting-for-payment"
