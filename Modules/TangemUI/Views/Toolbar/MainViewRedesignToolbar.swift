@@ -39,7 +39,7 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
     private func liquidGlassToolbar(_ content: Content) -> some View {
         content
             .onGeometryChange(for: CGFloat.self, of: \.size.width) { fullContentWidth in
-                navigationBarWidth = fullContentWidth - NavigationBarInset.horizontal * 2
+                navigationBarWidth = max(0, fullContentWidth - NavigationBarInset.horizontal * 2)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {
