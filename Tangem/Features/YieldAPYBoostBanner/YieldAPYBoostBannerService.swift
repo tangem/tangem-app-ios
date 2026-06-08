@@ -40,8 +40,9 @@ final class YieldAPYBoostBannerService {
 
         guard
             let campaign = await promoRepository.campaign(userWalletId: userWalletId.stringValue),
-            (campaign.startDate ... campaign.endDate).contains(Date()),
-            campaign.promoEnrollmentStatus == .notStarted
+            let bannerData = campaign.bannerData,
+            (bannerData.startDate ... bannerData.endDate).contains(Date()),
+            campaign.enrollmentStatus?.promoEnrollmentStatus == .notStarted
         else {
             notificationInputsSubject.send([])
             return
