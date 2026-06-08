@@ -12,14 +12,13 @@ import TangemUI
 struct UserWalletView: View {
     let pageBuilder: MainUserWalletPageBuilder
     let refreshScrollViewStateObject: RefreshScrollViewStateObject
+    @Binding var headerMinY: CGFloat
+
     let totalPages: Int
     let currentIndex: Int
 
     var body: some View {
-        RefreshScrollView(
-            stateObject: refreshScrollViewStateObject,
-            contentSettings: .simpleContent
-        ) {
+        RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: .zero) {
                 header
                 content
@@ -36,6 +35,16 @@ struct UserWalletView: View {
                     ? MainUserWalletHeaderModel.PaginationState(totalPages: totalPages, currentIndex: currentIndex)
                     : nil
             )
+        )
+        .border(.red, width: 0.5)
+        .onGeometryChange(
+            for: CGFloat.self,
+            of: { proxy in
+                proxy.frame(in: .global).minY
+            },
+            action: { headerMinY in
+                self.headerMinY = headerMinY
+            }
         )
     }
 
