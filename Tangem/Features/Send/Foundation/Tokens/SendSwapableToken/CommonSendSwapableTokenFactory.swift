@@ -28,14 +28,22 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
 
-        // with `.swap` supportingOptions
-        let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+        let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .swap
         )
 
-        let expressTransactionValidator = BSDKExpressTransactionValidator(
+        let transferTokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: .all
+        ).makeTokenFeeProvidersManager()
+
+        let transactionValidator = BSDKTransactionValidator(
             transactionValidator: walletModel.transactionValidator
+        )
+
+        let transactionCreator = BSDKTransactionCreator(
+            transactionCreator: walletModel.transactionCreator
         )
 
         let balanceProvider = CommonExpressBalanceProvider(
@@ -70,8 +78,10 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
-            tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            expressTransactionValidator: expressTransactionValidator,
+            tokenFeeProvidersManagerProvider: swapTokenFeeProvidersManagerProvider,
+            tokenFeeProvidersManager: transferTokenFeeProvidersManager,
+            transactionValidator: transactionValidator,
+            transactionCreator: transactionCreator,
             sendYieldModuleHelper: sendYieldModuleHelper,
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,

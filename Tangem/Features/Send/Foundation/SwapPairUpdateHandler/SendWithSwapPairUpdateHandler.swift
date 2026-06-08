@@ -17,36 +17,42 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
         self.expressManager = expressManager
     }
 
-    func handlePairChange(
-        pair: ExpressManagerSwappingPair,
-        source: SendSwapableToken,
-        destination: SendReceiveToken,
-        sourceAmount: Decimal?,
-        isFullRefresh: Bool
-    ) async throws -> SwapPairUpdateResult {
-        // Pair update — populates availableProviders in CommonExpressManager
-        let pairResult: ExpressManagerUpdatingResult = try await expressManager.update(pair: pair)
+    func updatePairLoadingType(source: SendSwapableToken?, destination: SendReceiveToken?) async -> SwapModel.LoadingType? {
+        let currentPair = await expressManager.getCurrentPair()
+        let shouldReloadProviders = {
+            guard let currentPair else {
+                return true
+            }
 
-        if !isFullRefresh {
-            // Destination-only change: re-fetch quotes using the existing amountType
-            // to preserve rate direction (e.g. .to for fixed-rate mode).
-            let quoteResult: ExpressManagerUpdatingResult = try await expressManager.update(by: .pair)
-            return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: nil)
+            guard currentPair.source.currency == source?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            guard currentPair.destination.currency == destination?.tokenItem.expressCurrency else {
+                return true
+            }
+
+            return false
+        }()
+
+        let amountType = await expressManager.getAmountType()
+        let hasAmount = amountType != nil
+
+        if shouldReloadProviders {
+            return hasAmount ? .rates : .providers
         }
 
-        guard let sourceAmount else {
-            return SwapPairUpdateResult(expressResult: pairResult, amountUpdate: nil)
+        return .autoupdate
+    }
+
+    func updatePair(source: any SendSwapableToken, destination: any SendReceiveToken) async throws -> ExpressManagerState {
+        let pair = ExpressManagerSwappingPair(source: source, destination: destination)
+        let pairResult = try await expressManager.update(pair: pair)
+
+        guard let amountType = await expressManager.getAmountType() else {
+            return pairResult
         }
 
-        let quoteResult: ExpressManagerUpdatingResult = try await expressManager.update(amountType: .from(sourceAmount))
-
-        let amountUpdate: SwapPairUpdateResult.AmountUpdate?
-        if let quote = quoteResult.selected?.getState().quote {
-            amountUpdate = .setReceiveAmount(crypto: quote.expectAmount, currencyId: destination.tokenItem.currencyId)
-        } else {
-            amountUpdate = nil
-        }
-
-        return SwapPairUpdateResult(expressResult: quoteResult, amountUpdate: amountUpdate)
+        return await expressManager.update(amountType: amountType)
     }
 }
