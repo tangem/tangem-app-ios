@@ -32,23 +32,19 @@ class CommonSendAnalyticsLogger {
         sendFeeInput?.selectedFee?.tokenItem
     }
 
-    private var feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder {
-        let supportFeeSelection = sendFeeInput?.supportFeeSelection ?? false
-        return FeeAnalyticsParameterBuilder(supportFeeSelection: supportFeeSelection)
-    }
-
     private var sourceFlow: Analytics.ParameterValue {
-        switch sendReceiveTokenInput?.receiveToken.value {
-        case .none: .send
-        case .some: .sendAndSwap
+        switch sendType {
+        case .send where isSwap: .sendAndSwap
+        case .sell, .nft, .send: .send
+        case .swap: .swap
         }
     }
 
-    private var isSendWithSwapFlow: Bool {
-        sendType != .swap && sourceFlow == .sendAndSwap
+    private var isSwap: Bool {
+        sendReceiveTokenInput?.receiveToken.value != nil
     }
 
-    private var entryTypeParameterValue: Analytics.ParameterValue {
+    private func buildEntryTypeParameterValue() -> Analytics.ParameterValue {
         coordinatorSource == .qrScan ? .qr : .manually
     }
 
@@ -57,7 +53,7 @@ class CommonSendAnalyticsLogger {
         self.coordinatorSource = coordinatorSource
     }
 
-    private var rateTypeAnalyticsValue: String? {
+    private func buildRateTypeAnalyticsValue() -> String? {
         sendSwapProvidersInput?.currentRateType?.analyticsValue.rawValue
     }
 
@@ -146,7 +142,7 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 }
 
-// MARK: - SendAnalyticsLogger, FeeSelectorAnalytics
+// MARK: - SendFeeAnalyticsLogger, FeeSelectorAnalytics
 
 extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytics {
     func logCustomFeeClicked() {
@@ -220,21 +216,20 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
             return
         }
 
-        let feeTypeParam = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: tokenFee.option)
+        let feeTypeParam = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: tokenFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
         let blockchainParam = tokenFee.tokenItem.blockchain.displayName
-        let sourceParam = sourceFlow
 
         if case .nonFungible = tokenItem.token?.metadata.kind {
             Analytics.log(
                 event: .nftFeeSelected,
-                params: [.feeType: feeTypeParam.rawValue, .blockchain: blockchainParam, .source: sourceParam.rawValue]
+                params: [.feeType: feeTypeParam.rawValue, .blockchain: blockchainParam, .source: sourceFlow.rawValue]
             )
         } else {
             let feeTokenParam = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
             let params: [Analytics.ParameterKey: String] = [
                 .feeToken: feeTokenParam,
                 .feeType: feeTypeParam.rawValue,
-                .source: sourceParam.rawValue,
+                .source: sourceFlow.rawValue,
                 .blockchain: blockchainParam,
             ]
 
@@ -248,7 +243,7 @@ extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytic
             return
         }
 
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: feeOption)
+        let feeType = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: feeOption, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
         let event: Analytics.Event
         let source: Analytics.ParameterValue?
 
@@ -305,96 +300,119 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     }
 
     func logAmountStepOpened() {
-        if isSendWithSwapFlow {
+        switch sendType {
+        case .send where isSwap:
             logSendWithSwapAmountScreenOpened(rateType: nil)
-        } else {
+        default:
             Analytics.log(
                 .sendAmountScreenOpened,
-                params: [.source: sourceFlow, .type: entryTypeParameterValue],
+                params: [.source: sourceFlow, .type: buildEntryTypeParameterValue()],
                 analyticsSystems: .all
             )
         }
     }
 
     func logAmountStepReopened() {
-        if isSendWithSwapFlow {
+        switch sendType {
+        case .send where isSwap:
             logSendWithSwapAmountScreenOpened(rateType: nil)
-        } else {
+        default:
             Analytics.log(.sendScreenReopened, params: [.source: .amount])
         }
     }
 
     func logSwapErrorInsufficientBalance(screen: Analytics.ParameterValue) {
-        guard isSendWithSwapFlow else { return }
-        var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
-        if let sourceTokenItem {
-            params[.sendToken] = sourceTokenItem.currencySymbol
-            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        switch sendType {
+        case .send where isSwap:
+            var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
+            if let sourceTokenItem {
+                params[.sendToken] = sourceTokenItem.currencySymbol
+                params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+            }
+            Analytics.log(event: .sendSwapErrorInsufficientBalance, params: params)
+        default:
+            break
         }
-        Analytics.log(event: .sendSwapErrorInsufficientBalance, params: params)
     }
 
     func logSwapErrorMinAmount(screen: Analytics.ParameterValue) {
-        guard isSendWithSwapFlow else { return }
-        var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
-        if let sourceTokenItem {
-            params[.sendToken] = sourceTokenItem.currencySymbol
-            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        switch sendType {
+        case .send where isSwap:
+            var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
+            if let sourceTokenItem {
+                params[.sendToken] = sourceTokenItem.currencySymbol
+                params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+            }
+            Analytics.log(event: .sendSwapErrorMinAmount, params: params)
+        default:
+            break
         }
-        Analytics.log(event: .sendSwapErrorMinAmount, params: params)
     }
 
     func logSwapErrorMaxAmount(screen: Analytics.ParameterValue) {
-        guard isSendWithSwapFlow else { return }
-        var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
-        if let sourceTokenItem {
-            params[.sendToken] = sourceTokenItem.currencySymbol
-            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        switch sendType {
+        case .send where isSwap:
+            var params: [Analytics.ParameterKey: String] = [.screen: screen.rawValue]
+            if let sourceTokenItem {
+                params[.sendToken] = sourceTokenItem.currencySymbol
+                params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+            }
+            Analytics.log(event: .sendSwapErrorMaxAmount, params: params)
+        default:
+            break
         }
-        Analytics.log(event: .sendSwapErrorMaxAmount, params: params)
     }
 
     func logSwapErrorExpressQuote(screen: Analytics.ParameterValue, errorDescription: String) {
-        guard isSendWithSwapFlow else { return }
-        var params: [Analytics.ParameterKey: String] = [
-            .screen: screen.rawValue,
-            .swapErrorDescription: errorDescription,
-        ]
-        if let sourceTokenItem {
-            params[.sendToken] = sourceTokenItem.currencySymbol
-            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        switch sendType {
+        case .send where isSwap:
+            var params: [Analytics.ParameterKey: String] = [
+                .screen: screen.rawValue,
+                .swapErrorDescription: errorDescription,
+            ]
+            if let sourceTokenItem {
+                params[.sendToken] = sourceTokenItem.currencySymbol
+                params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+            }
+            if let receive = sendReceiveTokenInput?.receiveToken.value {
+                params[.receiveToken] = receive.tokenItem.currencySymbol
+                params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+            }
+            Analytics.log(event: .sendSwapErrorExpressQuote, params: params)
+        default:
+            break
         }
-        if let receive = sendReceiveTokenInput?.receiveToken.value {
-            params[.receiveToken] = receive.tokenItem.currencySymbol
-            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
-        }
-        Analytics.log(event: .sendSwapErrorExpressQuote, params: params)
     }
 
     func logSendWithSwapAmountScreenOpened(rateType: ExpressProviderRateType?) {
-        guard isSendWithSwapFlow, let sourceTokenItem else {
-            return
+        switch sendType {
+        case .send where isSwap:
+            guard let sourceTokenItem else {
+                return
+            }
+
+            var analyticsParameters: [Analytics.ParameterKey: String] = [
+                .sendToken: sourceTokenItem.currencySymbol,
+                .sendBlockchain: sourceTokenItem.blockchain.displayName,
+            ]
+
+            if let receive = sendReceiveTokenInput?.receiveToken.value {
+                analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+                analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+            }
+
+            if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+                analyticsParameters[.provider] = provider.provider.name
+            }
+
+            if let rateType = rateType?.analyticsValue.rawValue ?? buildRateTypeAnalyticsValue() {
+                analyticsParameters[.rateType] = rateType
+            }
+
+            Analytics.log(event: .sendSendWithSwapAmountScreenOpened, params: analyticsParameters, analyticsSystems: .all)
+        default:
+            break
         }
-
-        var analyticsParameters: [Analytics.ParameterKey: String] = [
-            .sendToken: sourceTokenItem.currencySymbol,
-            .sendBlockchain: sourceTokenItem.blockchain.displayName,
-        ]
-
-        if let receive = sendReceiveTokenInput?.receiveToken.value {
-            analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
-            analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
-        }
-
-        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
-            analyticsParameters[.provider] = provider.provider.name
-        }
-
-        if let rateType = rateType?.analyticsValue.rawValue ?? rateTypeAnalyticsValue {
-            analyticsParameters[.rateType] = rateType
-        }
-
-        Analytics.log(event: .sendSendWithSwapAmountScreenOpened, params: analyticsParameters, analyticsSystems: .all)
     }
 }
 
@@ -451,10 +469,10 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
         switch sendType {
-        case .send where isSendWithSwapFlow:
+        case .send where isSwap:
             var analyticsParameters: [Analytics.ParameterKey: String] = [
                 .source: sourceFlow.rawValue,
-                .type: entryTypeParameterValue.rawValue,
+                .type: buildEntryTypeParameterValue().rawValue,
             ]
 
             if let tokenItem = sourceTokenItem {
@@ -471,7 +489,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 analyticsParameters[.provider] = provider.provider.name
             }
 
-            if let rateType = rateTypeAnalyticsValue {
+            if let rateType = buildRateTypeAnalyticsValue() {
                 analyticsParameters[.rateType] = rateType
             }
 
@@ -480,7 +498,7 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
         case .send:
             var params: [Analytics.ParameterKey: String] = [
                 .source: sourceFlow.rawValue,
-                .type: entryTypeParameterValue.rawValue,
+                .type: buildEntryTypeParameterValue().rawValue,
             ]
 
             if let tokenItem = sourceTokenItem {
@@ -604,7 +622,7 @@ extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
     }
 }
 
-// MARK: - SendFinishAnalyticsLogger
+// MARK: - SwapManagementModelAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
     func logSwapButtonSwap() {
@@ -650,9 +668,8 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             return
         }
 
-        let source: Analytics.ParameterValue = sendType == .swap ? .swap : .sendAndSwap
         var analyticsParameters: [Analytics.ParameterKey: String] = [
-            .source: source.rawValue,
+            .source: sourceFlow.rawValue,
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: sourceTokenItem),
             .blockchain: sourceTokenItem.blockchain.displayName,
             .walletForm: result.signerType,
@@ -660,7 +677,7 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         ]
 
         if let selectedFee = sendFeeInput?.selectedFee {
-            let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+            let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
             let isGasless = selectedFee.value.value?.isGasless ?? false
@@ -677,7 +694,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     func logFinishStepOpened() {
         switch sendReceiveTokenInput?.receiveToken.value {
         case .none:
-            logSendFinishScreenOpened(destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false)
+            logSendFinishScreenOpened(
+                destinationDidResolved: sendDestinationInput?.destination?.value.isResolved ?? false
+            )
         case .some where sendType == .swap:
             logSwapFinishScreenOpened()
         case .some:
@@ -703,9 +722,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         default: .sendTransactionSentScreenOpened
         }
 
-        let feeTypeAnalyticsParameter = feeAnalyticsParameterBuilder.analyticsParameter(
-            selectedFee: sendFeeInput?.selectedFee?.option
-        )
+        let feeTypeAnalyticsParameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: sendFeeInput?.selectedFee?.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
 
         var analyticsParameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
@@ -756,7 +773,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         ]
 
         if let selectedFee = sendFeeInput?.selectedFee {
-            let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+            let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
             let isGasless = selectedFee.value.value?.isGasless ?? false
@@ -772,7 +789,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsParameters[.provider] = provider.provider.name
         }
 
-        if let rateType = rateTypeAnalyticsValue {
+        if let rateType = buildRateTypeAnalyticsValue() {
             analyticsParameters[.rateType] = rateType
         }
 
@@ -809,7 +826,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
         var params: [Analytics.ParameterKey: String] = [
             .source: sourceFlow.rawValue,
-            .type: entryTypeParameterValue.rawValue,
+            .type: buildEntryTypeParameterValue().rawValue,
         ]
 
         if let tokenItem = sourceTokenItem {
@@ -821,8 +838,8 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
     }
 
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
-        switch (sourceFlow, flow, type) {
-        case (.sendAndSwap, .send, .action):
+        switch (sendType, flow, type) {
+        case (.send, .send, .action) where isSwap:
             guard let sourceTokenItem else {
                 return
             }
@@ -833,7 +850,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
             ]
 
             if let selectedFee = sendFeeInput?.selectedFee {
-                let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+                let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
                 analyticsParameters[.feeType] = parameter.rawValue
                 analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
             }
@@ -847,7 +864,7 @@ extension CommonSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
                 analyticsParameters[.provider] = provider.provider.name
             }
 
-            if let rateType = rateTypeAnalyticsValue {
+            if let rateType = buildRateTypeAnalyticsValue() {
                 analyticsParameters[.rateType] = rateType
             }
 
@@ -894,7 +911,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             return
         }
 
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: fee)
+        let feeType = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: fee, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
 
         // If the blockchain doesn't support additional field -- return null
         // Otherwise return full / empty
@@ -962,7 +979,6 @@ extension CommonSendAnalyticsLogger {
         case sell
         case nft
         case swap
-        case sendAndSwap
 
         var analytics: Analytics.ParameterValue {
             switch self {
@@ -970,7 +986,6 @@ extension CommonSendAnalyticsLogger {
             case .sell: .sell
             case .nft: .nft
             case .swap: .swap
-            case .sendAndSwap: .sendAndSwap
             }
         }
     }
