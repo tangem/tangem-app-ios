@@ -30,11 +30,12 @@ Every change starts with a Jira ticket whose key flows through the rest of the w
 
   See [External Systems → Jira](#jira) for cloudId, field IDs, and the ADF caveat.
 - **Branch name:** `IOS-NNNNN_short_description` in snake_case (e.g. `[REDACTED_INFO]_crashfixes`).
+- **When asked to create a branch, give it its own remote immediately.** `git checkout -b <branch> origin/develop` leaves `<branch>` tracking `origin/develop`, so an IDE "Push" writes straight to `develop`. Right after creating it run `git push -u origin <branch>` (or `git branch --unset-upstream` if not pushing yet). Never push to `develop`/`master` directly.
 - **Commit message subject:** `IOS-NNNNN Short description`. Body explains the why, not the what — the diff already shows the what.
 - **Move the issue to `In Progress`** the moment you create the branch and start work. Use `getTransitionsForJiraIssue` to find the right transition id, then `transitionJiraIssue`. Don't leave a ticket in `To Do` while a branch with commits exists — sprint metrics and standups read these states.
 - **Self-review before opening the PR.** Once the branch builds and tests pass, do an independent review of the diff as if it were someone else's code: either read `git diff <base>..HEAD` end-to-end with fresh eyes, or delegate to a sub-agent (e.g. Claude Code's `Agent` tool with a skeptical-reviewer prompt; equivalent in other agent harnesses). Apply any meaningful feedback as additional commits before opening the PR — the goal is to spend the human reviewer's attention on judgment calls, not on things you would have caught yourself.
 - **PR title:** identical to the commit subject. The PR body MUST include `[IOS-NNNNN](https://tangem.atlassian.net/browse/IOS-NNNNN)` on its own line so the Atlassian/GitHub integration links the PR back to the ticket. Opening the PR generally moves the issue to `Review` automatically.
-- **PR description style.** Write for the reviewer, not as a changelog. Aim for 3-5 sentences that name the problem, the approach, and the riskiest call you made — and explicitly invite pushback on whatever you most want a second opinion on. Skip bullets that just restate a filename or list what changed; the diff already shows that. Verification steps stay if they're useful, otherwise drop them. PR descriptions live on GitHub (not in the repo), so they may use whatever language matches the team conversation.
+- **PR description style.** Convey the essence — the problem and the approach — in a few plain sentences. Don't walk through the changes file by file or restate the diff; it speaks for itself. Don't tell reviewers what to look at, flag the "riskiest" part, or ask for a second opinion — they decide where to focus. Cut filler and hedging. Write idiomatically in the language of the team conversation — no runglish or word-for-word calques. Keep verification steps only when genuinely useful. PR descriptions live on GitHub (not in the repo).
 - All commits require a valid GPG signature (see Miscellaneous).
 
 ## Build & Development Commands
@@ -189,9 +190,11 @@ Key lanes defined in `fastlane/Fastfile`:
 
 ## Code Style
 
-**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira fields and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation.
+**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira fields and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation. When that language isn't English, write the way a native speaker of it would: express each technical idea in the target language's own words rather than transliterating the English term, so the text reads as natural prose and not a calque. Only genuine code identifiers and proper nouns stay in English.
 
 **Style Guide:** Follow [Google's Swift Style Guide](https://google.github.io/swift/)
+
+**No redundant comments.** Don't add comments that merely restate what the code or the language already conveys — e.g. annotating a `static let` with "Resolved once" / "Cached / fixed for the process lifetime", or a `private` member with "Used internally". A comment must explain something the reader can't get from the declaration itself: a non-obvious *why*, a constraint, a gotcha, or intent that isn't visible in the code. When in doubt, leave it out — the diff and the type signatures already document the *what*.
 
 **SwiftUI Previews:** Must be wrapped in `#if DEBUG`/`#endif` and marked with `// MARK: - Previews`:
 ```swift
@@ -258,7 +261,7 @@ The type is re-exported via `Modules/TangemFoundation/Extensions/Foundation/OSAl
 
 ## Documentation
 
-Always use Context7 MCP for fetching library/API documentation, code generation, or configuration steps.
+For Apple platform documentation (iOS/macOS APIs, frameworks, WWDC content) use the sosumi MCP. For all other library/API documentation, code generation, or configuration steps use Context7 MCP.
 
 ## Xcode MCP Tools
 
