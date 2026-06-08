@@ -151,7 +151,7 @@ struct YieldModulePromoView: View {
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .environment(\.openURL, OpenURLAction { url in
-                        viewModel.openUrl(url)
+                        viewModel.onApyBoostEligibilityLinkTap(url)
                         return .handled
                     })
             }
