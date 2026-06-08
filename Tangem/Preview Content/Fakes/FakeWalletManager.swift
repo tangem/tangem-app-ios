@@ -45,12 +45,22 @@ class FakeWalletManager: WalletManager {
         let userWalletId = UserWalletId(value: Data())
         let keysRepository = CommonKeysRepository(keys: .cardWallet(keys: []))
 
+        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
+
+        let transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
+            cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
+            userWalletId: userWalletId,
+            walletInfo: .cardWallet(CardMock.wallet.cardInfo)
+        )
+
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: KeysDerivingMock(),
-            transactionHistoryProviderRegistry: CommonTransactionHistoryProviderRegistry()
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
