@@ -336,6 +336,7 @@ struct ExpressAPIMapper {
         try ExchangeHistoryPage(
             records: response.items.map(mapToExchangeHistoryRecord(record:)),
             nextCursor: response.pagination.endCursor?.value,
+            startDeltaCursor: response.pagination.startDeltaCursor?.value,
             hasMore: response.pagination.hasMore
         )
     }
@@ -344,6 +345,7 @@ struct ExpressAPIMapper {
         try ExchangeHistoryPage(
             records: response.items.map(mapToExchangeHistoryRecord(record:)),
             nextCursor: response.pagination.startCursor?.value,
+            startDeltaCursor: nil,
             hasMore: response.pagination.hasMore
         )
     }
@@ -352,6 +354,7 @@ struct ExpressAPIMapper {
         try OnrampHistoryPage(
             records: response.items.map(mapToOnrampHistoryRecord(record:)),
             nextCursor: response.pagination.endCursor?.value,
+            startDeltaCursor: response.pagination.startDeltaCursor?.value,
             hasMore: response.pagination.hasMore
         )
     }
@@ -360,6 +363,7 @@ struct ExpressAPIMapper {
         try OnrampHistoryPage(
             records: response.items.map(mapToOnrampHistoryRecord(record:)),
             nextCursor: response.pagination.startCursor?.value,
+            startDeltaCursor: nil,
             hasMore: response.pagination.hasMore
         )
     }

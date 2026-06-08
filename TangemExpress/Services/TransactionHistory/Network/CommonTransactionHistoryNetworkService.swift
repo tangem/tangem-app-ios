@@ -15,29 +15,35 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
     typealias PageFetcher = @Sendable (_ apiProvider: ExpressAPIProvider, _ cursor: Any?) async throws -> Page
 
     private let apiProvider: ExpressAPIProvider
-    private let cursorStorage: TransactionHistoryCursorStorage
+    private let initialCursorStorage: TransactionHistoryCursorStorage
+    private let deltaCursorStorage: TransactionHistoryCursorStorage
     private let initialPageFetcher: PageFetcher
     private let deltaPageFetcher: PageFetcher
 
     init(
         apiProvider: ExpressAPIProvider,
-        cursorStorage: TransactionHistoryCursorStorage,
+        initialCursorStorage: TransactionHistoryCursorStorage,
+        deltaCursorStorage: TransactionHistoryCursorStorage,
         initialPageFetcher: @escaping PageFetcher,
         deltaPageFetcher: @escaping PageFetcher
     ) {
         self.apiProvider = apiProvider
-        self.cursorStorage = cursorStorage
+        self.initialCursorStorage = initialCursorStorage
+        self.deltaCursorStorage = deltaCursorStorage
         self.initialPageFetcher = initialPageFetcher
         self.deltaPageFetcher = deltaPageFetcher
     }
 
     private func fetchPages(
         using pageFetcher: PageFetcher,
+        primaryCursorStorage: TransactionHistoryCursorStorage,
+        auxiliaryCursorStorage: TransactionHistoryCursorStorage?,
         handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction
     ) async throws {
-        var cursor = await cursorStorage.cursor
+        var cursor = await primaryCursorStorage.cursor // Updated inside the loop after each page is processed, therefore `var`
 
         while !Task.isCancelled {
+            let isFirstPage = cursor == nil // The first page is always requested w/o a cursor
             let page = try await pageFetcher(apiProvider, cursor)
 
             TransactionHistoryLogger.debug(self, "Fetched page: \(page.records.count) record(s), hasMore: \(page.hasMore)")
@@ -49,7 +55,12 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
                 TransactionHistoryLogger.info(self, "Caller halted pagination; cursor left unchanged")
                 return
             case .proceed:
-                await cursorStorage.setCursor(page.nextCursor)
+                await primaryCursorStorage.setCursor(page.nextCursor)
+
+                // Only the first page of the initial sync API has a valid cursor for the delta sync
+                if isFirstPage, let auxiliaryCursorStorage {
+                    await auxiliaryCursorStorage.setCursor(page.startDeltaCursor)
+                }
             }
 
             guard page.hasMore else {
@@ -65,15 +76,21 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
 
 extension CommonTransactionHistoryNetworkService: TransactionHistoryNetworkService {
     func syncInitial(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
-        await cursorStorage.clear()
-        try await fetchPages(using: initialPageFetcher, handleRecordsPage: handleRecordsPage)
+        try await fetchPages(
+            using: initialPageFetcher,
+            primaryCursorStorage: initialCursorStorage,
+            auxiliaryCursorStorage: deltaCursorStorage,
+            handleRecordsPage: handleRecordsPage
+        )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // starts from ~now instead of the initial walk's oldest cursor; needs the richer page model + persistent
-    // sync-metadata storage ([REDACTED_INFO])
     func syncDelta(handleRecordsPage: @Sendable ([Record]) async -> TransactionHistoryNextPageAction) async throws {
-        try await fetchPages(using: deltaPageFetcher, handleRecordsPage: handleRecordsPage)
+        try await fetchPages(
+            using: deltaPageFetcher,
+            primaryCursorStorage: deltaCursorStorage,
+            auxiliaryCursorStorage: nil, // Delta sync doesn't have an aux cursor to save
+            handleRecordsPage: handleRecordsPage
+        )
     }
 }
 
@@ -92,6 +109,15 @@ extension CommonTransactionHistoryNetworkService {
         let records: [Record]
         /// Opaque cursor (hence `Any`) for the next page.
         let nextCursor: Any?
+        /// Opaque cursor (hence `Any`) to seed the delta sync.
+        let startDeltaCursor: Any?
         let hasMore: Bool
+
+        init(records: [Record], nextCursor: Any?, startDeltaCursor: Any?, hasMore: Bool) {
+            self.records = records
+            self.nextCursor = nextCursor
+            self.startDeltaCursor = startDeltaCursor
+            self.hasMore = hasMore
+        }
     }
 }
