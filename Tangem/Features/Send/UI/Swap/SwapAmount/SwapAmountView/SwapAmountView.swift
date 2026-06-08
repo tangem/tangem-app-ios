@@ -58,8 +58,7 @@ struct SwapAmountView: View {
                 state: viewModel.receiveCryptoAmountState,
                 font: Fonts.Regular.title1,
                 textColor: Colors.Text.primary1,
-                loaderSize: CGSize(width: 102, height: 24),
-                prefix: "~"
+                loaderSize: CGSize(width: 102, height: 24)
             )
         }
         .didTapChangeCurrency(viewModel.userDidTapChangeReceiveTokenButton)
