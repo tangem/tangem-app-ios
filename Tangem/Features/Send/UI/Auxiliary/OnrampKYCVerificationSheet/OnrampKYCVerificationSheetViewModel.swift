@@ -26,17 +26,18 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
     }
 
     func verify() {
+        Analytics.log(.onrampButtonVerify)
         routable?.onProceedToWidget()
         dismiss()
     }
 
     func chooseAnotherMethod() {
+        Analytics.log(.onrampButtonChooseAnotherMethod)
         routable?.onChooseAnother()
-        dismiss()
     }
 
     func close() {
-        routable?.onChooseAnother()
+        routable?.onClose()
         dismiss()
     }
 

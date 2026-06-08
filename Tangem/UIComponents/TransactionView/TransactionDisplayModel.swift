@@ -77,7 +77,7 @@ extension TransactionDisplayModel {
              .yieldTopup, .yieldSend:
             return true
         case .transfer, .swap, .claimRewards, .operation, .unknownOperation,
-             .gaslessTransactionFee, .tangemPay:
+             .gaslessTransactionFee, .gaslessTransfer, .tangemPay:
             return false
         }
     }

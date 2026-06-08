@@ -273,7 +273,12 @@ struct GaslessTransactionBuilder {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
 
-        let maxTokenFeeInTokenUnits = (bsdkFee.amount.value * token.decimalValue).intValue(roundingMode: .up).description
+        let maxTokenFeeInTokenUnitsDecimal = (bsdkFee.amount.value * token.decimalValue)
+            .rounded(roundingMode: .up)
+
+        guard let maxTokenFeeInTokenUnits = BigUInt(decimal: maxTokenFeeInTokenUnitsDecimal) else {
+            throw GaslessTransactionBuilderError.invalidFeeParameters
+        }
 
         let bufferedCoinPriceInTokenUnits = (
             parameters.bufferedNativeToFeeTokenRate.rounded(scale: token.decimalCount) * token.decimalValue
@@ -284,7 +289,7 @@ struct GaslessTransactionBuilder {
 
         return GaslessTransactionFee(
             feeToken: token.contractAddress,
-            maxTokenFee: maxTokenFeeInTokenUnits,
+            maxTokenFee: maxTokenFeeInTokenUnits.description,
             coinPriceInToken: bufferedCoinPriceInTokenUnits,
             feeTransferGasLimit: feeTransferGasLimit,
             baseGas: baseGas,

@@ -46,6 +46,7 @@ protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
     SendOnrampOffersAnalyticsLogger,
     SendOnrampProvidersAnalyticsLogger,
     SendOnrampPaymentMethodAnalyticsLogger,
+    SendOnrampNAPAnalyticsLogger,
     SendFinishAnalyticsLogger {
     func setup(onrampProvidersInput: OnrampProvidersInput)
 
@@ -102,6 +103,8 @@ protocol SendApproveAnalyticsLogger {
 
 protocol SwapManagementModelAnalyticsLogger {
     func logSwapButtonSwap()
+    func logSwapButtonTransfer()
+    func logSwapTransferModeSwitched()
     func logSwapTransactionSent(result: TransactionDispatcherResult)
     func logSwapPreselectedTokenChanged(
         direction: Analytics.ParameterValue,
@@ -198,6 +201,12 @@ protocol SendOnrampPaymentMethodAnalyticsLogger {
     func logOnrampPaymentMethodChosen(paymentMethod: OnrampPaymentMethod)
 }
 
+protocol SendOnrampNAPAnalyticsLogger {
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String)
+    func logOnrampNAPScreenOpened()
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String)
+}
+
 protocol SendSwapProvidersAnalyticsLogger {
     func logSendSwapProvidersChosen(provider: ExpressProvider)
 }
@@ -209,10 +218,16 @@ protocol SendSummaryAnalyticsLogger {
     func logSummaryStepOpened()
 
     func logTapAmountFraction(_ fraction: SwapAmountFraction)
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant)
+    func logSwapTypeScreenOpened(variant: SwapFormVariant)
 }
 
 extension SendSummaryAnalyticsLogger {
     func logTapAmountFraction(_ fraction: SwapAmountFraction) {}
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant) {}
+    func logSwapTypeScreenOpened(variant: SwapFormVariant) {}
 }
 
 protocol SendFinishAnalyticsLogger {

@@ -80,6 +80,26 @@ final class TangemPayMainViewModel: ObservableObject {
         cardEntries.contains { $0.isIssuing }
     }
 
+    var addToApplePayBannerType: NotificationBanner.BannerType {
+        .promo(
+            .text(.init(
+                title: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationTitleApple),
+                subtitle: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple)
+            )),
+            .tappable(NotificationBanner.Action { [weak self] in self?.openAddToApplePayGuide() }),
+            NotificationBanner.CloseAction { [weak self] in self?.dismissAddToApplePayGuideBanner() },
+            .bannerMagic,
+            .leading
+        )
+    }
+
+    var notificationBannerItems: [NotificationBannerItem] {
+        MultiWalletNotificationBannerMapper().mapItems(
+            inlineNotifications,
+            cardDeactivatedNotificationInput.map { [$0] } ?? []
+        )
+    }
+
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.tangemPayAssembly) private var tangemPayAssembly: TangemPayAssembly
 
@@ -309,7 +329,7 @@ final class TangemPayMainViewModel: ObservableObject {
             userWalletId: userWalletInfo.id.stringValue,
             customerId: tangemPayAccount.customerId
         )
-        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: EmailConfig.visaDefault(subject: .default).recipient,

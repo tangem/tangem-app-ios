@@ -370,7 +370,7 @@ extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
     }
 
     func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: EmailConfig.visaDefault(subject: subject).recipient,
@@ -571,6 +571,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
     private static func formatFee(amount: Decimal, currency: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")
         formatter.currencyCode = currency
         return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
     }

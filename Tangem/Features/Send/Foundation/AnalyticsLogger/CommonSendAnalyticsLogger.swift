@@ -24,6 +24,10 @@ class CommonSendAnalyticsLogger {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
     }
 
+    private var receiveTokenItem: TokenItem? {
+        sendReceiveTokenInput?.receiveToken.value?.tokenItem
+    }
+
     private var feeTokenItem: TokenItem? {
         sendFeeInput?.selectedFee?.tokenItem
     }
@@ -69,6 +73,32 @@ class CommonSendAnalyticsLogger {
         }
 
         return result
+    }
+
+    private func buildSwapTokenParams() -> [Analytics.ParameterKey: String] {
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if let sourceTokenItem {
+            params[.sendToken] = sourceTokenItem.currencySymbol
+            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.value {
+            params[.receiveToken] = receive.tokenItem.currencySymbol
+            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        return params
+    }
+
+    private func buildSwapTokenProviderParams() -> [Analytics.ParameterKey: String] {
+        var params = buildSwapTokenParams()
+
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
+            params[.provider] = provider.provider.name
+        }
+
+        return params
     }
 }
 
@@ -502,30 +532,27 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
             .percentage: fraction.analyticsValue,
         ])
     }
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant) {
+        Analytics.log(event: .swapTypeReselection, params: [
+            .typeFrom: from.analyticsValue.rawValue,
+            .typeTo: to.analyticsValue.rawValue,
+        ])
+    }
+
+    func logSwapTypeScreenOpened(variant: SwapFormVariant) {
+        Analytics.log(event: .swapTypeSimpleDetailed, params: [
+            .swapType: variant.analyticsValue.rawValue,
+        ])
+    }
 }
 
 // MARK: - SendApproveAnalyticsLogger
 
 extension CommonSendAnalyticsLogger: SendApproveAnalyticsLogger {
     func logPermissionScreenOpened(isRevoke: Bool) {
-        var params: [Analytics.ParameterKey: String] = [:]
-
-        if let sourceTokenItem {
-            params[.sendToken] = sourceTokenItem.currencySymbol
-            params[.sendBlockchain] = sourceTokenItem.blockchain.displayName
-        }
-
-        if let receive = sendReceiveTokenInput?.receiveToken.value {
-            params[.receiveToken] = receive.tokenItem.currencySymbol
-            params[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
-        }
-
-        if let provider = sendSwapProvidersInput?.selectedExpressProvider?.value {
-            params[.provider] = provider.provider.name
-        }
-
         let event: Analytics.Event = isRevoke ? .swapPermissionUpdateScreenOpened : .swapPermissionScreenOpened
-        Analytics.log(event: event, params: params)
+        Analytics.log(event: event, params: buildSwapTokenProviderParams())
     }
 
     func logSwapButtonPermissionApprove(policy: ApprovePolicy) {
@@ -596,6 +623,14 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         }
 
         Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
+    }
+
+    func logSwapButtonTransfer() {
+        Analytics.log(event: .swapButtonTransfer, params: buildSwapTokenParams())
+    }
+
+    func logSwapTransferModeSwitched() {
+        Analytics.log(event: .swapTransferModeSwitched, params: buildSwapTokenParams())
     }
 
     func logSwapPreselectedTokenChanged(
@@ -705,7 +740,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     private func logSwapFinishScreenOpened() {
-        logFinishScreenWithSwapParameters(event: .swapSwapInProgressScreenOpened)
+        let isTransfer = sourceTokenItem?.expressCurrency == receiveTokenItem?.expressCurrency
+        let event: Analytics.Event = isTransfer ? .swapTransferInProgressScreenOpened : .swapSwapInProgressScreenOpened
+        logFinishScreenWithSwapParameters(event: event)
     }
 
     private func logFinishScreenWithSwapParameters(event: Analytics.Event) {
