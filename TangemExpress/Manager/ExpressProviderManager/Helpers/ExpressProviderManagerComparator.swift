@@ -9,14 +9,14 @@
 import Foundation
 
 public enum ExpressProviderManagerComparator {
-    /// `.min(by:)` / `.sorted(by:)` returns the best provider first.
-    /// Callers must pre-filter the array to providers whose `supportedRateTypes`
-    /// contain the active `rateType` (e.g. via `filteredByRateType`).
-    public static func isBetter(
-        _ lhs: ExpressAvailableProvider,
-        _ rhs: ExpressAvailableProvider,
-        rateType: ExpressProviderRateType
-    ) -> Bool {
+    /// Tiers (from most to least preferred):
+    ///   1. Eligible — `.permissionRequired`, `.revokeAndPermissionRequired`, `.cexPreview`, `.dexPreview`.
+    ///   2. `.restriction(.tooSmallAmount)` — lower minimum (closer to user's amount) wins.
+    ///   3. `.restriction(.tooBigAmount)`.
+    ///   4. `.idle` / `.error`.
+    public static func isBetter(lhs: ExpressAvailableProvider, rhs: ExpressAvailableProvider) -> Bool {
+        assert(lhs.rateType == rhs.rateType, "Comparator requires both providers to share the same `rateType`")
+
         switch (lhs.getState(), rhs.getState()) {
         case (.restriction(.tooSmallAmount(let lMinimum, _), _), .restriction(.tooSmallAmount(let rMinimum, _), _)):
             return lMinimum < rMinimum
@@ -62,7 +62,7 @@ public enum ExpressProviderManagerComparator {
 
         case (let lState, let rState):
             switch (lState.quote, rState.quote) {
-            case (.some(let lQuote), .some(let rQuote)) where rateType == .fixed:
+            case (.some(let lQuote), .some(let rQuote)) where lhs.rateType == .fixed && rhs.rateType == .fixed:
                 return lQuote.fromAmount < rQuote.fromAmount
             case (.some(let lQuote), .some(let rQuote)):
                 return lQuote.expectAmount > rQuote.expectAmount
