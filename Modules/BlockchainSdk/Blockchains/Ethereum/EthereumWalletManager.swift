@@ -70,7 +70,12 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
     }
 
     /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
-    func getFee(destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
+    func getFee(
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<[Fee], Error> {
         let fromPublisher = addressConverter.convertToETHAddressPublisher(defaultSourceAddress)
         let destinationPublisher = addressConverter.convertToETHAddressPublisher(destination)
 
@@ -80,9 +85,9 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
             .flatMap { walletManager, convertedAddresses -> AnyPublisher<[Fee], Error> in
                 let (from, destination) = convertedAddresses
                 if walletManager.wallet.blockchain.supportsEIP1559 {
-                    return walletManager.getEIP1559Fee(from: from, destination: destination, value: value, data: data)
+                    return walletManager.getEIP1559Fee(from: from, destination: destination, value: value, data: data, stateOverride: stateOverride)
                 } else {
-                    return walletManager.getLegacyFee(from: from, destination: destination, value: value, data: data)
+                    return walletManager.getLegacyFee(from: from, destination: destination, value: value, data: data, stateOverride: stateOverride)
                 }
             }
             .eraseToAnyPublisher()
@@ -328,12 +333,19 @@ private extension EthereumWalletManager {
             .store(in: &bag)
     }
 
-    func getEIP1559Fee(from: String, destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
-        networkService.getEIP1559Fee(
+    func getEIP1559Fee(
+        from: String,
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<[Fee], Error> {
+        return networkService.getEIP1559Fee(
             to: destination,
             from: from,
             value: value,
-            data: data?.hex().addHexPrefix()
+            data: data?.hex().addHexPrefix(),
+            stateOverride: stateOverride
         )
         .withWeakCaptureOf(self)
         .map { walletManager, ethereumFeeResponse in
@@ -371,12 +383,19 @@ private extension EthereumWalletManager {
         return fees
     }
 
-    func getLegacyFee(from: String, destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
-        networkService.getLegacyFee(
+    func getLegacyFee(
+        from: String,
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<[Fee], Error> {
+        return networkService.getLegacyFee(
             to: destination,
             from: from,
             value: value,
-            data: data?.hex().addHexPrefix()
+            data: data?.hex().addHexPrefix(),
+            stateOverride: stateOverride
         )
         .withWeakCaptureOf(self)
         .map { walletManager, ethereumFeeResponse in

@@ -383,7 +383,7 @@ private extension RatingViewModelTests {
         txUrl: String? = "https://example.com/tx"
     ) -> RatingViewModel {
         let transaction = RatingModel.Transaction(
-            externalTxId: externalTxId,
+            transactionId: externalTxId,
             providerName: providerName,
             txUrl: txUrl
         )
