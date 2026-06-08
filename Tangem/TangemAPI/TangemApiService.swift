@@ -116,6 +116,14 @@ protocol TangemApiService: AnyObject {
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem]
 
+    // MARK: - Notification Preferences
+
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Update.Request
+    ) async throws
+
     // MARK: - Applications
 
     /// Create application with new uid
