@@ -14,7 +14,7 @@ struct MainHorizontalPagingScrollView: View {
     let userWalletPageBuilders: [MainUserWalletPageBuilder]
     let selectedCardIndex: Binding<Int>
     let refreshScrollViewStateObject: RefreshScrollViewStateObject
-    let isHorizontalScrollDisabled: Bool
+    let isPullToRefreshRunning: Bool
     let scanQRCodeAction: () -> Void
     let detailsAction: () -> Void
 
@@ -66,6 +66,10 @@ struct MainHorizontalPagingScrollView: View {
     }
 
     // [REDACTED_TODO_COMMENT]
+
+    private var isHorizontalScrollDisabled: Bool {
+        isPullToRefreshRunning || selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity >= 1
+    }
 
     private var selectedUserWalletScrollAdjustedValues: ScrollAdjustedValues {
         userWalletIndexToScrollAdjustedValues[selectedCardIndex.wrappedValue, default: .initial]

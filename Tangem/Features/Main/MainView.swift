@@ -36,7 +36,7 @@ struct MainView: View {
                 userWalletPageBuilders: viewModel.pages,
                 selectedCardIndex: $viewModel.selectedCardIndex,
                 refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
-                isHorizontalScrollDisabled: viewModel.isHorizontalScrollDisabled,
+                isPullToRefreshRunning: viewModel.isPullToRefreshRunning,
                 scanQRCodeAction: viewModel.openQRScan,
                 detailsAction: viewModel.openDetails
             )
@@ -64,7 +64,7 @@ struct MainView: View {
             bodyFactory: makeRedesignedBody,
             bottomOverlayFactory: makeRedesignedBottomOverlay
         )
-        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .horizontalScrollDisabled(viewModel.isPullToRefreshRunning)
         .onPageChange(viewModel.onPageChange(dueTo:))
     }
 
@@ -131,7 +131,7 @@ struct MainView: View {
         )
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
-        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .horizontalScrollDisabled(viewModel.isPullToRefreshRunning)
         .onPageChange(viewModel.onPageChange(dueTo:))
         .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }
