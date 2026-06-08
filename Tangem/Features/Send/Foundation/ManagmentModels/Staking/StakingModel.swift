@@ -48,7 +48,7 @@ final class StakingModel {
     private var estimatedFeeTask: Task<Void, Never>?
     private var accountInitializationFee: Fee?
 
-    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var allowanceService: AllowanceService? { sendSourceToken.allowanceService }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
@@ -333,7 +333,7 @@ private extension StakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(
+        analyticsLogger.logStakingTransactionSent(
             amount: _amount.value,
             fee: .market,
             signerType: result.signerType,
@@ -352,7 +352,7 @@ private extension StakingModel {
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            analyticsLogger.logTransactionRejected(error: error)
+            analyticsLogger.logStakingTransactionRejected(error: error)
         }
     }
 }

@@ -8,9 +8,15 @@
 import Foundation
 import Moya
 import Alamofire
+import TangemFoundation
 
 public final class TangemNetworkLoggerPlugin {
     public let logOptions: LogOptions
+
+    /// In non-production builds the full network trace (request/response bodies and header values) is
+    /// logged regardless of the per-endpoint `shouldLogResponseBody` flag, to aid debugging from the
+    /// exported logs. Production keeps the per-endpoint gating and logs header names only.
+    private static let isVerboseLoggingEnabled = !AppEnvironment.current.isProduction
 
     public init(logOptions: LogOptions) {
         self.logOptions = logOptions
@@ -61,12 +67,14 @@ extension TangemNetworkLoggerPlugin {
                 allHeaders.merge(httpRequestHeaders) { $1 }
             }
 
-            let headerKeys = allHeaders.keys.joined(separator: ",")
+            let headers = Self.isVerboseLoggingEnabled
+                ? allHeaders.map { "\($0.key): \($0.value)" }.joined(separator: ", ")
+                : allHeaders.keys.joined(separator: ", ")
 
-            output.append("Headers: \(headerKeys)")
+            output.append("Headers: \(headers)")
         }
 
-        if logOptions.contains(.requestBody), target.shouldLogResponseBody {
+        if logOptions.contains(.requestBody), Self.isVerboseLoggingEnabled || target.shouldLogResponseBody {
             if let bodyStream = httpRequest.httpBodyStream {
                 output.append("Body stream: \(bodyStream.description)")
             }
@@ -92,7 +100,7 @@ extension TangemNetworkLoggerPlugin {
         }
 
         if logOptions.contains(.successResponseBody),
-           target.shouldLogResponseBody,
+           Self.isVerboseLoggingEnabled || target.shouldLogResponseBody,
            let bodyString = String(data: response.data, encoding: .utf8) {
             output.append("Body: \(bodyString)")
         }

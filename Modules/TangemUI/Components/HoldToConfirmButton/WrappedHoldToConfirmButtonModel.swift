@@ -38,6 +38,7 @@ final class WrappedHoldToConfirmButtonModel: ObservableObject {
     private let touchesSubject = PassthroughSubject<TouchesItem, Never>()
 
     private let loadingGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private let holdGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let notificationGenerator = UINotificationFeedbackGenerator()
 
     @Published private var title: String
@@ -108,6 +109,7 @@ extension WrappedHoldToConfirmButtonModel {
 private extension WrappedHoldToConfirmButtonModel {
     func setup() {
         loadingGenerator.prepare()
+        holdGenerator.prepare()
         notificationGenerator.prepare()
 
         if state == .loading {
@@ -162,11 +164,20 @@ private extension WrappedHoldToConfirmButtonModel {
     func startHolding() {
         setup(state: .holding)
         vibrate(
-            duration: holdDuration,
-            generator: loadingGenerator,
+            curve: makeHoldAccelerationCurve(),
             onComplete: { [weak self] in
                 self?.confirm()
             }
+        )
+    }
+
+    /// Builds the acceleration curve for the current hold, using the configured hold duration
+    /// so the haptic timing always matches the visual progress bar.
+    func makeHoldAccelerationCurve() -> Constants.HoldAccelerationCurve {
+        Constants.HoldAccelerationCurve(
+            startFrequency: Constants.holdStartFrequency,
+            endFrequency: Constants.holdEndFrequency,
+            totalDuration: configuration.holdDuration
         )
     }
 
@@ -227,43 +238,54 @@ private extension WrappedHoldToConfirmButtonModel {
 
 private extension WrappedHoldToConfirmButtonModel {
     func vibrate(
-        duration: TimeInterval,
-        generator: UIImpactFeedbackGenerator,
+        curve: Constants.HoldAccelerationCurve,
         onComplete: @escaping () -> Void
     ) {
-        // Each segment fires `count` vibrations evenly over `fraction * duration`.
-        // Frequency grows step-wise: few hits at start, many at the end.
-        // One hit immediately so the touch feels responsive.
-        singleVibration(generator: generator)
-        let timestamps = makeVibrationTimestamps(duration: duration, schedule: Constants.holdVibrationSchedule)
+        // First hit immediately so the touch feels responsive.
+        singleVibration(generator: holdGenerator)
 
-        let publishers = timestamps.map { timestamp in
-            Just(()).delay(for: .seconds(timestamp), scheduler: DispatchQueue.main).eraseToAnyPublisher()
+        let timestamps = makeAcceleratedTimestamps(curve: curve)
+        // `true` = vibrate, `false` = end marker so MergeMany completes at totalDuration
+        // even when the last hit lands slightly earlier than totalDuration.
+        let hitPublishers = timestamps.map { timestamp in
+            Just(true).delay(for: .seconds(timestamp), scheduler: DispatchQueue.main).eraseToAnyPublisher()
         }
+        let endMarker = Just(false)
+            .delay(for: .seconds(curve.totalDuration), scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
 
-        pendingSubscription = Publishers.MergeMany(publishers)
+        pendingSubscription = Publishers.MergeMany(hitPublishers + [endMarker])
             .sink(
                 receiveCompletion: { _ in
                     onComplete()
                 },
-                receiveValue: { [weak self] _ in
-                    self?.singleVibration(generator: generator)
+                receiveValue: { [weak self] shouldVibrate in
+                    guard let self, shouldVibrate else { return }
+                    singleVibration(generator: holdGenerator)
                 }
             )
     }
 
-    func makeVibrationTimestamps(duration: TimeInterval, schedule: [Constants.VibrationSegment]) -> [TimeInterval] {
+    /// Computes absolute timestamps for individual hits.
+    /// Interval shrinks along an ease-out curve `1 - (1-t)²` from `1/startFrequency`
+    /// to `1/endFrequency` — initial intervals drop quickly after a brief slow start,
+    /// then keep shrinking gently towards the end. Produces more hits than linear/quadratic.
+    func makeAcceleratedTimestamps(curve: Constants.HoldAccelerationCurve) -> [TimeInterval] {
+        let startInterval = 1.0 / max(0.001, curve.startFrequency)
+        let endInterval = 1.0 / max(0.001, curve.endFrequency)
+        // Mean of `start + (1 - (1-t)²) · (end - start)` over t ∈ [0,1] is `(start + 2·end)/3`.
+        let avgInterval = (startInterval + 2 * endInterval) / 3
+        let count = max(1, Int((curve.totalDuration / avgInterval).rounded()))
+
         var timestamps: [TimeInterval] = []
-        var offset: TimeInterval = 0
-        for segment in schedule {
-            let segmentDuration = duration * segment.fraction
-            if !segment.isEmpty {
-                let interval = segmentDuration / Double(segment.count)
-                for i in 1 ... segment.count {
-                    timestamps.append(offset + Double(i) * interval)
-                }
-            }
-            offset += segmentDuration
+        timestamps.reserveCapacity(count)
+        var cumulative: TimeInterval = 0
+        for i in 1 ... count {
+            let t: Double = count == 1 ? 0 : Double(i - 1) / Double(count - 1)
+            let easeOut = 1 - (1 - t) * (1 - t)
+            let interval = startInterval + easeOut * (endInterval - startInterval)
+            cumulative += interval
+            timestamps.append(cumulative)
         }
         return timestamps
     }
@@ -299,23 +321,21 @@ extension WrappedHoldToConfirmButtonModel {
 
 extension WrappedHoldToConfirmButtonModel {
     enum Constants {
-        struct VibrationSegment {
-            let count: Int
-            let fraction: Double
-
-            var isEmpty: Bool { count == 0 }
+        /// Acceleration of hit frequency over a fixed duration.
+        /// Intervals shrink along an ease-out curve from `1/startFrequency` to `1/endFrequency`.
+        /// Number of hits is derived automatically.
+        struct HoldAccelerationCurve {
+            let startFrequency: Double // Hz at t=0
+            let endFrequency: Double // Hz at t=totalDuration
+            let totalDuration: TimeInterval
         }
 
-        /// Vibration schedule for the hold gesture. Fractions must sum to 1.0.
-        /// With holdDuration = 2.0s: 5Hz → ~7.5Hz → 10Hz → 20Hz → 30Hz → 40Hz.
-        static let holdVibrationSchedule: [VibrationSegment] = [
-            VibrationSegment(count: 2, fraction: 0.20),
-            VibrationSegment(count: 3, fraction: 0.20),
-            VibrationSegment(count: 3, fraction: 0.15),
-            VibrationSegment(count: 6, fraction: 0.15),
-            VibrationSegment(count: 6, fraction: 0.10),
-            VibrationSegment(count: 16, fraction: 0.20),
-        ]
+        /// Hit frequency at the start of the hold (slow, distinct ticks).
+        static let holdStartFrequency: Double = 3
+        /// Hit frequency at the end of the hold (rapid finale).
+        /// Ease-out curve drops intervals quickly after a brief slow start, so the acceleration
+        /// is felt early and keeps building — similar to iOS Clock timer feedback.
+        static let holdEndFrequency: Double = 20
         static let cancelDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.2)
         static let confirmDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.4)
         static let confirmHitInterval: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.1)

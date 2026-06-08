@@ -13,5 +13,5 @@ public struct OnrampTransaction {
     public let toAmount: Decimal?
     public let status: OnrampTransactionStatus
     public let externalTxId: String?
-    public let externalTxURL: String?
+    public let externalTxURL: URL?
 }
