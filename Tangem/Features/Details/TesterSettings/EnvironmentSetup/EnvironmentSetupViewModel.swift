@@ -201,6 +201,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Design System Demo", action: { [weak self] in
                 self?.coordinator?.openDesignSystemDemo()
             }),
+            DefaultRowViewModel(title: "Silent Push Tester", action: { [weak self] in
+                self?.coordinator?.openSilentPushTester()
+            }),
         ]
 
         forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""

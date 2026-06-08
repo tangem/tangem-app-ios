@@ -154,7 +154,9 @@ public struct NotificationBanner: View, Setupable {
                     Fonts.Bold.headline,
                     color: Color.Tangem.Text.Neutral.primary
                 )
+                .lineLimit(nil)
                 .multilineTextAlignment(textAlignment)
+                .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
 
             Text(subtitle)
@@ -162,7 +164,9 @@ public struct NotificationBanner: View, Setupable {
                     Fonts.Bold.subheadline,
                     color: Color.Tangem.Text.Neutral.tertiary
                 )
+                .lineLimit(nil)
                 .multilineTextAlignment(textAlignment)
+                .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
         }
         .padding(.horizontal, SizeUnit.x1.value)

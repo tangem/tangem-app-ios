@@ -54,8 +54,14 @@ class EthereumNetworkService: MultiNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func getEIP1559Fee(to: String, from: String, value: String?, data: String?) -> AnyPublisher<EthereumEIP1559FeeResponse, Error> {
-        let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data)
+    func getEIP1559Fee(
+        to: String,
+        from: String,
+        value: String?,
+        data: String?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<EthereumEIP1559FeeResponse, Error> {
+        let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
         let feeHistoryPublisher = getFeeHistory()
 
         return Publishers.Zip(gasLimitPublisher, feeHistoryPublisher)
@@ -69,9 +75,15 @@ class EthereumNetworkService: MultiNetworkProvider {
             .eraseToAnyPublisher()
     }
 
-    func getLegacyFee(to: String, from: String, value: String?, data: String?) -> AnyPublisher<EthereumLegacyFeeResponse, Error> {
+    func getLegacyFee(
+        to: String,
+        from: String,
+        value: String?,
+        data: String?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<EthereumLegacyFeeResponse, Error> {
         let gasPricePublisher = getGasPrice()
-        let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data)
+        let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
 
         return Publishers.Zip(gasPricePublisher, gasLimitPublisher)
             .tryMap { gasPrice, gasLimit -> EthereumLegacyFeeResponse in
@@ -129,9 +141,15 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> {
-        providerPublisher {
-            $0.getGasLimit(to: to, from: from, value: value, data: data)
+    func getGasLimit(
+        to: String,
+        from: String,
+        value: String?,
+        data: String?,
+        stateOverride: [String: EthereumAccountOverride]? = nil
+    ) -> AnyPublisher<BigUInt, Error> {
+        return providerPublisher {
+            $0.getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
                 .tryMap { try EthereumMapper.mapBigUInt($0) }
                 .eraseToAnyPublisher()
         }

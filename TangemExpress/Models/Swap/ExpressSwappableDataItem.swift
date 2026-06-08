@@ -18,24 +18,6 @@ public struct ExpressSwappableDataItem {
     public let operationType: ExpressOperationType
     public let quoteId: String?
 
-    public init(
-        source: SourceWalletInfo,
-        destination: DestinationWalletInfo,
-        amountType: ExpressAmountType,
-        rateType: ExpressProviderRateType,
-        providerInfo: ProviderInfo,
-        operationType: ExpressOperationType,
-        quoteId: String? = nil
-    ) {
-        self.source = source
-        self.destination = destination
-        self.amountType = amountType
-        self.rateType = rateType
-        self.providerInfo = providerInfo
-        self.operationType = operationType
-        self.quoteId = quoteId
-    }
-
     public var amount: Decimal {
         amountType.amount
     }

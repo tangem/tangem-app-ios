@@ -19,7 +19,7 @@ struct TangemPaySourceTokenFactory {
     let defaultAddressString: String
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let cexTransactionDispatcher: any TransactionDispatcher
+    let transactionDispatcher: any TransactionDispatcher
 
     func makeSourceToken() -> SendSourceToken {
         let header = TokenHeaderProvider(
@@ -34,7 +34,7 @@ struct TangemPaySourceTokenFactory {
         )
 
         let transactionDispatcherProvider = TangemPayTransactionDispatcherProvider(
-            cexTransactionDispatcher: cexTransactionDispatcher
+            transactionDispatcher: transactionDispatcher
         )
 
         let emailDataCollectorBuilder = TangemPayEmailDataCollectorBuilder()
