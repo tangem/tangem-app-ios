@@ -30,6 +30,11 @@ protocol TangemPayCardManagementRoutable: AnyObject {
         onLoadingChange: @escaping (Bool) -> Void,
         onError: @escaping () -> Void
     )
+    func openTangemPayCloseCardSheet(
+        userWalletId: UserWalletId,
+        card: TangemPayCard,
+        onError: @escaping () -> Void
+    )
 
     func openChangeDailyLimit(tangemPayAccount: TangemPayAccount)
     func openChangeDailyLimit(card: TangemPayCard)
