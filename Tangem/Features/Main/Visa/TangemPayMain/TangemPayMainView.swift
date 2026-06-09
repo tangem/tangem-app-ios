@@ -435,15 +435,10 @@ struct TangemPayMainView: View {
     }
 
     private var redesignedAddToApplePayBanner: some View {
-        NotificationBanner(
-            bannerType: viewModel.addToApplePayBannerType,
-            accessibilityIdentifier: nil
+        TangemPayAddToApplePayBannerRedesigned(
+            openAction: viewModel.openAddToApplePayGuide,
+            closeAction: viewModel.dismissAddToApplePayGuideBanner
         )
-        .overlay {
-            RoundedRectangle(cornerRadius: .unit(.x6))
-                .strokeBorder(DesignSystem.Tokens.Theme.Border.primary, lineWidth: DesignSystem.Tokens.BorderWidth.sm)
-                .allowsHitTesting(false)
-        }
     }
 
     @ToolbarContentBuilder
@@ -461,7 +456,7 @@ struct TangemPayMainView: View {
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-            Menu("", systemImage: "ellipsis") {
+            Menu {
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
@@ -469,6 +464,8 @@ struct TangemPayMainView: View {
                 Button(action: viewModel.contactSupport) {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
+            } label: {
+                NavbarDotsImage()
             }
         }
     }
