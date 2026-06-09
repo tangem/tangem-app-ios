@@ -25,7 +25,6 @@ struct TangemPayCardDetailsView: View {
         Group {
             switch viewModel.state {
             case .loaded(let state):
-
                 switch state {
                 case .revealed(let data):
                     loadedStateContent(

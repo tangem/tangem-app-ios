@@ -24,7 +24,7 @@ final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
         )
     }
 
-    var secondaryButton: MainButton.Settings? = nil
+    var secondaryButton: MainButton.Settings?
 
     var primaryButtonAccessibilityIdentifier: String? {
         TangemPayAccessibilityIdentifiers.withdrawNoteSheetPrimaryButton
