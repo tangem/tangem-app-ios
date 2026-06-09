@@ -172,8 +172,17 @@ struct ExpressAPIMapper {
     }
 
     private func mapToRefundedExpressCurrency(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressCurrency? {
-        guard let refundContractAddress = response.refundContractAddress,
-              let refundNetwork = response.refundNetwork else {
+        guard
+            let refundContractAddress = response.refundContractAddress,
+            let refundNetwork = response.refundNetwork
+        else {
+            ExpressLogger.info(
+                String(
+                    format: "Refunded currency missing required fields: refundContractAddress %@, refundNetwork %@",
+                    String(describing: response.refundContractAddress),
+                    String(describing: response.refundNetwork)
+                )
+            )
             return nil
         }
 
@@ -197,6 +206,13 @@ struct ExpressAPIMapper {
         let method = OnrampPaymentMethod(id: response.id, name: response.name, image: response.image)
 
         guard OnrampPaymentMethodsFilter().isSupported(paymentMethod: method) else {
+            ExpressLogger.info(
+                String(
+                    format: "Unsupported onramp payment method dropped: id %@, name %@",
+                    response.id,
+                    response.name
+                )
+            )
             return nil
         }
 
@@ -443,6 +459,14 @@ struct ExpressAPIMapper {
 
     private func mapToExternalTxInfo(id: String?, status: String?, url: String?) -> ExternalTxInfo? {
         guard let id else {
+            ExpressLogger.info(
+                String(
+                    format: "External tx info missing required field: id %@ (status %@, url %@)",
+                    String(describing: id),
+                    String(describing: status),
+                    String(describing: url)
+                )
+            )
             return nil
         }
 
@@ -451,6 +475,15 @@ struct ExpressAPIMapper {
 
     private func mapToRefundInfo(address: String?, extraId: String?, network: String?, contractAddress: String?) -> RefundInfo? {
         guard let address else {
+            ExpressLogger.info(
+                String(
+                    format: "Refund info missing required field: address %@ (extraId %@, network %@, contractAddress %@)",
+                    String(describing: address),
+                    String(describing: extraId),
+                    String(describing: network),
+                    String(describing: contractAddress)
+                )
+            )
             return nil
         }
 
@@ -501,7 +534,17 @@ struct ExpressAPIMapper {
     }
 
     private func mapToRefundedCurrency(network: String?, contractAddress: String?) -> ExpressCurrency? {
-        guard let network, let contractAddress else {
+        guard
+            let network,
+            let contractAddress
+        else {
+            ExpressLogger.info(
+                String(
+                    format: "Refunded currency missing required fields: network %@, contractAddress %@",
+                    String(describing: network),
+                    String(describing: contractAddress)
+                )
+            )
             return nil
         }
 
