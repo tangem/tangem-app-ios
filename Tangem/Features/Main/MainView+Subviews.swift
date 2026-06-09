@@ -13,6 +13,7 @@ import TangemUI
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
+// [REDACTED_TODO_COMMENT]
 extension MainView {
     // MARK: - RedesignedBottomOverlay
 
@@ -24,21 +25,17 @@ extension MainView {
 
         private var params: FullPagePagerBottomOverlayParams {
             let contentHeight: CGFloat
-            let didScrollToBottom: Bool
             let isActive: Bool
 
             if let distance, let height {
                 contentHeight = height
-                didScrollToBottom = distance >= 0
                 isActive = distance >= height
             } else {
                 contentHeight = .zero
-                didScrollToBottom = false
                 isActive = false
             }
 
             return FullPagePagerBottomOverlayParams(
-                didScrollToBottom: didScrollToBottom,
                 contentHeight: contentHeight,
                 isActive: isActive
             )
@@ -57,7 +54,7 @@ extension MainView {
         }
 
         var body: some View {
-            pageBuilder.makeRedesignedBottomOverlay(params)
+            pageBuilder.bottomOverlay
                 .readGeometry(\.size.height) { height = $0 }
                 .onReceive(tracker.distancePublisher) { distance = $0 }
         }

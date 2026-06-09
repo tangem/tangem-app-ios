@@ -7,12 +7,41 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct MarketsHintView: View {
+    @Environment(\.isRedesign) var isRedesign
+
     var body: some View {
+        if isRedesign {
+            redesignBody
+        } else {
+            legacyBody
+        }
+    }
+
+    private var redesignBody: some View {
+        VStack(spacing: .unit(.x1)) {
+            Text(Localization.marketsHintPartOne)
+                .style(.Tangem.Body15.regular, color: .Tangem.Text.Neutral.primary)
+
+            HStack(spacing: .unit(.x1)) {
+                Text(Localization.marketsHintPartTwo)
+                    .style(.Tangem.Body15.regular, color: .Tangem.Text.Neutral.tertiary)
+
+                Assets.Glyphs.tripleSparkles.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
+                    .frame(width: .unit(.x5), height: .unit(.x5))
+            }
+        }
+    }
+
+    private var legacyBody: some View {
         VStack(spacing: 8) {
             Text(Localization.marketsHint)
                 .multilineTextAlignment(.center)

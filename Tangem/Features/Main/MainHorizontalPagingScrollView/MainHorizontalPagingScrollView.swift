@@ -19,6 +19,8 @@ struct MainHorizontalPagingScrollView: View {
     let detailsAction: () -> Void
 
     @State private var userWalletIndexToScrollAdjustedValues = [Int: ScrollAdjustedValues]()
+
+    @State private var bottomOverlayHeight = CGFloat.zero
     @State private var safeAreaInsetsTop = CGFloat.zero
 
     @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
@@ -26,23 +28,29 @@ struct MainHorizontalPagingScrollView: View {
     @StateObject private var scrollDetector = ScrollDetector()
 
     var body: some View {
-        horizontalScrollView
-            .northernLightsBackground(
-                backgroundColor: .Tangem.Surface.level2,
-                opacity: selectedUserWalletScrollAdjustedValues.northernLightsBackgroundOpacity
-            )
-            .redesignToolbar(
-                pageBuilder: userWalletPageBuilders[selectedCardIndex.wrappedValue],
-                principalContentOpacity: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity,
-                principalContentOffset: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOffsetY,
-                scanQRCodeAction: scanQRCodeAction,
-                detailsAction: detailsAction
-            )
-            .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
-                self.safeAreaInsetsTop = safeAreaInsetsTop
-            }
-            .environmentObject(scrollDetector)
-            .animation(.default, value: selectedCardIndex.wrappedValue)
+        ZStack(alignment: .bottom) {
+            horizontalScrollView
+            bottomOverlay
+        }
+        .ignoresSafeArea(edges: .bottom)
+        .northernLightsBackground(
+            backgroundColor: .Tangem.Surface.level2,
+            opacity: selectedUserWalletScrollAdjustedValues.backgroundOpacity
+        )
+        .redesignToolbar(
+            pageBuilder: userWalletPageBuilders[selectedCardIndex.wrappedValue],
+            principalContentOpacity: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOpacity,
+            principalContentOffset: selectedUserWalletScrollAdjustedValues.navigationBarBalanceOffsetY,
+            scanQRCodeAction: scanQRCodeAction,
+            detailsAction: detailsAction
+        )
+        .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
+            self.safeAreaInsetsTop = safeAreaInsetsTop
+        }
+        .onAppear(perform: scrollDetector.startDetectingScroll)
+        .onDisappear(perform: scrollDetector.stopDetectingScroll)
+        .environmentObject(scrollDetector)
+        .animation(.default, value: selectedCardIndex.wrappedValue)
     }
 
     @ViewBuilder
@@ -51,23 +59,33 @@ struct MainHorizontalPagingScrollView: View {
             HorizontalPagingScrollView(
                 userWalletPageBuilders: userWalletPageBuilders,
                 selectedCardIndex: selectedCardIndex,
+                bottomOverlayHeight: bottomOverlayHeight,
                 refreshScrollViewStateObject: refreshScrollViewStateObject,
-                onHeaderMinYChanged: { index, headerMinY in
+                isHorizontalScrollDisabled: isHorizontalScrollDisabled,
+                onContentGeometryChanged: { index, contentGeometry in
                     var scrollAdjustedValues = userWalletIndexToScrollAdjustedValues[index, default: .initial]
-
-                    let navigationBarProgress = clamp(-headerMinY / headerBalanceTextHeight, min: 0, max: 1)
-
+                    
+                    let navigationBarProgress = clamp(-contentGeometry.contentOffsetY / headerBalanceTextHeight, min: 0, max: 1)
+                    
                     scrollAdjustedValues.navigationBarBalanceOpacity = navigationBarBalanceOpacity(for: navigationBarProgress)
                     scrollAdjustedValues.navigationBarBalanceOffsetY = navigationBarBalanceOffsetY(for: navigationBarProgress)
-                    scrollAdjustedValues.northernLightsBackgroundOpacity = northernLightsBackgroundOpacity(for: headerMinY)
+                    scrollAdjustedValues.backgroundOpacity = backgroundOpacity(for: contentGeometry.contentOffsetY)
+                    scrollAdjustedValues.contentFooterOverlayIsVisible = contentGeometry.didScrollToBottom
 
                     userWalletIndexToScrollAdjustedValues[index] = scrollAdjustedValues
-                },
-                isHorizontalScrollDisabled: isHorizontalScrollDisabled
+                }
             )
         } else {
             EmptyView()
         }
+    }
+
+    private var bottomOverlay: some View {
+        userWalletPageBuilders[selectedCardIndex.wrappedValue]
+            .bottomOverlay
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) { bottomOverlayHeight in
+                self.bottomOverlayHeight = bottomOverlayHeight
+            }
     }
 
     private var isHorizontalScrollDisabled: Bool {
@@ -86,10 +104,10 @@ struct MainHorizontalPagingScrollView: View {
         (1 - pow(progress, 3)) * Sizes.navigationBalanceMaxYOffset
     }
 
-    private func northernLightsBackgroundOpacity(for headerMinY: CGFloat) -> CGFloat {
+    private func backgroundOpacity(for contentOffsetY: CGFloat) -> CGFloat {
         let startY = safeAreaInsetsTop
         let endY = headerBalanceTextHeight
-        let progress = clamp((startY - headerMinY) / (startY + endY), min: 0, max: 1)
+        let progress = clamp((startY - contentOffsetY) / (startY + endY), min: 0, max: 1)
 
         return 1 - pow(progress, 1.25)
     }
@@ -99,25 +117,34 @@ extension MainHorizontalPagingScrollView {
     @available(iOS 17.0, *)
     private struct HorizontalPagingScrollView: View {
         let userWalletPageBuilders: [MainUserWalletPageBuilder]
+
         let selectedCardIndex: Binding<Int>
-        let refreshScrollViewStateObject: RefreshScrollViewStateObject
-        let onHeaderMinYChanged: (Int, CGFloat) -> Void
         let scrollPositionID: Binding<Int?>
+
+        let bottomOverlayHeight: CGFloat
+
+        let refreshScrollViewStateObject: RefreshScrollViewStateObject
         let isHorizontalScrollDisabled: Bool
+        let onContentGeometryChanged: (Int, UserWalletView.ScrollContentGeometry) -> Void
 
         init(
             userWalletPageBuilders: [MainUserWalletPageBuilder],
             selectedCardIndex: Binding<Int>,
+            bottomOverlayHeight: CGFloat,
             refreshScrollViewStateObject: RefreshScrollViewStateObject,
-            onHeaderMinYChanged: @escaping (Int, CGFloat) -> Void,
-            isHorizontalScrollDisabled: Bool
+            isHorizontalScrollDisabled: Bool,
+            onContentGeometryChanged: @escaping (Int, UserWalletView.ScrollContentGeometry) -> Void,
         ) {
             self.userWalletPageBuilders = userWalletPageBuilders
+
             self.selectedCardIndex = selectedCardIndex
-            self.refreshScrollViewStateObject = refreshScrollViewStateObject
-            self.onHeaderMinYChanged = onHeaderMinYChanged
             scrollPositionID = Binding(selectedCardIndex)
+
+            self.bottomOverlayHeight = bottomOverlayHeight
+
+            self.refreshScrollViewStateObject = refreshScrollViewStateObject
             self.isHorizontalScrollDisabled = isHorizontalScrollDisabled
+            self.onContentGeometryChanged = onContentGeometryChanged
         }
 
         var body: some View {
@@ -127,9 +154,11 @@ extension MainHorizontalPagingScrollView {
                         UserWalletView(
                             pageBuilder: userWalletPageBuilder,
                             refreshScrollViewStateObject: refreshScrollViewStateObject,
-                            onHeaderMinYChanged: { headerMinY in
-                                onHeaderMinYChanged(index, headerMinY)
+                            onContentGeometryChanged: { contentGeometry in
+                                onContentGeometryChanged(index, contentGeometry)
                             },
+                            bottomOverlayHeight: bottomOverlayHeight,
+                            contentFooterHeight: 100,
                             totalPages: userWalletPageBuilders.count,
                             currentIndex: selectedCardIndex.wrappedValue
                         )
@@ -154,12 +183,14 @@ extension MainHorizontalPagingScrollView {
     private struct ScrollAdjustedValues: Equatable {
         var navigationBarBalanceOpacity: CGFloat
         var navigationBarBalanceOffsetY: CGFloat
-        var northernLightsBackgroundOpacity: CGFloat
+        var backgroundOpacity: CGFloat
+        var contentFooterOverlayIsVisible: Bool
 
         static let initial = ScrollAdjustedValues(
             navigationBarBalanceOpacity: 1,
             navigationBarBalanceOffsetY: 0,
-            northernLightsBackgroundOpacity: 1
+            backgroundOpacity: 1,
+            contentFooterOverlayIsVisible: false
         )
     }
 }

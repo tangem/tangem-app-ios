@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import UIKit
 
+// [REDACTED_TODO_COMMENT]
 public final class RefreshScrollViewInteractor: ObservableObject {
     public var initialScrollOffset: CGPoint? { _initialScrollOffset }
     public var frameSize: CGSize? { scrollView?.frame.size }
