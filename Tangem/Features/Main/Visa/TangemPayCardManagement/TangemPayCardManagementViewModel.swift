@@ -574,12 +574,17 @@ private extension TangemPayCardManagementViewModel {
         }
     }
 
-    func propagateFreezingStateToDetailsVM(_ freezing: TangemPayFreezingState) {
-        guard let id = selectedCardId,
-              case .issued(let detailsVM) = cardDetailsItems.first(where: { $0.id == id })?.content else {
-            return
+    var selectedMultiCardDetailsViewModel: TangemPayCardDetailsViewModel? {
+        guard let selectedCardId,
+              case .issued(let detailsViewModel) = cardDetailsItems.first(where: { $0.id == selectedCardId })?.content
+        else {
+            return nil
         }
-        detailsVM.state = freezing.cardDetailsState
+        return detailsViewModel
+    }
+
+    func propagateFreezingStateToDetailsVM(_ freezing: TangemPayFreezingState) {
+        selectedMultiCardDetailsViewModel?.state = freezing.cardDetailsState
     }
 
     func updateCardSettingsRows(freezingState: TangemPayFreezingState) {
@@ -753,5 +758,57 @@ private extension TangemPayFreezingState {
         case .unfreezingInProgress:
             .loading(isFrozen: true)
         }
+    }
+}
+
+// MARK: - Redesigned card management actions
+
+extension TangemPayCardManagementViewModel {
+    var cardActionsDisabled: Bool {
+        freezingState.isFreezingUnfreezingInProgress
+    }
+
+    func onDetailsButton() {
+        currentRedesignedDetailsViewModel?.toggleVisibility()
+    }
+
+    func onFreezeButton() {
+        if multipleCardsEnabled {
+            if freezingState.isFrozen {
+                unfreeze()
+            } else {
+                showFreezePopup()
+            }
+        } else {
+            if freezingState.isFrozen {
+                unfreezeLegacy()
+            } else {
+                showFreezePopupLegacy()
+            }
+        }
+    }
+
+    func onPinButton() {
+        if multipleCardsEnabled {
+            onPin()
+        } else {
+            onPinLegacy()
+        }
+    }
+
+    func onReplaceButton() {
+        if multipleCardsEnabled {
+            onReplaceCard()
+        } else {
+            onReplaceCardLegacy()
+        }
+    }
+
+    private var currentRedesignedDetailsViewModel: TangemPayCardDetailsViewModel? {
+        guard multipleCardsEnabled else {
+            return tangemPayCardDetailsViewModel
+        }
+
+        return selectedMultiCardDetailsViewModel
     }
 }
