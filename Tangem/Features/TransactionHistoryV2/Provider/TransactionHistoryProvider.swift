@@ -16,6 +16,7 @@ final actor TransactionHistoryProvider {
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: () async -> SyncMetadataStorage
     private let tokenItem: TokenItem
+    private let maskedAddress: String
 
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
     private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
@@ -33,6 +34,7 @@ final actor TransactionHistoryProvider {
     ) {
         self.repository = repository
         self.tokenItem = tokenItem
+        maskedAddress = address.prefix(4) + "••••" + address.suffix(4)
         syncMetadataStorage = { @MainActor in
             SyncMetadataStorage(userWalletId: userWalletId, address: address)
         }
@@ -49,9 +51,11 @@ final actor TransactionHistoryProvider {
             try await repository.syncInitial()
             let storage = await syncMetadataStorage() // Can't be fetched inside the synchronous `MainActor.run` call
             await MainActor.run { storage.hasCompletedInitialSync = true }
+            TransactionHistoryLogger.debug(self, "Initial sync finished")
             emit(.idle(.ready))
         } catch {
             // [REDACTED_TODO_COMMENT]
+            TransactionHistoryLogger.error(self, "Initial sync failed", error: error)
             emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .initial)))
         }
     }
@@ -60,9 +64,11 @@ final actor TransactionHistoryProvider {
         emit(.syncing(.delta))
         do {
             try await repository.syncDelta()
+            TransactionHistoryLogger.debug(self, "Delta sync finished")
             emit(.idle(.ready))
         } catch {
             // [REDACTED_TODO_COMMENT]
+            TransactionHistoryLogger.error(self, "Delta sync failed", error: error)
             emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .delta)))
         }
     }
@@ -71,9 +77,11 @@ final actor TransactionHistoryProvider {
         emit(.syncing(.userInitiated(kind)))
         do {
             try await repository.syncDelta()
+            TransactionHistoryLogger.debug(self, "User-initiated sync finished: \(kind)")
             emit(.idle(.ready))
         } catch {
             // [REDACTED_TODO_COMMENT]
+            TransactionHistoryLogger.error(self, "User-initiated sync failed: \(kind)", error: error)
             emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .userInitiated(kind))))
         }
     }
@@ -120,8 +128,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         inFlightInitialSyncTask = newSyncTask
         await newSyncTask.value
         inFlightInitialSyncTask = nil
-
-        TransactionHistoryLogger.debug(self, "Initial sync finished")
     }
 
     func syncDelta() async {
@@ -146,8 +152,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         inFlightIncrementalSyncTask = newSyncTask
         await newSyncTask.value
         inFlightIncrementalSyncTask = nil
-
-        TransactionHistoryLogger.debug(self, "Delta sync finished")
     }
 
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
@@ -188,8 +192,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
         if case .pullToRefresh = kind {
             lastSuccessfulPullToRefreshAt = Date()
         }
-
-        TransactionHistoryLogger.debug(self, "User-initiated sync finished: \(kind)")
     }
 }
 
@@ -203,6 +205,7 @@ extension TransactionHistoryProvider: CustomStringConvertible {
                 "name": tokenItem.name,
                 "type": tokenItem.isToken ? "Token" : "Coin",
                 "derivation": tokenItem.blockchainNetwork.derivationPath?.rawPath ?? "nil",
+                "address": maskedAddress,
             ]
         )
     }
