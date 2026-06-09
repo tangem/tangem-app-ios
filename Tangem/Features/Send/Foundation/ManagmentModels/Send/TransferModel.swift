@@ -492,6 +492,7 @@ extension TransferModel: NotificationTapDelegate {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
+             .yieldBoostPromoLater,
              .addFunds:
             assertionFailure("Notification tap not handled")
         }
