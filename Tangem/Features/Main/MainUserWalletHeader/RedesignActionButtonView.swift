@@ -21,7 +21,6 @@ struct RedesignActionButtonView<ViewModel: ActionButtonViewModel>: View {
                 action: { viewModel.tap() },
                 reasonTapWhenDisabled: viewModel.isTappableWhileDisabled ? { viewModel.showRestrictionReason() } : nil
             )
-            .disabled(viewModel.isDimmed)
             .accessibilityIdentifier(viewModel.model.accessibilityIdentifier)
             .bindAlert($viewModel.alert)
         }
