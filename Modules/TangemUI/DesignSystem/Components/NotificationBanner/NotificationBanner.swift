@@ -36,7 +36,7 @@ public struct NotificationBanner: View, Setupable {
         case .center:
             switch content {
             case .text: return true
-            case .textWithIcon: return false
+            case .textWithIcon, .textWithLoadableIcon: return false
             }
         }
     }
@@ -131,6 +131,22 @@ public struct NotificationBanner: View, Setupable {
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer()
                     iconImage(for: data.icon)
+                }
+            }
+
+        case .textWithLoadableIcon(let data):
+            HStack(
+                alignment: data.icon.alignment.vertical,
+                spacing: SizeUnit.x2.value
+            ) {
+                if data.icon.alignment.horizontal == .leading {
+                    IconView(url: data.icon.url, size: content.iconSize)
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
+                    Spacer(minLength: 0)
+                } else {
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
+                    Spacer(minLength: 0)
+                    IconView(url: data.icon.url, size: content.iconSize)
                 }
             }
         }
