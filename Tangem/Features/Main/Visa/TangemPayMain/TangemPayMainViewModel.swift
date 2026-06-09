@@ -80,19 +80,6 @@ final class TangemPayMainViewModel: ObservableObject {
         cardEntries.contains { $0.isIssuing }
     }
 
-    var addToApplePayBannerType: NotificationBanner.BannerType {
-        .promo(
-            .text(.init(
-                title: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationTitleApple),
-                subtitle: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple)
-            )),
-            .tappable(NotificationBanner.Action { [weak self] in self?.openAddToApplePayGuide() }),
-            NotificationBanner.CloseAction { [weak self] in self?.dismissAddToApplePayGuideBanner() },
-            .bannerMagic,
-            .leading
-        )
-    }
-
     var notificationBannerItems: [NotificationBannerItem] {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
