@@ -239,6 +239,12 @@ final class TangemPayMainViewModel: ObservableObject {
         )
     }
 
+    func smallCardState(for card: TangemPayCard) -> TangemPaySmallCardView.State {
+        if card.isClosing { return .closing }
+        if card.isReissuing { return .replacing }
+        return .issued(cardNumberEnd: card.cardNumberEnd)
+    }
+
     // MARK: - Shared
 
     func openAddToApplePayGuide() {
