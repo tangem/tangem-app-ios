@@ -47,7 +47,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published private(set) var notificationBannerItems: [NotificationBannerItem] = []
     @Published private(set) var isAddFundsBannerVisible: Bool = false
-    @Published private(set) var isAppUpdateBannerVisible: Bool = false
+    @Published private(set) var forceUpdateNotificationInputs: [NotificationViewInput] = []
 
     weak var delegate: MultiWalletMainContentDelegate?
 
@@ -55,10 +55,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
         for: AddFundsNotificationEvent(),
         buttonAction: { [weak self] _, _ in self?.openAddFunds() }
-    )
-    private(set) lazy var appUpdateNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
-        for: AppUpdateNotificationEvent(),
-        buttonAction: { [weak self] _, _ in self?.openAppStoreUpdate() }
     )
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
@@ -91,7 +87,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.appUpdateService) private var appUpdateService: AppUpdateService
 
     private let notificationBannerItemsProvider: NotificationBannerItemsProvider
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
@@ -103,6 +98,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tangemPayNotificationManager: NotificationManager
     private let getTangemPayBannerNotificationManager: NotificationManager
     private let yieldApyBoostBannerNotificationManager: NotificationManager
+    private let forceUpdateBannerNotificationManager: NotificationManager
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
@@ -129,6 +125,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         tangemPayNotificationManager: NotificationManager,
         getTangemPayBannerNotificationManager: NotificationManager,
         yieldApyBoostBannerNotificationManager: NotificationManager,
+        forceUpdateBannerNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
@@ -143,6 +140,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.getTangemPayBannerNotificationManager = getTangemPayBannerNotificationManager
         self.yieldApyBoostBannerNotificationManager = yieldApyBoostBannerNotificationManager
+        self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
@@ -154,7 +152,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             tokensNotificationManager: tokensNotificationManager,
             tangemPayNotificationManager: tangemPayNotificationManager,
             getTangemPayBannerNotificationManager: getTangemPayBannerNotificationManager,
-            yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager
+            yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager,
+            forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager
         )
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
@@ -326,12 +325,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        appUpdateService
-            .statePublisher
-            .map { $0.isOptionalUpdate }
+        forceUpdateBannerNotificationManager
+            .notificationPublisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .assign(to: \.isAppUpdateBannerVisible, on: self, ownership: .weak)
+            .assign(to: \.forceUpdateNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         Publishers
@@ -648,10 +646,6 @@ extension MultiWalletMainContentViewModel {
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
         coordinator?.openBuy(userWalletModels: userWalletModels)
-    }
-
-    private func openAppStoreUpdate() {
-        coordinator?.openAppStore()
     }
 
     private func openSupport() {

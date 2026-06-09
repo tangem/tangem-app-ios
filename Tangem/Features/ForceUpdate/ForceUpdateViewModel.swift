@@ -6,11 +6,10 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
 import TangemUI
 import TangemLocalization
 
-final class ForceUpdateViewModel: ObservableObject {
+final class ForceUpdateViewModel {
     let title = Localization.forceUpdateWarningTitle
     let subtitle = Localization.forceUpdateWarningMessage
 

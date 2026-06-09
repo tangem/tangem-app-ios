@@ -326,11 +326,6 @@ struct TangemApiTarget: TargetType {
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
             ]
-        case .applicationVersions(let version, let platform):
-            return [
-                "version": version,
-                "platform": platform,
-            ]
         case .rawData,
              .currencies,
              .coins,
@@ -372,7 +367,8 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .applicationVersions:
             return nil
         }
     }
@@ -432,7 +428,7 @@ extension TangemApiTarget {
         case pushNotificationsEligible
 
         /// Application versions
-        case applicationVersions(version: String, platform: String)
+        case applicationVersions
 
         // Applications
         case createUserWalletsApplication(_ requestModel: ApplicationDTO.Request)
@@ -463,7 +459,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .applicationVersions:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy

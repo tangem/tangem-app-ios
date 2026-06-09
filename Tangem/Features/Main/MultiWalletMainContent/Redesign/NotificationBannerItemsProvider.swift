@@ -20,7 +20,8 @@ final class NotificationBannerItemsProvider {
         tokensNotificationManager: NotificationManager,
         tangemPayNotificationManager: NotificationManager,
         getTangemPayBannerNotificationManager: NotificationManager,
-        yieldApyBoostBannerNotificationManager: NotificationManager
+        yieldApyBoostBannerNotificationManager: NotificationManager,
+        forceUpdateBannerNotificationManager: NotificationManager
     ) {
         let userWalletNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = userWalletNotificationManager
             .notificationPublisher
@@ -47,7 +48,13 @@ final class NotificationBannerItemsProvider {
             .removeDuplicates()
             .eraseToAnyPublisher()
 
+        let forceUpdateBannerNotificationInputPublisher: AnyPublisher<[NotificationViewInput], Never> = forceUpdateBannerNotificationManager
+            .notificationPublisher
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+
         let publishers = [
+            forceUpdateBannerNotificationInputPublisher,
             userWalletNotificationInputPublisher,
             yieldApyBoostBannerNotificationInputPublisher,
             tokensNotificationInputPublisher,

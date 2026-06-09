@@ -1,12 +1,12 @@
 //
-//  AppUpdateState.swift
+//  ForceUpdateState.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-enum AppUpdateState: Equatable {
+enum ForceUpdateState: Equatable {
     /// Version check hasn't completed yet.
     case unknown
     /// The installed version is the latest supported one.

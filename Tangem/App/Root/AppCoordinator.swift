@@ -40,7 +40,7 @@ class AppCoordinator: CoordinatorObject {
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
-    @Injected(\.appUpdateService) private var appUpdateService: AppUpdateService
+    @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
 
     // MARK: - Child coordinators
 
@@ -271,7 +271,7 @@ class AppCoordinator: CoordinatorObject {
             .store(in: &bag)
 
         Publishers
-            .CombineLatest($viewState, appUpdateService.statePublisher)
+            .CombineLatest($viewState, forceUpdateService.statePublisher)
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { coordinator, params in

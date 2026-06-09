@@ -1,5 +1,5 @@
 //
-//  CommonAppUpdateService.swift
+//  CommonForceUpdateService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,10 @@ import CombineExt
 import UIKit
 import TangemFoundation
 
-final class CommonAppUpdateService {
+final class CommonForceUpdateService {
     @Injected(\.tangemApiService) private var apiService: TangemApiService
 
-    private let stateSubject = CurrentValueSubject<AppUpdateState, Never>(.unknown)
+    private let stateSubject = CurrentValueSubject<ForceUpdateState, Never>(.unknown)
     private var checkTask: Task<Void, Never>?
     private var didEnterBackground = false
     private var bag = Set<AnyCancellable>()
@@ -44,14 +44,14 @@ final class CommonAppUpdateService {
             .store(in: &bag)
     }
 
-    private func mapState(from dto: ApplicationVersionsDTO) -> AppUpdateState {
+    static func mapState(from dto: ApplicationVersionsDTO, currentVersion: String?) -> ForceUpdateState {
         if dto.forceUpdate {
             return .forceUpdate
         }
 
         guard let latestVersion = dto.latestVersion,
-              let currentVersion: String = InfoDictionaryUtils.version.value(),
               !latestVersion.isEmpty,
+              let currentVersion,
               !currentVersion.isEmpty else {
             return .upToDate
         }
@@ -61,14 +61,14 @@ final class CommonAppUpdateService {
     }
 }
 
-// MARK: - AppUpdateService
+// MARK: - ForceUpdateService
 
-extension CommonAppUpdateService: AppUpdateService {
-    var state: AppUpdateState {
+extension CommonForceUpdateService: ForceUpdateService {
+    var state: ForceUpdateState {
         stateSubject.value
     }
 
-    var statePublisher: AnyPublisher<AppUpdateState, Never> {
+    var statePublisher: AnyPublisher<ForceUpdateState, Never> {
         stateSubject.eraseToAnyPublisher()
     }
 
@@ -77,7 +77,8 @@ extension CommonAppUpdateService: AppUpdateService {
         checkTask = runTask(in: self) { service in
             do {
                 let dto = try await service.apiService.loadApplicationVersions()
-                service.stateSubject.send(service.mapState(from: dto))
+                let currentVersion: String? = InfoDictionaryUtils.version.value()
+                service.stateSubject.send(Self.mapState(from: dto, currentVersion: currentVersion))
             } catch {
                 AppLogger.error("Failed to load application versions", error: error)
             }

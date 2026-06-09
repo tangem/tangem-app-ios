@@ -50,7 +50,7 @@ final class CommonServicesManager {
     @Injected(\.referralService) private var referralService: ReferralService
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
-    @Injected(\.appUpdateService) private var appUpdateService: AppUpdateService
+    @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -208,7 +208,7 @@ extension CommonServicesManager: ServicesManager {
         referralService.retryBindingIfNeeded()
         mobileUpgradeBannerStorageManager.initialize()
         stakingTargetAmountLimitProvider.initialize()
-        appUpdateService.checkForUpdates()
+        forceUpdateService.checkForUpdates()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

@@ -300,10 +300,6 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
-    func openAppStore() {
-        UIApplication.shared.open(AppConstants.appStoreURL)
-    }
-
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil

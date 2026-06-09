@@ -20,7 +20,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
     @Published var promotionNotificationsViewModel: PromotionNotificationsViewModel
     @Published private(set) var isAddFundsBannerVisible: Bool = false
-    @Published private(set) var isAppUpdateBannerVisible: Bool = false
+    @Published private(set) var forceUpdateNotificationInputs: [NotificationViewInput] = []
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
@@ -39,10 +39,10 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.appUpdateService) private var appUpdateService: AppUpdateService
 
     private let userWalletNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
+    private let forceUpdateBannerNotificationManager: NotificationManager
     private let rateAppController: RateAppInteractionController
     private let contextActionTokenRouter: SingleTokenRoutable
     private weak var coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?
@@ -50,10 +50,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private(set) lazy var addFundsNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
         for: AddFundsNotificationEvent(),
         buttonAction: { [weak self] _, _ in self?.openAddFunds() }
-    )
-    private(set) lazy var appUpdateNotificationInput: NotificationViewInput = NotificationsFactory().buildNotificationInput(
-        for: AppUpdateNotificationEvent(),
-        buttonAction: { [weak self] _, _ in self?.openAppStoreUpdate() }
     )
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
@@ -67,6 +63,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         walletModel: any WalletModel,
         userWalletNotificationManager: NotificationManager,
         promotionNotificationsManager: PromotionNotificationsManager,
+        forceUpdateBannerNotificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         tokenNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
@@ -77,6 +74,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     ) {
         self.userWalletNotificationManager = userWalletNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
+        self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
         contextActionTokenRouter = tokenRouter
         self.delegate = delegate
@@ -229,19 +227,19 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
-        appUpdateService
-            .statePublisher
-            .map { $0.isOptionalUpdate }
+        forceUpdateBannerNotificationManager
+            .notificationPublisher
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .assign(to: \.isAppUpdateBannerVisible, on: self, ownership: .weak)
+            .assign(to: \.forceUpdateNotificationInputs, on: self, ownership: .weak)
             .store(in: &bag)
 
         let mapper = MultiWalletNotificationBannerMapper()
 
-        $notificationInputs
-            .combineLatest($tokenNotificationInputs)
-            .map { mapper.mapItems($0, $1) }
+        forceUpdateBannerNotificationManager
+            .notificationPublisher
+            .combineLatest($notificationInputs, $tokenNotificationInputs)
+            .map { mapper.mapItems($0, $1, $2) }
             .removeDuplicates()
             .assign(to: &$notificationBannerItems)
 
@@ -260,10 +258,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
         coordinator?.openBuy(userWalletModels: userWalletModels)
-    }
-
-    private func openAppStoreUpdate() {
-        coordinator?.openAppStore()
     }
 }
 

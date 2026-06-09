@@ -57,8 +57,8 @@ struct MultiWalletMainContentView: View {
     /// Add funds banner takes priority over every other banner while it is visible, except force update banner
     @ViewBuilder
     private var bannersSection: some View {
-        if viewModel.isAppUpdateBannerVisible {
-            NotificationView(input: viewModel.appUpdateNotificationInput)
+        ForEach(viewModel.forceUpdateNotificationInputs) { input in
+            NotificationView(input: input)
         }
 
         if viewModel.isAddFundsBannerVisible {
@@ -228,6 +228,7 @@ struct MultiWalletMainContentView: View {
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             getTangemPayBannerNotificationManager: FakeUserWalletNotificationManager(),
             yieldApyBoostBannerNotificationManager: FakeUserWalletNotificationManager(),
+            forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),

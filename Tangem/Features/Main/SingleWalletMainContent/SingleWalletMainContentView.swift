@@ -53,8 +53,8 @@ struct SingleWalletMainContentView: View {
     /// Add funds banner takes priority over every other banner while it is visible, except force update banner
     @ViewBuilder
     private var bannersSection: some View {
-        if viewModel.isAppUpdateBannerVisible {
-            NotificationView(input: viewModel.appUpdateNotificationInput)
+        ForEach(viewModel.forceUpdateNotificationInputs) { input in
+            NotificationView(input: input)
         }
 
         if viewModel.isAddFundsBannerVisible {
@@ -99,6 +99,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
+            forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),

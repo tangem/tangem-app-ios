@@ -34,6 +34,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case mobileUpgrade
     case pushNotificationsPermissionRequest
     case initialWalletTokenSyncCompleted
+    case forceUpdateAvailable
 }
 
 /// For Notifications
@@ -50,7 +51,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
             return .critical
 
-        case .missingDerivation, .walletLocked:
+        case .missingDerivation, .walletLocked, .forceUpdateAvailable:
             return .warning
 
         case .rateApp:
@@ -119,6 +120,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.userPushNotificationBannerTitle)
         case .initialWalletTokenSyncCompleted:
             return .string(Localization.initialWalletSyncBannerTitle)
+        case .forceUpdateAvailable:
+            return .string(Localization.forceUpdateBannerTitle)
         }
     }
 
@@ -170,6 +173,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.userPushNotificationBannerSubtitle
         case .initialWalletTokenSyncCompleted:
             return Localization.initialWalletSyncBannerDescription
+        case .forceUpdateAvailable:
+            return Localization.forceUpdateBannerMessage
         }
     }
 
@@ -182,7 +187,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .mobileFinishActivation,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest,
-             .initialWalletTokenSyncCompleted:
+             .initialWalletTokenSyncCompleted,
+             .forceUpdateAvailable:
             return .primary
         default:
             return .secondary
@@ -224,6 +230,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
             return .init(iconType: .image(Assets.blueCircleWarning))
+        case .forceUpdateAvailable:
+            return .init(iconType: .image(Assets.warningIcon))
         }
     }
 
@@ -251,7 +259,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .systemDeprecationPermanent,
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
-             .mobileFinishActivation:
+             .mobileFinishActivation,
+             .forceUpdateAvailable:
             return .warning
         }
     }
@@ -273,7 +282,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
              .mobileUpgrade,
-             .mobileFinishActivation:
+             .mobileFinishActivation,
+             .forceUpdateAvailable:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -359,6 +369,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openManageTokensAfterWalletSuccessImport, isWithLoader: false),
             ])
+        case .forceUpdateAvailable:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .openAppStore, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -391,6 +408,7 @@ extension GeneralNotificationEvent {
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         case .initialWalletTokenSyncCompleted: return nil
+        case .forceUpdateAvailable: return nil
         }
     }
 
