@@ -355,13 +355,14 @@ extension SendCoordinator: OnrampRoutable {
     }
 
     func openOnrampKYCVerification(providerName: String, routable: OnrampKYCVerificationSheetRoutable) {
-        let viewModel = OnrampKYCVerificationSheetViewModel(
-            providerName: providerName,
-            routable: routable
-        )
         Task { @MainActor in
             UIApplication.shared.endEditing()
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            floatingSheetPresenter.enqueue(
+                sheet: OnrampKYCVerificationSheetViewModel(
+                    providerName: providerName,
+                    routable: routable
+                )
+            )
         }
     }
 }

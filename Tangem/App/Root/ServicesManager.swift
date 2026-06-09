@@ -51,6 +51,7 @@ final class CommonServicesManager {
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
+    @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -188,6 +189,8 @@ extension CommonServicesManager: ServicesManager {
         customerIOWrapper.configure()
 
         configureBlockchainSdkExceptionHandler()
+
+        silentPushHandlersStorage.initialize()
 
         sellService.initialize()
         apiListProvider.initialize()

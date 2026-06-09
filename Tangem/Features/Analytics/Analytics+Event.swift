@@ -135,6 +135,7 @@ extension Analytics {
         case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
         case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
         case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
+        case addFundsPromoButton = "[Main Screen] Button - Add Funds Promo"
 
         // MARK: - Send
 
@@ -336,6 +337,7 @@ extension Analytics {
         case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeNotEnoughFunds = "[Swap] Notice - Not Enough Funds"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
         case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
@@ -352,6 +354,13 @@ extension Analytics {
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
         case swapFastAmountInput = "[Swap] Fast amount input"
+
+        case swapTypeReselection = "[Swap] Swap type re-selection"
+        case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
+
+        case swapTransferModeSwitched = "[Swap] Transfer Mode Switched"
+        case swapButtonTransfer = "[Swap] Button - Transfer"
+        case swapTransferInProgressScreenOpened = "[Swap] Transfer in Progress Screen Opened"
 
         // MARK: - Seed phrase
 
@@ -411,6 +420,7 @@ extension Analytics {
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
+        case addFundsBannerAppear = "[Main Screen] Notice - Add Funds"
 
         // MARK: - BlockchainSdk exceptions
 
@@ -613,10 +623,16 @@ extension Analytics {
         case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
         case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
         case onrampButtonAllOffers = "[Onramp] Button - All Offers"
+        case onrampButtonNAP = "[Onramp] Button - NAP"
+        case onrampNAPScreenOpened = "[Onramp] NAP Screen Opened"
+        case onrampVerifyScreenOpened = "[Onramp] Verify Screen Opened"
+        case onrampButtonVerify = "[Onramp] Button - Verify"
+        case onrampButtonChooseAnotherMethod = "[Onramp] Button - Choose Another Method"
 
         // MARK: - Action Buttons
 
         case actionButtonsBuyButton = "[Main Screen] Button - Buy"
+        case mainScreenButtonAddFunds = "[Main Screen] Button - Add Funds"
         case actionButtonsSellButton = "[Main Screen] Button - Sell"
         case actionButtonsSwapButton = "[Main Screen] Button - Swap"
         case actionButtonsSwapScreenOpened = "[Main Screen] Swap Screen Opened"
@@ -630,6 +646,13 @@ extension Analytics {
         case actionButtonsButtonClose = "[Main Screen] Button - Close"
         case actionButtonsHotTokenClicked = "[Main Screen] Hot Token Clicked"
         case actionButtonsHotTokenError = "[Main Screen] Hot Token Error"
+
+        // MARK: - Add Funds
+
+        case addFundsButtonBuy = "[Add Funds] Button - Buy"
+        case addFundsButtonSwap = "[Add Funds] Button - Swap"
+        case addFundsButtonReceive = "[Add Funds] Button - Receive"
+        case addFundsButtonGoToToken = "[Add Funds] Button - Go to Token"
 
         // MARK: - Stories
 

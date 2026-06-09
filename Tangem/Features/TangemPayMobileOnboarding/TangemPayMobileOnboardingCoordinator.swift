@@ -99,13 +99,9 @@ private extension TangemPayMobileOnboardingCoordinator {
 
         isProcessing = true
 
-        let isEligible = await isUserEligibleForTangemPay(customerWalletId: userWalletModel.userWalletId.stringValue)
-
-        if isEligible {
-            await userWalletModel.accountModelsManager.acceptTangemPayOffer(
-                authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
-            )
-        }
+        await userWalletModel.accountModelsManager.acceptTangemPayOffer(
+            authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+        )
 
         isProcessing = false
         onboardingCoordinator = nil
@@ -116,11 +112,11 @@ private extension TangemPayMobileOnboardingCoordinator {
         _ = await tangemPayAvailabilityRepository.requestEligibleDistributionChannels()
 
         let values = await tangemPayAvailabilityRepository
-            .tangemPayBannerEntrypointEligibleWalletSelectionPublisher(for: customerWalletId)
+            .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
             .values
 
         for await selection in values {
-            return selection != nil
+            return selection?.userWalletModelsIds.contains(customerWalletId) == true
         }
 
         return false

@@ -13,6 +13,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemButtonV2Demo()
     func openTangemBadgeDemo()
     func openTangemBadgeV2Demo()
+    func openTangemRowDemo()
     func openTangemCalloutDemo()
     func openTangemTabsDemo()
     func openTangemMainActionButtonDemo()
@@ -24,6 +25,7 @@ protocol DesignSystemDemoRoutable: AnyObject {
     func openTangemLoaderDemo()
     func openTangemTokenRowDemo()
     func openTangemSnackbarDemo()
+    func openTangemShimmerDemo()
 }
 
 final class DesignSystemDemoCoordinator: CoordinatorObject {
@@ -35,6 +37,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemButtonV2DemoViewModel: TangemButtonV2DemoViewModel?
     @Published var tangemBadgeDemoViewModel: TangemBadgeDemoViewModel?
     @Published var tangemBadgeV2DemoViewModel: TangemBadgeV2DemoViewModel?
+    @Published var tangemRowDemoViewModel: TangemRowDemoViewModel?
     @Published var tangemCalloutDemoViewModel: TangemCalloutDemoViewModel?
     @Published var tangemTabsDemoViewModel: TangemTabsDemoModel?
     @Published var tangemMainActionButtonDemoViewModel: TangemMainActionButtonDemoViewModel?
@@ -46,6 +49,7 @@ final class DesignSystemDemoCoordinator: CoordinatorObject {
     @Published var tangemLoaderDemoViewModel: TangemLoaderDemoViewModel?
     @Published var tangemTokenRowDemoViewModel: TangemTokenRowDemoViewModel?
     @Published var tangemSnackbarDemoViewModel: TangemSnackbarDemoViewModel?
+    @Published var tangemShimmerDemoViewModel: TangemShimmerDemoViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -75,6 +79,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemBadgeV2Demo() {
         tangemBadgeV2DemoViewModel = .init()
+    }
+
+    func openTangemRowDemo() {
+        tangemRowDemoViewModel = .init()
     }
 
     func openTangemCalloutDemo() {
@@ -119,6 +127,10 @@ extension DesignSystemDemoCoordinator: DesignSystemDemoRoutable {
 
     func openTangemSnackbarDemo() {
         tangemSnackbarDemoViewModel = .init()
+    }
+
+    func openTangemShimmerDemo() {
+        tangemShimmerDemoViewModel = .init()
     }
 }
 

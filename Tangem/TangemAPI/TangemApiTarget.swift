@@ -111,6 +111,9 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/by-app/\(applicationUid)"
         case .getUserWallet(let userWalletId), .updateWallet(let userWalletId, _):
             return "/user-wallets/wallets/\(userWalletId)"
+        case .getNotificationPreferences(let userWalletId),
+             .updateNotificationPreferences(let userWalletId, _):
+            return "/wallets/\(userWalletId)/notification-preferences"
 
         // MARK: - Promo Code
         case .activatePromoCode:
@@ -170,6 +173,7 @@ struct TangemApiTarget: TargetType {
              .getArchivedUserAccounts,
              .getUserWallets,
              .getUserWallet,
+             .getNotificationPreferences,
              .newsList,
              .newsDetails,
              .newsCategories,
@@ -178,7 +182,8 @@ struct TangemApiTarget: TargetType {
             return .get
         case .saveUserWalletTokens,
              .saveUserAccounts,
-             .connectUserWallets:
+             .connectUserWallets,
+             .updateNotificationPreferences:
             return .put
         case .participateInReferralProgram,
              .createAccount,
@@ -268,8 +273,10 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
         case .updateUserWalletsApplication(_, let requestModel):
             return .requestJSONEncodable(requestModel)
-        case .getUserWallet, .getUserWallets:
+        case .getUserWallet, .getUserWallets, .getNotificationPreferences:
             return .requestPlain
+        case .updateNotificationPreferences(_, let body):
+            return .requestJSONEncodable(body)
         case .updateWallet(_, let context):
             return .requestJSONEncodable(context)
         case .connectUserWallets(_, let requestModel):
@@ -363,6 +370,8 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createWallet,
+             .getNotificationPreferences,
+             .updateNotificationPreferences,
              .trendingNews,
              .newsList,
              .newsDetails,
@@ -441,6 +450,10 @@ extension TangemApiTarget {
         case updateWallet(userWalletId: String, context: Encodable)
         case createWallet(context: Encodable)
 
+        // Notification Preferences
+        case getNotificationPreferences(userWalletId: String)
+        case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Update.Request)
+
         // Accounts
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
@@ -495,6 +508,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .updateWallet,
              .connectUserWallets,
              .createWallet,
+             .getNotificationPreferences,
+             .updateNotificationPreferences,
              .newsList,
              .newsCategories,
              .newsDetails,

@@ -62,6 +62,7 @@ enum NotificationButtonActionType: Identifiable {
     case givePermission
     case openManageTokensAfterWalletSuccessImport
     case openYieldBoostPromo(buttonTitle: String)
+    case yieldBoostPromoLater
     case addFunds
     case openAppStore
 
@@ -102,6 +103,7 @@ enum NotificationButtonActionType: Identifiable {
         case .givePermission: "givePermission".hashValue
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
         case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
+        case .yieldBoostPromoLater: "yieldBoostPromoLater".hashValue
         case .addFunds: "addFunds".hashValue
         case .openAppStore: "openAppStore".hashValue
         }
@@ -175,6 +177,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.mainManageTokens
         case .openYieldBoostPromo(let buttonTitle):
             return buttonTitle
+        case .yieldBoostPromoLater:
+            return Localization.commonLater
         case .addFunds:
             return Localization.commonAddFunds
         case .openAppStore:
@@ -222,7 +226,8 @@ enum NotificationButtonActionType: Identifiable {
              .openManageTokensAfterWalletSuccessImport,
              .openYieldBoostPromo,
              .addFunds,
-             .openAppStore:
+             .openAppStore,
+             .yieldBoostPromoLater:
             return nil
         }
     }
@@ -264,7 +269,8 @@ enum NotificationButtonActionType: Identifiable {
              .openDynamicAddressesEnter,
              .closeMobileUpgrade,
              .openManageTokensAfterWalletSuccessImport,
-             .openAppStore:
+             .openAppStore,
+             .yieldBoostPromoLater:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary

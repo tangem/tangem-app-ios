@@ -54,34 +54,29 @@ struct MultiWalletMainContentView: View {
         .bindAlert($viewModel.error)
     }
 
-    /// Add funds banner takes priority over every other banner while it is visible, except force update banner
     @ViewBuilder
     private var bannersSection: some View {
         ForEach(viewModel.forceUpdateNotificationInputs) { input in
             NotificationView(input: input)
         }
 
-        if viewModel.isAddFundsBannerVisible {
-            NotificationView(input: viewModel.addFundsNotificationInput)
-        } else {
-            ForEach(viewModel.notificationInputs) { input in
-                NotificationView(input: input)
-                    .setButtonsLoadingState(to: viewModel.isScannerBusy)
-            }
+        ForEach(viewModel.notificationInputs) { input in
+            NotificationView(input: input)
+                .setButtonsLoadingState(to: viewModel.isScannerBusy)
+        }
 
-            ForEach(viewModel.tokensNotificationInputs) { input in
-                NotificationView(input: input)
-            }
+        ForEach(viewModel.tokensNotificationInputs) { input in
+            NotificationView(input: input)
+        }
 
-            PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
+        PromotionNotificationsView(viewModel: viewModel.promotionNotificationsViewModel)
 
-            if let viewModel = viewModel.tangemPayBannerViewModel {
-                GetTangemPayBannerView(viewModel: viewModel)
-            }
+        if let viewModel = viewModel.tangemPayBannerViewModel {
+            GetTangemPayBannerView(viewModel: viewModel)
+        }
 
-            ForEach(viewModel.tangemPayNotificationInputs) { input in
-                NotificationView(input: input)
-            }
+        ForEach(viewModel.tangemPayNotificationInputs) { input in
+            NotificationView(input: input)
         }
     }
 

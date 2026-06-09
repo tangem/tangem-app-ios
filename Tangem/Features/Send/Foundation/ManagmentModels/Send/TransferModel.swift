@@ -493,7 +493,8 @@ extension TransferModel: NotificationTapDelegate {
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
              .addFunds,
-             .openAppStore:
+             .openAppStore,
+             .yieldBoostPromoLater:
             assertionFailure("Notification tap not handled")
         }
     }

@@ -28,12 +28,15 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
         let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
 
-        // with `.swap` supportingOptions
-        let tokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
+        let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
             supportingOptions: .swap
         )
-        let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
+
+        let transferTokenFeeProvidersManager = CommonTokenFeeProvidersManagerProvider(
+            walletModel: walletModel,
+            supportingOptions: .all
+        ).makeTokenFeeProvidersManager()
 
         let transactionValidator = BSDKTransactionValidator(
             transactionValidator: walletModel.transactionValidator
@@ -75,8 +78,8 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
             swapAvailabilityProvider: swapAvailabilityProvider,
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
-            tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            tokenFeeProvidersManagerProvider: swapTokenFeeProvidersManagerProvider,
+            tokenFeeProvidersManager: transferTokenFeeProvidersManager,
             transactionValidator: transactionValidator,
             transactionCreator: transactionCreator,
             sendYieldModuleHelper: sendYieldModuleHelper,

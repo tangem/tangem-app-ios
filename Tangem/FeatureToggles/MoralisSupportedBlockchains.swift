@@ -27,5 +27,6 @@ enum MoralisSupportedBlockchains {
         Blockchain.pulsechain(testnet: false),
         Blockchain.chiliz(testnet: false),
         Blockchain.monad(testnet: false),
+        Blockchain.seiEvm(testnet: false),
     ]
 }

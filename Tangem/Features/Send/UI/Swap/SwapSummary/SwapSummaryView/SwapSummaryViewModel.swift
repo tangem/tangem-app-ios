@@ -22,6 +22,9 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
+    // Hidden by default: keep the fractions off-screen until the source token balance
+    // is confirmed to be strictly positive, otherwise they would flash on a zero balance.
+    @Published private(set) var areAmountFractionsHidden: Bool = true
     @Published private(set) var isActionInProcessing: Bool = false
 
     @Published private(set) var mainButtonIsUpdating: Bool = false
@@ -71,12 +74,19 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidSelectFormVariant(_ variant: SwapFormVariant) {
         guard variant != formVariant else { return }
+        let previous = formVariant
         formVariant = variant
         applyFormVariant(variant)
         formVariantResolver.setVariant(variant)
+        analyticsLogger.logSwapTypeReselection(from: previous, to: variant)
     }
 
-    func makeFormVariantMenu() -> (selectedId: String, items: [SendStepNavigationLeadingViewType.DotsMenuItem]) {
+    func logScreenOpened() {
+        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
+        analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
+    }
+
+    func makeFormVariantMenu() -> FormVariantMenu {
         let items = SwapFormVariant.allCases.map { variant in
             SendStepNavigationLeadingViewType.DotsMenuItem(
                 id: variant.rawValue,
@@ -84,7 +94,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
                 action: { [weak self] in self?.userDidSelectFormVariant(variant) }
             )
         }
-        return (selectedId: formVariant.rawValue, items: items)
+        return FormVariantMenu(selectedId: formVariant.rawValue, items: items)
     }
 
     private func applyFormVariant(_ variant: SwapFormVariant) {
@@ -163,6 +173,11 @@ private extension SwapSummaryViewModel {
             .assign(to: &$isMaxAmountButtonHidden)
 
         interactor
+            .areAmountFractionsHiddenPublisher
+            .receiveOnMain()
+            .assign(to: &$areAmountFractionsHidden)
+
+        interactor
             .isNotificationButtonIsLoading
             .receiveOnMain()
             .assign(to: &$notificationButtonIsLoading)
@@ -171,6 +186,11 @@ private extension SwapSummaryViewModel {
             .isReadyToSendPublisher
             .receiveOnMain()
             .assign(to: &$mainButtonIsEnabled)
+
+        interactor
+            .mainButtonStatePublisher
+            .receiveOnMain()
+            .assign(to: &$mainButtonState)
 
         interactor
             .isUpdatingPublisher
@@ -192,6 +212,11 @@ private extension SwapSummaryViewModel {
 // MARK: - Types
 
 extension SwapSummaryViewModel {
+    struct FormVariantMenu {
+        let selectedId: String
+        let items: [SendStepNavigationLeadingViewType.DotsMenuItem]
+    }
+
     @RawCaseName
     enum ProviderState: Identifiable {
         case loading
@@ -199,28 +224,16 @@ extension SwapSummaryViewModel {
     }
 
     @RawCaseName
-    enum MainButtonState: Identifiable {
+    enum MainButtonState: Identifiable, Equatable {
         case swap
-        case insufficientFunds
-        case permitAndSwap
+        case transfer
 
         var title: String {
             switch self {
             case .swap:
                 return Localization.swappingSwapAction
-            case .insufficientFunds:
-                return Localization.swappingInsufficientFunds
-            case .permitAndSwap:
-                return Localization.swappingPermitAndSwap
-            }
-        }
-
-        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
-            switch self {
-            case .swap, .permitAndSwap:
-                return tangemIconProvider.getMainButtonIcon()
-            case .insufficientFunds:
-                return .none
+            case .transfer:
+                return Localization.commonTransfer
             }
         }
     }

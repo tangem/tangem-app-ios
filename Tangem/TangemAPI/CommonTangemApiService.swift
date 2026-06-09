@@ -15,14 +15,16 @@ import TangemFoundation
 import TangemNetworkUtils
 
 final class CommonTangemApiService {
-    private let provider = TangemProvider<TangemApiTarget>(plugins: [
-        CachePolicyPlugin(),
-        TimeoutIntervalPlugin(),
-        DeviceInfoPlugin(),
-        TangemNetworkLoggerPlugin(logOptions: .verbose),
-        TangemNetworkAnalyticsPlugin(),
-        TangemApiAuthorizationPlugin(),
-    ])
+    private let provider = TangemProvider<TangemApiTarget>(
+        configuration: TangemProviderConfiguration(logOptions: .verbose),
+        additionalPlugins: [
+            CachePolicyPlugin(),
+            TimeoutIntervalPlugin(),
+            DeviceInfoPlugin(),
+            TangemNetworkAnalyticsPlugin(),
+            TangemApiAuthorizationPlugin(),
+        ]
+    )
 
     private let coinsQueue = DispatchQueue(label: "coins_request_queue", qos: .default)
     private let currenciesQueue = DispatchQueue(label: "currencies_request_queue", qos: .default)
@@ -333,6 +335,20 @@ extension CommonTangemApiService: TangemApiService {
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
         try await request(for: .pushNotificationsEligible, decoder: decoder)
+    }
+
+    // MARK: - Notification Preferences
+
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body {
+        try await request(for: .getNotificationPreferences(userWalletId: userWalletId), decoder: decoder)
+    }
+
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Update.Request
+    ) async throws {
+        let target: TangemApiTarget.TargetType = .updateNotificationPreferences(userWalletId: userWalletId, body: preferences)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
     // MARK: - Applications

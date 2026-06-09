@@ -19,6 +19,9 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Injected(\.safariManager)
     private var safariManager: any SafariManager
 
+    @Injected(\.tangemStoriesPresenter)
+    private var tangemStoriesPresenter: any TangemStoriesPresenter
+
     // MARK: - Properties
 
     let dismissAction: Action<DismissOptions?>
@@ -47,6 +50,16 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     func openBottomSheet(viewModel: YieldModuleStartViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openYieldApyBoostStory() {
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .yieldFirstActivationAPYBoostStory,
+                analyticsSource: .token,
+                presentCompletion: {}
+            )
         }
     }
 
