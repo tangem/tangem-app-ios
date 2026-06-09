@@ -113,7 +113,8 @@ struct AddressTypesConfig {
              .linea,
              .monad,
              .arbitrumNova,
-             .plasma:
+             .plasma,
+             .seiEvm:
             return [.default]
         }
     }
