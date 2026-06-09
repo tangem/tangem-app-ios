@@ -10,6 +10,6 @@ import Foundation
 
 public struct PayInInfo: Hashable {
     public let address: String
-    public let extraId: String?
-    public let hash: String?
+    public let extraId: String? // [REDACTED_TODO_COMMENT]
+    public let hash: String? // [REDACTED_TODO_COMMENT]
 }
