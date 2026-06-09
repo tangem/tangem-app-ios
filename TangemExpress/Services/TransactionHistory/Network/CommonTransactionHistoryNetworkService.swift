@@ -56,8 +56,9 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
                 return
             case .proceed:
                 await primaryCursorStorage.setCursor(page.nextCursor)
-
                 // Only the first page of the initial sync API has a valid cursor for the delta sync
+                // See [REDACTED_INFO]
+                // for details
                 if isFirstPage, let auxiliaryCursorStorage {
                     await auxiliaryCursorStorage.setCursor(page.startDeltaCursor)
                 }
@@ -88,7 +89,9 @@ extension CommonTransactionHistoryNetworkService: TransactionHistoryNetworkServi
         try await fetchPages(
             using: deltaPageFetcher,
             primaryCursorStorage: deltaCursorStorage,
-            auxiliaryCursorStorage: nil, // Delta sync doesn't have an aux cursor to save
+            // Delta sync doesn't have an aux cursor (i.e. a cursor for another delta sync) to save,
+            // therefore no storage is needed
+            auxiliaryCursorStorage: nil,
             handleRecordsPage: handleRecordsPage
         )
     }
