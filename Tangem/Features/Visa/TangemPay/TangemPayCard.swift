@@ -66,6 +66,17 @@ final class TangemPayCard: Identifiable {
         inflightLifecycleOperationSubject.value == .reissue
     }
 
+    var isClosingPublisher: AnyPublisher<Bool, Never> {
+        inflightLifecycleOperationSubject
+            .map { $0 == .close }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var isClosing: Bool {
+        inflightLifecycleOperationSubject.value == .close
+    }
+
     var cardLimit: Int {
         productInstance.actualCardLimit?.amount ?? 0
     }
@@ -198,6 +209,33 @@ final class TangemPayCard: Identifiable {
     }
 
     @MainActor
+    func close() async throws {
+        guard inflightLifecycleOperationSubject.value == nil else {
+            throw TangemPayCardError.operationBusy
+        }
+        inflightLifecycleOperationSubject.send(.close)
+
+        let response: TangemPayCloseCardResponse
+        do {
+            response = try await customerService.closeCard(cardId: cardId)
+        } catch {
+            inflightLifecycleOperationSubject.send(nil)
+            throw error
+        }
+
+        switch response.status {
+        case .completed, .canceled:
+            inflightLifecycleOperationSubject.send(nil)
+            refreshSignal.send(())
+        case .new, .processing:
+            startCloseCardOrderPolling(orderId: response.orderId)
+        case .failed, .undefined:
+            inflightLifecycleOperationSubject.send(nil)
+            throw TangemPayCardError.operationFailed
+        }
+    }
+
+    @MainActor
     func reissue() async throws {
         guard inflightLifecycleOperationSubject.value == nil else {
             throw TangemPayCardError.operationBusy
@@ -229,6 +267,26 @@ final class TangemPayCard: Identifiable {
             },
             onFailed: { [weak self] error in
                 VisaLogger.error("Failed to poll reissue order status", error: error)
+                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.refreshSignal.send(())
+            }
+        )
+    }
+
+    private func startCloseCardOrderPolling(orderId: String) {
+        orderStatusPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.closeCardOrderPollInterval,
+            onCompleted: { [weak self] in
+                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.refreshSignal.send(())
+            },
+            onCanceled: { [weak self] in
+                self?.inflightLifecycleOperationSubject.send(nil)
+                self?.refreshSignal.send(())
+            },
+            onFailed: { [weak self] error in
+                VisaLogger.error("Failed to poll close card order status", error: error)
                 self?.inflightLifecycleOperationSubject.send(nil)
                 self?.refreshSignal.send(())
             }
@@ -271,6 +329,7 @@ extension TangemPayCard {
         case freeze
         case unfreeze
         case reissue
+        case close
     }
 
     struct Snapshot {
@@ -288,5 +347,6 @@ private extension TangemPayCard {
     enum Constants {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5
+        static let closeCardOrderPollInterval: TimeInterval = 5
     }
 }
