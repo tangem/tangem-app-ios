@@ -24,6 +24,7 @@ final class LockedUserWalletModel: UserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let nftManager: NFTManager = NotSupportedNFTManager()
+    let addressBookManager: AddressBookManager = AddressBookManagerFactory().makeAddressBookManager()
     let walletImageProvider: WalletImageProviding
     var config: UserWalletConfig
 

@@ -28,6 +28,7 @@ protocol UserWalletModel:
     UserWalletInfoProvider,
     DisposableEntity,
     AnyObject {
+    var name: String { get }
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
@@ -41,7 +42,7 @@ protocol UserWalletModel:
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
-    var name: String { get }
+    var addressBookManager: AddressBookManager { get }
 
     func validate() -> Bool
     func update(type: UpdateRequest)
