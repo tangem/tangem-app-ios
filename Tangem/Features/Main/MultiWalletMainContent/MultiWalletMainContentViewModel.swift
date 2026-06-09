@@ -210,6 +210,22 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         derivator?.derive()
     }
 
+    func renewTangemPaySession() {
+        guard let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel else {
+            return
+        }
+        Analytics.log(.mainNoticeScanYourCardTapped)
+        isScannerBusy = true
+        tangemPayAccountModel.renewSession(
+            authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor,
+            completion: { [weak self] in
+                DispatchQueue.main.async {
+                    self?.isScannerBusy = false
+                }
+            }
+        )
+    }
+
     func startBackupProcess() {
         if let input = userWalletModel.backupInput {
             Analytics.log(.mainNoticeBackupWalletTapped)
@@ -764,7 +780,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .openManageTokensAfterWalletSuccessImport:
             openManageTokens()
         case .renewTangemPaySession:
-            deriveEntriesWithoutDerivation()
+            renewTangemPaySession()
         case .addFunds:
             Analytics.log(.addFundsPromoButton)
             openAddFunds()
