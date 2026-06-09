@@ -101,7 +101,8 @@ struct UserWalletView: View {
         let scrollViewFrameHeight = rootGeometryProxy.size.height
         let contentOffsetY = contentFrame.minY
 
-        let didScrollToBottom = contentFrame.maxY - bottomOverlayHeight <= scrollViewFrameHeight
+        let contentFooterBottomPadding = MainHorizontalPagingScrollView.Paddings.contentFooterBottom
+        let didScrollToBottom = contentFrame.maxY - bottomOverlayHeight - contentFooterBottomPadding <= scrollViewFrameHeight
         onContentGeometryChanged(ScrollContentGeometry(contentOffsetY: contentOffsetY, didScrollToBottom: didScrollToBottom))
 
         let startY = rootGeometryProxy.safeAreaInsets.top
