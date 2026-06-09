@@ -83,10 +83,8 @@ struct MainView: View {
     }
 
     private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.redesignedHeader(
-            totalPages: viewModel.pages.count,
-            currentIndex: viewModel.selectedCardIndex
-        )
+        // [REDACTED_TODO_COMMENT]
+        EmptyView()
     }
 
     private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {

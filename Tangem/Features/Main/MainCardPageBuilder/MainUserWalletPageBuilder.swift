@@ -146,19 +146,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    func redesignedHeader(totalPages: Int, currentIndex: Int) -> some View {
-        MainUserWalletHeader(model: MainUserWalletHeaderModel(
-            headerViewModel: headerModel,
-            actionButtonsViewModel: actionButtonsViewModel,
-            paginationState: totalPages > 1
-                ? MainUserWalletHeaderModel.PaginationState(
-                    totalPages: totalPages,
-                    currentIndex: currentIndex
-                )
-                : nil
-        ))
-    }
-
     @ViewBuilder
     private func makeSingleWalletContent(id: UserWalletId, bodyModel: SingleWalletMainContentViewModel?) -> some View {
         if FeatureProvider.isAvailable(.redesign) {

@@ -13,13 +13,11 @@ import TangemUI
 struct UserWalletView: View {
     let pageBuilder: MainUserWalletPageBuilder
     let refreshScrollViewStateObject: RefreshScrollViewStateObject
-    let onContentGeometryChanged: (ScrollContentGeometry) -> Void
+    let onContentPropertiesChanged: (ScrollContentProperties) -> Void
 
     let bottomOverlayHeight: CGFloat
     let contentFooterHeight: CGFloat
-
-    let totalPages: Int
-    let currentIndex: Int
+    let paginationStubHeight: CGFloat
 
     @State private var contentOffsetY = CGFloat.zero
     @State private var headerHeight = CGFloat.zero
@@ -70,9 +68,7 @@ struct UserWalletView: View {
             model: MainUserWalletHeaderModel(
                 headerViewModel: pageBuilder.headerModel,
                 actionButtonsViewModel: pageBuilder.actionButtonsViewModel,
-                paginationState: totalPages > 1
-                    ? MainUserWalletHeaderModel.PaginationState(totalPages: totalPages, currentIndex: currentIndex)
-                    : nil
+                paginationStubHeight: paginationStubHeight
             )
         )
         .onGeometryChange(for: CGFloat.self, of: \.size.height) { headerHeight in
@@ -103,15 +99,25 @@ struct UserWalletView: View {
 
         let contentFooterBottomPadding = MainHorizontalPagingScrollView.Paddings.contentFooterBottom
         let didScrollToBottom = contentFrame.maxY - bottomOverlayHeight - contentFooterBottomPadding <= scrollViewFrameHeight
-        onContentGeometryChanged(ScrollContentGeometry(contentOffsetY: contentOffsetY, didScrollToBottom: didScrollToBottom))
 
         let startY = rootGeometryProxy.safeAreaInsets.top
         let endY = headerBalanceTextHeight + Paddings.headerTop
         let progress = clamp((startY - contentOffsetY) / (startY + endY), min: 0, max: 1)
+        let headerOpacity = headerOpacity(for: progress)
 
         self.contentOffsetY = contentOffsetY
-        headerOpacity = headerOpacity(for: progress)
+
+        self.headerOpacity = headerOpacity
         headerScale = headerScale(for: progress)
+
+        let contentProperties = ScrollContentProperties(
+            contentOffsetY: contentOffsetY,
+            pagingIndicatorOpacity: headerOpacity,
+            pagingIndicatorOffsetY: contentOffsetY + headerBalanceTextHeight + paginationStubHeight,
+            didScrollToBottom: didScrollToBottom
+        )
+
+        onContentPropertiesChanged(contentProperties)
     }
 
     private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy, safeAreaInsetsTop: CGFloat) {
@@ -146,8 +152,10 @@ struct UserWalletView: View {
 }
 
 extension UserWalletView {
-    struct ScrollContentGeometry: Equatable {
+    struct ScrollContentProperties: Equatable {
         let contentOffsetY: CGFloat
+        let pagingIndicatorOpacity: CGFloat
+        let pagingIndicatorOffsetY: CGFloat
         let didScrollToBottom: Bool
     }
 

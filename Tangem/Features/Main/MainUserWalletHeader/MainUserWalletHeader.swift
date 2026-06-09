@@ -27,7 +27,7 @@ struct MainUserWalletHeader: View {
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
     var body: some View {
-        VStack(spacing: SizeUnit.x4.value) {
+        VStack(spacing: Sizes.spacing) {
             balance
 
             switch headerViewModel.subtitleViewState {
@@ -38,13 +38,7 @@ struct MainUserWalletHeader: View {
                 walletNameWithThumbnail
             }
 
-            if let paginationState = model.paginationState {
-                TangemPagination(
-                    totalPages: paginationState.totalPages,
-                    currentIndex: paginationState.currentIndex
-                )
-                .pagerStationary()
-            }
+            paginationStubSpacer
 
             if let actionButtonsViewModel = model.actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
@@ -95,6 +89,14 @@ struct MainUserWalletHeader: View {
         )
         .lineLimit(1)
         .minimumScaleFactor(0.7)
+    }
+
+    @ViewBuilder
+    private var paginationStubSpacer: some View {
+        if model.paginationStubHeight > 0 {
+            Spacer(minLength: .zero)
+                .frame(height: model.paginationStubHeight)
+        }
     }
 }
 
@@ -204,6 +206,12 @@ private extension MainUserWalletHeader {
     }
 }
 
+extension MainUserWalletHeader {
+    enum Sizes {
+        static let spacing = SizeUnit.x4.value
+    }
+}
+
 // MARK: - Previews
 
 #if DEBUG
@@ -216,7 +224,7 @@ private extension MainUserWalletHeader {
             MainUserWalletHeader(model: MainUserWalletHeaderModel(
                 headerViewModel: provider.models[index],
                 actionButtonsViewModel: nil,
-                paginationState: nil
+                paginationStubHeight: 0
             ))
             .onTapGesture {
                 let infoProvider = provider.infoProviders[index]
