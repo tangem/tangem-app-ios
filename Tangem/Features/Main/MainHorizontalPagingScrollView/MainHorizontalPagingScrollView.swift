@@ -23,6 +23,8 @@ struct MainHorizontalPagingScrollView: View {
 
     @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
 
+    @StateObject private var scrollDetector = ScrollDetector()
+
     var body: some View {
         horizontalScrollView
             .northernLightsBackground(
@@ -39,6 +41,7 @@ struct MainHorizontalPagingScrollView: View {
             .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
                 self.safeAreaInsetsTop = safeAreaInsetsTop
             }
+            .environmentObject(scrollDetector)
             .animation(.default, value: selectedCardIndex.wrappedValue)
     }
 

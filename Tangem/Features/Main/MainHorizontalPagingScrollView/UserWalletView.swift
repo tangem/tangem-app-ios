@@ -18,18 +18,34 @@ struct UserWalletView: View {
     let totalPages: Int
     let currentIndex: Int
 
+    @State private var headerMinY: CGFloat = .zero
+    @State private var headerHeight: CGFloat = .zero
+
     @State private var headerScale: CGFloat = 1
     @State private var headerOpacity: CGFloat = 1
     @State private var safeAreaInsetsTop = CGFloat.zero
 
+    @EnvironmentObject private var scrollDetector: ScrollDetector
+
     @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
 
     var body: some View {
-        RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
-            VStack(spacing: .zero) {
-                headerAnchorSpacer
-                header
-                content
+        ScrollViewReader { scrollProxy in
+            RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
+                VStack(spacing: .zero) {
+                    headerAnchorSpacer
+                    header
+                    content
+                }
+            }
+            .onAppear {
+                scrollDetector.startDetectingScroll()
+            }
+            .onDisappear(perform: scrollDetector.stopDetectingScroll)
+            .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
+                if newValue != oldValue, !newValue {
+                    performVerticalScrollIfNeeded(with: scrollProxy)
+                }
             }
         }
         .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
@@ -47,6 +63,7 @@ struct UserWalletView: View {
                 },
                 action: { headerMinY in
                     onHeaderMinYChanged(headerMinY)
+                    self.headerMinY = headerMinY
 
                     let startY = safeAreaInsetsTop
                     let endY = headerBalanceTextHeight + Paddings.headerTop
@@ -56,6 +73,7 @@ struct UserWalletView: View {
                     headerScale = headerScale(for: progress)
                 }
             )
+            .id(HeaderScrollAnchorIdentifier.top)
     }
 
     private var header: some View {
@@ -68,6 +86,9 @@ struct UserWalletView: View {
                     : nil
             )
         )
+        .onGeometryChange(for: CGFloat.self, of: \.size.height) { headerHeight in
+            self.headerHeight = headerHeight
+        }
         .scaleEffect(headerScale)
         .opacity(headerOpacity)
     }
@@ -77,6 +98,29 @@ struct UserWalletView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
 //                Color.clear.frame(height: overlayCollapsedHeight)
             }
+            .id(HeaderScrollAnchorIdentifier.bottom)
+    }
+
+    private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
+        let fullHeaderHeight = Paddings.headerTop + headerHeight
+        let headerMaxY = headerMinY + fullHeaderHeight
+
+        let screenTopIsBelowHeaderTop = safeAreaInsetsTop > headerMinY
+        let screenTopIsAboveHeaderBottom = safeAreaInsetsTop < headerMaxY
+
+        guard screenTopIsBelowHeaderTop, screenTopIsAboveHeaderBottom else {
+            return
+        }
+
+        let hasReachedMiddlePoint = (safeAreaInsetsTop - headerMinY) > fullHeaderHeight / 2
+
+        let targetAnchor: HeaderScrollAnchorIdentifier = hasReachedMiddlePoint
+            ? .bottom
+            : .top
+
+        withAnimation(.spring) {
+            scrollViewProxy.scrollTo(targetAnchor, anchor: .top)
+        }
     }
 
     private func headerOpacity(for progress: CGFloat) -> CGFloat {
@@ -91,5 +135,10 @@ struct UserWalletView: View {
 extension UserWalletView {
     private enum Paddings {
         static let headerTop = CGFloat.unit(.x13)
+    }
+
+    private enum HeaderScrollAnchorIdentifier: Hashable {
+        case top
+        case bottom
     }
 }
