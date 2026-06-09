@@ -89,6 +89,11 @@ final class ActionButtonsViewModel: ObservableObject {
         AppLogger.debug(self, "deinit")
     }
 
+    // [REDACTED_TODO_COMMENT]
+    func isRedesignActionDisabled(_ actionViewModel: any ActionButtonViewModel) -> Bool {
+        userWalletModel.isUserWalletLocked || actionViewModel.isDimmed
+    }
+
     func refresh() {
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         // do nothing if already iniitialized
