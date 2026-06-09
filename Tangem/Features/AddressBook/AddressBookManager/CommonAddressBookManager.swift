@@ -41,14 +41,14 @@ extension CommonAddressBookManager: AddressBookManager {
         synchronizer.synchronizerState
     }
 
-    func getAddresses() async throws -> [AddressBookContact] {
+    func getContacts() async throws -> [AddressBookContact] {
         try await loadContacts()
     }
 
     func save(contact: AddressBookContact) async throws {
         var contacts = try await loadContacts()
 
-        if let index = contacts.firstIndex(of: contact) {
+        if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
             contacts[index] = contact
         } else {
             contacts.append(contact)
@@ -59,7 +59,7 @@ extension CommonAddressBookManager: AddressBookManager {
 
     func remove(contact: AddressBookContact) async throws {
         var contacts = try await loadContacts()
-        contacts.removeAll { $0 == contact }
+        contacts.removeAll { $0.id == contact.id }
         try await save(contacts: contacts)
     }
 }
