@@ -25,7 +25,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
     var onCardNameTapped: (() -> Void)?
 
-    private var expectedState: TangemPayCardDetailsState? = nil
+    private var expectedState: TangemPayCardDetailsState?
 
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?

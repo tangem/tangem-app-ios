@@ -34,9 +34,11 @@ final class TangemPayCardManagementViewModel: ObservableObject {
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var cardSettingsRows: [DefaultRowViewModel] = []
+    @Published private(set) var closeCardRow: DefaultRowViewModel?
     @Published private(set) var dailyLimitState: TangemPayDailyLimitState?
     @Published private(set) var isIssuing: Bool = false
     @Published private(set) var isReissuing: Bool = false
+    @Published private(set) var isClosing: Bool = false
     @Published private(set) var isLoadingReissueFee: Bool = false
     @Published var alert: AlertBinder?
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
@@ -429,7 +431,7 @@ private extension TangemPayCardManagementViewModel {
                         switch operation {
                         case .freeze: .freezingInProgress
                         case .unfreeze: .unfreezingInProgress
-                        case .reissue, nil: status == .blocked ? .frozen : .normal
+                        case .reissue, .close, nil: status == .blocked ? .frozen : .normal
                         }
                     }
                     .eraseToAnyPublisher()
@@ -460,12 +462,19 @@ private extension TangemPayCardManagementViewModel {
             to: \.isReissuing
         )
 
-        $freezingState
+        bindSelectedCard(
+            fallback: false,
+            publisher: { $0.isClosingPublisher },
+            to: \.isClosing
+        )
+
+        Publishers.CombineLatest($freezingState, $isClosing)
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { vm, freezing in
+            .sink { vm, output in
+                let (freezing, isClosing) = output
                 vm.propagateFreezingStateToDetailsVM(freezing)
-                vm.updateCardSettingsRows(freezingState: freezing)
+                vm.updateCardSettingsRows(freezingState: freezing, isClosing: isClosing)
             }
             .store(in: &bag)
 
@@ -481,6 +490,15 @@ private extension TangemPayCardManagementViewModel {
         .receiveOnMain()
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
+
+        Publishers.CombineLatest($isClosing, $cardDetailsItems)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, output in
+                let (isClosing, cardEntities) = output
+                viewModel.updateCloseCardRow(isClosing: isClosing, isOnlyCard: cardEntities.count <= 1)
+            }
+            .store(in: &bag)
     }
 
     func bindSelectedCard<T>(
@@ -587,8 +605,8 @@ private extension TangemPayCardManagementViewModel {
         selectedMultiCardDetailsViewModel?.state = freezing.cardDetailsState
     }
 
-    func updateCardSettingsRows(freezingState: TangemPayFreezingState) {
-        let isBusy = freezingState.isFreezingUnfreezingInProgress
+    func updateCardSettingsRows(freezingState: TangemPayFreezingState, isClosing: Bool) {
+        let isBusy = freezingState.isFreezingUnfreezingInProgress || isClosing
         cardSettingsRows = [
             row(
                 title: Localization.tangempayCardDetailsChangePin,
@@ -619,6 +637,14 @@ private extension TangemPayCardManagementViewModel {
                 action: { [weak self] in self?.onReplaceCard() }
             ),
         ]
+    }
+
+    func updateCloseCardRow(isClosing: Bool, isOnlyCard: Bool) {
+        let isBusy = isClosing || isOnlyCard
+        let action: () -> Void = { [weak self] in
+            self?.showCloseCardPopup()
+        }
+        closeCardRow = row(title: Localization.tangemPayCloseCardPopupPrimaryButtonTitle, isBusy: isBusy, action: action)
     }
 
     func row(
@@ -718,6 +744,23 @@ private extension TangemPayCardManagementViewModel {
         renameViewModel.$alert.assign(to: &$alert)
 
         cardRenameViewModel = renameViewModel
+    }
+
+    func showCloseCardPopup() {
+        guard let card = currentCard else { return }
+
+        Analytics.log(.visaCloseCardClicked, contextParams: .userWallet(userWalletInfo.id))
+
+        coordinator?.openTangemPayCloseCardSheet(
+            userWalletId: userWalletInfo.id,
+            card: card,
+            onError: { [weak self] in self?.showCloseCardErrorToast() }
+        )
+    }
+
+    func showCloseCardErrorToast() {
+        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+            .present(layout: .top(padding: 20), type: .temporary())
     }
 }
 
