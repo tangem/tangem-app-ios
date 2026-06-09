@@ -43,7 +43,6 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
         var cursor = await primaryCursorStorage.cursor // Updated inside the loop after each page is processed, therefore `var`
 
         while !Task.isCancelled {
-            let isFirstPage = cursor == nil // The first page is always requested w/o a cursor
             let page = try await pageFetcher(apiProvider, cursor)
 
             TransactionHistoryLogger.debug(self, "Fetched page: \(page.records.count) record(s), hasMore: \(page.hasMore)")
@@ -59,6 +58,7 @@ final class CommonTransactionHistoryNetworkService<Record: TransactionHistoryRec
                 // Only the first page of the initial sync API has a valid cursor for the delta sync
                 // See [REDACTED_INFO]
                 // for details
+                let isFirstPage = cursor == nil // The first page is always requested w/o a cursor
                 if isFirstPage, let auxiliaryCursorStorage {
                     await auxiliaryCursorStorage.setCursor(page.startDeltaCursor)
                 }
