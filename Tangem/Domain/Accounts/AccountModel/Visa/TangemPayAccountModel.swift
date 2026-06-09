@@ -22,9 +22,8 @@ protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.Stan
     var customerId: String? { get }
 
     func refreshState() async
-    func syncTokens(
+    func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        pendingDerivations: [PendingDerivation],
         completion: @escaping () -> Void
     )
 }
