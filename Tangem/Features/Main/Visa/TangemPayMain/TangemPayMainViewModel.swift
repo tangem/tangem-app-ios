@@ -80,19 +80,6 @@ final class TangemPayMainViewModel: ObservableObject {
         cardEntries.contains { $0.isIssuing }
     }
 
-    var addToApplePayBannerType: NotificationBanner.BannerType {
-        .promo(
-            .text(.init(
-                title: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationTitleApple),
-                subtitle: AttributedString(Localization.tangempayCardDetailsOpenWalletNotificationSubtitleApple)
-            )),
-            .tappable(NotificationBanner.Action { [weak self] in self?.openAddToApplePayGuide() }),
-            NotificationBanner.CloseAction { [weak self] in self?.dismissAddToApplePayGuideBanner() },
-            .bannerMagic,
-            .leading
-        )
-    }
-
     var notificationBannerItems: [NotificationBannerItem] {
         MultiWalletNotificationBannerMapper().mapItems(
             inlineNotifications,
@@ -250,6 +237,12 @@ final class TangemPayMainViewModel: ObservableObject {
                 _ = try await tangemPayAccount.issueAdditionalCard()
             }
         )
+    }
+
+    func smallCardState(for card: TangemPayCard) -> TangemPaySmallCardView.State {
+        if card.isClosing { return .closing }
+        if card.isReissuing { return .replacing }
+        return .issued(cardNumberEnd: card.cardNumberEnd)
     }
 
     // MARK: - Shared
