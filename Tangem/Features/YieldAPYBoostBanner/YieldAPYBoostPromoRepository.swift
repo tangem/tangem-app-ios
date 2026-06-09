@@ -43,9 +43,7 @@ actor YieldAPYBoostPromoRepository {
 
     /// Full campaign for the main-screen banner. Fetched once per session.
     func campaign(userWalletId: String) async -> YieldAPYBoostCampaign? {
-        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
-              !FeatureProvider.isAvailable(.redesign)
-        else {
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo) else {
             return nil
         }
 
@@ -80,9 +78,7 @@ actor YieldAPYBoostPromoRepository {
     /// Per-wallet enrollment status only — does not depend on the promotions list. Successful responses are
     /// cached for the session; failures are NOT cached so a transient error can recover on the next request.
     func enrollmentStatus(userWalletId: String) async -> YieldAPYBoostCampaign.EnrollmentStatus? {
-        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
-              !FeatureProvider.isAvailable(.redesign)
-        else {
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo) else {
             return nil
         }
 

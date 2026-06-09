@@ -29,16 +29,19 @@ struct RedesignActionButtonsView: View {
         HStack(alignment: .top, spacing: spacing) {
             if visibility.isExchangeVisible {
                 RedesignActionButtonView(viewModel: viewModel.buyActionButtonViewModel)
+                    .disabled(viewModel.isRedesignActionDisabled(viewModel.buyActionButtonViewModel))
                     .frame(maxWidth: .infinity)
             }
 
             if visibility.isSwappingVisible {
                 RedesignActionButtonView(viewModel: viewModel.swapActionButtonViewModel)
+                    .disabled(viewModel.isRedesignActionDisabled(viewModel.swapActionButtonViewModel))
                     .frame(maxWidth: .infinity)
             }
 
             if visibility.isExchangeVisible {
                 RedesignActionButtonView(viewModel: viewModel.sellActionButtonViewModel)
+                    .disabled(viewModel.isRedesignActionDisabled(viewModel.sellActionButtonViewModel))
                     .frame(maxWidth: .infinity)
             }
         }
