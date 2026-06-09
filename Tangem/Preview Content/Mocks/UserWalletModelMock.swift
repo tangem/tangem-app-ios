@@ -43,7 +43,7 @@ class UserWalletModelMock: UserWalletModel {
 
     var nftManager: NFTManager { NFTManagerStub() }
 
-    var addressBookManager: AddressBookManager { AddressBookManagerFactory().makeAddressBookManager() }
+    let addressBookManager: AddressBookManager = AddressBookManagerFactory().makeAddressBookManager()
 
     var signer: TangemSigner { fatalError("TangemSignerMock doesn't exist") }
 

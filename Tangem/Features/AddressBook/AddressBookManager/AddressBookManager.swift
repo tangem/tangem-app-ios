@@ -11,7 +11,7 @@ import Foundation
 protocol AddressBookManager: Actor {
     var synchronizerState: AddressBookSynchronizerState { get }
 
-    func getAddresses() async throws -> [AddressBookContact]
+    func getContacts() async throws -> [AddressBookContact]
 
     func save(contact: AddressBookContact) async throws
     func remove(contact: AddressBookContact) async throws

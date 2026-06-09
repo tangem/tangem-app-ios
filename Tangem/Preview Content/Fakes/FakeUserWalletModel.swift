@@ -33,7 +33,7 @@ class FakeUserWalletModel: UserWalletModel {
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
     var nftManager: NFTManager { NFTManagerStub() }
-    var addressBookManager: AddressBookManager { AddressBookManagerFactory().makeAddressBookManager() }
+    let addressBookManager: AddressBookManager = AddressBookManagerFactory().makeAddressBookManager()
     let totalBalanceProvider: TotalBalanceProvider
     let walletImageProvider: WalletImageProviding
     let signer: TangemSigner = CardSigner(filter: .cardId(""), sdk: .init(), twinKey: nil)
