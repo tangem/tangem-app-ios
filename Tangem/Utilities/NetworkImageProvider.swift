@@ -201,6 +201,8 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.arbitrumnovaFill : Tokens.arbitrumnova
         case .plasma:
             filled ? Tokens.plasmaFill : Tokens.plasma
+        case .seiEvm:
+            filled ? Tokens.seiFill : Tokens.sei
         }
     }
 
