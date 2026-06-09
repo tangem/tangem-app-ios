@@ -9,12 +9,12 @@
 import Foundation
 
 actor CommonAddressBookManager {
-    private let cryptographer: AddressBookСryptographer
+    private let cryptographer: AddressBookCryptographer
     private let synchronizer: AddressBookAPISynchronizer
     private let storage: AddressBookPersistentStorage
 
     init(
-        cryptographer: AddressBookСryptographer,
+        cryptographer: AddressBookCryptographer,
         synchronizer: AddressBookAPISynchronizer,
         storage: AddressBookPersistentStorage
     ) {

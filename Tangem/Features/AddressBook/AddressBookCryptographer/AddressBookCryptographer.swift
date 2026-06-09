@@ -1,5 +1,5 @@
 //
-//  AddressBookСryptographer.swift
+//  AddressBookCryptographer.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AddressBookСryptographer {
+protocol AddressBookCryptographer {
     func encode(contact: AddressBookContact) throws -> String
     func decode(contact: String) throws -> AddressBookContact
 }

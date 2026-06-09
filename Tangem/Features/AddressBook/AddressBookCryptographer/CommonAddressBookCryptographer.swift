@@ -1,5 +1,5 @@
 //
-//  CommonAddressBookСryptographer.swift
+//  CommonAddressBookCryptographer.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,14 @@
 
 import Foundation
 
-struct CommonAddressBookСryptographer {
+struct CommonAddressBookCryptographer {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 }
 
-// MARK: - AddressBookСryptographer protocol conformance
+// MARK: - AddressBookCryptographer protocol conformance
 
-extension CommonAddressBookСryptographer: AddressBookСryptographer {
+extension CommonAddressBookCryptographer: AddressBookCryptographer {
     func encode(contact: AddressBookContact) throws -> String {
         let data = try encoder.encode(contact)
         return String(decoding: data, as: UTF8.self)

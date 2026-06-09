@@ -9,7 +9,7 @@
 struct AddressBookManagerFactory {
     func makeAddressBookManager() -> AddressBookManager {
         CommonAddressBookManager(
-            cryptographer: CommonAddressBookСryptographer(),
+            cryptographer: CommonAddressBookCryptographer(),
             synchronizer: CommonAddressBookAPISynchronizer(),
             storage: CommonAddressBookPersistentStorage()
         )
