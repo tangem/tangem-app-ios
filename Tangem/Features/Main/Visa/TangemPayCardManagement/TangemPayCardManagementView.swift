@@ -15,7 +15,17 @@ import TangemLocalization
 struct TangemPayCardManagementView: View {
     @ObservedObject var viewModel: TangemPayCardManagementViewModel
 
+    @State private var redesignedViewportHeight: CGFloat = 0
+
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            redesignedBody
+        } else {
+            legacyBody
+        }
+    }
+
+    private var legacyBody: some View {
         ScrollView {
             if viewModel.multipleCardsEnabled {
                 multiCardContent
@@ -218,6 +228,207 @@ struct TangemPayCardManagementView: View {
                     )
                     .frame(width: isSelected ? 16 : 6, height: 6)
                     .animation(.easeInOut(duration: 0.2), value: isSelected)
+            }
+        }
+    }
+
+    // MARK: - Redesign
+
+    private var redesignedBody: some View {
+        redesignedContent
+            .background { DesignSystem.Tokens.Theme.Bg.primary.ignoresSafeArea() }
+            .disabled(viewModel.isLoadingReissueFee)
+            .overlay { redesignedReissueLoadingOverlay }
+            .safeAreaInset(edge: .bottom) {
+                if let renameVM = viewModel.cardRenameViewModel {
+                    TangemPayCardRenameToolbarView(renameViewModel: renameVM)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { redesignedToolbar }
+            .navigationBarBackButtonHidden(viewModel.cardRenameViewModel != nil)
+            .animation(.easeInOut, value: viewModel.cardRenameViewModel != nil)
+            .sheet(item: $viewModel.addToApplePayGuideViewModel) {
+                TangemPayAddToAppPayGuideView(viewModel: $0)
+            }
+            .alert(item: $viewModel.alert) { $0.alert }
+            .onAppear(perform: viewModel.onAppear)
+            .modifyView { view in
+                if #unavailable(iOS 26.0) {
+                    view.backportTranslucentNavigationBar()
+                } else {
+                    view
+                }
+            }
+            .redesigned()
+    }
+
+    private var redesignedContent: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                redesignedCardSection
+
+                if viewModel.isIssuing {
+                    Spacer(minLength: 0)
+
+                    TangemPayCardIssuingMessageView()
+
+                    Spacer(minLength: 0)
+                } else {
+                    redesignedDetailsSection
+                        .padding(.top, DesignSystem.Tokens.Spacing.s350)
+                }
+            }
+            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+            .padding(.top, DesignSystem.Tokens.Spacing.s300)
+            .frame(maxWidth: .infinity, minHeight: redesignedViewportHeight, alignment: .top)
+        }
+        .background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear { redesignedViewportHeight = proxy.size.height }
+                    .onChange(of: proxy.size.height) { newHeight in
+                        redesignedViewportHeight = newHeight
+                    }
+            }
+        }
+    }
+
+    private var redesignedAddToApplePayBanner: some View {
+        TangemPayAddToApplePayBannerRedesigned(
+            openAction: viewModel.openAddToApplePayGuide,
+            closeAction: viewModel.dismissAddToApplePayGuideBanner
+        )
+    }
+
+    @ViewBuilder
+    private var redesignedReissueLoadingOverlay: some View {
+        if viewModel.isLoadingReissueFee {
+            ZStack {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+
+                ActivityIndicatorView(
+                    style: .large,
+                    color: UIColor(Color.Tangem.Graphic.Neutral.tertiary)
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var redesignedCardSection: some View {
+        if let renameVM = viewModel.cardRenameViewModel {
+            TangemPayCardRenameViewRedesigned(viewModel: renameVM)
+        } else if viewModel.multipleCardsEnabled {
+            redesignedCarousel
+        } else if let detailsViewModel = viewModel.tangemPayCardDetailsViewModel {
+            TangemPayCardDetailsViewRedesigned(viewModel: detailsViewModel)
+        }
+    }
+
+    @ViewBuilder
+    private var redesignedCarousel: some View {
+        if viewModel.hasMultipleCards {
+            VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+                if #available(iOS 17.0, *) {
+                    PeekingCarouselView(
+                        items: viewModel.cardDetailsItems,
+                        selectedID: $viewModel.selectedCardId,
+                        configuration: .init(
+                            peek: DesignSystem.Tokens.Spacing.s100,
+                            spacing: DesignSystem.Tokens.Spacing.s100
+                        )
+                    ) { item in
+                        redesignedCardDetailsContent(for: item)
+                    }
+                    .padding(.horizontal, -DesignSystem.Tokens.Spacing.s200)
+                } else {
+                    TabView(selection: $viewModel.selectedCardId) {
+                        ForEach(viewModel.cardDetailsItems) { item in
+                            redesignedCardDetailsContent(for: item)
+                                .tag(item.id as String?)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .frame(height: Constants.legacyCarouselHeight)
+                }
+
+                redesignedPageIndicator
+            }
+        } else if let item = viewModel.cardDetailsItems.first {
+            redesignedCardDetailsContent(for: item)
+        }
+    }
+
+    @ViewBuilder
+    private func redesignedCardDetailsContent(for item: TangemPayCardManagementViewModel.CardDetailsItem) -> some View {
+        switch item.content {
+        case .issued(let detailsViewModel):
+            TangemPayCardDetailsViewRedesigned(viewModel: detailsViewModel)
+        case .issuing:
+            TangemPayIssuingCardDetailsViewRedesigned()
+        }
+    }
+
+    private var redesignedPageIndicator: some View {
+        TangemPayCardPageIndicatorRedesigned(
+            count: viewModel.cardDetailsItems.count,
+            selectedIndex: viewModel.cardDetailsItems.firstIndex { $0.id == viewModel.selectedCardId } ?? 0
+        )
+    }
+
+    @ViewBuilder
+    private var redesignedDetailsSection: some View {
+        if viewModel.cardRenameViewModel == nil {
+            if viewModel.isReissuing {
+                TangemPayReplacingCardBanner()
+            } else {
+                VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
+                    TangemPayCardActionButtonsView(
+                        isFrozen: viewModel.freezingState.isFrozen,
+                        actionsDisabled: viewModel.cardActionsDisabled,
+                        detailsAction: viewModel.onDetailsButton,
+                        freezeAction: viewModel.onFreezeButton,
+                        pinAction: viewModel.onPinButton
+                    )
+
+                    VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                        if viewModel.shouldDisplayAddToApplePayGuide {
+                            redesignedAddToApplePayBanner
+                        }
+
+                        if let dailyLimitState = viewModel.dailyLimitState {
+                            TangemPayDailyLimitRowRedesigned(
+                                state: dailyLimitState,
+                                isFrozen: viewModel.freezingState.isFrozen,
+                                changeAction: viewModel.openChangeDailyLimit
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var redesignedToolbar: some ToolbarContent {
+        if let renameVM = viewModel.cardRenameViewModel {
+            NavigationToolbarButton.close(placement: .topBarTrailing, action: renameVM.close)
+        } else {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(action: viewModel.onReplaceButton) {
+                        Label {
+                            Text(Localization.tangempayCardDetailsReissueCard)
+                        } icon: {
+                            DesignSystem.Icons.ArrowRefresh.regular20.image
+                                .renderingMode(.template)
+                        }
+                    }
+                } label: {
+                    NavbarDotsImage()
+                }
             }
         }
     }
