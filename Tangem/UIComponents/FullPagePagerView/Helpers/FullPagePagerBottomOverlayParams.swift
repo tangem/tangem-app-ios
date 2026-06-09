@@ -8,8 +8,8 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
 struct FullPagePagerBottomOverlayParams {
-    let didScrollToBottom: Bool
     let contentHeight: CGFloat
     let isActive: Bool
 }

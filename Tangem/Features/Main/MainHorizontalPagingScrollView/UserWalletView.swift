@@ -13,66 +13,55 @@ import TangemUI
 struct UserWalletView: View {
     let pageBuilder: MainUserWalletPageBuilder
     let refreshScrollViewStateObject: RefreshScrollViewStateObject
-    let onHeaderMinYChanged: (CGFloat) -> Void
+    let onContentGeometryChanged: (ScrollContentGeometry) -> Void
+
+    let bottomOverlayHeight: CGFloat
+    let contentFooterHeight: CGFloat
 
     let totalPages: Int
     let currentIndex: Int
 
-    @State private var headerMinY: CGFloat = .zero
-    @State private var headerHeight: CGFloat = .zero
-
+    @State private var contentOffsetY = CGFloat.zero
+    @State private var headerHeight = CGFloat.zero
     @State private var headerScale: CGFloat = 1
     @State private var headerOpacity: CGFloat = 1
-    @State private var safeAreaInsetsTop = CGFloat.zero
+    @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
 
     @EnvironmentObject private var scrollDetector: ScrollDetector
 
-    @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
-
     var body: some View {
-        ScrollViewReader { scrollProxy in
-            RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
-                VStack(spacing: .zero) {
-                    headerAnchorSpacer
-                    header
-                    content
+        GeometryReader { rootGeometryProxy in
+            ScrollViewReader { scrollProxy in
+                RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
+                    VStack(spacing: .zero) {
+                        headerAnchorSpacer
+                        header
+                        content
+                        contentFooterSpacer
+                        bottomOverlaySpacer
+                    }
+                    .onGeometryChange(
+                        for: CGRect.self,
+                        of: { contentGeometryProxy in
+                            contentGeometryProxy.frame(in: .global)
+                        },
+                        action: { contentFrame in
+                            handleScrollChanged(contentFrame, rootGeometryProxy)
+                        }
+                    )
+                }
+                .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
+                    if newValue != oldValue, !newValue {
+                        performVerticalScrollIfNeeded(with: scrollProxy, safeAreaInsetsTop: rootGeometryProxy.safeAreaInsets.top)
+                    }
                 }
             }
-            .onAppear {
-                scrollDetector.startDetectingScroll()
-            }
-            .onDisappear(perform: scrollDetector.stopDetectingScroll)
-            .onChange(of: scrollDetector.isScrolling) { [oldValue = scrollDetector.isScrolling] newValue in
-                if newValue != oldValue, !newValue {
-                    performVerticalScrollIfNeeded(with: scrollProxy)
-                }
-            }
-        }
-        .onGeometryChange(for: CGFloat.self, of: \.safeAreaInsets.top) { safeAreaInsetsTop in
-            self.safeAreaInsetsTop = safeAreaInsetsTop
         }
     }
 
     private var headerAnchorSpacer: some View {
         Spacer(minLength: .zero)
             .frame(height: Paddings.headerTop)
-            .onGeometryChange(
-                for: CGFloat.self,
-                of: { proxy in
-                    proxy.frame(in: .global).minY
-                },
-                action: { headerMinY in
-                    onHeaderMinYChanged(headerMinY)
-                    self.headerMinY = headerMinY
-
-                    let startY = safeAreaInsetsTop
-                    let endY = headerBalanceTextHeight + Paddings.headerTop
-                    let progress = clamp((startY - headerMinY) / (startY + endY), min: 0, max: 1)
-
-                    headerOpacity = headerOpacity(for: progress)
-                    headerScale = headerScale(for: progress)
-                }
-            )
             .id(HeaderScrollAnchorIdentifier.top)
     }
 
@@ -95,24 +84,47 @@ struct UserWalletView: View {
 
     private var content: some View {
         pageBuilder.content
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-//                Color.clear.frame(height: overlayCollapsedHeight)
-            }
             .id(HeaderScrollAnchorIdentifier.bottom)
     }
 
-    private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
-        let fullHeaderHeight = Paddings.headerTop + headerHeight
-        let headerMaxY = headerMinY + fullHeaderHeight
+    private var contentFooterSpacer: some View {
+        Spacer(minLength: .zero)
+            .frame(height: contentFooterHeight)
+    }
 
-        let screenTopIsBelowHeaderTop = safeAreaInsetsTop > headerMinY
+    private var bottomOverlaySpacer: some View {
+        Spacer(minLength: .zero)
+            .frame(height: bottomOverlayHeight)
+    }
+
+    private func handleScrollChanged(_ contentFrame: CGRect, _ rootGeometryProxy: GeometryProxy) {
+        let scrollViewFrameHeight = rootGeometryProxy.size.height
+        let contentOffsetY = contentFrame.minY
+
+        let didScrollToBottom = contentFrame.maxY - bottomOverlayHeight <= scrollViewFrameHeight
+        onContentGeometryChanged(ScrollContentGeometry(contentOffsetY: contentOffsetY, didScrollToBottom: didScrollToBottom))
+
+        let startY = rootGeometryProxy.safeAreaInsets.top
+        let endY = headerBalanceTextHeight + Paddings.headerTop
+        let progress = clamp((startY - contentOffsetY) / (startY + endY), min: 0, max: 1)
+
+        self.contentOffsetY = contentOffsetY
+        headerOpacity = headerOpacity(for: progress)
+        headerScale = headerScale(for: progress)
+    }
+
+    private func performVerticalScrollIfNeeded(with scrollViewProxy: ScrollViewProxy, safeAreaInsetsTop: CGFloat) {
+        let fullHeaderHeight = Paddings.headerTop + headerHeight
+        let headerMaxY = contentOffsetY + fullHeaderHeight
+
+        let screenTopIsBelowHeaderTop = safeAreaInsetsTop > contentOffsetY
         let screenTopIsAboveHeaderBottom = safeAreaInsetsTop < headerMaxY
 
         guard screenTopIsBelowHeaderTop, screenTopIsAboveHeaderBottom else {
             return
         }
 
-        let hasReachedMiddlePoint = (safeAreaInsetsTop - headerMinY) > fullHeaderHeight / 2
+        let hasReachedMiddlePoint = (safeAreaInsetsTop - contentOffsetY) > fullHeaderHeight / 2
 
         let targetAnchor: HeaderScrollAnchorIdentifier = hasReachedMiddlePoint
             ? .bottom
@@ -133,6 +145,11 @@ struct UserWalletView: View {
 }
 
 extension UserWalletView {
+    struct ScrollContentGeometry: Equatable {
+        let contentOffsetY: CGFloat
+        let didScrollToBottom: Bool
+    }
+
     private enum Paddings {
         static let headerTop = CGFloat.unit(.x13)
     }
