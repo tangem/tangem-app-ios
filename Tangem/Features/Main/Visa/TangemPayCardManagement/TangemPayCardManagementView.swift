@@ -134,6 +134,9 @@ struct TangemPayCardManagementView: View {
                 } else if viewModel.isReissuing {
                     TangemPayReplacingCardBanner()
                         .padding(.horizontal, 16)
+                } else if viewModel.isClosing {
+                    TangemPayClosingCardBanner()
+                        .padding(.horizontal, 16)
                 } else {
                     activeCardSections
                 }
@@ -165,6 +168,12 @@ struct TangemPayCardManagementView: View {
         } header: {
             DefaultHeaderView(Localization.tangempayCardPageSettingsTitle)
                 .padding(.vertical, 12)
+        }
+        .padding(.horizontal, 16)
+
+        GroupedSection(viewModel.closeCardRow) { row in
+            DefaultRowView(viewModel: row)
+                .appearance(row.action != nil ? .destructiveButton : .disabledDestructiveButton)
         }
         .padding(.horizontal, 16)
     }
