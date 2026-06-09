@@ -140,17 +140,23 @@ private extension TokenDetailsYieldStateFactory {
         let promoApy = originalApy * promoMultiplier
         let promoFormattedApy = formattedApy(promoApy)
 
-        let title = "\(Localization.yieldModuleTokenDetailsEarnNotificationApy) \(originalFormattedApy)"
+        var heading = AttributedString(Localization.yieldApyBoostBannerTitle)
+        heading.font = .Tangem.Body16.medium
+        heading.foregroundColor = .Tangem.Text.Neutral.primary
+
+        let apyLineText = "\(Localization.yieldModuleTokenDetailsEarnNotificationApy) \(originalFormattedApy)"
             + " x\(promoMultiplier)"
             + " → \(promoFormattedApy)"
 
-        var attributedTitle = AttributedString(title)
-        attributedTitle.font = .Tangem.Body16.medium
-        attributedTitle.foregroundColor = .Tangem.Text.Neutral.primary
+        var apyLine = AttributedString(apyLineText)
+        apyLine.font = .Tangem.Body16.medium
+        apyLine.foregroundColor = .Tangem.Text.Neutral.primary
 
-        if let originalApyRange = attributedTitle.range(of: originalFormattedApy) {
-            attributedTitle[originalApyRange].strikethroughStyle = .single
+        if let originalApyRange = apyLine.range(of: originalFormattedApy) {
+            apyLine[originalApyRange].strikethroughStyle = .single
         }
+
+        let attributedTitle = heading + AttributedString("\n") + apyLine
 
         let learnAction = TokenDetailsYieldState.Action(
             title: Localization.commonLearnMore,
@@ -172,7 +178,7 @@ private extension TokenDetailsYieldStateFactory {
 
         let item = TokenDetailsYieldState.PromoAvailableItem(
             title: attributedTitle,
-            description: Localization.yieldApyBoostBannerTitle,
+            description: Localization.yieldApyBoostBannerSubtitle,
             learnAction: learnAction,
             activateAction: activateAction
         )
