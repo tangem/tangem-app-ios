@@ -13,6 +13,7 @@ protocol TangemPayCardDetailsRepository: AnyObject {
     var lastFourDigits: String { get }
     var lastFourDigitsPublisher: AnyPublisher<String, Never> { get }
     var cardNamePublisher: AnyPublisher<String, Never> { get }
+    var isReissuingPublisher: AnyPublisher<Bool, Never> { get }
 
     func updateCardDisplayName(_ name: String) async throws
     func revealRequest() async throws -> TangemPayCardDetailsData
