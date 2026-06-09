@@ -17,7 +17,6 @@ enum Feature: String, Hashable, CaseIterable {
     case walletConnectBitcoin
     case mainQRScan
     case surveySparrow
-    case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
     case solanaTxHistoryEnabled
     case solanaScaledUIEnabled
@@ -59,7 +58,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .mainQRScan: return "Main QR Scan"
         case .surveySparrow: return "SurveySparrow service integration"
-        case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
@@ -103,7 +101,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return .unspecified
         case .mainQRScan: return .version("5.36")
         case .surveySparrow: return .unspecified
-        case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
         case .solanaTxHistoryEnabled: return .version("5.39")
         case .solanaScaledUIEnabled: return .version("5.39")
