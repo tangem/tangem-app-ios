@@ -600,6 +600,10 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             // plasma
             "https://rpc.plasma.to/",
             "https://plasma.drpc.org/",
+            // sei-v2
+            "https://sei-evm-rpc.stakeme.pro/",
+            "https://evm-rpc.sei-apis.com/",
+            "https://sei-public.nodies.app/",
         ]
 
         // When/Then
