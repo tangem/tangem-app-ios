@@ -21,6 +21,7 @@ enum PersistentStorageKey {
     case onrampPreference
     case tokenSearchQueryHistory
     case tokenSearchAssetHistory
+    case addressBook
 
     var path: String {
         switch self {
@@ -42,6 +43,8 @@ enum PersistentStorageKey {
             return "token_search_query_history"
         case .tokenSearchAssetHistory:
             return "token_search_asset_history"
+        case .addressBook:
+            return "address_book"
         }
     }
 
@@ -65,6 +68,8 @@ enum PersistentStorageKey {
         case .tokenSearchQueryHistory:
             false
         case .tokenSearchAssetHistory:
+            false
+        case .addressBook:
             false
         }
     }
