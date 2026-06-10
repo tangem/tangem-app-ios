@@ -21,6 +21,14 @@ final class AddFundsScreen: ScreenBase<AddFundsScreenElement> {
             return OnrampScreen(app)
         }
     }
+
+    @discardableResult
+    func tapSwap() -> SwapStoriesScreen {
+        XCTContext.runActivity(named: "Tap Swap row on Add funds screen") { _ in
+            swapRow.waitAndTap()
+            return SwapStoriesScreen(app)
+        }
+    }
 }
 
 enum AddFundsScreenElement: String, UIElement {
