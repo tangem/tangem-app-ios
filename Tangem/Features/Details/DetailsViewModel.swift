@@ -206,6 +206,10 @@ private extension DetailsViewModel {
         coordinator?.openShop()
     }
 
+    func openAddressBook() {
+        coordinator?.openAddressBook()
+    }
+
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         coordinator?.openGetTangemPay(availableSelection: availableSelection)
         Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
@@ -344,8 +348,8 @@ private extension DetailsViewModel {
             return
         }
 
-        addressBookRowViewModel = AddressBookRowViewModel {
-            print("Open Address Book")
+        addressBookRowViewModel = AddressBookRowViewModel { [weak self] in
+            self?.openAddressBook()
         }
     }
 
