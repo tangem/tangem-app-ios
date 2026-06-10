@@ -7,9 +7,9 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import SolanaSwift
 import TangemNetworkUtils
-import struct AnyCodable.AnyEncodable
 
 struct SolanaScaledUiAmountTarget {
     let endpoint: RPCEndpoint

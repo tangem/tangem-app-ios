@@ -14,12 +14,22 @@ struct PromotionNotificationsView: View {
     @ObservedObject var viewModel: PromotionNotificationsViewModel
 
     var body: some View {
-        NotificationBannerCarousel(items: viewModel.notificationInputs) { input in
-            NotificationView(input: input)
+        if FeatureProvider.isAvailable(.redesign) {
+            configured(NotificationBannerCarousel(items: viewModel.bannerItems))
+        } else {
+            configured(NotificationBannerCarousel(items: viewModel.notificationInputs) { input in
+                NotificationView(input: input)
+            })
         }
-        .hasClipShape(false)
-        .paginationHasBackground(false)
-        .currentIndexHasChanged(viewModel.carouselIndexHasChanged)
-        .onScreenVisibilityChange(viewModel.onScreenVisibilityChange)
+    }
+
+    private func configured<Item, BannerView: View>(
+        _ carousel: NotificationBannerCarousel<Item, BannerView>
+    ) -> some View {
+        carousel
+            .hasClipShape(false)
+            .paginationHasBackground(false)
+            .currentIndexHasChanged(viewModel.carouselIndexHasChanged)
+            .onScreenVisibilityChange(viewModel.onScreenVisibilityChange)
     }
 }

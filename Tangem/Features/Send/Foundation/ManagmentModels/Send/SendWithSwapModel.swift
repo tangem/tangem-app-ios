@@ -336,6 +336,15 @@ extension SendWithSwapModel: SendReceiveTokenAmountInput {
             }
             .eraseToAnyPublisher()
     }
+
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap -> AnyPublisher<Bool, Never> in
+                isSwap ? model.swapModel.isReceiveAmountApproximatePublisher : .just(output: false)
+            }
+            .eraseToAnyPublisher()
+    }
 }
 
 // MARK: - SendReceiveTokenAmountOutput
@@ -371,6 +380,15 @@ extension SendWithSwapModel: SendSwapProvidersInput {
             .withWeakCaptureOf(self)
             .flatMapLatest { model, isSwap in
                 isSwap ? model.swapModel.selectedExpressProviderPublisher : .just(output: nil)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
+        isSwapModePublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, isSwap in
+                isSwap ? model.swapModel.providerRateTypesPublisher : .just(output: [])
             }
             .eraseToAnyPublisher()
     }
