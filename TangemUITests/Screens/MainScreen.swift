@@ -87,7 +87,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyOrganizeTokensButtonVisible() -> Self {
         XCTContext.runActivity(named: "Verify organize tokens button IS visible") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
-            scrollToElement(organizeTokensButton, attempts: .standard)
+            scrollTokensListToVisible(organizeTokensButton)
             waitAndAssertTrue(organizeTokensButton, "Organize tokens button should be visible on main screen")
             return self
         }
@@ -178,20 +178,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             // Ensure tokens list is loaded first
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
 
-            // Try to find the organize button and scroll to it if needed
-            if !organizeTokensButton.exists || !organizeTokensButton.isHittable {
-                // Scroll to find the organize button with better error handling
-                scrollToElement(organizeTokensButton, attempts: .standard)
-
-                // Wait for the button to become hittable after scrolling
-                XCTAssertTrue(
-                    organizeTokensButton.waitForState(state: .hittable, for: .robustUIUpdate),
-                    "Organize tokens button should become hittable after scrolling"
-                )
-            }
-
-            // Scroll the button above the markets sheet if needed
-            scrollOrganizeButtonAboveMarketsSheet()
+            // Scroll inside the tokens list — app-level swipes can grab the Markets sheet and cover the button.
+            XCTAssertTrue(
+                scrollTokensListToVisible(organizeTokensButton),
+                "Organize tokens button should be visible after scrolling tokens list"
+            )
 
             // Use the robust waitAndTap method instead of direct tap
             XCTAssertTrue(
@@ -835,28 +826,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTAssertTrue(headerExists, "Main header should exist before swiping wallet")
     }
 
-    /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
-    private func scrollOrganizeButtonAboveMarketsSheet() {
-        guard grabber.exists, organizeTokensButton.exists else { return }
-
-        let grabberFrame = grabber.frame
-        let buttonFrame = organizeTokensButton.frame
-
-        // If the button is below or overlapping with the grabber, scroll the list up
-        if buttonFrame.maxY > grabberFrame.minY {
-            // Calculate how much we need to scroll
-            let scrollDistance = buttonFrame.maxY - grabberFrame.minY + 50 // Add some padding
-
-            // Scroll the tokens list up
-            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -scrollDistance))
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-
-            // Wait for scroll animation to settle
-            _ = organizeTokensButton.waitForState(state: .hittable)
-        }
-    }
-
     /// Scrolls inside `tokensList` (not the whole app) and pushes the row above the Markets sheet grabber when they overlap.
     @discardableResult
     private func scrollTokensListToVisible(_ element: XCUIElement, attempts: Int = 5) -> Bool {
@@ -866,7 +835,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             if hasVisibleFrame(element) {
                 let frame = element.frame
                 if grabber.exists, frame.maxY > grabber.frame.minY {
-                    scrollTokensList(byOffset: -(frame.maxY - grabber.frame.minY + 50))
+                    let offset = min(frame.maxY - grabber.frame.minY + 50, app.frame.height)
+                    scrollTokensList(byOffset: -offset)
                     continue
                 }
                 return true
@@ -881,7 +851,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private func hasVisibleFrame(_ element: XCUIElement) -> Bool {
         guard element.exists else { return false }
         let frame = element.frame
-        guard frame.width > 0, frame.height > 0 else { return false }
+        guard frame.width > 0, frame.height > 0, frame.isFinite else { return false }
         return app.frame.intersects(frame)
     }
 
@@ -944,6 +914,13 @@ enum MainScreenElement: String, UIElement {
         case .walletLockedNotification:
             MainAccessibilityIdentifiers.walletLockedNotification
         }
+    }
+}
+
+private extension CGRect {
+    /// Stale XCUIElement snapshots can report infinite frames on slow CI simulators.
+    var isFinite: Bool {
+        minX.isFinite && minY.isFinite && width.isFinite && height.isFinite
     }
 }
 

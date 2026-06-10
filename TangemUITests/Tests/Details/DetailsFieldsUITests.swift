@@ -79,8 +79,7 @@ final class DetailsFieldsUITests: BaseTestCase {
             .verifySections(walletConnect: false)
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func S2C_NoTradeButtonsAndStandardDetails() {
+    func testS2C_NoTradeButtonsAndStandardDetails() {
         setAllureId(2869)
         launchApp(tangemApiType: .mock)
 
