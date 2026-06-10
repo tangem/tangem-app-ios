@@ -15,7 +15,7 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
     private lazy var securityScoreValue = staticText(.securityScoreValue)
     private lazy var securityScoreRatingStars = image(.securityScoreRatingStars)
     private lazy var securityScoreReviewsCount = staticText(.securityScoreReviewsCount)
-    private lazy var swapButton = app.buttons[ActionButtonsAccessibilityIdentifiers.swapButton].firstMatch
+    private lazy var addFundsButton = app.buttons[ActionButtonsAccessibilityIdentifiers.addFundsButton].firstMatch
 
     @discardableResult
     func verifyListedOnExchangesBlock() -> Self {
@@ -154,23 +154,13 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
         }
     }
 
-    // MARK: - Swap Button Actions
+    // MARK: - Add Funds Actions
 
     @discardableResult
-    func expandTokenActionButtons(tokenName: String) -> Self {
-        XCTContext.runActivity(named: "Wait for Swap button to appear in Markets token details") { _ in
-            let tokenButton = app.buttons[MarketsAccessibilityIdentifiers.marketsPortfolioTokenItem(tokenName: tokenName)].firstMatch
-            tokenButton.waitAndTap()
-            waitAndAssertTrue(swapButton, "Swap button should exist in Markets token details")
-            return self
-        }
-    }
-
-    @discardableResult
-    func tapSwapButton() -> SwapStoriesScreen {
-        XCTContext.runActivity(named: "Tap Swap button on Markets token details screen") { _ in
-            swapButton.waitAndTap()
-            return SwapStoriesScreen(app)
+    func tapAddFunds() -> AddFundsScreen {
+        XCTContext.runActivity(named: "Tap Add funds button on Markets token details screen") { _ in
+            addFundsButton.waitAndTapWithScroll()
+            return AddFundsScreen(app)
         }
     }
 }
