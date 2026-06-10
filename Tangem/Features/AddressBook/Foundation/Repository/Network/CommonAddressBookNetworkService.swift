@@ -24,7 +24,7 @@ extension CommonAddressBookNetworkService: AddressBookNetworkService {
         // AddressBookDTO.Save.Response
         throw CommonError.notImplemented
     }
-    
+
     func saveAddressBook(_ addressBook: AddressBook, retryCount: Int) async throws {
         // [REDACTED_TODO_COMMENT]
         // AddressBookDTO.Save.Response
