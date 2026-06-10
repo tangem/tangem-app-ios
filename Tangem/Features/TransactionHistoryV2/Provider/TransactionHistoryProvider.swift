@@ -182,7 +182,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
             return
         }
 
-        if let inFlightSyncTask = inFlightInitialSyncTask ?? inFlightIncrementalSyncTask {
+        if let inFlightSyncTask = inFlightIncrementalSyncTask {
             TransactionHistoryLogger.debug(self, "Joining in-flight sync")
             return await inFlightSyncTask.value
         }
