@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import AnyCodable
 
 struct BlockBookTarget: TargetType {
     let request: Request

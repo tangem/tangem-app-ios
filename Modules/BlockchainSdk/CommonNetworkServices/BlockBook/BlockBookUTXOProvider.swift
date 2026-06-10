@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import AnyCodable
 import TangemSdk
 import TangemFoundation
 import TangemNetworkUtils
