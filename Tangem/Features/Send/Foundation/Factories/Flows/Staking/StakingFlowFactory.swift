@@ -155,7 +155,8 @@ extension StakingFlowFactory: SendAmountStepBuildable {
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
                 validator: stakingableToken.transactionValidator,
-                stakingManagerStatePublisher: manager.statePublisher
+                stakingManagerStatePublisher: manager.statePublisher,
+                analyticsLogger: analyticsLogger
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),
             notificationService: .none,
