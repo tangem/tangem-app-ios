@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUIUtils
 import TangemAssets
 import TangemAccessibilityIdentifiers
@@ -165,25 +166,29 @@ public struct NotificationBanner: View, Setupable {
         let textAlignment: TextAlignment = isCentered ? .center : .leading
 
         return VStack(alignment: alignment, spacing: SizeUnit.x1.value) {
-            Text(title)
-                .style(
-                    Fonts.Bold.headline,
-                    color: Color.Tangem.Text.Neutral.primary
-                )
-                .lineLimit(nil)
-                .multilineTextAlignment(textAlignment)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            if title.characters.isNotEmpty {
+                Text(title)
+                    .style(
+                        Fonts.Bold.headline,
+                        color: Color.Tangem.Text.Neutral.primary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            }
 
-            Text(subtitle)
-                .style(
-                    Fonts.Bold.subheadline,
-                    color: Color.Tangem.Text.Neutral.tertiary
-                )
-                .lineLimit(nil)
-                .multilineTextAlignment(textAlignment)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            if subtitle.characters.isNotEmpty {
+                Text(subtitle)
+                    .style(
+                        Fonts.Bold.subheadline,
+                        color: Color.Tangem.Text.Neutral.tertiary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            }
         }
         .padding(.horizontal, SizeUnit.x1.value)
         .padding(.top, SizeUnit.x1.value)
