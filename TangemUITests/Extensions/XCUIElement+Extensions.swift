@@ -67,6 +67,13 @@ extension XCUIElement {
 
         return true
     }
+
+    @discardableResult
+    func waitForValue(_ expectedValue: String, timeout: TimeInterval = .conditional) -> Bool {
+        let predicate = NSPredicate(format: "value == %@", expectedValue)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
 }
 
 // MARK: UI actions
