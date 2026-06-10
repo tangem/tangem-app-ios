@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 /// The heart of address book management: orchestrates the local repository and the remote network service.
 /// It pulls the remote version, compares it with the local one, and decides what to do next.
@@ -14,7 +15,6 @@ actor CommonAddressBookManager {
     private let repository: AddressBookRepository
     private let networkService: AddressBookNetworkService
 
-    private var currentSynchronizerState: AddressBookSynchronizerState = .idle
     private var syncTask: Task<Void, Never>?
 
     init(repository: AddressBookRepository, networkService: AddressBookNetworkService) {
@@ -25,12 +25,10 @@ actor CommonAddressBookManager {
     // MARK: - Sync (remote -> local)
 
     private func performSync() async {
-        currentSynchronizerState = .syncing
         do {
             let remoteInfo = try await networkService.getAddressBook(retryCount: 0)
             try Task.checkCancellation()
             try await applyIfNewer(remoteInfo)
-            currentSynchronizerState = .synced
         } catch AddressBookNetworkServiceError.notImplemented {
             // No remote API yet — keep the local state as the source of truth.
             currentSynchronizerState = .idle
@@ -83,19 +81,8 @@ actor CommonAddressBookManager {
 // MARK: - AddressBookManager
 
 extension CommonAddressBookManager: AddressBookManager {
-    var synchronizerState: AddressBookSynchronizerState {
-        currentSynchronizerState
-    }
-
-    func sync() {
-        syncTask?.cancel()
-        syncTask = Task { [weak self] in
-            await self?.performSync()
-        }
-    }
-
-    func getAddressBook() async throws -> AddressBook {
-        try await repository.getAddressBook()
+    nonisolated var addressBookPublisher: AnyPublisher<AddressBook, Never> {
+        repository.addressBookPublisher
     }
 
     func save(contact: AddressBookContact) async throws {

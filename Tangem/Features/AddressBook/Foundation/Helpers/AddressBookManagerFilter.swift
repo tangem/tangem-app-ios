@@ -7,5 +7,5 @@
 //
 
 protocol AddressBookManagerFilter {
-    func getContacts(for network: BSDKBlockchain) async -> [AddressBookContact]
+    func getAddressBook(filteredFor network: BSDKBlockchain) async -> AddressBook
 }
