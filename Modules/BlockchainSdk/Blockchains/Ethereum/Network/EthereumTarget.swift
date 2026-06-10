@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import TangemFoundation
 import TangemNetworkUtils
 
