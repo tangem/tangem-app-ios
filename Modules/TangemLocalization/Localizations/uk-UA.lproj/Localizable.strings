@@ -1538,9 +1538,9 @@
 "tangempay_card_details_rename_card_invalid_title" = "Неприпустимі символи";
 "tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Показати";
-"tangempay_card_details_show_details" = "Показати деталі";
+"tangempay_card_details_show_details" = "Реквізити";
 "tangempay_card_details_swap_description" = "Обміняйте будь-який актив у вашому портфелі на картку";
-"tangempay_card_details_title" = "Реквізити картки";
+"tangempay_card_details_title" = "Реквізити";
 "tangempay_card_details_unable_to_rename_card_description" = "Будь ласка, спробуйте пізніше";
 "tangempay_card_details_unfreeze_card" = "Розморозити картку";
 "tangempay_card_details_view_pin_code_description" = "Поверніться до додатка, якщо ви забудете його.";
