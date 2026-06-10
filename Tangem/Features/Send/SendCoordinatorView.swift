@@ -44,14 +44,10 @@ struct SendCoordinatorView: CoordinatorView {
 
     private var sheets: some View {
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.onrampCountryDetectionCoordinator,
-                settings: .init(
-                    backgroundColor: Colors.Background.tertiary,
-                    hidingOption: .nonHideable
-                )
-            ) {
+            .sheet(item: $coordinator.onrampCountryDetectionCoordinator) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
+                    .interactiveDismissDisabled(true)
+                    .presentationBackground(Colors.Background.tertiary)
             }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
                 QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()
