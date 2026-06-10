@@ -150,7 +150,7 @@ extension CarouselNewsCardView {
         enum RedesignCard {
             static let padding: CGFloat = .unit(.x4)
             static let cornerRadius: CGFloat = .unit(.x6)
-            static let allNewsCornerRadius: CGFloat = .unit(.x5)
+            static let allNewsCornerRadius: CGFloat = .unit(.x6)
             static let width: CGFloat = 280
             static let height: CGFloat = 172
             static let titleLineLimit: Int = 3

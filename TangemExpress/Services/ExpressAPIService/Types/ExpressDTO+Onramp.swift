@@ -269,7 +269,7 @@ extension ExpressDTO {
             struct Pagination: Decodable {
                 /// Opaque cursor (hence `AnyDecodable`) for the next page.
                 let endCursor: AnyDecodable?
-                /// Opaque cursor (hence `AnyDecodable`) for the next page (delta sync).
+                /// Opaque cursor (hence `AnyDecodable`) to seed the delta sync.
                 let startDeltaCursor: AnyDecodable?
                 let hasMore: Bool? // [REDACTED_TODO_COMMENT]
                 @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
