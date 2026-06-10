@@ -11,7 +11,7 @@ import Combine
 import UIKit
 import TangemUI
 
-class MarketsCoordinator: CoordinatorObject {
+final class MarketsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager

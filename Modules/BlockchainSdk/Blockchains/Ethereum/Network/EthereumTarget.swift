@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import TangemFoundation
 import TangemNetworkUtils
 
@@ -75,7 +76,9 @@ private extension EthereumTarget {
             return AnyEncodable([address, "pending"])
         case .send(let transaction):
             return AnyEncodable([transaction])
-        case .gasLimit(let params):
+        case .gasLimit(let params, .some(let stateOverride)):
+            return AnyEncodable([AnyEncodable(params), AnyEncodable("latest"), AnyEncodable(stateOverride)])
+        case .gasLimit(let params, .none):
             return AnyEncodable([params])
         case .gasPrice, .priorityFee:
             return AnyEncodable([Int]()) // Empty params
@@ -98,7 +101,7 @@ extension EthereumTarget {
         case transactions(address: String)
         case pending(address: String)
         case send(transaction: String)
-        case gasLimit(params: GasLimitParams)
+        case gasLimit(params: GasLimitParams, stateOverride: [String: EthereumAccountOverride]?)
         case gasPrice
         case call(params: CallParams)
         case priorityFee
