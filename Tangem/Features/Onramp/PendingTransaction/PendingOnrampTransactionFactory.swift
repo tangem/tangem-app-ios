@@ -57,6 +57,9 @@ struct PendingOnrampTransactionFactory {
         case .paused:
             currentStatus = .paused
             statusesList = pausedStatusesList
+        case .unknown:
+            currentStatus = .unknown
+            statusesList = unknownHashStatusesList
         }
 
         transactionRecord.transactionStatus = currentStatus
