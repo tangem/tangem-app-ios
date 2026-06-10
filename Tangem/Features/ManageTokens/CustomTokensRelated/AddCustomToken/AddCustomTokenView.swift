@@ -43,7 +43,6 @@ struct AddCustomTokenView: View {
         }
         .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
-        .alert(item: $viewModel.alert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.addCustomTokenTitle), displayMode: .inline)
         .animation(.default, value: viewModel.selectedBlockchainNetworkId)
     }
