@@ -58,6 +58,7 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
 
     func updatePreferences(isEnabled: Bool, for channel: PushChannel) async throws {
         let snapshot = preferencesSubject.value
+        let serverSnapshot = serverPreferences
 
         // Optimistic update
         var optimistic = snapshot
@@ -70,6 +71,28 @@ final class NotificationPreferencesProviderStub: NotificationPreferencesProvider
         } catch {
             // Rollback on cancellation
             preferencesSubject.send(snapshot)
+            serverPreferences = serverSnapshot
+            throw error
+        }
+    }
+
+    func enableAll() async throws {
+        let snapshot = preferencesSubject.value
+        let serverSnapshot = serverPreferences
+
+        var optimistic = snapshot
+        for channel in PushChannel.allCases {
+            optimistic.setEnabled(true, for: channel)
+            setServerPreference(true, for: channel)
+        }
+        preferencesSubject.send(optimistic)
+
+        do {
+            try await Task.sleep(for: Self.simulatedNetworkDelay)
+        } catch {
+            // Rollback on cancellation
+            preferencesSubject.send(snapshot)
+            serverPreferences = serverSnapshot
             throw error
         }
     }

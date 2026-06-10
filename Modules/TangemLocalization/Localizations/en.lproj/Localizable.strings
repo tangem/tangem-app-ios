@@ -1538,9 +1538,9 @@
 "tangempay_card_details_rename_card_invalid_title" = "Invalid characters";
 "tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Reveal";
-"tangempay_card_details_show_details" = "Show details";
+"tangempay_card_details_show_details" = "Details";
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
-"tangempay_card_details_title" = "Card details";
+"tangempay_card_details_title" = "Details";
 "tangempay_card_details_unable_to_rename_card_description" = "Please try again later";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
