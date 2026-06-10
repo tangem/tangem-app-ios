@@ -1,9 +1,20 @@
 #!/bin/bash
 # Generate Marathon device configuration and Marathonfile
 # Required env: DERIVED_DATA_PATH, PORT_MAPPING, DEVICES_YAML
-# Optional env: TEST_CLASS (for filtering specific test classes)
+# Optional env: TEST_CLASS (for filtering specific test classes),
+#               MARATHON_RETRY_QUOTA (default: 15),
+#               MARATHON_OUTPUT_TIMEOUT_MS (default: 300000),
+#               MARATHON_BATCH_TIMEOUT_MS (default: 360000),
+#               MARATHON_TEST_TIME_ALLOWANCE_SEC (default: 240)
 
 set -e
+
+MARATHON_RETRY_QUOTA="${MARATHON_RETRY_QUOTA:-15}"
+# Kill escalation ladder: XCTest allowance (240s, clean kill with a test result)
+# < output timeout (300s) < batch timeout (360s, last resort)
+MARATHON_OUTPUT_TIMEOUT_MS="${MARATHON_OUTPUT_TIMEOUT_MS:-300000}"
+MARATHON_BATCH_TIMEOUT_MS="${MARATHON_BATCH_TIMEOUT_MS:-360000}"
+MARATHON_TEST_TIME_ALLOWANCE_SEC="${MARATHON_TEST_TIME_ALLOWANCE_SEC:-240}"
 
 if [ -z "$DERIVED_DATA_PATH" ]; then
   echo "ERROR: DERIVED_DATA_PATH environment variable is required"
@@ -70,8 +81,8 @@ cat Marathondevices
   echo 'name: "Tangem iOS UI Tests"'
   echo 'outputDir: "marathon-output"'
   echo ''
-  echo 'testOutputTimeoutMillis: 180000'
-  echo 'testBatchTimeoutMillis: 600000'
+  echo "testOutputTimeoutMillis: $MARATHON_OUTPUT_TIMEOUT_MS"
+  echo "testBatchTimeoutMillis: $MARATHON_BATCH_TIMEOUT_MS"
   echo ''
   echo 'vendorConfiguration:'
   echo '  type: "iOS"'
@@ -82,6 +93,12 @@ cat Marathondevices
   echo '  xctestrunEnv:'
   echo '    test:'
   echo "      SIMULATOR_PORT_MAPPING: \"$PORT_MAPPING\""
+  # XCTest kills a hung test itself, before marathon's output/batch timeouts,
+  # instead of leaving a hung xcodebuild process behind
+  echo '  xcodebuildTestArgs:'
+  echo '    "-test-timeouts-enabled": "YES"'
+  echo "    \"-default-test-execution-time-allowance\": \"$MARATHON_TEST_TIME_ALLOWANCE_SEC\""
+  echo "    \"-maximum-test-execution-time-allowance\": \"$MARATHON_TEST_TIME_ALLOWANCE_SEC\""
   echo ''
   echo 'poolingStrategy:'
   echo '  type: "omni"'
@@ -94,7 +111,7 @@ cat Marathondevices
   echo ''
   echo 'retryStrategy:'
   echo '  type: "fixed-quota"'
-  echo '  totalAllowedRetryQuota: 30'
+  echo "  totalAllowedRetryQuota: $MARATHON_RETRY_QUOTA"
   echo '  retryPerTestQuota: 1'
   echo ''
   echo 'flakinessStrategy:'
