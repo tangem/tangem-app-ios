@@ -40,6 +40,7 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
     func logNoticeNotEnoughFee()
+    func logErrorSumLimit(errorMessage: String)
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
