@@ -9,9 +9,9 @@
 import Foundation
 import Moya
 import Combine
+import AnyCodable
 import TangemFoundation
 import TangemNetworkUtils
-import AnyCodable
 
 class XRPNetworkProvider: XRPNetworkServiceType, HostProvider {
     var host: String {
