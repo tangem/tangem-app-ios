@@ -19,8 +19,6 @@ struct AddressBookManagerFactory {
             eTagStorage: CommonAddressBookETagStorage()
         )
 
-        let networkService = CommonAddressBookNetworkService(userWalletId: userWalletId)
-
-        return CommonAddressBookManager(repository: repository, networkService: networkService)
+        return CommonAddressBookManager(repository: repository)
     }
 }
