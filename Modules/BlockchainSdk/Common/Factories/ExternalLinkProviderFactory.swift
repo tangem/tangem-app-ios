@@ -209,6 +209,8 @@ public struct ExternalLinkProviderFactory {
             return PlasmaExternalLinkProvider(isTestnet: isTestnet)
         case .adi:
             return ADIExternalLinkProvider(isTestnet: isTestnet)
+        case .seiEvm:
+            return SeiEvmExternalLinkProvider(isTestnet: isTestnet)
         }
     }
 }
