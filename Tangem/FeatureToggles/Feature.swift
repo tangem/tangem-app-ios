@@ -48,6 +48,7 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayMultipleCards
     case transfers
     case tangemPaySpendRedesign
+    case addressBook
 
     var name: String {
         switch self {
@@ -90,6 +91,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .addressBook: return "10801-Address-Book"
         }
     }
 
@@ -134,6 +136,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayMultipleCards: return .unspecified
         case .transfers: return .version("5.40")
         case .tangemPaySpendRedesign: return .unspecified
+        case .addressBook: return .unspecified
         }
     }
 }
