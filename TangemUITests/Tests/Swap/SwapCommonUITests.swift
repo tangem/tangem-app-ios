@@ -17,7 +17,7 @@ final class SwapCommonUITests: BaseTestCase {
     func testCheckSwapUI() {
         setAllureId(575)
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -74,8 +74,9 @@ final class SwapCommonUITests: BaseTestCase {
 
         mainScreen
             .tapToken("Salam")
-            .waitForSwapButtonDisabled()
-            .goBackToMain()
+            .tapSwapButtonWhenUnavailable()
+
+        waitAndDismissErrorAlert(actionName: "Swap", expectedMessage: "custom tokens")
     }
 
     func testSwapButtonNotDisplayedOnSingleCurrencyCards() {
