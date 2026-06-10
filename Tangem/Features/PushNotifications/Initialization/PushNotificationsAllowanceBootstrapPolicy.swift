@@ -37,4 +37,9 @@ enum PushNotificationsAllowanceBootstrapPolicy {
 
         AppSettings.shared.allowanceUserWalletIdTransactionsPush.append(userWalletId.stringValue)
     }
+
+    @MainActor
+    static func markOnboardingCompleted(userWalletIds: [UserWalletId]) {
+        userWalletIds.forEach(markOnboardingCompleted(userWalletId:))
+    }
 }
