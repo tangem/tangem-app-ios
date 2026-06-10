@@ -60,13 +60,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private var amountType: Amount.AmountType { walletModel.tokenItem.amountType }
 
-    final var rateFormatted: String {
-        priceFormatter.formatPrice(walletModel.quote?.price)
-    }
-
-    final var priceChangeState: PriceChangeView.State {
-        priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
-    }
+    @Published private(set) final var rateFormatted: String = ""
+    @Published private(set) final var priceChangeState: PriceChangeView.State = .loading
 
     final var blockchain: Blockchain { blockchainNetwork.blockchain }
 
@@ -315,11 +310,17 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
 extension SingleTokenBaseViewModel {
     private func prepareSelf() {
+        updateMarketPriceState()
         bind()
         setupActionButtons()
         setupMiniChart()
         updateActionButtons()
         performLoadHistory()
+    }
+
+    private func updateMarketPriceState() {
+        rateFormatted = priceFormatter.formatPrice(walletModel.quote?.price)
+        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
     private func bind() {
@@ -421,6 +422,17 @@ extension SingleTokenBaseViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.updateActionButtons()
+            }
+            .store(in: &bag)
+
+        // The quote is reloaded when the app currency changes, so keep the Market price block in sync
+        // with the new currency without requiring a pull to refresh.
+        walletModel.ratePublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.updateMarketPriceState()
             }
             .store(in: &bag)
     }
