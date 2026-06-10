@@ -14,7 +14,7 @@ import TangemStaking
 
 class StakingAmountValidator {
     private let tokenItem: TokenItem
-    private let validator: TransactionValidator
+    private let validator: SendTransactionValidator
     private var minimumAmount: Decimal?
     private var maximumAmount: Decimal?
     private let stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>
@@ -23,7 +23,7 @@ class StakingAmountValidator {
 
     init(
         tokenItem: TokenItem,
-        validator: TransactionValidator,
+        validator: SendTransactionValidator,
         stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>
     ) {
         self.tokenItem = tokenItem

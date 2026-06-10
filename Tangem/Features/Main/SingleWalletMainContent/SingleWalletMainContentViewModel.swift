@@ -127,13 +127,16 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             }
         )
 
-        let actionButtonsVM: ActionButtonsViewModel? = coordinator.map {
-            ActionButtonsViewModel(
-                coordinator: $0,
-                userWalletModel: userWalletModel,
-                swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
-            )
-        }
+        let actionButtonsVisibility = ActionButtonsVisibility(config: userWalletModel.config)
+        let actionButtonsVM: ActionButtonsViewModel? = actionButtonsVisibility.hasVisibleButtons
+            ? coordinator.map {
+                ActionButtonsViewModel(
+                    coordinator: $0,
+                    userWalletModel: userWalletModel,
+                    swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+                )
+            }
+            : nil
 
         let tokenCardVariant: RedesignState.TokenCardVariant
         if let accountModel {
@@ -155,7 +158,10 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             tokenCardVariant = .token(tokenItemViewModel)
         }
 
-        redesignState = RedesignState(actionButtonsViewModel: actionButtonsVM, tokenCardVariant: tokenCardVariant)
+        redesignState = RedesignState(
+            actionButtonsViewModel: actionButtonsVM,
+            tokenCardVariant: tokenCardVariant
+        )
     }
 
     /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed

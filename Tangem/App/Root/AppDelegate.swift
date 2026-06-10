@@ -14,6 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
+    @Injected(\.silentPushNotificationsReceiver) private var silentPushNotificationsReceiver: SilentPushNotificationsReceiving
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -27,6 +28,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
         servicesManager.initialize(delegate: self)
         return true
+    }
+
+    /// Handles silent (content-available) remote notifications. We only act while the app is in the
+    /// foreground, relaying the payload onto the silent-push bus where independent handlers (e.g. the
+    /// transactional-push portfolio updater) pick out and process what they need.
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        guard application.applicationState == .active else {
+            completionHandler(.noData)
+            return
+        }
+
+        silentPushNotificationsReceiver.receive(SilentPushUserInfo(raw: userInfo))
+        completionHandler(.newData)
     }
 
     /// Disable custom keyboards

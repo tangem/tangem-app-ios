@@ -90,7 +90,6 @@ struct MetricsTradingVolumeCard: View {
 
             MetricsInfoLabel(
                 title: Localization.marketsTokenDetailsTradingVolume,
-                color: color,
                 action: {
                     viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.tradingVolume)
                 }
@@ -167,14 +166,14 @@ struct MetricsCirculatingSupplyCard: View {
     private var circulatingColumn: some View {
         VStack(alignment: .leading, spacing: .unit(.x3)) {
             Text(Localization.marketsTokenDetailsCirculatingSupply)
-                .style(.Tangem.Caption13.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
             HStack(alignment: .firstTextBaseline, spacing: .unit(.x1)) {
                 MetricsValueText(redesign.formattedCirculatingSupply)
 
                 Text(redesign.cryptoCurrencyCode)
                     .lineLimit(1)
-                    .style(.Tangem.Heading22.regular, color: .Tangem.Text.Neutral.secondary)
+                    .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.secondary)
             }
         }
     }
@@ -182,7 +181,7 @@ struct MetricsCirculatingSupplyCard: View {
     private var maxSupplyColumn: some View {
         VStack(alignment: .trailing, spacing: .unit(.x3)) {
             Text(Localization.marketsTokenDetailsMaxSupply)
-                .style(.Tangem.Caption13.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
             MetricsValueText(redesign.formattedMaxSupply)
         }
@@ -213,7 +212,7 @@ struct MetricsValueText: View {
         Text(value ?? Localization.tokenMarketMetricsNoData)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
-            .style(.Tangem.Heading22.regular, color: Self.color(hasData: value != nil))
+            .style(.Tangem.Heading20.semibold, color: Self.color(hasData: value != nil))
     }
 
     static func color(hasData: Bool) -> Color {
