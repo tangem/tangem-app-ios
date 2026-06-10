@@ -15,4 +15,5 @@ struct ExpressProviderFlowContext {
     let expressFeeProvider: ExpressFeeProvider
     let expressAPIProvider: ExpressAPIProvider
     let mapper: ExpressManagerMapper
+    let featureFlags: ExpressFeatureFlags
 }
