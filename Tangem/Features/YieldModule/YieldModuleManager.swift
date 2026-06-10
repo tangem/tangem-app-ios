@@ -259,7 +259,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         }
 
         let result = try await transactionDispatcher
-            .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
+            .send(transactions: transactions.map { .transfer($0) })
             .map(\.hash)
 
         if let yieldContractAddressToSave {
@@ -306,7 +306,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         )
 
         let result = try await transactionDispatcher
-            .send(transactions: transactions.map(TransactionDispatcherTransactionType.transfer))
+            .send(transactions: transactions.map { .transfer($0) })
             .map(\.hash)
 
         await setNextExpectedState(.notActive)

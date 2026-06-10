@@ -85,7 +85,9 @@ struct FullPagePagerView<Data, Navigation, Header, Body, BottomOverlay>: View
             selectedIndex: selectedIndex,
             navigationFactory: navigationFactory
         ))
-        .readGeometry(\.size.height) { viewportHeight = $0 }
+        .onGeometryChange(for: CGFloat.self, of: \.size.height) {
+            viewportHeight = $0
+        }
     }
 }
 
@@ -106,10 +108,10 @@ private extension FullPagePagerView {
             FullPagePagerViewModern(
                 data: data,
                 selectedIndex: $selectedIndex,
-                headerHeightRatio: $headerHeightRatio,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
                 refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
+                onHeaderHeightRatioChange: { headerHeightRatio = $0 },
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
@@ -118,10 +120,10 @@ private extension FullPagePagerView {
             FullPagePagerViewLegacy(
                 data: data,
                 selectedIndex: $selectedIndex,
-                headerHeightRatio: $headerHeightRatio,
                 isScrollDisabled: isScrollDisabled,
                 viewportHeight: viewportHeight,
                 refreshScrollViewInteractor: refreshScrollViewStateObject.scrollViewInteractor,
+                onHeaderHeightRatioChange: { headerHeightRatio = $0 },
                 onPageChangeCallback: onPageChangeCallback,
                 headerFactory: headerFactory,
                 bodyFactory: bodyFactory
