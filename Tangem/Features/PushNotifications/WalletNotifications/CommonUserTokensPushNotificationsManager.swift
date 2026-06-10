@@ -62,7 +62,7 @@ final class CommonUserTokensPushNotificationsManager {
                 case .updateStatusRequired:
                     manager.updateStatusIfNeeded()
                 case .autoEnablePreferencesRequired:
-                    manager.tryUpdateEnableState(value: true)
+                    manager.applyLocalStatusUpdate(true)
                 }
             }
             .store(in: &bag)
@@ -221,6 +221,23 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         _userWalletPushStatusSubject.value
     }
 
+    var preferencesPublisher: AnyPublisher<RemotePushPreferences, Never> {
+        _userWalletPushRemoteStatusSubject
+            .map { state -> RemotePushPreferences in
+                switch state {
+                case .loading:
+                    return .loading
+                case .failed:
+                    return RemotePushPreferences(state: .failed)
+                case .ready(let isEnabled):
+                    var prefs = RemotePushPreferences(state: .ready([:]))
+                    prefs.setEnabled(isEnabled, for: .transactionAlerts)
+                    return prefs
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     var isRemoteStatusEnabled: Bool {
         if case .ready(let isEnabled) = _userWalletPushRemoteStatusSubject.value {
             return isEnabled
@@ -231,7 +248,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
     func process(_ event: UserWalletPushNotificationsEvent) {
         switch event {
-        case .remoteStatusReceived(let value):
+        case .remoteStatusReceived(let value, _):
             applyRemoteStatusUpdate(value)
         case .walletApplicationBindingSynchronized:
             updateStatusIfNeeded()
@@ -240,7 +257,7 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
         }
     }
 
-    func tryUpdateEnableState(value: Bool) {
+    func tryUpdateEnableState(value: Bool, for _: PushChannel) async throws {
         applyLocalStatusUpdate(value)
     }
 }
