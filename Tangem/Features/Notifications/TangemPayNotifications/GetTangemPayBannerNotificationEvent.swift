@@ -49,7 +49,7 @@ struct GetTangemPayBannerNotificationEvent: NotificationEvent, Hashable {
         .promo(.card)
     }
 
-    var analyticsEvent: Analytics.Event? { nil }
+    var analyticsEvent: Analytics.Event? { .visaOnboardingPermanentBannerShowed }
     var analyticsParams: [Analytics.ParameterKey: String] { [:] }
     var isOneShotAnalyticsEvent: Bool { false }
 }

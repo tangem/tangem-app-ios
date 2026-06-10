@@ -262,6 +262,13 @@ extension TransactionsListView {
         case loaded([TransactionListItem])
         case notSupported
 
+        var isLoaded: Bool {
+            if case .loaded = self {
+                return true
+            }
+            return false
+        }
+
         static func == (lhs: State, rhs: State) -> Bool {
             switch (lhs, rhs) {
             case (.loading, .loading): return true
