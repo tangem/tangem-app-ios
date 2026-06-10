@@ -8,10 +8,12 @@
 
 import Foundation
 
-protocol AddressBookManager: Actor {
-    var synchronizerState: AddressBookSynchronizerState { get }
+typealias AddressBook = [AddressBookContact]
 
-    func getContacts() async throws -> [AddressBookContact]
+protocol AddressBookManager: Actor {
+    var synchronizerState: AddressBookSynchronizerState { get async }
+
+    func getAddressBook() async throws -> AddressBook
 
     func save(contact: AddressBookContact) async throws
     func remove(contact: AddressBookContact) async throws
