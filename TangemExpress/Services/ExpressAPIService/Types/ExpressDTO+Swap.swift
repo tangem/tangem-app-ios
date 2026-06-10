@@ -172,50 +172,88 @@ extension ExpressDTO {
             }
         }
 
-        // MARK: - History
+        // MARK: - History (initial)
 
         enum History {
+            struct Request: Encodable {
+                let fromAddress: String
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let afterCursor: AnyEncodable?
+                let limit: Int?
+            }
+
             struct Response: Decodable {
-                let data: [Record]
-                let nextCursor: AnyDecodable
-                let hasMore: Bool
+                let items: [Record]
+                let pagination: Pagination
+            }
+
+            struct Pagination: Decodable {
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let endCursor: AnyDecodable?
+                /// Opaque cursor (hence `AnyDecodable`) to seed the delta sync.
+                let startDeltaCursor: AnyDecodable?
+                let hasMore: Bool? // [REDACTED_TODO_COMMENT]
+                @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
+                let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
             }
 
             struct Record: Decodable {
                 let txId: String
+                let providerId: String
+                let fromAddress: String
+                let payinAddress: String
+                let payinExtraId: String?
+                let payoutAddress: String
+                let refundAddress: String?
+                let refundExtraId: String?
+                let rateType: String
                 let status: String
-                let provider: ExpressDTO.HistoryProvider
-                let from: AssetRef
-                let to: AssetRef
+                let externalTxId: String?
+                let externalTxStatus: String?
+                let externalTxUrl: String?
                 let payinHash: String?
                 let payoutHash: String?
-                let externalTxId: String?
-                let externalTxUrl: String?
-                let refund: Refund?
-                let rateType: String
-                // [REDACTED_TODO_COMMENT]
-                /*
-                 let createdAt: Int
-                 let updatedAt: Int
-                  */
+                let refundNetwork: String?
+                let refundContractAddress: String?
                 let createdAt: Date
-                let updatedAt: Date
+                let updatedAt: Date?
+                let payTill: Date?
+                let averageDuration: TimeInterval?
+
+                // fromAsset info
+                let fromContractAddress: String
+                let fromNetwork: String
+                let fromDecimals: Int
+                let fromAmount: String
+
+                // toAsset info
+                let toContractAddress: String
+                let toNetwork: String
+                let toDecimals: Int
+                let toAmount: String
+                let toActualAmount: String?
+            }
+        }
+
+        // MARK: - History (delta)
+
+        enum HistoryDelta {
+            struct Request: Encodable {
+                let fromAddress: String
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let beforeCursor: AnyEncodable?
+                let limit: Int?
             }
 
-            struct AssetRef: Decodable {
-                let network: String
-                let tokenId: String?
-                let rawAmount: String
-                let decimals: Int
-                let isActual: Bool?
+            struct Response: Decodable {
+                let items: [History.Record]
+                let pagination: Pagination
             }
 
-            struct Refund: Decodable {
-                let network: String
-                let tokenId: String?
-                let rawAmount: String
-                let decimals: Int
-                let hash: String?
+            struct Pagination: Decodable {
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let startCursor: AnyDecodable?
+                let hasMore: Bool
             }
         }
     }
