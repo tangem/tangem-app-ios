@@ -423,6 +423,10 @@ extension SwapModel {
             let quote = try await map(provider: selected.provider, quote: dexPreview.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
+        case .dexWithApprovePreview(let preview) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: preview.quote)
+            return .restriction(.hasPendingTransaction, quote: quote)
+
         case .permissionRequired(let permissionRequired):
             return try await map(provider: selected, permissionRequired: permissionRequired)
 
@@ -431,6 +435,9 @@ extension SwapModel {
 
         case .dexPreview(let dexPreview):
             return try await map(provider: selected, dexPreview: dexPreview)
+
+        case .dexWithApprovePreview(let preview):
+            return try await map(provider: selected, dexWithApprovePreview: preview)
 
         case .revokeAndPermissionRequired(let permissionRequired) where hasPendingTransaction():
             let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
@@ -537,12 +544,9 @@ extension SwapModel {
         permissionRequired: ExpressProviderManagerState.PermissionRequired
     ) async throws -> LoadedState {
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
-
-        let fee = permissionRequired.fee
-
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee) {
+        if let restriction = try validate(amount: amount, fee: permissionRequired.fee) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -569,6 +573,13 @@ extension SwapModel {
 
         let readyToSwapState = ReadyToSwapState(quote: quote, data: dexPreview.data, fee: fee)
         return .readyToSwap(readyToSwapState)
+    }
+
+    func map(
+        provider: ExpressAvailableProvider,
+        dexWithApprovePreview preview: ExpressProviderManagerState.DEXWithApprovePreview
+    ) async throws -> LoadedState {
+        fatalError("One touch approve + swap flow is not implemented yet")
     }
 
     func map(provider: ExpressAvailableProvider, previewCEX: ExpressProviderManagerState.CEXPreview) async throws -> LoadedState {

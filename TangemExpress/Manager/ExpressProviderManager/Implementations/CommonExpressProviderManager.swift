@@ -75,7 +75,7 @@ extension CommonExpressProviderManager: ExpressProviderManager {
             try ensureMatchingTxType(expected: .send, actual: data.transactionType)
             return data
 
-        case .dexPreview:
+        case .dexPreview, .dexWithApprovePreview:
             let data = try dexHelper.sendData(currentState: state)
             try ensureMatchingTxType(expected: .swap, actual: data.transactionType)
             return data
