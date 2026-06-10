@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct AddressBookContact: Codable, Hashable {
+struct AddressBookContact: Codable, Hashable, Identifiable {
     let id: UUID
     let name: String
     let icon: String
