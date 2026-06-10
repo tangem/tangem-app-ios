@@ -119,6 +119,9 @@ final actor TransactionHistoryProvider {
 
         do {
             try await repository.syncDelta()
+            if case .pullToRefresh = kind {
+                lastSuccessfulPullToRefreshAt = Date()
+            }
             TransactionHistoryLogger.debug(self, "User-initiated sync finished: \(kind)")
             emit(.idle(.ready))
         } catch {
@@ -227,10 +230,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         inFlightIncrementalSyncTask = newSyncTask
         await newSyncTask.value
-
-        if case .pullToRefresh = kind {
-            lastSuccessfulPullToRefreshAt = Date()
-        }
     }
 }
 
