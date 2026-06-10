@@ -18,6 +18,7 @@ final class CommonPushNotificationsSyncService: NSObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
 
     // MARK: - Private Properties
 
@@ -32,6 +33,7 @@ final class CommonPushNotificationsSyncService: NSObject {
     private var initialSubscription: AnyCancellable?
     private var appSettingsSubscription: AnyCancellable?
     private var eventProviderSubscription: AnyCancellable?
+    private var permissionPostponeSubscription: AnyCancellable?
 
     private var updateStateTask: Task<Void, Never>?
     private var isInitialized = false
@@ -94,6 +96,32 @@ final class CommonPushNotificationsSyncService: NSObject {
             .sink { service, _ in
                 service.updateState()
             }
+
+        // When the user declines the push permission request on the main screen (sheet or banner),
+        // mark every wallet's allowance onboarding as completed so we never auto-enable transaction
+        // notifications for them later — e.g. if push gets granted via iOS Settings afterwards.
+        permissionPostponeSubscription = pushNotificationsInteractor
+            .permissionRequestPublisher
+            .compactMap { request -> Void? in
+                switch request {
+                case .postpone(.afterLogin), .postpone(.afterLoginBanner):
+                    return ()
+                case .postpone, .allow:
+                    return nil
+                }
+            }
+            .withWeakCaptureOf(self)
+            .sink { service, _ in
+                runTask(in: service) { service in
+                    await service.markAllWalletsAllowanceOnboardingCompleted()
+                }
+            }
+    }
+
+    @MainActor
+    private func markAllWalletsAllowanceOnboardingCompleted() {
+        let userWalletIds = userWalletRepository.models.map(\.userWalletId)
+        PushNotificationsAllowanceBootstrapPolicy.markOnboardingCompleted(userWalletIds: userWalletIds)
     }
 
     private func handleUserWalletUpdates(by event: UserWalletRepositoryEvent) {
