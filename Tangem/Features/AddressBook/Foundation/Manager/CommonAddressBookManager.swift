@@ -16,6 +16,8 @@ actor CommonAddressBookManager {
 
     init(repository: AddressBookRepository) {
         self.repository = repository
+
+        Task { try? await repository.load() }
     }
 }
 
