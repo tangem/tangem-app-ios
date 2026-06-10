@@ -229,7 +229,7 @@ private extension TokenDetailsBalanceViewModel {
     func attributedFiatBalance(_ balance: String) -> Text {
         let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
             balance,
-            font: .Tangem.Custom.titleRegular44,
+            font: .Tangem.Title44.semibold,
             integerColor: .Tangem.Text.Neutral.primary,
             decimalColor: .Tangem.Text.Neutral.secondary
         )

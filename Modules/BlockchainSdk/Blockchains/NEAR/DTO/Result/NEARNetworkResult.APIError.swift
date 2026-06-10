@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct AnyCodable.AnyDecodable
+import AnyCodable
 
 extension NEARNetworkResult {
     struct APIError: Decodable, Error {
