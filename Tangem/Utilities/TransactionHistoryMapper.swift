@@ -33,7 +33,7 @@ struct TransactionHistoryMapper {
     private static let longDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = .autoupdatingCurrent
-        formatter.setLocalizedDateFormatFromTemplate("MMMMdy")
+        formatter.dateStyle = .long
         formatter.doesRelativeDateFormatting = true
         return formatter
     }()
@@ -138,7 +138,7 @@ struct TransactionHistoryMapper {
             timeFormatted = Self.timeFormatter.string(from: date)
         }
 
-        let amount = transferAmount(from: record)
+        let formattedAmount = transferAmount(from: record)
         let interaction = interactionAddress(from: record)
 
         return TransactionViewModel(
@@ -146,8 +146,8 @@ struct TransactionHistoryMapper {
             index: record.index,
             interactionAddress: interaction,
             timeFormatted: timeFormatted,
-            amount: amount.formatted,
-            value: amount.value,
+            amount: formattedAmount.legacy,
+            value: formattedAmount.redesigned,
             currencyCode: currencySymbol,
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
@@ -173,7 +173,7 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        let amountFormatted = transferAmount(from: record).formatted
+        let amountFormatted = transferAmount(from: record).legacy
         let date = record.date ?? Date()
         let dateFormatted = Self.dateTimeFormatter.string(from: date)
 
@@ -193,8 +193,8 @@ struct TransactionHistoryMapper {
 
 private extension TransactionHistoryMapper {
     struct FormattedAmount {
-        let formatted: String
-        let value: String
+        let legacy: String
+        let redesigned: String
     }
 
     func transferAmount(from record: TransactionRecord) -> FormattedAmount {
@@ -358,15 +358,17 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    func formatted(amount: Decimal, isOutgoing: Bool) -> FormattedAmount {
-        let valueOnly = balanceFormatter.formatDecimal(amount)
-        let formatted = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        guard !amount.isZero, showSign else {
-            return FormattedAmount(formatted: formatted, value: valueOnly)
-        }
+    func formatted(amount: Decimal, isOutgoing: Bool, isFailed: Bool) -> FormattedAmount {
+        let magnitude = balanceFormatter.formatDecimal(amount)
+        let magnitudeWithCurrency = balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
 
-        let prefix = isOutgoing ? AppConstants.minusSign : "+"
-        return FormattedAmount(formatted: prefix + formatted, value: prefix + valueOnly)
+        let sign = showSign && !amount.isZero ? (isOutgoing ? AppConstants.minusSign : "+") : ""
+        let redesignedSign = isFailed ? "" : sign
+
+        return FormattedAmount(
+            legacy: sign + magnitudeWithCurrency,
+            redesigned: redesignedSign + magnitude
+        )
     }
 }
 
@@ -401,17 +403,17 @@ private extension TransactionHistoryMapper {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
-                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                value: balanceFormatter.formatDecimal(amount)
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
             )
         // Kept as a separate case so the `where` guard clearly applies only to `.yieldSend`.
         case .yieldSend where record.isFromYieldContract:
             return FormattedAmount(
-                formatted: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
-                value: balanceFormatter.formatDecimal(amount)
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
             )
         default:
-            return formatted(amount: amount, isOutgoing: record.isOutgoing)
+            return formatted(amount: amount, isOutgoing: record.isOutgoing, isFailed: record.status == .failed)
         }
     }
 
