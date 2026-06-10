@@ -7,20 +7,13 @@
 //
 
 import Foundation
+import Combine
 
 typealias AddressBook = [AddressBookContact]
 
 protocol AddressBookManager: Actor {
-    var synchronizerState: AddressBookSynchronizerState { get async }
-
-    func getAddressBook() async throws -> AddressBook
+    nonisolated var addressBookPublisher: AnyPublisher<AddressBook, Never> { get }
 
     func save(contact: AddressBookContact) async throws
     func remove(contact: AddressBookContact) async throws
-}
-
-enum AddressBookSynchronizerState: Hashable {
-    case idle
-    case syncing
-    case synced
 }

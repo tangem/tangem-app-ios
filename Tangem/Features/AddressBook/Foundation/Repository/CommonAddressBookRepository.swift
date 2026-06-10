@@ -61,7 +61,7 @@ extension CommonAddressBookRepository: AddressBookRepository {
             .eraseToAnyPublisher()
     }
 
-    func getAddressBook() async throws -> AddressBook {
+    func load() async throws -> AddressBook {
         try await loaded()
     }
 

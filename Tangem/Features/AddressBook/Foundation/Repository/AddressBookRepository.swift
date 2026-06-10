@@ -11,6 +11,8 @@ import Combine
 protocol AddressBookRepository: Actor {
     nonisolated var addressBookPublisher: AnyPublisher<AddressBook, Never> { get }
 
-    func getAddressBook() async throws -> AddressBook
+    @discardableResult
+    func load() async throws -> AddressBook
+
     func save(addressBook: AddressBook) async throws
 }
