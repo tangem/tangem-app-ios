@@ -41,7 +41,7 @@ actor CommonAddressBookRepository {
         }
 
         let encoded = try await storage.get()
-        let decoded = encoded.compactMap { try? cryptographer.decode(contact: $0) }
+        let decoded = try cryptographer.decode(addressBook: encoded)
         setCache(decoded)
         return decoded
     }
@@ -66,8 +66,8 @@ extension CommonAddressBookRepository: AddressBookRepository {
     }
 
     func save(addressBook: AddressBook) async throws {
-        let encoded = try addressBook.map { try cryptographer.encode(contact: $0) }
-        try await storage.save(contacts: encoded)
+        let encoded = try cryptographer.encode(addressBook: addressBook)
+        try await storage.save(addressBook: encoded)
 
         setCache(addressBook)
     }

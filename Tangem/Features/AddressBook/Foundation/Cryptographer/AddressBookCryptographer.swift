@@ -9,6 +9,6 @@
 import Foundation
 
 protocol AddressBookCryptographer {
-    func encode(contact: AddressBookContact) throws -> String
-    func decode(contact: String) throws -> AddressBookContact
+    func encode(addressBook: AddressBook) throws -> Data
+    func decode(addressBook: Data) throws -> AddressBook
 }

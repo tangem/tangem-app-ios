@@ -16,13 +16,12 @@ struct CommonAddressBookCryptographer {
 // MARK: - AddressBookCryptographer protocol conformance
 
 extension CommonAddressBookCryptographer: AddressBookCryptographer {
-    func encode(contact: AddressBookContact) throws -> String {
-        let data = try encoder.encode(contact)
-        return String(decoding: data, as: UTF8.self)
+    func encode(addressBook: AddressBook) throws -> Data {
+        let data = try encoder.encode(addressBook)
+        return data
     }
 
-    func decode(contact: String) throws -> AddressBookContact {
-        let data = Data(contact.utf8)
-        return try decoder.decode(AddressBookContact.self, from: data)
+    func decode(addressBook data: Data) throws -> AddressBook {
+        return try decoder.decode(AddressBook.self, from: data)
     }
 }

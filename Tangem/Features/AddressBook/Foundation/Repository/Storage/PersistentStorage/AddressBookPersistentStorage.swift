@@ -9,6 +9,6 @@
 import Foundation
 
 protocol AddressBookPersistentStorage: Actor {
-    func get() throws -> [String]
-    func save(contacts: [String]) throws
+    func get() throws -> Data
+    func save(addressBook: Data) throws
 }
