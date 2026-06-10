@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AnyCodable
 
 enum ExpressDTO {
     // MARK: - Common
@@ -15,23 +14,6 @@ enum ExpressDTO {
     struct Currency: Codable {
         let contractAddress: String
         let network: String
-    }
-
-    // MARK: - History (shared DTOs for both exchange & onramp)
-
-    struct HistoryRequest: Encodable {
-        let walletAddress: String
-        let cursor: AnyEncodable?
-        let limit: Int?
-        let network: String?
-        let tokenId: String?
-    }
-
-    struct HistoryProvider: Decodable {
-        let id: String
-        let name: String
-        let iconUrl: String
-        let providerUrl: String
     }
 
     // MARK: - Error
