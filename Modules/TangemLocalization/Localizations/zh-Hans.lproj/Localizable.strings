@@ -83,6 +83,7 @@
 "address_book_add_address" = "Add address";
 "address_book_add_contact" = "Add contact";
 "address_book_contact_name" = "Contact name";
+"address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
 "address_book_creating_error" = "We couldn’t create contact. Please try again later.";
 "address_book_delete_contact_description" = "This contact will be deleted from all your address book";
@@ -1385,6 +1386,7 @@
 "story_web3_title" = "兼容 Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "至少需要有 %1$@ 的转入交易才能继续进行";
 "sui_not_enough_coin_for_fee_title" = "资金不足";
+"support_chat_swap_prefilled_message" = "SWAP operation data:\nFrom: %1$@ %2$@\nTo: %3$@ %4$@\nBy %5$@ - %6$@";
 "support_selector_view_chat_button" = "Open chat";
 "support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "批准后，您即允许智能合约在未来的交易中使用您的代币。";
@@ -1682,7 +1684,7 @@
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "將 USDC Polygon 發送至您帳戶地址";
 "tangempay_topup_receive_title" = "從其他錢包或交易所";
-"tangempay_topup_swap_body" = "將任何資產兌換為 USDC Polygon";
+"tangempay_topup_swap_body" = "使用您钱包中的任意代币为支付账户充值";
 "tangempay_topup_swap_title" = "從您的 Tangem 錢包";
 "tangempay_usdc_on_polygon_network" = "Polygon网络上的 USDC";
 "tangempay_use_tangem_device_to_restore_payment_account" = "点击下方按钮恢复访问权限";
@@ -1928,8 +1930,8 @@
 "warning_approval_in_progress_title" = "审批中";
 "warning_backup_error_add_funds_message" = "This wallet has a backup issue. Contact Support to resolve it.";
 "warning_backup_error_add_funds_title" = "Adding funds is disabled";
-"warning_backup_error_attention_message" = "The backup process wasn’t completed correctly, possibly due to an NFC connection issue or how the cards were tapped to the phone. Adding funds is unavailable until this is resolved.";
-"warning_backup_error_attention_title" = "Backup issue detected";
+"warning_backup_error_attention_message" = "Your cards were not activated correctly. Continuing to use this wallet may result in loss of access to your funds. Please move your funds to another wallet, reset all your the cards to factory settings, and activate them again before continuing.";
+"warning_backup_error_attention_title" = "Action required: reset your wallet";
 "warning_backup_errors_message" = "激活未成功完成。这可能是由于 NFC 问题或轻触操作不正确造成的。请联系我们的支持团队寻求帮助。";
 "warning_beacon_chain_retirement_content" = "2024年12月3日，BEP-2网络经网络开发商决定停用，不再提供支持。";
 "warning_beacon_chain_retirement_title" = "BNB信标链关闭";

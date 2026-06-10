@@ -83,6 +83,7 @@
 "address_book_add_address" = "Add address";
 "address_book_add_contact" = "Add contact";
 "address_book_contact_name" = "Contact name";
+"address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
 "address_book_creating_error" = "We couldn’t create contact. Please try again later.";
 "address_book_delete_contact_description" = "This contact will be deleted from all your address book";
@@ -1385,6 +1386,7 @@
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
+"support_chat_swap_prefilled_message" = "SWAP operation data:\nFrom: %1$@ %2$@\nTo: %3$@ %4$@\nBy %5$@ - %6$@";
 "support_selector_view_chat_button" = "Open chat";
 "support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "Підтверджуючи, ви дозволяєте смартконтракту використовувати ваші токени в майбутніх транзакціях.";
@@ -1536,9 +1538,9 @@
 "tangempay_card_details_rename_card_invalid_title" = "Неприпустимі символи";
 "tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Показати";
-"tangempay_card_details_show_details" = "Показати деталі";
+"tangempay_card_details_show_details" = "Реквізити";
 "tangempay_card_details_swap_description" = "Обміняйте будь-який актив у вашому портфелі на картку";
-"tangempay_card_details_title" = "Реквізити картки";
+"tangempay_card_details_title" = "Реквізити";
 "tangempay_card_details_unable_to_rename_card_description" = "Будь ласка, спробуйте пізніше";
 "tangempay_card_details_unfreeze_card" = "Розморозити картку";
 "tangempay_card_details_view_pin_code_description" = "Поверніться до додатка, якщо ви забудете його.";
@@ -1682,7 +1684,7 @@
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "Надішліть USDC Polygon на адресу вашого акаунту";
 "tangempay_topup_receive_title" = "З іншого гаманця або біржі";
-"tangempay_topup_swap_body" = "Обміняйте будь-який актив на USDC Polygon";
+"tangempay_topup_swap_body" = "Поповніть платіжний акаунт будь‑яким токеном з вашого гаманця";
 "tangempay_topup_swap_title" = "З вашого Tangem Wallet";
 "tangempay_usdc_on_polygon_network" = "USDC у Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Натисніть кнопку нижче, щоб відновити доступ";
@@ -1928,8 +1930,8 @@
 "warning_approval_in_progress_title" = "Підтвердження в процесі";
 "warning_backup_error_add_funds_message" = "This wallet has a backup issue. Contact Support to resolve it.";
 "warning_backup_error_add_funds_title" = "Adding funds is disabled";
-"warning_backup_error_attention_message" = "The backup process wasn’t completed correctly, possibly due to an NFC connection issue or how the cards were tapped to the phone. Adding funds is unavailable until this is resolved.";
-"warning_backup_error_attention_title" = "Backup issue detected";
+"warning_backup_error_attention_message" = "Your cards were not activated correctly. Continuing to use this wallet may result in loss of access to your funds. Please move your funds to another wallet, reset all your the cards to factory settings, and activate them again before continuing.";
+"warning_backup_error_attention_title" = "Action required: reset your wallet";
 "warning_backup_errors_message" = "Схоже, що активація карток або кільця була виконана неправильно. Це може бути пов'язано з проблемою з модулем NFC вашого пристрою або неправильним прикладанням картки або кільця до телефону. Будь ласка, зверніться за допомогою до нашої служби підтримки для уточнення деталей.";
 "warning_beacon_chain_retirement_content" = "3 грудня 2024 року мережу BEP-2 було відключено за рішенням розробників мережі, і вона більше не підтримується";
 "warning_beacon_chain_retirement_title" = "Відключення мережі BNB Beacon Chain";
