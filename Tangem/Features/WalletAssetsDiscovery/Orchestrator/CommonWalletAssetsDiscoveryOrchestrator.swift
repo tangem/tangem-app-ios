@@ -139,8 +139,7 @@ private extension CommonWalletAssetsDiscoveryOrchestrator {
 
         guard
             userWalletModel.config.hasFeature(.walletAssetsDiscovery),
-            userWalletModel.hasImportedWallets,
-            FeatureProvider.isAvailable(.mobileWalletTokenAutoSync)
+            userWalletModel.hasImportedWallets
         else {
             AssetsDiscoveryLogger.debug("Skip \(userWalletId.stringValue): token discovery is not supported")
             return

@@ -187,6 +187,33 @@ final class SendFeeUITests: BaseTestCase {
             .waitForNetworkFeeSelectorUnavailable()
     }
 
+    func testNetworkFeeRecalculatesOnSwitchAndSends_ForEthereum() {
+        setAllureId(547)
+
+        launchApp(tangemApiType: .mock, clearStorage: true)
+
+        let sendSummaryScreen = importHotWallet()
+            .tapToken(Constants.Network.ethereum)
+            .waitForActionButtons(requireSwapEnabled: false)
+            .tapSendButton()
+            .waitForDisplay()
+            .enterAmount(Constants.Amount.ethereum)
+            .tapNextButton()
+            .enterDestination(Constants.Address.ethereum)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+
+        let marketFee = sendSummaryScreen.getNetworkFeeValue()
+
+        sendSummaryScreen
+            .tapFeeBlock()
+            .waitForDisplay(cryptoSymbol: "ETH", fiatSymbol: "$", includeCustom: true)
+            .selectFast()
+            .assertNetworkFeeChanged(from: marketFee)
+            .tapSendButton()
+            .waitForDisplay()
+    }
+
     private enum Constants {
         enum Network {
             static let polkadot = "Polkadot Asset Hub"
