@@ -39,7 +39,7 @@ struct EarnTokenTileSkeletonView: View {
         .padding(.bottom, .unit(.x1))
         .defaultRoundedBackground(
             with: Color.Tangem.Surface.level3,
-            cornerRadius: .unit(.x5)
+            cornerRadius: .unit(.x6)
         )
         .allowsHitTesting(false)
     }
