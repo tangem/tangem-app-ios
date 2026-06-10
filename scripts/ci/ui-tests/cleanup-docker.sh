@@ -1,20 +1,13 @@
 #!/bin/bash
 # Cleanup Docker resources after test run
-# Required env: SIMULATOR_COUNT
+# No required env (removes all wiremock-* containers regardless of count)
 
 set -e
-
-if [ -z "$SIMULATOR_COUNT" ]; then
-  echo "ERROR: SIMULATOR_COUNT environment variable is required"
-  exit 1
-fi
 
 echo "Cleaning up Docker resources..."
 
 # Stop and remove WireMock containers
-for i in $(seq 1 $SIMULATOR_COUNT); do
-  docker rm -f wiremock-$i 2>/dev/null || true
-done
+docker ps -aq --filter "name=wiremock-" | xargs docker rm -f 2>/dev/null || true
 
 # Remove WireMock image only (avoid pruning unrelated resources on shared runner)
 docker rmi tangem-wiremock 2>/dev/null || true
