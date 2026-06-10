@@ -24,6 +24,7 @@ final actor TransactionHistoryProvider {
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
 
+    private var _hasCompletedInitialSync: Bool?
     private var lastSuccessfulPullToRefreshAt: Date?
 
     init(
@@ -45,12 +46,38 @@ final actor TransactionHistoryProvider {
         subscribers.yield(newState)
     }
 
+    private func markInitialSyncCompleted() {
+        _hasCompletedInitialSync = true
+        // Fire and forget, we don't need to await this because we have an actor-protected value
+        runTask { [syncMetadataStorage] in
+            let storage = await syncMetadataStorage()
+            await MainActor.run { storage.hasCompletedInitialSync = true }
+        }
+    }
+
+    private func hasCompletedInitialSync() async -> Bool {
+        // Fast path, reading from an actor-protected value
+        if let cached = _hasCompletedInitialSync {
+            return cached
+        }
+
+        let value = await syncMetadataStorage().hasCompletedInitialSync
+
+        // Double-check required since there is a suspension point above on storage read
+        if let cached = _hasCompletedInitialSync {
+            return cached
+        }
+
+        _hasCompletedInitialSync = value
+
+        return value
+    }
+
     private func performInitialSync() async {
         emit(.syncing(.initial))
         do {
             try await repository.syncInitial()
-            let storage = await syncMetadataStorage() // Can't be fetched inside the synchronous `MainActor.run` call
-            await MainActor.run { storage.hasCompletedInitialSync = true }
+            markInitialSyncCompleted()
             TransactionHistoryLogger.debug(self, "Initial sync finished")
             emit(.idle(.ready))
         } catch {
@@ -109,7 +136,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     func syncInitial() async {
         TransactionHistoryLogger.debug(self, "Initial sync requested")
 
-        guard await !syncMetadataStorage().hasCompletedInitialSync else {
+        guard await !hasCompletedInitialSync() else {
             TransactionHistoryLogger.debug(self, "Skipping initial sync: already completed")
             return
         }
@@ -133,7 +160,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     func syncDelta() async {
         TransactionHistoryLogger.debug(self, "Delta sync requested")
 
-        guard await syncMetadataStorage().hasCompletedInitialSync else {
+        guard await hasCompletedInitialSync() else {
             TransactionHistoryLogger.debug(self, "Skipping delta sync: initial sync not completed yet")
             return
         }
@@ -157,7 +184,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
         TransactionHistoryLogger.debug(self, "User-initiated sync requested: \(kind)")
 
-        guard await syncMetadataStorage().hasCompletedInitialSync else {
+        guard await hasCompletedInitialSync() else {
             TransactionHistoryLogger.debug(self, "Skipping user-initiated sync: initial sync not completed yet")
             return
         }
