@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct ExpressAPIMapper {
     let exchangeDataDecoder: ExpressExchangeDataDecoder
@@ -26,7 +27,7 @@ struct ExpressAPIMapper {
     func mapToExpressPair(response: ExpressDTO.Swap.Pairs.Response) -> ExpressPair {
         let providers = response.providers.map { provider in
             let rates = provider.rateTypes
-                .compactMap { ExpressProviderRateType(rawValue: $0.rawValue) }
+                .compactMap { ExpressProviderRateType(rawValue: $0) }
 
             return ExpressPairProvider(id: provider.providerId, rates: rates)
         }
@@ -50,7 +51,7 @@ struct ExpressAPIMapper {
         ExpressProvider(
             id: .init(provider.id),
             name: provider.name,
-            type: provider.type ?? .unknown,
+            type: provider.type.flatMap(ExpressProviderType.init(rawValue:)) ?? .unknown,
             exchangeOnlyWithinSingleAddress: provider.exchangeOnlyWithinSingleAddress ?? false,
             imageURL: provider.imageSmall.flatMap(URL.init(string:)),
             termsOfUse: provider.termsOfUse.flatMap(URL.init(string:)),
@@ -61,11 +62,11 @@ struct ExpressAPIMapper {
     }
 
     func mapToExpressQuote(response: ExpressDTO.Swap.ExchangeQuote.Response) throws -> ExpressQuote {
-        guard var fromAmount = Decimal(string: response.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
-        guard var toAmount = Decimal(string: response.toAmount) else {
+        guard var toAmount = Decimal(stringValue: response.toAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
@@ -104,11 +105,11 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutExtraIdNotEqual
         }
 
-        guard var fromAmount = Decimal(string: response.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
-        guard var toAmount = Decimal(string: response.toAmount) else {
+        guard var toAmount = Decimal(stringValue: response.toAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
@@ -118,7 +119,7 @@ struct ExpressAPIMapper {
         let txValue = try mapTxValueToDecimalValue(item: item, txValue: txDetails.txValue, txType: txDetails.txType)
 
         let otherNativeFee = txDetails.otherNativeFee
-            .flatMap(Decimal.init)
+            .flatMap { Decimal(stringValue: $0) }
             .map { $0 / pow(10, item.source.coinCurrency.decimalCount) }
 
         return ExpressTransactionData(
@@ -142,14 +143,14 @@ struct ExpressAPIMapper {
     func mapTxValueToDecimalValue(item: ExpressSwappableDataItem, txValue: String?, txType: ExpressTransactionType) throws -> Decimal {
         switch txType {
         case .send:
-            guard let txValue, let decimalTxValue = Decimal(string: txValue) else {
+            guard let txValue, let decimalTxValue = Decimal(stringValue: txValue) else {
                 throw ExpressAPIMapperError.mapToDecimalError(txValue ?? "")
             }
 
             // For CEX/send we have txValue amount as value which have to be sent
             return decimalTxValue / pow(10, item.source.currency.decimalCount)
         case .swap:
-            if let txValue, let decimalTxValue = Decimal(string: txValue) {
+            if let txValue, let decimalTxValue = Decimal(stringValue: txValue) {
                 // For DEX/swap we have txValue amount as coin. Because it's EVM or Solana DEX
                 return decimalTxValue / pow(10, item.source.coinCurrency.decimalCount)
             }
@@ -161,7 +162,7 @@ struct ExpressAPIMapper {
     func mapToExpressTransaction(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressTransaction {
         ExpressTransaction(
             providerId: .init(response.providerId),
-            externalStatus: response.status,
+            externalStatus: ExpressTransactionStatus(rawValue: response.status) ?? .unknown,
             refundedCurrency: mapToRefundedExpressCurrency(response: response),
             externalTxId: response.externalTxId,
             externalTxURL: response.externalTxUrl.flatMap(URL.init(string:)),
@@ -213,7 +214,7 @@ struct ExpressAPIMapper {
     }
 
     func mapToOnrampQuote(response: ExpressDTO.Onramp.Quote.Response) throws -> OnrampQuote {
-        guard var toAmount = Decimal(string: response.toAmount) else {
+        guard var toAmount = Decimal(stringValue: response.toAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.toAmount)
         }
 
@@ -243,7 +244,7 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutAddressNotEqual
         }
 
-        guard var fromAmount = Decimal(string: codedData.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: codedData.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
         }
 
@@ -289,7 +290,7 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.requestIdNotEqual
         }
 
-        guard var fromAmount = Decimal(string: codedData.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: codedData.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(codedData.fromAmount)
         }
 
@@ -311,20 +312,20 @@ struct ExpressAPIMapper {
     }
 
     func mapToOnrampTransaction(response: ExpressDTO.Onramp.Status.Response) throws -> OnrampTransaction {
-        guard var fromAmount = Decimal(string: response.fromAmount) else {
+        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
 
         fromAmount /= pow(10, response.fromPrecision)
 
         let toAmount = response.toAmount
-            .flatMap(Decimal.init)
+            .flatMap { Decimal(stringValue: $0) }
             .map { $0 / pow(10, response.toDecimals) }
 
         return OnrampTransaction(
             fromAmount: fromAmount,
             toAmount: toAmount,
-            status: response.status,
+            status: OnrampTransactionStatus(rawValue: response.status) ?? .unknown,
             externalTxId: response.externalTxId,
             externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
         )
@@ -355,7 +356,7 @@ struct ExpressAPIMapper {
     private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
         try ExchangeHistoryRecord(
             txId: record.txId,
-            status: record.status,
+            status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
             provider: mapToExpressHistoryProvider(provider: record.provider),
             from: mapToExchangeHistoryAsset(asset: record.from),
             to: mapToExchangeHistoryAsset(asset: record.to),
@@ -364,7 +365,7 @@ struct ExpressAPIMapper {
             externalTxId: record.externalTxId,
             externalTxURL: record.externalTxUrl.flatMap(URL.init(string:)),
             refund: record.refund.map(mapToExpressHistoryRefund(refund:)),
-            rateType: record.rateType,
+            rateType: ExpressProviderRateType(rawValue: record.rateType),
             createdAt: record.createdAt,
             updatedAt: record.updatedAt
         )
@@ -373,7 +374,7 @@ struct ExpressAPIMapper {
     private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
         try OnrampHistoryRecord(
             txId: record.txId,
-            status: record.status,
+            status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
             provider: mapToExpressHistoryProvider(provider: record.provider),
             from: mapToOnrampHistoryFiatAsset(asset: record.from),
             to: mapToOnrampHistoryAsset(asset: record.to),
@@ -398,7 +399,7 @@ struct ExpressAPIMapper {
     }
 
     private func mapToExchangeHistoryAsset(asset: ExpressDTO.Swap.History.AssetRef) throws -> ExchangeHistoryAsset {
-        guard let raw = Decimal(string: asset.rawAmount) else {
+        guard let raw = Decimal(stringValue: asset.rawAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(asset.rawAmount)
         }
 
@@ -414,7 +415,7 @@ struct ExpressAPIMapper {
     }
 
     private func mapToExpressHistoryRefund(refund: ExpressDTO.Swap.History.Refund) throws -> ExpressHistoryRefund {
-        guard let raw = Decimal(string: refund.rawAmount) else {
+        guard let raw = Decimal(stringValue: refund.rawAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(refund.rawAmount)
         }
 
@@ -430,7 +431,7 @@ struct ExpressAPIMapper {
     }
 
     private func mapToOnrampHistoryFiatAsset(asset: ExpressDTO.Onramp.History.FiatAsset) throws -> OnrampHistoryFiatAsset {
-        guard let amount = Decimal(string: asset.amount) else {
+        guard let amount = Decimal(stringValue: asset.amount) else {
             throw ExpressAPIMapperError.mapToDecimalError(asset.amount)
         }
 
@@ -438,14 +439,14 @@ struct ExpressAPIMapper {
     }
 
     private func mapToOnrampHistoryAsset(asset: ExpressDTO.Onramp.History.AssetRef) throws -> OnrampHistoryAsset {
-        guard let expectedRaw = Decimal(string: asset.expectedRawAmount) else {
+        guard let expectedRaw = Decimal(stringValue: asset.expectedRawAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(asset.expectedRawAmount)
         }
 
         let expected = expectedRaw / pow(10, asset.decimals)
 
         let actual: Decimal? = try asset.actualRawAmount.map { amount in
-            guard let raw = Decimal(string: amount) else {
+            guard let raw = Decimal(stringValue: amount) else {
                 throw ExpressAPIMapperError.mapToDecimalError(amount)
             }
 
@@ -462,7 +463,7 @@ struct ExpressAPIMapper {
     }
 
     private func mapToOnrampHistoryRefund(refund: ExpressDTO.Onramp.History.Refund) throws -> ExpressHistoryRefund {
-        guard let raw = Decimal(string: refund.rawAmount) else {
+        guard let raw = Decimal(stringValue: refund.rawAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(refund.rawAmount)
         }
 
@@ -479,8 +480,8 @@ struct ExpressAPIMapper {
 
     private func mapToOnrampHistoryRate(rate: ExpressDTO.Onramp.History.Rate) -> OnrampHistoryRate {
         OnrampHistoryRate(
-            atCreate: rate.atCreate.flatMap { Decimal(string: $0) },
-            atFinish: rate.atFinish.flatMap { Decimal(string: $0) }
+            atCreate: rate.atCreate.flatMap { Decimal(stringValue: $0) },
+            atFinish: rate.atFinish.flatMap { Decimal(stringValue: $0) }
         )
     }
 }
