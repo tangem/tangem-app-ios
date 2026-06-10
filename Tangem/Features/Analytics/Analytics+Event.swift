@@ -711,6 +711,8 @@ extension Analytics {
 
         case visaOnboardingVisaPermanentButtonClicked = "[Visa Onboarding] Visa Permanent Button Clicked"
         case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
+        case visaOnboardingPermanentButtonShowed = "[Visa Onboarding] Visa Permanent Button Showed"
+        case visaOnboardingPermanentBannerShowed = "[Visa Onboarding] Visa Permanent Banner Showed"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"

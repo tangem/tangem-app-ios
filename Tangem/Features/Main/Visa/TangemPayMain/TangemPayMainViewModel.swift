@@ -23,24 +23,29 @@ final class TangemPayMainViewModel: ObservableObject {
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
+        // Re-evaluates the account state so it can recover from a stale `.unavailable` / `.syncNeeded`
+        // once the backend is reachable again — otherwise the banner and dimming would persist.
+        async let stateRefresh: Void? = tangemPayAccount.account?.refreshState()
+
         if multipleCardsEnabled {
             if !isDeactivated {
                 async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
                 async let customerInfoUpdate: Void = tangemPayAccount.loadCustomerInfo()
                 async let offersUpdate: Void = tangemPayAccount.loadOffers()
                 async let resumePolling: Void = tangemPayAccount.resumeAdditionalCardIssuePolling()
-                _ = await (transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
+                _ = await (stateRefresh, transactionsUpdate, customerInfoUpdate, offersUpdate, resumePolling)
             } else {
-                await tangemPayAccount.loadBalance()
+                async let balanceUpdate: Void = tangemPayAccount.loadBalance()
+                _ = await (stateRefresh, balanceUpdate)
             }
         } else {
             async let balanceUpdate: Void = tangemPayAccount.loadBalance()
 
             if !isDeactivated {
                 async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
-                _ = await (balanceUpdate, transactionsUpdate)
+                _ = await (stateRefresh, balanceUpdate, transactionsUpdate)
             } else {
-                await balanceUpdate
+                _ = await (stateRefresh, balanceUpdate)
             }
         }
     }
@@ -66,6 +71,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     var isStale: Bool {
         !inlineNotifications.isEmpty
+    }
+
+    var shouldDimTransactions: Bool {
+        isStale && tangemPayTransactionHistoryState.isLoaded
     }
 
     var isDeactivated: Bool {
@@ -123,7 +132,10 @@ final class TangemPayMainViewModel: ObservableObject {
             apiService: tangemPayAccount.customerService,
             tangemPayAccount: tangemPayAccount,
             cacheStorage: AppSettings.shared,
-            customerWalletId: userWalletInfo.id.stringValue
+            customerWalletId: userWalletInfo.id.stringValue,
+            isTangemPayUnavailablePublisher: tangemPayAccount.account?.statePublisher
+                .map(\.indicatesStaleData)
+                .eraseToAnyPublisher() ?? Empty<Bool, Never>().eraseToAnyPublisher()
         )
 
         pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(
