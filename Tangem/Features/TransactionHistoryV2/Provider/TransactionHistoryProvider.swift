@@ -74,7 +74,12 @@ final actor TransactionHistoryProvider {
     }
 
     private func performInitialSync() async {
+        defer {
+            inFlightInitialSyncTask = nil
+        }
+
         emit(.syncing(.initial))
+
         do {
             try await repository.syncInitial()
             markInitialSyncCompleted()
@@ -88,7 +93,12 @@ final actor TransactionHistoryProvider {
     }
 
     private func performDeltaSync() async {
+        defer {
+            inFlightIncrementalSyncTask = nil
+        }
+
         emit(.syncing(.delta))
+
         do {
             try await repository.syncDelta()
             TransactionHistoryLogger.debug(self, "Delta sync finished")
@@ -101,7 +111,12 @@ final actor TransactionHistoryProvider {
     }
 
     private func performUserInitiatedSync(kind: UserInitiatedSyncKind) async {
+        defer {
+            inFlightIncrementalSyncTask = nil
+        }
+
         emit(.syncing(.userInitiated(kind)))
+
         do {
             try await repository.syncDelta()
             TransactionHistoryLogger.debug(self, "User-initiated sync finished: \(kind)")
@@ -154,7 +169,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         inFlightInitialSyncTask = newSyncTask
         await newSyncTask.value
-        inFlightInitialSyncTask = nil
     }
 
     func syncDelta() async {
@@ -178,7 +192,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         inFlightIncrementalSyncTask = newSyncTask
         await newSyncTask.value
-        inFlightIncrementalSyncTask = nil
     }
 
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
@@ -214,7 +227,6 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         inFlightIncrementalSyncTask = newSyncTask
         await newSyncTask.value
-        inFlightIncrementalSyncTask = nil
 
         if case .pullToRefresh = kind {
             lastSuccessfulPullToRefreshAt = Date()
