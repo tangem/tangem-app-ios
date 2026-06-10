@@ -331,6 +331,20 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .pushNotificationsEligible, decoder: decoder)
     }
 
+    // MARK: - Notification Preferences
+
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body {
+        try await request(for: .getNotificationPreferences(userWalletId: userWalletId), decoder: decoder)
+    }
+
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Update.Request
+    ) async throws {
+        let target: TangemApiTarget.TargetType = .updateNotificationPreferences(userWalletId: userWalletId, body: preferences)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
+    }
+
     // MARK: - Applications
 
     func createUserWalletsApplications(requestModel: ApplicationDTO.Request) async throws -> ApplicationDTO.Create.Response {

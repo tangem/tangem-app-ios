@@ -27,24 +27,22 @@ public struct TangemLoader: View {
     private var size: Size = .size24
     private var color: Color = DesignSystem.Tokens.Theme.Icon.primary
 
-    @State private var isRotating = false
+    private let rotationDuration: TimeInterval = 0.8
 
     public init() {}
 
     public var body: some View {
-        size.icon.image
-            .renderingMode(.template)
-            .foregroundStyle(color)
-            .rotationEffect(.degrees(isRotating ? 360 : 0))
-            .task {
-                isRotating = false
-                withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: false)) {
-                    isRotating = true
-                }
-            }
-            .onDisappear {
-                isRotating = false
-            }
+        // Time-driven rotation: a state-toggle + `repeatForever` animation gets hijacked by the
+        // view's entrance/layout transition in some parents, making the spinner drift on a loop.
+        TimelineView(.animation) { context in
+            let phase = context.date.timeIntervalSinceReferenceDate
+                .truncatingRemainder(dividingBy: rotationDuration) / rotationDuration
+
+            size.icon.image
+                .renderingMode(.template)
+                .foregroundStyle(color)
+                .rotationEffect(.degrees(phase * 360))
+        }
     }
 }
 
