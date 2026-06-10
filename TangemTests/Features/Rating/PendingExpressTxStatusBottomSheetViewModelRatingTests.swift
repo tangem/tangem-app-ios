@@ -267,7 +267,8 @@ private struct StubKeysManager: KeysManager {
     var moonPayKeys: MoonPayKeys { fatalError("Not used in tests") }
     var mercuryoWidgetId: String { fatalError("Not used in tests") }
     var mercuryoSecret: String { fatalError("Not used in tests") }
-    var blockchainSdkKeysConfig: BlockchainSdkKeysConfig { fatalError("Not used in tests") }
+    var blockchainSdkKeysConfig: BlockchainSdkKeysConfig { .stub }
+
     var tangemComAuthorization: String? { fatalError("Not used in tests") }
     var infuraProjectId: String { fatalError("Not used in tests") }
     var utorgSID: String { fatalError("Not used in tests") }
@@ -289,4 +290,38 @@ private struct StubKeysManager: KeysManager {
     var bffStaticTokenDev: String { fatalError("Not used in tests") }
     var gaslessTxApiKey: String { fatalError("Not used in tests") }
     var gaslessTxApiKeyDev: String { fatalError("Not used in tests") }
+}
+
+// MARK: - BlockchainSdkKeysConfig Stub
+
+private extension BlockchainSdkKeysConfig {
+    static let stub = BlockchainSdkKeysConfig(
+        blockchairApiKeys: [],
+        blockcypherTokens: [],
+        alchemyApiKey: "",
+        infuraProjectId: "",
+        nowNodesApiKey: "",
+        getBlockCredentials: .init(credentials: []),
+        kaspaSecondaryApiUrl: nil,
+        tronGridApiKey: "",
+        hederaArkhiaApiKey: "",
+        etherscanApiKey: "",
+        koinosProApiKey: "",
+        tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
+        fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
+        chiaTangemApiKeys: .init(mainnetApiKey: ""),
+        quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeXrpCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
+        quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
+        bittensorDwellirKey: "",
+        dwellirApiKey: "",
+        bittensorOnfinalityKey: "",
+        tangemAlephiumApiKey: "",
+        blinkApiKey: "",
+        tatumApiKey: "",
+        yieldModuleApiKey: "",
+        gaslessTxApiKey: ""
+    )
 }
