@@ -42,7 +42,11 @@ public extension TransactionCreator {
             params: params
         )
 
-        try await validate(transaction: transaction)
+        try await validate(
+            amount: transaction.amount,
+            fee: transaction.fee,
+            destination: .address(transaction.destinationAddress, params: transaction.params)
+        )
 
         return transaction
     }
