@@ -16,16 +16,19 @@ public enum TransactionHistoryNetworkServiceFactory {
     ) -> any TransactionHistoryNetworkService<ExchangeHistoryRecord> {
         CommonTransactionHistoryNetworkService(
             apiProvider: apiProvider,
-            cursorStorage: InMemoryTransactionHistoryCursorStorage()
-        ) { apiProvider, cursor in
-            let page = try await apiProvider.exchangeHistory(
-                walletAddress: walletAddress,
-                cursor: cursor,
-                limit: pageSize
-            )
-
-            return .init(records: page.records, nextCursor: page.nextCursor, hasMore: page.hasMore)
-        }
+            initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
+            deltaCursorStorage: InMemoryTransactionHistoryCursorStorage(),
+            initialPageFetcher: { apiProvider, cursor in
+                try await apiProvider.exchangeHistory(
+                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                )
+            },
+            deltaPageFetcher: { apiProvider, cursor in
+                try await apiProvider.exchangeHistoryDelta(
+                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                )
+            }
+        )
     }
 
     public static func makeOnrampService(
@@ -35,15 +38,18 @@ public enum TransactionHistoryNetworkServiceFactory {
     ) -> any TransactionHistoryNetworkService<OnrampHistoryRecord> {
         CommonTransactionHistoryNetworkService(
             apiProvider: apiProvider,
-            cursorStorage: InMemoryTransactionHistoryCursorStorage()
-        ) { apiProvider, cursor in
-            let page = try await apiProvider.onrampHistory(
-                walletAddress: walletAddress,
-                cursor: cursor,
-                limit: pageSize
-            )
-
-            return .init(records: page.records, nextCursor: page.nextCursor, hasMore: page.hasMore)
-        }
+            initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
+            deltaCursorStorage: InMemoryTransactionHistoryCursorStorage(),
+            initialPageFetcher: { apiProvider, cursor in
+                try await apiProvider.onrampHistory(
+                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                )
+            },
+            deltaPageFetcher: { apiProvider, cursor in
+                try await apiProvider.onrampHistoryDelta(
+                    item: .init(walletAddress: walletAddress, cursor: cursor, limit: pageSize)
+                )
+            }
+        )
     }
 }
