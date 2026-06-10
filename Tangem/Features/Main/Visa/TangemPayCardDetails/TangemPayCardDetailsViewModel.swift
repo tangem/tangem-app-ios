@@ -19,14 +19,14 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
     @Published private(set) var lastFourDigits: String
     @Published private(set) var isReissuing: Bool = false
-    @Published var state: TangemPayCardDetailsState = .hidden(isFrozen: false)
+    @Published var state: TangemPayCardDetailsState
     @Published var isFlipped: Bool = false
     @Published var cardName: String = ""
     @Published var isCardNameEditingDisabled: Bool = false
 
     var onCardNameTapped: (() -> Void)?
 
-    private var expectedState: TangemPayCardDetailsState? = nil
+    private var expectedState: TangemPayCardDetailsState?
 
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
@@ -36,12 +36,14 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     init(
         userWalletId: UserWalletId,
         repository: TangemPayCardDetailsRepository,
-        cardNameDisplayMode: CardNameDisplayMode = .display
+        cardNameDisplayMode: CardNameDisplayMode = .display,
+        initialState: TangemPayCardDetailsState = .hidden(isFrozen: false)
     ) {
         self.cardNameDisplayMode = cardNameDisplayMode
         self.userWalletId = userWalletId
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
+        state = initialState
 
         repository.lastFourDigitsPublisher
             .receiveOnMain()
@@ -86,6 +88,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func toggleVisibility() {
+        guard !state.isIssuing else { return }
         guard !state.isLoaded else {
             cardDetailsExposureTask?.cancel()
             return

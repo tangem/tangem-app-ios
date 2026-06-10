@@ -37,7 +37,7 @@ struct PulseMarketWidgetViewRedesign: View {
             }
 
             list
-                .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x5))
+                .roundedBackground(with: .Tangem.Surface.level3, padding: .zero, radius: .unit(.x6))
                 .id(listStateID)
                 .transition(.opacity)
         }
@@ -78,7 +78,8 @@ struct PulseMarketWidgetViewRedesign: View {
         HorizontalChipsView(
             chips: viewModel.availabilityToSelectionOrderType.map { Chip(id: $0.rawValue, title: $0.description) },
             selectedId: $viewModel.filterSelectedId,
-            horizontalInset: 4
+            horizontalInset: 4,
+            chipHorizontalPadding: 12
         )
     }
 

@@ -41,7 +41,7 @@ enum SwapNotificationEvent: Hashable {
 
     case refunded(tokenItem: TokenItem)
 
-    case notEnoughBalanceForSwapping
+    case notEnoughBalanceForSwapping(analyticsParams: [Analytics.ParameterKey: String])
 
     /// If the client's transaction takes longer than the average time by x5 times
     case longTimeAverageDuration
@@ -328,6 +328,8 @@ extension SwapNotificationEvent {
             .swapNoticeTradeTooLarge
         case .notEnoughFeeForTokenTx:
             .swapNoticeNotEnoughFee
+        case .notEnoughBalanceForSwapping:
+            .swapNoticeNotEnoughFunds
         case .unsupportedPair:
             .swapNoticeUnavailableToSwapPair
         case .longTimeAverageDuration:
@@ -349,6 +351,8 @@ extension SwapNotificationEvent {
         case .unsupportedPair(let params):
             params
         case .notEnoughFeeForTokenTx(_, _, _, let params):
+            params
+        case .notEnoughBalanceForSwapping(let params):
             params
         default:
             [:]
