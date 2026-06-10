@@ -1538,7 +1538,7 @@
 "tangempay_card_details_rename_card_invalid_title" = "Ungültige Zeichen";
 "tangempay_card_details_rename_card_placeholder" = "Kartenname";
 "tangempay_card_details_reveal_text" = "Aufdecken";
-"tangempay_card_details_show_details" = "Details anzeigen";
+"tangempay_card_details_show_details" = "Kartendetails";
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio für deine Karte.";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unable_to_rename_card_description" = "Bitte versuche es später noch einmal.";
