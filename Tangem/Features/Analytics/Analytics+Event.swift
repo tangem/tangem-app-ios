@@ -337,6 +337,7 @@ extension Analytics {
         case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeNotEnoughFunds = "[Swap] Notice - Not Enough Funds"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
         case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
@@ -356,6 +357,10 @@ extension Analytics {
 
         case swapTypeReselection = "[Swap] Swap type re-selection"
         case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
+
+        case swapTransferModeSwitched = "[Swap] Transfer Mode Switched"
+        case swapButtonTransfer = "[Swap] Button - Transfer"
+        case swapTransferInProgressScreenOpened = "[Swap] Transfer in Progress Screen Opened"
 
         // MARK: - Seed phrase
 
@@ -745,6 +750,8 @@ extension Analytics {
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+        case visaScreenExtraCardIssuancePopupDisplayed = "[Visa Card Management] Visa Extra Card Issuance Popup Displayed"
+        case visaScreenExtraCardIssuanceConfirmed = "[Visa Card Management] Visa Extra Card Issuance Confirmed"
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"
