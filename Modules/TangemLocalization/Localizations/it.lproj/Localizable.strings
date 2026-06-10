@@ -1538,9 +1538,9 @@
 "tangempay_card_details_rename_card_invalid_title" = "Caratteri non validi";
 "tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Rivela";
-"tangempay_card_details_show_details" = "Mostra dettagli";
+"tangempay_card_details_show_details" = "Dettagli";
 "tangempay_card_details_swap_description" = "Scambia qualsiasi asset nel tuo portafoglio con una carta";
-"tangempay_card_details_title" = "Dettagli carta";
+"tangempay_card_details_title" = "Dettagli";
 "tangempay_card_details_unable_to_rename_card_description" = "Per favore riprova più tardi";
 "tangempay_card_details_unfreeze_card" = "Sblocca carta";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
