@@ -31,7 +31,7 @@ struct TrendingCardNewsViewRedesign: View {
     private func contentView(for item: TrendingCardNewsItem) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(spacing: .unit(.x2)) {
-                NewsRatingViewRedesign(rating: item.rating, isHighlighted: true)
+                NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: true)
                 Text(Localization.feedTrendingNow)
                     .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
             }
@@ -42,12 +42,7 @@ struct TrendingCardNewsViewRedesign: View {
                 .multilineTextAlignment(.leading)
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
 
-            FixedSpacer(height: .unit(.x4))
-
-            Text(item.timeAgo)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-
-            FixedSpacer(height: 18.0)
+            Spacer(minLength: .unit(.x4))
 
             InfoChipsRowView(chips: item.tags, alignment: .leading, style: .redesign)
         }
@@ -61,7 +56,7 @@ struct TrendingCardNewsViewRedesign: View {
                 .resizable()
                 .allowsHitTesting(false)
         }
-        .cornerRadiusContinuous(.unit(.x5))
+        .cornerRadiusContinuous(.unit(.x6))
         .opacity(item.isRead ? 0.6 : 1.0)
     }
 }

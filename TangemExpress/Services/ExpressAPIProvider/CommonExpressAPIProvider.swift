@@ -229,7 +229,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.quotesItem.providerInfo.id,
             toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil, // There is no memo on the client side
-            redirectUrl: item.redirectSettings.redirectURL,
+            redirectUrl: item.redirectSettings.redirectURL.absoluteString,
             language: item.redirectSettings.language,
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId
@@ -254,7 +254,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             providerId: item.quotesItem.providerInfo.id,
             toAddress: item.quotesItem.pairItem.address,
             toExtraId: nil,
-            redirectUrl: item.redirectSettings.redirectURL,
+            redirectUrl: item.redirectSettings.redirectURL.absoluteString,
             language: item.redirectSettings.language,
             theme: item.redirectSettings.theme.rawValue,
             requestId: requestId,
@@ -291,40 +291,46 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
 
     // MARK: - History
 
-    func exchangeHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> ExchangeHistoryPage {
-        let request = ExpressDTO.HistoryRequest(
-            walletAddress: walletAddress,
-            cursor: cursor.map { AnyEncodable($0) },
-            limit: limit,
-            network: network,
-            tokenId: tokenId
+    func exchangeHistory(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage {
+        let request = ExpressDTO.Swap.History.Request(
+            fromAddress: item.walletAddress,
+            afterCursor: item.cursor.map { AnyEncodable($0) },
+            limit: item.limit
         )
         let response = try await expressAPIService.exchangeHistory(request: request)
 
         return try expressAPIMapper.mapToExchangeHistoryPage(response: response)
     }
 
-    func onrampHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> OnrampHistoryPage {
-        let request = ExpressDTO.HistoryRequest(
-            walletAddress: walletAddress,
-            cursor: cursor.map { AnyEncodable($0) },
-            limit: limit,
-            network: network,
-            tokenId: tokenId
+    func exchangeHistoryDelta(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage {
+        let request = ExpressDTO.Swap.HistoryDelta.Request(
+            fromAddress: item.walletAddress,
+            beforeCursor: item.cursor.map { AnyEncodable($0) },
+            limit: item.limit
+        )
+        let response = try await expressAPIService.exchangeHistoryDelta(request: request)
+
+        return try expressAPIMapper.mapToExchangeHistoryPage(response: response)
+    }
+
+    func onrampHistory(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage {
+        let request = ExpressDTO.Onramp.History.Request(
+            payoutAddress: item.walletAddress,
+            afterCursor: item.cursor.map { AnyEncodable($0) },
+            limit: item.limit
         )
         let response = try await expressAPIService.onrampHistory(request: request)
+
+        return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
+    }
+
+    func onrampHistoryDelta(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage {
+        let request = ExpressDTO.Onramp.HistoryDelta.Request(
+            payoutAddress: item.walletAddress,
+            beforeCursor: item.cursor.map { AnyEncodable($0) },
+            limit: item.limit
+        )
+        let response = try await expressAPIService.onrampHistoryDelta(request: request)
 
         return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
     }

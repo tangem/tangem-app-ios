@@ -11,31 +11,43 @@ import Foundation
 struct CommonExpressProviderManagerFactory: ExpressProviderManagerFactory {
     private let expressAPIProvider: ExpressAPIProvider
     private let mapper: ExpressManagerMapper
+    private let featureFlags: ExpressFeatureFlags
 
     init(
         expressAPIProvider: ExpressAPIProvider,
-        mapper: ExpressManagerMapper
+        mapper: ExpressManagerMapper,
+        featureFlags: ExpressFeatureFlags
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.mapper = mapper
+        self.featureFlags = featureFlags
     }
 
-    func makeExpressProviderManager(provider: ExpressProvider, pair: ExpressManagerSwappingPair) -> ExpressProviderManager? {
+    func makeExpressProviderManager(
+        provider: ExpressProvider,
+        pair: ExpressManagerSwappingPair,
+        rateType: ExpressProviderRateType
+    ) throws -> ExpressAvailableProvider {
         switch provider.type {
         case .dex, .dexBridge, .cex:
             let context = ExpressProviderFlowContext(
                 provider: provider,
                 pair: pair,
+                rateType: rateType,
                 expressFeeProvider: pair.source.expressFeeProviderFactory.makeExpressFeeProvider(),
                 expressAPIProvider: expressAPIProvider,
-                mapper: mapper
+                mapper: mapper,
+                featureFlags: featureFlags
             )
-            return CommonExpressProviderManager(
+
+            let manager = CommonExpressProviderManager(
                 context: context,
                 flowTypeResolver: CommonExpressFlowTypeResolver()
             )
+
+            return ExpressAvailableProvider(context: context, manager: manager)
         case .onramp, .unknown:
-            return nil
+            throw ExpressManagerError.unsupportedProviderType
         }
     }
 }

@@ -13,4 +13,6 @@ public enum WalletSettingsAccessibilityIdentifiers {
     public static func walletSettingsButton(name: String) -> String {
         return "walletSettingsButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }
+
+    public static let renameWalletRow = "walletSettingsRenameRow"
 }
