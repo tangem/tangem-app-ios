@@ -18,7 +18,7 @@ public enum TangemPayOrderType: String, Decodable {
 
 public extension TangemPayOrderType {
     static let cardIssueFamily: [String] = [
-        TangemPayOrderType.cardIssueVirtualRain.rawValue,
-        TangemPayOrderType.cardIssueVirtualRainKyc.rawValue,
+        cardIssueVirtualRain.rawValue,
+        cardIssueVirtualRainKyc.rawValue,
     ]
 }

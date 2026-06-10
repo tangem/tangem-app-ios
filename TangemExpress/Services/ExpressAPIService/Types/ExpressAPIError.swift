@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct ExpressAPIError: Decodable, LocalizedError, Error, Hashable {
     let code: Int?
@@ -40,7 +41,7 @@ public extension ExpressAPIError {
                 return nil
             }
 
-            return Decimal(string: fromAmountProvider).map { $0 / pow(10, decimals) }
+            return Decimal(stringValue: fromAmountProvider).map { $0 / pow(10, decimals) }
         }
 
         var amount: Decimal? {
@@ -48,7 +49,7 @@ public extension ExpressAPIError {
                 return nil
             }
 
-            return Decimal(string: amount).map { $0 / pow(10, decimals) }
+            return Decimal(stringValue: amount).map { $0 / pow(10, decimals) }
         }
     }
 

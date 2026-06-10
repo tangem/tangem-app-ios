@@ -17,7 +17,6 @@ enum Feature: String, Hashable, CaseIterable {
     case walletConnectBitcoin
     case mainQRScan
     case surveySparrow
-    case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
     case solanaTxHistoryEnabled
     case solanaScaledUIEnabled
@@ -45,6 +44,9 @@ enum Feature: String, Hashable, CaseIterable {
     case deeplinkPresentationWay
     case transactionHistoryV2
     case adiMainScreenDefault
+    case tangemPayMultipleCards
+    case transfers
+    case tangemPaySpendRedesign
 
     var name: String {
         switch self {
@@ -56,7 +58,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .mainQRScan: return "Main QR Scan"
         case .surveySparrow: return "SurveySparrow service integration"
-        case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
@@ -84,6 +85,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .addFundsStage1: return "[REDACTED_INFO]_ADDFUNDS_STAGE_1"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
+        case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
+        case .transfers: return "14042_Transfers"
+        case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
         }
     }
 
@@ -91,13 +95,12 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .unspecified
+        case .redesign: return .version("5.40")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .mainQRScan: return .version("5.36")
         case .surveySparrow: return .unspecified
-        case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
         case .solanaTxHistoryEnabled: return .version("5.39")
         case .solanaScaledUIEnabled: return .version("5.39")
@@ -125,6 +128,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .addFundsStage1: return .version("5.39")
+        case .tangemPayMultipleCards: return .unspecified
+        case .transfers: return .version("5.40")
+        case .tangemPaySpendRedesign: return .unspecified
         }
     }
 }
