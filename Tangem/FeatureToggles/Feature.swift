@@ -46,6 +46,7 @@ enum Feature: String, Hashable, CaseIterable {
     case adiMainScreenDefault
     case tangemPayMultipleCards
     case transfers
+    case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
 
     var name: String {
@@ -87,6 +88,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
+        case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
         }
     }
@@ -130,6 +132,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addFundsStage1: return .version("5.39")
         case .tangemPayMultipleCards: return .unspecified
         case .transfers: return .version("5.40")
+        case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
         }
     }
