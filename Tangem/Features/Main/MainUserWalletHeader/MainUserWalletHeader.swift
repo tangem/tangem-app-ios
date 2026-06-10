@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
@@ -22,8 +23,8 @@ struct MainUserWalletHeader: View {
         headerViewModel = model.headerViewModel
     }
 
+    @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var height: CGFloat = 84
-    @ScaledSize private var loaderSize: CGSize = .init(width: 222, height: 36)
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
     var body: some View {
@@ -84,11 +85,11 @@ struct MainUserWalletHeader: View {
         LoadableBalanceView(
             state: headerViewModel.balance,
             style: .init(
-                font: Font.Tangem.Custom.titleRegular44,
+                font: Font.Tangem.Title44.semibold,
                 textColor: Color.Tangem.Text.Neutral.primary
             ),
             loader: .init(
-                size: loaderSize,
+                size: CGSize(width: 222, height: 36) * scaleFactor,
                 cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: MainAccessibilityIdentifiers.totalBalance

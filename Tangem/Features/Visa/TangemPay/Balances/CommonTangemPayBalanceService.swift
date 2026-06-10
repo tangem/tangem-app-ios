@@ -50,7 +50,6 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     private let tokenItem = TangemPayUtilities.usdcTokenItem
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
-    /// Provider / Storage  to load `FiatRate` for `AppCurrency`
     private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: tokenItem
     )
