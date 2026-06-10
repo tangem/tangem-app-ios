@@ -16,7 +16,7 @@ struct FloatingSheetRegisterer<SheetContentViewModel: FloatingSheetContentViewMo
 
     var body: some View {
         Color.clear
-            .onAppear {
+            .task {
                 registry.register(type, viewBuilder: viewBuilder)
             }
     }

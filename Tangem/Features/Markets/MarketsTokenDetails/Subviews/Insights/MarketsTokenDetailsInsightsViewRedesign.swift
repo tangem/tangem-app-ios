@@ -15,7 +15,7 @@ import TangemUI
 struct MarketsTokenDetailsInsightsViewRedesign: View {
     @ObservedObject var viewModel: MarketsTokenDetailsInsightsViewModel
 
-    @ScaledSize private var trendImageSize = CGSize(bothDimensions: 12)
+    @ScaledMetric private var trendImageSide: CGFloat = 12
 
     private let gridItems = [
         GridItem(.flexible(), alignment: .topLeading),
@@ -116,7 +116,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
             Assets.DesignSystem.upDynamic.image
                 .resizable()
                 .renderingMode(.template)
-                .frame(size: trendImageSize)
+                .frame(width: trendImageSide, height: trendImageSide)
                 .foregroundStyle(Color.Tangem.Graphic.Status.positive)
 
         case .negative:
@@ -125,7 +125,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
             Assets.DesignSystem.upDynamic.image
                 .resizable()
                 .renderingMode(.template)
-                .frame(size: trendImageSize)
+                .frame(width: trendImageSide, height: trendImageSide)
                 .rotationEffect(.degrees(180))
                 .foregroundStyle(Color.Tangem.Graphic.Status.warning)
 

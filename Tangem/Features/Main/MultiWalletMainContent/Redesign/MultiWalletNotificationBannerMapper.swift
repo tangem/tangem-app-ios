@@ -126,6 +126,7 @@ private extension MultiWalletNotificationBannerMapper {
         case .info:
             if input.settings.event.isDismissable {
                 let closeAction = makeCloseAction(from: input)
+                // [REDACTED_TODO_COMMENT]
                 return .informational(textOnly, bannerAction, closeAction)
             }
 
@@ -151,18 +152,25 @@ private extension MultiWalletNotificationBannerMapper {
     ) -> NotificationBanner.Content {
         let messageIcon = input.settings.event.icon
 
-        guard case .image(let imageType) = messageIcon.iconType else {
+        switch messageIcon.iconType {
+        case .image(let imageType):
+            let icon = NotificationBanner.Icon(
+                imageType: imageType,
+                width: mapSizeUnit(from: messageIcon.size.width),
+                height: mapSizeUnit(from: messageIcon.size.height),
+                renderingMode: messageIcon.renderingMode
+            )
+            return .textWithIcon(.init(text: textOnly, icon: icon))
+        case .loadableIcon(let url):
+            let icon = NotificationBanner.LoadableIcon(
+                url: url,
+                width: mapSizeUnit(from: messageIcon.size.width),
+                height: mapSizeUnit(from: messageIcon.size.height)
+            )
+            return .textWithLoadableIcon(.init(text: textOnly, icon: icon))
+        default:
             return .text(textOnly)
         }
-
-        let icon = NotificationBanner.Icon(
-            imageType: imageType,
-            width: mapSizeUnit(from: messageIcon.size.width),
-            height: mapSizeUnit(from: messageIcon.size.height),
-            renderingMode: messageIcon.renderingMode
-        )
-
-        return .textWithIcon(.init(text: textOnly, icon: icon))
     }
 
     func mapSizeUnit(from dimension: CGFloat) -> SizeUnit {
