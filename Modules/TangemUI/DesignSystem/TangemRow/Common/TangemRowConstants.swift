@@ -12,7 +12,7 @@ import SwiftUI
 public enum TangemRowConstants {
     public enum Style {
         public enum Title {
-            public static let font: Font = .Tangem.Body16.semibold
+            public static let font: Font = .Tangem.Body16.medium
             public static let color: Color = .Tangem.Text.Neutral.primary
         }
 

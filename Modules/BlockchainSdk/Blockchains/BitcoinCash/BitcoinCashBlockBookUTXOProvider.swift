@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AnyCodable
 
 /// Adapter for existing BlockBookUTXOProvider
 final class BitcoinCashBlockBookUTXOProvider {

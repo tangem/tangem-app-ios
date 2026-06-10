@@ -11,7 +11,7 @@ import TangemUI
 
 struct MarketsPortfolioTokenBalanceView: View {
     @ScaledMetric private var failedBalanceTextIconSpacing: CGFloat = .unit(.half)
-    @ScaledSize private var failedBalanceIconSize = CGSize(width: .unit(.x4), height: .unit(.x4))
+    @ScaledMetric private var failedBalanceIconSide = CGFloat.unit(.x4)
 
     let state: MarketsPortfolioTokenBalanceState
     let skeletonSize: CGSize
@@ -38,7 +38,7 @@ struct MarketsPortfolioTokenBalanceView: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(icon.color)
-                .frame(size: failedBalanceIconSize)
+                .frame(width: failedBalanceIconSide, height: failedBalanceIconSide)
 
             HStack(spacing: failedBalanceTextIconSpacing) {
                 if icon.location == .leading {

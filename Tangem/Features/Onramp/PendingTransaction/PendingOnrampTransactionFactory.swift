@@ -57,6 +57,9 @@ struct PendingOnrampTransactionFactory {
         case .paused:
             currentStatus = .paused
             statusesList = pausedStatusesList
+        case .unknown:
+            currentStatus = .unknown
+            statusesList = unknownHashStatusesList
         }
 
         transactionRecord.transactionStatus = currentStatus
@@ -68,7 +71,7 @@ struct PendingOnrampTransactionFactory {
             isCustom: transactionRecord.destinationTokenTxInfo.isCustom
         )
         transactionRecord.externalTxId = currentOnrampTransaction.externalTxId
-        transactionRecord.externalTxURL = currentOnrampTransaction.externalTxURL
+        transactionRecord.externalTxURL = currentOnrampTransaction.externalTxURL?.absoluteString
 
         return PendingOnrampTransaction(
             transactionRecord: transactionRecord,
