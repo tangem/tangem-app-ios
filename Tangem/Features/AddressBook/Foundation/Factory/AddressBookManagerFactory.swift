@@ -15,10 +15,18 @@ struct AddressBookManagerFactory {
         let repository = CommonAddressBookRepository(
             userWalletId: userWalletId,
             cryptographer: CommonAddressBookCryptographer(),
-            storage: CommonAddressBookPersistentStorage(storageIdentifier: storageIdentifier),
+            storage: makeStorage(storageIdentifier: storageIdentifier),
             eTagStorage: CommonAddressBookETagStorage()
         )
 
         return CommonAddressBookManager(repository: repository)
+    }
+
+    private func makeStorage(storageIdentifier: String) -> AddressBookPersistentStorage {
+        #if DEBUG
+        MockAddressBookPersistentStorage()
+        #else
+        CommonAddressBookPersistentStorage(storageIdentifier: storageIdentifier)
+        #endif
     }
 }
