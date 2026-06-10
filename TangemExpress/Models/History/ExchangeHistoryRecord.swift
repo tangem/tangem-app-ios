@@ -19,7 +19,7 @@ public struct ExchangeHistoryRecord: TransactionHistoryRecord, Hashable, @unchec
     public let externalTxId: String?
     public let externalTxURL: URL?
     public let refund: ExpressHistoryRefund?
-    public let rateType: ExpressProviderRateType
+    public let rateType: ExpressProviderRateType?
     public let createdAt: Date
     public let updatedAt: Date
 }

@@ -17,7 +17,7 @@ extension ExpressDTO {
             typealias Id = String
 
             let providerId: Id
-            let rateTypes: [RateType]
+            let rateTypes: [String]
 
             enum RateType: String, Codable {
                 case float
@@ -61,7 +61,7 @@ extension ExpressDTO {
             struct Response: Decodable {
                 let id: Provider.Id
                 let name: String
-                let type: ExpressProviderType?
+                let type: String?
                 let exchangeOnlyWithinSingleAddress: Bool?
                 let imageLarge: String?
                 let imageSmall: String?
@@ -146,7 +146,7 @@ extension ExpressDTO {
 
             struct Response: Decodable {
                 let providerId: Provider.Id
-                let status: ExpressTransactionStatus
+                let status: String
                 let refundNetwork: String?
                 let refundContractAddress: String?
                 let externalTxId: String?
@@ -168,7 +168,7 @@ extension ExpressDTO {
 
             struct Response: Decodable {
                 let txId: String
-                let status: ExpressTransactionStatus
+                let status: String
             }
         }
 
@@ -183,7 +183,7 @@ extension ExpressDTO {
 
             struct Record: Decodable {
                 let txId: String
-                let status: ExpressTransactionStatus
+                let status: String
                 let provider: ExpressDTO.HistoryProvider
                 let from: AssetRef
                 let to: AssetRef
@@ -192,7 +192,7 @@ extension ExpressDTO {
                 let externalTxId: String?
                 let externalTxUrl: String?
                 let refund: Refund?
-                let rateType: ExpressProviderRateType
+                let rateType: String
                 // [REDACTED_TODO_COMMENT]
                 /*
                  let createdAt: Int
