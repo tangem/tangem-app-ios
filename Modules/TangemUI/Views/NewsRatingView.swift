@@ -33,17 +33,15 @@ public struct NewsRatingViewRedesign: View {
     }
 
     private var starIcon: some View {
-        ZStack {
-            Circle()
-                .fill(isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary)
-                .frame(size: .init(bothDimensions: .unit(.x4)))
+        Assets.newsRankIcon.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(size: .init(bothDimensions: Layout.iconSize))
+            .foregroundStyle(isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary)
+    }
 
-            Assets.star.image
-                .resizable()
-                .frame(size: .init(bothDimensions: .unit(.x3)))
-                .blendMode(.destinationOut)
-        }
-        .compositingGroup()
+    private enum Layout {
+        static let iconSize: CGFloat = .unit(.x4)
     }
 }
 
