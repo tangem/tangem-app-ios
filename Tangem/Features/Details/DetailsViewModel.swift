@@ -280,6 +280,7 @@ private extension DetailsViewModel {
 
         tangemPayAvailabilityRepository
             .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
+            .removeDuplicates()
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, availableSelection in
@@ -370,6 +371,7 @@ private extension DetailsViewModel {
         ]
 
         if let availableSelection {
+            Analytics.log(.visaOnboardingPermanentButtonShowed)
             models.append(
                 DefaultRowViewModel(
                     title: Localization.tangempayGetTangemPay,
