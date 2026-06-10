@@ -38,6 +38,7 @@ struct WalletConnectRowView: View {
                 Assets.chevron.image
             }
             .padding(.vertical, 16)
+            .padding(.horizontal, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
