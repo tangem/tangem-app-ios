@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct AnyCodable.AnyDecodable
+import AnyCodable
 
 extension NEARNetworkResult {
     /// There are many more fields in this response, but we only

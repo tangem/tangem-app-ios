@@ -57,18 +57,18 @@ struct SendAmountCompactTokenView: View {
         VStack(alignment: .leading, spacing: 2) {
             ZStack {
                 // We use hidden `Text` here to calculate constant height without `minimumScaleFactor`
-                Text(viewModel.amountText)
+                Text(viewModel.formattedAmount ?? " ")
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .hidden(true)
 
-                Text(viewModel.amountText)
+                Text(viewModel.formattedAmount ?? " ")
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
             }
 
             HStack(spacing: 4) {
-                Text(viewModel.alternativeAmount ?? " ")
+                Text(viewModel.formattedAlternativeAmount ?? " ")
                     .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
 
                 highPriceImpactWarningView

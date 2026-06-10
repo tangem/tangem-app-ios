@@ -18,6 +18,7 @@ public enum ExpressProviderManagerState {
     case revokeAndPermissionRequired(ExpressProviderManagerState.PermissionRequired)
     case cexPreview(ExpressProviderManagerState.CEXPreview)
     case dexPreview(ExpressProviderManagerState.DEXPreview)
+    case dexWithApprovePreview(ExpressProviderManagerState.DEXWithApprovePreview)
 
     public var quote: ExpressQuote? {
         switch self {
@@ -35,12 +36,14 @@ public enum ExpressProviderManagerState {
             return state.quote
         case .dexPreview(let state):
             return state.quote
+        case .dexWithApprovePreview(let state):
+            return state.quote
         }
     }
 
     public var isError: Bool {
         switch self {
-        case .idle, .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview:
+        case .idle, .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview, .dexWithApprovePreview:
             return false
         case .error:
             return true
@@ -49,7 +52,7 @@ public enum ExpressProviderManagerState {
 
     public var isShowable: Bool {
         switch self {
-        case .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview:
+        case .permissionRequired, .revokeAndPermissionRequired, .restriction, .cexPreview, .dexPreview, .dexWithApprovePreview:
             return true
         case .idle, .error:
             return false
@@ -96,6 +99,23 @@ public extension ExpressProviderManagerState {
         public let fee: Fee
         public let quote: ExpressQuote
     }
+
+    struct DEXWithApprovePreview {
+        public let provider: ExpressProvider
+        public let expressTransactionData: ExpressTransactionData
+        public let quote: ExpressQuote
+        public let approveData: DEXWithApproveFlowApproveData
+        /// Approve fee + swap fee
+        public let combinedFee: Fee
+
+        public struct DEXWithApproveFlowApproveData {
+            public let provider: ExpressProvider
+            public let approvePolicy: ApprovePolicy
+            public let approveTransactionData: ApproveTransactionData
+            public let approvalFlow: ApprovalFlow
+            public let approveFee: Fee
+        }
+    }
 }
 
 // MARK: - Factory
@@ -136,6 +156,8 @@ extension ExpressProviderManagerState: CustomStringConvertible {
             return "cexPreview subtractFee: \(cexPreview.subtractFee), quote \(cexPreview.quote)"
         case .dexPreview(let dexPreview):
             return "dexPreview quote \(dexPreview.quote)"
+        case .dexWithApprovePreview(let preview):
+            return "dexWithApprovePreview quote \(preview.quote)"
         }
     }
 }
