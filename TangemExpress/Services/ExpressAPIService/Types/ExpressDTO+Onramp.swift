@@ -251,60 +251,87 @@ extension ExpressDTO {
             }
         }
 
-        // MARK: - History
+        // MARK: - History (initial)
 
         enum History {
+            struct Request: Encodable {
+                let payoutAddress: String
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let afterCursor: AnyEncodable?
+                let limit: Int?
+            }
+
             struct Response: Decodable {
-                let data: [Record]
-                let nextCursor: AnyDecodable
-                let hasMore: Bool
+                let items: [Record]
+                let pagination: Pagination
+            }
+
+            struct Pagination: Decodable {
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let endCursor: AnyDecodable?
+                /// Opaque cursor (hence `AnyDecodable`) to seed the delta sync.
+                let startDeltaCursor: AnyDecodable?
+                let hasMore: Bool? // [REDACTED_TODO_COMMENT]
+                @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
+                let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
             }
 
             struct Record: Decodable {
                 let txId: String
+                let providerId: String
+                let fromAddress: String
+                let payinAddress: String
+                let payinExtraId: String?
+                let payoutAddress: String
+                let refundAddress: String?
+                let refundExtraId: String?
+                let rateType: String
                 let status: String
-                let provider: ExpressDTO.HistoryProvider
-                let from: FiatAsset
-                let to: AssetRef
-                let payoutHash: String?
                 let externalTxId: String?
+                let externalTxStatus: String?
                 let externalTxUrl: String?
-                let refund: Refund?
-                let rate: Rate?
-                let failReason: String?
-                // [REDACTED_TODO_COMMENT]
-                /*
-                 let createdAt: Int
-                 let updatedAt: Int
-                 */
+                let payinHash: String?
+                let payoutHash: String?
+                let refundNetwork: String?
+                let refundContractAddress: String?
                 let createdAt: Date
-                let updatedAt: Date
+                let updatedAt: Date?
+                let payTill: Date?
+                let averageDuration: TimeInterval?
+
+                // fromCurrency info
+                let fromAmount: String
+                let fromCurrencyCode: String
+                let fromPrecision: Int
+
+                // toAsset info
+                let toContractAddress: String
+                let toNetwork: String
+                let toDecimals: Int
+                let toAmount: String
+                let toActualAmount: String?
+            }
+        }
+
+        // MARK: - History (delta)
+
+        enum HistoryDelta {
+            struct Request: Encodable {
+                let payoutAddress: String
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let beforeCursor: AnyEncodable?
+                let limit: Int?
             }
 
-            struct FiatAsset: Decodable {
-                let currencyCode: String
-                let amount: String
+            struct Response: Decodable {
+                let items: [History.Record]
+                let pagination: Pagination
             }
 
-            struct AssetRef: Decodable {
-                let network: String
-                let tokenId: String?
-                let expectedRawAmount: String
-                let actualRawAmount: String?
-                let decimals: Int
-            }
-
-            struct Refund: Decodable {
-                let network: String
-                let tokenId: String?
-                let rawAmount: String
-                let decimals: Int
-                let hash: String?
-            }
-
-            struct Rate: Decodable {
-                let atCreate: String?
-                let atFinish: String?
+            struct Pagination: Decodable {
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let startCursor: AnyDecodable?
+                let hasMore: Bool
             }
         }
     }
