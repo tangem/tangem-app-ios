@@ -42,7 +42,6 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
 
     private var options: Options?
-    private var tokenEntriesDerivator: TokenEntriesDerivator?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -104,16 +103,17 @@ extension TangemPayMainCoordinator {
 
 extension TangemPayMainCoordinator: TangemPayMainRoutable {
     func renewTangemPaySession() {
-        guard let userWalletModel = options?.userWalletModel else { return }
+        guard
+            let userWalletModel = options?.userWalletModel,
+            let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
+        else {
+            return
+        }
 
-        tokenEntriesDerivator = TokenEntriesDerivator(
-            userWalletModel: userWalletModel,
-            onStart: {},
-            onFinish: { [weak self] in
-                self?.tokenEntriesDerivator = nil
-            }
+        tangemPayAccountModel.renewSession(
+            authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor,
+            completion: {}
         )
-        tokenEntriesDerivator?.derive()
     }
 
     func openCardManagement() {
