@@ -19,7 +19,7 @@ struct MarketTokenRowView: View {
     @ScaledMetric private var iconSide: CGFloat = 40
     @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x4.value
     @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
-    @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x2.value
+    @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x3.value
 
     var body: some View {
         Button(action: { viewModel.didTapAction?() }) {
@@ -78,7 +78,7 @@ struct MarketTokenRowView: View {
                 negativeColor: .Tangem.Text.Status.warning,
                 originalColor: .Tangem.Text.Neutral.primary
             )
-            .style(.Tangem.Caption13.regular, color: .Tangem.Text.Neutral.primary)
+            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
     }
 
