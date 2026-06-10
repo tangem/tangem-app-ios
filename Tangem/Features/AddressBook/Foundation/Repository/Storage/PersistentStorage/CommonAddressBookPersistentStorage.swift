@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 actor CommonAddressBookPersistentStorage {
     @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
@@ -19,11 +21,11 @@ actor CommonAddressBookPersistentStorage {
 // MARK: - AddressBookPersistentStorage protocol conformance
 
 extension CommonAddressBookPersistentStorage: AddressBookPersistentStorage {
-    func get() throws -> [String] {
-        try persistentStorage.value(for: key) ?? []
+    func get() throws -> Data {
+        try persistentStorage.value(for: key) ?? Data()
     }
 
-    func save(contacts: [String]) throws {
-        try persistentStorage.store(value: contacts, for: key)
+    func save(addressBook: Data) throws {
+        try persistentStorage.store(value: addressBook, for: key)
     }
 }
