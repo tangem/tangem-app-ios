@@ -15,6 +15,7 @@ import TangemFoundation
 /// Monitors wallet readiness conditions and emits events that drive push-notification
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
 /// independently from the manager that acts on those events.
+@available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications. [REDACTED_INFO]")
 final class UserTokensPushNotificationsUpdateTrigger {
     var eventsPublisher: AnyPublisher<PushNotificationsUpdateTriggerEvent, Never> {
         eventsSubject.eraseToAnyPublisher()

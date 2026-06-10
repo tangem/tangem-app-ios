@@ -110,6 +110,32 @@ actor NotificationPreferencesStateStore {
         )
     }
 
+    /// Like `beginUpdate`, but flips every channel to enabled in the optimistic snapshot. Same
+    /// single-flight and confirmed-baseline guarantees apply, so a full-replace PUT built from the
+    /// returned context never pushes all-`false` defaults over the user's real settings.
+    func beginEnableAllUpdate() -> UpdateContext? {
+        guard case .ready = preferences.state,
+              case .ready = lastConfirmedPreferences.state,
+              !isWriteInFlight else {
+            return nil
+        }
+
+        isWriteInFlight = true
+
+        var optimisticPreferences = preferences
+        for channel in PushChannel.allCases {
+            optimisticPreferences.setEnabled(true, for: channel)
+        }
+
+        let rollbackPreferences = lastConfirmedPreferences
+        preferences = optimisticPreferences
+
+        return .init(
+            optimisticPreferences: optimisticPreferences,
+            rollbackPreferences: rollbackPreferences
+        )
+    }
+
     func finishUpdate(completion: UpdateCompletion) -> RemotePushPreferences? {
         isWriteInFlight = false
 
