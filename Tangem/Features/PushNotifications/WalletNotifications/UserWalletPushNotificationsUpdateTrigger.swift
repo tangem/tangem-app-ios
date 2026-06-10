@@ -1,12 +1,11 @@
 //
-//  UserTokensPushNotificationsUpdateTrigger.swift
+//  UserWalletPushNotificationsUpdateTrigger.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import UIKit
 import Foundation
 import Combine
 import CombineExt
@@ -15,8 +14,7 @@ import TangemFoundation
 /// Monitors wallet readiness conditions and emits events that drive push-notification
 /// settings updates. Extracted so the trigger logic can be reasoned about and tested
 /// independently from the manager that acts on those events.
-@available(iOS, deprecated: 100000.0, message: "Will be removed after full migration to channel-based push notifications. [REDACTED_INFO]")
-final class UserTokensPushNotificationsUpdateTrigger {
+final class UserWalletPushNotificationsUpdateTrigger {
     var eventsPublisher: AnyPublisher<PushNotificationsUpdateTriggerEvent, Never> {
         eventsSubject.eraseToAnyPublisher()
     }
@@ -45,14 +43,14 @@ final class UserTokensPushNotificationsUpdateTrigger {
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
         permissionService: PushNotificationsPermissionService,
-        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>
+        notificationPreferencesProvider: NotificationPreferencesProvider
     ) {
         self.userWalletId = userWalletId
         seedInitialAuthorizationState(permissionService: permissionService)
         bind(
             accountModelsManager: accountModelsManager,
             permissionService: permissionService,
-            remoteTransactionAlertsStatePublisher: remoteTransactionAlertsStatePublisher
+            notificationPreferencesProvider: notificationPreferencesProvider
         )
     }
 
@@ -61,7 +59,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private func seedInitialAuthorizationState(permissionService: PushNotificationsPermissionService) {
         // Seed `isAuthorizedSubject` with the current system permission so downstream pipelines
         // have a baseline even if the trigger is created after the cold-start `didBecomeActive`.
-        Task { @MainActor [weak self, permissionService] in
+        Task { [weak self, permissionService] in
             let initial = await permissionService.isAuthorized
             self?.isAuthorizedSubject.send(.value(initial))
         }
@@ -70,7 +68,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
     private func bind(
         accountModelsManager: AccountModelsManager,
         permissionService: PushNotificationsPermissionService,
-        remoteTransactionAlertsStatePublisher: AnyPublisher<PushRemoteValueState<Bool>, Never>
+        notificationPreferencesProvider: NotificationPreferencesProvider
     ) {
         permissionService
             .isAuthorizedPublisher
@@ -137,9 +135,10 @@ final class UserTokensPushNotificationsUpdateTrigger {
         let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
             .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
 
-        let isPreferencesReadyPublisher = remoteTransactionAlertsStatePublisher
-            .map { remoteState -> Bool in
-                guard case .ready = remoteState else { return false }
+        let isPreferencesReadyPublisher = notificationPreferencesProvider
+            .preferencesPublisher
+            .map { preferences -> Bool in
+                guard case .ready = preferences.state else { return false }
                 return true
             }
             .removeDuplicates()
@@ -166,15 +165,18 @@ final class UserTokensPushNotificationsUpdateTrigger {
 
         // Backend transactional-push address sync when the settled remote toggle changes,
         // gated on the token list being ready.
-        remoteTransactionAlertsStatePublisher
+        notificationPreferencesProvider
+            .preferencesPublisher
+            .map { $0.remoteValueState(for: .transactionAlerts) }
             .removeDuplicates()
             .pairwise()
             .filter { previous, current in
-                guard case .ready(let previousValue) = previous, case .ready(let currentValue) = current else {
+                switch (previous, current) {
+                case (.ready(let previousPreference), .ready(let currentPreference)):
+                    return previousPreference.isEnabled != currentPreference.isEnabled
+                default:
                     return false
                 }
-
-                return previousValue != currentValue
             }
             .combineLatest(isUserTokenListReadyPublisher)
             .map { _ in PushNotificationsUpdateTriggerEvent.syncRemoteStatusRequired }
@@ -183,7 +185,7 @@ final class UserTokensPushNotificationsUpdateTrigger {
     }
 }
 
-private extension UserTokensPushNotificationsUpdateTrigger {
+private extension UserWalletPushNotificationsUpdateTrigger {
     /// `.idle` means we haven't observed any permission reading yet — consumers must drop it
     /// instead of treating it as `false`.
     enum AuthorizationState: Hashable {
