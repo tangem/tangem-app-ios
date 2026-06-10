@@ -83,6 +83,7 @@
 "address_book_add_address" = "Add address";
 "address_book_add_contact" = "Add contact";
 "address_book_contact_name" = "Contact name";
+"address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
 "address_book_creating_error" = "We couldn’t create contact. Please try again later.";
 "address_book_delete_contact_description" = "This contact will be deleted from all your address book";
@@ -1385,6 +1386,7 @@
 "story_web3_title" = "Web 3.0 Compatible";
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
+"support_chat_swap_prefilled_message" = "SWAP operation data:\nFrom: %1$@ %2$@\nTo: %3$@ %4$@\nBy %5$@ - %6$@";
 "support_selector_view_chat_button" = "Open chat";
 "support_selector_view_email_button" = "Open mail";
 "swap_approve_description" = "By approving, you allow the smart contract to use your tokens in future transactions.";
@@ -1536,9 +1538,9 @@
 "tangempay_card_details_rename_card_invalid_title" = "Caratteri non validi";
 "tangempay_card_details_rename_card_placeholder" = "Card name";
 "tangempay_card_details_reveal_text" = "Rivela";
-"tangempay_card_details_show_details" = "Mostra dettagli";
+"tangempay_card_details_show_details" = "Dettagli";
 "tangempay_card_details_swap_description" = "Scambia qualsiasi asset nel tuo portafoglio con una carta";
-"tangempay_card_details_title" = "Dettagli carta";
+"tangempay_card_details_title" = "Dettagli";
 "tangempay_card_details_unable_to_rename_card_description" = "Per favore riprova più tardi";
 "tangempay_card_details_unfreeze_card" = "Sblocca carta";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
@@ -1682,7 +1684,7 @@
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "Invia USDC Polygon all'indirizzo del tuo account";
 "tangempay_topup_receive_title" = "Da un altro wallet o exchange";
-"tangempay_topup_swap_body" = "Converti qualsiasi asset in USDC Polygon";
+"tangempay_topup_swap_body" = "Ricarichi il conto con qualsiasi token dal suo wallet";
 "tangempay_topup_swap_title" = "Dal tuo Tangem Wallet";
 "tangempay_usdc_on_polygon_network" = "USDC sulla Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Fare clic sul pulsante in basso per ripristinare l'accesso";
@@ -1928,8 +1930,8 @@
 "warning_approval_in_progress_title" = "Approval in Progress";
 "warning_backup_error_add_funds_message" = "This wallet has a backup issue. Contact Support to resolve it.";
 "warning_backup_error_add_funds_title" = "Adding funds is disabled";
-"warning_backup_error_attention_message" = "The backup process wasn’t completed correctly, possibly due to an NFC connection issue or how the cards were tapped to the phone. Adding funds is unavailable until this is resolved.";
-"warning_backup_error_attention_title" = "Backup issue detected";
+"warning_backup_error_attention_message" = "Your cards were not activated correctly. Continuing to use this wallet may result in loss of access to your funds. Please move your funds to another wallet, reset all your the cards to factory settings, and activate them again before continuing.";
+"warning_backup_error_attention_title" = "Action required: reset your wallet";
 "warning_backup_errors_message" = "Activation was not completed successfully. This may be due to an NFC issue or incorrect tapping. Please contact our Support team for assistance.";
 "warning_beacon_chain_retirement_content" = "On December 3, 2024, the BEP-2 network was disabled by decision of the network developers and is no longer supported";
 "warning_beacon_chain_retirement_title" = "BNB Beacon Chain shut down";
