@@ -61,6 +61,16 @@ extension TangemPayLocalState {
         return false
     }
 
+    var indicatesStaleData: Bool {
+        switch self {
+        case .unavailable, .syncNeeded:
+            return true
+        case .loading, .syncInProgress, .kycRequired, .kycDeclined,
+             .issuingCard, .failedToIssueCard, .tangemPayAccount, .cardDeactivated:
+            return false
+        }
+    }
+
     var tangemPayAccount: TangemPayAccount? {
         switch self {
         case .tangemPayAccount(let account), .cardDeactivated(let account):
