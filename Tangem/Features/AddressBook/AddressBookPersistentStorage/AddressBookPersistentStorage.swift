@@ -9,33 +9,28 @@
 import Foundation
 
 protocol AddressBookPersistentStorage: Actor {
-    func get() -> [String]
-    func save(contacts: [String])
+    func get() throws -> [String]
+    func save(contacts: [String]) throws
 }
 
 actor CommonAddressBookPersistentStorage {
     @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
-    private let key: PersistentStorageKey = .addressBook
+    private let key: PersistentStorageKey
+
+    init(storageIdentifier: String) {
+        key = .addressBook(cid: storageIdentifier)
+    }
 }
 
 // MARK: - AddressBookPersistentStorage protocol conformance
 
 extension CommonAddressBookPersistentStorage: AddressBookPersistentStorage {
-    func get() -> [String] {
-        do {
-            return try persistentStorage.value(for: key) ?? []
-        } catch {
-            assertionFailure("CommonAddressBookPersistentStorage fetching error: \(error)")
-            return []
-        }
+    func get() throws -> [String] {
+        try persistentStorage.value(for: key) ?? []
     }
 
-    func save(contacts: [String]) {
-        do {
-            try persistentStorage.store(value: contacts, for: key)
-        } catch {
-            assertionFailure("CommonAddressBookPersistentStorage saving error: \(error)")
-        }
+    func save(contacts: [String]) throws {
+        try persistentStorage.store(value: contacts, for: key)
     }
 }

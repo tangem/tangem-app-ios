@@ -93,7 +93,7 @@ struct CommonUserWalletModelDependencies {
             accountModelsManager: accountModelsManager
         )
 
-        addressBookManager = AddressBookManagerFactory().makeAddressBookManager()
+        addressBookManager = AddressBookManagerFactory().makeAddressBookManager(userWalletId: userWalletId)
 
         userWalletModelConfigurableDependencies = UserWalletModelConfigurableDependencies(
             derivationManager: derivationManager,
