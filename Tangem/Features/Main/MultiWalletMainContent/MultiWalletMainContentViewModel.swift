@@ -91,7 +91,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
     private let getTangemPayBannerNotificationManager: NotificationManager
-    private let yieldApyBoostBannerNotificationManager: NotificationManager
+    private let yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
@@ -117,7 +117,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
         getTangemPayBannerNotificationManager: NotificationManager,
-        yieldApyBoostBannerNotificationManager: NotificationManager,
+        yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
@@ -173,6 +173,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             userWalletModel: userWalletModel,
             isAppeared: true
         )
+
+        yieldApyBoostBannerNotificationManager.refreshFromCache()
     }
 
     func onWillDisappear() {
