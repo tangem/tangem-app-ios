@@ -10,16 +10,18 @@ import Foundation
 
 public struct ExchangeHistoryRecord: TransactionHistoryRecord, Hashable, @unchecked Sendable {
     public let txId: String
+    public let providerId: ExpressProvider.Id
     public let status: ExpressTransactionStatus
-    public let provider: ExpressHistoryProvider
-    public let from: ExchangeHistoryAsset
-    public let to: ExchangeHistoryAsset
-    public let payinHash: String?
-    public let payoutHash: String?
-    public let externalTxId: String?
-    public let externalTxURL: URL?
-    public let refund: ExpressHistoryRefund?
     public let rateType: ExpressProviderRateType?
+    public let externalTx: ExternalTxInfo? // [REDACTED_TODO_COMMENT]
+    public let fromAddress: String
+    public let payIn: PayInInfo
+    public let payOut: PayOutInfo
+    public let refund: RefundInfo? // [REDACTED_TODO_COMMENT]
+    public let from: ExpressHistoryAsset
+    public let to: ExpressHistoryAsset
     public let createdAt: Date
     public let updatedAt: Date
+    public let payTill: Date?
+    public let averageDuration: TimeInterval?
 }
