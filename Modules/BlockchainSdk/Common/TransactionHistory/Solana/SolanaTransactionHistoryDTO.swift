@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct AnyCodable.AnyDecodable
+import AnyCodable
 
 enum SolanaTransactionHistoryDTO {
     struct TransactionsForAddress: Decodable {
