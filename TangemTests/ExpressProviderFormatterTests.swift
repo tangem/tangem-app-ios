@@ -58,7 +58,8 @@ struct ExpressProviderFormatterBadgeTests {
             rateType: .float,
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
-            mapper: ExpressManagerMapper()
+            mapper: ExpressManagerMapper(),
+            featureFlags: ExpressFeatureFlags(isApproveWithSwapEnabled: false)
         )
 
         let available = ExpressAvailableProvider(
@@ -178,6 +179,7 @@ private struct StubExpressFeeProvider: ExpressFeeProvider {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { fatalError("Not used in tests") }
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { fatalError("Not used in tests") }
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveData: BSDKApproveTransactionData) async throws -> ApproveWithSwapFee { fatalError("Not used in tests") }
     func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee { fatalError("Not used in tests") }
 }
 
