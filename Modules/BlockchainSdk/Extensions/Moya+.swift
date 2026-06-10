@@ -8,8 +8,8 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import TangemFoundation
-import struct AnyCodable.AnyEncodable
 
 extension Moya.Task {
     static func requestJSONRPC(
