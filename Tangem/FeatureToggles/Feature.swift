@@ -93,7 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .redesign: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
-        case .experimentService: return .unspecified
+        case .experimentService: return .version("5.39")
         case .walletConnectBitcoin: return .unspecified
         case .mainQRScan: return .version("5.36")
         case .surveySparrow: return .unspecified
