@@ -83,7 +83,6 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForPendingExpressTransaction()
     }
 
-    /// [REDACTED_INFO] Send-via-Swap: network fee tier change (Market↔Fast) is not applied on Summary
     func testSendViaSwapFlowWithTokenSearchAndDataChanges() {
         setAllureId(3968)
 
