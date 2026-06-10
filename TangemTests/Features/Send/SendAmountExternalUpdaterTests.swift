@@ -94,6 +94,7 @@ private extension SendAmountExternalUpdaterTests {
         var receivedTokenPublisher: AnyPublisher<LoadingResult<any SendReceiveToken, any Error>, Never> { Empty().eraseToAnyPublisher() }
         var receivedTokenAmountPublisher: AnyPublisher<LoadingResult<SendAmount, Error>, Never> { Empty().eraseToAnyPublisher() }
         var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { .just(output: nil) }
+        var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 
         func update(sourceType: SendAmountCalculationType) throws -> SendAmount? { nil }
         func updateToMaxAmount() throws -> SendAmount { SendAmount(type: .typical(crypto: 0, fiat: 0)) }

@@ -71,9 +71,13 @@ struct TransactionsListViewRedesigned: View {
         } else {
             LazyVStack(spacing: .zero) {
                 ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
-                    sectionHeader(title: sectionItem.header)
+                    let sectionItemHeader = sectionItem.header
 
-                    ForEach(sectionItem.items.indexed(), id: \.1.id) { _, cellItem in
+                    if sectionItemHeader.isNotEmpty {
+                        sectionHeader(title: sectionItemHeader)
+                    }
+
+                    ForEach(sectionItem.items) { cellItem in
                         rowOrChip(for: cellItem)
                     }
                 }
@@ -204,7 +208,7 @@ private struct StatusStateView: View {
             action: button.action
         )
         .setStyleType(.secondary)
-        .setSize(.x12)
+        .setSize(.x10)
         .setCornerStyle(.rounded)
         .setHorizontalLayout(.intrinsic)
         .setButtonState(isLoading: button.isLoading)

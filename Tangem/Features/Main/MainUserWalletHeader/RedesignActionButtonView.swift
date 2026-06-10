@@ -18,36 +18,11 @@ struct RedesignActionButtonView<ViewModel: ActionButtonViewModel>: View {
             TangemMainActionButton(
                 title: viewModel.model.title,
                 icon: viewModel.model.icon,
-                buttonState: viewModel.viewState.buttonState,
-                action: { viewModel.tap() }
+                action: { viewModel.tap() },
+                reasonTapWhenDisabled: viewModel.isTappableWhileDisabled ? { viewModel.showRestrictionReason() } : nil
             )
-            .disabled(viewModel.viewState.isDisabledForInteraction)
             .accessibilityIdentifier(viewModel.model.accessibilityIdentifier)
             .bindAlert($viewModel.alert)
-        }
-    }
-}
-
-// MARK: - ActionButtonState mapping
-
-private extension ActionButtonState {
-    var buttonState: TangemMainActionButton.ButtonState {
-        switch self {
-        case .initial, .idle, .restricted:
-            return .normal
-        case .loading, .disabled:
-            return .disabled
-        case .unavailable:
-            return .normal
-        }
-    }
-
-    var isDisabledForInteraction: Bool {
-        switch self {
-        case .loading, .disabled:
-            return true
-        case .initial, .idle, .restricted, .unavailable:
-            return false
         }
     }
 }

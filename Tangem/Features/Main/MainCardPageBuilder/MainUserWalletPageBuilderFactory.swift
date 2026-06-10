@@ -37,7 +37,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         NFTEntrypointRoutable &
         TokensManagementFlowRoutable
 
-    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+    @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
 
     weak var coordinator: MainContentRoutable?
 
@@ -73,7 +73,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             supplementInfoProvider: model,
             subtitleProvider: subtitleProvider,
             balanceProvider: balanceProvider,
-            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
+            walletAssetsDiscoveryProgressProvider: walletAssetsDiscoveryProgressProvider,
             updatePublisher: model.updatePublisher
         )
 
@@ -259,7 +259,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             supplementInfoProvider: visaUserWalletModel,
             subtitleProvider: subtitleProvider,
             balanceProvider: visaUserWalletModel,
-            walletTokenSyncProgressProvider: walletTokenSyncProgressProvider,
+            walletAssetsDiscoveryProgressProvider: walletAssetsDiscoveryProgressProvider,
             updatePublisher: visaUserWalletModel.updatePublisher
         )
 
