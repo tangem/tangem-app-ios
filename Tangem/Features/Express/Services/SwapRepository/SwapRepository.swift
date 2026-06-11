@@ -1,5 +1,5 @@
 //
-//  ExpressPairsRepository.swift
+//  SwapRepository.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemExpress
 
-protocol ExpressPairsRepository {
+protocol SwapRepository: ExpressRepository {
     func updatePairs(
         from wallet: ExpressWalletCurrency,
         to currencies: [ExpressWalletCurrency],
@@ -17,22 +17,19 @@ protocol ExpressPairsRepository {
 
     func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws
 
-    func getAvailableProvidersIds(
-        for pair: ExpressManagerSwappingPair,
-        rateType: ExpressProviderRateType?
-    ) async -> [ExpressProvider.Id]
+    // getAvailableProvidersIds is inherited from ExpressRepository
 
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair]
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair]
 }
 
-private struct ExpressPairsRepositoryKey: InjectionKey {
-    static var currentValue: ExpressPairsRepository = CommonExpressPairsRepository()
+private struct SwapRepositoryKey: InjectionKey {
+    static var currentValue: SwapRepository = CommonSwapRepository()
 }
 
 extension InjectedValues {
-    var expressPairsRepository: ExpressPairsRepository {
-        get { Self[ExpressPairsRepositoryKey.self] }
-        set { Self[ExpressPairsRepositoryKey.self] = newValue }
+    var swapRepository: SwapRepository {
+        get { Self[SwapRepositoryKey.self] }
+        set { Self[SwapRepositoryKey.self] = newValue }
     }
 }
