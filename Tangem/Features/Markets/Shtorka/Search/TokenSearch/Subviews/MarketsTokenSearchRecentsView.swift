@@ -18,12 +18,14 @@ struct MarketsTokenSearchRecentsView: View {
     let onClearAll: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .unit(.x3)) {
+        VStack(alignment: .leading, spacing: 0) {
             headerView
 
             querySection
+                .padding(.top, .unit(.x3))
 
             marketAssetSection
+                .padding(.top, .unit(.x6))
         }
     }
 
@@ -42,7 +44,7 @@ struct MarketsTokenSearchRecentsView: View {
                     .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             }
         }
-        .padding(.vertical, .unit(.x2))
+        .padding(.vertical, .unit(.x3))
         .padding(.horizontal, .unit(.x2))
     }
 
@@ -77,16 +79,16 @@ struct MarketsTokenSearchRecentsView: View {
                     .padding(.bottom, .unit(.x2))
                     .padding(.top, .unit(.x4))
 
-                VStack(spacing: 0) {
+                VStack(spacing: .unit(.x2)) {
                     ForEach(marketAssetViewModels, id: \.tokenId) { viewModel in
                         MarketTokenRowView(viewModel: viewModel)
+                            .roundedBackground(
+                                with: .Tangem.Surface.level3,
+                                padding: 0,
+                                radius: .unit(.x5)
+                            )
                     }
                 }
-                .roundedBackground(
-                    with: .Tangem.Surface.level3,
-                    padding: 0,
-                    radius: .unit(.x5)
-                )
             }
         }
     }
