@@ -21,6 +21,7 @@ extension Analytics {
         case newSecOption = "new_security_option"
         case errorKey = "Tangem SDK error key"
         case source = "Source"
+        case toggleType = "toggle_type"
         case period = "Period"
         case currency = "Currency Type" // fiat
         case success = "Success"
