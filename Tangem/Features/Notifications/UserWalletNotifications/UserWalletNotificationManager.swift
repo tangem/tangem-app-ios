@@ -40,7 +40,9 @@ final class UserWalletNotificationManager {
 
     private var shownMobileActivationNotificationId: NotificationViewId?
 
-    private var shouldShowAddFundsBanner = false
+    /// `nil` while the Add Funds decision is pending: banners it overrides (mobile activation,
+    /// app rate, mobile upgrade, push permission) stay hidden until this resolves to `true`/`false`.
+    private var shouldShowAddFundsBanner: Bool?
     private var showMobileUpgradeNotification = false
     private var shownMobileUpgradeNotificationId: NotificationViewId?
     private var shownTokenSyncNotificationId: NotificationViewId?
@@ -142,15 +144,15 @@ final class UserWalletNotificationManager {
 
         notificationInputsSubject.send(inputs)
 
+        showAddFundsBannerIfNeeded()
         showAppRateNotificationIfNeeded()
         showMobileUpgradeNotificationIfNeeded()
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
-        showAddFundsBannerIfNeeded()
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
-        guard !shouldShowAddFundsBanner else { return }
+        guard shouldShowAddFundsBanner == false else { return }
 
         pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
@@ -160,7 +162,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showAppRateNotificationIfNeeded() {
-        guard showAppRateNotification, !shouldShowAddFundsBanner else {
+        guard showAppRateNotification, shouldShowAddFundsBanner == false else {
             hideShownAppRateNotificationIfNeeded()
             return
         }
@@ -206,7 +208,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileActivationNotificationIfNeeded() {
-        guard !shouldShowAddFundsBanner else { return }
+        guard shouldShowAddFundsBanner == false else { return }
 
         hideMobileActivationNotificationIfNeeded()
 
@@ -253,7 +255,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileUpgradeNotificationIfNeeded() {
-        guard showMobileUpgradeNotification, !shouldShowAddFundsBanner else {
+        guard showMobileUpgradeNotification, shouldShowAddFundsBanner == false else {
             hideMobileUpgradeNotificationIfNeeded()
             return
         }
@@ -293,7 +295,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showAddFundsBannerIfNeeded() {
-        guard shouldShowAddFundsBanner else {
+        guard shouldShowAddFundsBanner == true else {
             return
         }
 
@@ -398,6 +400,7 @@ final class UserWalletNotificationManager {
 
         addFundsBannerVisibilityProvider
             .shouldShowPublisher
+            .dropFirst()
             .receiveOnMain()
             .map { $0 && FeatureProvider.isAvailable(.addFundsStage1) }
             .withWeakCaptureOf(self)
