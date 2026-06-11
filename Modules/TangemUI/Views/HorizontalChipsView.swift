@@ -24,6 +24,8 @@ public struct HorizontalChipsView: View {
     @Binding private var selectedId: Chip.ID?
     private let horizontalInset: CGFloat
 
+    private let verticalPadding: CGFloat = 8
+
     public init(
         chips: [Chip],
         selectedId: Binding<Chip.ID?>,
@@ -51,6 +53,7 @@ public struct HorizontalChipsView: View {
             .padding(.horizontal, horizontalInset)
         }
         .frame(height: Constants.chipHeight)
+        .padding(.vertical, verticalPadding)
         .onAppear(perform: ensureDefaultSelectionIfNeeded)
         .onChange(of: chips) { _ in
             ensureDefaultSelectionIfNeeded()
