@@ -1,5 +1,5 @@
 //
-//  CommonExpressPairsRepository.swift
+//  CommonSwapRepository.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Combine
 import TangemExpress
 import TangemFoundation
 
-actor CommonExpressPairsRepository {
+actor CommonSwapRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
@@ -19,6 +19,7 @@ actor CommonExpressPairsRepository {
     }
 
     private var pairs: Set<ExpressPair> = []
+    private var cachedExpressProviders: [ExpressProvider] = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
         let tokenItems = AccountTokenItemsAggregator.tokenItems(from: userWalletRepository.models)
@@ -27,9 +28,9 @@ actor CommonExpressPairsRepository {
     }
 }
 
-// MARK: - ExpressPairsRepository
+// MARK: - SwapRepository
 
-extension CommonExpressPairsRepository: ExpressPairsRepository {
+extension CommonSwapRepository: SwapRepository {
     func updatePairs(
         from wallet: ExpressWalletCurrency,
         to currencies: [ExpressWalletCurrency],
@@ -71,9 +72,50 @@ extension CommonExpressPairsRepository: ExpressPairsRepository {
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
         pairs.filter { $0.source == wallet.asCurrency }
     }
+
+    // MARK: - ExpressRepository
+
+    func updateProvidersIds(for pair: ExpressManagerSwappingPair) async throws {
+        let walletInfo = pair.source.walletInfo
+        let wallet = pair.source.currency
+        let destination = pair.destination.currency
+        let currencies = userCurrencies.filter { $0 != wallet }
+
+        guard !currencies.isEmpty else { return }
+
+        let cachedPairs = pairs.filter { $0.source == wallet.asCurrency }
+        let isPairCached = cachedPairs.contains { $0.destination == destination.asCurrency }
+
+        let refcode = walletInfo.refcode.flatMap { Refcode(rawValue: $0) }
+        let provider = cachingExpressAPIProviderFactory.provider(for: walletInfo.id, refcode: refcode)
+        cachedExpressProviders = []
+
+        if isPairCached {
+            return
+        }
+
+        async let pairsTo = provider.pairs(from: [wallet], to: currencies)
+        async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
+
+        try await pairs.formUnion(pairsTo.toSet())
+        try await pairs.formUnion(pairsFrom.toSet())
+    }
+
+    func providers(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider] {
+        if !cachedExpressProviders.isEmpty {
+            return cachedExpressProviders
+        }
+
+        let walletInfo = pair.source.walletInfo
+        let refcode = walletInfo.refcode.flatMap { Refcode(rawValue: $0) }
+        let provider = cachingExpressAPIProviderFactory.provider(for: walletInfo.id, refcode: refcode)
+        let providers = try await provider.providers(branch: ExpressBranch.swap)
+        cachedExpressProviders = providers
+        return providers
+    }
 }
 
-private extension CommonExpressPairsRepository {
+private extension CommonSwapRepository {
     func getAvailableProviders(
         for pair: ExpressManagerSwappingPair,
         rateType: ExpressProviderRateType?
