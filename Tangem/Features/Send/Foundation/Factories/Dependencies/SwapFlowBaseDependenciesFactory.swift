@@ -28,7 +28,7 @@ extension SwapFlowBaseDependenciesFactory {
             sourceToken: sourceToken,
             receiveToken: receiveToken,
             expressManager: expressDependenciesFactory.expressManager,
-            expressPairsRepository: expressDependenciesFactory.expressPairsRepository,
+            swapRepository: expressDependenciesFactory.swapRepository,
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
             expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
