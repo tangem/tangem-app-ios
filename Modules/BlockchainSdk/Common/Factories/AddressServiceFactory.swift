@@ -75,7 +75,8 @@ public struct AddressServiceFactory {
              .linea,
              .monad,
              .arbitrumNova,
-             .plasma:
+             .plasma,
+             .seiEvm:
             return EVMAddressService()
         case .rsk:
             return RskAddressService()
