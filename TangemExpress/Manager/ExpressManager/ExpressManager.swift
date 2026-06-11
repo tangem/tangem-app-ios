@@ -19,7 +19,7 @@ public protocol ExpressManager: Actor {
     func update(pair: ExpressManagerSwappingPair?) async throws -> ExpressManagerState
 
     /// Updates quotes for providers eligible for the current `ExpressAmountType`.
-    func update(amountType: ExpressAmountType?) async -> ExpressManagerState
+    func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState
 
     /// Updates state (fee) for the selected provider with a new `ApprovePolicy`.
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState
