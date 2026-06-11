@@ -38,7 +38,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: InitialWalletTo
 
         // EVM blockchains from MoralisSupportedBlockchains.
         case .ethereum, .polygon, .bsc, .arbitrum, .optimism, .avalanche, .fantom, .base, .linea,
-             .gnosis, .cronos, .moonbeam, .moonriver, .pulsechain, .chiliz, .monad:
+             .gnosis, .cronos, .moonbeam, .moonriver, .pulsechain, .chiliz, .monad, .seiEvm:
             return true
 
         // Other EVM blockchains supported by this provider.
