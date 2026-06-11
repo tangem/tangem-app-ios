@@ -27,6 +27,7 @@ final class TangemPayManager: TangemPayAccountModel {
     var isPaeraCustomerPublisher: AnyPublisher<Bool, Never> {
         stateSubject
             .map { $0 != nil }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
