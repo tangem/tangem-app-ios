@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li address</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>%li件のアドレス</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -262,7 +260,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>以下に表示される%li個の単語を順番どおりに書き留め、安全で他人に知られない場所に保管してください。</string>
+        <string>以下に表示される%li個の単語を順番どおりに書き留め、安全で他人に知られていない場所に保管してください。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
