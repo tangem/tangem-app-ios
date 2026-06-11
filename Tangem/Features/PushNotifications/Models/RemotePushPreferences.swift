@@ -49,13 +49,9 @@ struct RemotePushPreferences: Equatable {
         state = .ready(preferences)
     }
 
-    init(response: NotificationPreferencesDTO.Response.Body) {
+    init(response: NotificationPreferencesDTO.Body) {
         let preferences = Dictionary(uniqueKeysWithValues: PushChannel.allCases.map { channel in
-            let preference = response.preference(for: channel)
-            return (
-                channel,
-                PushChannelPreference(isEnabled: preference.isEnabled, isVisible: preference.isVisible)
-            )
+            (channel, PushChannelPreference(isEnabled: response.isEnabled(for: channel), isVisible: true))
         })
         self.init(state: .ready(preferences))
     }
@@ -75,20 +71,20 @@ struct RemotePushPreferences: Equatable {
     }
 }
 
-extension NotificationPreferencesDTO.Update.Request {
+extension NotificationPreferencesDTO.Body {
     init(preferences: RemotePushPreferences) {
-        transactionAlerts = preferences.preference(for: .transactionAlerts).isEnabled
-        offersUpdates = preferences.preference(for: .offersUpdates).isEnabled
-        priceAlerts = preferences.preference(for: .priceAlerts).isEnabled
+        transactionEventsEnabled = preferences.preference(for: .transactionAlerts).isEnabled
+        offerUpdatesEnabled = preferences.preference(for: .offersUpdates).isEnabled
+        priceAlertsEnabled = preferences.preference(for: .priceAlerts).isEnabled
     }
 }
 
-private extension NotificationPreferencesDTO.Response.Body {
-    func preference(for channel: PushChannel) -> NotificationPreferencesDTO.Preference {
+private extension NotificationPreferencesDTO.Body {
+    func isEnabled(for channel: PushChannel) -> Bool {
         switch channel {
-        case .transactionAlerts: transactionAlerts
-        case .offersUpdates: offersUpdates
-        case .priceAlerts: priceAlerts
+        case .transactionAlerts: transactionEventsEnabled
+        case .offersUpdates: offerUpdatesEnabled
+        case .priceAlerts: priceAlertsEnabled
         }
     }
 }
