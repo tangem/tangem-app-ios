@@ -55,6 +55,15 @@ public extension NotificationBanner {
             }
         }
 
+        var borderColor: Color {
+            switch self {
+            case .status, .survey, .informational:
+                return .Tangem.Border.Neutral.banner.opacity(0.15)
+            case .critical, .warning, .promo:
+                return .clear
+            }
+        }
+
         var isClosable: Bool {
             isStackable
         }
