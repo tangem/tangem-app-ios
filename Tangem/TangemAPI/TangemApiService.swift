@@ -72,6 +72,7 @@ protocol TangemApiService: AnyObject {
     // MARK: - User token list management
 
     func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws
 
     // MARK: - Action Buttons
 
@@ -118,10 +119,10 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Notification Preferences
 
-    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Response.Body
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Body
     func updateNotificationPreferences(
         userWalletId: String,
-        preferences: NotificationPreferencesDTO.Update.Request
+        preferences: NotificationPreferencesDTO.Body
     ) async throws
 
     // MARK: - Applications
