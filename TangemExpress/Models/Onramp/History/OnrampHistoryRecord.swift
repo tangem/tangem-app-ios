@@ -12,16 +12,13 @@ public struct OnrampHistoryRecord: TransactionHistoryRecord, Hashable, @unchecke
     public let txId: String
     public let providerId: ExpressProvider.Id
     public let status: OnrampTransactionStatus
-    public let rateType: ExpressProviderRateType?
-    public let externalTx: ExternalTxInfo? // [REDACTED_TODO_COMMENT]
-    public let fromAddress: String
-    public let payIn: PayInInfo
+    public let failReason: String?
+    public let externalTx: ExternalTxInfo?
     public let payOut: PayOutInfo
-    public let refund: RefundInfo? // [REDACTED_TODO_COMMENT]
     public let from: OnrampHistoryFiatAsset
-    public let to: ExpressHistoryAsset
+    public let to: OnrampHistoryCryptoAsset
+    public let paymentMethod: String
+    public let countryCode: String
     public let createdAt: Date
     public let updatedAt: Date
-    public let payTill: Date?
-    public let averageDuration: TimeInterval?
 }

@@ -10,6 +10,6 @@ import Foundation
 
 public struct ExternalTxInfo: Hashable {
     public let id: String
-    public let status: String? // [REDACTED_TODO_COMMENT]
-    public let url: URL? // [REDACTED_TODO_COMMENT]
+    public let status: String?
+    public let url: URL?
 }
