@@ -207,7 +207,6 @@ extension ExpressDTO {
                 let rateType: String
                 let status: String
                 let externalTxId: String?
-                let externalTxStatus: String?
                 let externalTxUrl: String?
                 let payinHash: String?
                 let payoutHash: String?
