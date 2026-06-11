@@ -149,7 +149,7 @@ struct OrganizeTokensView: View {
         // Standalone-sheet path (no custom `BottomSheetHeaderView`): host the sort menu in the native nav bar.
         if FeatureProvider.isAvailable(.redesign), onCloseTap == nil, let headerViewModel = viewModel.headerViewModel {
             ToolbarItem(placement: .topBarTrailing) {
-                OrganizeTokensSortMenuView(viewModel: headerViewModel)
+                OrganizeTokensSortMenuView(viewModel: headerViewModel, appliesGlassBackground: false)
             }
         }
     }
@@ -361,6 +361,8 @@ struct OrganizeTokensView: View {
             tokenListTitle
             tokenListHeader
         }
+        // Full width so the `.bar` band paints behind the system nav-bar title when `topContent` is otherwise empty.
+        .frame(maxWidth: .infinity)
         .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
         .padding(.bottom, Constants.headerAdditionalBottomInset)
         .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
@@ -382,10 +384,7 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private func headerTrailing(onCloseTap: @escaping () -> Void) -> some View {
         if FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
-            HStack(spacing: .unit(.x2)) {
-                OrganizeTokensSortMenuView(viewModel: headerViewModel)
-                NavigationBarButton.close(action: onCloseTap)
-            }
+            OrganizeTokensSortMenuView(viewModel: headerViewModel, appliesGlassBackground: true)
         } else {
             NavigationBarButton.close(action: onCloseTap)
         }
