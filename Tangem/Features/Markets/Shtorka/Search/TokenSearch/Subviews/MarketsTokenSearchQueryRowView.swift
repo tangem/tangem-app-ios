@@ -36,7 +36,7 @@ struct MarketsTokenSearchQueryRowView: View {
                     .frame(width: Constants.iconSize, height: Constants.iconSize)
                     .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
             }
-            .padding(.vertical, .unit(.x3))
+            .padding(.vertical, .unit(.x5))
         }
     }
 }
