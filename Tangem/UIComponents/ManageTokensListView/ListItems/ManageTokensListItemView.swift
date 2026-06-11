@@ -14,14 +14,51 @@ import TangemUI
 import TangemUIUtils
 
 struct ManageTokensListItemView: View {
-    @ObservedObject var viewModel: ManageTokensListItemViewModel
+    @ObservedObject private var viewModel: ManageTokensListItemViewModel
 
-    let isReadOnly: Bool
+    private let isReadOnly: Bool
+
+    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+
+    init(viewModel: ManageTokensListItemViewModel, isReadOnly: Bool) {
+        self.viewModel = viewModel
+        self.isReadOnly = isReadOnly
+    }
 
     private let subtitle: String = Localization.currencySubtitleExpanded
     private let iconWidth: Double = 36
 
     private var symbolFormatted: String { "  \(viewModel.symbol)" }
+
+    // MARK: - Redesign-aware styling
+
+    private var nameFont: Font {
+        isRedesign ? .Tangem.Body15.semibold : Fonts.Bold.subheadline
+    }
+
+    private var nameColor: Color {
+        isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+    }
+
+    private var symbolFont: Font {
+        isRedesign ? .Tangem.Caption12.regular : Fonts.Regular.caption1
+    }
+
+    private var symbolColor: Color {
+        isRedesign ? .Tangem.Text.Neutral.tertiary : Colors.Text.tertiary
+    }
+
+    private var subtitleFont: Font {
+        isRedesign ? .Tangem.Caption13.regular : Fonts.Regular.footnote
+    }
+
+    private var subtitleColor: Color {
+        isRedesign ? .Tangem.Text.Neutral.secondary : Colors.Text.secondary
+    }
+
+    private var chevronColor: Color {
+        isRedesign ? .Tangem.Graphic.Neutral.tertiary : Colors.Icon.informative
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -33,12 +70,12 @@ struct ManageTokensListItemView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Group {
                         Text(viewModel.name)
-                            .font(Fonts.Bold.subheadline)
-                            .foregroundColor(Colors.Text.primary1)
+                            .font(nameFont)
+                            .foregroundColor(nameColor)
 
                             + Text(symbolFormatted)
-                            .font(Fonts.Regular.caption1)
-                            .foregroundColor(Colors.Text.tertiary)
+                            .font(symbolFont)
+                            .foregroundColor(symbolColor)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .lineLimit(1)
@@ -46,7 +83,7 @@ struct ManageTokensListItemView: View {
                     HStack {
                         if viewModel.isExpanded {
                             Text(subtitle)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                                .style(subtitleFont, color: subtitleColor)
 
                             Spacer()
                         }
@@ -82,7 +119,7 @@ struct ManageTokensListItemView: View {
 
     private var chevronView: some View {
         Assets.chevronDown24.image
-            .foregroundStyle(Colors.Icon.informative)
+            .foregroundStyle(chevronColor)
             .rotationEffect(viewModel.isExpanded ? Angle(degrees: 180) : .zero)
     }
 }

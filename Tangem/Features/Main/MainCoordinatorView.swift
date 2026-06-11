@@ -117,6 +117,7 @@ struct MainCoordinatorView: CoordinatorView {
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
                 }
+                .environment(\.isAddAndOrganizeRedesignEnabled, TokensManagementFlowCoordinator.isAddAndOrganizeRedesignAvailable)
             }
             .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
