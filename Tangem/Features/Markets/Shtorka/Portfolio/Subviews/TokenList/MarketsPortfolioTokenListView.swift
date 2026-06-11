@@ -20,6 +20,8 @@ struct MarketsPortfolioTokenListView: View {
     @State private var bottomPromoHeight: CGFloat = 0
 
     @ScaledMetric private var contentPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var topBarVerticalPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var topBarHorizontalPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var walletsSpacing: CGFloat = .unit(.x6)
     @ScaledMetric private var walletSpacing: CGFloat = .unit(.x4)
     @ScaledMetric private var walletHeaderSpacing: CGFloat = .unit(.x1)
@@ -50,8 +52,8 @@ struct MarketsPortfolioTokenListView: View {
                 .allowsHitTesting(false)
 
                 topBar
-                    .padding(.horizontal, contentPadding)
-                    .padding(.vertical, contentPadding / 2)
+                    .padding(.horizontal, topBarHorizontalPadding)
+                    .padding(.vertical, topBarVerticalPadding)
                     .readGeometry(\.size.height, bindTo: $topBarHeight)
                     .frame(maxHeight: .infinity, alignment: .top)
             }

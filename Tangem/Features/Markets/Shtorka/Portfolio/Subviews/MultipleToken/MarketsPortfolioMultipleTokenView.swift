@@ -61,14 +61,15 @@ private extension MarketsPortfolioMultipleTokenView {
         )
         .setStyleType(.secondary)
         .setCornerStyle(.rounded)
-        .setSize(.x10)
+        .setSize(.x9)
         .allowsHitTesting(false)
     }
 
     func iconSet() -> some View {
         let icon = TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: CGSize(width: tokenIconSide, height: tokenIconSide)
+            size: CGSize(width: tokenIconSide, height: tokenIconSide),
+            isWithOverlays: false
         )
 
         let offsetStep = viewModel.tokenIconSetOffset(
