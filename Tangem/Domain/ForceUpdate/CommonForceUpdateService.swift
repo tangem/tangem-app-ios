@@ -73,6 +73,8 @@ extension CommonForceUpdateService: ForceUpdateService {
     }
 
     func checkForUpdates() {
+        guard FeatureProvider.isAvailable(.forceUpdate) else { return }
+
         checkTask?.cancel()
         checkTask = runTask(in: self) { service in
             do {
