@@ -44,7 +44,7 @@ actor NotificationPreferencesStateStore {
     }
 
     func applyFetchResponse(
-        _ response: NotificationPreferencesDTO.Response.Body
+        _ response: NotificationPreferencesDTO.Body
     ) -> RemotePushPreferences? {
         // Applying a server snapshot now would clobber an optimistic write that hasn't reached
         // the backend yet. Skip it, but remember we owe a reconciliation fetch once the write
