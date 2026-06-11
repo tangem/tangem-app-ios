@@ -26,7 +26,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: RegularSwapPairUpdateHandler(
             expressManager: expressDependenciesFactory.expressManager,
-            expressPairsRepository: expressDependenciesFactory.expressPairsRepository,
+            swapRepository: expressDependenciesFactory.swapRepository,
             analyticsLogger: analyticsLogger
         ),
         shouldStartInitialLoading: true,
