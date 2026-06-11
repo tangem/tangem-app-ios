@@ -29,6 +29,23 @@ final class AddFundsScreen: ScreenBase<AddFundsScreenElement> {
             return SwapStoriesScreen(app)
         }
     }
+
+    @discardableResult
+    func tapCloseButton() -> MainScreen {
+        XCTContext.runActivity(named: "Tap Close button") { _ in
+            // Multiple close buttons may exist in the sheet stack; tap the topmost hittable one
+            let closeButtons = app.buttons.matching(identifier: CommonUIAccessibilityIdentifiers.closeButton)
+            for i in 0 ..< closeButtons.count {
+                let button = closeButtons.element(boundBy: i)
+                if button.isHittable {
+                    button.tap()
+                    return
+                }
+            }
+            XCTFail("No hittable Close button found on Add Funds screen")
+        }
+        return MainScreen(app)
+    }
 }
 
 enum AddFundsScreenElement: String, UIElement {

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct SuccessToast: View {
     private let text: String
@@ -32,6 +33,7 @@ public struct SuccessToast: View {
         .padding(.vertical, 10)
         .background(Colors.Icon.secondary)
         .cornerRadiusContinuous(10)
+        .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.successToast)
     }
 }
 
