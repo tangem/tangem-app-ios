@@ -8,11 +8,33 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct AddCustomTokenNetworksListView: View {
-    @ObservedObject var viewModel: AddCustomTokenNetworksListViewModel
+    @ObservedObject private var viewModel: AddCustomTokenNetworksListViewModel
 
-    var isWithPadding: Bool = true
+    private let isWithPadding: Bool
+
+    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+
+    init(viewModel: AddCustomTokenNetworksListViewModel, isWithPadding: Bool = true) {
+        self.viewModel = viewModel
+        self.isWithPadding = isWithPadding
+    }
+
+    // MARK: - Redesign-aware styling
+
+    private var screenBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level2 : Colors.Background.tertiary
+    }
+
+    private var cardBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+    }
+
+    private var cardCornerRadius: CGFloat {
+        isRedesign ? .unit(.x5) : 14
+    }
 
     var body: some View {
         ScrollView(.vertical) {
@@ -21,10 +43,10 @@ struct AddCustomTokenNetworksListView: View {
                     AddCustomTokenNetworksListItemView(viewModel: itemViewModel)
                 }
             }
-            .background(Colors.Background.action)
-            .cornerRadiusContinuous(14)
+            .background(cardBackgroundColor)
+            .cornerRadiusContinuous(cardCornerRadius)
             .padding(.horizontal, isWithPadding ? 16 : 0)
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .background(screenBackgroundColor.edgesIgnoringSafeArea(.all))
     }
 }
