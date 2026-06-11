@@ -40,6 +40,24 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
             return AddFundsScreen(app)
         }
     }
+
+    @discardableResult
+    func tapTrendingToken(_ label: String) -> AddTokenFlowScreen {
+        XCTContext.runActivity(named: "Tap Trending token with label: \(label)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
+            tokensList.staticTextByLabel(label: label).waitAndTap()
+            return AddTokenFlowScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitTokenInWalletSection(_ token: String) -> Self {
+        XCTContext.runActivity(named: "Wait \(token) is displayed in Wallet section") { _ in
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: token)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token \(token) should display in Wallet section")
+            return self
+        }
+    }
 }
 
 enum BuyTokenSelectorScreenElement: String, UIElement {
