@@ -34,7 +34,8 @@ struct EarnBestOpportunitiesListView: View {
             .defaultRoundedBackground(
                 with: backgroundColor,
                 verticalPadding: Layout.innerContentPadding,
-                horizontalPadding: Layout.innerContentPadding
+                horizontalPadding: Layout.innerContentPadding,
+                cornerRadius: isRedesignEnabled ? .unit(.x6) : Self.defaultCornerRadius
             )
             .padding(.horizontal, Layout.horizontalPadding)
     }
@@ -133,13 +134,21 @@ struct EarnBestOpportunitiesListView: View {
 
     private var emptyViewWithClearFilter: some View {
         VStack(spacing: Layout.emptyViewSpacing) {
-            Text(Localization.earnNoResults)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            if isRedesignEnabled {
+                Text(Localization.earnNoResults)
+                    .style(.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
+            } else {
+                Text(Localization.earnNoResults)
+                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            }
 
             if let clearFilterAction {
                 Button(action: clearFilterAction) {
                     Text(Localization.earnClearFilter)
-                        .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
+                        .style(
+                            isRedesignEnabled ? .Tangem.Body16.semibold : Fonts.Bold.caption1,
+                            color: isRedesignEnabled ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+                        )
                 }
                 .roundedBackground(
                     with: Colors.Button.secondary,
