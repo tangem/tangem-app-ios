@@ -354,7 +354,7 @@ struct ExpressAPIMapper {
             records: response.items.map(mapToExchangeHistoryRecord(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
-            hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
+            hasMore: response.pagination.hasMore
         )
     }
 
@@ -372,7 +372,7 @@ struct ExpressAPIMapper {
             records: response.items.map(mapToOnrampHistoryRecord(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
-            hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
+            hasMore: response.pagination.hasMore
         )
     }
 
@@ -416,7 +416,7 @@ struct ExpressAPIMapper {
                 actualAmount: record.toActualAmount
             ),
             createdAt: record.createdAt,
-            updatedAt: record.updatedAt ?? record.createdAt,
+            updatedAt: record.updatedAt,
             payTill: record.payTill,
             averageDuration: record.averageDuration
         )
@@ -427,33 +427,25 @@ struct ExpressAPIMapper {
             txId: record.txId,
             providerId: record.providerId,
             status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
-            rateType: ExpressProviderRateType(rawValue: record.rateType),
-            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: record.externalTxStatus, url: record.externalTxUrl),
-            fromAddress: record.fromAddress,
-            payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
+            failReason: record.failReason,
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: nil, url: record.externalTxUrl),
             payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
-            refund: mapToRefundInfo(
-                address: record.refundAddress,
-                extraId: record.refundExtraId,
-                network: record.refundNetwork,
-                contractAddress: record.refundContractAddress
-            ),
             from: mapToOnrampHistoryFiatAsset(
                 currencyCode: record.fromCurrencyCode,
                 amount: record.fromAmount,
                 precision: record.fromPrecision
             ),
-            to: mapToExpressHistoryAsset(
+            to: mapToOnrampHistoryCryptoAsset(
                 contractAddress: record.toContractAddress,
                 network: record.toNetwork,
                 decimals: record.toDecimals,
                 amount: record.toAmount,
                 actualAmount: record.toActualAmount
             ),
+            paymentMethod: record.paymentMethod,
+            countryCode: record.countryCode,
             createdAt: record.createdAt,
-            updatedAt: record.updatedAt ?? record.createdAt,
-            payTill: record.payTill,
-            averageDuration: record.averageDuration
+            updatedAt: record.updatedAt
         )
     }
 
@@ -531,6 +523,29 @@ struct ExpressAPIMapper {
         }
 
         return OnrampHistoryFiatAsset(currencyCode: currencyCode, amount: rawAmount / pow(10, precision))
+    }
+
+    private func mapToOnrampHistoryCryptoAsset(
+        contractAddress: String,
+        network: String,
+        decimals: Int,
+        amount: String?,
+        actualAmount: String?
+    ) throws -> OnrampHistoryCryptoAsset {
+        func mapToDecimal(_ value: String) throws -> Decimal {
+            guard let rawValue = Decimal(stringValue: value) else {
+                throw ExpressAPIMapperError.mapToDecimalError(value)
+            }
+
+            return rawValue / pow(10, decimals)
+        }
+
+        return try OnrampHistoryCryptoAsset(
+            currency: ExpressCurrency(contractAddress: contractAddress, network: network),
+            amount: amount.map(mapToDecimal),
+            actualAmount: actualAmount.map(mapToDecimal),
+            decimals: decimals
+        )
     }
 
     private func mapToRefundedCurrency(network: String?, contractAddress: String?) -> ExpressCurrency? {
