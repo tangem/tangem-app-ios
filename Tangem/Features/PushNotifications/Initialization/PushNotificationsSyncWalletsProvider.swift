@@ -124,7 +124,9 @@ private extension PushNotificationsSyncWalletsProvider {
             return
         }
 
-        if findUserWalletModel.name != entry.name {
+        // A nil/empty remote name means the backend has no name stored for this wallet yet.
+        // Applying it would blank out the local name on the UI, so keep the local one instead.
+        if !entry.name.isEmpty, findUserWalletModel.name != entry.name {
             findUserWalletModel.update(type: .newName(entry.name))
         }
 
