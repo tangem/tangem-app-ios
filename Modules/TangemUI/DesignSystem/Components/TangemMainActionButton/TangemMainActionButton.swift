@@ -41,7 +41,8 @@ public struct TangemMainActionButton: View {
                     .Tangem.Subheadline.medium,
                     color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
-                .lineLimit(nil)
+                // [REDACTED_TODO_COMMENT]
+                .lineLimit(1)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .contentShape(.rect)
