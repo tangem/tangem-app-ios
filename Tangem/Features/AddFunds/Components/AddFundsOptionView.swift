@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemMacro
@@ -39,6 +40,7 @@ struct AddFundsOptionView: View {
             .cornerRadiusContinuous(.unit(.x5))
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(option.accessibilityIdentifier)
     }
 
     private var iconView: some View {
@@ -106,6 +108,14 @@ extension AddFundsOptionView {
             case .buy: Assets.AddFunds.addfundsBuy
             case .swap: Assets.AddFunds.addfundsSwapIcon
             case .receive: Assets.AddFunds.addfundsReceive
+            }
+        }
+
+        var accessibilityIdentifier: String {
+            switch self {
+            case .buy: ActionButtonsAccessibilityIdentifiers.addFundsBuyRow
+            case .swap: ActionButtonsAccessibilityIdentifiers.addFundsSwapRow
+            case .receive: ActionButtonsAccessibilityIdentifiers.addFundsReceiveRow
             }
         }
     }

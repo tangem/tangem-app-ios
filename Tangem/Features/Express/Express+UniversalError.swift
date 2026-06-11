@@ -10,7 +10,7 @@ import TangemFoundation
 import TangemExpress
 
 // `Subsystems`:
-// `000` - ExpressRepositoryError
+// `000` - (removed)
 // `001` -
 // `002` - ExpressPendingTransactionRecordError.MigrationError
 // `003` - ExpressDestinationServiceError
@@ -19,15 +19,6 @@ import TangemExpress
 // `006` - ExpressProviderError
 // `007` -
 // `008` -
-
-extension ExpressRepositoryError: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .availableProvidersDoesNotFound:
-            103000000
-        }
-    }
-}
 
 extension ExpressPendingTransactionRecord.MigrationError: UniversalError {
     var errorCode: Int {

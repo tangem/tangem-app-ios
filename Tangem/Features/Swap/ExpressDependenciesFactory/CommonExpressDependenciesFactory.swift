@@ -13,8 +13,8 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     @Injected(\.onrampRepository)
     private var _onrampRepository: OnrampRepository
 
-    @Injected(\.expressPairsRepository)
-    var expressPairsRepository: any ExpressPairsRepository
+    @Injected(\.swapRepository)
+    var swapRepository: any SwapRepository
 
     @Injected(\.expressPendingTransactionsRepository)
     var expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -25,7 +25,6 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private(set) lazy var expressManager = makeExpressManager()
     private(set) lazy var expressDestinationService = makeExpressDestinationService()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
-    private(set) lazy var expressRepository = makeExpressRepository()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
     init(userWalletInfo: UserWalletInfo) {
@@ -39,16 +38,12 @@ private extension CommonExpressDependenciesFactory {
     func makeExpressManager() -> ExpressManager {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: expressRepository
+            expressRepository: swapRepository
         )
     }
 
     func makeExpressDestinationService() -> ExpressDestinationService {
         CommonExpressDestinationService()
-    }
-
-    func makeExpressRepository() -> ExpressRepository {
-        CommonExpressRepository(expressAPIProvider: expressAPIProvider)
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {

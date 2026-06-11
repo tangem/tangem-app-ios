@@ -45,7 +45,7 @@ final class SwapModel {
     // MARK: - Private injections
 
     private let expressManager: ExpressManager
-    private let expressPairsRepository: ExpressPairsRepository
+    private let swapRepository: SwapRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
@@ -64,7 +64,7 @@ final class SwapModel {
         sourceToken: SendSwapableToken?,
         receiveToken: SendReceiveToken?,
         expressManager: ExpressManager,
-        expressPairsRepository: ExpressPairsRepository,
+        swapRepository: SwapRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
@@ -77,7 +77,7 @@ final class SwapModel {
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
-        self.expressPairsRepository = expressPairsRepository
+        self.swapRepository = swapRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
@@ -211,7 +211,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            return await expressManager.update(amountType: amount)
+            return try await expressManager.update(amountType: amount)
         }
     }
 
@@ -423,6 +423,10 @@ extension SwapModel {
             let quote = try await map(provider: selected.provider, quote: dexPreview.quote)
             return .restriction(.hasPendingTransaction, quote: quote)
 
+        case .dexWithApprovePreview(let preview) where hasPendingTransaction():
+            let quote = try await map(provider: selected.provider, quote: preview.quote)
+            return .restriction(.hasPendingTransaction, quote: quote)
+
         case .permissionRequired(let permissionRequired):
             return try await map(provider: selected, permissionRequired: permissionRequired)
 
@@ -431,6 +435,9 @@ extension SwapModel {
 
         case .dexPreview(let dexPreview):
             return try await map(provider: selected, dexPreview: dexPreview)
+
+        case .dexWithApprovePreview(let preview):
+            return try await map(provider: selected, dexWithApprovePreview: preview)
 
         case .revokeAndPermissionRequired(let permissionRequired) where hasPendingTransaction():
             let quote = try await map(provider: selected.provider, quote: permissionRequired.quote)
@@ -537,12 +544,9 @@ extension SwapModel {
         permissionRequired: ExpressProviderManagerState.PermissionRequired
     ) async throws -> LoadedState {
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
-
-        let fee = permissionRequired.fee
-
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee) {
+        if let restriction = try validate(amount: amount, fee: permissionRequired.fee) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -569,6 +573,13 @@ extension SwapModel {
 
         let readyToSwapState = ReadyToSwapState(quote: quote, data: dexPreview.data, fee: fee)
         return .readyToSwap(readyToSwapState)
+    }
+
+    func map(
+        provider: ExpressAvailableProvider,
+        dexWithApprovePreview preview: ExpressProviderManagerState.DEXWithApprovePreview
+    ) async throws -> LoadedState {
+        fatalError("One touch approve + swap flow is not implemented yet")
     }
 
     func map(provider: ExpressAvailableProvider, previewCEX: ExpressProviderManagerState.CEXPreview) async throws -> LoadedState {
@@ -839,7 +850,7 @@ extension SwapModel {
         do {
             switch (_sourceToken.value, _receiveToken.value) {
             case (.success(let source), .success):
-                try await expressPairsRepository.updatePairs(
+                try await swapRepository.updatePairs(
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
@@ -925,7 +936,7 @@ extension SwapModel {
 
     private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
         do {
-            try await expressPairsRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
+            try await swapRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
         } catch {
             ExpressLogger.info("Update pairs failed with error: \(error)")
         }
@@ -1101,8 +1112,11 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     }
 
     private func mapToAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
-        if case .loading(.rates) = state {
+        switch state {
+        case .loading(.rates), .loading(.providers):
             return .loading
+        default:
+            break
         }
 
         switch amount {

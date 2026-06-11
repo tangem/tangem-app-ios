@@ -17,7 +17,6 @@ enum Feature: String, Hashable, CaseIterable {
     case walletConnectBitcoin
     case mainQRScan
     case surveySparrow
-    case mobileWalletTokenAutoSync
     case gaslessDexAndApprove
     case solanaTxHistoryEnabled
     case solanaScaledUIEnabled
@@ -47,6 +46,7 @@ enum Feature: String, Hashable, CaseIterable {
     case adiMainScreenDefault
     case tangemPayMultipleCards
     case transfers
+    case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
     case forceUpdate
 
@@ -60,7 +60,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .mainQRScan: return "Main QR Scan"
         case .surveySparrow: return "SurveySparrow service integration"
-        case .mobileWalletTokenAutoSync: return "Wallet Token Auto Sync"
         case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
@@ -90,6 +89,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
+        case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
         case .forceUpdate: return "[REDACTED_INFO]_Force_Update"
         }
@@ -105,7 +105,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletConnectBitcoin: return .unspecified
         case .mainQRScan: return .version("5.36")
         case .surveySparrow: return .unspecified
-        case .mobileWalletTokenAutoSync: return .version("5.38")
         case .gaslessDexAndApprove: return .version("5.37")
         case .solanaTxHistoryEnabled: return .version("5.39")
         case .solanaScaledUIEnabled: return .version("5.39")
@@ -135,6 +134,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addFundsStage1: return .version("5.39")
         case .tangemPayMultipleCards: return .unspecified
         case .transfers: return .version("5.40")
+        case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
         case .forceUpdate: return .unspecified
         }

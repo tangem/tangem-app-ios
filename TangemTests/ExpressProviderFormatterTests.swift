@@ -58,7 +58,8 @@ struct ExpressProviderFormatterBadgeTests {
             rateType: .float,
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
-            mapper: ExpressManagerMapper()
+            mapper: ExpressManagerMapper(),
+            featureFlags: ExpressFeatureFlags(isApproveWithSwapEnabled: false)
         )
 
         let available = ExpressAvailableProvider(
@@ -156,6 +157,7 @@ private final class StubExpressProviderManager: ExpressProviderManager {
 }
 
 private struct StubExpressWallet: ExpressSourceWallet {
+    var walletInfo: ExpressWalletInfo { ExpressWalletInfo(id: "stub", refcode: nil) }
     var currency: ExpressWalletCurrency { fatalError("Not used in tests") }
     var coinCurrency: ExpressWalletCurrency { fatalError("Not used in tests") }
     var address: String? { nil }
@@ -178,6 +180,7 @@ private struct StubExpressFeeProvider: ExpressFeeProvider {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { fatalError("Not used in tests") }
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { fatalError("Not used in tests") }
     func transactionFee(data: ExpressTransactionDataType) async throws -> BSDKFee { fatalError("Not used in tests") }
+    func transactionFee(data: ExpressTransactionDataType, allowanceOverride: AllowanceOverride, approveData: BSDKApproveTransactionData) async throws -> ApproveWithSwapFee { fatalError("Not used in tests") }
     func revokeAndApproveTransactionFee(revokeData: BSDKApproveTransactionData) async throws -> RevokeAndApproveFee { fatalError("Not used in tests") }
 }
 
@@ -198,6 +201,8 @@ private final class StubExpressAPIProvider: ExpressAPIProvider {
     func onrampData(item: OnrampRedirectDataRequestItem) async throws -> OnrampRedirectData { fatalError("Not used in tests") }
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult { fatalError("Not used in tests") }
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction { fatalError("Not used in tests") }
-    func exchangeHistory(walletAddress: String, cursor: Any?, limit: Int?, network: String?, tokenId: String?) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
-    func onrampHistory(walletAddress: String, cursor: Any?, limit: Int?, network: String?, tokenId: String?) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
+    func exchangeHistory(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
+    func exchangeHistoryDelta(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage { fatalError("Not used in tests") }
+    func onrampHistory(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
+    func onrampHistoryDelta(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage { fatalError("Not used in tests") }
 }

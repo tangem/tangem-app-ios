@@ -473,6 +473,9 @@ extension Analytics {
         case pushNotificationOpened = "[Push] Push Notification Opened"
         case pushNotificationScreenOpened = "[Push] Push Notification Screen Opened"
         case pushToggleClicked = "[Push] Push Toggle Clicked"
+        case notificationSettingsScreenOpened = "[Push] Notification Settings Screen Opened"
+        case pushNotificationSettingsToggleClicked = "[Push] Toggle Clicked"
+        case pushBannerOpenSettingsTapped = "[Push] Banner - Open Settings Tapped"
 
         // MARK: - Staking
 
@@ -698,6 +701,7 @@ extension Analytics {
         // Tangem Pay (Visa 2.0)
 
         case visaOnboardingVisaActivationScreenOpened = "[Visa Onboarding] Visa Activation Screen Opened"
+        case visaOnboardingVisaNewOnboardingPageOpened = "[Visa Onboarding] Visa New Onboarding Page Opened"
         case visaOnboardingButtonVisaViewTerms = "[Visa Onboarding] Button - Visa View Terms"
         case visaOnboardingButtonVisaGetCard = "[Visa Onboarding] Button - Visa Get Card"
         case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
@@ -711,6 +715,8 @@ extension Analytics {
 
         case visaOnboardingVisaPermanentButtonClicked = "[Visa Onboarding] Visa Permanent Button Clicked"
         case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
+        case visaOnboardingPermanentButtonShowed = "[Visa Onboarding] Visa Permanent Button Showed"
+        case visaOnboardingPermanentBannerShowed = "[Visa Onboarding] Visa Permanent Banner Showed"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"

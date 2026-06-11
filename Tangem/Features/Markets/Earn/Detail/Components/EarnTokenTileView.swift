@@ -36,7 +36,7 @@ struct EarnTokenTileView: View {
                 HStack(alignment: .firstBaselineCustom, spacing: .unit(.half)) {
                     Text(viewModel.name)
                         .lineLimit(1)
-                        .style(.Tangem.Body16.semibold, color: Color.Tangem.Text.Neutral.primary)
+                        .style(.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
 
                     Text(viewModel.symbol)
                         .lineLimit(1)
@@ -136,7 +136,7 @@ struct EarnTokenTileView: View {
 private extension EarnTokenTileView {
     enum RedesignLayout {
         static let tileWidth: CGFloat = 150.0
-        static let cornerRadius: CGFloat = .unit(.x5)
+        static let cornerRadius: CGFloat = .unit(.x6)
     }
 
     enum LegacyLayout {

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUIUtils
 import TangemAssets
 import TangemAccessibilityIdentifiers
@@ -18,6 +19,8 @@ public struct NotificationBanner: View, Setupable {
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
     @ScaledMetric private var iconHeight: CGFloat
+
+    private let cornerRadius: CGFloat = .unit(.x6)
 
     public init(bannerType: BannerType, accessibilityIdentifier: String?) {
         self.bannerType = bannerType
@@ -53,6 +56,11 @@ public struct NotificationBanner: View, Setupable {
     public var body: some View {
         bannerContent
             .accessibilityIdentifier(accessibilityIdentifier)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(bannerType.borderColor, lineWidth: .unit(.quarter))
+                    .allowsHitTesting(false)
+            }
             .overlay(alignment: .topTrailing) {
                 if bannerType.isClosable {
                     closeButton
@@ -90,7 +98,7 @@ public struct NotificationBanner: View, Setupable {
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
-        .glowBorder(effect: bannerType.effect)
+        .glowBorder(effect: bannerType.effect, cornerRadius: cornerRadius)
     }
 
     private var closeButton: some View {
@@ -165,25 +173,29 @@ public struct NotificationBanner: View, Setupable {
         let textAlignment: TextAlignment = isCentered ? .center : .leading
 
         return VStack(alignment: alignment, spacing: SizeUnit.x1.value) {
-            Text(title)
-                .style(
-                    Fonts.Bold.headline,
-                    color: Color.Tangem.Text.Neutral.primary
-                )
-                .lineLimit(nil)
-                .multilineTextAlignment(textAlignment)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            if title.characters.isNotEmpty {
+                Text(title)
+                    .style(
+                        .Tangem.Body16.medium,
+                        color: .Tangem.Text.Neutral.primary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            }
 
-            Text(subtitle)
-                .style(
-                    Fonts.Bold.subheadline,
-                    color: Color.Tangem.Text.Neutral.tertiary
-                )
-                .lineLimit(nil)
-                .multilineTextAlignment(textAlignment)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            if subtitle.characters.isNotEmpty {
+                Text(subtitle)
+                    .style(
+                        .Tangem.Caption12.semibold,
+                        color: .Tangem.Text.Neutral.secondary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            }
         }
         .padding(.horizontal, SizeUnit.x1.value)
         .padding(.top, SizeUnit.x1.value)

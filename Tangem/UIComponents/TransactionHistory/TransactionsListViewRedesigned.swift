@@ -70,8 +70,12 @@ struct TransactionsListViewRedesigned: View {
             }
         } else {
             LazyVStack(spacing: .zero) {
-                ForEach(transactionItems) { sectionItem in
-                    sectionHeader(title: sectionItem.header)
+                ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
+                    let sectionItemHeader = sectionItem.header
+
+                    if sectionItemHeader.isNotEmpty {
+                        sectionHeader(title: sectionItemHeader)
+                    }
 
                     ForEach(sectionItem.items) { cellItem in
                         rowOrChip(for: cellItem)
