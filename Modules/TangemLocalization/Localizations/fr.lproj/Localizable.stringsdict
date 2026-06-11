@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li address</string>
+        <string>adresse</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>adresses</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
