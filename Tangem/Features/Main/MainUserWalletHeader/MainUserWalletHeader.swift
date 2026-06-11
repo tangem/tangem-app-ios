@@ -72,7 +72,7 @@ struct MainUserWalletHeader: View {
     private var walletNameWithThumbnail: some View {
         HStack(spacing: SizeUnit.x1.value) {
             Text(headerViewModel.userWalletName)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
 
             if let walletThumbnailType = headerViewModel.walletThumbnailType {
                 MiniatureWalletView(type: walletThumbnailType)
