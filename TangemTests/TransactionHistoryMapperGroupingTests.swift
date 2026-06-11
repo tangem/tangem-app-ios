@@ -114,7 +114,7 @@ private extension TransactionHistoryMapperGroupingTests {
     func makeSUT() -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "ETH",
-            walletAddresses: ["0xSource"],
+            addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: ["0xSource"]),
             showSign: true,
             isToken: false
         )
@@ -133,4 +133,10 @@ private extension TransactionHistoryMapperGroupingTests {
             date: date
         )
     }
+}
+
+// MARK: - Stubs
+
+private struct StubTransactionHistoryAddressesProvider: WalletModelTransactionHistoryAddressesProvider {
+    let walletAddresses: [String]
 }
