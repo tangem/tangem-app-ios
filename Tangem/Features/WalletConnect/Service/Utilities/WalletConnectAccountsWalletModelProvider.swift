@@ -7,7 +7,6 @@
 //
 
 import Combine
-import TangemPay
 
 protocol WalletConnectAccountsWalletModelProvider {
     /// This info is based on information from WC and they didn't know anything about derivation
@@ -103,20 +102,7 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
             )
         else { return [] }
 
-        let allWalletModels = AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
-        WCLogger.info("All wallet models:\n\(logDescription(for: allWalletModels))")
-
-        let accountWalletModels = cryptoAccountModel.walletModelsManager.walletModels
-        WCLogger.info("Wallet models for account \(accountId):\n\(logDescription(for: accountWalletModels))")
-
-        return accountWalletModels.filter(\.isAvailableForWalletConnect)
-    }
-
-    private func logDescription(for walletModels: [any WalletModel]) -> String {
-        walletModels.map { walletModel in
-            "\(walletModel.tokenItem.name) \(walletModel.tokenItem.blockchain.displayName) [\(walletModel.addressesString.joined(separator: ", "))]"
-        }
-        .joined(separator: " | ")
+        return cryptoAccountModel.walletModelsManager.walletModels.filter(\.isAvailableForWalletConnect)
     }
 
     private func getMainWalletModelsFromAllAccounts() -> [any WalletModel] {
@@ -149,7 +135,7 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
 
 private extension WalletModel {
     var isAvailableForWalletConnect: Bool {
-        isMainToken && tokenItem.blockchainNetwork != TangemPayUtilities.usdcTokenItem.blockchainNetwork
+        isMainToken && !isCustom
     }
 }
 
