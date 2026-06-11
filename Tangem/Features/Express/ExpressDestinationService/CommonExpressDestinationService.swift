@@ -14,7 +14,7 @@ struct CommonExpressDestinationService {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
-    @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
+    @Injected(\.swapRepository) private var swapRepository: SwapRepository
 }
 
 // MARK: - ExpressDestinationService
@@ -56,7 +56,7 @@ private extension CommonExpressDestinationService {
                 }
             }
 
-        let availablePairs = await expressPairsRepository.getPairs(from: base.expressCurrency)
+        let availablePairs = await swapRepository.getPairs(from: base.expressCurrency)
         let availablePairDestinations = Set(availablePairs.map(\.destination))
         let searchableWalletModels = walletModels.filter { wallet in
             let isNotSource = wallet.walletModel.id != .init(tokenItem: base)

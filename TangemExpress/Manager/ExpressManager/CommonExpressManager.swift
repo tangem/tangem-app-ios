@@ -28,6 +28,7 @@ actor CommonExpressManager {
     // MARK: - State
 
     private var currentState: ExpressManagerState = .idle
+    private var providersTask: Task<ExpressManagerState.Providers, Error>?
 
     init(
         expressAPIProvider: ExpressAPIProvider,
@@ -56,20 +57,24 @@ extension CommonExpressManager: ExpressManager {
 
         switch pair {
         case .some(let pair) where pair.isTransfer:
+            providersTask = nil
             return update(state: .transfer)
 
         case .some(let pair):
-            let providers = try await makeAvailableProviders(pair: pair)
+            let providers = try await loadProviders(for: pair)
             let selected = providers.availableProviders(rate: .float).best()
             return update(state: .swap(selected: selected, providers: providers))
 
         case .none:
+            providersTask = nil
             return update(state: .idle)
         }
     }
 
-    func update(amountType: ExpressAmountType?) async -> ExpressManagerState {
+    func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState {
         _amountType = amountType
+
+        try await waitProvidersTaskIfNeeded()
 
         guard case .swap(_, let providers) = currentState else {
             return currentState
@@ -142,13 +147,39 @@ extension CommonExpressManager: ExpressManager {
 // MARK: - Private
 
 private extension CommonExpressManager {
+    func waitProvidersTaskIfNeeded() async throws {
+        guard let task = providersTask else { return }
+
+        let providers = try await task.value
+
+        // Check that task is still relevant after await (pair might have changed)
+        guard providersTask == task else { return }
+
+        let selected = providers.availableProviders(rate: .float).best()
+        update(state: .swap(selected: selected, providers: providers))
+    }
+
+    func loadProviders(for pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState.Providers {
+        // Create task FIRST so update(amountType:) can await it
+        let task = Task { [expressRepository] in
+            try await expressRepository.updateProvidersIds(for: pair)
+            return try await self.makeAvailableProviders(pair: pair)
+        }
+        providersTask = task
+
+        let providers = try await task.value
+        // Clear only on success - next pair update will create new task
+        providersTask = nil
+        return providers
+    }
+
     func makeAvailableProviders(pair: ExpressManagerSwappingPair) async throws -> ExpressManagerState.Providers {
         async let allIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: nil)
         async let fixedIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .fixed)
         async let floatIds = expressRepository.getAvailableProvidersIds(for: pair, rateType: .float)
         let (allSet, fixedSet, floatSet) = await (Set(allIds), Set(fixedIds), Set(floatIds))
 
-        let providers = try await expressRepository.providers()
+        let providers = try await expressRepository.providers(for: pair)
 
         let supported = providers.filter { provider in
             allSet.contains(provider.id) && pair.source.supportedProvidersFilter.isSupported(provider: provider)
