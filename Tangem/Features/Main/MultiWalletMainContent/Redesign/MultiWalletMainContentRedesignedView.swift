@@ -80,7 +80,7 @@ struct MultiWalletMainContentRedesignedView: View {
     private var organizeButton: some View {
         TangemButton(
             content: .combined(
-                text: AttributedString(Localization.organizeTokensTitle),
+                text: AttributedString(viewModel.organizeTokensButtonTitle),
                 icon: Assets.OrganizeTokens.filterIcon,
                 iconPosition: .left
             ),
