@@ -19,7 +19,7 @@ struct EarnDetailViewRedesign: View {
     @State private var navigationHeaderHeight: CGFloat = 0
 
     @ScaledMetric private var contentSpacing: CGFloat = .unit(.x4)
-    @ScaledMetric private var sectionsSpacing: CGFloat = .unit(.x9)
+    @ScaledMetric private var sectionsSpacing: CGFloat = .unit(.x10)
     @ScaledMetric private var sectionSpacing: CGFloat = .unit(.x3)
 
     private var scrollContentTopPadding: CGFloat {
