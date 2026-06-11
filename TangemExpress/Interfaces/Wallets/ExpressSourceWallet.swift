@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 
 public protocol ExpressSourceWallet: ExpressDestinationWallet {
+    var walletInfo: ExpressWalletInfo { get }
     var allowanceProvider: AllowanceProvider? { get }
     var yieldModuleTransactionHelper: YieldModuleTransactionHelper? { get }
     var balanceProvider: BalanceProvider { get }
