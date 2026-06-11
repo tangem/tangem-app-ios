@@ -43,6 +43,8 @@ xcrun simctl delete unavailable 2>/dev/null || true
 # Sim-hosted testmanagerd dies with its simulator; kill stragglers only,
 # scoped to simulator runtime paths so the host-side testmanagerd is untouched
 pkill -9 -f "CoreSimulator.*testmanagerd" 2>/dev/null || true
+# Marathon's per-test video recorders can outlive their simulators
+pkill -9 -f "simctl io.*recordVideo" 2>/dev/null || true
 
 echo "=== Cleaning stale Docker state ==="
 if command -v colima &> /dev/null && colima status &> /dev/null; then
