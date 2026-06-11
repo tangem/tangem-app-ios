@@ -17,8 +17,8 @@ import TangemPay
 final class ActionButtonsSwapViewModel: ObservableObject {
     // MARK: - Injected
 
-    @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: ExpressPairsRepository
+    @Injected(\.swapRepository)
+    private var swapRepository: SwapRepository
 
     // MARK: - Published
 
@@ -219,7 +219,7 @@ private extension ActionButtonsSwapViewModel {
             _ = try await runWithDelayedLoading {
                 self.tokenSelectorViewModel.setLoading()
             } operation: {
-                try await self.expressPairsRepository.updatePairs(
+                try await self.swapRepository.updatePairs(
                     for: sourceItem.tokenItem.expressCurrency,
                     userWalletInfo: sourceItem.userWalletInfo
                 )

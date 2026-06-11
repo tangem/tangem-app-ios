@@ -53,6 +53,6 @@ final class SendWithSwapPairUpdateHandler: SwapPairUpdateHandler {
             return pairResult
         }
 
-        return await expressManager.update(amountType: amountType)
+        return try await expressManager.update(amountType: amountType)
     }
 }
