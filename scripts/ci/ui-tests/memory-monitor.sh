@@ -5,7 +5,8 @@
 # Optional env: MONITOR_INTERVAL (seconds, default: 60),
 #               MONITOR_LOG (default: $HOME/ui-test-diagnostics/memory-monitor-<run id>-<attempt>.log)
 
-set -e
+# No set -e: the monitor must survive transient failures under the very memory
+# pressure it is diagnosing — losing the final samples would defeat its purpose
 
 INTERVAL="${MONITOR_INTERVAL:-60}"
 LOG="${MONITOR_LOG:-$HOME/ui-test-diagnostics/memory-monitor-${GITHUB_RUN_ID:-local}-${GITHUB_RUN_ATTEMPT:-1}.log}"

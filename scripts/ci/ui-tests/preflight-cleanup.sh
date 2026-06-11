@@ -2,26 +2,28 @@
 # Neutralize leftovers from a previous crashed run (stale test processes, booted
 # simulators, WireMock containers). Safe and idempotent on a clean machine.
 # Also used as the final cleanup step of the workflow so kill patterns live in one place.
-# No required env.
+# Optional env: PREFLIGHT_SKIP_DIAGNOSTICS=1 (skip the diagnostics section, used at job end)
 
 set -e
 
 DIAG_DIR="$HOME/ui-test-diagnostics"
 
-echo "=== Preflight diagnostics ==="
-memory_pressure -Q 2>/dev/null || vm_stat | head -6
+if [ "${PREFLIGHT_SKIP_DIAGNOSTICS:-0}" != "1" ]; then
+  echo "=== Preflight diagnostics ==="
+  memory_pressure -Q 2>/dev/null || vm_stat | head -6
 
-echo "--- Booted simulators ---"
-xcrun simctl list devices booted || true
+  echo "--- Booted simulators ---"
+  xcrun simctl list devices booted || true
 
-echo "--- Stale test processes ---"
-pgrep -fl "xcodebuild|marathon" || echo "none"
+  echo "--- Stale test processes ---"
+  pgrep -fl "xcodebuild|marathon" || echo "none"
 
-# If the host died mid-run, the previous run's memory log survives here
-LAST_LOG=$(ls -t "$DIAG_DIR"/memory-monitor-*.log 2>/dev/null | head -1 || true)
-if [ -n "$LAST_LOG" ]; then
-  echo "--- Tail of previous memory monitor log: $LAST_LOG ---"
-  tail -40 "$LAST_LOG" || true
+  # If the host died mid-run, the previous run's memory log survives here
+  LAST_LOG=$(ls -t "$DIAG_DIR"/memory-monitor-*.log 2>/dev/null | head -1 || true)
+  if [ -n "$LAST_LOG" ]; then
+    echo "--- Tail of previous memory monitor log: $LAST_LOG ---"
+    tail -40 "$LAST_LOG" || true
+  fi
 fi
 
 echo "=== Stopping stale test processes ==="
@@ -46,7 +48,7 @@ echo "=== Cleaning stale Docker state ==="
 if command -v colima &> /dev/null && colima status &> /dev/null; then
   if docker info &> /dev/null; then
     # Remove ALL wiremock containers regardless of count (previous run may have used more)
-    docker ps -aq --filter "name=wiremock-" | xargs docker rm -f 2>/dev/null || true
+    docker ps -aq --filter "name=^/wiremock-[0-9]+$" | xargs docker rm -f 2>/dev/null || true
     echo "Colima is healthy, leaving it running for reuse"
   else
     echo "Colima reports running but Docker daemon is unresponsive, resetting..."

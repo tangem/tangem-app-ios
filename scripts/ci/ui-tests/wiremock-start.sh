@@ -11,7 +11,7 @@ fi
 
 # Cleanup existing containers from previous runs (by name filter, so containers
 # left over from a run with a higher SIMULATOR_COUNT are removed too)
-docker ps -aq --filter "name=wiremock-" | xargs docker rm -f 2>/dev/null || true
+docker ps -aq --filter "name=^/wiremock-[0-9]+$" | xargs docker rm -f 2>/dev/null || true
 
 for i in $(seq 1 $SIMULATOR_COUNT); do
   WIREMOCK_PORT=$((8080 + i))
