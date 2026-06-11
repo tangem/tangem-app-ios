@@ -17,7 +17,7 @@ struct MarketTokenRowView: View {
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var iconSide: CGFloat = 40
-    @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x4.value
+    @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x3.value
     @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
     @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x3.value
 
@@ -169,7 +169,7 @@ struct MarketTokenRowView: View {
     }
 
     private var chartSize: CGSize {
-        CGSize(width: 56, height: 24) * scaleFactor
+        CGSize(width: 48, height: 24) * scaleFactor
     }
 }
 
