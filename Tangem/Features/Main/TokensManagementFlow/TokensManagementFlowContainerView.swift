@@ -50,7 +50,7 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
             configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }
     }
