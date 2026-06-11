@@ -13,6 +13,7 @@ final class AddTokenFlowScreen: Screen {
     let app: XCUIApplication
 
     private lazy var addTokenButton = app.buttons[TokenAccessibilityIdentifiers.addTokenButton].firstMatch
+    private lazy var tokenAddedToast = app.staticTexts[CommonUIAccessibilityIdentifiers.successToast].firstMatch
 
     init(_ app: XCUIApplication) {
         self.app = app
@@ -30,6 +31,14 @@ final class AddTokenFlowScreen: Screen {
     }
 
     // MARK: - Toast Verification
+
+    @discardableResult
+    func waitForTokenAddedToastOnAddFundsScreen() -> AddFundsScreen {
+        XCTContext.runActivity(named: "Wait for 'Token Added' toast on Add Funds screen") { _ in
+            waitAndAssertTrue(tokenAddedToast, timeout: .conditional, "Wait for 'Token Added' toast is displayed")
+            return AddFundsScreen(app)
+        }
+    }
 
     /// Waits for the "Token added" toast notification and returns to the swap screen
     @discardableResult
