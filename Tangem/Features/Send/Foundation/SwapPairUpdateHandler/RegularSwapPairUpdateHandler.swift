@@ -13,16 +13,16 @@ import TangemExpress
 /// No estimation on first selection. Always uses float (`.from`) direction.
 final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
     private let expressManager: ExpressManager
-    private let expressPairsRepository: ExpressPairsRepository
+    private let swapRepository: SwapRepository
     private let analyticsLogger: SwapManagementModelAnalyticsLogger
 
     init(
         expressManager: ExpressManager,
-        expressPairsRepository: ExpressPairsRepository,
+        swapRepository: SwapRepository,
         analyticsLogger: SwapManagementModelAnalyticsLogger
     ) {
         self.expressManager = expressManager
-        self.expressPairsRepository = expressPairsRepository
+        self.swapRepository = swapRepository
         self.analyticsLogger = analyticsLogger
     }
 
@@ -50,16 +50,17 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         }
 
         if FeatureProvider.isAvailable(.swapPipelineV2), !pair.isTransfer {
-            let cachedPairs = await expressPairsRepository.getPairs(from: source.currency)
+            let cachedPairs = await swapRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 
             if !isPairCached {
-                try await expressPairsRepository.updatePairs(for: source.currency, userWalletInfo: source.userWalletInfo)
+                try await swapRepository.updatePairs(for: source.currency, userWalletInfo: source.userWalletInfo)
             }
         }
 
         // In regular swap we clear the cached amount type when the pair changes.
-        let _ = await expressManager.update(amountType: .none)
+        // Use try? to ignore errors from previous failed provider loading - new update(pair:) will retry
+        let _ = try? await expressManager.update(amountType: .none)
 
         return try await expressManager.update(pair: pair)
     }
