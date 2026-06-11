@@ -133,7 +133,7 @@ struct MultiWalletMainContentRedesignedView: View {
                         tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
                     }
                 }
-                .cornerRadius(.unit(.x5))
+                .cornerRadius(.unit(.x6))
                 .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
             }
         }
