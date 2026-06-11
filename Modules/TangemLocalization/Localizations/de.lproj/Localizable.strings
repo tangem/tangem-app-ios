@@ -92,6 +92,7 @@
 "address_book_discard" = "Verwerfen";
 "address_book_edit_address" = "Adresse bearbeiten";
 "address_book_enter_address" = "Adresse eingeben";
+"address_book_invalid_address_error" = "Invalid address";
 "address_book_keep_editing" = "Weiter bearbeiten";
 "address_book_new_contact" = "Neuer Kontakt";
 "address_book_no_contacts_description" = "Die von Ihnen hinzugefügten Kontakte werden hier angezeigt";
@@ -1586,6 +1587,9 @@
 "tangempay_declined_reason_9" = "Karte gesperrt";
 "tangempay_declined_reason_reason" = "Grund";
 "tangempay_digital_card" = "Digitale";
+"tangempay_face_id_not_set_button" = "Set Face ID";
+"tangempay_face_id_not_set_description" = "Unable to use PIN without Face ID. Please turn on Face ID in app settings";
+"tangempay_face_id_not_set_title" = "Face ID not set";
 "tangempay_factory_settings_warning_title" = "Mir ist bewusst, dass ich den Zugriff auf meine Tangem Pay Card und alle darauf befindlichen Guthaben vollständig und ohne Möglichkeit der Wiederherstellung verliere.";
 "tangempay_failed_to_issue_card_retry_description" = "Ein technischer Fehler ist aufgetreten, bitte versuchen Sie es erneut, indem Sie auf die Schaltfläche unten klicken";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
@@ -1686,10 +1690,14 @@
 "tangempay_topup_receive_title" = "Von einer anderen Wallet oder Börse";
 "tangempay_topup_swap_body" = "Laden Sie Ihr Konto mit einem beliebigen Token aus Ihrer Wallet auf";
 "tangempay_topup_swap_title" = "Aus Ihrer Tangem Wallet";
+"tangempay_touch_id_not_set_button" = "Set Touch ID";
+"tangempay_touch_id_not_set_description" = "Unable to use PIN without Touch ID. Please turn on Touch ID in app settings";
+"tangempay_touch_id_not_set_title" = "Touch ID not set";
 "tangempay_usdc_on_polygon_network" = "USDC im Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Klicken Sie auf die Schaltfläche unten, um den Zugriff wiederherzustellen";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";
+"tangempay_your_balance" = "Your balance";
 "tangempay_your_pin_code" = "Ihr PIN-Code";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";
