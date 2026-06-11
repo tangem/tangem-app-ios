@@ -17,34 +17,90 @@ struct TokensManagementChooserView: View {
 
     @ObservedObject var viewModel: TokensManagementFlowCoordinator
 
+    // MARK: - Redesign-aware styling
+
+    private var isRedesign: Bool {
+        viewModel.isAddAndOrganizeRedesignEnabled
+    }
+
+    private var rowBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+    }
+
+    private var rowCornerRadius: CGFloat {
+        isRedesign ? Constants.redesignRowCornerRadius : Constants.rowCornerRadius
+    }
+
+    private var titleFont: Font {
+        isRedesign ? .Tangem.Body16.medium : Fonts.Bold.subheadline
+    }
+
+    private var titleColor: Color {
+        isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+    }
+
+    private var subtitleFont: Font {
+        isRedesign ? .Tangem.Caption12.semibold : Fonts.Regular.caption1
+    }
+
+    private var subtitleColor: Color {
+        isRedesign ? .Tangem.Text.Neutral.secondary : Colors.Text.tertiary
+    }
+
+    private var accentColor: Color {
+        isRedesign ? Color.Tangem.Graphic.Status.accent : Colors.Icon.accent
+    }
+
     // MARK: - View Body
 
+    @ViewBuilder
     var body: some View {
-        VStack(spacing: 0) {
-            row(
-                icon: Assets.plus24,
-                title: Localization.addAndManageSheetManageTitle,
-                subtitle: Localization.addAndManageSheetManageSubtitle,
-                action: viewModel.openAddTokens
-            )
-            .accessibilityIdentifier(TokensManagementChooserAccessibilityIdentifiers.addTokensRow)
+        if isRedesign {
+            VStack(spacing: 8) {
+                addTokensRow
+                    .background(rowBackground)
 
-            row(
-                icon: Assets.OrganizeTokens.filterIcon,
-                title: Localization.organizeTokensTitle,
-                subtitle: Localization.addAndManageSheetOrganizeSubtitle,
-                action: viewModel.openOrganize
-            )
-            .accessibilityIdentifier(TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow)
+                organizeTokensRow
+                    .background(rowBackground)
+            }
+            .padding(.horizontal, Constants.horizontalInset)
+        } else {
+            VStack(spacing: 0) {
+                addTokensRow
+
+                organizeTokensRow
+            }
+            .background(rowBackground)
+            .padding(.horizontal, Constants.horizontalInset)
         }
-        .background(
-            RoundedRectangle(cornerRadius: Constants.rowCornerRadius, style: .continuous)
-                .fill(Colors.Background.action)
-        )
-        .padding(.horizontal, 16)
     }
 
     // MARK: - Sub Views
+
+    private var addTokensRow: some View {
+        row(
+            icon: Assets.plus24,
+            title: Localization.addAndManageSheetManageTitle,
+            subtitle: Localization.addAndManageSheetManageSubtitle,
+            action: viewModel.openAddTokens
+        )
+        .accessibilityIdentifier(TokensManagementChooserAccessibilityIdentifiers.addTokensRow)
+    }
+
+    private var organizeTokensRow: some View {
+        row(
+            icon: Assets.OrganizeTokens.filterIcon,
+            title: Localization.organizeTokensTitle,
+            subtitle: Localization.addAndManageSheetOrganizeSubtitle,
+            action: viewModel.openOrganize
+        )
+        .accessibilityIdentifier(TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow)
+    }
+
+    private var rowBackground: some View {
+        RoundedRectangle(cornerRadius: rowCornerRadius, style: .continuous)
+            .fill(rowBackgroundColor)
+    }
 
     private func row(icon: ImageType, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -53,15 +109,19 @@ struct TokensManagementChooserView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(titleFont, color: titleColor)
                         .multilineTextAlignment(.leading)
 
                     Text(subtitle)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(subtitleFont, color: subtitleColor)
                         .multilineTextAlignment(.leading)
                 }
 
                 Spacer(minLength: 0)
+
+                if isRedesign {
+                    chevronView
+                }
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
@@ -73,7 +133,7 @@ struct TokensManagementChooserView: View {
     private func iconView(icon: ImageType) -> some View {
         ZStack(alignment: .center) {
             RoundedRectangle(cornerRadius: Constants.iconCornerRadius)
-                .fill(Colors.Icon.accent.opacity(0.1))
+                .fill(accentColor.opacity(0.1))
                 .frame(width: Constants.iconContainerSize, height: Constants.iconContainerSize)
 
             icon.image
@@ -81,8 +141,15 @@ struct TokensManagementChooserView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: Constants.iconSize, height: Constants.iconSize)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(accentColor)
         }
+    }
+
+    private var chevronView: some View {
+        DesignSystem.Icons.ChevronRight.regular20.image
+            .renderingMode(.template)
+            .bold()
+            .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
     }
 }
 
@@ -94,5 +161,7 @@ private extension TokensManagementChooserView {
         static let iconCornerRadius: CGFloat = 18
         static let iconSize: CGFloat = 24
         static let rowCornerRadius: CGFloat = 14
+        static let redesignRowCornerRadius: CGFloat = .unit(.x5)
+        static let horizontalInset: CGFloat = 16
     }
 }
