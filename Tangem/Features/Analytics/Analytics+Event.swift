@@ -473,6 +473,9 @@ extension Analytics {
         case pushNotificationOpened = "[Push] Push Notification Opened"
         case pushNotificationScreenOpened = "[Push] Push Notification Screen Opened"
         case pushToggleClicked = "[Push] Push Toggle Clicked"
+        case notificationSettingsScreenOpened = "[Push] Notification Settings Screen Opened"
+        case pushNotificationSettingsToggleClicked = "[Push] Toggle Clicked"
+        case pushBannerOpenSettingsTapped = "[Push] Banner - Open Settings Tapped"
 
         // MARK: - Staking
 
