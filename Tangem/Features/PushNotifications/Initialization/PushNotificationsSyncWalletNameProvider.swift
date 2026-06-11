@@ -45,6 +45,7 @@ final class PushNotificationsSyncWalletNameProvider {
             .map { userWalletModel in
                 userWalletModel.updatePublisher
                     .compactMap(\.newName)
+                    .filter { !$0.isEmpty }
                     .map {
                         let context = userWalletModel.config
                             .contextBuilder
