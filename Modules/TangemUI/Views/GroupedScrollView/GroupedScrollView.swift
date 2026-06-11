@@ -11,11 +11,14 @@ import TangemAssets
 import TangemUIUtils
 
 public struct GroupedScrollView<Content: View>: View {
+    private let scrollToTopAnchorID: String = "GroupedScrollView.scrollToTopAnchor"
+
     private let contentType: ContentType
     private let content: () -> Content
 
     private var interContentPadding: CGFloat = 0
     private var scrollIndicatorsHidden: Bool = true
+    private var scrollToTopTrigger: UUID?
 
     public init(
         contentType: ContentType = .lazy(alignment: .center, spacing: .zero),
@@ -26,12 +29,22 @@ public struct GroupedScrollView<Content: View>: View {
     }
 
     public var body: some View {
-        ScrollView {
-            contentView
-                .padding(.horizontal, 16)
-                .padding(.vertical, interContentPadding)
+        ScrollViewReader { reader in
+            ScrollView {
+                contentView
+                    .overlay(alignment: .top) {
+                        Color.clear.frame(height: 0).id(scrollToTopAnchorID)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, interContentPadding)
+            }
+            .scrollIndicators(scrollIndicatorsHidden ? .hidden : .automatic)
+            .onChange(of: scrollToTopTrigger) { _ in
+                withAnimation {
+                    reader.scrollTo(scrollToTopAnchorID, anchor: .top)
+                }
+            }
         }
-        .scrollIndicators(scrollIndicatorsHidden ? .hidden : .automatic)
     }
 
     @ViewBuilder
@@ -61,6 +74,10 @@ extension GroupedScrollView: Setupable {
 
     public func scrollIndicatorsHidden(_ hidden: Bool) -> Self {
         map { $0.scrollIndicatorsHidden = hidden }
+    }
+
+    public func scrollToTopTrigger(_ trigger: UUID?) -> Self {
+        map { $0.scrollToTopTrigger = trigger }
     }
 }
 

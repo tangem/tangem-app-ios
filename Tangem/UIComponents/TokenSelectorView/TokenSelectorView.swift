@@ -61,20 +61,11 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        ScrollViewReader { reader in
-            GroupedScrollView(contentType: .lazy(spacing: 8)) {
-                Color.clear.frame(height: 0)
-                    .id(Constants.scrollToTopAnchorID)
-
-                content()
-                    .animation(.contentFrameUpdate, value: viewModel.contentVisibility)
-            }
-            .onChange(of: viewModel.scrollToTopTrigger) { _ in
-                withAnimation {
-                    reader.scrollTo(Constants.scrollToTopAnchorID, anchor: .top)
-                }
-            }
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
+            content()
+                .animation(.contentFrameUpdate, value: viewModel.contentVisibility)
         }
+        .scrollToTopTrigger(viewModel.scrollToTopTrigger)
     }
 
     @ViewBuilder
@@ -116,7 +107,6 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
             VStack(spacing: 0) {
                 ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
             }
-            .padding(.top, Constants.chipsToListExtraSpacing)
         } else {
             ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
         }
@@ -171,7 +161,6 @@ extension TokenSelectorView {
     }
 
     private enum Constants {
-        static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
         static var chipsToListExtraSpacing: CGFloat { 8 }
     }
 }
