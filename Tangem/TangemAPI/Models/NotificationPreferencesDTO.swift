@@ -9,24 +9,11 @@
 import Foundation
 
 enum NotificationPreferencesDTO {
-    struct Preference: Codable, Equatable {
-        let isEnabled: Bool
-        let isVisible: Bool
-    }
-
-    enum Response {
-        struct Body: Codable, Equatable {
-            let transactionAlerts: Preference
-            let offersUpdates: Preference
-            let priceAlerts: Preference
-        }
-    }
-
-    enum Update {
-        struct Request: Encodable, Equatable {
-            let transactionAlerts: Bool
-            let offersUpdates: Bool
-            let priceAlerts: Bool
-        }
+    /// A single flat body shared by the GET response, the PUT request and the PUT echo response
+    /// (contract v1.3). The backend dropped the per-channel `isVisible` flag entirely.
+    struct Body: Codable, Equatable {
+        let transactionEventsEnabled: Bool
+        let offerUpdatesEnabled: Bool
+        let priceAlertsEnabled: Bool
     }
 }
