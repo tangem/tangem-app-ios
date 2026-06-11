@@ -157,6 +157,7 @@ private final class StubExpressProviderManager: ExpressProviderManager {
 }
 
 private struct StubExpressWallet: ExpressSourceWallet {
+    var walletInfo: ExpressWalletInfo { ExpressWalletInfo(id: "stub", refcode: nil) }
     var currency: ExpressWalletCurrency { fatalError("Not used in tests") }
     var coinCurrency: ExpressWalletCurrency { fatalError("Not used in tests") }
     var address: String? { nil }
