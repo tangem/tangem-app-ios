@@ -87,6 +87,17 @@ extension AddFundsOptionView {
         case swap
         case receive
 
+        var accessibilityIdentifier: String {
+            switch self {
+            case .buy:
+                ActionButtonsAccessibilityIdentifiers.addFundsBuyRow
+            case .swap:
+                ActionButtonsAccessibilityIdentifiers.addFundsSwapRow
+            case .receive:
+                ActionButtonsAccessibilityIdentifiers.addFundsReceiveRow
+            }
+        }
+
         var title: String {
             switch self {
             case .buy: Localization.commonBuy
@@ -108,14 +119,6 @@ extension AddFundsOptionView {
             case .buy: Assets.AddFunds.addfundsBuy
             case .swap: Assets.AddFunds.addfundsSwapIcon
             case .receive: Assets.AddFunds.addfundsReceive
-            }
-        }
-
-        var accessibilityIdentifier: String {
-            switch self {
-            case .buy: ActionButtonsAccessibilityIdentifiers.addFundsBuyRow
-            case .swap: ActionButtonsAccessibilityIdentifiers.addFundsSwapRow
-            case .receive: ActionButtonsAccessibilityIdentifiers.addFundsReceiveRow
             }
         }
     }
