@@ -38,7 +38,7 @@ struct MarketsTokenSearchView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: .unit(.x4)) {
+            VStack(alignment: .leading, spacing: .unit(.x1)) {
                 Color.clear
                     .frame(height: headerHeight)
 
