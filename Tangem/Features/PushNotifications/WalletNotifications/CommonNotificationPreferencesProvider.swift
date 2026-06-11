@@ -76,7 +76,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         await publish(context.optimisticPreferences)
 
-        let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
+        let request = NotificationPreferencesDTO.Body(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
@@ -109,7 +109,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         await publish(context.optimisticPreferences)
 
-        let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
+        let request = NotificationPreferencesDTO.Body(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
