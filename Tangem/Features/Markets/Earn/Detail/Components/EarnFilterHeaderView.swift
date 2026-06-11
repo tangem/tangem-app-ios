@@ -47,7 +47,7 @@ struct EarnFilterHeaderView: View {
             )
         }
         .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, verticalPadding)
+        .padding(.vertical, FeatureProvider.isAvailable(.redesign) ? .zero : verticalPadding)
     }
 
     @ViewBuilder
