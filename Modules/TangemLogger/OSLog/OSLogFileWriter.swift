@@ -121,7 +121,7 @@ extension OSLogFileWriter {
 
 private extension OSLogFileWriter {
     func writeSynchronously(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date) throws {
-        var message = LogSanitizer.sanitize(message, policy: .production)
+        var message = message
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {
