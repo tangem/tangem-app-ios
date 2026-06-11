@@ -114,12 +114,7 @@ extension TangemPayTransactionDetailsView {
 
 extension TangemPayTransactionDetailsView.AdditionalInfo {
     static func declined(reason: String?) -> Self {
-        let text = if let reason {
-            Localization.tangemPayHistoryItemSpendMcDeclinedReason(reason)
-        } else {
-            Localization.tangemPayTransactionDeclinedNotificationText
-        }
-        return warning(text: text)
+        warning(text: TangemPayTransactionDeclineReasonMapper.declinedText(for: reason))
     }
 
     static let fee: Self = warning(text: Localization.tangemPayTransactionFeeNotificationText)
