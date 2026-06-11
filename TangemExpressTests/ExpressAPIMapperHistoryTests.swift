@@ -46,9 +46,9 @@ struct ExpressAPIMapperHistoryTests {
         #expect(record.externalTx?.id == "ext-1")
         #expect(record.refund?.address == "0xrefund")
         #expect(record.refund?.currency == ExpressCurrency(contractAddress: "0xrefund-token", network: "ethereum"))
-        #expect(record.from.amount == Decimal(stringValue: "1.5"))
-        #expect(record.to.amount == Decimal(stringValue: "1"))
-        #expect(record.to.actualAmount == Decimal(stringValue: "0.99"))
+        #expect(try record.from.amount == #require(Decimal(stringValue: "1.5")))
+        #expect(try record.to.amount == #require(Decimal(stringValue: "1")))
+        #expect(try record.to.actualAmount == #require(Decimal(stringValue: "0.99")))
         #expect(record.createdAt < record.updatedAt)
     }
 
@@ -113,7 +113,7 @@ struct ExpressAPIMapperHistoryTests {
         #expect(pending.failReason == nil)
         #expect(pending.externalTx == nil)
         #expect(pending.payOut == PayOutInfo(address: "0xpayout", hash: nil))
-        #expect(pending.from == OnrampHistoryFiatAsset(currencyCode: "EUR", amount: Decimal(stringValue: "100.5")!))
+        #expect(try pending.from == OnrampHistoryFiatAsset(currencyCode: "EUR", amount: #require(Decimal(stringValue: "100.5"))))
         #expect(pending.to.currency == ExpressCurrency(contractAddress: "0x0", network: "ethereum"))
         #expect(pending.to.amount == nil)
         #expect(pending.to.actualAmount == nil)
@@ -125,8 +125,8 @@ struct ExpressAPIMapperHistoryTests {
         #expect(finished.failReason == "kyc_failed")
         #expect(finished.externalTx?.id == "ext-2")
         #expect(finished.payOut.hash == "0xhash-out")
-        #expect(finished.to.amount == Decimal(stringValue: "2"))
-        #expect(finished.to.actualAmount == Decimal(stringValue: "1.99"))
+        #expect(try finished.to.amount == #require(Decimal(stringValue: "2")))
+        #expect(try finished.to.actualAmount == #require(Decimal(stringValue: "1.99")))
     }
 
     @Test("Unrecognized onramp status raw values fall back to `.unknown`")
