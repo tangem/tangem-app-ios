@@ -10,23 +10,21 @@ import TangemFoundation
 
 struct AddressBookManagerFactory {
     func makeAddressBookManager(userWalletId: UserWalletId) -> AddressBookManager {
-        let storageIdentifier = userWalletId.stringValue
-
         let repository = CommonAddressBookRepository(
             userWalletId: userWalletId,
             cryptographer: CommonAddressBookCryptographer(),
-            storage: makeStorage(storageIdentifier: storageIdentifier),
+            storage: makeStorage(userWalletId: userWalletId),
             eTagStorage: CommonAddressBookETagStorage()
         )
 
         return CommonAddressBookManager(repository: repository)
     }
 
-    private func makeStorage(storageIdentifier: String) -> AddressBookPersistentStorage {
+    private func makeStorage(userWalletId: UserWalletId) -> AddressBookPersistentStorage {
         #if DEBUG
-        MockAddressBookPersistentStorage()
+        MockAddressBookPersistentStorage(userWalletId: userWalletId)
         #else
-        CommonAddressBookPersistentStorage(storageIdentifier: storageIdentifier)
+        CommonAddressBookPersistentStorage(storageIdentifier: userWalletId.stringValue)
         #endif
     }
 }

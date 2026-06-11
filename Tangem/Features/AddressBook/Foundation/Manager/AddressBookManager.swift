@@ -9,8 +9,6 @@
 import Foundation
 import Combine
 
-typealias AddressBook = [AddressBookContact]
-
 protocol AddressBookManager: Actor {
     nonisolated var addressBookPublisher: AnyPublisher<AddressBook, Never> { get }
 

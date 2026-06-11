@@ -62,12 +62,12 @@ private extension AddressBookContactsListViewModel {
 
     func bind() {
         $selectedChipId
-            .map { [addressBooks] selectedId -> AnyPublisher<AddressBook, Never> in
+            .map { [addressBooks] selectedId -> AnyPublisher<[AddressBookContact], Never> in
                 guard let addressBook = addressBooks.first(where: { $0.wallet.id.stringValue == selectedId }) else {
                     return Just([]).eraseToAnyPublisher()
                 }
 
-                return addressBook.addressBookPublisher
+                return addressBook.addressBookPublisher.map(\.contacts).eraseToAnyPublisher()
             }
             .switchToLatest()
             .receive(on: DispatchQueue.main)

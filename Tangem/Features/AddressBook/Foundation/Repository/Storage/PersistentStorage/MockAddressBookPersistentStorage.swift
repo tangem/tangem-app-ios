@@ -9,12 +9,15 @@
 #if DEBUG
 import Foundation
 import BlockchainSdk
+import TangemFoundation
 
 actor MockAddressBookPersistentStorage {
     private var storage: Data
 
-    init() {
-        storage = (try? CommonAddressBookCryptographer().encode(addressBook: Self.mockAddressBook)) ?? Data()
+    init(userWalletId: UserWalletId) {
+        let contacts = Self.mockContacts(for: userWalletId.stringValue)
+        let addressBook = AddressBook(userWalletId: userWalletId, contacts: contacts)
+        storage = (try? CommonAddressBookCryptographer().encode(addressBook: addressBook)) ?? Data()
     }
 }
 
@@ -33,7 +36,16 @@ extension MockAddressBookPersistentStorage: AddressBookPersistentStorage {
 // MARK: - Mock data
 
 private extension MockAddressBookPersistentStorage {
-    static var mockAddressBook: AddressBook {
+    /// Picks one of the predefined books deterministically, so the same wallet always shows the same
+    /// contacts while different wallets get visibly different books.
+    static func mockContacts(for storageIdentifier: String) -> [AddressBookContact] {
+        guard !mockBooks.isEmpty else { return [] }
+
+        let stableHash = storageIdentifier.utf8.reduce(0) { $0 &+ Int($1) }
+        return mockBooks[stableHash % mockBooks.count]
+    }
+
+    static let mockBooks: [[AddressBookContact]] = [
         [
             AddressBookContact(
                 id: UUID(),
@@ -88,7 +100,71 @@ private extension MockAddressBookPersistentStorage {
                     ),
                 ]
             ),
-        ]
-    }
+        ],
+        [
+            AddressBookContact(
+                id: UUID(),
+                name: "Bob",
+                icon: "",
+                addresses: [
+                    AddressBookAddress(
+                        network: BlockchainNetwork(.litecoin, derivationPath: nil),
+                        address: "LcHK4ahcfYpYbabsXAY3F2vGz9LkN5MYg5",
+                        memo: nil
+                    ),
+                ]
+            ),
+            AddressBookContact(
+                id: UUID(),
+                name: "Charlie",
+                icon: "",
+                addresses: [
+                    AddressBookAddress(
+                        network: BlockchainNetwork(.solana(curve: .ed25519, testnet: false), derivationPath: nil),
+                        address: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        memo: nil
+                    ),
+                ]
+            ),
+            AddressBookContact(
+                id: UUID(),
+                name: "Cold Storage",
+                icon: "",
+                addresses: [
+                    AddressBookAddress(
+                        network: BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil),
+                        address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+                        memo: nil
+                    ),
+                ]
+            ),
+        ],
+        [
+            AddressBookContact(
+                id: UUID(),
+                name: "Dana",
+                icon: "",
+                addresses: [
+                    AddressBookAddress(
+                        network: BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil),
+                        address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+                        memo: nil
+                    ),
+                ]
+            ),
+            AddressBookContact(
+                id: UUID(),
+                name: "TRON Payouts",
+                icon: "",
+                addresses: [
+                    AddressBookAddress(
+                        network: BlockchainNetwork(.tron(testnet: false), derivationPath: nil),
+                        address: "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",
+                        memo: "Payouts"
+                    ),
+                ]
+            ),
+        ],
+    ]
 }
 #endif // DEBUG
