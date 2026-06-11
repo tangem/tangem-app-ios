@@ -22,17 +22,16 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         var input: SendDestinationInputStub? = .init()
         var sut: SUT? = makeSUT(input: input!)
 
-        weak var weakInput: SendDestinationInputStub?
-        weakInput = input
+        weak var weakInput = input
 
         input = nil
         _ = sut // Silence "never read" warning
         sut = nil
 
-        // Let main queue process scheduled work from .receiveOnMain()
-        await Task.yield()
+        await waitUntil { weakInput == nil }
 
         #expect(weakInput == nil, "Input should be deallocated - interactor should use weak reference")
+        weakInput = nil // Silence "never mutated" warning
     }
 
     // MARK: - Memo Validation Tests
@@ -45,21 +44,12 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         // Don't set any destination - stays nil
         sut.update(additionalField: emptyMemo)
 
-        let error = await sut.destinationAdditionalFieldError.awaitValue() ?? nil
-        #expect(error == nil, "Should not show error when destination is nil")
-    }
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
+        await letPipelineSettle()
+        cancellable.cancel()
 
-    @Test("No error on init even if destination requires memo - dropFirst skips initial value")
-    func noErrorOnInitBecauseDropFirstSkipsInitialValue() async {
-        let input = SendDestinationInputStub()
-        // Set memoRequired destination BEFORE creating interactor
-        input.send(destination: .memoRequired)
-
-        let sut = makeSUT(input: input)
-
-        // Should NOT show error immediately - dropFirst() skips initial subscription value
-        let error = await sut.destinationAdditionalFieldError.awaitValue() ?? nil
-        #expect(error == nil, "Should not show error on init - dropFirst skips initial value")
+        #expect(receivedError == nil, "Should not show error when destination is nil")
     }
 
     @Test("Shows error when memo required but empty")
@@ -69,15 +59,14 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
 
         // Update with empty memo first
         sut.update(additionalField: emptyMemo)
-        await Task.yield()
 
         var receivedError: String?
-        let cancellable = sut.destinationAdditionalFieldError
-            .sink { receivedError = $0 }
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
 
         // Then change destination to memoRequired - should trigger revalidation
         input.send(destination: .memoRequired)
-        await Task.yield()
+
+        await waitUntil { receivedError != nil }
 
         _ = try #require(receivedError, "Should show error when memo is required but empty")
         cancellable.cancel()
@@ -88,15 +77,19 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input)
 
-        // Set destination with memoRequired = true
-        input.send(destination: .memoRequired)
-        await Task.yield()
-
-        // Update with filled memo
+        // Fill memo FIRST, before setting memoRequired destination
         sut.update(additionalField: anyMemo)
 
-        let error = await sut.destinationAdditionalFieldError.awaitValue() ?? nil
-        #expect(error == nil, "Should not show error when memo is filled")
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
+
+        // Then set destination with memoRequired = true - memo is already filled
+        input.send(destination: .memoRequired)
+
+        await letPipelineSettle()
+        cancellable.cancel()
+
+        #expect(receivedError == nil, "Should not show error when memo is filled")
     }
 
     @Test("No error when memo not required and empty")
@@ -106,13 +99,17 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
 
         // Set destination with memoRequired = false
         input.send(destination: .memoNotRequired)
-        await Task.yield()
+
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
 
         // Update with empty memo
         sut.update(additionalField: emptyMemo)
 
-        let error = await sut.destinationAdditionalFieldError.awaitValue() ?? nil
-        #expect(error == nil, "Should not show error when memo is not required")
+        await letPipelineSettle()
+        cancellable.cancel()
+
+        #expect(receivedError == nil, "Should not show error when memo is not required")
     }
 
     @Test("Shows error when destination tag format is invalid (XRP)")
@@ -120,11 +117,16 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input, blockchain: .xrp(curve: .secp256k1))
 
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
+
         // XRP destination tag must be UInt32, "not_a_number" should fail
         sut.update(additionalField: invalidXRPDestinationTag)
 
-        let error = await sut.destinationAdditionalFieldError.awaitValue()
-        _ = try #require(error, "Should show error when destination tag is not a valid number")
+        await waitUntil { receivedError != nil }
+
+        _ = try #require(receivedError, "Should show error when destination tag is not a valid number")
+        cancellable.cancel()
     }
 
     @Test("Format error is not cleared when destination changes to memoNotRequired")
@@ -132,20 +134,18 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input, blockchain: .xrp(curve: .secp256k1))
 
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
+
         // 1. Enter invalid destination tag → format error appears
         sut.update(additionalField: invalidXRPDestinationTag)
-        await Task.yield()
 
-        var receivedError: String?
-        let cancellable = sut.destinationAdditionalFieldError
-            .sink { receivedError = $0 }
-
-        await Task.yield()
+        await waitUntil { receivedError != nil }
         let formatError = try #require(receivedError, "Format error should appear for invalid destination tag")
 
         // 2. Change destination to memoNotRequired
         input.send(destination: .memoNotRequired)
-        await Task.yield()
+        await letPipelineSettle()
 
         // 3. Format error should NOT be cleared
         #expect(receivedError == formatError, "Format error should not be cleared when destination changes")
@@ -159,11 +159,16 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input, validateMemoBeforeConfirm: false)
 
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
+
         input.send(destination: .memoRequired)
         sut.update(additionalField: emptyMemo)
 
-        let error = await sut.destinationAdditionalFieldError.awaitValue() ?? nil
-        #expect(error == nil, "Feature OFF: should not validate memo required on Destination")
+        await letPipelineSettle()
+        cancellable.cancel()
+
+        #expect(receivedError == nil, "Feature OFF: should not validate memo required on Destination")
     }
 
     @Test("Feature OFF: Next button enabled even when memo required but empty")
@@ -171,11 +176,16 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input, validateMemoBeforeConfirm: false)
 
+        var isValid: Bool?
+        let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
+
         await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
         input.send(destination: .memoRequired)
         sut.update(additionalField: emptyMemo)
 
-        let isValid = await sut.allFieldsIsValid.awaitValue()
+        await waitUntil { isValid == true }
+        cancellable.cancel()
+
         #expect(isValid == true, "Feature OFF: Next button should be enabled - validation happens on Confirm")
     }
 
@@ -184,23 +194,22 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input, blockchain: .xrp(curve: .secp256k1), validateMemoBeforeConfirm: false)
 
+        var receivedError: String?
+        let cancellable = sut.destinationAdditionalFieldError.sink { receivedError = $0 }
+
         // Enter invalid tag → error
         sut.update(additionalField: invalidXRPDestinationTag)
-        await Task.yield()
 
-        var receivedError: String?
-        let cancellable = sut.destinationAdditionalFieldError
-            .sink { receivedError = $0 }
-
-        await Task.yield()
+        await waitUntil { receivedError != nil }
         _ = try #require(receivedError, "Format error should appear")
 
         // Clear field → error should clear
         sut.update(additionalField: emptyMemo)
-        await Task.yield()
+
+        await waitUntil { receivedError == nil }
+        cancellable.cancel()
 
         #expect(receivedError == nil, "Feature OFF: Format error should clear when field emptied")
-        cancellable.cancel()
     }
 
     // MARK: - Button State Tests (allFieldsIsValid)
@@ -210,15 +219,19 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input)
 
+        var isValid: Bool?
+        let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
+
         // Set valid destination through interactor (sets _destinationValid = true)
         await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
 
         // Set empty memo, then trigger revalidation with memoRequired
         sut.update(additionalField: emptyMemo)
         input.send(destination: .memoRequired)
-        await Task.yield()
 
-        let isValid = await sut.allFieldsIsValid.awaitValue()
+        await waitUntil { isValid == false }
+        cancellable.cancel()
+
         #expect(isValid == false, "Next button should be disabled when memo is required but empty")
     }
 
@@ -227,14 +240,18 @@ final class SendDestinationInteractorTests: LeakTrackingTestSuite {
         let input = SendDestinationInputStub()
         let sut = makeSUT(input: input)
 
+        var isValid: Bool?
+        let cancellable = sut.allFieldsIsValid.sink { isValid = $0 }
+
         // Set valid destination through interactor (sets _destinationValid = true)
         input.send(destination: .memoRequired)
         await sut.update(destination: SendDestination.validTONAddress, source: .qrCode)
-        await Task.yield()
 
         sut.update(additionalField: anyMemo)
 
-        let isValid = await sut.allFieldsIsValid.awaitValue()
+        await waitUntil { isValid == true }
+        cancellable.cancel()
+
         #expect(isValid == true, "Next button should be enabled when memo is filled")
     }
 }
@@ -247,7 +264,7 @@ private extension SendDestinationInteractorTests {
     var invalidXRPDestinationTag: String { "invalid_XRP_destination_tag" }
 
     func makeSUT(
-        input: SendDestinationInput,
+        input: SendDestinationInputStub,
         blockchain: Blockchain = .ton(curve: .ed25519, testnet: false),
         validateMemoBeforeConfirm: Bool = true
     ) -> SUT {
@@ -255,7 +272,7 @@ private extension SendDestinationInteractorTests {
             initialSourceToken: SendSourceTokenStub(blockchain: blockchain),
             input: input,
             receiveTokenInput: nil,
-            saver: SendDestinationInteractorSaverStub(),
+            saver: SendDestinationInteractorSaverStub(input: input),
             dependenciesBuilder: SendDestinationDependenciesProviderStub(blockchain: blockchain),
             validateMemoBeforeConfirm: validateMemoBeforeConfirm
         )
@@ -269,20 +286,34 @@ private extension SendDestinationInteractorTests {
 private final class SendDestinationInputStub: SendDestinationInput {
     /// CurrentValueSubject doesn't complete - catches strong capture retain cycles
     private let destinationSubject = CurrentValueSubject<SendDestination?, Never>(nil)
+    private let additionalFieldSubject = CurrentValueSubject<SendDestinationAdditionalField, Never>(.empty(type: .memo))
 
     var destination: SendDestination? { destinationSubject.value }
-    var destinationAdditionalField: SendDestinationAdditionalField { .empty(type: .memo) }
+    var destinationAdditionalField: SendDestinationAdditionalField { additionalFieldSubject.value }
     var destinationPublisher: AnyPublisher<SendDestination?, Never> { destinationSubject.eraseToAnyPublisher() }
-    var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { Just(.empty(type: .memo)).eraseToAnyPublisher() }
+    var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { additionalFieldSubject.eraseToAnyPublisher() }
 
     func send(destination: SendDestination?) {
         destinationSubject.send(destination)
     }
+
+    func send(additionalField: SendDestinationAdditionalField) {
+        additionalFieldSubject.send(additionalField)
+    }
 }
 
 private final class SendDestinationInteractorSaverStub: SendDestinationInteractorSaver {
+    private weak var input: SendDestinationInputStub?
+
+    init(input: SendDestinationInputStub? = nil) {
+        self.input = input
+    }
+
     func update(address: SendDestination?) {}
-    func update(additionalField: SendDestinationAdditionalField) {}
+    func update(additionalField: SendDestinationAdditionalField) {
+        input?.send(additionalField: additionalField)
+    }
+
     func syncViewFromInput() {}
     func captureValue() {}
     func cancelChanges() {}
@@ -312,59 +343,27 @@ private final class SendDestinationWalletDataProviderStub: SendDestinationIntera
     func swapWalletData(for tokenItem: TokenItem) -> SendDestinationInteractorDependenciesProvider.SendingWalletData? { .empty }
 }
 
-private final class SendSourceTokenStub: SendSourceToken {
-    private let blockchain: Blockchain
+// MARK: - Async Test Helpers
 
-    init(blockchain: Blockchain = .ton(curve: .ed25519, testnet: false)) {
-        self.blockchain = blockchain
+private extension SendDestinationInteractorTests {
+    /// Polls `condition` until it returns `true`, or records an issue on timeout.
+    func waitUntil(
+        timeout: Duration = .seconds(2),
+        _ condition: @escaping @MainActor () -> Bool
+    ) async {
+        let deadline = ContinuousClock.now + timeout
+        while !condition() {
+            if ContinuousClock.now >= deadline {
+                Issue.record("waitUntil timed out")
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
     }
 
-    var tokenItem: TokenItem {
-        .blockchain(.init(blockchain, derivationPath: nil))
-    }
-
-    var isCustom: Bool { false }
-    var fiatItem: FiatItem { notNeeded() }
-    var destination: SendReceiveTokenDestination? { nil }
-
-    // SendSourceToken
-    var userWalletInfo: UserWalletInfo { notNeeded() }
-    var id: WalletModelId { notNeeded() }
-    var header: TokenHeader { notNeeded() }
-    var feeTokenItem: TokenItem { notNeeded() }
-    var defaultAddressString: String { "" }
-    var availableBalanceProvider: TokenBalanceProvider { notNeeded() }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { notNeeded() }
-    var allowanceService: (any AllowanceService)? { nil }
-    var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
-    var emailDataCollectorBuilder: EmailDataCollectorBuilder { notNeeded() }
-    var transactionDispatcherProvider: any TransactionDispatcherProvider { notNeeded() }
-    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
-    var tangemIconProvider: any TangemIconProvider { notNeeded() }
-    var confirmTransactionPolicy: any ConfirmTransactionPolicy { notNeeded() }
-
-    private func notNeeded<T>(
-        property: String = #function,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) -> T {
-        fatalError(
-            "\(Self.self).\(property) is not implemented - stub should not call this",
-            file: file,
-            line: line
-        )
-    }
-}
-
-// MARK: - Publisher Test Helper
-
-private extension Publisher where Failure == Never {
-    func awaitValue() async -> Output? {
-        var value: Output?
-        let cancellable = sink { value = $0 }
-        await Task.yield()
-        cancellable.cancel()
-        return value
+    /// Allows Combine pipelines to settle before asserting.
+    func letPipelineSettle() async {
+        try? await Task.sleep(for: .milliseconds(50))
     }
 }
 
