@@ -6,6 +6,7 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DIAG_DIR="$HOME/ui-test-diagnostics"
 
 if [ "${PREFLIGHT_SKIP_DIAGNOSTICS:-0}" != "1" ]; then
@@ -50,7 +51,7 @@ echo "=== Cleaning stale Docker state ==="
 if command -v colima &> /dev/null && colima status &> /dev/null; then
   if docker info &> /dev/null; then
     # Remove ALL wiremock containers regardless of count (previous run may have used more)
-    docker ps -aq --filter "name=^/wiremock-[0-9]+$" | xargs docker rm -f 2>/dev/null || true
+    "$SCRIPT_DIR/wiremock-stop.sh"
     echo "Colima is healthy, leaving it running for reuse"
   else
     echo "Colima reports running but Docker daemon is unresponsive, resetting..."
