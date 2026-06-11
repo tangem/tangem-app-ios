@@ -19,6 +19,14 @@ protocol MainNavigationBalanceProvider {
 class CommonMainNavigationBalanceProvider {
     private let balanceFormatter = BalanceFormatter()
 
+    private let balanceFormattingOptions = TotalBalanceFormattingOptions(
+        integerPartFont: .Tangem.Body16.medium,
+        fractionalPartFont: .Tangem.Body16.medium,
+        integerPartColor: .Tangem.Text.Neutral.primary,
+        fractionalPartColor: .Tangem.Text.Neutral.secondary,
+        fractionalPartIncludesDecimalSeparator: true
+    )
+
     private let isUserWalletLocked: Bool
     private let totalBalanceProvider: TotalBalanceProvider
 
@@ -51,7 +59,7 @@ class CommonMainNavigationBalanceProvider {
         let formattedBalance = balanceFormatter.formatFiatBalance(balance)
         return balanceFormatter.formatAttributedTotalBalance(
             fiatBalance: formattedBalance,
-            formattingOptions: .defaultOptions
+            formattingOptions: balanceFormattingOptions
         )
     }
 }
