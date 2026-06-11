@@ -66,14 +66,15 @@ private extension CommonAddFundsBannerVisibilityProvider {
         return balancePublishers
             .combineLatest()
             .map { states in
-                let allLoaded = states.allSatisfy { state in
+                let allResolved = states.allSatisfy { state in
                     switch state {
-                    case .loaded, .empty: true
-                    case .loading, .failed: false
+                    case .loaded: true
+                    case .loading(let cached), .failed(let cached, _): cached != nil
+                    case .empty: false
                     }
                 }
                 let hasPositiveBalance = states.contains { $0.hasAnyPositiveBalance }
-                return allLoaded && !hasPositiveBalance
+                return allResolved && !hasPositiveBalance
             }
             .eraseToAnyPublisher()
     }
