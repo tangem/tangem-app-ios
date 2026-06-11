@@ -8,6 +8,7 @@
 
 import TangemUI
 import TangemAccessibilityIdentifiers
+import TangemLocalization
 
 extension TokenItemViewModel {
     var tokenRowViewData: TangemTokenRowViewData {
@@ -44,7 +45,7 @@ private extension TokenItemViewModel {
         case .rewards(let info):
             .rewards(
                 TangemTokenRowViewData.RewardsInfo(
-                    value: info.rewardValue,
+                    value: rewardString(info: info),
                     isActive: info.isActive,
                     isUpdating: info.isUpdating
                 )
@@ -97,6 +98,14 @@ private extension TokenItemViewModel {
             ),
             priceInfo: priceInfo
         )
+    }
+
+    func rewardString(info: RewardsInfo) -> String {
+        let rewardType = switch info.type {
+        case .apr: Localization.stakingDetailsApr
+        case .apy: Localization.stakingDetailsApy
+        }
+        return "\(rewardType) \(info.rewardValue)"
     }
 
     func makeBalanceValue(from state: LoadableBalanceView.State) -> TangemTokenRowViewData.BalanceValue {
