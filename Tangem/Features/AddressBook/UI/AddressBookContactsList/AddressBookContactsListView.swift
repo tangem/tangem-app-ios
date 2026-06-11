@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 import TangemUIUtils
 
@@ -24,23 +25,12 @@ struct AddressBookContactsListView: View {
                 )
             }
 
-            ForEach(viewModel.contacts) { contact in
-                Text(contact.name)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 8)
+            GroupedSection(viewModel.contacts, isLazy: true) {
+                AddressBookContactView(contact: $0)
             }
+            .horizontalPadding(0)
         }
+        .navigationTitle(Text(Localization.addressBookTitle))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 }
-
-// MARK: - Previews
-
-#if DEBUG
-#Preview {
-    AddressBookContactsListView(
-        viewModel: AddressBookContactsListViewModel(coordinator: AddressBookCoordinator())
-    )
-}
-#endif // DEBUG

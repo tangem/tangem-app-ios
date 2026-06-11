@@ -19,7 +19,7 @@ actor CommonAddressBookRepository {
     /// In-memory cache loaded once from disk, so reads don't hit the disk every time.
     private var cachedAddressBook: AddressBook?
 
-    private nonisolated(unsafe) let addressBookSubject = CurrentValueSubject<AddressBook, Never>([])
+    private nonisolated(unsafe) let addressBookSubject: CurrentValueSubject<AddressBook, Never>
 
     init(
         userWalletId: UserWalletId,
@@ -31,6 +31,8 @@ actor CommonAddressBookRepository {
         self.cryptographer = cryptographer
         self.storage = storage
         self.eTagStorage = eTagStorage
+
+        addressBookSubject = CurrentValueSubject(AddressBook(userWalletId: userWalletId, contacts: []))
     }
 
     /// Loads the address book once from disk and caches it.

@@ -20,6 +20,7 @@ struct AddressBookRowView: View {
                 title: Localization.addressBookTitle,
                 subtitle: Localization.addressBookDescription
             )
+            .verticalAlignment(.center)
             .start {
                 DesignSystem.Icons.Error.regular20.image
                     .padding(.all, DesignSystem.Tokens.Spacing.s100)
@@ -27,7 +28,6 @@ struct AddressBookRowView: View {
                     .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._150)
             }
             .end(icon: DesignSystem.Icons.ChevronRight.regular20)
-            .verticalAlignment(.center)
         }
     }
 }

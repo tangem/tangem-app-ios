@@ -29,20 +29,21 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func save(contact: AddressBookContact) async throws {
-        var addressBook = try await repository.load()
+        let addressBook = try await repository.load()
+        var contacts = addressBook.contacts
 
-        if let index = addressBook.firstIndex(where: { $0.id == contact.id }) {
-            addressBook[index] = contact
+        if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+            contacts[index] = contact
         } else {
-            addressBook.append(contact)
+            contacts.append(contact)
         }
 
-        try await repository.save(addressBook: addressBook)
+        try await repository.save(addressBook: AddressBook(userWalletId: addressBook.userWalletId, contacts: contacts))
     }
 
     func remove(contact: AddressBookContact) async throws {
-        var addressBook = try await repository.load()
-        addressBook.removeAll { $0.id == contact.id }
-        try await repository.save(addressBook: addressBook)
+        let addressBook = try await repository.load()
+        let contacts = addressBook.contacts.filter { $0.id != contact.id }
+        try await repository.save(addressBook: AddressBook(userWalletId: addressBook.userWalletId, contacts: contacts))
     }
 }
