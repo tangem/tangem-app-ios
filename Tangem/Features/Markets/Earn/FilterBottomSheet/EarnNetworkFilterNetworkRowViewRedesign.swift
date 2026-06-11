@@ -14,7 +14,7 @@ struct EarnNetworkFilterNetworkRowViewRedesign: View {
     let input: EarnNetworkFilterNetworkRowInput
 
     @ScaledMetric private var verticalPadding = CGFloat.unit(.x3)
-    @ScaledMetric private var horizontalSpacing = CGFloat.unit(.x2)
+    @ScaledMetric private var horizontalSpacing = CGFloat.unit(.x3)
     @ScaledMetric private var textSpacing = CGFloat.unit(.x1)
     @ScaledMetric private var networkIconSide = CGFloat.unit(.x10)
     @ScaledMetric private var markIconSide = CGFloat.unit(.x5)
@@ -45,10 +45,10 @@ private extension EarnNetworkFilterNetworkRowViewRedesign {
 
             HStack(alignment: .lastTextBaseline, spacing: textSpacing) {
                 Text(input.networkName)
-                    .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 Text(input.currencySymbol)
-                    .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             }
             .lineLimit(1)
 
