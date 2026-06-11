@@ -22,61 +22,64 @@ import Testing
 final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingTestSuite {
     typealias SUT = PendingExpressTxStatusBottomSheetViewModel
 
-    override init() {
-        super.init()
-        InjectedValues[\.keysManager] = StubKeysManager()
-    }
-
     @Test("CEX: ratingViewModel is created when externalTxId exists")
-    func cexRatingViewModelCreated() throws {
-        let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: anyExternalID)
-
-        _ = try #require(sut.ratingViewModel)
+    func cexRatingViewModelCreated() async {
+        await withInjectedKeysManager {
+            let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: anyExternalID)
+            await awaitRatingViewModel(on: sut)
+        }
     }
 
     @Test("DEX: ratingViewModel is created using expressTransactionId when externalTxId is nil")
-    func dexRatingViewModelCreated() throws {
-        let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
-
-        _ = try #require(sut.ratingViewModel)
+    func dexRatingViewModelCreated() async {
+        await withInjectedKeysManager {
+            let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
+            await awaitRatingViewModel(on: sut)
+        }
     }
 
     @Test("ratingViewModel created after transaction updates with externalTxId")
     func ratingViewModelUpdatedWithExternalTxId() async throws {
-        let (sut, subject) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
+        try await withInjectedKeysManager {
+            let (sut, subject) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
 
-        let firstInstance = try #require(sut.ratingViewModel)
+            let firstInstance = try #require(sut.ratingViewModel)
 
-        await sendUpdate(to: subject, externalTxId: anyExternalID)
+            await sendUpdate(to: subject, externalTxId: anyExternalID)
 
-        // Should keep the same instance (created only once)
-        #expect(sut.ratingViewModel === firstInstance)
+            // Should keep the same instance (created only once)
+            #expect(sut.ratingViewModel === firstInstance)
+        }
     }
 
     @Test("ratingViewModel created only once")
     func ratingViewModelCreatedOnlyOnce() async throws {
-        let (sut, subject) = makeSUT(externalTxId: anyExternalID)
+        try await withInjectedKeysManager {
+            let (sut, subject) = makeSUT(externalTxId: anyExternalID)
 
-        let firstInstance = try #require(sut.ratingViewModel)
+            let firstInstance = try #require(sut.ratingViewModel)
 
-        await sendUpdate(to: subject, externalTxId: anyExternalID)
+            await sendUpdate(to: subject, externalTxId: anyExternalID)
 
-        #expect(sut.ratingViewModel === firstInstance)
+            #expect(sut.ratingViewModel === firstInstance)
+        }
     }
 
     @Test("ratingViewModel is available immediately for DEX transactions")
     func ratingViewModelAvailableImmediatelyForDex() throws {
-        let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
+        try withInjectedKeysManagerSync {
+            let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
 
-        var receivedValues: [RatingViewModel?] = []
-        let cancellable = sut.$ratingViewModel.sink { receivedValues.append($0) }
+            var receivedValues: [RatingViewModel?] = []
+            let cancellable = sut.$ratingViewModel.sink { receivedValues.append($0) }
 
-        // Should have ratingViewModel immediately (using expressTransactionId)
-        #expect(receivedValues.count >= 1)
-        let firstValue = try #require(receivedValues.first)
-        _ = try #require(firstValue)
+            // Should have ratingViewModel immediately (using expressTransactionId)
+            #expect(receivedValues.count >= 1)
+            let firstValue = try #require(receivedValues.first)
+            _ = try #require(firstValue)
 
-        cancellable.cancel()
+            cancellable.cancel()
+        }
     }
 }
 
@@ -85,6 +88,36 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
     var anyExternalID: String { "external_123" }
     var anyExpressTransactionId: String { "express_tx_1" }
+
+    // MARK: - Dependency Isolation
+
+    func withInjectedKeysManager<T>(operation: () async throws -> T) async rethrows -> T {
+        let previous = InjectedValues[\.keysManager]
+        InjectedValues[\.keysManager] = KeysManagerStub()
+        defer { InjectedValues[\.keysManager] = previous }
+        return try await operation()
+    }
+
+    func withInjectedKeysManagerSync<T>(operation: () throws -> T) rethrows -> T {
+        let previous = InjectedValues[\.keysManager]
+        InjectedValues[\.keysManager] = KeysManagerStub()
+        defer { InjectedValues[\.keysManager] = previous }
+        return try operation()
+    }
+
+    // MARK: - Async Helpers
+
+    func awaitRatingViewModel(on sut: SUT) async {
+        var localCancellable: AnyCancellable?
+        await confirmation { confirm in
+            localCancellable = sut.$ratingViewModel
+                .compactMap { $0 }
+                .first()
+                .sink { _ in confirm() }
+        }
+        localCancellable?.cancel()
+    }
+
     func sendUpdate(
         to subject: CurrentValueSubject<[PendingTransaction], Never>,
         externalTxId: String
@@ -102,14 +135,14 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
     ) -> (sut: SUT, subject: CurrentValueSubject<[PendingTransaction], Never>) {
         let tx = makePendingTransaction(expressTransactionId: expressTransactionId, externalTxId: externalTxId)
         let subject = CurrentValueSubject<[PendingTransaction], Never>([tx])
-        let manager = StubPendingExpressTransactionsManager(subject: subject)
+        let manager = PendingExpressTransactionsManagerStub(subject: subject)
 
         let sut = SUT(
             pendingTransaction: tx,
             currentTokenItem: makeTokenItem(),
             userWalletInfo: makeUserWalletInfo(),
             pendingTransactionsManager: manager,
-            router: StubRouter(),
+            router: PendingExpressTxStatusRouterStub(),
             isRatingFeatureAvailable: true
         )
 
@@ -163,17 +196,17 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
         UserWalletInfo(
             name: "Test",
             id: UserWalletId(value: Data([0x01, 0x02, 0x03])),
-            config: StubUserWalletConfig(),
+            config: UserWalletConfigStub(),
             refcode: nil,
-            signer: StubTangemSigner(),
-            emailDataProvider: StubEmailDataProvider()
+            signer: TangemSignerStub(),
+            emailDataProvider: EmailDataProviderStub()
         )
     }
 }
 
 // MARK: - Stubs
 
-private final class StubPendingExpressTransactionsManager: PendingExpressTransactionsManager {
+private final class PendingExpressTransactionsManagerStub: PendingExpressTransactionsManager {
     private let subject: CurrentValueSubject<[PendingTransaction], Never>
 
     var pendingTransactions: [PendingTransaction] { subject.value }
@@ -186,142 +219,8 @@ private final class StubPendingExpressTransactionsManager: PendingExpressTransac
     func hideTransaction(with id: String) {}
 }
 
-private final class StubRouter: PendingExpressTxStatusRoutable {
+private final class PendingExpressTxStatusRouterStub: PendingExpressTxStatusRoutable {
     func openURL(_ url: URL) {}
     func openRefundCurrency(walletModel: any WalletModel, userWalletModel: UserWalletModel) {}
     func dismissPendingTxSheet() {}
-}
-
-private final class StubTangemSigner: TangemSigner {
-    var hasNFCInteraction: Bool { false }
-    var latestSignerType: TangemSignerType? { nil }
-
-    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
-        Fail(error: NSError(domain: "stub", code: 0)).eraseToAnyPublisher()
-    }
-
-    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<SignatureInfo, any Error> {
-        Fail(error: NSError(domain: "stub", code: 0)).eraseToAnyPublisher()
-    }
-
-    func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
-        Fail(error: NSError(domain: "stub", code: 0)).eraseToAnyPublisher()
-    }
-}
-
-private final class StubEmailDataProvider: EmailDataProvider {
-    var emailData: [EmailCollectedData] { [] }
-    var emailConfig: EmailConfig? { nil }
-}
-
-private struct StubUserWalletConfig: UserWalletConfig {
-    var cardsCount: Int { 1 }
-    var cardSetLabel: String { "Test" }
-    var defaultName: String { "Test" }
-    var existingCurves: [EllipticCurve] { [] }
-    var createWalletCurves: [EllipticCurve] { [] }
-    var tangemSigner: TangemSigner { StubTangemSigner() }
-    var generalNotificationEvents: [GeneralNotificationEvent] { [] }
-    var isWalletsCreated: Bool { true }
-    var supportedBlockchains: Set<Blockchain> { [] }
-    var defaultBlockchains: [TokenItem] { [] }
-    var persistentBlockchains: [TokenItem] { [] }
-    var embeddedBlockchain: TokenItem? { nil }
-    var emailData: [EmailCollectedData] { [] }
-    var userWalletIdSeed: Data? { nil }
-    var productType: Analytics.ProductType { .wallet }
-    var cardHeaderImage: ImageType? { nil }
-    var walletThumbnailType: ThumbnailWalletViewType? { nil }
-    var cardSessionFilter: SessionFilter { .cardId("test") }
-    var contextBuilder: WalletCreationContextBuilder { fatalError() }
-
-    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability { .available }
-    func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory { fatalError() }
-    func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder { fatalError() }
-    func makeBackupService() -> BackupService { fatalError() }
-    func makeTangemSdk() -> TangemSdk { fatalError() }
-    func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory { fatalError() }
-}
-
-private struct StubKeysManager: KeysManager {
-    var surveySparrow: SurveySparrowKeys {
-        // Decode from JSON since SurveySparrowKeys only has Decodable init in prod
-        let json = """
-        {
-            "domain": "test.surveysparrow.com",
-            "apiKey": "test_token",
-            "swapRating": {
-                "surveyId": "1",
-                "ratingQuestionId": "2",
-                "feedbackQuestionId": "3"
-            }
-        }
-        """
-        return try! JSONDecoder().decode(SurveySparrowKeys.self, from: json.data(using: .utf8)!)
-    }
-
-    // MARK: - Unused properties (fatalError if accessed)
-
-    var appsFlyer: AppsFlyerConfig { fatalError("Not used in tests") }
-    var customerIO: CustomerIOKeys { fatalError("Not used in tests") }
-    var moonPayKeys: MoonPayKeys { fatalError("Not used in tests") }
-    var mercuryoWidgetId: String { fatalError("Not used in tests") }
-    var mercuryoSecret: String { fatalError("Not used in tests") }
-    var blockchainSdkKeysConfig: BlockchainSdkKeysConfig { .stub }
-
-    var tangemComAuthorization: String? { fatalError("Not used in tests") }
-    var infuraProjectId: String { fatalError("Not used in tests") }
-    var utorgSID: String { fatalError("Not used in tests") }
-    var walletConnectProjectId: String { fatalError("Not used in tests") }
-    var expressKeys: ExpressKeys { fatalError("Not used in tests") }
-    var devExpressKeys: ExpressKeys? { fatalError("Not used in tests") }
-    var stakeKitKey: String { fatalError("Not used in tests") }
-    var moralisAPIKey: String { fatalError("Not used in tests") }
-    var blockaidAPIKey: String { fatalError("Not used in tests") }
-    var tangemApiKey: String { "test_api_key" }
-    var tangemApiKeyDev: String { fatalError("Not used in tests") }
-    var tangemApiKeyStage: String { fatalError("Not used in tests") }
-    var amplitudeApiKey: String { fatalError("Not used in tests") }
-    var appsFlyerConfig: AppsFlyerConfig { fatalError("Not used in tests") }
-    var yieldModuleApiKey: String { fatalError("Not used in tests") }
-    var yieldModuleApiKeyDev: String { fatalError("Not used in tests") }
-    var p2pApiKeys: P2PAPIKeys { fatalError("Not used in tests") }
-    var bffStaticToken: String { fatalError("Not used in tests") }
-    var bffStaticTokenDev: String { fatalError("Not used in tests") }
-    var gaslessTxApiKey: String { fatalError("Not used in tests") }
-    var gaslessTxApiKeyDev: String { fatalError("Not used in tests") }
-}
-
-// MARK: - BlockchainSdkKeysConfig Stub
-
-private extension BlockchainSdkKeysConfig {
-    static let stub = BlockchainSdkKeysConfig(
-        blockchairApiKeys: [],
-        blockcypherTokens: [],
-        alchemyApiKey: "",
-        infuraProjectId: "",
-        nowNodesApiKey: "",
-        getBlockCredentials: .init(credentials: []),
-        kaspaSecondaryApiUrl: nil,
-        tronGridApiKey: "",
-        hederaArkhiaApiKey: "",
-        etherscanApiKey: "",
-        koinosProApiKey: "",
-        tonCenterApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
-        fireAcademyApiKeys: .init(mainnetApiKey: "", testnetApiKey: ""),
-        chiaTangemApiKeys: .init(mainnetApiKey: ""),
-        quickNodeSolanaCredentials: .init(apiKey: "", subdomain: ""),
-        quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
-        quickNodeXrpCredentials: .init(apiKey: "", subdomain: ""),
-        quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
-        quickNodeMonadCredentials: .init(apiKey: "", subdomain: ""),
-        bittensorDwellirKey: "",
-        dwellirApiKey: "",
-        bittensorOnfinalityKey: "",
-        tangemAlephiumApiKey: "",
-        blinkApiKey: "",
-        tatumApiKey: "",
-        yieldModuleApiKey: "",
-        gaslessTxApiKey: ""
-    )
 }
