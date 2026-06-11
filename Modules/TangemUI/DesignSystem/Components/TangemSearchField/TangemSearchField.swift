@@ -218,7 +218,11 @@ private extension TangemSearchField {
 
 private extension TangemSearchField {
     func onFieldTap() {
-        focusAction?()
+        if let focusAction {
+            focusAction()
+        } else {
+            isFocused = true
+        }
     }
 
     func onClear() {
