@@ -391,7 +391,7 @@ struct ExpressAPIMapper {
             providerId: record.providerId,
             status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
             rateType: ExpressProviderRateType(rawValue: record.rateType),
-            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: record.externalTxStatus, url: record.externalTxUrl),
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, url: record.externalTxUrl),
             fromAddress: record.fromAddress,
             payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
             payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
@@ -428,7 +428,7 @@ struct ExpressAPIMapper {
             providerId: record.providerId,
             status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
             failReason: record.failReason,
-            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: nil, url: record.externalTxUrl),
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, url: record.externalTxUrl),
             payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
             from: mapToOnrampHistoryFiatAsset(
                 currencyCode: record.fromCurrencyCode,
@@ -449,20 +449,19 @@ struct ExpressAPIMapper {
         )
     }
 
-    private func mapToExternalTxInfo(id: String?, status: String?, url: String?) -> ExternalTxInfo? {
+    private func mapToExternalTxInfo(id: String?, url: String?) -> ExternalTxInfo? {
         guard let id else {
             ExpressLogger.info(
                 String(
-                    format: "External tx info missing required field: id %@ (status %@, url %@)",
+                    format: "External tx info missing required field: id %@ (url %@)",
                     String(describing: id),
-                    String(describing: status),
                     String(describing: url)
                 )
             )
             return nil
         }
 
-        return ExternalTxInfo(id: id, status: status, url: url.flatMap(URL.init(string:)))
+        return ExternalTxInfo(id: id, url: url.flatMap(URL.init(string:)))
     }
 
     private func mapToRefundInfo(address: String?, extraId: String?, network: String?, contractAddress: String?) -> RefundInfo? {

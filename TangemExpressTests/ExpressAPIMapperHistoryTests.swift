@@ -191,7 +191,6 @@ private extension ExpressAPIMapperHistoryTests {
             rateType: "float",
             status: status,
             externalTxId: externalTxId,
-            externalTxStatus: "finished",
             externalTxUrl: "https://provider.example/tx/ext-1",
             payinHash: "0xhash-in",
             payoutHash: "0xhash-out",
