@@ -40,6 +40,10 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
 
     private let refreshScrollViewInteractor: RefreshScrollViewInteractor
 
+    // MARK: - Layout
+
+    @ScaledMetric private var headerTopPadding: CGFloat = .unit(.x6)
+
     // MARK: - Configuration
 
     private let viewportHeight: CGFloat
@@ -166,6 +170,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
         return headerFactory(element)
             .environment(\.pagerStationaryOffset, scrollOffset - pagePosition)
             .environment(\.pagerStationaryOpacity, stationaryOpacity)
+            .padding(.top, headerTopPadding)
             .frame(width: pageWidth)
             .id(element.id)
     }
