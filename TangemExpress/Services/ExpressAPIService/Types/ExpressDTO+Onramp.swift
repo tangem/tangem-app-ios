@@ -271,45 +271,35 @@ extension ExpressDTO {
                 let endCursor: AnyDecodable?
                 /// Opaque cursor (hence `AnyDecodable`) to seed the delta sync.
                 let startDeltaCursor: AnyDecodable?
-                let hasMore: Bool? // [REDACTED_TODO_COMMENT]
-                @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
-                let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
+                let hasMore: Bool
             }
 
             struct Record: Decodable {
                 let txId: String
                 let providerId: String
-                let fromAddress: String
-                let payinAddress: String
-                let payinExtraId: String?
                 let payoutAddress: String
-                let refundAddress: String?
-                let refundExtraId: String?
-                let rateType: String
                 let status: String
+                let failReason: String?
                 let externalTxId: String?
-                let externalTxStatus: String?
                 let externalTxUrl: String?
-                let payinHash: String?
                 let payoutHash: String?
-                let refundNetwork: String?
-                let refundContractAddress: String?
                 let createdAt: Date
-                let updatedAt: Date?
-                let payTill: Date?
-                let averageDuration: TimeInterval?
+                let updatedAt: Date
 
                 // fromCurrency info
-                let fromAmount: String
                 let fromCurrencyCode: String
+                let fromAmount: String
                 let fromPrecision: Int
 
                 // toAsset info
                 let toContractAddress: String
                 let toNetwork: String
                 let toDecimals: Int
-                let toAmount: String
+                let toAmount: String?
                 let toActualAmount: String?
+
+                let paymentMethod: String
+                let countryCode: String
             }
         }
 

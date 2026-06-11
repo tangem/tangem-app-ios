@@ -192,15 +192,13 @@ extension ExpressDTO {
                 let endCursor: AnyDecodable?
                 /// Opaque cursor (hence `AnyDecodable`) to seed the delta sync.
                 let startDeltaCursor: AnyDecodable?
-                let hasMore: Bool? // [REDACTED_TODO_COMMENT]
-                @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
-                let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
+                let hasMore: Bool
             }
 
             struct Record: Decodable {
                 let txId: String
                 let providerId: String
-                let fromAddress: String
+                let fromAddress: String?
                 let payinAddress: String
                 let payinExtraId: String?
                 let payoutAddress: String
@@ -216,7 +214,7 @@ extension ExpressDTO {
                 let refundNetwork: String?
                 let refundContractAddress: String?
                 let createdAt: Date
-                let updatedAt: Date?
+                let updatedAt: Date
                 let payTill: Date?
                 let averageDuration: TimeInterval?
 
