@@ -18,22 +18,53 @@ struct ManageTokensView: View {
     @State private var contentOffset: CGPoint = .zero
     private let style: Style
 
+    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+
     init(viewModel: ManageTokensViewModel, style: Style = .legacy) {
         self.viewModel = viewModel
         self.style = style
     }
 
+    // MARK: - Redesign-aware styling
+
+    private var viewBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level2 : style.viewBackgroundColor
+    }
+
+    private var listBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level3 : style.listBackgroundColor
+    }
+
+    private var listCornerRadius: CGFloat {
+        isRedesign ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
+    }
+
+    private var cardBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+    }
+
+    private var cardCornerRadius: CGFloat {
+        isRedesign ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
+    }
+
+    private var rowTitleFont: Font {
+        isRedesign ? .Tangem.Body15.semibold : Fonts.Bold.subheadline
+    }
+
+    private var rowTitleColor: Color {
+        isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
+    }
+
+    private var accentColor: Color {
+        isRedesign ? Color.Tangem.Graphic.Status.accent : Colors.Icon.accent
+    }
+
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                CustomSearchBar(
-                    searchText: $viewModel.searchText,
-                    placeholder: Localization.commonSearch,
-                    style: style.searchBarStyle,
-                    cancelButtonAction: nil
-                )
-                .padding(.horizontal, style.searchBarHorizontalPadding)
-                .padding(.vertical, 12)
+                searchField
+                    .padding(.horizontal, style.searchBarHorizontalPadding)
+                    .padding(.vertical, 12)
 
                 if style.showsScrollDivider, contentOffset.y > 0 {
                     Divider()
@@ -45,8 +76,8 @@ struct ManageTokensView: View {
 
                 ManageTokensListView(viewModel: viewModel.manageTokensListViewModel, header: customTokensList)
                     .addContentOffsetObserver($contentOffset)
-                    .backgroundColor(style.listBackgroundColor)
-                    .roundedCorners(style.listHasRoundedCorners)
+                    .backgroundColor(listBackgroundColor)
+                    .roundedCorners(style.listHasRoundedCorners, radius: listCornerRadius)
             }
             .padding(.horizontal, style.outerHorizontalPadding)
 
@@ -70,7 +101,7 @@ struct ManageTokensView: View {
                 .animation(.default, value: viewModel.isPendingListEmpty)
             }
         }
-        .background(style.viewBackgroundColor.ignoresSafeArea())
+        .background(viewBackgroundColor.ignoresSafeArea())
         .navigationTitle(Text(Localization.addTokensTitle))
         .scrollDismissesKeyboard(.immediately)
         .keyboardType(.alphabet)
@@ -89,12 +120,36 @@ struct ManageTokensView: View {
         viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
     }
 
+    @ViewBuilder
+    private var searchField: some View {
+        if isRedesign {
+            TangemSearchField(
+                text: $viewModel.searchText,
+                clearAction: { viewModel.searchText = "" },
+                cancelAction: {
+                    viewModel.searchText = ""
+                    UIApplication.shared.endEditing()
+                }
+            )
+            .placeholder(text: Localization.commonSearch)
+            .cornerStyle(.capsule)
+            .frame(height: Constants.redesignSearchFieldHeight)
+        } else {
+            CustomSearchBar(
+                searchText: $viewModel.searchText,
+                placeholder: Localization.commonSearch,
+                style: style.searchBarStyle,
+                cancelButtonAction: nil
+            )
+        }
+    }
+
     private var addCustomTokenRow: some View {
         Button(action: viewModel.openAddCustomToken) {
             HStack(spacing: 12) {
                 ZStack(alignment: .center) {
                     RoundedRectangle(cornerRadius: 18)
-                        .fill(Colors.Icon.accent.opacity(0.1))
+                        .fill(accentColor.opacity(0.1))
                         .frame(width: 36, height: 36)
 
                     Assets.plus24.image
@@ -102,19 +157,19 @@ struct ManageTokensView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 18, height: 18)
-                        .foregroundStyle(Colors.Icon.accent)
+                        .foregroundStyle(accentColor)
                 }
 
                 Text(Localization.addCustomTokenTitle)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(rowTitleFont, color: rowTitleColor)
 
                 Spacer(minLength: 0)
             }
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Colors.Background.action)
+                RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                    .fill(cardBackgroundColor)
             )
             .contentShape(.rect)
         }
@@ -174,6 +229,16 @@ extension ManageTokensView {
             case toolbar
             case inlineRow
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension ManageTokensView {
+    enum Constants {
+        static let cardCornerRadius: CGFloat = 14
+        static let redesignCardCornerRadius: CGFloat = .unit(.x5)
+        static let redesignSearchFieldHeight: CGFloat = .unit(.x11)
     }
 }
 
