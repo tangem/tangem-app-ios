@@ -103,6 +103,13 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
             )
         else { return [] }
 
+        let walletModelsDescription = AccountWalletModelsAggregator.walletModels(from: accountModelsManager).map { walletModel in
+            "\(walletModel.tokenItem.name) \(walletModel.tokenItem.blockchain.displayName) [\(walletModel.addressesString.joined(separator: ", "))]"
+        }
+        .joined(separator: "\n")
+
+        WCLogger.info("Wallet models for account \(accountId):\n\(walletModelsDescription)")
+
         return cryptoAccountModel.walletModelsManager.walletModels.filter(\.isAvailableForWalletConnect)
     }
 
