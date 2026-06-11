@@ -48,6 +48,7 @@ enum Feature: String, Hashable, CaseIterable {
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case addAndOrganizeRedesign
 
     var name: String {
         switch self {
@@ -90,6 +91,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
         }
     }
 
@@ -134,6 +136,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return .version("5.40")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
+        case .addAndOrganizeRedesign: return .version("5.40")
         }
     }
 }
