@@ -39,10 +39,7 @@ protocol WalletModel:
     var qrReceiveMessage: String { get }
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
-
     var sendingRestrictions: SendingRestrictions? { get }
-
-    var features: [WalletModelFeature] { get }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
     // MARK: - Staking
