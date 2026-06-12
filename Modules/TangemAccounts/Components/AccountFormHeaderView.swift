@@ -10,19 +10,20 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUIUtils
-import TangemLocalization
 
 public struct AccountFormHeaderView: View {
     @Binding var accountName: String
     @State private var originalTextFieldHeight: CGFloat = 0
     @FocusState.Binding private var isFocused: Bool
 
+    private let title: String
     private let maxCharacters: Int
     private let placeholderText: String
     private let accountIconViewData: AccountIconView.ViewData
 
     public init(
         accountName: Binding<String>,
+        title: String,
         maxCharacters: Int,
         placeholderText: String,
         accountIconViewData: AccountIconView.ViewData,
@@ -30,6 +31,7 @@ public struct AccountFormHeaderView: View {
     ) {
         _accountName = accountName
         _isFocused = isFocused
+        self.title = title
         self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
         self.accountIconViewData = accountIconViewData
@@ -40,7 +42,7 @@ public struct AccountFormHeaderView: View {
             colorWithPreview
                 .padding(.bottom, 34)
 
-            Text(Localization.accountFormName)
+            Text(title)
                 .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
             nameInput
@@ -93,6 +95,7 @@ public struct AccountFormHeaderView: View {
         VStack {
             AccountFormHeaderView(
                 accountName: $accountName,
+                title: "Name",
                 maxCharacters: 20,
                 placeholderText: "New account",
                 accountIconViewData: .composite(
@@ -104,6 +107,7 @@ public struct AccountFormHeaderView: View {
 
             AccountFormHeaderView(
                 accountName: $accountName,
+                title: "Name",
                 maxCharacters: 20,
                 placeholderText: "New account",
                 accountIconViewData: .composite(
