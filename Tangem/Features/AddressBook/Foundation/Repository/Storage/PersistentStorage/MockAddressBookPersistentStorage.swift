@@ -53,9 +53,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil),
                         address: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
@@ -65,9 +65,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil),
                         address: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
@@ -77,9 +77,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.tron(testnet: false), derivationPath: nil),
                         address: "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE",
-                        memo: "User memo 12345"
+                        memo: "User memo 12345",
+                        networks: [BlockchainNetwork(.tron(testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
@@ -89,14 +89,30 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil),
                         address: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil)]
                     ),
                     AddressBookAddress(
-                        network: BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil),
                         address: "0x2bDfDd3e3e3F4F33dD3df3f3F3f3F3F3F3f3F3f3",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)]
+                    ),
+                ]
+            ),
+            AddressBookContact(
+                id: UUID(),
+                name: "EVM Multichain",
+                icon: "",
+                addresses: [
+                    AddressBookAddress(
+                        address: "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
+                        memo: nil,
+                        networks: [
+                            BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil),
+                            BlockchainNetwork(.polygon(testnet: false), derivationPath: nil),
+                            BlockchainNetwork(.bsc(testnet: false), derivationPath: nil),
+                        ]
                     ),
                 ]
             ),
@@ -108,9 +124,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.litecoin, derivationPath: nil),
                         address: "LcHK4ahcfYpYbabsXAY3F2vGz9LkN5MYg5",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.litecoin, derivationPath: nil)]
                     ),
                 ]
             ),
@@ -120,9 +136,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.solana(curve: .ed25519, testnet: false), derivationPath: nil),
                         address: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.solana(curve: .ed25519, testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
@@ -132,9 +148,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil),
                         address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.bitcoin(testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
@@ -146,9 +162,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil),
                         address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-                        memo: nil
+                        memo: nil,
+                        networks: [BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
@@ -158,9 +174,9 @@ private extension MockAddressBookPersistentStorage {
                 icon: "",
                 addresses: [
                     AddressBookAddress(
-                        network: BlockchainNetwork(.tron(testnet: false), derivationPath: nil),
                         address: "TJRyWwFs9wTFGZg3JbrVriFbNfCug5tDeC",
-                        memo: "Payouts"
+                        memo: "Payouts",
+                        networks: [BlockchainNetwork(.tron(testnet: false), derivationPath: nil)]
                     ),
                 ]
             ),
