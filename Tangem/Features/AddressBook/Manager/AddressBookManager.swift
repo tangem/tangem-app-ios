@@ -1,0 +1,30 @@
+//
+//  AddressBookManager.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+
+/// Per-wallet facade over the address book. Verifies signatures on load, enforces the uniqueness
+/// invariants, and signs (or re-signs) entries on every mutation that changes the signed tuple.
+/// Deletes and reads never require a signature.
+@MainActor
+protocol AddressBookManager: AnyObject {
+    /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped;
+    /// a contact whose every entry is invalid surfaces as `.allEntriesInvalid`.
+    var contactsPublisher: AnyPublisher<[ContactReadModel], Never> { get }
+    var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
+
+    func load() async
+
+    func createContact(name: ContactName, entries: [AddressBookEntryDraft]) async throws
+    func renameContact(id: ContactID, to name: ContactName) async throws
+    func addEntries(_ entries: [AddressBookEntryDraft], toContactWith id: ContactID) async throws
+    func updateEntry(id: AddressEntryID, inContactWith contactId: ContactID, to draft: AddressBookEntryDraft) async throws
+    func deleteEntry(id: AddressEntryID, fromContactWith contactId: ContactID) async throws
+    func deleteContact(id: ContactID) async throws
+}
