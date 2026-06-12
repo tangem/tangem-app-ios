@@ -28,6 +28,7 @@
 		B62C16812CBE0BA000522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16802CBE0BA000522683 /* Alamofire */; };
 		B63DFC4E2CD4EABB00720D9F /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B63DFC4D2CD4EABB00720D9F /* TangemModules */; };
 		B6457BD02F9120CA00C91066 /* TangemMacro in Frameworks */ = {isa = PBXBuildFile; productRef = B6457BCF2F9120CA00C91066 /* TangemMacro */; };
+		B650AE8F2FDBFB6B009ECF03 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B650AE8E2FDBFB6B009ECF03 /* AnyCodable */; };
 		B67E38BB2CC7179000D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BA2CC7179000D660EB /* TangemSdk */; };
 		B67E38BF2CC717A300D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38BE2CC717A300D660EB /* TangemSdk */; };
 		B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C02CC71A2C00D660EB /* TangemSdk */; };
@@ -411,6 +412,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */,
+				B650AE8F2FDBFB6B009ECF03 /* AnyCodable in Frameworks */,
 				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7686,6 +7688,11 @@
 		B6457BCF2F9120CA00C91066 /* TangemMacro */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TangemMacro;
+		};
+		B650AE8E2FDBFB6B009ECF03 /* AnyCodable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */;
+			productName = AnyCodable;
 		};
 		B67E38BA2CC7179000D660EB /* TangemSdk */ = {
 			isa = XCSwiftPackageProductDependency;
