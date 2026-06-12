@@ -30,6 +30,7 @@ struct AddressBookContactManagementView: View {
                         NavigationToolbarButton
                             .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
                     }
+                    .alert(item: $viewModel.errorAlert) { $0.alert }
 
                 bottomButton
             }
