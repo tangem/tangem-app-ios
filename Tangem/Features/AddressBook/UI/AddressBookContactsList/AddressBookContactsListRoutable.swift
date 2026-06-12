@@ -8,4 +8,6 @@
 
 import Foundation
 
-protocol AddressBookContactsListRoutable: AnyObject {}
+protocol AddressBookContactsListRoutable: AnyObject {
+    func openAddContact()
+}
