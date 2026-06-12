@@ -48,7 +48,7 @@ final actor TransactionHistoryProvider {
 
     private func markInitialSyncCompleted() {
         _hasCompletedInitialSync = true
-        // Fire and forget, we don't need to await this because we have an actor-protected value
+        // Fire-and-forget, we don't need to await this because we have an actor-protected value
         runTask { [syncMetadataStorage] in
             let storage = await syncMetadataStorage()
             await MainActor.run { storage.hasCompletedInitialSync = true }
@@ -230,6 +230,20 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
 
         inFlightIncrementalSyncTask = newSyncTask
         await newSyncTask.value
+    }
+}
+
+// MARK: - TransactionHistoryExpressDataEnriching protocol conformance
+
+extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
+    func enrich(with transaction: SentSwapTransactionData) async {
+        do {
+            let exchangeTransaction = SentExpressTransactionHistoryMapper.mapToExchangeTransaction(transaction)
+            try await repository.add(exchangeTransaction)
+            TransactionHistoryLogger.debug(self, "Enriched with sent swap transaction: \(exchangeTransaction.txId)")
+        } catch {
+            TransactionHistoryLogger.error(self, "Failed to enrich with sent swap transaction", error: error)
+        }
     }
 }
 
