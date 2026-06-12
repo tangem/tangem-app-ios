@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemAssets
 import TangemAccounts
+import TangemLocalization
 import TangemFoundation
 
 final class AddressBookContactManagementViewModel: ObservableObject, Identifiable {
@@ -17,6 +18,8 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     @Published var contactName: String = ""
     @Published var selectedColor: GridItemColor<AccountModel.CompositeIcon.Color>
+
+    var title: String { mode.title }
 
     var addressesSection: [AddressRowType] {
         var types: [AddressRowType] = addressesRowViewModels.map { .address($0) }
@@ -50,6 +53,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     private weak var coordinator: AddressBookContactManagementRoutable?
     private let addressBookManager: AddressBookManager
+    private let mode: Mode
 
     private var nameMode: AccountIconView.NameMode {
         if let firstLetter = contactName.trimmed().first {
@@ -60,20 +64,28 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     init(
-        coordinator: AddressBookContactManagementRoutable,
-        addressBookManager: AddressBookManager
+        mode: Mode,
+        addressBookManager: AddressBookManager,
+        coordinator: AddressBookContactManagementRoutable
     ) {
-        self.coordinator = coordinator
+        self.mode = mode
         self.addressBookManager = addressBookManager
+        self.coordinator = coordinator
 
         let newIcon = AccountModelUtils.UI.newAccountIcon()
         selectedColor = GridItemColor(
             id: newIcon.color,
             color: AccountModelUtils.UI.iconColor(from: newIcon.color)
         )
+
+        setupView(mode: mode)
     }
 
-    func dismiss() {
+    func userDidRequestDismiss() {
+        coordinator?.dismissContactManagement()
+    }
+
+    func userDidRequestDone() {
         coordinator?.dismissContactManagement()
     }
 }
@@ -81,21 +93,47 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 // MARK: - Private
 
 private extension AddressBookContactManagementViewModel {
-    func setupView() {}
+    func setupView(mode: Mode) {
+        switch mode {
+        case .add:
+            break
+        case .edit(let contact):
+            contactName = contact.name
+            addressesRowViewModels = contact.addresses.map(AddressBookContactAddressRowViewModel.init)
+        }
+
+        addNewAddressRowViewModel = AddressBookContactAddNewAddressRowViewModel(
+            action: { [weak self] in self?.addNewAddress() }
+        )
+    }
+
+    func addNewAddress() {}
 }
 
 // MARK: - Types
 
 extension AddressBookContactManagementViewModel {
+    enum Mode {
+        case add
+        case edit(contact: AddressBookContact)
+
+        var title: String {
+            switch self {
+            case .add: return Localization.addressBookAddContact
+            case .edit: return "Contact"
+            }
+        }
+    }
+
     enum AddressRowType: Identifiable {
+        case address(AddressBookContactAddressRowViewModel)
+        case addNewAddress(AddressBookContactAddNewAddressRowViewModel)
+
         var id: String {
             switch self {
             case .address(let viewModel): viewModel.id
-            case .addNewAddress(let viewModel): "AddressBookContactAddNewAddressRowViewModel"
+            case .addNewAddress: "AddressBookContactAddNewAddressRowViewModel"
             }
         }
-
-        case address(AddressBookContactAddressRowViewModel)
-        case addNewAddress(AddressBookContactAddNewAddressRowViewModel)
     }
 }

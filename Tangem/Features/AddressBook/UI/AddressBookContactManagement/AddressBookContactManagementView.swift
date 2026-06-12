@@ -20,31 +20,50 @@ struct AddressBookContactManagementView: View {
 
     var body: some View {
         NavigationStack {
-            GroupedScrollView(contentType: .lazy(spacing: 16)) {
-                AccountFormHeaderView(
-                    accountName: $viewModel.contactName,
-                    title: Localization.addressBookContactName,
-                    maxCharacters: viewModel.maxNameLength,
-                    placeholderText: Localization.addressBookNewContact,
-                    accountIconViewData: viewModel.iconViewData,
-                    isFocused: $isNameFocused
-                )
-
-                AccountFormGridView(
-                    selectedItem: $viewModel.selectedColor,
-                    items: viewModel.colors,
-                    content: { colorItem, isSelected in
-                        makeColorItem(color: colorItem.color, isSelected: isSelected)
+            ZStack(alignment: .bottom) {
+                scrollContent
+                    .scrollDismissesKeyboard(.interactively)
+                    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+                    .navigationTitle(Text(viewModel.title))
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        NavigationToolbarButton
+                            .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
                     }
-                )
+
+                bottomButton
             }
-            .scrollDismissesKeyboard(.automatic)
-            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-            .navigationTitle(Text("Contact"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.dismiss)
+        }
+    }
+
+    private var scrollContent: some View {
+        GroupedScrollView(contentType: .lazy(spacing: 16)) {
+            AccountFormHeaderView(
+                accountName: $viewModel.contactName,
+                title: Localization.addressBookContactName,
+                maxCharacters: viewModel.maxNameLength,
+                placeholderText: Localization.addressBookNewContact,
+                accountIconViewData: viewModel.iconViewData,
+                isFocused: $isNameFocused
+            )
+
+            AccountFormGridView(
+                selectedItem: $viewModel.selectedColor,
+                items: viewModel.colors,
+                content: { colorItem, isSelected in
+                    makeColorItem(color: colorItem.color, isSelected: isSelected)
+                }
+            )
+
+            GroupedSection(viewModel.addressesSection) { rowType in
+                switch rowType {
+                case .address(let rowViewModel):
+                    AddressBookContactAddressRowView(viewModel: rowViewModel)
+                case .addNewAddress(let rowViewModel):
+                    AddressBookContactAddNewAddressRowView(viewModel: rowViewModel)
+                }
             }
+            .horizontalPadding(0)
         }
     }
 
@@ -61,5 +80,17 @@ struct AddressBookContactManagementView: View {
                 Circle()
                     .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
             )
+    }
+
+    private var bottomButton: some View {
+        TangemButton(
+            content: .text(AttributedString(Localization.commonDone)),
+            action: viewModel.userDidRequestDone
+        )
+        .setCornerStyle(.rounded)
+        .setHorizontalLayout(.infinity)
+        .setSize(.x12)
+        .setStyleType(.primary)
+        .padding(.horizontal, 16)
     }
 }

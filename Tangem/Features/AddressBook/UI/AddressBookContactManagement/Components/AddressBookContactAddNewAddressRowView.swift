@@ -19,7 +19,11 @@ struct AddressBookContactAddNewAddressRowView: View {
     let viewModel: AddressBookContactAddNewAddressRowViewModel
 
     var body: some View {
-        TangemRow(title: Localization.addressBookAddAddress, subtitle: Localization.addressBookAddAddressDescription)
+        Button(action: viewModel.action) {
+            TangemRow(
+                title: Localization.addressBookAddAddress,
+                subtitle: Localization.addressBookAddAddressDescription
+            )
             .verticalAlignment(.center)
             .start {
                 DesignSystem.Icons.SignPlus.regular20.image
@@ -27,5 +31,7 @@ struct AddressBookContactAddNewAddressRowView: View {
                     .background(DesignSystem.Tokens.Theme.Bg.Status.infoSubtle)
                     .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._150)
             }
+            .contentShape(Rectangle())
+        }
     }
 }

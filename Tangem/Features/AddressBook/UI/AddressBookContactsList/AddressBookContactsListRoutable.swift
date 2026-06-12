@@ -10,4 +10,5 @@ import Foundation
 
 protocol AddressBookContactsListRoutable: AnyObject {
     func openAddContact(addressBookManager: AddressBookManager)
+    func openEditContact(addressBookManager: AddressBookManager, contact: AddressBookContact)
 }

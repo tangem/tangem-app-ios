@@ -17,6 +17,10 @@ public extension TangemButtonV2 {
         case label(AttributedString, iconStart: ImageType?, iconEnd: ImageType?)
         case iconOnly(ImageType)
 
+        public static func text(_ text: String) -> Content {
+            .label(AttributedString(text), iconStart: nil, iconEnd: nil)
+        }
+
         public static func label(_ text: AttributedString) -> Content {
             .label(text, iconStart: nil, iconEnd: nil)
         }

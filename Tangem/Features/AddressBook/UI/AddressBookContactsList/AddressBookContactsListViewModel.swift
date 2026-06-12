@@ -15,7 +15,7 @@ final class AddressBookContactsListViewModel: ObservableObject {
 
     @Published var selectedChipId: String?
     @Published private(set) var walletChips: [Chip] = []
-    @Published private(set) var contacts: [AddressBookContact] = []
+    @Published private(set) var contactsViewModels: [AddressBookContactViewModel] = []
 
     // MARK: - Dependencies
 
@@ -39,9 +39,7 @@ final class AddressBookContactsListViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        guard let addressBook = addressBooks.first(where: { $0.wallet.id.stringValue == selectedChipId }) else {
-            return
-        }
+        guard let addressBook = selectedAddressBook else { return }
 
         coordinator?.openAddContact(addressBookManager: addressBook.addressBookManager)
     }
@@ -50,6 +48,10 @@ final class AddressBookContactsListViewModel: ObservableObject {
 // MARK: - Private
 
 private extension AddressBookContactsListViewModel {
+    var selectedAddressBook: AddressBookWallet? {
+        addressBooks.first { $0.wallet.id.stringValue == selectedChipId }
+    }
+
     func setupChips() {
         guard addressBooks.count >= 2 else {
             walletChips = []
@@ -70,15 +72,26 @@ private extension AddressBookContactsListViewModel {
 
     func bind() {
         $selectedChipId
-            .map { [addressBooks] selectedId -> AnyPublisher<[AddressBookContact], Never> in
-                guard let addressBook = addressBooks.first(where: { $0.wallet.id.stringValue == selectedId }) else {
-                    return Just([]).eraseToAnyPublisher()
-                }
-
-                return addressBook.addressBookPublisher.map(\.contacts).eraseToAnyPublisher()
+            .withWeakCaptureOf(self)
+            .compactMap { viewModel, selectedChipId -> AddressBookWallet? in
+                viewModel.addressBooks
+                    .first(where: { $0.wallet.id.stringValue == selectedChipId })
             }
-            .switchToLatest()
+            .withWeakCaptureOf(self)
+            .flatMapLatest { viewModel, addressBook in
+                addressBook.addressBookPublisher
+                    .withWeakCaptureOf(viewModel)
+                    .map { $0.mapToAddressBookContactViewModels(addressBook: addressBook, contacts: $1.contacts) }
+            }
             .receive(on: DispatchQueue.main)
-            .assign(to: &$contacts)
+            .assign(to: &$contactsViewModels)
+    }
+
+    func mapToAddressBookContactViewModels(addressBook: AddressBookWallet, contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+        contacts.map { contact in
+            AddressBookContactViewModel(contact: contact) { [weak self] in
+                self?.coordinator?.openEditContact(addressBookManager: addressBook.addressBookManager, contact: contact)
+            }
+        }
     }
 }

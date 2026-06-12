@@ -9,6 +9,8 @@
 import Foundation
 
 struct AddressBookContact: Codable, Hashable, Identifiable {
+    var firstLetter: String { "\(name.prefix(1).uppercased())" }
+
     let id: UUID
     let name: String
     let icon: String
