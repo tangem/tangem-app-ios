@@ -25,7 +25,8 @@ struct ExpressAPIMapperTransactionTests {
             pagination: ExpressDTO.Swap.History.Pagination(
                 endCursor: AnyDecodable("cursor-end"),
                 startDeltaCursor: AnyDecodable("cursor-delta"),
-                hasMore: true
+                hasMore: true,
+                hasNextPage: nil
             )
         )
 
@@ -67,7 +68,7 @@ struct ExpressAPIMapperTransactionTests {
                     updatedAt: nil
                 ),
             ],
-            pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
+            pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: nil, hasNextPage: nil)
         )
 
         let page = try mapper.mapToExchangeHistoryPage(response: response)
@@ -78,7 +79,7 @@ struct ExpressAPIMapperTransactionTests {
         #expect(record.externalTx == nil)
         #expect(record.refund == nil)
         #expect(record.updatedAt == record.createdAt) // Nil `updatedAt` in the DTO falls back to `createdAt` during mapping
-        #expect(!page.hasMore)
+        #expect(!page.hasMore) // Both `hasMore` and the legacy `hasNextPage` are nil, so `hasMore` defaults to false
         #expect(page.nextCursor == nil)
     }
 
@@ -101,13 +102,14 @@ struct ExpressAPIMapperTransactionTests {
             pagination: ExpressDTO.Onramp.History.Pagination(
                 endCursor: AnyDecodable("cursor-end"),
                 startDeltaCursor: nil,
-                hasMore: false
+                hasMore: nil,
+                hasNextPage: true
             )
         )
 
         let page = try mapper.mapToOnrampHistoryPage(response: response)
 
-        #expect(!page.hasMore)
+        #expect(page.hasMore) // Nil `hasMore` falls back to the legacy `hasNextPage` field
         #expect(page.records.count == 2)
 
         let pending = try #require(page.records.first)
@@ -142,7 +144,7 @@ struct ExpressAPIMapperTransactionTests {
     func onrampUnknownStatusFallback() throws {
         let response = ExpressDTO.Onramp.History.Response(
             items: [Self.makeOnrampTransaction(status: "exchange-tx-sent")],
-            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
+            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false, hasNextPage: nil)
         )
 
         let page = try mapper.mapToOnrampHistoryPage(response: response)
@@ -169,7 +171,7 @@ struct ExpressAPIMapperTransactionTests {
     func malformedDecimalAmountThrows() throws {
         let response = ExpressDTO.Onramp.History.Response(
             items: [Self.makeOnrampTransaction(toAmount: "not-a-decimal")],
-            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
+            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false, hasNextPage: nil)
         )
 
         #expect(throws: (any Error).self) {
