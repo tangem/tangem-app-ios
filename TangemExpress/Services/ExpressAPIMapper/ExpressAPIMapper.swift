@@ -159,36 +159,6 @@ struct ExpressAPIMapper {
         }
     }
 
-    func mapToExpressTransaction(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressTransaction {
-        ExpressTransaction(
-            providerId: .init(response.providerId),
-            externalStatus: ExpressTransactionStatus(rawValue: response.status) ?? .unknown,
-            refundedCurrency: mapToRefundedExpressCurrency(response: response),
-            externalTxId: response.externalTxId,
-            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:)),
-            averageDuration: response.averageDuration,
-            createdAt: response.createdAt
-        )
-    }
-
-    private func mapToRefundedExpressCurrency(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressCurrency? {
-        guard
-            let refundContractAddress = response.refundContractAddress,
-            let refundNetwork = response.refundNetwork
-        else {
-            ExpressLogger.info(
-                String(
-                    format: "Refunded currency missing required fields: refundContractAddress %@, refundNetwork %@",
-                    String(describing: response.refundContractAddress),
-                    String(describing: response.refundNetwork)
-                )
-            )
-            return nil
-        }
-
-        return ExpressCurrency(contractAddress: refundContractAddress, network: refundNetwork)
-    }
-
     // MARK: - Onramp
 
     func mapToOnrampFiatCurrency(response: ExpressDTO.Onramp.FiatCurrency) -> OnrampFiatCurrency {
@@ -327,31 +297,11 @@ struct ExpressAPIMapper {
         )
     }
 
-    func mapToOnrampTransaction(response: ExpressDTO.Onramp.Status.Response) throws -> OnrampTransaction {
-        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
-            throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
-        }
-
-        fromAmount /= pow(10, response.fromPrecision)
-
-        let toAmount = response.toAmount
-            .flatMap { Decimal(stringValue: $0) }
-            .map { $0 / pow(10, response.toDecimals) }
-
-        return OnrampTransaction(
-            fromAmount: fromAmount,
-            toAmount: toAmount,
-            status: OnrampTransactionStatus(rawValue: response.status) ?? .unknown,
-            externalTxId: response.externalTxId,
-            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
-        )
-    }
-
-    // MARK: - History
+    // MARK: - Transactions & history
 
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.History.Response) throws -> ExchangeHistoryPage {
         try ExchangeHistoryPage(
-            records: response.items.map(mapToExchangeHistoryRecord(record:)),
+            records: response.items.map(mapToExchangeTransaction(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
             hasMore: response.pagination.hasMore
@@ -360,7 +310,7 @@ struct ExpressAPIMapper {
 
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.HistoryDelta.Response) throws -> ExchangeHistoryPage {
         try ExchangeHistoryPage(
-            records: response.items.map(mapToExchangeHistoryRecord(record:)),
+            records: response.items.map(mapToExchangeTransaction(record:)),
             nextCursor: response.pagination.startCursor?.value,
             startDeltaCursor: nil,
             hasMore: response.pagination.hasMore
@@ -369,7 +319,7 @@ struct ExpressAPIMapper {
 
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.History.Response) throws -> OnrampHistoryPage {
         try OnrampHistoryPage(
-            records: response.items.map(mapToOnrampHistoryRecord(record:)),
+            records: response.items.map(mapToOnrampTransaction(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
             hasMore: response.pagination.hasMore
@@ -378,15 +328,15 @@ struct ExpressAPIMapper {
 
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.HistoryDelta.Response) throws -> OnrampHistoryPage {
         try OnrampHistoryPage(
-            records: response.items.map(mapToOnrampHistoryRecord(record:)),
+            records: response.items.map(mapToOnrampTransaction(record:)),
             nextCursor: response.pagination.startCursor?.value,
             startDeltaCursor: nil,
             hasMore: response.pagination.hasMore
         )
     }
 
-    private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
-        try ExchangeHistoryRecord(
+    func mapToExchangeTransaction(record: ExpressDTO.Swap.Transaction) throws -> ExchangeTransaction {
+        try ExchangeTransaction(
             txId: record.txId,
             providerId: record.providerId,
             status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
@@ -422,8 +372,8 @@ struct ExpressAPIMapper {
         )
     }
 
-    private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
-        try OnrampHistoryRecord(
+    func mapToOnrampTransaction(record: ExpressDTO.Onramp.Transaction) throws -> OnrampTransaction {
+        try OnrampTransaction(
             txId: record.txId,
             providerId: record.providerId,
             status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
