@@ -1,5 +1,5 @@
 //
-//  ExpressAPIMapperHistoryTests.swift
+//  ExpressAPIMapperTransactionTests.swift
 //  TangemExpressTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,8 +12,8 @@ import AnyCodable
 import TangemFoundation
 @testable import TangemExpress
 
-@Suite("Express history mapping — exchange/onramp records and pagination")
-struct ExpressAPIMapperHistoryTests {
+@Suite("Express transaction mapping — exchange/onramp transactions and history pagination")
+struct ExpressAPIMapperTransactionTests {
     private let mapper = ExpressAPIMapper(exchangeDataDecoder: StubExpressExchangeDataDecoder())
 
     // MARK: - Exchange
@@ -21,7 +21,7 @@ struct ExpressAPIMapperHistoryTests {
     @Test("Exchange history page maps records, opaque cursors, and `hasMore`")
     func exchangeHistoryPageMapping() throws {
         let response = ExpressDTO.Swap.History.Response(
-            items: [Self.makeExchangeRecord()],
+            items: [Self.makeExchangeTransaction()],
             pagination: ExpressDTO.Swap.History.Pagination(
                 endCursor: AnyDecodable("cursor-end"),
                 startDeltaCursor: AnyDecodable("cursor-delta"),
@@ -52,11 +52,11 @@ struct ExpressAPIMapperHistoryTests {
         #expect(record.createdAt < record.updatedAt)
     }
 
-    @Test("Exchange record without optional fields maps them to nil, unknown status falls back to `.unknown`")
+    @Test("Exchange transaction without optional fields maps them to nil, unknown status falls back to `.unknown`")
     func exchangeRecordOptionalFieldsAndUnknownStatus() throws {
         let response = ExpressDTO.Swap.History.Response(
             items: [
-                Self.makeExchangeRecord(
+                Self.makeExchangeTransaction(
                     fromAddress: nil,
                     refundAddress: nil,
                     refundContractAddress: nil,
@@ -84,8 +84,8 @@ struct ExpressAPIMapperHistoryTests {
     func onrampHistoryPageMapping() throws {
         let response = ExpressDTO.Onramp.History.Response(
             items: [
-                Self.makeOnrampRecord(),
-                Self.makeOnrampRecord(
+                Self.makeOnrampTransaction(),
+                Self.makeOnrampTransaction(
                     status: "finished",
                     failReason: "kyc_failed",
                     externalTxId: "ext-2",
@@ -132,7 +132,7 @@ struct ExpressAPIMapperHistoryTests {
     @Test("Unrecognized onramp status raw values fall back to `.unknown`")
     func onrampUnknownStatusFallback() throws {
         let response = ExpressDTO.Onramp.History.Response(
-            items: [Self.makeOnrampRecord(status: "exchange-tx-sent")],
+            items: [Self.makeOnrampTransaction(status: "exchange-tx-sent")],
             pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
         )
 
@@ -159,7 +159,7 @@ struct ExpressAPIMapperHistoryTests {
     @Test("Malformed decimal amount in a record fails the whole page mapping")
     func malformedDecimalAmountThrows() throws {
         let response = ExpressDTO.Onramp.History.Response(
-            items: [Self.makeOnrampRecord(toAmount: "not-a-decimal")],
+            items: [Self.makeOnrampTransaction(toAmount: "not-a-decimal")],
             pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
         )
 
@@ -171,15 +171,15 @@ struct ExpressAPIMapperHistoryTests {
 
 // MARK: - Factories
 
-private extension ExpressAPIMapperHistoryTests {
-    static func makeExchangeRecord(
+private extension ExpressAPIMapperTransactionTests {
+    static func makeExchangeTransaction(
         fromAddress: String? = "0xfrom",
         refundAddress: String? = "0xrefund",
         refundContractAddress: String? = "0xrefund-token",
         status: String = "finished",
         externalTxId: String? = "ext-1"
-    ) -> ExpressDTO.Swap.History.Record {
-        ExpressDTO.Swap.History.Record(
+    ) -> ExpressDTO.Swap.Transaction {
+        ExpressDTO.Swap.Transaction(
             txId: "tx-1",
             providerId: "changenow",
             fromAddress: fromAddress,
@@ -212,15 +212,15 @@ private extension ExpressAPIMapperHistoryTests {
         )
     }
 
-    static func makeOnrampRecord(
+    static func makeOnrampTransaction(
         status: String = "waiting-for-payment",
         failReason: String? = nil,
         externalTxId: String? = nil,
         payoutHash: String? = nil,
         toAmount: String? = nil,
         toActualAmount: String? = nil
-    ) -> ExpressDTO.Onramp.History.Record {
-        ExpressDTO.Onramp.History.Record(
+    ) -> ExpressDTO.Onramp.Transaction {
+        ExpressDTO.Onramp.Transaction(
             txId: "tx-onramp-1",
             providerId: "mercuryo",
             payoutAddress: "0xpayout",
