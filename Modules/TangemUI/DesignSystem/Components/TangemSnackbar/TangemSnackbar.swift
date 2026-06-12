@@ -44,7 +44,6 @@ private extension TangemSnackbar {
         HStack(spacing: .unit(.x4)) {
             contentRow
                 .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let action {
                 actionButton(action)

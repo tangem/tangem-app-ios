@@ -22,7 +22,10 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion, .yieldBoostPromotionStatus:
+        case .promotion, .yieldBoostPromotionStatus, .saveUserWalletTokensV2:
+            // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
+            // `apiBaseUrlv2` already carries the `/v2` segment; the leading `/api` is pending backend
+            // confirmation (gateway-internal vs. a real path) — same caveat as notification-preferences.
             AppEnvironment.current.apiBaseUrlv2
         default:
             AppEnvironment.current.apiBaseUrl
@@ -45,7 +48,8 @@ struct TangemApiTarget: TargetType {
             return "/features"
         case .getUserWalletTokens(let key):
             return "/user-tokens/\(key)"
-        case .saveUserWalletTokens(let key, _):
+        case .saveUserWalletTokens(let key, _),
+             .saveUserWalletTokensV2(let key, _):
             return "/wallets/\(key)/tokens"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
@@ -109,7 +113,11 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/\(userWalletId)"
         case .getNotificationPreferences(let userWalletId),
              .updateNotificationPreferences(let userWalletId, _):
-            return "/wallets/\(userWalletId)/notification-preferences"
+            // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
+            // `apiBaseUrl` already carries the `/v1` segment, so only the relative part is set here.
+            // The leading `/api` segment from the doc is pending backend confirmation (gateway-internal
+            // vs. a real path) — if it turns out real, route this case to a dedicated base URL instead.
+            return "/notification-preferences/\(userWalletId)"
 
         // MARK: - Promo Code
         case .activatePromoCode:
@@ -176,6 +184,7 @@ struct TangemApiTarget: TargetType {
              .trendingNews:
             return .get
         case .saveUserWalletTokens,
+             .saveUserWalletTokensV2,
              .saveUserAccounts,
              .connectUserWallets,
              .updateNotificationPreferences:
@@ -202,7 +211,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(pageModel)
         case .currencies, .geo, .features, .getUserWalletTokens:
             return .requestPlain
-        case .saveUserWalletTokens(_, let list):
+        case .saveUserWalletTokens(_, let list),
+             .saveUserWalletTokensV2(_, let list):
             return .requestJSONEncodable(list)
         case .loadReferralProgramInfo(_, let expectedAwardsLimit):
             return .requestParameters(
@@ -336,6 +346,7 @@ struct TangemApiTarget: TargetType {
              .features,
              .getUserWalletTokens,
              .saveUserWalletTokens,
+             .saveUserWalletTokensV2,
              .loadReferralProgramInfo,
              .participateInReferralProgram,
              .createAccount,
@@ -388,6 +399,7 @@ extension TangemApiTarget {
         case features
         case getUserWalletTokens(key: String)
         case saveUserWalletTokens(key: String, list: AccountsDTO.Request.UserTokens)
+        case saveUserWalletTokensV2(key: String, list: AccountsDTO.Request.UserTokens)
         case loadReferralProgramInfo(userWalletId: String, expectedAwardsLimit: Int)
         case participateInReferralProgram(userInfo: ReferralParticipationRequestBody)
         case createAccount(_ parameters: BlockchainAccountCreateParameters)
@@ -443,7 +455,7 @@ extension TangemApiTarget {
 
         // Notification Preferences
         case getNotificationPreferences(userWalletId: String)
-        case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Update.Request)
+        case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Body)
 
         // Accounts
         case getUserAccounts(userWalletId: String)
@@ -512,6 +524,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .features,
              .getUserWalletTokens,
              .saveUserWalletTokens,
+             .saveUserWalletTokensV2,
              .loadReferralProgramInfo,
              .participateInReferralProgram,
              .createAccount,
