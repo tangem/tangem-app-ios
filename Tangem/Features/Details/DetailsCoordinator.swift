@@ -31,6 +31,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var addressBookCoordinator: AddressBookCoordinator?
 
     // MARK: - Child view models
 
@@ -152,6 +153,16 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openSocialNetwork(url: URL) {
         UIApplication.shared.open(url)
+    }
+
+    func openAddressBook() {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.addressBookCoordinator = nil
+        }
+
+        let coordinator = AddressBookCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: .default)
+        addressBookCoordinator = coordinator
     }
 
     func openEnvironmentSetup() {

@@ -22,7 +22,7 @@ struct DetailsView: View {
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
-            walletConnectSection
+            topSection
 
             userWalletsSection
 
@@ -44,10 +44,16 @@ struct DetailsView: View {
         .onAppear(perform: viewModel.onAppear)
     }
 
-    private var walletConnectSection: some View {
-        GroupedSection(viewModel.walletConnectRowViewModel) {
-            WalletConnectRowView(viewModel: $0)
+    private var topSection: some View {
+        GroupedSection(viewModel.topSectionTypes) { type in
+            switch type {
+            case .walletConnect(let viewModel):
+                WalletConnectRowView(viewModel: viewModel)
+            case .addressBook(let viewModel):
+                AddressBookRowView(viewModel: viewModel)
+            }
         }
+        .horizontalPadding(0)
     }
 
     private var userWalletsSection: some View {
