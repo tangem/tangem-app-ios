@@ -366,7 +366,7 @@ struct ExpressAPIMapper {
                 actualAmount: record.toActualAmount
             ),
             createdAt: record.createdAt,
-            updatedAt: record.updatedAt,
+            updatedAt: record.updatedAt ?? record.createdAt,
             payTill: record.payTill,
             averageDuration: record.averageDuration
         )
@@ -395,7 +395,7 @@ struct ExpressAPIMapper {
             paymentMethod: record.paymentMethod,
             countryCode: record.countryCode,
             createdAt: record.createdAt,
-            updatedAt: record.updatedAt
+            updatedAt: record.updatedAt ?? record.createdAt
         )
     }
 

@@ -230,7 +230,7 @@ extension ExpressDTO {
             let externalTxUrl: String?
             let payoutHash: String?
             let createdAt: Date
-            let updatedAt: Date
+            let updatedAt: Date?
 
             // fromCurrency info
             let fromCurrencyCode: String
