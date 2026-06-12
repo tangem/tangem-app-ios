@@ -32,5 +32,15 @@ struct AddressBookContactsListView: View {
         }
         .navigationTitle(Text(Localization.addressBookTitle))
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: viewModel.openAddContact) {
+                    DesignSystem.Icons.SignPlus.regular20.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }

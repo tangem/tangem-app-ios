@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct AddressBookCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AddressBookCoordinator
@@ -29,6 +30,9 @@ struct AddressBookCoordinatorView: CoordinatorView {
 
     @ViewBuilder
     private var sheets: some View {
-        EmptyView()
+        NavHolder()
+            .sheet(item: $coordinator.contactManagementViewModel) {
+                AddressBookContactManagementView(viewModel: $0)
+            }
     }
 }

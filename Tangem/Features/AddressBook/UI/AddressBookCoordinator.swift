@@ -21,6 +21,8 @@ class AddressBookCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var contactManagementViewModel: AddressBookContactManagementViewModel?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -44,4 +46,16 @@ extension AddressBookCoordinator {
 
 // MARK: - AddressBookContactsListRoutable
 
-extension AddressBookCoordinator: AddressBookContactsListRoutable {}
+extension AddressBookCoordinator: AddressBookContactsListRoutable {
+    func openAddContact() {
+        contactManagementViewModel = AddressBookContactManagementViewModel(coordinator: self)
+    }
+}
+
+// MARK: - AddressBookContactManagementRoutable
+
+extension AddressBookCoordinator: AddressBookContactManagementRoutable {
+    func dismissContactManagement() {
+        contactManagementViewModel = nil
+    }
+}

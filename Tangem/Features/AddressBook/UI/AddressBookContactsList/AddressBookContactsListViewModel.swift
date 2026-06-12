@@ -37,6 +37,10 @@ final class AddressBookContactsListViewModel: ObservableObject {
         setupChips()
         bind()
     }
+
+    func openAddContact() {
+        coordinator?.openAddContact()
+    }
 }
 
 // MARK: - Private
