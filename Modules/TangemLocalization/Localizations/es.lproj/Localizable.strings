@@ -524,6 +524,7 @@
 "express_legal_one_placeholder" = "Al utilizar la función de intercambio, acepta los %@";
 "express_legal_two_placeholders" = "Al utilizar la función de intercambio, aceptas las condiciones de %1$@ y %2$@ del proveedor.";
 "express_more_providers_soon" = "Pronto habrá más proveedores disponibles";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Mejor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertencias de la FCA";
 "express_provider_fixed_rate_is_unavailable" = "Fixed rate is unavailable";
@@ -536,6 +537,9 @@
 "express_provider_permission_needed" = "Permiso requerido";
 "express_provider_recommended" = "Recomendado";
 "express_provider" = "Proveedor";
+"express_send_with_swap_not_supported_button" = "Swap token";
+"express_send_with_swap_not_supported_text" = "Swap it manually and then send it to the recipient";
+"express_send_with_swap_not_supported_title" = "%@ is not supported in Swap & Send";
 "express_status_buying" = "Comprando %@";
 "express_status_hide_button_text" = "Ocultar esta transacción";
 "express_status_hide_dialog_text" = "Si oculta esta transacción, ya no aparecerá en la pantalla de estado. Si solo quieres cerrar la pantalla de estado y volver más tarde, solo tiene que deslizar el dedo hacia otro lado.";
@@ -1456,6 +1460,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Unable to rename card";
 "tangem_pay_card_frozen" = "Tarjeta congelada";
 "tangem_pay_card_payment" = "Pago con tarjeta";
+"tangem_pay_close_card_disabled_last_card" = "You can’t close the last card";
 "tangem_pay_close_card_popup_description" = "Desaparecerá de la aplicación";
 "tangem_pay_close_card_popup_primary_button_title" = "Cerrar la tarjeta";
 "tangem_pay_close_card_popup_secondary_button_title" = "Atrás";
