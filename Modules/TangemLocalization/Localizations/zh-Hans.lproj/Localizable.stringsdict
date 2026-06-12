@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li address</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>%li地址\n%li地址</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -262,7 +260,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>空</string>
+        <string>将以下这%li个单词按顺序记录并保存在私密且安全的地方。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -276,7 +274,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>空</string>
+        <string>%li个单词</string>
       </dict>
     </dict>
     <key>onramp_providers_count</key>
