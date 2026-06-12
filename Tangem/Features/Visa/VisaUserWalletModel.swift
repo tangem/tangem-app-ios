@@ -566,6 +566,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.accountModelsManager
     }
 
+    var addressBookManager: AddressBookManager {
+        userWalletModel.addressBookManager
+    }
+
     func validate() -> Bool { userWalletModel.validate() }
 
     func update(type: UpdateRequest) {
