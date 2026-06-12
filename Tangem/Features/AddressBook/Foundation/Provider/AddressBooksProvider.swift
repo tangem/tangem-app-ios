@@ -14,7 +14,11 @@ protocol AddressBooksProvider {
 
 struct AddressBookWallet {
     let wallet: UserWalletInfo
-    let addressBookPublisher: AnyPublisher<AddressBook, Never>
+    let addressBookManager: AddressBookManager
+
+    var addressBookPublisher: AnyPublisher<AddressBook, Never> {
+        addressBookManager.addressBookPublisher
+    }
 }
 
 // MARK: - Implementations
