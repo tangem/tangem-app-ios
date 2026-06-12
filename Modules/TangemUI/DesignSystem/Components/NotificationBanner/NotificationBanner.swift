@@ -20,6 +20,8 @@ public struct NotificationBanner: View, Setupable {
     @ScaledMetric private var iconWidth: CGFloat
     @ScaledMetric private var iconHeight: CGFloat
 
+    private let cornerRadius: CGFloat = .unit(.x6)
+
     public init(bannerType: BannerType, accessibilityIdentifier: String?) {
         self.bannerType = bannerType
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -54,6 +56,11 @@ public struct NotificationBanner: View, Setupable {
     public var body: some View {
         bannerContent
             .accessibilityIdentifier(accessibilityIdentifier)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(bannerType.borderColor, lineWidth: .unit(.quarter))
+                    .allowsHitTesting(false)
+            }
             .overlay(alignment: .topTrailing) {
                 if bannerType.isClosable {
                     closeButton
@@ -91,7 +98,7 @@ public struct NotificationBanner: View, Setupable {
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
-        .glowBorder(effect: bannerType.effect)
+        .glowBorder(effect: bannerType.effect, cornerRadius: cornerRadius)
     }
 
     private var closeButton: some View {
@@ -169,8 +176,8 @@ public struct NotificationBanner: View, Setupable {
             if title.characters.isNotEmpty {
                 Text(title)
                     .style(
-                        Fonts.Bold.headline,
-                        color: Color.Tangem.Text.Neutral.primary
+                        .Tangem.Body16.medium,
+                        color: .Tangem.Text.Neutral.primary
                     )
                     .lineLimit(nil)
                     .multilineTextAlignment(textAlignment)
@@ -181,8 +188,8 @@ public struct NotificationBanner: View, Setupable {
             if subtitle.characters.isNotEmpty {
                 Text(subtitle)
                     .style(
-                        Fonts.Bold.subheadline,
-                        color: Color.Tangem.Text.Neutral.tertiary
+                        .Tangem.Caption12.semibold,
+                        color: .Tangem.Text.Neutral.secondary
                     )
                     .lineLimit(nil)
                     .multilineTextAlignment(textAlignment)
