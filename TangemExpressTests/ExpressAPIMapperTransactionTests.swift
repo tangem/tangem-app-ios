@@ -50,7 +50,8 @@ struct ExpressAPIMapperTransactionTests {
         #expect(try record.to.amount == #require(Decimal(stringValue: "1")))
         let toActualAmount = try #require(record.to.actualAmount)
         #expect(toActualAmount == Decimal(stringValue: "0.99"))
-        #expect(record.createdAt < record.updatedAt)
+        #expect(record.createdAt == Date(timeIntervalSince1970: 1_000))
+        #expect(record.updatedAt == Date(timeIntervalSince1970: 2_000))
     }
 
     @Test("Exchange transaction without optional fields maps them to nil, unknown status falls back to `.unknown`")
@@ -62,7 +63,8 @@ struct ExpressAPIMapperTransactionTests {
                     refundAddress: nil,
                     refundContractAddress: nil,
                     status: "some-future-status",
-                    externalTxId: nil
+                    externalTxId: nil,
+                    updatedAt: nil
                 ),
             ],
             pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
@@ -75,6 +77,7 @@ struct ExpressAPIMapperTransactionTests {
         #expect(record.fromAddress == nil)
         #expect(record.externalTx == nil)
         #expect(record.refund == nil)
+        #expect(record.updatedAt == record.createdAt) // Nil `updatedAt` in the DTO falls back to `createdAt` during mapping
         #expect(!page.hasMore)
         #expect(page.nextCursor == nil)
     }
@@ -85,7 +88,7 @@ struct ExpressAPIMapperTransactionTests {
     func onrampHistoryPageMapping() throws {
         let response = ExpressDTO.Onramp.History.Response(
             items: [
-                Self.makeOnrampTransaction(),
+                Self.makeOnrampTransaction(updatedAt: nil),
                 Self.makeOnrampTransaction(
                     status: "finished",
                     failReason: "kyc_failed",
@@ -120,6 +123,7 @@ struct ExpressAPIMapperTransactionTests {
         #expect(pending.to.actualAmount == nil)
         #expect(pending.paymentMethod == "card")
         #expect(pending.countryCode == "DE")
+        #expect(pending.updatedAt == pending.createdAt) // Nil `updatedAt` in the DTO falls back to `createdAt` during mapping
 
         let finished = try #require(page.records.last)
         #expect(finished.status == .finished)
@@ -130,6 +134,8 @@ struct ExpressAPIMapperTransactionTests {
         #expect(toAmount == Decimal(stringValue: "2"))
         let toActualAmount = try #require(finished.to.actualAmount)
         #expect(toActualAmount == Decimal(stringValue: "1.99"))
+        #expect(finished.createdAt == Date(timeIntervalSince1970: 1_000))
+        #expect(finished.updatedAt == Date(timeIntervalSince1970: 2_000))
     }
 
     @Test("Unrecognized onramp status raw values fall back to `.unknown`")
@@ -180,7 +186,8 @@ private extension ExpressAPIMapperTransactionTests {
         refundAddress: String? = "0xrefund",
         refundContractAddress: String? = "0xrefund-token",
         status: String = "finished",
-        externalTxId: String? = "ext-1"
+        externalTxId: String? = "ext-1",
+        updatedAt: Date? = Date(timeIntervalSince1970: 2_000)
     ) -> ExpressDTO.Swap.Transaction {
         ExpressDTO.Swap.Transaction(
             txId: "tx-1",
@@ -200,7 +207,7 @@ private extension ExpressAPIMapperTransactionTests {
             refundNetwork: "ethereum",
             refundContractAddress: refundContractAddress,
             createdAt: Date(timeIntervalSince1970: 1_000),
-            updatedAt: Date(timeIntervalSince1970: 2_000),
+            updatedAt: updatedAt,
             payTill: nil,
             averageDuration: 600,
             fromContractAddress: "0x0",
@@ -220,6 +227,7 @@ private extension ExpressAPIMapperTransactionTests {
         failReason: String? = nil,
         externalTxId: String? = nil,
         payoutHash: String? = nil,
+        updatedAt: Date? = Date(timeIntervalSince1970: 2_000),
         toAmount: String? = nil,
         toActualAmount: String? = nil
     ) -> ExpressDTO.Onramp.Transaction {
@@ -233,7 +241,7 @@ private extension ExpressAPIMapperTransactionTests {
             externalTxUrl: nil,
             payoutHash: payoutHash,
             createdAt: Date(timeIntervalSince1970: 1_000),
-            updatedAt: Date(timeIntervalSince1970: 2_000),
+            updatedAt: updatedAt,
             fromCurrencyCode: "EUR",
             fromAmount: "10050",
             fromPrecision: 2,
