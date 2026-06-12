@@ -524,6 +524,7 @@
 "express_legal_one_placeholder" = "Ao utilizar a funcionalidade de troca, você concorda com os termos do provedor. %@";
 "express_legal_two_placeholders" = "Ao utilizar a funcionalidade de troca, você concorda com os termos do provedor. %1$@ e %2$@.";
 "express_more_providers_soon" = "Mais fornecedores estarão disponíveis em breve.";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Melhor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertências da FCA";
 "express_provider_fixed_rate_is_unavailable" = "A tarifa fixa não está disponível.";
@@ -536,6 +537,9 @@
 "express_provider_permission_needed" = "Permissão necessária";
 "express_provider_recommended" = "Recomendado";
 "express_provider" = "Fornecedor";
+"express_send_with_swap_not_supported_button" = "Swap token";
+"express_send_with_swap_not_supported_text" = "Swap it manually and then send it to the recipient";
+"express_send_with_swap_not_supported_title" = "%@ is not supported in Swap & Send";
 "express_status_buying" = "Comprando %@";
 "express_status_hide_button_text" = "Ocultar esta transação";
 "express_status_hide_dialog_text" = "Se você ocultar esta transação, ela não aparecerá mais na tela de status. Se você quiser apenas fechar a tela de status e retornar mais tarde, basta deslizar para o lado para descartá-la.";
@@ -1456,6 +1460,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Não foi possível renomear o cartão.";
 "tangem_pay_card_frozen" = "Cartão bloqueado";
 "tangem_pay_card_payment" = "Pagamento com cartão";
+"tangem_pay_close_card_disabled_last_card" = "You can’t close the last card";
 "tangem_pay_close_card_popup_description" = "O valor desaparecerá da conta de pagamento.";
 "tangem_pay_close_card_popup_primary_button_title" = "Fechar cartão";
 "tangem_pay_close_card_popup_secondary_button_title" = "Voltar";
