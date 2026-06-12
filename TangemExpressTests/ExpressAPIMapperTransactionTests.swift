@@ -48,7 +48,8 @@ struct ExpressAPIMapperTransactionTests {
         #expect(record.refund?.currency == ExpressCurrency(contractAddress: "0xrefund-token", network: "ethereum"))
         #expect(try record.from.amount == #require(Decimal(stringValue: "1.5")))
         #expect(try record.to.amount == #require(Decimal(stringValue: "1")))
-        #expect(try record.to.actualAmount == #require(Decimal(stringValue: "0.99")))
+        let toActualAmount = try #require(record.to.actualAmount)
+        #expect(toActualAmount == Decimal(stringValue: "0.99"))
         #expect(record.createdAt < record.updatedAt)
     }
 
@@ -125,8 +126,10 @@ struct ExpressAPIMapperTransactionTests {
         #expect(finished.failReason == "kyc_failed")
         #expect(finished.externalTx?.id == "ext-2")
         #expect(finished.payOut.hash == "0xhash-out")
-        #expect(try finished.to.amount == #require(Decimal(stringValue: "2")))
-        #expect(try finished.to.actualAmount == #require(Decimal(stringValue: "1.99")))
+        let toAmount = try #require(finished.to.amount)
+        #expect(toAmount == Decimal(stringValue: "2"))
+        let toActualAmount = try #require(finished.to.actualAmount)
+        #expect(toActualAmount == Decimal(stringValue: "1.99"))
     }
 
     @Test("Unrecognized onramp status raw values fall back to `.unknown`")
