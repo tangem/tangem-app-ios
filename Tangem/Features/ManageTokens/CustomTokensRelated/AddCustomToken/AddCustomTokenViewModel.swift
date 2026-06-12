@@ -19,6 +19,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published var selectedBlockchainNetworkId: String?
     @Published var selectedBlockchainName: String = ""
@@ -27,8 +28,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
-
-    @Published var alert: AlertBinder?
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
@@ -119,11 +118,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                         return
                     }
 
-                    alert = error.alertBinder
+                    alertPresenter.present(alert: error.alertBinder)
                 }
             }
         } catch {
-            alert = error.alertBinder
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 

@@ -35,6 +35,8 @@ public enum CommonUIAccessibilityIdentifiers {
 
     public static let retryButton = "commonRetryButton"
 
+    public static let successToast = "commonUISuccessToast"
+
     /// Token selector
     public static let tokenSelectorItemPrefix = "commonUITokenSelectorItem_"
 

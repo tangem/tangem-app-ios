@@ -11,8 +11,8 @@ import TangemExpress
 import TangemFoundation
 
 final class TokenSelectorItemSwapAvailabilityProvider {
-    @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: ExpressPairsRepository
+    @Injected(\.swapRepository)
+    private var swapRepository: SwapRepository
 
     private var availableCurrencies: CurrentValueSubject<[ExpressCurrency]?, Never> = .init(nil)
     private var directionSubscription: AnyCancellable?
@@ -26,7 +26,7 @@ final class TokenSelectorItemSwapAvailabilityProvider {
                     return .none
                 case .fromSource(.some(let source)):
                     return await provider
-                        .expressPairsRepository
+                        .swapRepository
                         .getPairs(from: source.expressCurrency)
                         .map(\.destination)
                 case .fromSource(.none):
@@ -34,7 +34,7 @@ final class TokenSelectorItemSwapAvailabilityProvider {
                 case .toDestination(let destination):
                     guard let destination else { return .none }
                     return await provider
-                        .expressPairsRepository
+                        .swapRepository
                         .getPairs(to: destination.expressCurrency)
                         .map(\.source)
                 }

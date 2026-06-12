@@ -27,6 +27,7 @@ final class TangemPayManager: TangemPayAccountModel {
     var isPaeraCustomerPublisher: AnyPublisher<Bool, Never> {
         stateSubject
             .map { $0 != nil }
+            .removeDuplicates()
             .eraseToAnyPublisher()
     }
 
@@ -116,16 +117,12 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     func authorizeWithCustomerWallet(
-        authorizingInteractor: TangemPayAuthorizing,
-        pendingDerivations: [PendingDerivation]
+        authorizingInteractor: TangemPayAuthorizing
     ) async {
-        let derivationPaths = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivations)
-
         do {
             let authorizingResponse = try await authorizingInteractor.authorize(
                 customerWalletId: customerWalletId,
-                authorizationService: authorizationService,
-                pendingDerivations: derivationPaths
+                authorizationService: authorizationService
             )
 
             keysRepository.update(derivations: authorizingResponse.derivationResult)
@@ -254,14 +251,13 @@ final class TangemPayManager: TangemPayAccountModel {
         }
     }
 
-    func syncTokens(
+    func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        pendingDerivations: [PendingDerivation],
         completion: @escaping () -> Void
     ) {
         runTask { [self] in
             stateSubject.value = .syncInProgress
-            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor, pendingDerivations: pendingDerivations)
+            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
             completion()
         }
     }

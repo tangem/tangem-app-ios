@@ -157,6 +157,7 @@ private final class StubExpressProviderManager: ExpressProviderManager {
 }
 
 private struct StubExpressWallet: ExpressSourceWallet {
+    var walletInfo: ExpressWalletInfo { ExpressWalletInfo(id: "stub", refcode: nil) }
     var currency: ExpressWalletCurrency { fatalError("Not used in tests") }
     var coinCurrency: ExpressWalletCurrency { fatalError("Not used in tests") }
     var address: String? { nil }
@@ -189,7 +190,7 @@ private final class StubExpressAPIProvider: ExpressAPIProvider {
     func providers(branch: ExpressBranch) async throws -> [ExpressProvider] { fatalError("Not used in tests") }
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote { fatalError("Not used in tests") }
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData { fatalError("Not used in tests") }
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction { fatalError("Not used in tests") }
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction { fatalError("Not used in tests") }
     func exchangeSent(result: ExpressTransactionSentResult) async throws { fatalError("Not used in tests") }
     func onrampCurrencies() async throws -> [OnrampFiatCurrency] { fatalError("Not used in tests") }
     func onrampCountries() async throws -> [OnrampCountry] { fatalError("Not used in tests") }

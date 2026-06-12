@@ -26,6 +26,10 @@ protocol SendSwapableToken: SendTransferableToken, ExpressSourceWallet {
 // MARK: ExpressSourceWallet + SendSourceToken
 
 extension ExpressSourceWallet where Self: SendSwapableToken {
+    var walletInfo: ExpressWalletInfo {
+        ExpressWalletInfo(id: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode?.rawValue)
+    }
+
     var address: String? { defaultAddressString }
     var extraId: String? { .none }
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
