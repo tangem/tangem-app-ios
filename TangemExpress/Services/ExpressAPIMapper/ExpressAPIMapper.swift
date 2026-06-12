@@ -401,13 +401,6 @@ struct ExpressAPIMapper {
 
     private func mapToExternalTxInfo(id: String?, url: String?) -> ExternalTxInfo? {
         guard let id else {
-            ExpressLogger.info(
-                String(
-                    format: "External tx info missing required field: id %@ (url %@)",
-                    String(describing: id),
-                    String(describing: url)
-                )
-            )
             return nil
         }
 
