@@ -46,10 +46,10 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published private var addressesRowViewModels: [AddressBookContactAddressRowViewModel] = []
     @Published private var addNewAddressRowViewModel: AddressBookContactAddNewAddressRowViewModel?
 
-
     // MARK: - Dependencies
 
     private weak var coordinator: AddressBookContactManagementRoutable?
+    private let addressBookManager: AddressBookManager
 
     private var nameMode: AccountIconView.NameMode {
         if let firstLetter = contactName.trimmed().first {
@@ -59,8 +59,12 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         return .letter("")
     }
 
-    init(coordinator: AddressBookContactManagementRoutable) {
+    init(
+        coordinator: AddressBookContactManagementRoutable,
+        addressBookManager: AddressBookManager
+    ) {
         self.coordinator = coordinator
+        self.addressBookManager = addressBookManager
 
         let newIcon = AccountModelUtils.UI.newAccountIcon()
         selectedColor = GridItemColor(
@@ -77,8 +81,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 // MARK: - Private
 
 private extension AddressBookContactManagementViewModel {
-    func setupView() {
-    }
+    func setupView() {}
 }
 
 // MARK: - Types

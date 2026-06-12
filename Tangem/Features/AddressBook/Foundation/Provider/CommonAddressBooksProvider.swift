@@ -20,7 +20,7 @@ extension CommonAddressBooksProvider: AddressBooksProvider {
             .map { userWalletModel in
                 AddressBookWallet(
                     wallet: userWalletModel.userWalletInfo,
-                    addressBookPublisher: userWalletModel.addressBookManager.addressBookPublisher
+                    addressBookManager: userWalletModel.addressBookManager
                 )
             }
     }

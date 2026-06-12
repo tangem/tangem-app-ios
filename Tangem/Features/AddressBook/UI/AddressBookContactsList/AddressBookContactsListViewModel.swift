@@ -39,7 +39,11 @@ final class AddressBookContactsListViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        coordinator?.openAddContact()
+        guard let addressBook = addressBooks.first(where: { $0.wallet.id.stringValue == selectedChipId }) else {
+            return
+        }
+
+        coordinator?.openAddContact(addressBookManager: addressBook.addressBookManager)
     }
 }
 

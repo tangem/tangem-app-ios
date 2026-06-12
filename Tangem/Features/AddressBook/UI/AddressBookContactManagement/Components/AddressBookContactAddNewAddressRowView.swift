@@ -29,4 +29,3 @@ struct AddressBookContactAddNewAddressRowView: View {
             }
     }
 }
-
