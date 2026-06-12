@@ -11,16 +11,15 @@ import TangemUI
 import TangemLocalization
 
 struct AddressBookContactAddressRowViewModel: Identifiable {
-    var id: String { address.address }
-    var title: String { address.address }
-    var subtitle: String { Localization.commonNetworksCount(address.networks.count) }
-
+    let id: String
+    let title: String
+    let subtitle: String
     let addressIconViewModel: AddressIconViewModel
 
-    private let address: AddressBookAddress
-
     init(address: AddressBookAddress) {
-        self.address = address
+        id = address.address
+        title = address.address
+        subtitle = Localization.commonNetworksCount(address.networks.count)
         addressIconViewModel = AddressIconViewModel(address: address.address)
     }
 }

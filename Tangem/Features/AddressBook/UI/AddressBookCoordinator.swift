@@ -49,8 +49,17 @@ extension AddressBookCoordinator {
 extension AddressBookCoordinator: AddressBookContactsListRoutable {
     func openAddContact(addressBookManager: AddressBookManager) {
         contactManagementViewModel = AddressBookContactManagementViewModel(
-            coordinator: self,
-            addressBookManager: addressBookManager
+            mode: .add,
+            addressBookManager: addressBookManager,
+            coordinator: self
+        )
+    }
+
+    func openEditContact(addressBookManager: AddressBookManager, contact: AddressBookContact) {
+        contactManagementViewModel = AddressBookContactManagementViewModel(
+            mode: .edit(contact: contact),
+            addressBookManager: addressBookManager,
+            coordinator: self
         )
     }
 }

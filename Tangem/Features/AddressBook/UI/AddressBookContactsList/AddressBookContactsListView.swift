@@ -25,8 +25,8 @@ struct AddressBookContactsListView: View {
                 )
             }
 
-            GroupedSection(viewModel.contacts, isLazy: true) {
-                AddressBookContactView(contact: $0)
+            GroupedSection(viewModel.contactsViewModels, isLazy: true) {
+                AddressBookContactView(viewModel: $0)
             }
             .horizontalPadding(0)
         }
