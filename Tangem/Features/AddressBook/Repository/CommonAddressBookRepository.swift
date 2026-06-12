@@ -13,12 +13,11 @@ import TangemFoundation
 
 final class CommonAddressBookRepository {
     private let walletId: UserWalletId
-    private let walletPublicKeySeed: Data
     private let networkService: AddressBookNetworkService
     private let eTagStorage: AddressBookETagStorage
     private let persistentStorage: AddressBookPersistentStorage
     private let encryptionService: AddressBookEncrypting
-    private let keyProvider: AddressBookEncryptionKeyProviding
+    private let encryptionKey: SymmetricKey
     private let blobCodec: AddressBookBlobCodec
     private let mapper = AddressBookNetworkMapper()
 
@@ -36,17 +35,12 @@ final class CommonAddressBookRepository {
         blobCodec: AddressBookBlobCodec = AddressBookBlobCodec()
     ) {
         self.walletId = walletId
-        self.walletPublicKeySeed = walletPublicKeySeed
         self.networkService = networkService
         self.eTagStorage = eTagStorage
         self.persistentStorage = persistentStorage
         self.encryptionService = encryptionService
-        self.keyProvider = keyProvider
         self.blobCodec = blobCodec
-    }
-
-    private var encryptionKey: SymmetricKey {
-        keyProvider.encryptionKey(forWalletPublicKeySeed: walletPublicKeySeed)
+        encryptionKey = keyProvider.encryptionKey(forWalletPublicKeySeed: walletPublicKeySeed)
     }
 
     private func decode(_ remote: RemoteAddressBook) throws -> [DecodedContact] {

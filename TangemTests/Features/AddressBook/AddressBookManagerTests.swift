@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import Testing
 import TangemSdk
-import BlockchainSdk
 import TangemFoundation
 @testable import Tangem
 
@@ -159,7 +158,7 @@ private struct TestEnvironment {
 private struct TestKeyPairSigner: AddressBookSigning {
     let privateKey: Data
 
-    func sign(digests: [Data], walletPublicKey: Wallet.PublicKey) async throws -> [Data] {
+    func sign(digests: [Data], walletPublicKey: Data) async throws -> [Data] {
         let utils = Secp256k1Utils()
         return try digests.map { try utils.sign($0, with: privateKey) }
     }
