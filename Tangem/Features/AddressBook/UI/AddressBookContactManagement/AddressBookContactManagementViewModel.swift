@@ -18,6 +18,16 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published var contactName: String = ""
     @Published var selectedColor: GridItemColor<AccountModel.CompositeIcon.Color>
 
+    var addressesSection: [AddressRowType] {
+        var types: [AddressRowType] = addressesRowViewModels.map { .address($0) }
+
+        if let addNewAddressRowViewModel {
+            types.append(.addNewAddress(addNewAddressRowViewModel))
+        }
+
+        return types
+    }
+
     var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
 
     let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
@@ -32,6 +42,10 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
             nameMode: nameMode
         )
     }
+
+    @Published private var addressesRowViewModels: [AddressBookContactAddressRowViewModel] = []
+    @Published private var addNewAddressRowViewModel: AddressBookContactAddNewAddressRowViewModel?
+
 
     // MARK: - Dependencies
 
@@ -57,5 +71,28 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     func dismiss() {
         coordinator?.dismissContactManagement()
+    }
+}
+
+// MARK: - Private
+
+private extension AddressBookContactManagementViewModel {
+    func setupView() {
+    }
+}
+
+// MARK: - Types
+
+extension AddressBookContactManagementViewModel {
+    enum AddressRowType: Identifiable {
+        var id: String {
+            switch self {
+            case .address(let viewModel): viewModel.id
+            case .addNewAddress(let viewModel): "AddressBookContactAddNewAddressRowViewModel"
+            }
+        }
+
+        case address(AddressBookContactAddressRowViewModel)
+        case addNewAddress(AddressBookContactAddNewAddressRowViewModel)
     }
 }

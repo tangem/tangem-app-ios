@@ -7,7 +7,8 @@
 //
 
 struct AddressBookAddress: Codable, Hashable {
-    let network: BlockchainNetwork
     let address: String
     let memo: String?
+
+    let networks: [BlockchainNetwork]
 }
