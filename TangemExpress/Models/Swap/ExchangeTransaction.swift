@@ -1,5 +1,5 @@
 //
-//  ExchangeHistoryRecord.swift
+//  ExchangeTransaction.swift
 //  TangemExpress
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ExchangeHistoryRecord: TransactionHistoryRecord, Hashable, @unchecked Sendable {
+public struct ExchangeTransaction: TransactionHistoryRecord, Hashable, @unchecked Sendable {
     public let txId: String
     public let providerId: ExpressProvider.Id
     public let status: ExpressTransactionStatus
