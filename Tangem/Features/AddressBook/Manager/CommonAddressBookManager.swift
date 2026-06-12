@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 import TangemFoundation
 
 final class CommonAddressBookManager {
@@ -87,16 +86,12 @@ final class CommonAddressBookManager {
         let memo: String?
     }
 
-    private var signingPublicKey: Wallet.PublicKey {
-        Wallet.PublicKey(seedKey: walletPublicKey, derivationType: nil)
-    }
-
     private func sign(_ entries: [EntryToSign], contactId: ContactID, name: ContactName) async throws -> [DecodedAddressEntry] {
         let payloads = entries.map {
             SignedTuplePayload(address: $0.address, networkId: $0.networkId, memo: $0.memo, contactId: contactId, name: name)
         }
 
-        let signatures = try await signer.sign(digests: payloads.map(\.digest), walletPublicKey: signingPublicKey)
+        let signatures = try await signer.sign(digests: payloads.map(\.digest), walletPublicKey: walletPublicKey)
 
         return zip(entries, signatures).map { entry, signature in
             DecodedAddressEntry(id: entry.id, address: entry.address, networkId: entry.networkId, memo: entry.memo, signature: signature)

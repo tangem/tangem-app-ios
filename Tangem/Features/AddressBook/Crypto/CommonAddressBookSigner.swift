@@ -17,13 +17,15 @@ struct CommonAddressBookSigner: AddressBookSigning {
         self.signer = signer
     }
 
-    func sign(digests: [Data], walletPublicKey: Wallet.PublicKey) async throws -> [Data] {
+    func sign(digests: [Data], walletPublicKey: Data) async throws -> [Data] {
         guard !digests.isEmpty else {
             return []
         }
 
+        let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: nil)
+
         let signatures = try await signer
-            .sign(hashes: digests, walletPublicKey: walletPublicKey)
+            .sign(hashes: digests, walletPublicKey: publicKey)
             .async()
 
         guard signatures.count == digests.count else {

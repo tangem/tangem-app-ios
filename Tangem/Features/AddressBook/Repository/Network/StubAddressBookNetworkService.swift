@@ -9,6 +9,7 @@
 import Foundation
 import CryptoKit
 import TangemFoundation
+import TangemSdk
 
 /// In-memory network stub used until the real backend integration (T4). It stores envelopes per
 /// wallet and honours etag-based conditional fetch, so the repository's load/save paths can be
@@ -17,7 +18,7 @@ final class StubAddressBookNetworkService {
     private let storage = OSAllocatedUnfairLock(initialState: [String: RemoteAddressBook]())
 
     private func makeETag(for sealedBox: AddressBookSealedBox) -> String {
-        Data(SHA256.hash(data: sealedBox.ciphertext)).map { String(format: "%02x", $0) }.joined()
+        Data(SHA256.hash(data: sealedBox.ciphertext)).hexString
     }
 }
 
