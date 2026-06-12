@@ -12,6 +12,10 @@ import Combine
 /// Per-wallet facade over the address book. Verifies signatures on load, enforces the uniqueness
 /// invariants, and signs (or re-signs) entries on every mutation that changes the signed tuple.
 /// Deletes and reads never require a signature.
+///
+/// Uniqueness rules: the contact `name` is unique within the wallet (case-insensitive); the
+/// `(address, networkId)` pair is unique only *within a contact* — the same pair may repeat across
+/// different contacts of the same wallet.
 protocol AddressBookManager: AnyObject {
     /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped;
     /// a contact whose every entry is invalid surfaces as `.allEntriesInvalid`.
