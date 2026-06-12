@@ -10,7 +10,8 @@ import Foundation
 
 /// Wire shape of the encrypted envelope — the body of `PUT /address-books/{walletId}`. All binary
 /// fields are hex strings. `salt` from the original spec is intentionally omitted: the encryption key
-/// is derived deterministically from the wallet key, so no salt is needed.
+/// is derived deterministically from the wallet key, so no salt is needed. Field names and format are
+/// to be confirmed against the backend spec during the real network integration (T4).
 struct AddressBookEnvelopeDTO: Codable {
     let version: String
     let walletId: String
