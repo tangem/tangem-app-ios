@@ -151,8 +151,11 @@ private struct TestEnvironment {
     }
 }
 
-/// Signs each digest with a known secp256k1 key. `Secp256k1Utils.sign` applies SHA-256 internally, so
-/// it is paired with `TestKeyPairVerifier`, which verifies against the same re-hashed value.
+/// A self-consistent signer/verifier pair used only to exercise `CommonAddressBookManager`
+/// orchestration (create/verify/dedup/rename/delete). `Secp256k1Utils.sign` applies SHA-256
+/// internally, so the paired `TestKeyPairVerifier` re-hashes to match. This pair deliberately does
+/// NOT model the production hash contract (which signs the precomputed digest directly); that
+/// contract is covered separately by `AddressBookCryptoTests.verifier()`.
 private struct TestKeyPairSigner: AddressBookSigning {
     let privateKey: Data
 
