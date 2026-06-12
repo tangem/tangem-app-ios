@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemMacro
 import TangemAccessibilityIdentifiers
 import class TangemSdk.BiometricsUtil
 import struct TangemUIUtils.AlertBinder
@@ -28,7 +29,22 @@ final class DetailsViewModel: ObservableObject {
 
     // MARK: - View State
 
-    @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    var topSectionTypes: [TopSectionType] {
+        var types: [TopSectionType] = []
+
+        if let walletConnectRowViewModel {
+            types.append(.walletConnect(walletConnectRowViewModel))
+        }
+
+        if let addressBookRowViewModel {
+            types.append(.addressBook(addressBookRowViewModel))
+        }
+
+        return types
+    }
+
+    @Published private var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published private var addressBookRowViewModel: AddressBookRowViewModel?
 
     @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
@@ -191,6 +207,10 @@ private extension DetailsViewModel {
         coordinator?.openShop()
     }
 
+    func openAddressBook() {
+        coordinator?.openAddressBook()
+    }
+
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         coordinator?.openGetTangemPay(availableSelection: availableSelection)
         Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
@@ -245,6 +265,7 @@ private extension DetailsViewModel {
 private extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
+        setupAddressBookRowViewModel()
         setupUserWalletViewModels()
         setupGetSectionViewModels()
         setupAppSettingsViewModel()
@@ -321,6 +342,17 @@ private extension DetailsViewModel {
             subtitle: Localization.walletConnectSubtitle,
             action: weakify(self, forFunction: DetailsViewModel.openWalletConnect)
         )
+    }
+
+    func setupAddressBookRowViewModel() {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            addressBookRowViewModel = nil
+            return
+        }
+
+        addressBookRowViewModel = AddressBookRowViewModel { [weak self] in
+            self?.openAddressBook()
+        }
     }
 
     func setupUserWalletViewModels() {
@@ -710,6 +742,12 @@ private extension DetailsViewModel {
 }
 
 extension DetailsViewModel {
+    @RawCaseName
+    enum TopSectionType: Identifiable {
+        case walletConnect(WalletConnectRowViewModel)
+        case addressBook(AddressBookRowViewModel)
+    }
+
     struct UserWalletRowModel: Identifiable {
         var id: UserWalletId { userWalletId }
         let userWalletId: UserWalletId
