@@ -12,7 +12,6 @@ import Combine
 /// Per-wallet facade over the address book. Verifies signatures on load, enforces the uniqueness
 /// invariants, and signs (or re-signs) entries on every mutation that changes the signed tuple.
 /// Deletes and reads never require a signature.
-@MainActor
 protocol AddressBookManager: AnyObject {
     /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped;
     /// a contact whose every entry is invalid surfaces as `.allEntriesInvalid`.
