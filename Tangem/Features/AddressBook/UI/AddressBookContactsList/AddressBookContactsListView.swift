@@ -1,0 +1,46 @@
+//
+//  AddressBookContactsListView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
+
+struct AddressBookContactsListView: View {
+    @ObservedObject var viewModel: AddressBookContactsListViewModel
+
+    var body: some View {
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
+            if viewModel.walletChips.count > 1 {
+                HorizontalChipsView(
+                    chips: viewModel.walletChips,
+                    selectedId: $viewModel.selectedChipId,
+                    horizontalInset: 8
+                )
+            }
+
+            GroupedSection(viewModel.contactsViewModels, isLazy: true) {
+                AddressBookContactView(viewModel: $0)
+            }
+            .horizontalPadding(0)
+        }
+        .navigationTitle(Text(Localization.addressBookTitle))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: viewModel.openAddContact) {
+                    DesignSystem.Icons.SignPlus.regular20.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
