@@ -15,7 +15,7 @@ class AddressBookCoordinator: CoordinatorObject {
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: AddressBookViewModel?
+    @Published private(set) var rootViewModel: AddressBookContactsListViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -26,7 +26,7 @@ class AddressBookCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AddressBookViewModel(coordinator: self)
+        rootViewModel = .init(coordinator: self)
     }
 }
 
@@ -38,6 +38,14 @@ extension AddressBookCoordinator {
     }
 }
 
-// MARK: - AddressBookRoutable
+// MARK: - AddressBookContactsListRoutable
 
-extension AddressBookCoordinator: AddressBookRoutable {}
+extension AddressBookCoordinator: AddressBookContactsListRoutable {
+    func openAddContact() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openEditContact(contact: AddressBookContact) {
+        // [REDACTED_TODO_COMMENT]
+    }
+}

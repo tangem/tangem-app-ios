@@ -14,7 +14,7 @@ struct AddressBookCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                AddressBookView(viewModel: rootViewModel)
+                AddressBookContactsListView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 
