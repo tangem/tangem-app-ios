@@ -45,7 +45,7 @@ final class SwapModel {
     // MARK: - Private injections
 
     private let expressManager: ExpressManager
-    private let expressPairsRepository: ExpressPairsRepository
+    private let swapRepository: SwapRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
@@ -64,7 +64,7 @@ final class SwapModel {
         sourceToken: SendSwapableToken?,
         receiveToken: SendReceiveToken?,
         expressManager: ExpressManager,
-        expressPairsRepository: ExpressPairsRepository,
+        swapRepository: SwapRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
@@ -77,7 +77,7 @@ final class SwapModel {
         shouldStartInitialLoading: Bool,
     ) {
         self.expressManager = expressManager
-        self.expressPairsRepository = expressPairsRepository
+        self.swapRepository = swapRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
@@ -211,7 +211,7 @@ extension SwapModel {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            return await expressManager.update(amountType: amount)
+            return try await expressManager.update(amountType: amount)
         }
     }
 
@@ -850,7 +850,7 @@ extension SwapModel {
         do {
             switch (_sourceToken.value, _receiveToken.value) {
             case (.success(let source), .success):
-                try await expressPairsRepository.updatePairs(
+                try await swapRepository.updatePairs(
                     for: source.tokenItem.expressCurrency,
                     userWalletInfo: source.userWalletInfo
                 )
@@ -936,7 +936,7 @@ extension SwapModel {
 
     private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
         do {
-            try await expressPairsRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
+            try await swapRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
         } catch {
             ExpressLogger.info("Update pairs failed with error: \(error)")
         }
@@ -1112,8 +1112,11 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     }
 
     private func mapToAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
-        if case .loading(.rates) = state {
+        switch state {
+        case .loading(.rates), .loading(.providers):
             return .loading
+        default:
+            break
         }
 
         switch amount {

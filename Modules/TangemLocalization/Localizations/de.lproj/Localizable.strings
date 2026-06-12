@@ -92,6 +92,7 @@
 "address_book_discard" = "Verwerfen";
 "address_book_edit_address" = "Adresse bearbeiten";
 "address_book_enter_address" = "Adresse eingeben";
+"address_book_invalid_address_error" = "Invalid address";
 "address_book_keep_editing" = "Weiter bearbeiten";
 "address_book_new_contact" = "Neuer Kontakt";
 "address_book_no_contacts_description" = "Die von Ihnen hinzugefügten Kontakte werden hier angezeigt";
@@ -523,6 +524,7 @@
 "express_legal_one_placeholder" = "Durch die Nutzung der Swap-Funktion erklärst du dich mit den folgenden Bedingungen des Anbieters einverstanden %@";
 "express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden.";
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Bester Preis";
 "express_provider_fca_warning_list" = "Warnliste der FCA";
 "express_provider_fixed_rate_is_unavailable" = "Der Festzins ist nicht verfügbar";
@@ -535,6 +537,9 @@
 "express_provider_permission_needed" = "Erlaubnis erforderlich";
 "express_provider_recommended" = "Empfohlen";
 "express_provider" = "Anbieter";
+"express_send_with_swap_not_supported_button" = "Swap token";
+"express_send_with_swap_not_supported_text" = "Swap it manually and then send it to the recipient";
+"express_send_with_swap_not_supported_title" = "%@ is not supported in Swap & Send";
 "express_status_buying" = "Kauf %@";
 "express_status_hide_button_text" = "Diese Transaktion ausblenden";
 "express_status_hide_dialog_text" = "Sobald der Transaktionsstatus ausgeblendet ist, kann er nicht mehr angezeigt werden. Stattdessen kannst Du ihn durch einfaches Wischen schließen.";
@@ -1455,6 +1460,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Karte kann nicht umbenannt werden";
 "tangem_pay_card_frozen" = "Karte eingefroren";
 "tangem_pay_card_payment" = "Kartenzahlung";
+"tangem_pay_close_card_disabled_last_card" = "You can’t close the last card";
 "tangem_pay_close_card_popup_description" = "Es wird aus der App verschwinden";
 "tangem_pay_close_card_popup_primary_button_title" = "Karte schließen";
 "tangem_pay_close_card_popup_secondary_button_title" = "Geh zurück";
@@ -1586,6 +1592,9 @@
 "tangempay_declined_reason_9" = "Karte gesperrt";
 "tangempay_declined_reason_reason" = "Grund";
 "tangempay_digital_card" = "Digitale";
+"tangempay_face_id_not_set_button" = "Set Face ID";
+"tangempay_face_id_not_set_description" = "Unable to use PIN without Face ID. Please turn on Face ID in app settings";
+"tangempay_face_id_not_set_title" = "Face ID not set";
 "tangempay_factory_settings_warning_title" = "Mir ist bewusst, dass ich den Zugriff auf meine Tangem Pay Card und alle darauf befindlichen Guthaben vollständig und ohne Möglichkeit der Wiederherstellung verliere.";
 "tangempay_failed_to_issue_card_retry_description" = "Ein technischer Fehler ist aufgetreten, bitte versuchen Sie es erneut, indem Sie auf die Schaltfläche unten klicken";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
@@ -1686,10 +1695,14 @@
 "tangempay_topup_receive_title" = "Von einer anderen Wallet oder Börse";
 "tangempay_topup_swap_body" = "Laden Sie Ihr Konto mit einem beliebigen Token aus Ihrer Wallet auf";
 "tangempay_topup_swap_title" = "Aus Ihrer Tangem Wallet";
+"tangempay_touch_id_not_set_button" = "Set Touch ID";
+"tangempay_touch_id_not_set_description" = "Unable to use PIN without Touch ID. Please turn on Touch ID in app settings";
+"tangempay_touch_id_not_set_title" = "Touch ID not set";
 "tangempay_usdc_on_polygon_network" = "USDC im Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Klicken Sie auf die Schaltfläche unten, um den Zugriff wiederherzustellen";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";
+"tangempay_your_balance" = "Your balance";
 "tangempay_your_pin_code" = "Ihr PIN-Code";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";

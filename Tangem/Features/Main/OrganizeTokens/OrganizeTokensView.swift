@@ -22,6 +22,8 @@ struct OrganizeTokensView: View {
 
     private let onCloseTap: (() -> Void)?
 
+    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+
     @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - Content insets and overlay views
@@ -80,13 +82,8 @@ struct OrganizeTokensView: View {
 
     // MARK: - Colors
 
-    // [REDACTED_INFO]: `.redesign` supersedes `.manageTokensImprovements` here — when both flags are on,
-    // redesign values win. Flag-cleanup order is fixed: retire `.manageTokensImprovements` first
-    // (drop its branch and the `Colors.Background.*` legacy fallback), then retire `.redesign`,
-    // collapsing each property to its `Color.Tangem.Surface.*` value. Final state = redesign colors.
-
     private var backgroundColor: Color {
-        if FeatureProvider.isAvailable(.redesign) {
+        if isRedesign {
             return Color.Tangem.Surface.level2
         }
         if FeatureProvider.isAvailable(.manageTokensImprovements) {
@@ -96,7 +93,7 @@ struct OrganizeTokensView: View {
     }
 
     private var cellBackgroundColor: Color {
-        if FeatureProvider.isAvailable(.redesign) {
+        if isRedesign {
             return Color.Tangem.Surface.level3
         }
         if FeatureProvider.isAvailable(.manageTokensImprovements) {
@@ -108,15 +105,15 @@ struct OrganizeTokensView: View {
     // MARK: - Layout (redesign-aware)
 
     private var contentCornerRadius: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? Constants.redesignContentCornerRadius : Constants.contentCornerRadius
+        isRedesign ? Constants.redesignContentCornerRadius : Constants.contentCornerRadius
     }
 
     private var contentHorizontalInset: CGFloat {
-        FeatureProvider.isAvailable(.redesign) ? Constants.redesignContentHorizontalInset : Constants.contentHorizontalInset
+        isRedesign ? Constants.redesignContentHorizontalInset : Constants.contentHorizontalInset
     }
 
     private var isModernOrganizeTokensLayout: Bool {
-        FeatureProvider.isAvailable(.redesign) || FeatureProvider.isAvailable(.manageTokensImprovements)
+        isRedesign || FeatureProvider.isAvailable(.manageTokensImprovements)
     }
 
     // MARK: - Body
@@ -147,9 +144,9 @@ struct OrganizeTokensView: View {
     @ToolbarContentBuilder
     private var redesignedToolbarContent: some ToolbarContent {
         // Standalone-sheet path (no custom `BottomSheetHeaderView`): host the sort menu in the native nav bar.
-        if FeatureProvider.isAvailable(.redesign), onCloseTap == nil, let headerViewModel = viewModel.headerViewModel {
+        if isRedesign, onCloseTap == nil, let headerViewModel = viewModel.headerViewModel {
             ToolbarItem(placement: .topBarTrailing) {
-                OrganizeTokensSortMenuView(viewModel: headerViewModel)
+                OrganizeTokensSortMenuView(viewModel: headerViewModel, appliesGlassBackground: false)
             }
         }
     }
@@ -361,6 +358,8 @@ struct OrganizeTokensView: View {
             tokenListTitle
             tokenListHeader
         }
+        // Full width so the `.bar` band paints behind the system nav-bar title when `topContent` is otherwise empty.
+        .frame(maxWidth: .infinity)
         .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
         .padding(.bottom, Constants.headerAdditionalBottomInset)
         .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
@@ -381,11 +380,8 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func headerTrailing(onCloseTap: @escaping () -> Void) -> some View {
-        if FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
-            HStack(spacing: .unit(.x2)) {
-                OrganizeTokensSortMenuView(viewModel: headerViewModel)
-                NavigationBarButton.close(action: onCloseTap)
-            }
+        if isRedesign, let headerViewModel = viewModel.headerViewModel {
+            OrganizeTokensSortMenuView(viewModel: headerViewModel, appliesGlassBackground: true)
         } else {
             NavigationBarButton.close(action: onCloseTap)
         }
@@ -394,7 +390,7 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private var tokenListHeader: some View {
         // [REDACTED_INFO]: legacy inline sort/group header — hidden under `.redesign` because controls moved into the navbar dropdown
-        if !FeatureProvider.isAvailable(.redesign), let headerViewModel = viewModel.headerViewModel {
+        if !isRedesign, let headerViewModel = viewModel.headerViewModel {
             OrganizeTokensListHeader(
                 viewModel: headerViewModel,
                 horizontalInset: contentHorizontalInset,
@@ -405,7 +401,7 @@ struct OrganizeTokensView: View {
 
     private var tokenListFooter: some View {
         Group {
-            if FeatureProvider.isAvailable(.redesign) {
+            if isRedesign {
                 OrganizeTokensListFooterRedesigned(
                     actionsHandler: viewModel,
                     isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
@@ -529,7 +525,7 @@ struct OrganizeTokensView: View {
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
-            if FeatureProvider.isAvailable(.redesign) {
+            if isRedesign {
                 OrganizeTokensListItemViewRedesigned(viewModel: viewModel)
             } else {
                 OrganizeTokensListItemView(viewModel: viewModel)
@@ -575,7 +571,7 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeInnerSectionView(title: String, identifier: AnyHashable, isDraggable: Bool) -> some View {
-        if FeatureProvider.isAvailable(.redesign) {
+        if isRedesign {
             OrganizeTokensListInnerSectionViewRedesigned(title: title, identifier: identifier, isDraggable: isDraggable)
         } else {
             OrganizeTokensListInnerSectionView(title: title, identifier: identifier, isDraggable: isDraggable)
@@ -593,7 +589,7 @@ struct OrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .default(let title, let iconData):
-                if FeatureProvider.isAvailable(.redesign) {
+                if isRedesign {
                     OrganizeTokensListOuterSectionViewRedesigned(
                         title: title,
                         iconData: iconData,

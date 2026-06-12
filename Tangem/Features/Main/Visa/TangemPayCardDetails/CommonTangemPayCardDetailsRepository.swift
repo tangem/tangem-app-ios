@@ -53,6 +53,15 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
         }
     }
 
+    var isReissuingPublisher: AnyPublisher<Bool, Never> {
+        switch source {
+        case .tangemPayAccount(let tangemPayAccount):
+            tangemPayAccount.isReissuingCardPublisher
+        case .card(let card):
+            card.isReissuingPublisher
+        }
+    }
+
     private let source: Source
 
     init(tangemPayAccount: TangemPayAccount) {

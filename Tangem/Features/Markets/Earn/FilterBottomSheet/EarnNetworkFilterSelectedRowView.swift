@@ -15,7 +15,7 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
     let data: DefaultSelectableRowViewModel<ID>
     let selection: Binding<ID>
 
-    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x3) + .unit(.half)
+    @ScaledMetric private var verticalPadding: CGFloat = .unit(.x4) + .unit(.half)
     @ScaledMetric private var horizontalMinLength = CGFloat.unit(.x1)
     @ScaledMetric private var iconSide = CGFloat.unit(.x5)
 

@@ -80,7 +80,7 @@ struct MultiWalletMainContentRedesignedView: View {
     private var organizeButton: some View {
         TangemButton(
             content: .combined(
-                text: AttributedString(Localization.organizeTokensTitle),
+                text: AttributedString(viewModel.organizeTokensButtonTitle),
                 icon: Assets.OrganizeTokens.filterIcon,
                 iconPosition: .left
             ),
@@ -133,7 +133,7 @@ struct MultiWalletMainContentRedesignedView: View {
                         tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
                     }
                 }
-                .cornerRadius(.unit(.x5))
+                .cornerRadius(.unit(.x6))
                 .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
             }
         }

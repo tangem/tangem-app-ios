@@ -35,20 +35,28 @@ final class TangemPayTransactionHistoryService {
         apiService: CustomerInfoManagementService,
         tangemPayAccount: TangemPayAccount,
         cacheStorage: TangemPayTransactionHistoryCacheStorage? = nil,
-        customerWalletId: String? = nil
+        customerWalletId: String? = nil,
+        isTangemPayUnavailablePublisher: AnyPublisher<Bool, Never>
     ) {
         self.apiService = apiService
         self.tangemPayAccount = tangemPayAccount
         self.cacheStorage = cacheStorage
         self.customerWalletId = customerWalletId
 
-        if let cached = loadCachedRecords(), !cached.isEmpty {
-            Task { @MainActor [weak self] in
-                guard let self, records.isEmpty else { return }
-                records = cached
-                stateSubject.send(.loaded(mapper.formatTransactions(records, cardNameByCardId: currentCardNameMap())))
-            }
+        Task { @MainActor [weak self] in
+            self?.applyCachedRecordsIfNeeded()
         }
+
+        isTangemPayUnavailablePublisher
+            .filter { $0 }
+            .removeDuplicates()
+            .receiveOnMain()
+            .sink { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.applyCachedRecordsIfNeeded()
+                }
+            }
+            .store(in: &bag)
 
         bindCardNameUpdates()
     }
@@ -80,6 +88,15 @@ final class TangemPayTransactionHistoryService {
     private func loadCachedRecords() -> [TangemPayTransactionRecord]? {
         guard let cacheStorage, let customerWalletId else { return nil }
         return cacheStorage.cachedTransactions(customerWalletId: customerWalletId)
+    }
+
+    @MainActor
+    private func applyCachedRecordsIfNeeded() {
+        guard records.isEmpty, let cached = loadCachedRecords(), !cached.isEmpty else {
+            return
+        }
+        records = cached
+        stateSubject.send(.loaded(mapper.formatTransactions(records, cardNameByCardId: currentCardNameMap())))
     }
 
     @MainActor
