@@ -20,6 +20,7 @@ struct CommonUserWalletModelDependencies {
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let addressBookManager: AddressBookManager
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
@@ -92,6 +93,8 @@ struct CommonUserWalletModelDependencies {
             accountModelsManager: accountModelsManager
         )
 
+        addressBookManager = Self.makeAddressBookManager(userWalletId: userWalletId, config: config)
+
         userWalletModelConfigurableDependencies = UserWalletModelConfigurableDependencies(
             derivationManager: derivationManager,
             keysRepository: keysRepository,
@@ -109,6 +112,30 @@ struct CommonUserWalletModelDependencies {
 // MARK: - Factory methods
 
 private extension CommonUserWalletModelDependencies {
+    static func makeAddressBookManager(userWalletId: UserWalletId, config: UserWalletConfig) -> AddressBookManager {
+        guard let walletPublicKeySeed = config.userWalletIdSeed else {
+            return NoopAddressBookManager()
+        }
+
+        let repository = CommonAddressBookRepository(
+            walletId: userWalletId,
+            walletPublicKeySeed: walletPublicKeySeed,
+            networkService: StubAddressBookNetworkService(),
+            eTagStorage: InjectedValues[\.addressBookETagStorage],
+            persistentStorage: CommonAddressBookPersistentStorage(),
+            encryptionService: CommonAddressBookEncryptionService(),
+            keyProvider: CommonAddressBookEncryptionKeyProvider()
+        )
+
+        return CommonAddressBookManager(
+            walletId: userWalletId,
+            walletPublicKey: walletPublicKeySeed,
+            repository: repository,
+            signer: CommonAddressBookSigner(signer: config.tangemSigner),
+            verifier: AddressBookSignatureVerifier()
+        )
+    }
+
     static func makeKeysRepository(keys: WalletKeys) -> CommonKeysRepository {
         CommonKeysRepository(keys: keys)
     }
