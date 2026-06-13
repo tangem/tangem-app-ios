@@ -24,7 +24,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 
     @Test("CEX: ratingViewModel is created when externalTxId exists")
     func cexRatingViewModelCreated() async {
-        await withInjectedKeysManager {
+        await withInjectedDependencies {
             let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: anyExternalID)
             await awaitRatingViewModel(on: sut)
         }
@@ -32,7 +32,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 
     @Test("DEX: ratingViewModel is created using expressTransactionId when externalTxId is nil")
     func dexRatingViewModelCreated() async {
-        await withInjectedKeysManager {
+        await withInjectedDependencies {
             let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
             await awaitRatingViewModel(on: sut)
         }
@@ -40,7 +40,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 
     @Test("ratingViewModel created after transaction updates with externalTxId")
     func ratingViewModelUpdatedWithExternalTxId() async throws {
-        try await withInjectedKeysManager {
+        try await withInjectedDependencies {
             let (sut, subject) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
 
             let firstInstance = try #require(sut.ratingViewModel)
@@ -54,7 +54,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 
     @Test("ratingViewModel created only once")
     func ratingViewModelCreatedOnlyOnce() async throws {
-        try await withInjectedKeysManager {
+        try await withInjectedDependencies {
             let (sut, subject) = makeSUT(externalTxId: anyExternalID)
 
             let firstInstance = try #require(sut.ratingViewModel)
@@ -67,7 +67,7 @@ final class PendingExpressTxStatusBottomSheetViewModelRatingTests: LeakTrackingT
 
     @Test("ratingViewModel is available immediately for DEX transactions")
     func ratingViewModelAvailableImmediatelyForDex() throws {
-        try withInjectedKeysManagerSync {
+        try withInjectedDependenciesSync {
             let (sut, _) = makeSUT(expressTransactionId: anyExpressTransactionId, externalTxId: nil)
 
             var receivedValues: [RatingViewModel?] = []
@@ -91,17 +91,31 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
 
     // MARK: - Dependency Isolation
 
-    func withInjectedKeysManager<T>(operation: () async throws -> T) async rethrows -> T {
-        let previous = InjectedValues[\.keysManager]
+    func withInjectedDependencies<T>(operation: () async throws -> T) async rethrows -> T {
+        let previousKeys = InjectedValues[\.keysManager]
+        let previousProvider = InjectedValues[\.ratingProvider]
+
         InjectedValues[\.keysManager] = KeysManagerStub()
-        defer { InjectedValues[\.keysManager] = previous }
+        InjectedValues[\.ratingProvider] = RatingProviderSpy()
+
+        defer {
+            InjectedValues[\.keysManager] = previousKeys
+            InjectedValues[\.ratingProvider] = previousProvider
+        }
         return try await operation()
     }
 
-    func withInjectedKeysManagerSync<T>(operation: () throws -> T) rethrows -> T {
-        let previous = InjectedValues[\.keysManager]
+    func withInjectedDependenciesSync<T>(operation: () throws -> T) rethrows -> T {
+        let previousKeys = InjectedValues[\.keysManager]
+        let previousProvider = InjectedValues[\.ratingProvider]
+
         InjectedValues[\.keysManager] = KeysManagerStub()
-        defer { InjectedValues[\.keysManager] = previous }
+        InjectedValues[\.ratingProvider] = RatingProviderSpy()
+
+        defer {
+            InjectedValues[\.keysManager] = previousKeys
+            InjectedValues[\.ratingProvider] = previousProvider
+        }
         return try operation()
     }
 
