@@ -28,6 +28,7 @@ struct AddressBookContactsListView: View {
             content
         }
         .navigationTitle(Text(Localization.addressBookTitle))
+        // [REDACTED_TODO_COMMENT]
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
