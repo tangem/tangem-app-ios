@@ -9,13 +9,14 @@
 import Foundation
 import Combine
 import TangemUI
+import TangemFoundation
 
 final class AddressBookContactsListViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var selectedChipId: String?
     @Published private(set) var walletChips: [Chip] = []
-    @Published private(set) var contactsViewModels: [AddressBookContactViewModel] = []
+    @Published private(set) var contactsViewModels: LoadingResult<[AddressBookContactViewModel], Never> = .loading
 
     // MARK: - Dependencies
 
@@ -75,7 +76,7 @@ private extension AddressBookContactsListViewModel {
             .flatMapLatest { viewModel, addressBook in
                 addressBook.addressBookPublisher
                     .withWeakCaptureOf(viewModel)
-                    .map { $0.mapToAddressBookContactViewModels(contacts: $1.contacts) }
+                    .map { .success($0.mapToAddressBookContactViewModels(contacts: $1.contacts)) }
             }
             .receive(on: DispatchQueue.main)
             .assign(to: &$contactsViewModels)

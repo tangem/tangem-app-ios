@@ -25,10 +25,7 @@ struct AddressBookContactsListView: View {
                 )
             }
 
-            GroupedSection(viewModel.contactsViewModels, isLazy: true) {
-                AddressBookContactView(viewModel: $0)
-            }
-            .horizontalPadding(0)
+            content
         }
         .navigationTitle(Text(Localization.addressBookTitle))
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -41,6 +38,25 @@ struct AddressBookContactsListView: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.contactsViewModels {
+        case .loading:
+            // [REDACTED_TODO_COMMENT]
+            EmptyView()
+
+        case .success(let contactsViewModels) where contactsViewModels.isEmpty:
+            // [REDACTED_TODO_COMMENT]
+            EmptyView()
+
+        case .success(let contactsViewModels):
+            GroupedSection(contactsViewModels, isLazy: true) {
+                AddressBookContactView(viewModel: $0)
+            }
+            .horizontalPadding(0)
         }
     }
 }
