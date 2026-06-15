@@ -137,6 +137,18 @@ final class CommonAddressBookManager {
     private func replacing(contactWith id: ContactID, by contact: DecodedContact, in contacts: [DecodedContact]) -> [DecodedContact] {
         contacts.map { $0.id == id ? contact : $0 }
     }
+
+    /// Rebuilds a contact preserving its identity, walletId and createdAt while bumping updatedAt.
+    private func touched(_ contact: DecodedContact, name: ContactName? = nil, addresses: [DecodedAddressEntry]? = nil) -> DecodedContact {
+        DecodedContact(
+            id: contact.id,
+            walletId: contact.walletId,
+            name: name ?? contact.name,
+            createdAt: contact.createdAt,
+            updatedAt: Date(),
+            addresses: addresses ?? contact.addresses
+        )
+    }
 }
 
 // MARK: - AddressBookManager protocol conformance
@@ -170,7 +182,15 @@ extension CommonAddressBookManager: AddressBookManager {
         let contactId = ContactID()
         let toSign = drafts.map { EntryToSign(id: AddressEntryID(), address: $0.address, networkId: $0.networkId, memo: $0.memo) }
         let entries = try await sign(toSign, contactId: contactId, name: name)
-        let contact = DecodedContact(id: contactId, name: name, addresses: entries)
+        let now = Date()
+        let contact = DecodedContact(
+            id: contactId,
+            walletId: walletId.stringValue,
+            name: name,
+            createdAt: now,
+            updatedAt: now,
+            addresses: entries
+        )
 
         try await repository.save(contacts: contacts + [contact])
     }
@@ -183,7 +203,7 @@ extension CommonAddressBookManager: AddressBookManager {
         // `name` is part of the signed tuple, so every entry of the contact is re-signed.
         let toSign = contact.addresses.map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
         let entries = try await sign(toSign, contactId: id, name: name)
-        let updated = DecodedContact(id: id, name: name, addresses: entries)
+        let updated = touched(contact, name: name, addresses: entries)
 
         try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
     }
@@ -200,7 +220,7 @@ extension CommonAddressBookManager: AddressBookManager {
 
         let toSign = drafts.map { EntryToSign(id: AddressEntryID(), address: $0.address, networkId: $0.networkId, memo: $0.memo) }
         let signed = try await sign(toSign, contactId: id, name: contact.name)
-        let updated = DecodedContact(id: id, name: contact.name, addresses: contact.addresses + signed)
+        let updated = touched(contact, addresses: contact.addresses + signed)
 
         try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
     }
@@ -223,7 +243,7 @@ extension CommonAddressBookManager: AddressBookManager {
         )
 
         let addresses = contact.addresses.map { $0.id == entryId ? signed[0] : $0 }
-        let updated = DecodedContact(id: contactId, name: contact.name, addresses: addresses)
+        let updated = touched(contact, addresses: addresses)
 
         try await repository.save(contacts: replacing(contactWith: contactId, by: updated, in: contacts))
     }
@@ -239,7 +259,7 @@ extension CommonAddressBookManager: AddressBookManager {
             return
         }
 
-        let updated = DecodedContact(id: contactId, name: contact.name, addresses: remaining)
+        let updated = touched(contact, addresses: remaining)
         try await repository.save(contacts: replacing(contactWith: contactId, by: updated, in: contacts))
     }
 
