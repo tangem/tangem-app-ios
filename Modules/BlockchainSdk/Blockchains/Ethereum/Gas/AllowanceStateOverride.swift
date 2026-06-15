@@ -119,9 +119,9 @@ struct AllowanceSlot {
 
 // MARK: - EthereumAccountOverride
 
-/// One Ethereum account's override for `eth_estimateGas` / `eth_call`: which storage slots to pretend
-/// have which values during simulation.
-public struct EthereumAccountOverride: Encodable {
+public typealias EthereumStateOverride = [String: EthereumAccountOverride]
+
+public struct EthereumAccountOverride: Encodable, Hashable {
     public let stateDiff: [String: String]
 
     public init(stateDiff: [String: String]) {
@@ -134,7 +134,7 @@ public struct EthereumAccountOverride: Encodable {
         tokenAddress: String,
         owner: String,
         spender: String
-    ) -> [String: Self] {
+    ) -> EthereumStateOverride {
         let maxUInt256Hex = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         let stateDiff = AllowanceSlot.candidates.reduce(into: [String: String]()) { result, slot in
             let key = slot.storageKey(owner: owner, spender: spender)
