@@ -71,7 +71,9 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-keep-wallets")
         }
 
-        for (feature, isEnabled) in features {
+        // Redesign is disabled by default for every UI test; an individual test may override it via `features`.
+        let resolvedFeatures = [TestFeature.redesign: false].merging(features) { _, override in override }
+        for (feature, isEnabled) in resolvedFeatures {
             let suffix = isEnabled ? "on" : "off"
             arguments.append("-uitest-feature-\(feature.rawValue)-\(suffix)")
         }
