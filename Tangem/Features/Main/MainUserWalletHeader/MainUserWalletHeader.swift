@@ -24,18 +24,20 @@ struct MainUserWalletHeader: View {
     }
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
-    @ScaledMetric private var height: CGFloat = 84
+    @ScaledMetric private var height: CGFloat = .unit(.x12)
     @ScaledMetric private var thumbnailSize: CGFloat = 24
 
     var body: some View {
-        VStack(spacing: SizeUnit.x4.value) {
+        VStack(spacing: 0) {
             balance
 
             switch headerViewModel.subtitleViewState {
             case .progress(let value):
                 RestoreProgressChip(progress: value)
+                    .padding(.top, .unit(.x3))
             case .text:
                 walletNameWithThumbnail
+                    .padding(.top, .unit(.x3))
             }
 
             if let paginationState = model.paginationState {
@@ -44,11 +46,12 @@ struct MainUserWalletHeader: View {
                     currentIndex: paginationState.currentIndex
                 )
                 .pagerStationary()
+                .padding(.top, .unit(.x5))
             }
 
             if let actionButtonsViewModel = model.actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
-                    .padding(.top, .unit(.x2))
+                    .padding(.top, .unit(.x15))
                     .padding(.bottom, .unit(.x6))
             }
         }
