@@ -124,6 +124,13 @@ private extension WalletTransactionHistoryService {
         _state.send(.initial)
         pending.forEach { $0() }
         AppLogger.info(self, "providers rebuilt for \(newProviders.count) key(s)")
+
+        // A key change resets to `.initial` (a spinner in the UI). Kick off the load here so
+        // history starts fetching immediately, instead of waiting for an external `update()`
+        // that races with this rebuild and may have already run against the old key.
+        if !newProviders.isEmpty {
+            startUpdate {}
+        }
     }
 
     func makeProvider() -> BlockchainSdk.TransactionHistoryProvider? {
