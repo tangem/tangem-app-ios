@@ -16,6 +16,14 @@ struct TangemPayPinView: View {
     @ObservedObject var viewModel: TangemPayPinViewModel
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            redesignedBody
+        } else {
+            legacyBody
+        }
+    }
+
+    private var legacyBody: some View {
         NavigationStack {
             Group {
                 switch viewModel.state {
@@ -137,5 +145,78 @@ struct TangemPayPinView: View {
             .padding(.horizontal, 16)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.pinDoneButton)
         }
+    }
+}
+
+// MARK: - Redesigned
+
+private extension TangemPayPinView {
+    var redesignedBody: some View {
+        NavigationStack {
+            Group {
+                switch viewModel.state {
+                case .enterPin:
+                    redesignedEnterPinView
+                case .created:
+                    redesignedSuccessView
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    if viewModel.isEnteringPin {
+                        Text(Localization.tangempaySetPinTitle)
+                            .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                    }
+                }
+
+                if viewModel.isEnteringPin {
+                    NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
+                }
+            }
+            .toolbar(viewModel.isEnteringPin ? .visible : .hidden, for: .navigationBar)
+        }
+    }
+
+    var redesignedEnterPinView: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
+                Text(viewModel.enterPinHeader)
+                    .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.tertiary)
+                    .multilineTextAlignment(.center)
+
+                TangemPayPinStackView(
+                    pinText: $viewModel.pin,
+                    length: viewModel.pinCodeLength,
+                    errorMessage: viewModel.errorMessage,
+                    isDisabled: viewModel.isLoading
+                )
+
+                if viewModel.isLoading {
+                    TangemLoader()
+                        .loaderSize(.size24)
+                }
+            }
+            .padding(.top, DesignSystem.Tokens.Spacing.s800)
+            .padding(.horizontal, DesignSystem.Tokens.Spacing.s300)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DesignSystem.Tokens.Theme.Bg.primary.ignoresSafeArea())
+        .onAppear(perform: viewModel.onAppear)
+    }
+
+    var redesignedSuccessView: some View {
+        TangemPaySuccessView(
+            model: .init(
+                icon: DesignSystem.Icons.Success.regular20,
+                title: Localization.tangempayCardDetailsChangePinSuccessTitle,
+                subtitle: Localization.tangempayCardDetailsChangePinSuccessDescription,
+                buttonTitle: Localization.commonClose
+            ),
+            action: viewModel.close
+        )
     }
 }
