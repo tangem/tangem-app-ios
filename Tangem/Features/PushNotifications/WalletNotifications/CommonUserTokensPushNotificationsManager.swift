@@ -260,6 +260,12 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
     func tryUpdateEnableState(value: Bool, for _: PushChannel) async throws {
         applyLocalStatusUpdate(value)
     }
+
+    func refetchPreferences() async throws {
+        // The legacy flow has no dedicated preferences endpoint: re-running the remote status
+        // sync re-emits `remoteStatusReceived`/failure events that update `preferencesPublisher`.
+        syncRemoteStatus()
+    }
 }
 
 // MARK: - UserTokenListExternalParametersProvider
