@@ -79,7 +79,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
-    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let notificationBannerItemsProvider: NotificationBannerItemsProvider
