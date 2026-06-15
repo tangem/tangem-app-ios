@@ -60,7 +60,7 @@ final class EthereumJsonRpcProvider: HostProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<String, Error> {
         return requestPublisher(for: .gasLimit(
             params: .init(to: to, from: from, value: value, data: data),
