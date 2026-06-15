@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct WelcomeOnboardingView: View {
     @ObservedObject private var viewModel: WelcomeOnboardingViewModel
@@ -20,6 +21,17 @@ struct WelcomeOnboardingView: View {
             .background(.ultraThinMaterial)
             .transition(.opacity)
             .environment(\.colorScheme, .dark)
+            .overlay {
+                EmptyView()
+                    .floatingSheet(
+                        viewModel: viewModel.warningSheetViewModel,
+                        dismissSheetAction: viewModel.dismissWarningSheet
+                    )
+                    .allowsHitTesting(viewModel.warningSheetViewModel != nil)
+            }
+            .floatingSheetContent(for: PushNotificationsWarningViewModel.self) { warningViewModel in
+                PushNotificationsWarningView(viewModel: warningViewModel)
+            }
     }
 
     @ViewBuilder
