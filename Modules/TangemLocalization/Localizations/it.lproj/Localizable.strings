@@ -1676,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Impossibile coprire la commissione";
 "tangempay_reissue_card_insufficient_funds" = "Fondi insufficienti per riemettere la carta";
 "tangempay_reissue_card_title" = "Vuoi riemettere la tua carta?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Stiamo risolvendo un problema tecnico. Riprova più tardi.";
 "tangempay_service_unavailable_title" = "Servizio temporaneamente non disponibile";
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
