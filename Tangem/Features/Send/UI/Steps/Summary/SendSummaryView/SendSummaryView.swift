@@ -64,6 +64,7 @@ struct SendSummaryView: View {
                 SendDestinationCompactView(viewModel: destinationCompactViewModel)
             }
             .allowsHitTesting(viewModel.destinationEditableType.isEditable)
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.summaryDestinationBlock)
         }
     }
 
