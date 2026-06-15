@@ -19,7 +19,7 @@ final class MantleWalletManager: EthereumWalletManager {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], any Error> {
         super.getFee(
             destination: destination,
