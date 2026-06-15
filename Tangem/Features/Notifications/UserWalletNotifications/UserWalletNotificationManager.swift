@@ -162,7 +162,7 @@ final class UserWalletNotificationManager {
     }
 
     private func showAppRateNotificationIfNeeded() {
-        guard showAppRateNotification, shouldShowAddFundsBanner == false else {
+        guard showAppRateNotification else {
             hideShownAppRateNotificationIfNeeded()
             return
         }
@@ -299,7 +299,6 @@ final class UserWalletNotificationManager {
             return
         }
 
-        hideShownAppRateNotificationIfNeeded()
         hideMobileUpgradeNotificationIfNeeded()
         hideMobileActivationNotificationIfNeeded()
         if let pushPermissionNotificationId {
@@ -399,10 +398,8 @@ final class UserWalletNotificationManager {
             .store(in: &bag)
 
         addFundsBannerVisibilityProvider
-            .shouldShowPublisher
-            .dropFirst()
+            .shouldShowPublisher(for: userWalletModel)
             .receiveOnMain()
-            .map { $0 && FeatureProvider.isAvailable(.addFundsStage1) }
             .withWeakCaptureOf(self)
             .sink { manager, shouldShow in
                 manager.shouldShowAddFundsBanner = shouldShow
