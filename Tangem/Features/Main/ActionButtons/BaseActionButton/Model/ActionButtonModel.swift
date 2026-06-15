@@ -24,7 +24,7 @@ enum ActionButtonModel: Hashable {
         case .swap:
             return Localization.commonSwap
         case .sell:
-            return isAddFundsStage1Enabled ? Localization.commonTransfer : Localization.commonSell
+            return Localization.commonSell
         }
     }
 
