@@ -9,8 +9,8 @@
 import Foundation
 
 /// Serializes the address-book plaintext to and from JSON before encryption. Centralizing the JSON
-/// configuration here keeps the blob schema in one place. Signature bytes use the Base64 default; the
-/// exact on-the-wire schema is a cross-platform contract to confirm with the other clients.
+/// configuration here keeps the blob schema in one place. Dates use ISO-8601 with fractional seconds
+/// and signature bytes use Base64 — the on-the-wire schema is a cross-platform contract.
 struct AddressBookBlobCodec {
     static let supportedVersion = "1.0"
 
@@ -26,8 +26,32 @@ struct AddressBookBlobCodec {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         encoder.dataEncodingStrategy = .base64
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(addressBookBlobDateFormatter.string(from: date))
+        }
         return encoder
     }()
 
-    private static let decoder = JSONDecoder()
+    private static let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let string = try decoder.singleValueContainer().decode(String.self)
+
+            guard let date = addressBookBlobDateFormatter.date(from: string) else {
+                throw DecodingError.dataCorrupted(
+                    .init(codingPath: decoder.codingPath, debugDescription: "Invalid ISO-8601 date: \(string)")
+                )
+            }
+
+            return date
+        }
+        return decoder
+    }()
 }
+
+private let addressBookBlobDateFormatter: ISO8601DateFormatter = {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return formatter
+}()
