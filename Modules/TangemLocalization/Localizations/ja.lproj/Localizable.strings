@@ -214,6 +214,7 @@
 "common_attention" = "注意";
 "common_available_networks" = "利用可能なネットワーク";
 "common_back" = "戻る";
+"common_backup_error" = "Backup Error";
 "common_backup" = "バックアップ";
 "common_balance_title" = "残高";
 "common_balance" = "残高: %@";
@@ -2087,6 +2088,7 @@
 "wc_all_dapps_disconnected" = "すべてのdAppが接続解除されました";
 "wc_allow_to_spend" = "使用を許可する";
 "wc_approve_description" = "承認することで、今後の取引においてdAppまたはスマートコントラクトがトークンを使用することを許可することになります。";
+"wc_change_address" = "Change address";
 "wc_common_address" = "アドレス";
 "wc_common_connect" = "接続する";
 "wc_common_loading" = "読み込み中";
