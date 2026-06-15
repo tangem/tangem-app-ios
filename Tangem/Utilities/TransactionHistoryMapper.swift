@@ -10,6 +10,14 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
+protocol WalletModelTransactionHistoryAddressesProvider {
+    var walletAddresses: [String] { get }
+}
+
+extension WalletModelTransactionHistoryAddressesProvider where Self: WalletModel {
+    var walletAddresses: [String] { allAddresses.map(\.value) }
+}
+
 struct TransactionHistoryMapper {
     @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
     // Temporary: injected to obtain the gasless fee recipient address until it’s provided via app config.
@@ -17,9 +25,13 @@ struct TransactionHistoryMapper {
     @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
     private let currencySymbol: String
-    private let walletAddresses: [String]
+    private let addressesProvider: WalletModelTransactionHistoryAddressesProvider
     private let showSign: Bool
     private let isToken: Bool
+
+    private var walletAddresses: [String] {
+        addressesProvider.walletAddresses
+    }
 
     private let balanceFormatter = BalanceFormatter()
     private static let dateFormatter: DateFormatter = {
@@ -61,9 +73,14 @@ struct TransactionHistoryMapper {
         return dateFormatter
     }()
 
-    init(currencySymbol: String, walletAddresses: [String], showSign: Bool, isToken: Bool) {
+    init(
+        currencySymbol: String,
+        addressesProvider: WalletModelTransactionHistoryAddressesProvider,
+        showSign: Bool,
+        isToken: Bool
+    ) {
         self.currencySymbol = currencySymbol
-        self.walletAddresses = walletAddresses
+        self.addressesProvider = addressesProvider
         self.showSign = showSign
         self.isToken = isToken
     }
