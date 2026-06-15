@@ -16,7 +16,6 @@ import TangemUI
 final class CreateAddressBookContactManagementInteractor {
     typealias DraftRow = AddressBookContactManagementViewModel.DraftRow
     typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
-    typealias MainButtonState = AddressBookContactManagementViewModel.MainButtonState
 
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
@@ -24,23 +23,13 @@ final class CreateAddressBookContactManagementInteractor {
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
-    private let walletSubject: CurrentValueSubject<WalletRowType?, Never>
+    private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
     init() {
         nameSubject = .init("")
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
         addressesSubject = .init([])
-
-        let walletName: WalletRowType? = {
-            guard let walletName = Self.userWalletRepository.selectedModel?.userWalletInfo.name else {
-                return nil
-            }
-
-            let isEditable = Self.userWalletRepository.models.count > 1
-            return WalletRowType(wallet: walletName, isEditable: isEditable)
-        }()
-
-        walletSubject = .init(walletName)
+        walletSubject = .init(Self.userWalletRepository.selectedModel?.userWalletInfo)
     }
 }
 
@@ -62,7 +51,17 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     var walletPublisher: AnyPublisher<WalletRowType?, Never> {
-        walletSubject.eraseToAnyPublisher()
+        walletSubject
+            .map { walletInfo in
+                walletInfo.map {
+                    WalletRowType(
+                        userWalletId: $0.id,
+                        wallet: $0.name,
+                        isEditable: Self.userWalletRepository.models.count > 1
+                    )
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
@@ -71,17 +70,24 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
-    var mainButtonStatePublisher: AnyPublisher<MainButtonState, Never> {
+    var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(nameSubject, addressesSubject)
             .map { name, addresses in
-                let isValid = !name.trimmed().isEmpty && !addresses.isEmpty
-                return isValid ? .enabled(icon: nil) : .disabled
+                !name.trimmed().isEmpty && !addresses.isEmpty
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> {
+        walletSubject
+            .map { walletInfo in
+                walletInfo.flatMap { CommonTangemIconProvider(config: $0.config).getMainButtonIcon() }
             }
             .eraseToAnyPublisher()
     }
 
     func update(name: String) {
-        nameSubject.send(name.trimmed())
+        nameSubject.send(name)
     }
 
     func update(color: AccountModel.CompositeIcon.Color) {

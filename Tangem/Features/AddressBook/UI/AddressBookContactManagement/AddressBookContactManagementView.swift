@@ -128,7 +128,7 @@ struct AddressBookContactManagementView: View {
 
     private var bottomButton: some View {
         TangemButton(
-            content: .text(AttributedString(Localization.commonDone)),
+            content: doneButtonContent,
             action: viewModel.userDidRequestDone
         )
         .setCornerStyle(.rounded)
@@ -137,9 +137,22 @@ struct AddressBookContactManagementView: View {
         .setStyleType(.primary)
         .setButtonState(
             isLoading: viewModel.isProcessing,
-            isDisabled: !viewModel.mainButtonState.isEnabled
+            isDisabled: !viewModel.isMainButtonEnabled
         )
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+    }
+
+    private var doneButtonContent: TangemButton.Content {
+        let title = AttributedString(Localization.commonDone)
+
+        switch viewModel.mainButtonIcon {
+        case .leading(let image):
+            return .combined(text: title, icon: image, iconPosition: .left)
+        case .trailing(let image):
+            return .combined(text: title, icon: image, iconPosition: .right)
+        case .none:
+            return .text(title)
+        }
     }
 }
