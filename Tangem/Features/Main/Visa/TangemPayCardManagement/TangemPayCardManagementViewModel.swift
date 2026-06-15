@@ -350,6 +350,13 @@ private extension TangemPayCardManagementViewModel {
             return
         }
 
+        guard BiometricsUtil.isAvailable else {
+            if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+                coordinator?.openTangemPayBiometryNotSetSheet()
+            }
+            return
+        }
+
         runTask(in: self) { viewModel in
             do {
                 _ = try await BiometricsUtil.requestAccess(
@@ -367,6 +374,12 @@ private extension TangemPayCardManagementViewModel {
         Analytics.log(.visaScreenFreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTangemPayFreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
             self?.freezeLegacy()
+        }
+    }
+
+    func showUnfreezePopupLegacy() {
+        coordinator?.openTangemPayUnfreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
+            self?.unfreezeLegacy()
         }
     }
 
@@ -712,6 +725,13 @@ private extension TangemPayCardManagementViewModel {
             return
         }
 
+        guard BiometricsUtil.isAvailable else {
+            if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+                coordinator?.openTangemPayBiometryNotSetSheet()
+            }
+            return
+        }
+
         Task { @MainActor in
             do {
                 _ = try await BiometricsUtil.requestAccess(
@@ -728,6 +748,12 @@ private extension TangemPayCardManagementViewModel {
         Analytics.log(.visaScreenFreezeCardClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTangemPayFreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
             self?.freeze()
+        }
+    }
+
+    func showUnfreezePopup() {
+        coordinator?.openTangemPayUnfreezeSheet(userWalletId: userWalletInfo.id) { [weak self] in
+            self?.unfreeze()
         }
     }
 
@@ -818,13 +844,13 @@ extension TangemPayCardManagementViewModel {
     func onFreezeButton() {
         if multipleCardsEnabled {
             if freezingState.isFrozen {
-                unfreeze()
+                showUnfreezePopup()
             } else {
                 showFreezePopup()
             }
         } else {
             if freezingState.isFrozen {
-                unfreezeLegacy()
+                showUnfreezePopupLegacy()
             } else {
                 showFreezePopupLegacy()
             }
