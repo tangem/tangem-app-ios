@@ -19,7 +19,13 @@ protocol TangemPayCloseCardSheetRoutable: AnyObject {
 
 final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        Assets.Visa.kycDeclinedBrokenHeart.image
+        isRedesigned
+            ? DesignSystem.Icons.Error.regular28.image
+            : Assets.Visa.kycDeclinedBrokenHeart.image
+    }
+
+    var iconStyle: TangemPayPopupIconStyle {
+        .warning
     }
 
     var title: AttributedString {
@@ -42,11 +48,15 @@ final class TangemPayCloseCardSheetViewModel: ObservableObject, FloatingSheetCon
 
     var secondaryButton: MainButton.Settings? {
         MainButton.Settings(
-            title: Localization.tangemPayCloseCardPopupSecondaryButtonTitle,
+            title: isRedesigned ? Localization.commonCancel : Localization.tangemPayCloseCardPopupSecondaryButtonTitle,
             style: .secondary,
             size: .default,
             action: dismiss
         )
+    }
+
+    private var isRedesigned: Bool {
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     }
 
     @Published private(set) var isLoading: Bool = false
