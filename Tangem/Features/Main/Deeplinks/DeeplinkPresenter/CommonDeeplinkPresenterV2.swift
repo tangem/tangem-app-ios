@@ -95,9 +95,6 @@ private extension CommonDeeplinkPresenterV2 {
         case .sell(let userWalletModel):
             return constructSellView(userWalletModel: userWalletModel)
 
-        case .swap(let userWalletModel):
-            return constructSwapView(userWalletModel: userWalletModel)
-
         case .swapWithDeferredPairResolution(let parameters):
             return constructSwapWithDeferredPairResolutionView(parameters: parameters)
 
@@ -141,7 +138,7 @@ private extension CommonDeeplinkPresenterV2 {
         case .promo, .onboardVisa:
             return .fullScreenCover
 
-        case .expressTransactionStatus, .tokenDetails, .buy, .sell, .swap,
+        case .expressTransactionStatus, .tokenDetails, .buy, .sell,
              .swapWithDeferredPairResolution, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .tangemPayMain, .tangemPayTransactionDetails, .newsDetails,
@@ -157,7 +154,7 @@ private extension CommonDeeplinkPresenterV2 {
         case .promo:
             return false
 
-        case .expressTransactionStatus, .tokenDetails, .buy, .sell, .swap,
+        case .expressTransactionStatus, .tokenDetails, .buy, .sell,
              .swapWithDeferredPairResolution, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .onboardVisa, .tangemPayMain, .tangemPayTransactionDetails,
@@ -256,23 +253,6 @@ private extension CommonDeeplinkPresenterV2 {
         return AnyView(
             makeDeeplinkView(
                 view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
-                embedInNavigationStack: false
-            )
-        )
-    }
-
-    private func constructSwapView(userWalletModel: UserWalletModel) -> AnyView {
-        let presenter = overlayViewPresenter
-        let coordinator = coordinatorFactory.makeSwapCoordinator(
-            userWalletModel: userWalletModel,
-            dismissAction: { _ in Task { @MainActor in presenter.dismiss() } }
-        )
-
-        let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .swap())
-        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
-        return AnyView(
-            makeDeeplinkView(
-                view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
                 embedInNavigationStack: false
             )
         )
