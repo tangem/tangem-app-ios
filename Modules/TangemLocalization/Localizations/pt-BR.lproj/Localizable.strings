@@ -214,6 +214,7 @@
 "common_attention" = "Atenção";
 "common_available_networks" = "Redes disponíveis";
 "common_back" = "Voltar";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Backup";
 "common_balance_title" = "Saldo";
 "common_balance" = "Saldo%@";
@@ -524,6 +525,7 @@
 "express_legal_one_placeholder" = "Ao utilizar a funcionalidade de troca, você concorda com os termos do provedor. %@";
 "express_legal_two_placeholders" = "Ao utilizar a funcionalidade de troca, você concorda com os termos do provedor. %1$@ e %2$@.";
 "express_more_providers_soon" = "Mais fornecedores estarão disponíveis em breve.";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Melhor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertências da FCA";
 "express_provider_fixed_rate_is_unavailable" = "A tarifa fixa não está disponível.";
@@ -1674,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Não foi possível cobrir a taxa.";
 "tangempay_reissue_card_insufficient_funds" = "Fundos insuficientes para substituir o cartão.";
 "tangempay_reissue_card_title" = "Precisa de um novo cartão?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Estamos resolvendo um problema técnico. Por favor, tente novamente mais tarde.";
 "tangempay_service_unavailable_title" = "Serviço temporariamente indisponível";
 "tangempay_service_unreachable_try_later" = "Não foi possível exibir os detalhes. No entanto, os pagamentos com cartão ainda estão funcionando.";
@@ -2086,6 +2091,7 @@
 "wc_all_dapps_disconnected" = "Todos os dApps desconectados";
 "wc_allow_to_spend" = "Permitir gastar";
 "wc_approve_description" = "Ao aprovar, você permite que o dApp ou contrato inteligente use tokens em transações futuras.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Endereço";
 "wc_common_connect" = "Conectar";
 "wc_common_loading" = "Carregando";
