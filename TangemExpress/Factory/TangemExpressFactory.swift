@@ -17,7 +17,7 @@ public struct TangemExpressFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         expressRepository: ExpressRepository,
-        featureFlags: ExpressFeatureFlags = ExpressFeatureFlags(isApproveWithSwapEnabled: false)
+        featureFlags: ExpressFeatureFlags
     ) -> ExpressManager {
         let factory = CommonExpressProviderManagerFactory(
             expressAPIProvider: expressAPIProvider,

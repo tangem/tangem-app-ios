@@ -12,6 +12,8 @@ import BlockchainSdk
 struct ExpressAnalyticsLoggerMock: ExpressAnalyticsLogger {
     func bestProviderSelected(_ provider: TangemExpress.ExpressAvailableProvider) {}
 
+    func logGasEstimationOverrideError(_ error: any Error) {}
+
     func logAppError(_ error: any Error, provider: TangemExpress.ExpressProvider) {}
 
     func logExpressAPIError(_ error: ExpressAPIError, provider: ExpressProvider, paymentMethod: OnrampPaymentMethod) {}

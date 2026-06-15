@@ -24,6 +24,7 @@ extension TransactionDispatcherResult {
         case informationRelevanceServiceFeeWasIncreased
 
         case transactionNotFound
+        case feeNotFound
         case userCancelled
         case loadTransactionInfo(error: UniversalError)
         case sendTxError(transaction: TransactionDispatcherTransactionType, error: SendTxError)
@@ -45,6 +46,8 @@ extension TransactionDispatcherResult {
                 return "Fee was increased"
             case .transactionNotFound:
                 return "Transaction not found"
+            case .feeNotFound:
+                return "Fee not found"
             case .userCancelled:
                 return "User cancelled"
             case .actionNotSupported:

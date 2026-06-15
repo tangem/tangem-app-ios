@@ -329,6 +329,7 @@ extension Analytics {
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapButtonPermissionLearnMore = "[Swap] Button - Permission Learn More"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
+        case swapGasEstimationOverrideError = "[Swap] Gas Estimation Override Error"
 
         case swapProviderClicked = "[Swap] Provider Clicked"
         case swapProviderChosen = "[Swap] Provider Chosen"
