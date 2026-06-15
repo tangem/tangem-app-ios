@@ -43,6 +43,7 @@ struct AddressBookContactManagementView: View {
                 title: Localization.addressBookContactName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: Localization.addressBookNewContact,
+                backgroundColor: DesignSystem.Tokens.Theme.Bg.secondary,
                 accountIconViewData: viewModel.iconViewData,
                 isFocused: $isNameFocused
             )
@@ -50,6 +51,7 @@ struct AddressBookContactManagementView: View {
             AccountFormGridView(
                 selectedItem: $viewModel.selectedColor,
                 items: viewModel.colors,
+                backgroundColor: DesignSystem.Tokens.Theme.Bg.secondary,
                 content: { colorItem, isSelected in
                     makeColorItem(color: colorItem.color, isSelected: isSelected)
                 }
@@ -63,16 +65,33 @@ struct AddressBookContactManagementView: View {
                     AddressBookContactAddNewAddressRowView(viewModel: rowViewModel)
                 }
             }
+            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
             .horizontalPadding(0)
 
             GroupedSection(viewModel.selectedWallet) { wallet in
                 TangemRow(title: Localization.wcCommonWallet)
                     .verticalAlignment(.center)
                     .end { makeWalletValue(wallet: wallet) }
+                    .if(wallet.isEditable) { $0.onTap(viewModel.userDidRequestWalletChange) }
+
             } footer: {
                 DefaultFooterView(Localization.addressBookSaveWalletToDescription)
+                    .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
             }
+            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
             .horizontalPadding(0)
+
+            if viewModel.canDeleteContact {
+                TangemRow()
+                    .verticalAlignment(.center)
+                    .start {
+                        Text("Delete")
+                            .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.Accent.red)
+                            .lineLimit(1)
+                    }
+                    .onTap(viewModel.userDidRequestDelete)
+                    .defaultRoundedBackground(with: DesignSystem.Tokens.Theme.Bg.secondary, verticalPadding: 0, horizontalPadding: 0)
+            }
         }
     }
 
@@ -97,10 +116,12 @@ struct AddressBookContactManagementView: View {
                 .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
                 .lineLimit(1)
 
-            Assets.Glyphs.selectIcon.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Icon.secondary)
-                .frame(width: 20, height: 20)
+            if wallet.isEditable {
+                Assets.Glyphs.selectIcon.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Tokens.Theme.Icon.secondary)
+                    .frame(width: 20, height: 20)
+            }
         }
     }
 
@@ -113,6 +134,11 @@ struct AddressBookContactManagementView: View {
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
         .setStyleType(.primary)
+        .setButtonState(
+            isLoading: viewModel.isProcessing,
+            isDisabled: !viewModel.mainButtonState.isEnabled
+        )
         .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 }

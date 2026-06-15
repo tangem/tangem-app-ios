@@ -13,20 +13,34 @@ import TangemAccounts
 import TangemLocalization
 import TangemFoundation
 import TangemUIUtils
+import TangemUI
+import TangemMacro
 
 final class AddressBookContactManagementViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var contactName: String = ""
     @Published var selectedColor: GridItemColor<AccountModel.CompositeIcon.Color>
-    @Published var selectedWallet: WalletRowType?
+    @Published private(set) var selectedWallet: WalletRowType?
+    @Published private(set) var mainButtonState: MainButtonState = .disabled
+    @Published private(set) var canDeleteContact: Bool = false
 
-    @Published var isProcessing: Bool = false
+    @Published private(set) var isProcessing: Bool = false
+
     @Published var errorAlert: AlertBinder?
 
     @Published private var drafts: [DraftRow] = []
+    @Published private var canAddNewAddress: Bool = true
 
-    var title: String { mode.title }
+    let title: String
+
+    var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
+
+    let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
+        .allCases
+        .map { iconColor in
+            GridItemColor(id: iconColor, color: AccountModelUtils.UI.iconColor(from: iconColor))
+        }
 
     var addressesSection: [AddressRowType] {
         var types: [AddressRowType] = drafts.map { draft in
@@ -37,20 +51,14 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
             )
         }
 
-        types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(action: { [weak self] in
-            self?.addNewAddress()
-        })))
+        if canAddNewAddress {
+            types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(action: { [weak self] in
+                self?.addNewAddress()
+            })))
+        }
 
         return types
     }
-
-    var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
-
-    let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
-        .allCases
-        .map { iconColor in
-            GridItemColor(id: iconColor, color: AccountModelUtils.UI.iconColor(from: iconColor))
-        }
 
     var iconViewData: AccountIconView.ViewData {
         .composite(
@@ -61,8 +69,9 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     // MARK: - Dependencies
 
+    private let interactor: AddressBookContactManagementInteractor
     private weak var coordinator: AddressBookContactManagementRoutable?
-    private let mode: Mode
+    private var bag = Set<AnyCancellable>()
 
     private var nameMode: AccountIconView.NameMode {
         if let firstLetter = contactName.trimmed().first {
@@ -73,11 +82,13 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     init(
-        mode: Mode,
+        interactor: AddressBookContactManagementInteractor,
         coordinator: AddressBookContactManagementRoutable
     ) {
-        self.mode = mode
+        self.interactor = interactor
         self.coordinator = coordinator
+
+        title = interactor.title
 
         let newIcon = AccountModelUtils.UI.newAccountIcon()
         selectedColor = GridItemColor(
@@ -85,58 +96,120 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
             color: AccountModelUtils.UI.iconColor(from: newIcon.color)
         )
 
-        setupView(mode: mode)
+        bind()
     }
 
     func userDidRequestDismiss() {
         coordinator?.dismissContactManagement()
     }
 
+    func userDidRequestWalletChange() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
     func userDidRequestDone() {
         Task { await save() }
+    }
+
+    func userDidRequestDelete() {
+        Task { await delete() }
     }
 }
 
 // MARK: - Private
 
 private extension AddressBookContactManagementViewModel {
-    func setupView(mode: Mode) {
-        switch mode {
-        case .add:
-            drafts = []
-        case .edit(let contact):
-            contactName = contact.name
-            drafts = contact.addresses.map { DraftRow(id: $0.id.uuidString, address: $0.address) }
-            selectedWallet = .init(wallet: contact.walletName, isEditable: true)
-        }
+    func bind() {
+        interactor.contactNamePublisher
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$contactName)
+
+        $contactName
+            .dropFirst()
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { $0.interactor.update(name: $1) }
+            .store(in: &bag)
+
+        interactor.contactColorPublisher
+            .removeDuplicates()
+            .map { color in GridItemColor(id: color, color: AccountModelUtils.UI.iconColor(from: color)) }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$selectedColor)
+
+        $selectedColor
+            .map(\.id)
+            .removeDuplicates()
+            .dropFirst()
+            .withWeakCaptureOf(self)
+            .sink { $0.interactor.update(color: $1) }
+            .store(in: &bag)
+
+        interactor.addressesPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$drafts)
+
+        interactor.walletPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$selectedWallet)
+
+        interactor.possibleToAddNewAddress
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$canAddNewAddress)
+
+        interactor.possibleToDeleteContact
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$canDeleteContact)
+
+        interactor.mainButtonStatePublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$mainButtonState)
     }
 
     /// Mock: appends a synthetic EVM address. The full "enter address → detect networks → memo" flow
     /// is a follow-up; this exercises the create/add CRUD path end to end.
     func addNewAddress() {
         let address = "0x" + String((0 ..< 40).map { _ in "0123456789abcdef".randomElement()! })
-        drafts.append(DraftRow(id: UUID().uuidString, address: address))
+        try? interactor.add(address: DraftRow(id: UUID().uuidString, address: address))
     }
 
     func deleteRow(id: String) {
-        drafts.removeAll { $0.id == id }
+        interactor.deleteAddress(id: id)
     }
 
     @MainActor
     func save() async {
         guard !isProcessing else { return }
 
-        let name = contactName.trimmed()
-        guard !name.isEmpty, !drafts.isEmpty else {
+        isProcessing = true
+        defer { isProcessing = false }
+
+        do {
+            try await interactor.save()
+            coordinator?.dismissContactManagement()
+        } catch {
+            guard !error.isCancellationError else { return }
+
             presentGenericError()
-            return
         }
+    }
+
+    @MainActor
+    func delete() async {
+        guard !isProcessing else { return }
 
         isProcessing = true
         defer { isProcessing = false }
 
-        // [REDACTED_TODO_COMMENT]
-        coordinator?.dismissContactManagement()
+        do {
+            try await interactor.delete()
+            coordinator?.dismissContactManagement()
+        } catch {
+            guard !error.isCancellationError else { return }
+
+            presentGenericError()
+        }
     }
 
     func presentGenericError() {
@@ -147,18 +220,6 @@ private extension AddressBookContactManagementViewModel {
 // MARK: - Types
 
 extension AddressBookContactManagementViewModel {
-    enum Mode {
-        case add
-        case edit(contact: AddressBookContact)
-
-        var title: String {
-            switch self {
-            case .add: return Localization.addressBookAddContact
-            case .edit: return "Contact"
-            }
-        }
-    }
-
     struct DraftRow: Identifiable {
         let id: String
         var address: String
@@ -180,5 +241,11 @@ extension AddressBookContactManagementViewModel {
         var id: String { wallet + isEditable.description }
         let wallet: String
         let isEditable: Bool
+    }
+
+    @CaseFlagable
+    enum MainButtonState {
+        case disabled
+        case enabled(icon: MainButton.Icon?)
     }
 }
