@@ -31,6 +31,10 @@ protocol UserTokensPushNotificationsManager {
     /// User toggled the switch for the given channel (UI intent).
     /// Optimistically updates the backend preference and throws on failure so the caller can revert UI and surface an error.
     func tryUpdateEnableState(value: Bool, for channel: PushChannel) async throws
+
+    /// Re-requests channel preferences from the backend (e.g. the settings screen's retry action
+    /// after a failed load). The result is delivered through `preferencesPublisher`.
+    func refetchPreferences() async throws
 }
 
 /// Events that drive push-notification status transitions. Callers post these
