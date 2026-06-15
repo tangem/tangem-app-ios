@@ -246,6 +246,7 @@
 "common_copy" = "Copier";
 "common_create" = "Créer";
 "common_custom" = "Personnalisé";
+"common_delete" = "Supprimer";
 "common_disable" = "Désactiver";
 "common_disabled" = "Désactivé";
 "common_disabling" = "Disabling";
@@ -1264,6 +1265,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Les récompenses s'accumulent automatiquement sur votre solde de staking quotidiennement.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Les récompenses sont ajoutées à votre solde de staking. Fonds gagnés : %@";
 "staking_details_available" = "Disponible";
 "staking_details_average_reward_rate" = "Taux de récompense moyen";
