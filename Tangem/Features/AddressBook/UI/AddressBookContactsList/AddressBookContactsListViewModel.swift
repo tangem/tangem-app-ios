@@ -29,7 +29,7 @@ final class AddressBookContactsListViewModel: ObservableObject {
 
     init(
         coordinator: AddressBookContactsListRoutable,
-        addressBooksProvider: any AddressBooksProvider = .mock()
+        addressBooksProvider: any AddressBooksProvider = .common()
     ) {
         self.coordinator = coordinator
         self.addressBooksProvider = addressBooksProvider
@@ -40,13 +40,19 @@ final class AddressBookContactsListViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        coordinator?.openAddContact()
+        guard let walletId = selectedAddressBook?.wallet.id else { return }
+
+        coordinator?.openAddContact(walletId: walletId)
     }
 }
 
 // MARK: - Private
 
 private extension AddressBookContactsListViewModel {
+    var selectedAddressBook: AddressBookWallet? {
+        addressBooks.first { $0.wallet.id.stringValue == selectedChipId }
+    }
+
     func setupChips() {
         guard addressBooks.count >= 2 else {
             walletChips = []
@@ -76,16 +82,18 @@ private extension AddressBookContactsListViewModel {
             .flatMapLatest { viewModel, addressBook in
                 addressBook.addressBookPublisher
                     .withWeakCaptureOf(viewModel)
-                    .map { .success($0.mapToAddressBookContactViewModels(contacts: $1.contacts)) }
+                    .map { .success($0.mapToAddressBookContactViewModels(walletId: addressBook.wallet.id, contacts: $1)) }
             }
             .receive(on: DispatchQueue.main)
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(walletId: UserWalletId, contacts: [ContactReadModel]) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
-                self?.coordinator?.openEditContact(contact: contact)
+                guard case .valid(let validContact) = contact else { return }
+
+                self?.coordinator?.openEditContact(contact: validContact, walletId: walletId)
             }
         }
     }

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class AddressBookContactManagementCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -35,8 +36,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let interactor: AddressBookContactManagementInteractor = switch options {
-        case .add: CreateAddressBookContactManagementInteractor()
-        case .edit(let contact): EditAddressBookContactManagementInteractor(contact: contact)
+        case .add(let walletId): CreateAddressBookContactManagementInteractor(walletId: walletId)
+        case .edit(let contact, let walletId): EditAddressBookContactManagementInteractor(contact: contact, walletId: walletId)
         }
 
         rootViewModel = AddressBookContactManagementViewModel(interactor: interactor, coordinator: self)
@@ -47,8 +48,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add
-        case edit(contact: AddressBookContact)
+        case add(walletId: UserWalletId)
+        case edit(contact: Contact, walletId: UserWalletId)
     }
 }
 
