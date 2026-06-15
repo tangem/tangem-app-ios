@@ -439,7 +439,7 @@ private extension EthereumWalletManager {
         .map { [wallet] fees in
             fees.map {
                 $0.increasingGasLimit(
-                    byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                    byPercents: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent,
                     blockchain: wallet.blockchain,
                     decimalValue: wallet.blockchain.decimalValue
                 )
