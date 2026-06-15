@@ -43,6 +43,7 @@ struct OrganizeTokensListFooter: View {
                     size: buttonSize,
                     action: actionsHandler.onCancelButtonTap
                 )
+                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)
 
                 MainButton(
                     title: Localization.commonApply,
