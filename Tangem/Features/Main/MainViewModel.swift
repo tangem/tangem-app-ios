@@ -612,7 +612,7 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
-        static let pushNotificationAuthorizationRequestDelay = 0.5
+        static let pushNotificationAuthorizationRequestDelay = 1.0
         static let bottomSheetVisibilityColdStartDelay = 0.5
     }
 }
