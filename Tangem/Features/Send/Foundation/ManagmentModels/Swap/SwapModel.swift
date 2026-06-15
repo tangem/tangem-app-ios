@@ -35,6 +35,8 @@ final class SwapModel {
     private let _transactionURL = PassthroughSubject<URL?, Never>()
     private let _isSending = CurrentValueSubject<Bool, Never>(false)
 
+    private var selectedApprovePolicy: BSDKApprovePolicy = .specified
+
     // MARK: - Dependencies
 
     var externalAmountUpdater: SendAmountExternalUpdater!
@@ -593,8 +595,7 @@ extension SwapModel {
         let readyToApproveAndSwapState = ReadyToApproveAndSwapState(
             quote: quote,
             data: preview.expressTransactionData,
-            fee: fee,
-            approveData: preview.approveData.approveTransactionData
+            fee: fee
         )
 
         return .readyToApproveAndSwap(readyToApproveAndSwapState)
@@ -804,11 +805,12 @@ extension SwapModel {
             case .loaded(.swap(.some(let selected), _), .readyToApproveAndSwap(let readyToApproveAndSwap)):
                 analyticsLogger.logSwapButtonSwap()
 
+                let approveData = try await makeApproveData(source: source, provider: selected)
                 let dispatcher = source.transactionDispatcherProvider.makeApproveAndDEXTransactionDispatcher()
                 let transaction: TransactionDispatcherTransactionType = .approveAndDex(
                     data: readyToApproveAndSwap.data,
                     fee: readyToApproveAndSwap.fee,
-                    approveData: readyToApproveAndSwap.approveData
+                    approveData: approveData
                 )
 
                 return try await sendDEX(
@@ -1288,6 +1290,40 @@ extension SwapModel: SendSwapProvidersOutput {
         updateTask(loadingType: .provider) { expressManager in
             await expressManager.updateSelectedProvider(provider: provider)
         }
+    }
+}
+
+// MARK: - SwapApproveInput
+
+extension SwapModel: SwapApproveInput {
+    var approvePolicy: BSDKApprovePolicy {
+        selectedApprovePolicy
+    }
+}
+
+// MARK: - SwapApproveOutput
+
+extension SwapModel: SwapApproveOutput {
+    func userDidSelectApprovePolicy(_ policy: BSDKApprovePolicy) {
+        selectedApprovePolicy = policy
+    }
+}
+
+// MARK: - Approve data
+
+private extension SwapModel {
+    func makeApproveData(source: SendSwapableToken, provider: ExpressAvailableProvider) async throws -> ApproveTransactionData {
+        guard case .dexWithApprovePreview(let preview) = provider.getState(),
+              let allowanceProvider = source.allowanceProvider
+        else {
+            throw SwapModelError.approveDataNotFound
+        }
+
+        return try await allowanceProvider.makeApproveData(
+            spender: preview.approveData.approveTransactionData.spender,
+            amount: preview.quote.fromAmount,
+            policy: selectedApprovePolicy
+        )
     }
 }
 
@@ -1953,7 +1989,6 @@ extension SwapModel {
         let quote: Quote
         let data: ExpressTransactionData
         let fee: BSDKFee
-        let approveData: ApproveTransactionData
     }
 
     struct TransactionSendResultState {
@@ -1970,6 +2005,7 @@ extension SwapModel {
         case sourceNotFound
         case destinationNotFound
         case tokenSelectionRequired
+        case approveDataNotFound
 
         var errorDescription: String? { rawValue }
     }
