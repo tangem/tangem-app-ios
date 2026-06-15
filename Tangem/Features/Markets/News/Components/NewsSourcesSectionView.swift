@@ -30,7 +30,7 @@ struct NewsSourcesSectionView: View {
         VStack(alignment: .leading, spacing: .unit(.x3)) {
             Text(Localization.newsRelatedNews)
                 .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
-                .padding(.horizontal, .unit(.x2))
+                .padding(.horizontal, .unit(.x4))
                 .padding(.vertical, .unit(.x3))
 
             ScrollView(.horizontal) {
