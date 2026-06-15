@@ -91,6 +91,7 @@ struct AddressBookContactManagementView: View {
                     }
                     .onTap(viewModel.userDidRequestDelete)
                     .defaultRoundedBackground(with: DesignSystem.Tokens.Theme.Bg.secondary, verticalPadding: 0, horizontalPadding: 0)
+                    .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             }
         }
     }

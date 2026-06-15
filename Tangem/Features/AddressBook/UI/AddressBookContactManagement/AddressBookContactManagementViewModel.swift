@@ -28,6 +28,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published private(set) var isProcessing: Bool = false
 
     @Published var errorAlert: AlertBinder?
+    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     @Published private var drafts: [DraftRow] = []
     @Published private var canAddNewAddress: Bool = true
@@ -112,7 +113,16 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     func userDidRequestDelete() {
-        Task { await delete() }
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: nil,
+            subtitle: Localization.addressBookDeleteContactDescription,
+            buttons: [
+                .init(title: "Delete", role: .destructive) { [weak self] in
+                    guard let self else { return }
+                    Task { await self.delete() }
+                },
+            ]
+        )
     }
 }
 
