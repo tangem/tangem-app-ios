@@ -214,6 +214,7 @@
 "common_attention" = "Achtung";
 "common_available_networks" = "Verfügbare Netzwerke";
 "common_back" = "Zurück";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Sicherungskopie";
 "common_balance_title" = "Saldo";
 "common_balance" = "Bilanz: %@";
@@ -2087,6 +2088,7 @@
 "wc_all_dapps_disconnected" = "Alle dApps getrennt";
 "wc_allow_to_spend" = "Erlaubnis auszugeben";
 "wc_approve_description" = "Durch die Genehmigung erlaubst Du dApps oder Smart Contracts, Token in zukünftigen Transaktionen zu verwenden.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Vertragsadresse";
 "wc_common_connect" = "Verbinden";
 "wc_common_loading" = "Laden";
