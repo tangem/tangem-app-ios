@@ -71,7 +71,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSwapAmountStep()
         let fee = makeSendFeeStep(router: router)
-        let providers = makeSwapProviders()
+        let providers = makeSwapProviders(router: router)
 
         let summary = makeSwapSummaryStep(
             swapAmountViewModel: amount.viewModel,
@@ -230,6 +230,8 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
         SendSwapProvidersBuilder.IO(
             input: swapModel,
             output: swapModel,
+            approveInput: swapModel,
+            approveOutput: swapModel,
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             receiveTokenAmountInput: swapModel
