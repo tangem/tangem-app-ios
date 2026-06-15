@@ -43,6 +43,7 @@ struct OrganizeTokensListFooterRedesigned: View {
             .setCornerStyle(.rounded)
             .setHorizontalLayout(.infinity)
             .background(.regularMaterial, in: Capsule())
+            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)
 
             TangemButton(
                 content: .text(AttributedString(Localization.commonApply)),
