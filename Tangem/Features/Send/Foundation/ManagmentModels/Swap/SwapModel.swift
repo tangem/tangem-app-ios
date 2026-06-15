@@ -164,7 +164,8 @@ private extension SwapModel {
         case .loaded(.swap(.some, _), .restriction(.hasPendingTransaction, _)),
              .loaded(.swap(.some, _), .restriction(.hasPendingApproveTransaction, _)),
              .loaded(.swap(.some, _), .previewCEX),
-             .loaded(.swap(.some, _), .readyToSwap):
+             .loaded(.swap(.some, _), .readyToSwap),
+             .loaded(.swap(.some, _), .readyToApproveAndSwap):
 
             autoupdatingTimer.setup { [weak self] in
                 self?.autoupdatingRates()
@@ -579,7 +580,24 @@ extension SwapModel {
         provider: ExpressAvailableProvider,
         dexWithApprovePreview preview: ExpressProviderManagerState.DEXWithApprovePreview
     ) async throws -> LoadedState {
-        fatalError("One touch approve + swap flow is not implemented yet")
+        let source = try sourceToken.get()
+        let fee = preview.combinedFee
+
+        let amount = makeAmount(value: preview.quote.fromAmount, tokenItem: source.tokenItem)
+        let quote = try await map(provider: provider.provider, quote: preview.quote)
+
+        if let restriction = try validate(amount: amount, fee: fee) {
+            return .restriction(restriction, quote: quote)
+        }
+
+        let readyToApproveAndSwapState = ReadyToApproveAndSwapState(
+            quote: quote,
+            data: preview.expressTransactionData,
+            fee: fee,
+            approveData: preview.approveData.approveTransactionData
+        )
+
+        return .readyToApproveAndSwap(readyToApproveAndSwapState)
     }
 
     func map(provider: ExpressAvailableProvider, previewCEX: ExpressProviderManagerState.CEXPreview) async throws -> LoadedState {
@@ -770,28 +788,38 @@ extension SwapModel {
             case .loaded(.swap(.some(let selected), _), .readyToSwap(let readyToSwap)):
                 analyticsLogger.logSwapButtonSwap()
 
-                let data = readyToSwap.data
-                let didUpgrade = source.sendYieldModuleHelper?.isUpgradeWrapped(data) == true
-
                 let dispatcher = source.transactionDispatcherProvider.makeDEXTransactionDispatcher()
-                let result = try await dispatcher.send(transaction: .dex(data: data, fee: readyToSwap.fee))
-                analyticsLogger.logSwapTransactionSent(result: result)
-                await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+                let transaction: TransactionDispatcherTransactionType = .dex(data: readyToSwap.data, fee: readyToSwap.fee)
 
-                if didUpgrade {
-                    try? await source.sendYieldModuleHelper?.refreshVersionAfterUpgrade()
-                }
-
-                addTransactionToPendingRepository(
+                return try await sendDEX(
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    data: readyToSwap.data,
                     fee: readyToSwap.fee,
-                    data: data,
-                    result: result
+                    dispatcher: dispatcher,
+                    transaction: transaction
                 )
 
-                return result
+            case .loaded(.swap(.some(let selected), _), .readyToApproveAndSwap(let readyToApproveAndSwap)):
+                analyticsLogger.logSwapButtonSwap()
+
+                let dispatcher = source.transactionDispatcherProvider.makeApproveAndDEXTransactionDispatcher()
+                let transaction: TransactionDispatcherTransactionType = .approveAndDex(
+                    data: readyToApproveAndSwap.data,
+                    fee: readyToApproveAndSwap.fee,
+                    approveData: readyToApproveAndSwap.approveData
+                )
+
+                return try await sendDEX(
+                    source: source,
+                    receive: receive,
+                    provider: selected.provider,
+                    data: readyToApproveAndSwap.data,
+                    fee: readyToApproveAndSwap.fee,
+                    dispatcher: dispatcher,
+                    transaction: transaction
+                )
 
             default:
                 throw SwapModel.SwapModelError.transactionDataNotFound
@@ -800,6 +828,37 @@ extension SwapModel {
 
         _transactionTime.send(.now)
         _transactionURL.send(result.url)
+
+        return result
+    }
+
+    private func sendDEX(
+        source: SendSwapableToken,
+        receive: SendReceiveToken,
+        provider: ExpressProvider,
+        data: ExpressTransactionData,
+        fee: BSDKFee,
+        dispatcher: TransactionDispatcher,
+        transaction: TransactionDispatcherTransactionType
+    ) async throws -> TransactionDispatcherResult {
+        let didUpgrade = source.sendYieldModuleHelper?.isUpgradeWrapped(data) == true
+
+        let result = try await dispatcher.send(transaction: transaction)
+        analyticsLogger.logSwapTransactionSent(result: result)
+        await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
+
+        if didUpgrade {
+            try? await source.sendYieldModuleHelper?.refreshVersionAfterUpgrade()
+        }
+
+        addTransactionToPendingRepository(
+            source: source,
+            receive: receive,
+            provider: provider,
+            fee: fee,
+            data: data,
+            result: result
+        )
 
         return result
     }
@@ -1316,6 +1375,7 @@ extension SwapModel: SendFeeInput {
     private func mapToShouldShowFeeSelectorRow(providersState: ProvidersState) -> Bool {
         switch providersState {
         case .loaded(_, .readyToSwap),
+             .loaded(_, .readyToApproveAndSwap),
              .loaded(_, .readyToTransfer):
             return true
         case .loaded(.swap(.some(let selected), _), .restriction(.notEnoughAmountForFee, _)),
@@ -1502,6 +1562,8 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         case .loaded(_, .previewCEX(let state)):
             return state.quote.highPriceImpact?.isBlocked != true
         case .loaded(_, .readyToSwap(let state)):
+            return state.quote.highPriceImpact?.isBlocked != true
+        case .loaded(_, .readyToApproveAndSwap(let state)):
             return state.quote.highPriceImpact?.isBlocked != true
         case .loaded(_, .readyToTransfer):
             return true
@@ -1753,6 +1815,7 @@ extension SwapModel.LoadedState: CustomStringConvertible {
         case .permissionRequired: "permissionRequired"
         case .readyToTransfer: "readyToTransfer"
         case .readyToSwap: "readyToSwap"
+        case .readyToApproveAndSwap: "readyToApproveAndSwap"
         case .previewCEX: "previewCEX"
         }
     }
@@ -1820,6 +1883,7 @@ extension SwapModel {
         case readyToTransfer(ReadyToTransferState)
         case previewCEX(PreviewCEXState)
         case readyToSwap(ReadyToSwapState)
+        case readyToApproveAndSwap(ReadyToApproveAndSwapState)
 
         var quote: Quote? {
             switch self {
@@ -1830,6 +1894,7 @@ extension SwapModel {
             case .readyToTransfer(let state): state.quote
             case .previewCEX(let state): state.quote
             case .readyToSwap(let state): state.quote
+            case .readyToApproveAndSwap(let state): state.quote
             }
         }
     }
@@ -1882,6 +1947,13 @@ extension SwapModel {
         let quote: Quote
         let data: ExpressTransactionData
         let fee: BSDKFee
+    }
+
+    struct ReadyToApproveAndSwapState {
+        let quote: Quote
+        let data: ExpressTransactionData
+        let fee: BSDKFee
+        let approveData: ApproveTransactionData
     }
 
     struct TransactionSendResultState {
