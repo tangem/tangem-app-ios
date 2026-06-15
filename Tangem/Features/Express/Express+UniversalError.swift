@@ -13,7 +13,7 @@ import TangemExpress
 // `000` - (removed)
 // `001` -
 // `002` - ExpressPendingTransactionRecordError.MigrationError
-// `003` - ExpressDestinationServiceError
+// `003` - removed. Previously - ExpressDestinationServiceError
 // `004` - CommonExpressAvailabilityProvider.Error
 // `005` - ExpressTransactionBuilderError
 // `006` - ExpressProviderError
@@ -25,17 +25,6 @@ extension ExpressPendingTransactionRecord.MigrationError: UniversalError {
         switch self {
         case .networkMismatch:
             103002000
-        }
-    }
-}
-
-extension ExpressDestinationServiceError: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .destinationNotFound:
-            103003000
-        case .sourceNotFound:
-            103003001
         }
     }
 }

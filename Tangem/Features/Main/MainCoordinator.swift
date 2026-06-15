@@ -60,7 +60,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
-    @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
@@ -205,7 +204,6 @@ extension MainCoordinator: MainRoutable {
              .tokenDetails,
              .buy,
              .sell,
-             .swap,
              .swapWithDeferredPairResolution,
              .referral,
              .staking,
@@ -870,26 +868,6 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
 // MARK: - ActionButtonsSwapFlowRoutable
 
 extension MainCoordinator: ActionButtonsSwapFlowRoutable {
-    func openSwap(
-        userWalletModel: some UserWalletModel,
-        tokenSelectorViewModel: TokenSelectorViewModel
-    ) {
-        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
-            self?.actionButtonsSwapCoordinator = nil
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
-                analyticsSource: .main,
-                presentCompletion: { [weak self] in
-                    coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
-                    self?.actionButtonsSwapCoordinator = coordinator
-                }
-            )
-        }
-    }
-
     func openSwap(predefinedParameters: PredefinedSwapParameters) {
         openSwapFlow(parameters: predefinedParameters, source: .actionButtons)
     }
@@ -1038,7 +1016,7 @@ private extension MainCoordinator {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)
