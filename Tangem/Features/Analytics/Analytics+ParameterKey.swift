@@ -179,5 +179,11 @@ extension Analytics {
         case swapType = "Swap type"
         case typeFrom = "Type from"
         case typeTo = "Type to"
+
+        // MARK: - Push notifications warning screen
+
+        case variant
+        case zone
+        case walletId = "wallet_id"
     }
 }
