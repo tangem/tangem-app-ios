@@ -164,7 +164,7 @@ private extension TransactionHistoryMapperGaslessTests {
     func makeSUT() -> Tangem.TransactionHistoryMapper {
         Tangem.TransactionHistoryMapper(
             currencySymbol: "USDT",
-            walletAddresses: [Self.walletAddress],
+            addressesProvider: StubTransactionHistoryAddressesProvider(walletAddresses: [Self.walletAddress]),
             showSign: true,
             isToken: true
         )
@@ -204,6 +204,10 @@ private extension TransactionHistoryMapperGaslessTests {
 }
 
 // MARK: - Stubs
+
+private struct StubTransactionHistoryAddressesProvider: WalletModelTransactionHistoryAddressesProvider {
+    let walletAddresses: [String]
+}
 
 private final class StubSmartContractMethodMapper: SmartContractMethodMapper {
     func getName(for method: String) -> String? {

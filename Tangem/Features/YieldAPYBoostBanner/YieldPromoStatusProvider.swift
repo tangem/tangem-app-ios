@@ -54,6 +54,34 @@ final class YieldPromoStatusProvider {
 
         return YieldPromoState(status: status, daysLeftToUnlockBonus: daysLeftToUnlockBonus)
     }
+
+    @MainActor
+    func refreshPromoStatusIfEligible(userWalletId: String, tokenItem: TokenItem) async {
+        guard await shouldRefreshPromoStatus(userWalletId: userWalletId, tokenItem: tokenItem) else {
+            return
+        }
+
+        _ = await yieldAPYBoostPromoRepository.enrollmentStatus(userWalletId: userWalletId, forceRefresh: true)
+    }
+
+    @MainActor
+    private func shouldRefreshPromoStatus(userWalletId: String, tokenItem: TokenItem) async -> Bool {
+        guard let contractAddress = tokenItem.contractAddress else {
+            return false
+        }
+
+        if let cachedStatus = await yieldAPYBoostPromoRepository.cachedEnrollmentStatus(userWalletId: userWalletId),
+           cachedStatus.networkId == tokenItem.blockchain.networkId,
+           cachedStatus.contractAddress?.caseInsensitiveCompare(contractAddress) == .orderedSame {
+            return true
+        }
+
+        let eligibleTokens = await yieldAPYBoostPromoRepository.campaign(userWalletId: userWalletId)?.bannerData?.eligibleTokens ?? []
+        return eligibleTokens.contains { eligible in
+            eligible.networkId == tokenItem.blockchain.networkId
+                && eligible.tokenAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+        }
+    }
 }
 
 // MARK: - Dates persistence
