@@ -92,15 +92,9 @@ private extension MarketsTokenSearchView {
         switch viewModel.recentState {
         case .item(let item):
             recentView(item)
-        case .empty:
-            recentEmptyView
-        case .idle:
-            idleView
+        case .empty, .idle:
+            EmptyView()
         }
-    }
-
-    var recentEmptyView: some View {
-        Color.Tangem.Surface.level2 // [REDACTED_TODO_COMMENT]
     }
 
     func recentView(_ item: ViewModel.RecentItem) -> some View {
