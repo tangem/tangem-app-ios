@@ -214,6 +214,7 @@
 "common_attention" = "Attention";
 "common_available_networks" = "Available networks";
 "common_back" = "Back";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Backup";
 "common_balance_title" = "Balance";
 "common_balance" = "Balance: %@";
@@ -448,10 +449,10 @@
 "dynamic_addresses_enabled_toast_title" = "Dynamic addresses enabled";
 "dynamic_addresses_enter_features_privacy_description" = "Use a new address for each transaction to reduce traceability and improve on-chain privacy.";
 "dynamic_addresses_enter_features_privacy_title" = "Enhanced Privacy";
-"dynamic_addresses_enter_features_receving_description" = "Easily receive funds in UTXO-based networks with automatic address generation — no manual address management required.";
+"dynamic_addresses_enter_features_receving_description" = "Receive funds as usual. Tangem manages UTXO addresses automatically, so you don’t need to choose or track them manually.";
 "dynamic_addresses_enter_features_receving_title" = "Seamless receiving";
 "dynamic_addresses_enter_main_button_title" = "Enable Dynamic Addresses";
-"dynamic_addresses_enter_subtitle" = "Dynamic addresses create a new one each time for extra privacy — your total balance stays the same. ";
+"dynamic_addresses_enter_subtitle" = "Your wallet can use multiple receiving addresses for one asset. Tangem shows a new address after the previous one receives funds — all addresses still belong to the same wallet.";
 "dynamic_addresses_error_has_custom_token_description" = "Dynamic Addresses cannot be enabled because some custom addresses/tokens use a modified derivation path, which doesn’t meet the required criteria.";
 "dynamic_addresses_error_has_custom_token_title" = "Dynamic Addresses Unavailable";
 "dynamic_addresses_error_service_unavailable_description" = "We can’t connect to the provider right now. Please try again later.";
@@ -524,6 +525,7 @@
 "express_legal_one_placeholder" = "By using swap functionality, you agree with provider’s %@";
 "express_legal_two_placeholders" = "By using swap functionality, you agree with provider’s %1$@ and %2$@.";
 "express_more_providers_soon" = "More providers will be available soon";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Best rate";
 "express_provider_fca_warning_list" = "FCA Warning List";
 "express_provider_fixed_rate_is_unavailable" = "Fixed rate is unavailable";
@@ -1674,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
 "tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
 "tangempay_reissue_card_title" = "Replace your card?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "Service unreachable. However, card payments are still working.";
@@ -2086,6 +2091,7 @@
 "wc_all_dapps_disconnected" = "All dApps disconnected";
 "wc_allow_to_spend" = "Allow to spend";
 "wc_approve_description" = "By approving, you allow dApp or Smart contract to use tokens in future transactions.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Address";
 "wc_common_connect" = "Connect";
 "wc_common_loading" = "Loading";
