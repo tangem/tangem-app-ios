@@ -158,14 +158,11 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
                 TangemPayTransactionDetailsView(viewModel: $0)
             }
+            .floatingSheetContent(for: PushNotificationsMainViewModel.self) {
+                PushNotificationsMainView(viewModel: $0)
+            }
 
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.pushNotificationsViewModel,
-                backgroundColor: Colors.Background.primary
-            ) {
-                PushNotificationsBottomSheetView(viewModel: $0)
-            }
             .sheet(item: $coordinator.pendingExpressTxStatusBottomSheetViewModel) { viewModel in
                 PendingExpressTxStatusBottomSheetView(viewModel: viewModel)
             }
