@@ -130,6 +130,9 @@ struct ApproveFlowViewModelTests {
             initialFee: TokenFee(option: .market, tokenItem: tokenItem, value: .success(Fee(Amount(with: .ethereum(testnet: false), value: 0.001))))
         )
 
+        // The interactor primes fees on init, so assert the selection-driven delta, not the total
+        let updateFeesCallsBeforeSelection = env.feeManager.updateFeesCalls
+
         sut.userDidSelectFeeToken(tokenFeeProvider: stub)
 
         // State must return to .approve
@@ -140,7 +143,7 @@ struct ApproveFlowViewModelTests {
 
         // Interactor must have been notified
         #expect(env.feeManager.updateSelectedFeeProviderCalls.count == 1)
-        #expect(env.feeManager.updateFeesCalls == 1)
+        #expect(env.feeManager.updateFeesCalls == updateFeesCallsBeforeSelection + 1)
     }
 
     // MARK: - Analytics: logPermissionScreenOpened
