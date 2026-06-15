@@ -66,7 +66,7 @@ class EthereumNetworkService: MultiNetworkProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<EthereumEIP1559FeeResponse, Error> {
         let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
         let feeHistoryPublisher = getFeeHistory()
@@ -87,7 +87,7 @@ class EthereumNetworkService: MultiNetworkProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<EthereumLegacyFeeResponse, Error> {
         let gasPricePublisher = getGasPrice()
         let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
@@ -153,7 +153,7 @@ class EthereumNetworkService: MultiNetworkProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<BigUInt, Error> {
         return providerPublisher {
             $0.getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)

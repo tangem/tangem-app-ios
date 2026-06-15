@@ -114,10 +114,9 @@ private extension CommonTokenFeeProvidersManagerProvider {
             return CommonTokenFeeProvider(
                 feeTokenItem: feeTokenItem,
                 tokenFeeLoader: tokenFeeLoader,
-                // Gasless doesn't support custom fee
                 customFeeProvider: .none,
                 feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
-                supportingOptions: supportingOptions,
+                supportingOptions: .exactly([.market]),
             )
         }
 
