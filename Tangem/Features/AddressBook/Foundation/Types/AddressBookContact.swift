@@ -14,5 +14,6 @@ struct AddressBookContact: Codable, Hashable, Identifiable {
     let id: UUID
     let name: String
     let icon: String
+    let walletName: String
     let addresses: [AddressBookAddress]
 }

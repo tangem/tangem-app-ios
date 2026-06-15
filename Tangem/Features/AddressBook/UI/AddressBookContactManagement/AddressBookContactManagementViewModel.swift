@@ -19,6 +19,8 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     @Published var contactName: String = ""
     @Published var selectedColor: GridItemColor<AccountModel.CompositeIcon.Color>
+    @Published var selectedWallet: WalletRowType?
+
     @Published var isProcessing: Bool = false
     @Published var errorAlert: AlertBinder?
 
@@ -105,6 +107,7 @@ private extension AddressBookContactManagementViewModel {
         case .edit(let contact):
             contactName = contact.name
             drafts = contact.addresses.map { DraftRow(id: $0.id.uuidString, address: $0.address) }
+            selectedWallet = .init(wallet: contact.walletName, isEditable: true)
         }
     }
 
@@ -171,5 +174,11 @@ extension AddressBookContactManagementViewModel {
             case .addNewAddress: "AddressBookContactAddNewAddressRowViewModel"
             }
         }
+    }
+
+    struct WalletRowType: Identifiable {
+        var id: String { wallet + isEditable.description }
+        let wallet: String
+        let isEditable: Bool
     }
 }

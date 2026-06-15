@@ -64,6 +64,15 @@ struct AddressBookContactManagementView: View {
                 }
             }
             .horizontalPadding(0)
+
+            GroupedSection(viewModel.selectedWallet) { wallet in
+                TangemRow(title: Localization.wcCommonWallet)
+                    .verticalAlignment(.center)
+                    .end { makeWalletValue(wallet: wallet) }
+            } footer: {
+                DefaultFooterView(Localization.addressBookSaveWalletToDescription)
+            }
+            .horizontalPadding(0)
         }
     }
 
@@ -80,6 +89,19 @@ struct AddressBookContactManagementView: View {
                 Circle()
                     .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
             )
+    }
+
+    private func makeWalletValue(wallet: AddressBookContactManagementViewModel.WalletRowType) -> some View {
+        HStack(spacing: 4) {
+            Text(wallet.wallet)
+                .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                .lineLimit(1)
+
+            Assets.Glyphs.selectIcon.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Tokens.Theme.Icon.secondary)
+                .frame(width: 20, height: 20)
+        }
     }
 
     private var bottomButton: some View {
