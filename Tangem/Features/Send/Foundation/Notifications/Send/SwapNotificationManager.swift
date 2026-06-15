@@ -98,12 +98,6 @@ private extension CommonSwapNotificationManager {
         state: SwapModel.ProvidersState
     ) -> [SwapNotificationEvent] {
         switch (source, receive, state) {
-        case (.success, .failure(ExpressDestinationServiceError.destinationNotFound(let source)), _):
-            return [.noDestinationTokens(tokenName: source.name)]
-
-        case (.failure(ExpressDestinationServiceError.sourceNotFound(let destination)), .success, _):
-            return [.noDestinationTokens(tokenName: destination.name)]
-
         // Expected when couldn't load the providers list
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
