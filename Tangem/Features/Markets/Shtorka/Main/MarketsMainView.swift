@@ -28,9 +28,11 @@ struct MarketsMainView: View {
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
     @State private var isListContentObscured = false
 
+    @State private var defaultBackgroundRedesignColor: Color = BackgroundColor.collapsed
+
     private var defaultBackgroundColor: Color {
         if viewModel.isRedesign {
-            .Tangem.Surface.level2
+            defaultBackgroundRedesignColor
         } else {
             Colors.Background.tertiary
         }
@@ -50,6 +52,14 @@ struct MarketsMainView: View {
 
                 if progress < 1 {
                     UIResponder.current?.resignFirstResponder()
+                }
+
+                if viewModel?.isRedesign == true {
+                    defaultBackgroundRedesignColor = Color.interpolate(
+                        from: BackgroundColor.collapsed,
+                        to: BackgroundColor.expanded,
+                        value: progress
+                    )
                 }
             }
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -75,9 +85,12 @@ struct MarketsMainView: View {
 
             navigationBarBackground
 
-            MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel)
-                .readGeometry(\.size.height, bindTo: $headerHeight)
-                .infinityFrame(axis: .vertical, alignment: .top)
+            MainBottomSheetHeaderView(
+                viewModel: viewModel.headerViewModel,
+                backgroundColor: defaultBackgroundColor
+            )
+            .readGeometry(\.size.height, bindTo: $headerHeight)
+            .infinityFrame(axis: .vertical, alignment: .top)
         }
         .background(defaultBackgroundColor.ignoresSafeArea())
         // This dummy title won't be shown in the UI, but it's required since without it UIKit will allocate
@@ -372,5 +385,10 @@ private extension MarketsMainView {
         private static let prefix = "MarketsMainView.CoordinateSpaceName."
 
         static let scrollViewFrame = prefix + "scrollViewFrame"
+    }
+
+    enum BackgroundColor {
+        static let collapsed: Color = .Tangem.Surface.level3
+        static let expanded: Color = .Tangem.Surface.level2
     }
 }
