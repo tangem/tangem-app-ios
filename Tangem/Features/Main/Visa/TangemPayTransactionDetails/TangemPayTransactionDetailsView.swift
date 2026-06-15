@@ -16,6 +16,14 @@ struct TangemPayTransactionDetailsView: View {
     @ObservedObject var viewModel: TangemPayTransactionDetailsViewModel
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign), let displayModel = viewModel.displayModel {
+            redesignedBody(displayModel)
+        } else {
+            legacyBody
+        }
+    }
+
+    private var legacyBody: some View {
         VStack(spacing: 24) {
             BottomSheetHeaderView(title: viewModel.title, trailing: {
                 NavigationBarButton.close(action: viewModel.userDidTapClose)
@@ -98,6 +106,121 @@ struct TangemPayTransactionDetailsView: View {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(additionalInfo.backgroundColor)
             )
+        }
+    }
+}
+
+// MARK: - Redesigned
+
+private extension TangemPayTransactionDetailsView {
+    func redesignedBody(_ model: TangemPayTransactionDetailsDisplayModel) -> some View {
+        VStack(spacing: 0) {
+            redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
+
+            VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
+                redesignedIcon(model.icon)
+
+                VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                    Text(model.amount)
+                        .style(DesignSystem.Tokens.Font.Display.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let amountSubtitle = model.amountSubtitle {
+                        Text(amountSubtitle)
+                            .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                if let status = model.status {
+                    TangemPayTransactionStatusView(model: status)
+                }
+
+                redesignedRows(model.rows)
+            }
+            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+            .padding(.top, DesignSystem.Tokens.Spacing.s400)
+            .padding(.bottom, DesignSystem.Tokens.Spacing.s100)
+
+            TangemButtonV2(
+                label: AttributedString(model.mainButtonAction.title),
+                accessibilityLabel: model.mainButtonAction.title,
+                action: viewModel.userDidTapMainButton
+            )
+            .size(.x12)
+            .styleType(.default)
+            .horizontalLayout(.infinity)
+            .padding(DesignSystem.Tokens.Spacing.s200)
+        }
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.backgroundInteractionBehavior = .tapToDismiss
+        }
+    }
+
+    func redesignedHeader(title: String, subtitle: String) -> some View {
+        ZStack {
+            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+                Text(title)
+                    .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+
+                Text(subtitle)
+                    .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+            }
+            .multilineTextAlignment(.center)
+
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+
+                TangemButtonV2(
+                    icon: DesignSystem.Icons.Cross.regular20,
+                    accessibilityLabel: Localization.commonClose,
+                    action: viewModel.userDidTapClose
+                )
+                .size(.x11)
+                .styleType(.material(.glass))
+            }
+        }
+        .padding(.top, DesignSystem.Tokens.Spacing.s200)
+        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+    }
+
+    @ViewBuilder
+    func redesignedIcon(_ icon: TangemPayTransactionDetailsDisplayModel.Icon) -> some View {
+        switch icon {
+        case .merchantLogo(let url):
+            IconView(
+                url: url,
+                size: CGSize(bothDimensions: DesignSystem.Tokens.Size.s1000),
+                cornerRadius: DesignSystem.Tokens.Size.s1000 / 2
+            )
+        case .withdrawal:
+            redesignedGenericIcon(DesignSystem.Icons.ArrowUp.regular24)
+        case .deposit:
+            redesignedGenericIcon(DesignSystem.Icons.ArrowDown.regular24)
+        case .fee:
+            redesignedGenericIcon(DesignSystem.Icons.PercentBackward.regular24)
+        }
+    }
+
+    func redesignedGenericIcon(_ icon: ImageType) -> some View {
+        icon.image
+            .renderingMode(.template)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: DesignSystem.Tokens.Size.s350, height: DesignSystem.Tokens.Size.s350)
+            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.primary)
+            .frame(width: DesignSystem.Tokens.Size.s1000, height: DesignSystem.Tokens.Size.s1000)
+            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary, in: Circle())
+    }
+
+    func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                TangemRow(title: row.title, value: row.value)
+                    .showDivider(rows.count == 1 || index < rows.count - 1)
+            }
         }
     }
 }

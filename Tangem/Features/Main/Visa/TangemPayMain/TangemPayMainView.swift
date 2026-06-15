@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
@@ -20,6 +21,19 @@ struct TangemPayMainView: View {
         tokenIconSizeSettings: Constants.tokenIconSizeSettings,
         headerTopPadding: Constants.headerTopPadding
     )
+
+    @StateObject private var elasticContainerModel: TangemElasticContainerModel
+    @State private var headerHeightRatio: CGFloat = 1
+    @State private var visibleBodyHeight: CGFloat = 0
+
+    init(viewModel: TangemPayMainViewModel) {
+        self.viewModel = viewModel
+        _elasticContainerModel = StateObject(
+            wrappedValue: TangemElasticContainerModel(
+                scrollViewInteractor: viewModel.refreshScrollViewStateObject.scrollViewInteractor
+            )
+        )
+    }
 
     var body: some View {
         if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
@@ -286,51 +300,23 @@ struct TangemPayMainView: View {
 
     private var redesignedBody: some View {
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s350) {
-                redesignedHeader
+            VStack(spacing: 0) {
+                TangemElasticContainer(viewModel: elasticContainerModel, content: redesignedCollapsingHeader)
+                    .opacity(redesignedHeaderOpacity)
+                    .animation(.default, value: headerHeightRatio)
 
-                if !viewModel.notificationBannerItems.isEmpty {
-                    NotificationBannerContainer(
-                        items: viewModel.notificationBannerItems,
-                        stackingType: .carousel
-                    )
-                }
-
-                if !viewModel.multipleCardsEnabled, viewModel.shouldDisplayReplacingCardBanner {
-                    TangemPayReplacingCardBanner()
-                }
-
-                if viewModel.shouldDisplayAddToApplePayGuide {
-                    redesignedAddToApplePayBanner
-                }
-
-                if viewModel.multipleCardsEnabled, viewModel.hasIssuingEntry {
-                    TangemPayIssuingCardBannerRedesigned()
-                }
-
-                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
-                    PendingExpressTransactionView(info: transactionInfo)
-                }
-
-                if !viewModel.isDeactivated {
-                    TransactionsListViewRedesigned(
-                        state: viewModel.tangemPayTransactionHistoryState,
-                        exploreAction: nil,
-                        exploreConfirmationDialog: nil,
-                        exploreTransactionAction: viewModel.openTransactionDetails,
-                        reloadButtonAction: viewModel.reloadHistory,
-                        isReloadButtonBusy: false,
-                        fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                    )
-                    .opacity(viewModel.isStale ? 0.6 : 1)
-                }
-
-                Spacer()
+                redesignedTransactionList
+                    .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
             }
             .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
             .padding(.top, DesignSystem.Tokens.Spacing.s150)
         }
-        .background { TangemPayBackgroundView() }
+        .background {
+            TangemPayBackgroundView(textureOpacity: redesignedHeaderOpacity)
+                .animation(.default, value: headerHeightRatio)
+        }
+        .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
+        .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.alert) { $0.alert }
@@ -344,6 +330,56 @@ struct TangemPayMainView: View {
             }
         }
         .redesigned()
+    }
+
+    private var redesignedHeaderOpacity: CGFloat {
+        clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
+    }
+
+    private var redesignedCollapsingHeader: some View {
+        VStack(spacing: DesignSystem.Tokens.Spacing.s350) {
+            redesignedHeader
+
+            if !viewModel.notificationBannerItems.isEmpty {
+                NotificationBannerContainer(
+                    items: viewModel.notificationBannerItems,
+                    stackingType: .carousel
+                )
+            }
+
+            if !viewModel.multipleCardsEnabled, viewModel.shouldDisplayReplacingCardBanner {
+                TangemPayReplacingCardBanner()
+            }
+
+            if viewModel.shouldDisplayAddToApplePayGuide {
+                redesignedAddToApplePayBanner
+            }
+
+            if viewModel.multipleCardsEnabled, viewModel.hasIssuingEntry {
+                TangemPayIssuingCardBannerRedesigned()
+            }
+
+            ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                PendingExpressTransactionView(info: transactionInfo)
+            }
+        }
+        .padding(.bottom, DesignSystem.Tokens.Spacing.s350)
+    }
+
+    @ViewBuilder
+    private var redesignedTransactionList: some View {
+        if !viewModel.isDeactivated {
+            TransactionsListViewRedesigned(
+                state: viewModel.tangemPayTransactionHistoryState,
+                exploreAction: nil,
+                exploreConfirmationDialog: nil,
+                exploreTransactionAction: viewModel.openTransactionDetails,
+                reloadButtonAction: viewModel.reloadHistory,
+                isReloadButtonBusy: false,
+                fetchMore: viewModel.fetchNextTransactionHistoryPage()
+            )
+            .opacity(viewModel.isStale ? 0.6 : 1)
+        }
     }
 
     private var redesignedHeader: some View {
