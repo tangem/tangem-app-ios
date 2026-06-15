@@ -23,6 +23,7 @@ protocol WalletModel:
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
+    var allAddresses: [Address] { get }
     var addresses: [Address] { get }
     var defaultAddress: Address { get }
     var isMainToken: Bool { get }
@@ -203,7 +204,7 @@ protocol WalletModelDependenciesProvider {
 
 // MARK: - Tx history
 
-protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater {}
+protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater & WalletModelTransactionHistoryAddressesProvider {}
 
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
