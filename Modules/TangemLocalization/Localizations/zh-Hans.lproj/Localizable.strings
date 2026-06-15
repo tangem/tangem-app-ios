@@ -1676,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "无法支付费用";
 "tangempay_reissue_card_insufficient_funds" = "资金不足，无法更换卡片";
 "tangempay_reissue_card_title" = "要重新发行您的卡片吗？";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题，请稍后再试。";
 "tangempay_service_unavailable_title" = "服务暂时不可用";
 "tangempay_service_unreachable_try_later" = "无法显示详细信息。但刷卡支付功能仍然可用。";
