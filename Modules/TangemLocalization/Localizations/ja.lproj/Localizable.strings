@@ -1676,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "手数料を支払えません";
 "tangempay_reissue_card_insufficient_funds" = "カード交換に必要な残高が不足しています";
 "tangempay_reissue_card_title" = "カードを交換しますか？";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
 "tangempay_service_unreachable_try_later" = "現在、データを表示できませんが、カードでのお支払いは引き続きご利用いただけます。";
