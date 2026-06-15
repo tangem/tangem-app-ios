@@ -214,6 +214,7 @@
 "common_attention" = "Achtung";
 "common_available_networks" = "Verfügbare Netzwerke";
 "common_back" = "Zurück";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Sicherungskopie";
 "common_balance_title" = "Saldo";
 "common_balance" = "Bilanz: %@";
@@ -524,6 +525,7 @@
 "express_legal_one_placeholder" = "Durch die Nutzung der Swap-Funktion erklärst du dich mit den folgenden Bedingungen des Anbieters einverstanden %@";
 "express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden.";
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Bester Preis";
 "express_provider_fca_warning_list" = "Warnliste der FCA";
 "express_provider_fixed_rate_is_unavailable" = "Der Festzins ist nicht verfügbar";
@@ -1674,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Gebühr kann nicht gedeckt werden";
 "tangempay_reissue_card_insufficient_funds" = "Unzureichendes Guthaben, um die Karte neu auszustellen";
 "tangempay_reissue_card_title" = "Ihre Karte neu ausstellen?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
@@ -2086,6 +2091,7 @@
 "wc_all_dapps_disconnected" = "Alle dApps getrennt";
 "wc_allow_to_spend" = "Erlaubnis auszugeben";
 "wc_approve_description" = "Durch die Genehmigung erlaubst Du dApps oder Smart Contracts, Token in zukünftigen Transaktionen zu verwenden.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Vertragsadresse";
 "wc_common_connect" = "Verbinden";
 "wc_common_loading" = "Laden";
