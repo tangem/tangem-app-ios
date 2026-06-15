@@ -14,11 +14,13 @@ public struct NewsRatingViewRedesign: View {
     private let rating: String
     private let isHighlighted: Bool
     private let spacing: CGFloat
+    private let font: Font
 
-    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0) {
+    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: Font = .Tangem.Caption12.semibold) {
         self.rating = rating
         self.isHighlighted = isHighlighted
         self.spacing = spacing
+        self.font = font
     }
 
     public var body: some View {
@@ -26,7 +28,7 @@ public struct NewsRatingViewRedesign: View {
             starIcon
             Text(rating)
                 .style(
-                    .Tangem.Caption12.semibold,
+                    font,
                     color: isHighlighted ? .Tangem.Text.Status.attention : .Tangem.Text.Neutral.secondary
                 )
         }
