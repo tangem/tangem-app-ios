@@ -435,6 +435,21 @@ struct TangemPayCardManagementView: View {
                                 .renderingMode(.template)
                         }
                     }
+
+                    if let closeCardRow = viewModel.closeCardRow {
+                        Divider()
+
+                        Button {
+                            closeCardRow.action?()
+                        } label: {
+                            Label {
+                                Text(closeCardRow.title)
+                            } icon: {
+                                Image(systemName: "trash")
+                            }
+                        }
+                        .disabled(closeCardRow.action == nil)
+                    }
                 } label: {
                     NavbarDotsImage()
                 }
