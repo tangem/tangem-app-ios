@@ -35,7 +35,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     // MARK: - Dependencies
 
-    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let userWalletNotificationManager: NotificationManager
