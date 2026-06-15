@@ -167,6 +167,7 @@ struct SupportedBlockchains {
             .arbitrumNova,
             .plasma(testnet: false),
             .monad(testnet: false),
+            .seiEvm(testnet: false),
         ]
     }
 
