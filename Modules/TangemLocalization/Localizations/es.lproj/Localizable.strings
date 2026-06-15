@@ -214,6 +214,7 @@
 "common_attention" = "Atención";
 "common_available_networks" = "Redes disponibles";
 "common_back" = "Atrás";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Copia de seguridad";
 "common_balance_title" = "Saldo";
 "common_balance" = "Saldo: %@";
@@ -524,6 +525,7 @@
 "express_legal_one_placeholder" = "Al utilizar la función de intercambio, acepta los %@";
 "express_legal_two_placeholders" = "Al utilizar la función de intercambio, aceptas las condiciones de %1$@ y %2$@ del proveedor.";
 "express_more_providers_soon" = "Pronto habrá más proveedores disponibles";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "Mejor tarifa";
 "express_provider_fca_warning_list" = "Lista de advertencias de la FCA";
 "express_provider_fixed_rate_is_unavailable" = "Fixed rate is unavailable";
@@ -1674,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "No se pudo cubrir la comisión";
 "tangempay_reissue_card_insufficient_funds" = "Fondos insuficientes para reemitir la tarjeta";
 "tangempay_reissue_card_title" = "¿Reemitir tu tarjeta?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Estamos solucionando un problema técnico. Por favor, inténtelo de nuevo más tarde.";
 "tangempay_service_unavailable_title" = "Servicio temporalmente no disponible";
 "tangempay_service_unreachable_try_later" = "No es posible mostrar los datos en este momento, pero los pagos con tarjeta siguen funcionando.";
@@ -2086,6 +2091,7 @@
 "wc_all_dapps_disconnected" = "Todas las dApps desconectadas";
 "wc_allow_to_spend" = "Permitir gastar";
 "wc_approve_description" = "Al aprobar, permites que la dApp o el contrato inteligente utilicen los tokens en futuras transacciones.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Dirección";
 "wc_common_connect" = "Conectar";
 "wc_common_loading" = "Cargando";
