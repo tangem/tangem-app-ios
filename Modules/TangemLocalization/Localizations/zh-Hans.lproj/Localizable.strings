@@ -214,6 +214,7 @@
 "common_attention" = "请注意";
 "common_available_networks" = "可用网络";
 "common_back" = "返回";
+"common_backup_error" = "Backup Error";
 "common_backup" = "备份";
 "common_balance_title" = "余额";
 "common_balance" = "余额： %@";
@@ -524,6 +525,7 @@
 "express_legal_one_placeholder" = "使用兑换功能即表示您同意提供商的条款 %@";
 "express_legal_two_placeholders" = "使用兑换功能即表示您同意提供商的条款 %1$@ 和 %2$@。";
 "express_more_providers_soon" = "更多服务提供商即将推出";
+"express_provider_best_dex_rate" = "Best DEX Rate";
 "express_provider_best_rate" = "最佳汇率";
 "express_provider_fca_warning_list" = "FCA警告清单";
 "express_provider_fixed_rate_is_unavailable" = "固定利率不可用";
@@ -1674,6 +1676,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "无法支付费用";
 "tangempay_reissue_card_insufficient_funds" = "资金不足，无法更换卡片";
 "tangempay_reissue_card_title" = "要重新发行您的卡片吗？";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题，请稍后再试。";
 "tangempay_service_unavailable_title" = "服务暂时不可用";
 "tangempay_service_unreachable_try_later" = "无法显示详细信息。但刷卡支付功能仍然可用。";
@@ -2086,6 +2091,7 @@
 "wc_all_dapps_disconnected" = "所有dApp已断开连接";
 "wc_allow_to_spend" = "允许支出";
 "wc_approve_description" = "通过批准，您允许 dApp 或智能合约在未来的交易中使用代币。";
+"wc_change_address" = "Change address";
 "wc_common_address" = "地址";
 "wc_common_connect" = "连接";
 "wc_common_loading" = "加载中";
