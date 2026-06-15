@@ -9,18 +9,25 @@
 import TangemLocalization
 
 struct AddressBookContactViewModel: Identifiable {
-    var id: String { title }
-
+    let id: String
     let title: String
     let subtitle: String
     let letter: String
 
     let action: () -> Void
 
-    init(contact: AddressBookContact, action: @escaping () -> Void) {
-        title = contact.name
-        subtitle = Localization.addressBookAddresses(contact.addresses.count)
-        letter = contact.firstLetter
+    init(contact: ContactReadModel, action: @escaping () -> Void) {
+        let name = contact.name.value
+
+        let addressCount: Int = switch contact {
+        case .valid(let value): value.entries.count
+        case .allEntriesInvalid: 0
+        }
+
+        id = contact.id.stringValue
+        title = name
+        subtitle = Localization.addressBookAddresses(addressCount)
+        letter = "\(name.prefix(1).uppercased())"
 
         self.action = action
     }

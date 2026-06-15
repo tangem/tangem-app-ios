@@ -34,3 +34,7 @@ protocol AddressBookContactManagementInteractor {
     func save() async throws
     func delete() async throws
 }
+
+enum AddressBookManagementError: Error {
+    case walletUnavailable
+}

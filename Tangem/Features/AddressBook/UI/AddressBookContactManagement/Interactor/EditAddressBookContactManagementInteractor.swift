@@ -20,20 +20,26 @@ final class EditAddressBookContactManagementInteractor {
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
 
-    private let contact: AddressBookContact
+    private let contact: Contact
+    private let walletId: UserWalletId
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
     private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
-    init(contact: AddressBookContact) {
-        self.contact = contact
+    private var addressBookManager: AddressBookManager? {
+        Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.addressBookManager
+    }
 
-        nameSubject = .init(contact.name)
-        colorSubject = .init(AccountModel.CompositeIcon.Color(rawValue: contact.icon) ?? AccountModelUtils.UI.newAccountIcon().color)
-        addressesSubject = .init(contact.addresses.map { DraftRow(id: $0.id.uuidString, address: $0.address) })
-        walletSubject = .init(Self.userWalletRepository.selectedModel?.userWalletInfo)
+    init(contact: Contact, walletId: UserWalletId) {
+        self.contact = contact
+        self.walletId = walletId
+
+        nameSubject = .init(contact.name.value)
+        colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
+        addressesSubject = .init(contact.entries.map { DraftRow(id: $0.id.stringValue, address: $0.address) })
+        walletSubject = .init(Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.userWalletInfo)
     }
 }
 
@@ -108,10 +114,50 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func save() async throws {
-        // [REDACTED_TODO_COMMENT]
+        guard let addressBookManager else {
+            throw AddressBookManagementError.walletUnavailable
+        }
+
+        let contactId = contact.id
+        let name = try ContactName(validating: nameSubject.value)
+        let drafts = addressesSubject.value
+
+        guard !drafts.isEmpty else {
+            try await addressBookManager.deleteContact(id: contactId)
+            return
+        }
+
+        let originalIds = Set(contact.entries.map(\.id))
+        let currentIds = Set(drafts.compactMap { UUID(uuidString: $0.id).map { AddressEntryID(rawValue: $0) } })
+
+        // Remove entries the user deleted.
+        for entry in contact.entries where !currentIds.contains(entry.id) {
+            try await addressBookManager.deleteEntry(id: entry.id, fromContactWith: contactId)
+        }
+
+        // `name` is part of the signed tuple, so a rename re-signs every remaining entry.
+        if name != contact.name {
+            try await addressBookManager.renameContact(id: contactId, to: name)
+        }
+
+        // Add freshly entered addresses (drafts without an existing entry id).
+        let addedEntries = drafts
+            .filter { draft in
+                guard let uuid = UUID(uuidString: draft.id) else { return true }
+                return !originalIds.contains(AddressEntryID(rawValue: uuid))
+            }
+            .map { AddressBookEntryDraft(address: $0.address, networkId: AddressBookNetworkID("ethereum"), memo: nil) }
+
+        if !addedEntries.isEmpty {
+            try await addressBookManager.addEntries(addedEntries, toContactWith: contactId)
+        }
     }
 
     func delete() async throws {
-        // [REDACTED_TODO_COMMENT]
+        guard let addressBookManager else {
+            throw AddressBookManagementError.walletUnavailable
+        }
+
+        try await addressBookManager.deleteContact(id: contact.id)
     }
 }

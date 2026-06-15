@@ -14,11 +14,5 @@ protocol AddressBooksProvider {
 
 struct AddressBookWallet {
     let wallet: UserWalletInfo
-    let addressBookPublisher: AnyPublisher<AddressBook, Never>
-}
-
-// MARK: - Implementations
-
-extension AddressBooksProvider where Self == MockAddressBooksProvider {
-    static func mock() -> Self { .init() }
+    let addressBookPublisher: AnyPublisher<[ContactReadModel], Never>
 }
