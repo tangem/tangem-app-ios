@@ -187,6 +187,7 @@ private extension StakingSingleActionModel {
              .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .loadTransactionInfo,
              .actionNotSupported:
             break
