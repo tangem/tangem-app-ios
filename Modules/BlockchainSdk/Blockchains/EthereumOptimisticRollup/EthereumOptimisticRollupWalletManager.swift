@@ -52,7 +52,7 @@ final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         do {
             let destination = try addressConverter.convertToETHAddress(destination)

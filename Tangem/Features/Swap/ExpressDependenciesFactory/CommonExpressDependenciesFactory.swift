@@ -38,7 +38,10 @@ private extension CommonExpressDependenciesFactory {
     func makeExpressManager() -> ExpressManager {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: swapRepository
+            expressRepository: swapRepository,
+            featureFlags: ExpressFeatureFlags(
+                isApproveWithSwapEnabled: FeatureProvider.isAvailable(.approveFlowV2)
+            )
         )
     }
 
