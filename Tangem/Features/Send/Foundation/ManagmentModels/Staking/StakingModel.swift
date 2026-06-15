@@ -348,6 +348,7 @@ private extension StakingModel {
              .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .loadTransactionInfo,
              .actionNotSupported:
             break
