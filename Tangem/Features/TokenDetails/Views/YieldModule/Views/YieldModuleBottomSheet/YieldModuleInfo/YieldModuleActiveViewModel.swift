@@ -177,6 +177,11 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     @MainActor
     private func getYieldPromoData() async {
+        await yieldPromoStatusProvider.refreshPromoStatusIfEligible(
+            userWalletId: walletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem
+        )
+
         let promoState = await yieldPromoStatusProvider.promoState(
             userWalletId: walletModel.userWalletId.stringValue,
             tokenItem: walletModel.tokenItem
