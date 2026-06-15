@@ -117,6 +117,17 @@ extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
             ]
         )
     }
+
+    func logErrorSumLimit(errorMessage: String) {
+        Analytics.log(
+            event: .stakingErrorSumLimit,
+            params: [
+                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+                .blockchain: tokenItem.blockchain.displayName,
+                .errorMessage: errorMessage,
+            ]
+        )
+    }
 }
 
 // MARK: - SendSummaryAnalyticsLogger
