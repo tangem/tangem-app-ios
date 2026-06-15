@@ -15,6 +15,60 @@ struct TangemPayAddFundsSheetView: View {
     @ObservedObject var viewModel: TangemPayAddFundsSheetViewModel
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            redesignedBody
+        } else {
+            legacyBody
+        }
+    }
+}
+
+// MARK: - Redesigned
+
+private extension TangemPayAddFundsSheetView {
+    var redesignedBody: some View {
+        VStack(spacing: .zero) {
+            header
+
+            options
+        }
+        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+        .padding(.bottom, DesignSystem.Tokens.Spacing.s200)
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.backgroundInteractionBehavior = .tapToDismiss
+        }
+    }
+
+    var header: some View {
+        BottomSheetHeaderView(title: Localization.tangempayCardDetailsAddFunds, trailing: {
+            closeButton
+        })
+        .titleFont(DesignSystem.Tokens.Font.Body.medium.font)
+        .titleColor(DesignSystem.Tokens.Theme.Text.primary)
+    }
+
+    var options: some View {
+        VStack(spacing: .zero) {
+            ForEach(viewModel.options) { option in
+                TangemPayAddFundsSheetOptionView(option: option, action: {
+                    viewModel.userDidTapOption(option: option)
+                })
+            }
+        }
+    }
+
+    var closeButton: some View {
+        TangemButtonV2(icon: DesignSystem.Icons.Cross.regular20, accessibilityLabel: Localization.commonClose, action: viewModel.close)
+            .size(.x11)
+            .styleType(.material(.glass))
+    }
+}
+
+// MARK: - Legacy
+
+private extension TangemPayAddFundsSheetView {
+    var legacyBody: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.tangempayCardDetailsAddFunds, trailing: {
                 NavigationBarButton.close(action: viewModel.close)
