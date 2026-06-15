@@ -264,6 +264,12 @@ final class TangemPayAccount {
         cards.first { $0.cardId == cardId }
     }
 
+    func cardDisplayName(forCardId cardId: String) -> String? {
+        multipleCardsEnabled
+            ? card(cardId: cardId)?.displayName
+            : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
+    }
+
     deinit {
         orderStatusPollingService.cancel()
     }
