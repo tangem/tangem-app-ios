@@ -197,7 +197,7 @@ extension CommonServicesManager: ServicesManager {
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
-        storyDataPrefetchService.prefetchStoryIfNeeded(.initialSwapStoryBasedOnToggle)
+        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         storyDataPrefetchService.prefetchStoryIfNeeded(.yieldFirstActivationAPYBoostStory)
         geoEligibilityService.initialize()
         wcService.initialize()

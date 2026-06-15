@@ -24,10 +24,6 @@ final class SwapPreselectedTokenChangeAnalyticsLogger {
     }
 
     func logIfNeeded(direction: Direction, selected: TokenItem) {
-        guard FeatureProvider.isAvailable(.swapPipelineV2) else {
-            return
-        }
-
         let preselected: TokenItem? = switch direction {
         case .source: preselectedSourceTokenItem
         case .receive: preselectedReceiveTokenItem
