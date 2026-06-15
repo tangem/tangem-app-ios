@@ -110,7 +110,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
             if let shortDescription {
                 if model.fullDescription == nil {
                     Text(shortDescription)
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
+                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
                         .multilineTextAlignment(.leading)
                 } else {
                     Button(action: viewModel.openFullDescription) {
@@ -118,7 +118,7 @@ struct MarketsTokenDetailsContentViewRedesign: View {
                             Text("\(shortDescription) ")
                                 + readMoreText
                         }
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
+                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
                         .multilineTextAlignment(.leading)
                     }
                 }
