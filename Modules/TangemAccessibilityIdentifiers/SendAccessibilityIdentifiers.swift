@@ -106,6 +106,10 @@ public enum SendAccessibilityIdentifiers {
         "sendSwapProviderSelectorRow_\(name)"
     }
 
+    public static func swapProviderSelectorApproveButton(name: String) -> String {
+        "sendSwapProviderSelectorApproveButton_\(name)"
+    }
+
     /// Token search in receive token list
     public static let receiveTokenSearchBar = "sendReceiveTokenSearchBar"
 
