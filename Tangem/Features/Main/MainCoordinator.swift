@@ -69,7 +69,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Child view models
 
     @Published var organizeTokensViewModel: OrganizeTokensViewModel?
-    @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
@@ -86,7 +85,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var deeplinkDestination = PassthroughSubject<DeepLinkDestination, Never>()
 
     private var safariHandle: SafariHandle?
-    private var pushNotificationsViewModelSubscription: AnyCancellable?
     private var deeplinkDestinationSubscription: AnyCancellable?
     private var tangemPayMainDeeplinkSubscription: AnyCancellable?
     private var yieldDeeplinkRouter: YieldDeeplinkRouter?
@@ -140,18 +138,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
                     self?.deeplinkPresenter.present(deepLink: deepLink)
                 }
             }
-
-        if pushNotificationsViewModelSubscription == nil {
-            pushNotificationsViewModelSubscription = $pushNotificationsViewModel
-                .pairwise()
-                .filter { previous, current in
-                    // Transition from a non-nil value to a nil value, i.e. dismissing the sheet
-                    previous != nil && current == nil
-                }
-                .sink { previous, _ in
-                    previous?.didDismissSheet()
-                }
-        }
     }
 
     // MARK: - Tooltip Interaction
@@ -293,7 +279,16 @@ extension MainCoordinator: MainRoutable {
     func openPushNotificationsAuthorization() {
         let factory = PushNotificationsHelpersFactory()
         let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
-        pushNotificationsViewModel = PushNotificationsPermissionRequestViewModel(permissionManager: permissionManager, delegate: self)
+        let walletId = userWalletRepository.selectedModel?.userWalletId.stringValue
+
+        Task { @MainActor in
+            let viewModel = PushNotificationsMainViewModel(
+                permissionManager: permissionManager,
+                walletId: walletId
+            )
+            viewModel.start()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 }
 
@@ -828,14 +823,6 @@ extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
 extension MainCoordinator: RateAppRoutable {
     func openAppStoreReview() {
         isAppStoreReviewRequested = true
-    }
-}
-
-// MARK: - PushNotificationsPermissionRequestDelegate protocol conformance
-
-extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
-    func didFinishPushNotificationOnboarding() {
-        pushNotificationsViewModel = nil
     }
 }
 
