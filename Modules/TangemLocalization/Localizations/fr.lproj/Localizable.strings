@@ -214,6 +214,7 @@
 "common_attention" = "Attention";
 "common_available_networks" = "Réseaux disponibles";
 "common_back" = "Retour";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Sauvegarde";
 "common_balance_title" = "Solde";
 "common_balance" = "Solde : %@";
@@ -2087,6 +2088,7 @@
 "wc_all_dapps_disconnected" = "Toutes les dApps sont déconnectées";
 "wc_allow_to_spend" = "Autoriser à dépenser";
 "wc_approve_description" = "En approuvant, vous autorisez la dApp ou le contrat intelligent à utiliser les jetons dans de futures transactions.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Adresse";
 "wc_common_connect" = "Connecter";
 "wc_common_loading" = "Chargement";

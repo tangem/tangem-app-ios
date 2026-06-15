@@ -214,6 +214,7 @@
 "common_attention" = "请注意";
 "common_available_networks" = "可用网络";
 "common_back" = "返回";
+"common_backup_error" = "Backup Error";
 "common_backup" = "备份";
 "common_balance_title" = "余额";
 "common_balance" = "余额： %@";
@@ -2087,6 +2088,7 @@
 "wc_all_dapps_disconnected" = "所有dApp已断开连接";
 "wc_allow_to_spend" = "允许支出";
 "wc_approve_description" = "通过批准，您允许 dApp 或智能合约在未来的交易中使用代币。";
+"wc_change_address" = "Change address";
 "wc_common_address" = "地址";
 "wc_common_connect" = "连接";
 "wc_common_loading" = "加载中";
