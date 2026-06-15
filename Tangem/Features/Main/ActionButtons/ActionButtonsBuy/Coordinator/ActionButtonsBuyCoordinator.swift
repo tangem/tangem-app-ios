@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemUI
+import UIKit
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
     let dismissAction: Action<ActionButtonsBuyDismissPayload?>
@@ -84,6 +85,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
                 return
             }
 
+            UIApplication.shared.endEditing()
             let viewModel = AddFundsViewModel(
                 input: .init(
                     mode: .stack,
