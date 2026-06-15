@@ -67,6 +67,15 @@ public enum ExpressProviderManagerState {
             return false
         }
     }
+
+    public var isApproveWithSwapRequired: Bool {
+        switch self {
+        case .dexWithApprovePreview:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 public extension ExpressProviderManagerState {
