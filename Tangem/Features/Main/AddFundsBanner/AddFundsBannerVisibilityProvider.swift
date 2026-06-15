@@ -8,96 +8,38 @@
 
 import Foundation
 import Combine
-import CombineExt
-import TangemFoundation
 
 protocol AddFundsBannerVisibilityProvider: AnyObject {
-    var shouldShow: Bool { get }
-    var shouldShowPublisher: AnyPublisher<Bool, Never> { get }
+    /// Emits the Add Funds banner decision for the given wallet: `true` once its balance resolves
+    /// to zero, `false` once it resolves to a positive value. Emits nothing while the balance is
+    /// unresolved, so the decision stays pending on the consumer side.
+    func shouldShowPublisher(for totalBalanceProvider: TotalBalanceProvider) -> AnyPublisher<Bool, Never>
 }
 
 final class CommonAddFundsBannerVisibilityProvider {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
-    private let shouldShowSubject: CurrentValueSubject<Bool, Never>
-    private var bag = Set<AnyCancellable>()
-
-    fileprivate init() {
-        // Stay hidden until balances of all wallets are actually loaded.
-        shouldShowSubject = CurrentValueSubject(false)
-
-        guard FeatureProvider.isAvailable(.addFundsStage1) else {
-            return
-        }
-
-        bind()
-    }
-}
-
-// MARK: - Private methods
-
-private extension CommonAddFundsBannerVisibilityProvider {
-    func bind() {
-        userWalletRepository.eventProvider
-            .filter { Self.isBalanceAffectingEvent($0) }
-            .mapToVoid()
-            .prepend(())
-            .withWeakCaptureOf(self)
-            .flatMapLatest { provider, _ in
-                provider.makeShouldShowPublisher()
-            }
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { provider, shouldShow in
-                provider.shouldShowSubject.send(shouldShow)
-            }
-            .store(in: &bag)
-    }
-
-    func makeShouldShowPublisher() -> AnyPublisher<Bool, Never> {
-        let balancePublishers = userWalletRepository.models
-            .filter { !$0.isUserWalletLocked }
-            .map(\.totalBalancePublisher)
-
-        guard balancePublishers.isNotEmpty else {
-            return Just(false).eraseToAnyPublisher()
-        }
-
-        return balancePublishers
-            .combineLatest()
-            .map { states in
-                let allResolved = states.allSatisfy { state in
-                    switch state {
-                    case .loaded: true
-                    case .loading(let cached), .failed(let cached, _): cached != nil
-                    case .empty: false
-                    }
-                }
-                let hasPositiveBalance = states.contains { $0.hasAnyPositiveBalance }
-                return allResolved && !hasPositiveBalance
-            }
-            .eraseToAnyPublisher()
-    }
-
-    static func isBalanceAffectingEvent(_ event: UserWalletRepositoryEvent) -> Bool {
-        switch event {
-        case .unlocked, .locked, .inserted, .unlockedWallet, .deleted:
-            return true
-        case .selected, .reordered:
-            return false
-        }
-    }
+    fileprivate init() {}
 }
 
 // MARK: - AddFundsBannerVisibilityProvider
 
 extension CommonAddFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider {
-    var shouldShow: Bool {
-        shouldShowSubject.value
-    }
+    func shouldShowPublisher(for totalBalanceProvider: TotalBalanceProvider) -> AnyPublisher<Bool, Never> {
+        guard FeatureProvider.isAvailable(.addFundsStage1) else {
+            return Just(false).eraseToAnyPublisher()
+        }
 
-    var shouldShowPublisher: AnyPublisher<Bool, Never> {
-        shouldShowSubject.removeDuplicates().eraseToAnyPublisher()
+        return totalBalanceProvider.totalBalancePublisher
+            .compactMap { state -> Bool? in
+                switch state {
+                case .loaded, .loading(.some), .failed(.some, _):
+                    return !state.hasAnyPositiveBalance
+                case .empty, .loading(.none), .failed(.none, _):
+                    // Balance not resolved yet — keep the Add Funds decision pending
+                    return nil
+                }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
 
