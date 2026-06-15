@@ -38,7 +38,6 @@ private extension SwapModelTests {
             expressManager: ExpressManagerStub(),
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
-            expressDestinationService: ExpressDestinationServiceStub(),
             expressAPIProvider: ExpressAPIProviderStub(),
             expressUserWalletId: UserWalletId(value: Data()),
             analyticsLogger: SendAnalyticsLoggerStub(),
@@ -114,16 +113,6 @@ private final class ExpressPendingTransactionRepositoryStub: ExpressPendingTrans
     func updateItems(_ items: [ExpressPendingTransactionRecord]) {}
     func swapTransactionDidSend(_ transaction: SentSwapTransactionData) {}
     func hideSwapTransaction(with id: String) {}
-}
-
-private final class ExpressDestinationServiceStub: ExpressDestinationService {
-    func getSource(destination: TokenItem) async throws -> any SendSwapableToken {
-        throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
-    }
-
-    func getDestination(source: TokenItem) async throws -> any SendSwapableToken {
-        throw ExpressDestinationServiceError.destinationNotFound(source: source)
-    }
 }
 
 private final class ExpressAPIProviderStub: ExpressAPIProvider {
