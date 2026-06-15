@@ -15,7 +15,7 @@ public protocol EthereumNetworkProvider {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]?
+        stateOverride: EthereumStateOverride?
     ) -> AnyPublisher<[Fee], Error>
 
     func getGasPrice() -> AnyPublisher<BigUInt, Error>
