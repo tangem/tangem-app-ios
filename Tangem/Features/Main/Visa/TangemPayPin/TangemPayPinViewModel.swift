@@ -31,9 +31,18 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var isPinCodeValid: Bool = false
     @Published private(set) var errorMessage: String? = nil
+    @Published private(set) var isRepeatStep: Bool = false
 
     var pinCodeLength: Int {
         pinValidator.pinCodeLength
+    }
+
+    var isEnteringPin: Bool {
+        state == .enterPin
+    }
+
+    var enterPinHeader: String {
+        isRepeatStep ? Localization.commonConfirm : Localization.tangempaySetPinHeader
     }
 
     /// `nil` in the legacy single-card flow; set in the multi-card flow.
@@ -43,6 +52,8 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     private weak var coordinator: TangemPayPinRoutable?
 
     private let pinValidator = VisaPinValidator()
+    private let isRedesigned = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+    private var firstPin: String?
     private var bag = Set<AnyCancellable>()
 
     init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayPinRoutable) {
@@ -50,7 +61,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         self.tangemPayAccount = tangemPayAccount
         userWalletId = tangemPayAccount.userWalletId
         self.coordinator = coordinator
-        bind()
+        isRedesigned ? bindRedesigned() : bind()
     }
 
     init(
@@ -63,7 +74,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         self.tangemPayAccount = tangemPayAccount
         self.userWalletId = userWalletId
         self.coordinator = coordinator
-        bind()
+        isRedesigned ? bindRedesigned() : bind()
     }
 
     func onAppear() {
@@ -123,14 +134,17 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                         viewModel.state = .created
                     case .pinTooWeak:
                         viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage
+                        viewModel.resetToFirstStep()
                     case .decryptionError, .unknownError, .undefined:
                         viewModel.errorMessage = Localization.tangempayServiceUnavailableTitle
+                        viewModel.resetToFirstStep()
                     }
                 }
             } catch {
                 await MainActor.run {
                     viewModel.errorMessage = Localization.tangempayCardDetailsErrorText
                     viewModel.isLoading = false
+                    viewModel.resetToFirstStep()
                 }
             }
         }
@@ -150,6 +164,57 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                 }
             }
             .store(in: &bag)
+    }
+
+    private func bindRedesigned() {
+        $pin
+            .withWeakCaptureOf(self)
+            .sink { viewModel, pin in
+                viewModel.handleRedesignedPinChange(pin)
+            }
+            .store(in: &bag)
+    }
+
+    private func handleRedesignedPinChange(_ pin: String) {
+        guard pin.count == pinCodeLength else {
+            if !pin.isEmpty, errorMessage != nil {
+                errorMessage = nil
+            }
+            return
+        }
+
+        if isRepeatStep {
+            if pin == firstPin {
+                errorMessage = nil
+                submit()
+            } else {
+                errorMessage = Localization.visaOnboardingPinNotAccepted
+                resetToFirstStep()
+            }
+            return
+        }
+
+        do throws(VisaPinValidator.PinValidationError) {
+            try pinValidator.validatePinCode(pin)
+            firstPin = pin
+            errorMessage = nil
+            isRepeatStep = true
+            DispatchQueue.main.async { [weak self] in
+                self?.pin = ""
+            }
+        } catch {
+            errorMessage = error.errorMessage ?? Localization.visaOnboardingPinValidationErrorMessage
+        }
+    }
+
+    private func resetToFirstStep() {
+        guard isRedesigned else { return }
+
+        isRepeatStep = false
+        firstPin = nil
+        DispatchQueue.main.async { [weak self] in
+            self?.pin = ""
+        }
     }
 }
 

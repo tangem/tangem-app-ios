@@ -9,12 +9,21 @@
 import SwiftUI
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct TangemPayPinCheckView: View {
     @ObservedObject var viewModel: TangemPayPinCheckViewModel
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            redesignedBody
+        } else {
+            legacyBody
+        }
+    }
+
+    private var legacyBody: some View {
         VStack(spacing: 12) {
             Text(Localization.tangempayYourPinCode)
                 .style(
@@ -86,5 +95,83 @@ struct TangemPayPinCheckView: View {
             }
         }
         .background(Color.Tangem.Surface.level3)
+    }
+}
+
+// MARK: - Redesigned
+
+private extension TangemPayPinCheckView {
+    var redesignedBody: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+
+                TangemButtonV2(
+                    icon: DesignSystem.Icons.Cross.regular20,
+                    accessibilityLabel: Localization.commonClose,
+                    action: viewModel.close
+                )
+                .size(.x11)
+                .styleType(.material(.glass))
+            }
+            .padding(.top, DesignSystem.Tokens.Spacing.s200)
+            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+
+            VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
+                VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                    Text(Localization.tangempayYourPinCode)
+                        .style(DesignSystem.Tokens.Font.Heading.small, color: DesignSystem.Tokens.Theme.Text.primary)
+
+                    Text(Localization.tangempayComeBackIfForgetPin)
+                        .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                }
+                .multilineTextAlignment(.center)
+
+                redesignedPinContent
+            }
+            .padding(.top, DesignSystem.Tokens.Spacing.s400)
+            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+
+            redesignedChangePinButton
+        }
+        .frame(maxWidth: .infinity)
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.backgroundInteractionBehavior = .tapToDismiss
+        }
+    }
+
+    var redesignedPinContent: some View {
+        Color.clear
+            .frame(height: DesignSystem.Tokens.Size.s800)
+            .overlay {
+                switch viewModel.state {
+                case .loading:
+                    TangemLoader()
+                        .loaderSize(.size24)
+
+                case .loaded(let pin):
+                    TangemPayPinStackView(
+                        pinText: .constant(pin),
+                        length: viewModel.pinCodeLength,
+                        isDisabled: true
+                    )
+                }
+            }
+    }
+
+    var redesignedChangePinButton: some View {
+        TangemButtonV2(
+            label: AttributedString(Localization.tangempayChangePinCode),
+            accessibilityLabel: Localization.tangempayChangePinCode,
+            action: viewModel.changePin
+        )
+        .size(.x12)
+        .styleType(.default)
+        .horizontalLayout(.infinity)
+        .disabled(!viewModel.isPinLoaded)
+        .padding(.top, DesignSystem.Tokens.Spacing.s400)
+        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+        .padding(.bottom, DesignSystem.Tokens.Spacing.s200)
     }
 }

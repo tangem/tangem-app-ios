@@ -10,6 +10,8 @@ import SwiftUI
 import TangemAssets
 
 struct TangemPayBackgroundView: View {
+    var textureOpacity: CGFloat = 1
+
     var body: some View {
         ZStack(alignment: .top) {
             DesignSystem.Tokens.Theme.Bg.primary
@@ -30,6 +32,7 @@ struct TangemPayBackgroundView: View {
                         endPoint: .bottom
                     )
                 }
+                .opacity(textureOpacity)
                 .ignoresSafeArea(edges: .top)
                 .allowsHitTesting(false)
         }
