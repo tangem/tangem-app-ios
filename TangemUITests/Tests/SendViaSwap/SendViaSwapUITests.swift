@@ -362,6 +362,90 @@ final class SendViaSwapUITests: BaseTestCase {
             .waitForPendingExpressTransaction()
     }
 
+    func testSendViaSwapMemoEditPersistsLatestValue() {
+        setAllureId(9924)
+
+        let bitcoinBalanceScenario = ScenarioConfig(
+            name: "bitcoin_utxo",
+            initialState: "Balance"
+        )
+
+        let assetsScenario = ScenarioConfig(
+            name: "express_api_assets",
+            initialState: "BitcoinExchangeEnabledWithXRP"
+        )
+
+        let coinsScenario = ScenarioConfig(
+            name: "coins_api",
+            initialState: "WithXRP"
+        )
+
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Ripple"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [bitcoinBalanceScenario, assetsScenario, coinsScenario, quotesScenario]
+        )
+
+        let mainScreen = CreateWalletSelectorScreen(app)
+            .skipStories()
+            .startWithMobileWallet()
+            .tapImportButton()
+            .enterSeedPhrase(TestSeedPhrases.hotWallet)
+            .tapImportButton()
+            .tapContinue()
+            .skipAccessCode()
+            .tapFinish()
+
+        let sendScreen = mainScreen
+            .tapToken(Constants.bitcoinTokenName)
+            .waitForActionButtons()
+            .tapSendButton()
+            .waitForDisplay()
+            .waitForConvertButton()
+            .tapConvertButton()
+
+        sendScreen
+            .enterTokenSearch("XRP")
+            .waitForReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveToken(name: Constants.xrpReceiveTokenName)
+            .tapReceiveNetworkOption(name: Constants.xrpTokenName)
+
+        // Fill amount, destination and initial memo, proceed to Summary
+        let summaryScreen = sendScreen
+            .enterReceiveAmount(Constants.xrpReceiveAmount)
+            .tapNextButton()
+            .enterDestination(Constants.xrpAddress)
+            .enterAdditionalField(Constants.memoFirst)
+            .waitForAdditionalFieldValue(Constants.memoFirst)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+            .waitForDestinationAdditionalField(Constants.memoFirst)
+
+        // Edit memo to a new value and verify Summary reflects it
+        summaryScreen
+            .tapDestinationField()
+            .clearAdditionalField()
+            .enterAdditionalField(Constants.memoSecond)
+            .waitForAdditionalFieldValue(Constants.memoSecond)
+            .tapNextButtonToSummary()
+            .waitForDestinationAdditionalField(Constants.memoSecond)
+
+        // Edit memo back to the first value and verify it does not float
+        summaryScreen
+            .tapDestinationField()
+            .clearAdditionalField()
+            .enterAdditionalField(Constants.memoFirst)
+            .waitForAdditionalFieldValue(Constants.memoFirst)
+            .tapNextButtonToSummary()
+            .waitForDestinationAdditionalField(Constants.memoFirst)
+    }
+
     func testSendConvertToUnsupportedTokenShowsError() {
         setAllureId(3970)
 
@@ -411,7 +495,12 @@ private extension SendViaSwapUITests {
         static let ethereumAddress = "0x24298f15b837E5851925E18439490859e0c1F1ee"
         static let polygonAddress = "0x742d35cc6634c0532925a3b844bc9e7595f2bd18"
         static let solanaAddress = "5fcy9woa8Di1QHcce65CsV3XKrxdB2pD4HJx5xx82ipM"
+        static let xrpReceiveTokenName = "XRP"
+        static let xrpReceiveAmount = "35"
+        static let xrpAddress = "rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH"
         static let sendAmount = "0.001"
         static let updatedAmount = "0.002"
+        static let memoFirst = "11111111"
+        static let memoSecond = "22222222"
     }
 }
