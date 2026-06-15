@@ -20,6 +20,7 @@ public struct AccountFormHeaderView: View {
     private let title: String
     private let maxCharacters: Int
     private let placeholderText: String
+    private let backgroundColor: Color
     private let accountIconViewData: AccountIconView.ViewData
 
     public init(
@@ -27,6 +28,7 @@ public struct AccountFormHeaderView: View {
         title: String,
         maxCharacters: Int,
         placeholderText: String,
+        backgroundColor: Color = Colors.Background.action,
         accountIconViewData: AccountIconView.ViewData,
         isFocused: FocusState<Bool>.Binding
     ) {
@@ -35,6 +37,7 @@ public struct AccountFormHeaderView: View {
         self.title = title
         self.maxCharacters = maxCharacters
         self.placeholderText = placeholderText
+        self.backgroundColor = backgroundColor
         self.accountIconViewData = accountIconViewData
     }
 
@@ -48,7 +51,7 @@ public struct AccountFormHeaderView: View {
 
             nameInput
         }
-        .roundedBackground(with: Colors.Background.action, verticalPadding: 20, horizontalPadding: 16)
+        .roundedBackground(with: backgroundColor, verticalPadding: 20, horizontalPadding: 16)
     }
 
     private var colorWithPreview: some View {
