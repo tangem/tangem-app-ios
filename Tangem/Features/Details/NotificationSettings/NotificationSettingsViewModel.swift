@@ -19,6 +19,9 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     // MARK: - ViewState
 
+    @Published private(set) var viewState: ViewState = .loading
+    @Published private(set) var isRetryButtonBusy: Bool = false
+
     @Published private(set) var allowNotificationsBannerInput: NotificationViewInput?
 
     @Published var transactionAlertsEnabled: Bool = false
@@ -77,8 +80,11 @@ final class NotificationSettingsViewModel: ObservableObject {
     }
 
     private var toggleTasks: [PushChannel: Task<Void, Never>] = [:]
-    private var pendingEnableChannel: PushChannel?
     private var bannerActionTask: Task<Void, Never>?
+    private var retryTask: Task<Void, Never>?
+
+    private var pendingEnableChannel: PushChannel?
+
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -102,6 +108,32 @@ final class NotificationSettingsViewModel: ObservableObject {
 
     func onTapMoreInfoTransactionPushNotifications() {
         coordinator?.openTransactionNotifications()
+    }
+
+    /// Retries the preferences load from the error state. Screen state transitions are driven
+    /// reactively by `preferencesPublisher`; this only tracks the retry button busy indicator.
+    func onRetryLoadPreferencesTap() {
+        guard !isRetryButtonBusy else {
+            return
+        }
+
+        isRetryButtonBusy = true
+
+        retryTask?.cancel()
+        retryTask = runTask(in: self) { @MainActor viewModel in
+            defer { viewModel.isRetryButtonBusy = false }
+            try? await viewModel.userTokensPushNotificationsManager.refetchPreferences()
+        }
+    }
+}
+
+// MARK: - Types
+
+extension NotificationSettingsViewModel {
+    enum ViewState {
+        case loading
+        case content
+        case error
     }
 }
 
@@ -175,9 +207,17 @@ private extension NotificationSettingsViewModel {
     }
 
     func applyPreferences(_ preferences: RemotePushPreferences) {
-        transactionAlertsEnabled = preferences.preference(for: .transactionAlerts).isEnabled
-        offersUpdatesEnabled = preferences.preference(for: .offersUpdates).isEnabled
-        priceAlertsEnabled = preferences.preference(for: .priceAlerts).isEnabled
+        switch preferences.state {
+        case .loading:
+            viewState = .loading
+        case .failed:
+            viewState = .error
+        case .ready:
+            transactionAlertsEnabled = preferences.preference(for: .transactionAlerts).isEnabled
+            offersUpdatesEnabled = preferences.preference(for: .offersUpdates).isEnabled
+            priceAlertsEnabled = preferences.preference(for: .priceAlerts).isEnabled
+            viewState = .content
+        }
     }
 
     /// Pulls the current system authorization status and writes it into `isSystemPermissionGranted`,
