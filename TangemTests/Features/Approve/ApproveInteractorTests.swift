@@ -34,9 +34,14 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(newApproveData))
 
         let sut = makeSUT(env: env)
+        // The interactor primes the fee manager once in init; baseline those calls
+        // and assert only on what the policy change adds.
+        let inputCallsBefore = env.feeManager.updateInputCalls.count
+        let feesCallsBefore = env.feeManager.updateFeesCalls
+
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
 
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
         #expect(env.allowanceService.allowanceStateCalls.count == 1)
         #expect(env.allowanceService.allowanceStateCalls.first?.approvePolicy == ApprovePolicy.unlimited)
@@ -46,10 +51,10 @@ struct ApproveInteractorTests {
         #expect(sut.testApproveData.txData == newTxData)
         #expect(sut.testApproveData.toContractAddress == newContractAddress)
 
-        #expect(env.feeManager.updateInputCalls.count == 1)
-        #expect(env.feeManager.updateFeesCalls == 1)
+        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore + 1)
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore + 1)
 
-        if case .approve(let txData, let toContractAddress, _) = env.feeManager.updateInputCalls.first {
+        if case .approve(let txData, let toContractAddress, _) = env.feeManager.updateInputCalls.last {
             #expect(txData == newTxData)
             #expect(toContractAddress == newContractAddress)
         } else {
@@ -64,13 +69,15 @@ struct ApproveInteractorTests {
 
         let sut = makeSUT(env: env)
         let originalTxData = sut.testApproveData.txData
+        let inputCallsBefore = env.feeManager.updateInputCalls.count
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
 
         #expect(sut.testApproveData.txData == originalTxData)
-        #expect(env.feeManager.updateInputCalls.isEmpty)
-        #expect(env.feeManager.updateFeesCalls == 0)
+        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore)
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore)
     }
 
     @Test("approveTransactionInProgress response does not update approveData or fees")
@@ -81,14 +88,16 @@ struct ApproveInteractorTests {
         let sut = makeSUT(env: env)
         let originalTxData = sut.testApproveData.txData
         let originalContract = sut.testApproveData.toContractAddress
+        let inputCallsBefore = env.feeManager.updateInputCalls.count
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
 
         #expect(sut.testApproveData.txData == originalTxData)
         #expect(sut.testApproveData.toContractAddress == originalContract)
-        #expect(env.feeManager.updateInputCalls.isEmpty)
-        #expect(env.feeManager.updateFeesCalls == 0)
+        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore)
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore)
     }
 
     @Test("allowanceState throwing does not corrupt approveData or trigger fee update")
@@ -100,6 +109,8 @@ struct ApproveInteractorTests {
         let originalTxData = sut.testApproveData.txData
         let originalContract = sut.testApproveData.toContractAddress
         let originalSpender = sut.testApproveData.spender
+        let inputCallsBefore = env.feeManager.updateInputCalls.count
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
         try await waitUntil { env.allowanceService.allowanceStateCalls.count >= 1 }
@@ -107,8 +118,8 @@ struct ApproveInteractorTests {
         #expect(sut.testApproveData.txData == originalTxData, "txData must not change on error")
         #expect(sut.testApproveData.toContractAddress == originalContract, "contract must not change on error")
         #expect(sut.testApproveData.spender == originalSpender, "spender must not change on error")
-        #expect(env.feeManager.updateInputCalls.isEmpty, "Fee input must not be updated on error")
-        #expect(env.feeManager.updateFeesCalls == 0, "Fees must not be refreshed on error")
+        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore, "Fee input must not be updated on error")
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore, "Fees must not be refreshed on error")
     }
 
     @Test("Rapid policy toggles: only the last request takes effect")
@@ -121,6 +132,7 @@ struct ApproveInteractorTests {
         )
 
         let sut = makeSUT(env: env)
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         // First call — will be cancelled
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
@@ -129,7 +141,7 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(secondData))
         sut.updateApprovePolicy(policy: ApprovePolicy.specified)
 
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
         #expect(sut.testApproveData.txData == secondData.txData)
         #expect(sut.testApproveData.toContractAddress == secondData.toContractAddress)
@@ -247,8 +259,9 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
 
         let sut = makeSUT(env: env)
+        let feesCallsBefore = env.feeManager.updateFeesCalls
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
         try await sut.sendApproveTransaction()
 
@@ -269,8 +282,9 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
 
         let sut = makeSUT(env: env)
+        let feesCallsBefore = env.feeManager.updateFeesCalls
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
         try await sut.sendApproveTransaction()
 
@@ -371,9 +385,10 @@ struct ApproveInteractorTests {
 
         let sut = makeSUT(env: env)
         let originalSpender = sut.testApproveData.spender
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
         // The allowanceService is always called with the original spender
         #expect(env.allowanceService.allowanceStateCalls.first?.spender == originalSpender)
@@ -391,14 +406,16 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
 
         let sut = makeSUT(env: env)
+        let inputCallsBefore = env.feeManager.updateInputCalls.count
+        let feesCallsBefore = env.feeManager.updateFeesCalls
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
-        #expect(env.feeManager.updateInputCalls.count == 1)
+        #expect(env.feeManager.updateInputCalls.count == inputCallsBefore + 1)
 
-        guard let firstInput = env.feeManager.updateInputCalls.first,
-              case .approve(let txData, let contractAddress, _) = firstInput else {
-            Issue.record("Fee input must be .approve, not .common/.dex/.cex — got \(String(describing: env.feeManager.updateInputCalls.first))")
+        guard let lastInput = env.feeManager.updateInputCalls.last,
+              case .approve(let txData, let contractAddress, _) = lastInput else {
+            Issue.record("Fee input must be .approve, not .common/.dex/.cex — got \(String(describing: env.feeManager.updateInputCalls.last))")
             return
         }
 
@@ -411,18 +428,19 @@ struct ApproveInteractorTests {
         let env = makeEnv()
 
         let sut = makeSUT(env: env)
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         // First change
         let data1 = ApproveTransactionData(txData: Data([0x01]), spender: testSpender, toContractAddress: "0xC1")
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(data1))
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
         // Second change
         let data2 = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xC2")
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(data2))
         sut.updateApprovePolicy(policy: ApprovePolicy.specified)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 2 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore + 1 }
 
         for input in env.feeManager.updateInputCalls {
             guard case .approve = input else {
@@ -512,11 +530,12 @@ struct ApproveInteractorTests {
         let sut = makeSUT(env: env)
         let tokenItem = makeTestTokenItem()
         let stub = TokenFeeProviderStub(feeTokenItem: tokenItem, initialFee: makeTestTokenFee())
+        let feesCallsBefore = env.feeManager.updateFeesCalls
 
         sut.userDidSelectFeeToken(tokenFeeProvider: stub)
 
         #expect(env.feeManager.updateSelectedFeeProviderCalls.count == 1)
-        #expect(env.feeManager.updateFeesCalls == 1)
+        #expect(env.feeManager.updateFeesCalls == feesCallsBefore + 1)
     }
 
     // MARK: - ApproveInteractorState.feeInput
@@ -663,10 +682,11 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.revokeAndPermissionRequired(revoke: updatedRevoke, approve: updatedApprove))
 
         let sut = makeRevokeAndApproveSUT(env: env)
+        let feesCallsBefore = env.feeManager.updateFeesCalls
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
-        guard let input = env.feeManager.updateInputCalls.first,
+        guard let input = env.feeManager.updateInputCalls.last,
               case .approve(_, _, let feeMultiplier) = input else {
             Issue.record("Expected .approve input")
             return
@@ -682,10 +702,11 @@ struct ApproveInteractorTests {
         env.allowanceService.allowanceStateResult = .success(.permissionRequired(updatedData))
 
         let sut = makeSUT(env: env)
+        let feesCallsBefore = env.feeManager.updateFeesCalls
         sut.updateApprovePolicy(policy: ApprovePolicy.unlimited)
-        try await waitUntil { env.feeManager.updateFeesCalls >= 1 }
+        try await waitUntil { env.feeManager.updateFeesCalls > feesCallsBefore }
 
-        guard let input = env.feeManager.updateInputCalls.first,
+        guard let input = env.feeManager.updateInputCalls.last,
               case .approve(_, _, let feeMultiplier) = input else {
             Issue.record("Expected .approve input")
             return
