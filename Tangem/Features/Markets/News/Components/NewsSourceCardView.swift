@@ -31,7 +31,7 @@ struct NewsSourceCardView: View {
             onTap(source)
         } label: {
             HStack(alignment: .top, spacing: .unit(.x4)) {
-                VStack(alignment: .leading, spacing: .unit(.x2)) {
+                VStack(alignment: .leading, spacing: .zero) {
                     HStack(spacing: .unit(.x1)) {
                         Assets.Glyphs.exploreNew.image
                             .resizable()
@@ -49,16 +49,23 @@ struct NewsSourceCardView: View {
                         .lineLimit(RedesignConstants.titleLineLimit)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
+                        .padding(.top, .unit(.x2))
+
+                    // Keep at least 32pt between the title and the date; with the fixed 132pt content
+                    // height this pins the date to the bottom and adds more spacing for shorter titles.
+                    Spacer(minLength: .unit(.x8))
 
                     Text(source.publishedAt)
                         .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                         .lineLimit(1)
                 }
+                .frame(maxHeight: .infinity, alignment: .topLeading)
 
                 if let imageUrl = source.imageUrl {
                     redesignThumbnail(url: imageUrl)
                 }
             }
+            .frame(height: RedesignConstants.contentHeight, alignment: .topLeading)
             .padding(.unit(.x4))
             .frame(width: RedesignConstants.cardWidth, alignment: .topLeading)
             .background(Color.Tangem.Surface.level3)
@@ -92,7 +99,8 @@ struct NewsSourceCardView: View {
     }
 
     private enum RedesignConstants {
-        static let cardWidth: CGFloat = 228
+        static let cardWidth: CGFloat = 280
+        static let contentHeight: CGFloat = 132
         static let titleLineLimit: Int = 3
         static let thumbnailSize: CGFloat = 44
         static let thumbnailCornerRadius: CGFloat = 12
