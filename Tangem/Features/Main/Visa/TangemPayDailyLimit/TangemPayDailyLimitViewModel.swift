@@ -33,6 +33,10 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
     let maxLimit: Int
     let currency: String = AppConstants.usdCurrencyCode
 
+    var isEditingLimit: Bool {
+        state == .editLimit
+    }
+
     var hintText: String {
         guard let minFormatted = formatter.string(from: .init(value: minLimit)),
               let maxFormatted = formatter.string(from: .init(value: maxLimit)) else {
@@ -42,9 +46,15 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         return Localization.tangempayDailyLimitHint(minFormatted, maxFormatted)
     }
 
-    lazy var presets: [String] = [minLimit, 5000, 10_000, 25_000]
-        .filter { $0 <= maxLimit }
-        .map { formatter.string(from: .init(value: $0)) ?? "" }
+    lazy var presetValues: [Int] = {
+        let values = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+            ? [50, 100, 200, 300, 500]
+            : [minLimit, 5000, 10_000, 25_000]
+
+        return values.filter { $0 <= maxLimit }
+    }()
+
+    lazy var presets: [String] = presetValues.map { formatter.string(from: .init(value: $0)) ?? "" }
 
     private let formatter = BalanceFormatter().makeDefaultFiatFormatter(
         forCurrencyCode: AppConstants.usdCurrencyCode,
@@ -110,6 +120,12 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         amountFieldViewModel.update(value: .init(intValue))
 
         isSubmitEnabled = intValue > 0 && intValue <= maxLimit
+    }
+
+    func selectPreset(_ value: Int) {
+        amountFieldViewModel.update(value: .init(value))
+
+        isSubmitEnabled = value > 0 && value <= maxLimit
     }
 
     func submit() {
