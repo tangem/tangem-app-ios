@@ -276,6 +276,20 @@ private extension CommonSwapNotificationManager {
 
             return events
 
+        case .readyToApproveAndSwap(let readyState):
+            var events: [SwapNotificationEvent] = []
+
+            if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
+            }
+
+            return events
+
         case .readyToTransfer(let transferState):
             var events: [SwapNotificationEvent] = []
 
