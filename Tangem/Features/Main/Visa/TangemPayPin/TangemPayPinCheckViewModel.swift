@@ -31,6 +31,14 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
         pinValidator.pinCodeLength
     }
 
+    var isPinLoaded: Bool {
+        if case .loaded = state {
+            return true
+        }
+
+        return false
+    }
+
     private let pinValidator = VisaPinValidator()
     /// Exactly one of `card` / `tangemPayAccount` is set — `card` in the multi-card flow,
     /// `tangemPayAccount` in the legacy single-card flow.
