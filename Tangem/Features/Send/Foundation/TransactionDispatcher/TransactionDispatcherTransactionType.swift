@@ -19,4 +19,5 @@ enum TransactionDispatcherTransactionType {
     case approve(data: ApproveTransactionData, fee: BSDKFee)
     case cex(data: ExpressTransactionData, fee: BSDKFee)
     case dex(data: ExpressTransactionData, fee: BSDKFee)
+    case approveAndDex(data: ExpressTransactionData, fee: BSDKFee, approveData: ApproveTransactionData)
 }
