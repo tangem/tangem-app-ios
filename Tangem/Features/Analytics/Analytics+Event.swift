@@ -476,6 +476,9 @@ extension Analytics {
         case notificationSettingsScreenOpened = "[Push] Notification Settings Screen Opened"
         case pushNotificationSettingsToggleClicked = "[Push] Toggle Clicked"
         case pushBannerOpenSettingsTapped = "[Push] Banner - Open Settings Tapped"
+        case warningScreenShown = "[Warning Screen] Shown"
+        case warningScreenEnableTapped = "[Warning Screen] Enable Tapped"
+        case warningScreenSkipTapped = "[Warning Screen] Skip Tapped"
 
         // MARK: - Staking
 
