@@ -113,6 +113,9 @@ public enum SendAccessibilityIdentifiers {
     /// Token search in receive token list
     public static let receiveTokenSearchBar = "sendReceiveTokenSearchBar"
 
+    /// Send Summary (Confirm) screen
+    public static let summaryDestinationBlock = "sendSummaryDestinationBlock"
+
     /// Send Finish Screen
     public static let finishHeader = "sendFinishHeader"
     public static let finishTransactionTime = "sendFinishTransactionTime"
