@@ -246,6 +246,7 @@
 "common_copy" = "Копіювати";
 "common_create" = "Створити";
 "common_custom" = "Власна";
+"common_delete" = "Видалити";
 "common_disable" = "Вимкнути";
 "common_disabled" = "Вимкнуто";
 "common_disabling" = "Вимкнення";
@@ -1264,6 +1265,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Винагороди автоматично накопичуються на вашому балансі щодня.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Винагороди реінвестуються у ваш баланс стейкінгу. Зароблено: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Середня ставка винагороди";
