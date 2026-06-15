@@ -152,7 +152,7 @@ extension CarouselNewsCardView {
             static let cornerRadius: CGFloat = .unit(.x6)
             static let allNewsCornerRadius: CGFloat = .unit(.x6)
             static let width: CGFloat = 280
-            static let height: CGFloat = 172
+            static let contentHeight: CGFloat = 132
             static let titleLineLimit: Int = 3
         }
 
@@ -187,12 +187,9 @@ extension View {
         cornerRadius: CGFloat = CarouselNewsCardView.Layout.RedesignCard.cornerRadius,
         showBorder: Bool = false
     ) -> some View {
-        padding(CarouselNewsCardView.Layout.RedesignCard.padding)
-            .frame(
-                width: CarouselNewsCardView.Layout.RedesignCard.width,
-                height: CarouselNewsCardView.Layout.RedesignCard.height,
-                alignment: .topLeading
-            )
+        frame(height: CarouselNewsCardView.Layout.RedesignCard.contentHeight, alignment: .topLeading)
+            .padding(CarouselNewsCardView.Layout.RedesignCard.padding)
+            .frame(width: CarouselNewsCardView.Layout.RedesignCard.width, alignment: .topLeading)
             .background(Color.Tangem.Surface.level3)
             .cornerRadiusContinuous(cornerRadius)
             .overlay(
