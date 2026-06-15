@@ -21,7 +21,8 @@ struct AddressBookContactsListView: View {
                 HorizontalChipsView(
                     chips: viewModel.walletChips,
                     selectedId: $viewModel.selectedChipId,
-                    horizontalInset: 8
+                    horizontalInset: 8,
+                    verticalInset: 8
                 )
             }
 
