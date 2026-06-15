@@ -100,9 +100,6 @@ private extension CommonDeeplinkPresenter {
         case .sell(let userWalletModel):
             return constructSellViewController(userWalletModel: userWalletModel)
 
-        case .swap(let userWalletModel):
-            return constructSwapViewController(userWalletModel: userWalletModel)
-
         case .swapWithDeferredPairResolution(let parameters):
             return constructSwapWithDeferredPairResolutionViewController(parameters: parameters)
 
@@ -231,20 +228,6 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
-            embedInNavigationStack: false
-        )
-    }
-
-    private func constructSwapViewController(userWalletModel: UserWalletModel) -> UIViewController {
-        let coordinator = coordinatorFactory.makeSwapCoordinator(
-            userWalletModel: userWalletModel,
-            dismissAction: { _ in UIApplication.dismissTop() }
-        )
-
-        let tokenSelectorViewModel = TokenSelectorViewModel.common(availabilityProvider: .swap())
-        coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
-        return makeDeeplinkViewController(
-            view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
             embedInNavigationStack: false
         )
     }
