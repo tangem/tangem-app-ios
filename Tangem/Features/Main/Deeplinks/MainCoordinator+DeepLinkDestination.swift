@@ -16,7 +16,6 @@ extension MainCoordinator {
         case tokenDetails(walletModel: any WalletModel, userWalletModel: UserWalletModel)
         case buy(userWalletModel: UserWalletModel)
         case sell(userWalletModel: UserWalletModel)
-        case swap(userWalletModel: UserWalletModel)
         case swapWithDeferredPairResolution(parameters: PredefinedSwapParameters)
         case referral(input: ReferralInputModel)
         case staking(options: StakingDetailsCoordinator.Options)
@@ -49,8 +48,6 @@ extension MainCoordinator.DeepLinkDestination: Identifiable {
         case .buy(let userWalletModel):
             return "\(rawCaseValue)_\(userWalletModel.userWalletId.stringValue)"
         case .sell(let userWalletModel):
-            return "\(rawCaseValue)_\(userWalletModel.userWalletId.stringValue)"
-        case .swap(let userWalletModel):
             return "\(rawCaseValue)_\(userWalletModel.userWalletId.stringValue)"
         case .swapWithDeferredPairResolution(let parameters):
             return "\(rawCaseValue)_\(parameters.deeplinkIdentity)"
