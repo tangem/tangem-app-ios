@@ -77,12 +77,16 @@ private extension CommonUserWalletPushNotificationsManager {
         remoteStatusSyncing.syncRemoteStatus()
     }
 
-    private func fetchPreferences() {
+    @discardableResult
+    private func fetchPreferences() -> Task<Void, Error> {
         preferencesWorkflowTask?.cancel()
 
-        preferencesWorkflowTask = runTask(in: self) { manager in
+        let task = runTask(in: self) { manager in
             try await manager.notificationPreferencesProvider.fetchPreferences()
         }
+
+        preferencesWorkflowTask = task
+        return task
     }
 }
 
@@ -144,6 +148,13 @@ extension CommonUserWalletPushNotificationsManager: UserTokensPushNotificationsM
 
     func tryUpdateEnableState(value: Bool, for channel: PushChannel) async throws {
         try await notificationPreferencesProvider.updatePreferences(isEnabled: value, for: channel)
+    }
+
+    func refetchPreferences() async throws {
+        // Route through `fetchPreferences()` so the retry shares the single-flight cancellation
+        // with the `process(_:)`-driven fetch, then await the value to keep retries serialized
+        // and surface failures to the caller.
+        try await fetchPreferences().value
     }
 
     func shouldAllowanceRemoteNotifyStatus() async -> Bool {
