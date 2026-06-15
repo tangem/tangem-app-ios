@@ -305,23 +305,29 @@ extension BitcoinWalletManager: XPUBAddressesBalancesChecker {
 // MARK: - Private
 
 private extension BitcoinWalletManager {
+    /// Maps each pre-image hash to its own `SignData`, preserving the input order.
+    ///
+    /// Grouping by public key would scramble the order relative to `transaction.inputs`
+    /// (the resulting signatures are flattened in group order, not input order), while
+    /// `buildForSend`/`compile` re-associate signatures with inputs positionally. For a
+    /// multi-address wallet that spends UTXOs from several derived keys this produced a
+    /// signature/public-key/hash mismatch. Keeping a 1:1 order-preserving mapping makes
+    /// the positional zip downstream correct again.
     func mapToSignData(preImageHashes: [UTXOTransactionSerializerPreImageHash]) -> [SignData] {
-        let grouped = Dictionary(grouping: preImageHashes) { preImageHash -> DerivationPublicKey in
-            switch preImageHash.spendableType {
+        preImageHashes.map { preImageHash in
+            let key: DerivationPublicKey = switch preImageHash.spendableType {
             case .publicKey(let key):
-                return key
+                key
             case .redeemScript:
-                return DerivationPublicKey(
+                DerivationPublicKey(
                     publicKey: wallet.publicKey.blockchainKey,
                     derivationPath: wallet.publicKey.derivationPath
                 )
             }
-        }
 
-        return grouped.map { key, hashes in
-            SignData(
+            return SignData(
                 derivationPath: key.derivationPath,
-                hashes: hashes.map(\.hashToSign),
+                hashes: [preImageHash.hashToSign],
                 publicKey: key.publicKey
             )
         }
