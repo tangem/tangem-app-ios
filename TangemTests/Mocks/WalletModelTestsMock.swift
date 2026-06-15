@@ -145,6 +145,7 @@ final class WalletModelTestsMock: WalletModel {
 
     var userWalletId: UserWalletId { UserWalletId(value: Data()) }
     var name: String { "Mock" }
+    var allAddresses: [Address] { [defaultAddress] }
     var addresses: [Address] { [defaultAddress] }
     var defaultAddress: Address { PlainAddress(value: "mock", type: .default) }
 
