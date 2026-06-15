@@ -15,11 +15,11 @@
         <key>one</key>
         <string>адрес</string>
         <key>few</key>
-        <string>адресов</string>
+        <string>адреса</string>
         <key>many</key>
         <string>адресов</string>
         <key>other</key>
-        <string>адреса</string>
+        <string>адресов</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -75,9 +75,9 @@
         <key>one</key>
         <string>%li день назад</string>
         <key>few</key>
-        <string></string>
+        <string>%li дня назад</string>
         <key>many</key>
-        <string></string>
+        <string>%li дней назад</string>
         <key>other</key>
         <string>%li дней назад</string>
       </dict>
@@ -488,13 +488,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Токен %li не совместим с этим адресом</string>
+        <string>%li токен не совместим с этим адресом</string>
         <key>few</key>
-        <string></string>
+        <string>%li токена не совместимы с этим адресом</string>
         <key>many</key>
-        <string>Токены %li не совместимы с этим адресом</string>
+        <string>%li токенов не совместимо с этим адресом</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>%li токены не совместимы с этим адресом</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -508,9 +508,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>карта</string>
+        <key>few</key>
+        <string>карты</string>
+        <key>many</key>
+        <string>карт</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>карты</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
