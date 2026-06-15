@@ -244,6 +244,7 @@ private extension RestakingModel {
              .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .loadTransactionInfo,
              .actionNotSupported:
             break
