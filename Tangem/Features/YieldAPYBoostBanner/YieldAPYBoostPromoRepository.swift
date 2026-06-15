@@ -77,17 +77,19 @@ actor YieldAPYBoostPromoRepository {
 
     /// Per-wallet enrollment status only — does not depend on the promotions list. Successful responses are
     /// cached for the session; failures are NOT cached so a transient error can recover on the next request.
-    func enrollmentStatus(userWalletId: String) async -> YieldAPYBoostCampaign.EnrollmentStatus? {
-        guard FeatureProvider.isAvailable(.yieldApyBoostPromo) else {
+    func enrollmentStatus(userWalletId: String, forceRefresh: Bool = false) async -> YieldAPYBoostCampaign.EnrollmentStatus? {
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
+              !FeatureProvider.isAvailable(.redesign)
+        else {
             return nil
-        }
-
-        if let cached = enrollmentStatusCache[userWalletId] {
-            return cached
         }
 
         if let task = enrollmentStatusInflight[userWalletId] {
             return await task.value
+        }
+
+        if !forceRefresh, let cached = enrollmentStatusCache[userWalletId] {
+            return cached
         }
 
         let task = Task<YieldAPYBoostCampaign.EnrollmentStatus?, Never> {
@@ -112,6 +114,10 @@ actor YieldAPYBoostPromoRepository {
             enrollmentStatusCache[userWalletId] = status
         }
         return status
+    }
+
+    func cachedEnrollmentStatus(userWalletId: String) -> YieldAPYBoostCampaign.EnrollmentStatus? {
+        enrollmentStatusCache[userWalletId]
     }
 
     private func loadBannerData(userWalletId: String) async -> YieldAPYBoostCampaign.BannerData? {
