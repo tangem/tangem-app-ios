@@ -49,7 +49,6 @@ final class SwapModel {
     private let expressManager: ExpressManager
     private let swapRepository: SwapRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
-    private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
     private let expressUserWalletId: UserWalletId
     private let analyticsLogger: any SendAnalyticsLogger
@@ -68,7 +67,6 @@ final class SwapModel {
         expressManager: ExpressManager,
         swapRepository: SwapRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
-        expressDestinationService: ExpressDestinationService,
         expressAPIProvider: ExpressAPIProvider,
         expressUserWalletId: UserWalletId,
         analyticsLogger: any SendAnalyticsLogger,
@@ -81,7 +79,6 @@ final class SwapModel {
         self.expressManager = expressManager
         self.swapRepository = swapRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
-        self.expressDestinationService = expressDestinationService
         self.expressAPIProvider = expressAPIProvider
         self.expressUserWalletId = expressUserWalletId
         self.analyticsLogger = analyticsLogger
@@ -102,11 +99,7 @@ final class SwapModel {
 
         if shouldStartInitialLoading {
             Task.detached { [weak self] in
-                if FeatureProvider.isAvailable(.swapPipelineV2) {
-                    await self?.initialLoadingV2()
-                } else {
-                    await self?.initialLoading()
-                }
+                await self?.initialLoadingV2()
             }
         }
 
@@ -907,66 +900,6 @@ extension SwapModel {
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
-    func initialLoading() async {
-        do {
-            switch (_sourceToken.value, _receiveToken.value) {
-            case (.success(let source), .success):
-                try await swapRepository.updatePairs(
-                    for: source.tokenItem.expressCurrency,
-                    userWalletInfo: source.userWalletInfo
-                )
-
-                // All already set
-                swappingPairDidChange()
-
-            case (.success(let source), _):
-                await updatePairsIgnoringErrors(
-                    for: source.tokenItem.expressCurrency,
-                    userWalletInfo: source.userWalletInfo
-                )
-
-                _receiveToken.send(.loading)
-                let destination: SendSwapableToken = try await expressDestinationService.getDestination(source: source.tokenItem)
-                update(receive: destination)
-
-            case (_, .success(let destination as SendSwapableToken)):
-                await updatePairsIgnoringErrors(
-                    for: destination.tokenItem.expressCurrency,
-                    userWalletInfo: destination.userWalletInfo
-                )
-
-                _sourceToken.send(.loading)
-                let source: SendSwapableToken = try await expressDestinationService.getSource(destination: destination.tokenItem)
-                update(source: source)
-
-            default:
-                assertionFailure("Wrong case. Check implementation")
-                _sourceToken.send(.failure(SwapModel.SwapModelError.sourceNotFound))
-                _receiveToken.send(.failure(SwapModel.SwapModelError.destinationNotFound))
-            }
-        } catch ExpressDestinationServiceError.sourceNotFound(let destination) {
-            Analytics.log(.swapNoticeNoAvailableTokensToSwap)
-            ExpressLogger.info("Source not found")
-            _sourceToken.send(.failure(ExpressDestinationServiceError.sourceNotFound(destination: destination)))
-
-        } catch ExpressDestinationServiceError.destinationNotFound(let source) {
-            Analytics.log(.swapNoticeNoAvailableTokensToSwap)
-            ExpressLogger.info("Destination not found")
-            _receiveToken.send(.failure(ExpressDestinationServiceError.destinationNotFound(source: source)))
-
-        } catch {
-            ExpressLogger.info("Update pairs failed with error: \(error)")
-
-            if _receiveToken.value.isLoading {
-                _receiveToken.send(.failure(error))
-            }
-
-            if _sourceToken.value.isLoading {
-                _sourceToken.send(.failure(error))
-            }
-        }
-    }
-
     private func initialLoadingV2() async {
         switch (_sourceToken.value, _receiveToken.value) {
         case (.success, .success):
@@ -994,14 +927,6 @@ extension SwapModel {
             _receiveToken.send(.failure(SwapModelError.tokenSelectionRequired))
         }
     }
-
-    private func updatePairsIgnoringErrors(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async {
-        do {
-            try await swapRepository.updatePairs(for: wallet, userWalletInfo: userWalletInfo)
-        } catch {
-            ExpressLogger.info("Update pairs failed with error: \(error)")
-        }
-    }
 }
 
 // MARK: - SwapModelStateProvider
@@ -1019,8 +944,7 @@ extension SwapModel: SwapTokenSelectorOutput {
         let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
             .makeSwapableToken()
 
-        if FeatureProvider.isAvailable(.swapPipelineV2),
-           _sourceToken.value.value?.tokenItem != token.tokenItem {
+        if _sourceToken.value.value?.tokenItem != token.tokenItem {
             externalAmountUpdater.externalUpdate(amount: nil)
         }
 
@@ -1032,8 +956,7 @@ extension SwapModel: SwapTokenSelectorOutput {
         let token = item.makeSendSwapableTokenFactory(expressOperationType: .swap)
             .makeSwapableToken()
 
-        if FeatureProvider.isAvailable(.swapPipelineV2),
-           _receiveToken.value.value?.tokenItem != token.tokenItem {
+        if _receiveToken.value.value?.tokenItem != token.tokenItem {
             externalAmountUpdater.externalUpdate(amount: nil)
         }
 
@@ -1540,24 +1463,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            swapSourceAndReceiveTokenV2()
-        } else {
-            swapSourceAndReceiveToken()
-        }
-    }
-
-    private func swapSourceAndReceiveToken() {
-        guard let source = _sourceToken.value.value,
-              let destination = _receiveToken.value.value as? SendSwapableToken else {
-            ExpressLogger.info("Swap Source and Receive tokens is not possible")
-            return
-        }
-
-        _sourceToken.send(.success(destination))
-        _receiveToken.send(.success(source))
-
-        swappingPairDidChange()
+        swapSourceAndReceiveTokenV2()
     }
 
     private func swapSourceAndReceiveTokenV2() {
@@ -2002,7 +1908,6 @@ extension SwapModel {
         case feeNotFound
         case allowanceServiceNotFound
         case transactionDataNotFound
-        case sourceNotFound
         case destinationNotFound
         case tokenSelectionRequired
         case approveDataNotFound
