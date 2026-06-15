@@ -8,6 +8,7 @@
 
 import Combine
 import TangemAccounts
+import TangemUI
 
 protocol AddressBookContactManagementInteractor {
     var title: String { get }
@@ -21,7 +22,8 @@ protocol AddressBookContactManagementInteractor {
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> { get }
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { get }
 
-    var mainButtonStatePublisher: AnyPublisher<AddressBookContactManagementViewModel.MainButtonState, Never> { get }
+    var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> { get }
+    var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> { get }
 
     func update(name: String)
     func update(color: AccountModel.CompositeIcon.Color)

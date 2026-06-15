@@ -14,7 +14,6 @@ import TangemLocalization
 import TangemFoundation
 import TangemUIUtils
 import TangemUI
-import TangemMacro
 
 final class AddressBookContactManagementViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
@@ -22,7 +21,8 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published var contactName: String = ""
     @Published var selectedColor: GridItemColor<AccountModel.CompositeIcon.Color>
     @Published private(set) var selectedWallet: WalletRowType?
-    @Published private(set) var mainButtonState: MainButtonState = .disabled
+    @Published private(set) var isMainButtonEnabled: Bool = false
+    @Published private(set) var mainButtonIcon: MainButton.Icon?
     @Published private(set) var canDeleteContact: Bool = false
 
     @Published private(set) var isProcessing: Bool = false
@@ -43,23 +43,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
             GridItemColor(id: iconColor, color: AccountModelUtils.UI.iconColor(from: iconColor))
         }
 
-    var addressesSection: [AddressRowType] {
-        var types: [AddressRowType] = drafts.map { draft in
-            .address(
-                AddressBookContactAddressRowViewModel(id: draft.id, address: draft.address) { [weak self] in
-                    self?.deleteRow(id: draft.id)
-                }
-            )
-        }
-
-        if canAddNewAddress {
-            types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(action: { [weak self] in
-                self?.addNewAddress()
-            })))
-        }
-
-        return types
-    }
+    @Published private(set) var addressesSection: [AddressRowType] = []
 
     var iconViewData: AccountIconView.ViewData {
         .composite(
@@ -172,9 +156,39 @@ private extension AddressBookContactManagementViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: &$canDeleteContact)
 
-        interactor.mainButtonStatePublisher
+        interactor.isMainButtonEnabledPublisher
             .receive(on: DispatchQueue.main)
-            .assign(to: &$mainButtonState)
+            .assign(to: &$isMainButtonEnabled)
+
+        interactor.mainButtonIconPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$mainButtonIcon)
+
+        Publishers.CombineLatest($drafts, $canAddNewAddress)
+            .withWeakCaptureOf(self)
+            .map { viewModel, args in
+                viewModel.makeAddressesSection(drafts: args.0, canAddNewAddress: args.1)
+            }
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$addressesSection)
+    }
+
+    func makeAddressesSection(drafts: [DraftRow], canAddNewAddress: Bool) -> [AddressRowType] {
+        var types: [AddressRowType] = drafts.map { draft in
+            .address(
+                AddressBookContactAddressRowViewModel(id: draft.id, address: draft.address) { [weak self] in
+                    self?.deleteRow(id: draft.id)
+                }
+            )
+        }
+
+        if canAddNewAddress {
+            types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(action: { [weak self] in
+                self?.addNewAddress()
+            })))
+        }
+
+        return types
     }
 
     /// Mock: appends a synthetic EVM address. The full "enter address → detect networks → memo" flow
@@ -248,14 +262,10 @@ extension AddressBookContactManagementViewModel {
     }
 
     struct WalletRowType: Identifiable {
-        var id: String { wallet + isEditable.description }
+        let userWalletId: UserWalletId
         let wallet: String
         let isEditable: Bool
-    }
 
-    @CaseFlagable
-    enum MainButtonState {
-        case disabled
-        case enabled(icon: MainButton.Icon?)
+        var id: String { userWalletId.stringValue }
     }
 }
