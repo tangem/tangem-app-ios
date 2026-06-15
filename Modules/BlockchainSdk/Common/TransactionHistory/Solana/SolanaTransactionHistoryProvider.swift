@@ -77,12 +77,10 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
                 walletAddress: address,
                 amountType: request.amountType
             )
-            .filter { record in
-                self.shouldBeIncludedInHistory(
-                    amountType: request.amountType,
-                    record: record
-                )
-            }
+
+            // Ignore Solana 0 amount txs filtering.
+            // As Solana has different balance changes calculations that doesn't include fee/gas.
+            // We need to show all of them.
 
             return .init(records: records)
         }
