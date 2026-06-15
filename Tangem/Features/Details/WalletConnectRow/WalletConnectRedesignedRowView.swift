@@ -24,7 +24,7 @@ struct WalletConnectRedesignedRowView: View {
             .start {
                 Assets.walletConnect.image
                     .resizable()
-                    .frame(bothDimensions: 36)
+                    .frame(width: 36, height: 36)
             }
             .end(icon: DesignSystem.Icons.ChevronRight.regular20)
             .onTap(viewModel.action)
