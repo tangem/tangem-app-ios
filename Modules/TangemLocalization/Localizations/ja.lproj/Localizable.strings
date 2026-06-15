@@ -246,6 +246,7 @@
 "common_copy" = "コピー";
 "common_create" = "作成";
 "common_custom" = "設定";
+"common_delete" = "削除";
 "common_disable" = "無効にする";
 "common_disabled" = "無効";
 "common_disabling" = "無効化中";
@@ -1264,6 +1265,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "報酬は毎日自動的にステーキング残高に蓄積されます。";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "報酬はステーキング残高に自動的に複利で加算されます。獲得した資金：%@";
 "staking_details_available" = "利用可能";
 "staking_details_average_reward_rate" = "平均報酬率";
