@@ -118,7 +118,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapSimpleMode: return .version("5.39")
         case .swapMaxAmountFractions: return .version("5.39")
         case .pushNotificationsSettings: return .unspecified
-        case .adiMainScreenDefault: return .unspecified
+        case .adiMainScreenDefault: return .version("5.39")
         case .swapExchangeRateDisplay: return .version("5.39")
         case .swapRateExperience: return .version("5.39")
         case .yieldApyBoostPromo: return .unspecified
