@@ -55,6 +55,9 @@ final class ApproveInteractor {
         self.tokenFeeProvidersManager = tokenFeeProvidersManager
         self.analyticsLogger = analyticsLogger
         self.output = output
+
+        tokenFeeProvidersManager.update(input: approveInteractorState.feeInput)
+        tokenFeeProvidersManager.updateFees()
     }
 
     deinit {
