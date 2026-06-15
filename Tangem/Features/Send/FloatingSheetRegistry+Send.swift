@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import TangemUI
 
 extension FloatingSheetRegistry {
@@ -19,7 +20,13 @@ extension FloatingSheetRegistry {
         }
 
         register(SendSwapProvidersSelectorViewModel.self) { viewModel in
-            SendSwapProvidersSelectorView(viewModel: viewModel)
+            Group {
+                if FeatureProvider.isAvailable(.approveFlowV2) {
+                    NewProviderSelectorView(viewModel: viewModel)
+                } else {
+                    SendSwapProvidersSelectorView(viewModel: viewModel)
+                }
+            }
         }
 
         register(HighPriceImpactWarningSheetViewModel.self) { viewModel in
