@@ -378,6 +378,10 @@ extension SendCoordinator: ApproveRoutable {
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
+    func openLearnMoreAboutApprove() {
+        openLearnMore()
+    }
+
     func openLearnMore() {
         Task { @MainActor in
             floatingSheetPresenter.pauseSheetsDisplaying()
