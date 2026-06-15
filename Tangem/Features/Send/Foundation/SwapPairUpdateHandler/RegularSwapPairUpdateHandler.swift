@@ -49,7 +49,7 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
             analyticsLogger.logSwapTransferModeSwitched()
         }
 
-        if FeatureProvider.isAvailable(.swapPipelineV2), !pair.isTransfer {
+        if !pair.isTransfer {
             let cachedPairs = await swapRepository.getPairs(from: source.currency)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 

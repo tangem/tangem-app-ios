@@ -15,11 +15,6 @@ protocol MainCoordinatorChildFactory {
         dismissAction: @escaping Action<ActionButtonsSendToSellModel?>
     ) -> ActionButtonsSellCoordinator
 
-    func makeSwapCoordinator(
-        userWalletModel: UserWalletModel,
-        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
-    ) -> ActionButtonsSwapCoordinator
-
     func makeReferralCoordinator(dismissAction: @escaping Action<Void>) -> ReferralCoordinator
 
     func makeStakingCoordinator(

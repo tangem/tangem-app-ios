@@ -128,9 +128,6 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.actionButtonsSellCoordinator) {
                 ActionButtonsSellCoordinatorView(coordinator: $0)
             }
-            .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
-                ActionButtonsSwapCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
