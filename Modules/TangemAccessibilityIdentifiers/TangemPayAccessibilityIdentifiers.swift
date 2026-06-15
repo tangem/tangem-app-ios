@@ -54,6 +54,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateActive = "\(prefix)FreezeCardRowStateActive"
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
+    public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
 
     // MARK: - PIN setup screen
 
