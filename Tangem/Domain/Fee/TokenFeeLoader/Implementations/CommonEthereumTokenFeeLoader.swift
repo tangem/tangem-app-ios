@@ -38,9 +38,46 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
         return Fee(BSDKAmount(with: feeBlockchain, type: .coin, value: feeAmount), parameters: parameters)
     }
 
-    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
+    func getFee(request: EthereumFeeRequestData) async throws -> [BSDKFee] {
+        try await estimateFees(request: request, stateOverride: nil)
+    }
+
+    func getApproveWithSwapFee(request: EthereumFeeRequestData, approveInput: ApproveWithSwapInput) async throws -> [BSDKFee] {
+        let unlimitedAllowanceOverride = EthereumAccountOverride.unlimitedAllowance(
+            tokenAddress: approveInput.tokenContractAddress,
+            owner: approveInput.owner,
+            spender: approveInput.spender
+        )
+
+        async let swapFeesTask = estimateFees(request: request, stateOverride: unlimitedAllowanceOverride)
+        async let approveFeesTask = estimateFees(
+            request: EthereumFeeRequestData(
+                amount: BSDKAmount(with: feeBlockchain, type: .coin, value: 0),
+                destination: approveInput.tokenContractAddress,
+                txData: approveInput.txData,
+                otherNativeFee: nil
+            ),
+            stateOverride: nil
+        )
+
+        let (swapFees, approveFees) = try await (swapFeesTask, approveFeesTask)
+
+        guard let marketApproveFee = approveFees[safe: 1] ?? approveFees[safe: 0] else {
+            throw TokenFeeLoaderError.approveFeeNotFound
+        }
+
+        return try swapFees.map { swapFee in
+            try ApproveWithSwapFeeParameters.combinedFee(swapFee: swapFee, approveFee: marketApproveFee)
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonEthereumTokenFeeLoader {
+    func estimateFees(request: EthereumFeeRequestData, stateOverride: EthereumStateOverride?) async throws -> [BSDKFee] {
         var fees = try await ethereumNetworkProvider
-            .getFee(destination: destination, value: amount.encodedForSend, data: txData)
+            .getFee(destination: request.destination, value: request.amount.encodedForSend, data: request.txData, stateOverride: stateOverride)
             .async()
 
         // For EVM networks increase gas limit
@@ -53,7 +90,7 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
         }
 
         // Increase fee value for native value. Will be spend similar like fee. Applicable to DEX-Bridge
-        if let otherNativeFee {
+        if let otherNativeFee = request.otherNativeFee {
             ExpressLogger.info("The fee was increased by otherNativeFee \(otherNativeFee)")
             fees = fees.map { fee in
                 BSDKFee(.init(with: fee.amount, value: fee.amount.value + otherNativeFee), parameters: fee.parameters)
