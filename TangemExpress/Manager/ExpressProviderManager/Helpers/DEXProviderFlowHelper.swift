@@ -363,7 +363,10 @@ private extension DEXProviderFlowHelper {
         let combinedFee: ApproveWithSwapFee
         do {
             combinedFee = try await approveAndSwapFee(data: data, approveData: approveData)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
+            pair.source.analyticsLogger.logGasEstimationOverrideError(error)
             return try await fallbackToTwoStepApprove(approveData: approveData, quote: quote)
         }
 
