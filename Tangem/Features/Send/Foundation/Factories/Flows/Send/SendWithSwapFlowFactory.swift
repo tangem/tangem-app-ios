@@ -122,7 +122,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep(router: router)
-        let providers = makeSwapProviders()
+        let providers = makeSwapProviders(router: router)
 
         let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: destination.compact,
@@ -313,7 +313,7 @@ extension SendWithSwapFlowFactory: SendFeeStepBuildable {
 
 extension SendWithSwapFlowFactory: SendSwapProvidersBuildable {
     var swapProvidersIO: SendSwapProvidersBuilder.IO {
-        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
+        SendSwapProvidersBuilder.IO(input: sendWithSwapModel, output: sendWithSwapModel, approveInput: sendWithSwapModel, approveOutput: sendWithSwapModel, sourceTokenInput: sendWithSwapModel, receiveTokenInput: sendWithSwapModel, receiveTokenAmountInput: sendWithSwapModel)
     }
 
     var swapProvidersTypes: SendSwapProvidersBuilder.Types {

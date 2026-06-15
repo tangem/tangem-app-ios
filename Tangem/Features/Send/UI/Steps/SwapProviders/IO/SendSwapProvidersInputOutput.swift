@@ -26,3 +26,15 @@ protocol SendSwapProvidersInput: AnyObject {
 protocol SendSwapProvidersOutput: AnyObject {
     func userDidSelect(provider: ExpressAvailableProvider)
 }
+
+protocol SendSwapProvidersRoutable: AnyObject {
+    func openLearnMoreAboutApprove()
+}
+
+protocol SwapApproveInput: AnyObject {
+    var approvePolicy: BSDKApprovePolicy { get }
+}
+
+protocol SwapApproveOutput: AnyObject {
+    func userDidSelectApprovePolicy(_ policy: BSDKApprovePolicy)
+}
