@@ -11,6 +11,7 @@ import TangemAssets
 import TangemAccounts
 import TangemAccessibilityIdentifiers
 
+// [REDACTED_INFO]: legacy organize-tokens outer section, replaced by OrganizeTokensListOuterSectionViewRedesigned behind `.redesign` flag
 struct OrganizeTokensListOuterSectionView: View {
     let title: String
     let iconData: AccountIconView.ViewData

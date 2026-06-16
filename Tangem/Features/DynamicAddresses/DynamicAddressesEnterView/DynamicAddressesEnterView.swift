@@ -110,6 +110,7 @@ struct DynamicAddressesEnterView: View {
     private var overlayButtonView: some View {
         MainButton(
             title: Localization.dynamicAddressesEnterMainButtonTitle,
+            icon: viewModel.mainButtonIcon,
             isLoading: viewModel.mainButtonIsLoading,
             action: viewModel.userDidTapEnableAction
         )

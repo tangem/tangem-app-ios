@@ -59,7 +59,7 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
                 }
             }
         )
-        .roundedBackground(with: .Tangem.Surface.level3, padding: .unit(.x4), radius: .unit(.x5))
+        .roundedBackground(with: .Tangem.Surface.level3, padding: .unit(.x4), radius: .unit(.x6))
     }
 }
 
