@@ -17,7 +17,7 @@ public protocol ExpressAPIProvider {
     func providers(branch: ExpressBranch) async throws -> [ExpressProvider]
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction
     func exchangeSent(result: ExpressTransactionSentResult) async throws
 
     func onrampCurrencies() async throws -> [OnrampFiatCurrency]

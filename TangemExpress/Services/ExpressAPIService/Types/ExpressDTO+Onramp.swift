@@ -217,6 +217,37 @@ extension ExpressDTO {
             }
         }
 
+        // MARK: - Transaction
+
+        /// A single onramp transaction; both `onramp-status` and `history/onramp[/delta]` return this payload shape.
+        struct Transaction: Decodable {
+            let txId: String
+            let providerId: String
+            let payoutAddress: String
+            let status: String
+            let failReason: String?
+            let externalTxId: String?
+            let externalTxUrl: String?
+            let payoutHash: String?
+            let createdAt: Date
+            let updatedAt: Date?
+
+            // fromCurrency info
+            let fromCurrencyCode: String
+            let fromAmount: String
+            let fromPrecision: Int
+
+            // toAsset info
+            let toContractAddress: String
+            let toNetwork: String
+            let toDecimals: Int
+            let toAmount: String?
+            let toActualAmount: String?
+
+            let paymentMethod: String
+            let countryCode: String
+        }
+
         // MARK: - Status
 
         enum Status {
@@ -224,31 +255,7 @@ extension ExpressDTO {
                 let txId: String
             }
 
-            struct Response: Decodable {
-                let txId: String
-                let providerId: String // Provider's alphanumeric ID
-                let payoutAddress: String // Address to which the coins are sent
-                let status: String // Status of the transaction
-                let failReason: String? // Optional field for failure reason
-                let externalTxId: String? // External transaction ID
-                let externalTxUrl: String? // Optional URL to track the external transaction
-                let payoutHash: String? // Optional payout hash
-                let createdAt: String // ISO date for when the transaction was created
-
-                let fromCurrencyCode: String // Source currency
-                let fromAmount: String // Amount of the source currency
-                let fromPrecision: Int
-
-                // ToAsset information:
-                let toContractAddress: String
-                let toNetwork: String
-                let toDecimals: Int
-                let toAmount: String?
-                let toActualAmount: String?
-
-                let paymentMethod: String // Payment method used
-                let countryCode: String // Country code
-            }
+            typealias Response = Transaction
         }
 
         // MARK: - History (initial)
@@ -262,7 +269,7 @@ extension ExpressDTO {
             }
 
             struct Response: Decodable {
-                let items: [Record]
+                let items: [Transaction]
                 let pagination: Pagination
             }
 
@@ -274,42 +281,6 @@ extension ExpressDTO {
                 let hasMore: Bool? // [REDACTED_TODO_COMMENT]
                 @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
                 let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
-            }
-
-            struct Record: Decodable {
-                let txId: String
-                let providerId: String
-                let fromAddress: String
-                let payinAddress: String
-                let payinExtraId: String?
-                let payoutAddress: String
-                let refundAddress: String?
-                let refundExtraId: String?
-                let rateType: String
-                let status: String
-                let externalTxId: String?
-                let externalTxStatus: String?
-                let externalTxUrl: String?
-                let payinHash: String?
-                let payoutHash: String?
-                let refundNetwork: String?
-                let refundContractAddress: String?
-                let createdAt: Date
-                let updatedAt: Date?
-                let payTill: Date?
-                let averageDuration: TimeInterval?
-
-                // fromCurrency info
-                let fromAmount: String
-                let fromCurrencyCode: String
-                let fromPrecision: Int
-
-                // toAsset info
-                let toContractAddress: String
-                let toNetwork: String
-                let toDecimals: Int
-                let toAmount: String
-                let toActualAmount: String?
             }
         }
 
@@ -324,7 +295,7 @@ extension ExpressDTO {
             }
 
             struct Response: Decodable {
-                let items: [History.Record]
+                let items: [Transaction]
                 let pagination: Pagination
             }
 

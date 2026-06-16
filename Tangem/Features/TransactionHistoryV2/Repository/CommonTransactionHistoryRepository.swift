@@ -11,16 +11,16 @@ import TangemExpress
 import TangemFoundation
 
 final class CommonTransactionHistoryRepository: Sendable {
-    private let exchangeStorage: any TransactionHistoryRecordsStorage<ExchangeHistoryRecord>
-    private let onrampStorage: any TransactionHistoryRecordsStorage<OnrampHistoryRecord>
-    private let exchangeNetworkService: any TransactionHistoryNetworkService<ExchangeHistoryRecord>
-    private let onrampNetworkService: any TransactionHistoryNetworkService<OnrampHistoryRecord>
+    private let exchangeStorage: any TransactionHistoryRecordsStorage<ExchangeTransaction>
+    private let onrampStorage: any TransactionHistoryRecordsStorage<OnrampTransaction>
+    private let exchangeNetworkService: any TransactionHistoryNetworkService<ExchangeTransaction>
+    private let onrampNetworkService: any TransactionHistoryNetworkService<OnrampTransaction>
 
     init(
-        exchangeStorage: any TransactionHistoryRecordsStorage<ExchangeHistoryRecord>,
-        onrampStorage: any TransactionHistoryRecordsStorage<OnrampHistoryRecord>,
-        exchangeNetworkService: any TransactionHistoryNetworkService<ExchangeHistoryRecord>,
-        onrampNetworkService: any TransactionHistoryNetworkService<OnrampHistoryRecord>
+        exchangeStorage: any TransactionHistoryRecordsStorage<ExchangeTransaction>,
+        onrampStorage: any TransactionHistoryRecordsStorage<OnrampTransaction>,
+        exchangeNetworkService: any TransactionHistoryNetworkService<ExchangeTransaction>,
+        onrampNetworkService: any TransactionHistoryNetworkService<OnrampTransaction>
     ) {
         self.exchangeStorage = exchangeStorage
         self.onrampStorage = onrampStorage
@@ -46,11 +46,11 @@ final class CommonTransactionHistoryRepository: Sendable {
 // MARK: - TransactionHistoryRepository protocol conformance
 
 extension CommonTransactionHistoryRepository: TransactionHistoryRepository {
-    var exchangeHistoryUpdates: AsyncStream<[ExchangeHistoryRecord]> {
+    var exchangeHistoryUpdates: AsyncStream<[ExchangeTransaction]> {
         exchangeStorage.recordsUpdates
     }
 
-    var onrampHistoryUpdates: AsyncStream<[OnrampHistoryRecord]> {
+    var onrampHistoryUpdates: AsyncStream<[OnrampTransaction]> {
         onrampStorage.recordsUpdates
     }
 
