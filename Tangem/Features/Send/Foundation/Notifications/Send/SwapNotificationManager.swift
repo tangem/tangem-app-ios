@@ -28,12 +28,10 @@ final class CommonSwapNotificationManager {
     private let balanceFormatter = BalanceFormatter()
 
     private weak var delegate: NotificationTapDelegate?
-    private var analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
+    private let analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
 
     private var setupCancellable: AnyCancellable?
     private var analyticsServiceCancellable: AnyCancellable?
-
-    init() {}
 
     private func analyticsService(for userWalletId: UserWalletId) -> NotificationsAnalyticsService {
         if let analyticsService = analyticsServices.read()[userWalletId] {
@@ -110,7 +108,7 @@ private extension CommonSwapNotificationManager {
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
 
-        case (.success(let source), .success(let receive), .loaded(let providers, _, _)) where providers.isEmpty:
+        case (.success(let source), .success(let receive), .loaded(let providers, _, .idle)) where providers.isEmpty:
             let analyticsParams: [Analytics.ParameterKey: String] = [
                 .sendToken: source.tokenItem.currencySymbol,
                 .sendBlockchain: source.tokenItem.blockchain.displayName,
