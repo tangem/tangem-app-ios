@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 public extension TangemBadge {
     enum Size: Equatable, Sendable {
@@ -46,11 +47,11 @@ public extension TangemBadge {
             }
         }
 
-        var font: Font {
+        var font: TangemFontStyle {
             switch self {
-            case .x4: .Tangem.Caption11.semibold
-            case .x6: .Tangem.Caption12.semibold
-            case .x9: .Tangem.Caption13.semibold
+            case .x4: Font.Tangem.Caption11.semibold
+            case .x6: Font.Tangem.Caption12.semibold
+            case .x9: Font.Tangem.Caption13.semibold
             }
         }
     }

@@ -20,11 +20,11 @@ struct MainBottomSheetRedesignedHintView: View {
             if isActive {
                 VStack(spacing: .unit(.x1)) {
                     Text(Localization.marketsHintPartOne)
-                        .style(.Tangem.Body15.regular, color: .Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body15.regular, color: .Tangem.Text.Neutral.primary)
 
                     HStack(spacing: .unit(.x1)) {
                         Text(Localization.marketsHintPartTwo)
-                            .style(.Tangem.Body15.regular, color: .Tangem.Text.Neutral.tertiary)
+                            .style(Font.Tangem.Body15.regular, color: .Tangem.Text.Neutral.tertiary)
 
                         Assets.Glyphs.tripleSparkles.image
                             .renderingMode(.template)
