@@ -15,7 +15,7 @@ enum AddressBookValidationError: Error, Hashable {
     case nameContainsForbiddenCharacters
     case nameNotUnique
     case noEntries
-    case tooManyEntries
+    case tooManyAddresses
     case addressEmpty
     case invalidAddressForNetwork(AddressBookNetworkID)
     case duplicateAddressNetworkPair

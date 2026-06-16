@@ -35,7 +35,7 @@ final class EditAddressBookContactManagementInteractor {
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
-        addressesSubject = .init(contact.entries.map {
+        addressesSubject = .init(contact.entries.raw.map {
             AddressBookEntryDraft(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo)
         })
         walletSubject = .init(Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.userWalletInfo)
@@ -55,8 +55,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         colorSubject.eraseToAnyPublisher()
     }
 
-    var addressesPublisher: AnyPublisher<[AddressBookEntryDraft], Never> {
-        addressesSubject.eraseToAnyPublisher()
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> {
+        addressesSubject.map { AddressBookContactDraftEntries($0) }.eraseToAnyPublisher()
     }
 
     var walletPublisher: AnyPublisher<WalletRowType?, Never> {
@@ -73,7 +73,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
-        addressesSubject.map { $0.count < 20 }.eraseToAnyPublisher()
+        addressesSubject.map { Set($0.map(\.address)).count < AddressBookContactDraftEntries.maxAddressCount }.eraseToAnyPublisher()
     }
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> {
@@ -105,6 +105,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func add(entries: [AddressBookEntryDraft]) throws {
+        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+
         addressesSubject.value.append(contentsOf: entries)
     }
 
@@ -122,11 +124,11 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
             return
         }
 
-        let originalIds = Set(contact.entries.map(\.id))
+        let originalIds = Set(contact.entries.raw.map(\.id))
         let currentIds = Set(drafts.map(\.id))
 
         // Remove entries the user deleted.
-        for entry in contact.entries where !currentIds.contains(entry.id) {
+        for entry in contact.entries.raw where !currentIds.contains(entry.id) {
             try await addressBookManager.deleteEntry(id: entry.id, fromContactWith: contactId)
         }
 
@@ -138,8 +140,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         // Add freshly entered addresses (drafts whose id is not among the original entries).
         let addedEntries = drafts.filter { !originalIds.contains($0.id) }
 
-        if !addedEntries.isEmpty {
-            try await addressBookManager.addEntries(addedEntries, toContactWith: contactId)
+        if let added = AddressBookContactDraftEntries(addedEntries) {
+            try await addressBookManager.addEntries(added, toContactWith: contactId)
         }
     }
 

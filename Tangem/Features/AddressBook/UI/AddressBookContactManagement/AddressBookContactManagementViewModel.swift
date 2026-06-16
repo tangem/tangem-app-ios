@@ -30,7 +30,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published var errorAlert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
-    @Published private var drafts: [AddressBookEntryDraft] = []
+    @Published private var entries: AddressBookContactDraftEntries?
     @Published private var canAddNewAddress: Bool = true
 
     let title: String
@@ -142,7 +142,7 @@ private extension AddressBookContactManagementViewModel {
 
         interactor.addressesPublisher
             .receive(on: DispatchQueue.main)
-            .assign(to: &$drafts)
+            .assign(to: &$entries)
 
         interactor.walletPublisher
             .receive(on: DispatchQueue.main)
@@ -164,20 +164,25 @@ private extension AddressBookContactManagementViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: &$mainButtonIcon)
 
-        Publishers.CombineLatest($drafts, $canAddNewAddress)
+        Publishers.CombineLatest($entries, $canAddNewAddress)
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                viewModel.makeAddressesSection(drafts: args.0, canAddNewAddress: args.1)
+                viewModel.makeAddressesSection(entries: args.0, canAddNewAddress: args.1)
             }
             .receive(on: DispatchQueue.main)
             .assign(to: &$addressesSection)
     }
 
-    func makeAddressesSection(drafts: [AddressBookEntryDraft], canAddNewAddress: Bool) -> [AddressRowType] {
-        var types: [AddressRowType] = drafts.map { draft in
+    func makeAddressesSection(entries: AddressBookContactDraftEntries?, canAddNewAddress: Bool) -> [AddressRowType] {
+        // One row per address — an address may be saved in several networks; the row shows that count.
+        var types: [AddressRowType] = (entries?.groupedByAddress ?? []).map { group in
             .address(
-                AddressBookContactAddressRowViewModel(id: draft.id.stringValue, address: draft.address) { [weak self] in
-                    self?.deleteRow(id: draft.id)
+                AddressBookContactAddressRowViewModel(
+                    id: group.id,
+                    address: group.address,
+                    networksCount: group.networks.count
+                ) { [weak self] in
+                    self?.deleteAddress(entryIds: group.networks.map(\.id))
                 }
             )
         }
@@ -199,8 +204,8 @@ private extension AddressBookContactManagementViewModel {
         coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self)
     }
 
-    func deleteRow(id: AddressBookAddressEntryID) {
-        interactor.deleteAddress(id: id)
+    func deleteAddress(entryIds: [AddressBookAddressEntryID]) {
+        entryIds.forEach { interactor.deleteAddress(id: $0) }
     }
 
     @MainActor

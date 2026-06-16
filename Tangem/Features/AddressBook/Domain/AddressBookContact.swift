@@ -9,14 +9,11 @@
 import Foundation
 import TangemFoundation
 
-/// A verified contact. By construction it always has a validated name and at least one verified
-/// address entry, both scoped to a single wallet.
+/// A verified contact. By construction it always has a validated name and a non-empty set of verified
+/// address entries, both scoped to a single wallet.
 struct AddressBookContact: Hashable {
-    /// Maximum number of address entries a single contact may hold (enforced at mutation time).
-    static let maxEntries = 20
-
     let id: AddressBookContactID
     let walletId: UserWalletId
     let name: AddressBookContactName
-    let entries: NonEmptyArray<AddressBookVerifiedAddressEntry>
+    let entries: AddressBookContactVerifiedEntries
 }

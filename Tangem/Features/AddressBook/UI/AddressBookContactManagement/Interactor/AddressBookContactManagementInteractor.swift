@@ -16,7 +16,7 @@ protocol AddressBookContactManagementInteractor {
     var contactNamePublisher: AnyPublisher<String, Never> { get }
     var contactColorPublisher: AnyPublisher<AccountModel.CompositeIcon.Color, Never> { get }
 
-    var addressesPublisher: AnyPublisher<[AddressBookEntryDraft], Never> { get }
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> { get }
     var walletPublisher: AnyPublisher<AddressBookContactManagementViewModel.WalletRowType?, Never> { get }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> { get }

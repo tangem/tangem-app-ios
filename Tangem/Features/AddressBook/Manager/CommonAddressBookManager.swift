@@ -74,7 +74,7 @@ final class CommonAddressBookManager {
         }
 
         // A contact whose entries all fail verification is not shown at all (spec 2.1.3).
-        guard let entries = NonEmptyArray(verified) else {
+        guard let entries = AddressBookContactEntries(verified) else {
             return nil
         }
 
@@ -178,13 +178,11 @@ extension CommonAddressBookManager: AddressBookManager {
         await repository.load()
     }
 
-    func createContact(name: AddressBookContactName, entries drafts: [AddressBookEntryDraft]) async throws {
-        guard !drafts.isEmpty else {
-            throw AddressBookValidationError.noEntries
-        }
+    func createContact(name: AddressBookContactName, entries: AddressBookContactDraftEntries) async throws {
+        let drafts = entries.raw
 
-        guard drafts.count <= AddressBookContact.maxEntries else {
-            throw AddressBookValidationError.tooManyEntries
+        guard entries.addressCount <= AddressBookContactDraftEntries.maxAddressCount else {
+            throw AddressBookValidationError.tooManyAddresses
         }
 
         try ensureAddressesNonEmpty(drafts)
@@ -222,12 +220,15 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
     }
 
-    func addEntries(_ drafts: [AddressBookEntryDraft], toContactWith id: AddressBookContactID) async throws {
+    func addEntries(_ entries: AddressBookContactDraftEntries, toContactWith id: AddressBookContactID) async throws {
+        let drafts = entries.raw
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)
 
-        guard contact.addresses.count + drafts.count <= AddressBookContact.maxEntries else {
-            throw AddressBookValidationError.tooManyEntries
+        let addresses = Set(contact.addresses.map(\.address)).union(drafts.map(\.address))
+
+        guard addresses.count <= AddressBookContactDraftEntries.maxAddressCount else {
+            throw AddressBookValidationError.tooManyAddresses
         }
 
         try ensureAddressesNonEmpty(drafts)
