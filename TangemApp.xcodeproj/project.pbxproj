@@ -19,7 +19,6 @@
 		B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0B11A072C787FE70018A2A6 /* MarkdownUI */; };
 		B0D70D482CE5FB6800A8A0F1 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = B0D70D472CE5FB6800A8A0F1 /* JWTDecode */; };
 		B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
-		B608021A2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
 		B61B905A2F912D950081CC13 /* BlockchainSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B61B90592F912D950081CC13 /* BlockchainSdk */; };
 		B62C16792CBE095A00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16782CBE095A00522683 /* Alamofire */; };
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
@@ -33,8 +32,10 @@
 		B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C02CC71A2C00D660EB /* TangemSdk */; };
 		B67E38C32CC71B5F00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C22CC71B5F00D660EB /* TangemSdk */; };
 		B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C62CC7259B00D660EB /* TangemSdk */; };
+		B67EEDD22FE0E10F00635701 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
 		B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */; };
 		B6A0FE812F91386800E28A09 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6A0FE802F91386800E28A09 /* BigInt */; };
+		B6AA1D7D2FDC7B1300560D64 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B6AA1D7C2FDC7B1300560D64 /* AnyCodable */; };
 		B6C0D3FB2CBDC6DD001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FA2CBDC6DD001113ED /* Moya */; };
 		B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FC2CBDC6FE001113ED /* Moya */; };
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
@@ -399,10 +400,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B67EEDD22FE0E10F00635701 /* AnyCodable in Frameworks */,
 				F92DB9CD2CD4C3D200C16530 /* TangemModules in Frameworks */,
 				B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */,
 				B6C0D4092CBDCD34001113ED /* Moya in Frameworks */,
-				B608021A2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,6 +412,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */,
+				B6AA1D7D2FDC7B1300560D64 /* AnyCodable in Frameworks */,
 				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7721,6 +7723,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B6FF157C2F8F2A6E000C63B6 /* XCRemoteSwiftPackageReference "BigInt" */;
 			productName = BigInt;
+		};
+		B6AA1D7C2FDC7B1300560D64 /* AnyCodable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */;
+			productName = AnyCodable;
 		};
 		B6C0D3FA2CBDC6DD001113ED /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;

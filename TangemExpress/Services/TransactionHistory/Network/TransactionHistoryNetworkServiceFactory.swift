@@ -13,7 +13,7 @@ public enum TransactionHistoryNetworkServiceFactory {
         apiProvider: ExpressAPIProvider,
         walletAddress: String,
         pageSize: Int
-    ) -> any TransactionHistoryNetworkService<ExchangeHistoryRecord> {
+    ) -> any TransactionHistoryNetworkService<ExchangeTransaction> {
         CommonTransactionHistoryNetworkService(
             apiProvider: apiProvider,
             initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
@@ -35,7 +35,7 @@ public enum TransactionHistoryNetworkServiceFactory {
         apiProvider: ExpressAPIProvider,
         walletAddress: String,
         pageSize: Int
-    ) -> any TransactionHistoryNetworkService<OnrampHistoryRecord> {
+    ) -> any TransactionHistoryNetworkService<OnrampTransaction> {
         CommonTransactionHistoryNetworkService(
             apiProvider: apiProvider,
             initialCursorStorage: InMemoryTransactionHistoryCursorStorage(),
