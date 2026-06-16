@@ -28,7 +28,8 @@ public struct TangemExpressFactory {
         return CommonExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressProviderManagerFactory: factory,
-            expressRepository: expressRepository
+            expressRepository: expressRepository,
+            featureFlags: featureFlags
         )
     }
 

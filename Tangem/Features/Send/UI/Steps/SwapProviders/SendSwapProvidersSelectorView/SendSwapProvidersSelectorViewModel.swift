@@ -137,7 +137,7 @@ private extension SendSwapProvidersSelectorViewModel {
         .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
             let showable = providers
                 .showableProviders(selectedProviderId: selectedProvider?.provider.id)
-                .sortedByAttractively()
+                .sortedByAttractivelyPreferringBestDEX()
 
             return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
         }
@@ -219,6 +219,7 @@ private extension SendSwapProvidersSelectorViewModel {
         case .fcaWarning: .fcaWarning
         case .permissionNeeded: FeatureProvider.isAvailable(.approveFlowV2) ? nil : .permissionNeeded
         case .bestRate: .bestRate
+        case .bestDexRate: .bestDexRate
         }
 
         if let percentSubtitle = makePercentSubtitle(selectedProvider: selectedProvider, provider: availableProvider) {
