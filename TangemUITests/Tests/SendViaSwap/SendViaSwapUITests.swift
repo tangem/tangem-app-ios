@@ -35,7 +35,7 @@ final class SendViaSwapUITests: BaseTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
-            .enterSeedPhrase(Constants.hotWalletSeedPhrase)
+            .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
             .skipAccessCode()
@@ -263,7 +263,7 @@ final class SendViaSwapUITests: BaseTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
-            .enterSeedPhrase(Constants.hotWalletSeedPhrase)
+            .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
             .skipAccessCode()
@@ -322,7 +322,7 @@ final class SendViaSwapUITests: BaseTestCase {
             .skipStories()
             .startWithMobileWallet()
             .tapImportButton()
-            .enterSeedPhrase(Constants.hotWalletSeedPhrase)
+            .enterSeedPhrase(TestSeedPhrases.hotWallet)
             .tapImportButton()
             .tapContinue()
             .skipAccessCode()
@@ -403,7 +403,6 @@ final class SendViaSwapUITests: BaseTestCase {
 
 private extension SendViaSwapUITests {
     enum Constants {
-        static let hotWalletSeedPhrase = "diagram thunder merit soup muscle amused refuse usual ring couch popular wash"
         static let bitcoinTokenName = "Bitcoin"
         static let xrpTokenName = "XRP Ledger"
         static let solanaTokenName = "Solana"

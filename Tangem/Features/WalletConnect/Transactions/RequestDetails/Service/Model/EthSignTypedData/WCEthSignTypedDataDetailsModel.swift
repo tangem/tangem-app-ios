@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct BlockchainSdk.EIP712TypedData
 
 struct WCEthSignTypedDataDetailsModel {
     let data: [WCTransactionDetailsSection]

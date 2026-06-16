@@ -18,6 +18,8 @@ protocol YieldModuleManager {
 
     var blockchain: Blockchain { get }
     var tokenId: String { get }
+    var versionChecker: YieldModuleVersionChecker? { get }
+    var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { get }
 
     func enterFee() async throws -> YieldTransactionFee
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String]
@@ -48,6 +50,7 @@ final class CommonYieldModuleManager {
     @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.yieldAPYBoostPromoRepository) private var yieldAPYBoostPromoRepository: YieldAPYBoostPromoRepository
 
     let blockchain: Blockchain
     let tokenId: String
@@ -66,6 +69,7 @@ final class CommonYieldModuleManager {
 
     private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
+    private var resolvedPromoStatus: YieldPromoStatus = .undefined
 
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
 
@@ -129,6 +133,7 @@ final class CommonYieldModuleManager {
         )
 
         bind()
+        checkPromoAvailability()
     }
 }
 
@@ -141,6 +146,14 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
         _state
             .receiveOnMain()
             .eraseToAnyPublisher()
+    }
+
+    var versionChecker: YieldModuleVersionChecker? {
+        yieldSupplyService.makeVersionChecker()
+    }
+
+    var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? {
+        yieldSupplyService.makeSwapExecutionRegistryProvider()
     }
 
     func updateState(
@@ -386,8 +399,9 @@ private extension CommonYieldModuleManager {
             .handleEvents(receiveOutput: { [weak self] in
                 self?.updateStateCacheIfNeeded(state: $0)
             })
-            .sink { [_state] result in
-                _state.send(result)
+            .sink { [weak self] result in
+                guard let self else { return }
+                _state.send(applyResolvedPromoStatus(to: result))
             }
             .store(in: &bag)
 
@@ -435,17 +449,18 @@ private extension CommonYieldModuleManager {
                case .token(let token) = balance.type,
                let yieldSupply = token.metadata.yieldSupply {
                 state = .active(
-                    YieldSupplyInfo(
+                    info: YieldSupplyInfo(
                         yieldContractAddress: yieldSupply.yieldContractAddress,
                         balance: balance,
                         isAllowancePermissionRequired: YieldAllowanceUtil().isPermissionRequired(
                             allowance: yieldSupply.allowance
                         ),
                         yieldModuleBalanceValue: yieldSupply.protocolBalanceValue
-                    )
+                    ),
+                    promoStatus: .undefined
                 )
             } else {
-                state = (marketInfo?.isActive ?? false) ? .notActive : .disabled
+                state = (marketInfo?.isActive ?? false) ? .notActive(promoStatus: .undefined) : .disabled
             }
         case .noAccount:
             state = .disabled
@@ -614,7 +629,7 @@ private extension CommonYieldModuleManager {
     func isStateExpected(newState: YieldModuleManagerState?) -> Bool {
         switch (newState, _nextExpectedState.value) {
         case (.notActive, .notActive), (_, .none): true
-        case (.active(let yieldSupplyInfo), .active) where !yieldSupplyInfo.isAllowancePermissionRequired: true
+        case (.active(let yieldSupplyInfo, _), .active) where !yieldSupplyInfo.isAllowancePermissionRequired: true
         default: false
         }
     }
@@ -700,6 +715,66 @@ private extension CommonYieldModuleManager {
 
     func arePushNotificationsEnabled() -> Bool {
         userWalletRepository.selectedModel?.userTokensPushNotificationsManager.status.isActive ?? false
+    }
+}
+
+// MARK: - Promo Availability
+
+private extension CommonYieldModuleManager {
+    func checkPromoAvailability() {
+        Task {
+            guard let campaign = await yieldAPYBoostPromoRepository.campaign(userWalletId: userWalletId) else {
+                return
+            }
+
+            let promoStatus = resolvePromoStatus(from: campaign)
+            guard promoStatus != .undefined else { return }
+            resolvedPromoStatus = promoStatus
+
+            if let current = _state.value {
+                _state.send(applyResolvedPromoStatus(to: current))
+            }
+        }
+    }
+
+    func resolvePromoStatus(from campaign: YieldAPYBoostCampaign) -> YieldPromoStatus {
+        switch campaign.enrollmentStatus?.promoEnrollmentStatus {
+        case .notStarted:
+            // Eligibility to newly join the promo depends on the currently listed campaign tokens.
+            let isEligible = campaign.bannerData?.eligibleTokens.contains { eligible in
+                eligible.networkId == blockchain.networkId
+                    && eligible.tokenAddress.caseInsensitiveCompare(token.contractAddress) == .orderedSame
+            } ?? false
+            return isEligible ? .notStarted : .undefined
+        case .active:
+            let networkMatch = campaign.enrollmentStatus?.networkId == blockchain.networkId
+            let addressMatch = campaign.enrollmentStatus?.contractAddress?.caseInsensitiveCompare(token.contractAddress) == .orderedSame
+
+            if networkMatch, addressMatch {
+                return .active
+            }
+
+            return .undefined
+        case .completed:
+            return .completed
+        case .disqualified, .none:
+            return .undefined
+        }
+    }
+
+    func applyResolvedPromoStatus(to stateInfo: YieldModuleManagerStateInfo) -> YieldModuleManagerStateInfo {
+        guard resolvedPromoStatus != .undefined else { return stateInfo }
+
+        let updatedState: YieldModuleManagerState
+        switch stateInfo.state {
+        case .notActive:
+            updatedState = .notActive(promoStatus: resolvedPromoStatus)
+        case .active(let info, _):
+            updatedState = .active(info: info, promoStatus: resolvedPromoStatus)
+        default:
+            return stateInfo
+        }
+        return YieldModuleManagerStateInfo(marketInfo: stateInfo.marketInfo, state: updatedState)
     }
 }
 
