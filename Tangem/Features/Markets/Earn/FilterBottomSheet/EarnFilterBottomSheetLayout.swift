@@ -104,7 +104,7 @@ private extension EarnFilterBottomSheetLayout {
             leadingContent: { EmptyView() },
             principalContent: {
                 Text(title)
-                    .style(.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
             },
             trailingContent: { closeButton }
         )

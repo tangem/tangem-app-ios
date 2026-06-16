@@ -95,7 +95,7 @@ public struct LoadableBalanceView: View {
     @ViewBuilder
     private func textView(_ text: Text) -> some View {
         SensitiveText(text)
-            .style(style.font, color: style.textColor)
+            .style(style.fontStyle, color: style.textColor)
             .applyContentTransition(type: contentTransitionType, text: text)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
@@ -131,11 +131,16 @@ public extension LoadableBalanceView {
     }
 
     struct Style {
-        public let font: Font
+        public let fontStyle: TangemFontStyle
         public let textColor: Color
 
         public init(font: Font, textColor: Color) {
-            self.font = font
+            fontStyle = TangemFontStyle(font: font)
+            self.textColor = textColor
+        }
+
+        public init(font: TangemFontStyle, textColor: Color) {
+            fontStyle = font
             self.textColor = textColor
         }
     }

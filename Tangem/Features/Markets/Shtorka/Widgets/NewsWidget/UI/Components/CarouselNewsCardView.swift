@@ -115,7 +115,7 @@ struct CarouselNewsCardView: View {
 
             Text(item.title)
                 .multilineTextAlignment(.leading)
-                .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(Layout.RedesignCard.titleLineLimit)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .topLeading)

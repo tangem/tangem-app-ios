@@ -45,10 +45,10 @@ private extension EarnNetworkFilterNetworkRowViewRedesign {
 
             HStack(alignment: .lastTextBaseline, spacing: textSpacing) {
                 Text(input.networkName)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 Text(input.currencySymbol)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             }
             .lineLimit(1)
 

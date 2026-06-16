@@ -32,24 +32,24 @@ struct ManageTokensListItemView: View {
 
     // MARK: - Redesign-aware styling
 
-    private var nameFont: Font {
-        isRedesign ? .Tangem.Body15.semibold : Fonts.Bold.subheadline
+    private var nameFont: TangemFontStyle {
+        isRedesign ? Font.Tangem.Body15.semibold : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var nameColor: Color {
         isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
     }
 
-    private var symbolFont: Font {
-        isRedesign ? .Tangem.Caption12.regular : Fonts.Regular.caption1
+    private var symbolFont: TangemFontStyle {
+        isRedesign ? Font.Tangem.Caption12.regular : TangemFontStyle(font: Fonts.Regular.caption1)
     }
 
     private var symbolColor: Color {
         isRedesign ? .Tangem.Text.Neutral.tertiary : Colors.Text.tertiary
     }
 
-    private var subtitleFont: Font {
-        isRedesign ? .Tangem.Caption13.regular : Fonts.Regular.footnote
+    private var subtitleFont: TangemFontStyle {
+        isRedesign ? Font.Tangem.Caption13.regular : TangemFontStyle(font: Fonts.Regular.footnote)
     }
 
     private var subtitleColor: Color {
@@ -70,11 +70,13 @@ struct ManageTokensListItemView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Group {
                         Text(viewModel.name)
-                            .font(nameFont)
+                            .font(nameFont.font)
+                            .tracking(nameFont.tracking)
                             .foregroundColor(nameColor)
 
                             + Text(symbolFormatted)
-                            .font(symbolFont)
+                            .font(symbolFont.font)
+                            .tracking(symbolFont.tracking)
                             .foregroundColor(symbolColor)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
