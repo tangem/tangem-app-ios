@@ -28,7 +28,7 @@ class QRScanViewCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = QRScanViewModel(code: options.code, text: options.text, router: self)
+        rootViewModel = QRScanViewModel(text: options.text, output: options.output, router: self)
     }
 }
 
@@ -48,7 +48,7 @@ extension QRScanViewCoordinator: QRScanViewRoutable {
 
 extension QRScanViewCoordinator {
     struct Options {
-        let code: Binding<String>
+        let output: QRScannerOutput
         let text: String
     }
 }

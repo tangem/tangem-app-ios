@@ -235,7 +235,7 @@ extension SendCoordinator: SendRoutable {
 // MARK: - SendDestinationRoutable
 
 extension SendCoordinator: SendDestinationRoutable {
-    func openQRScanner(with codeBinding: Binding<String>, networkName: String) {
+    func openQRScanner(output: QRScannerOutput, networkName: String) {
         guard qrScanViewCoordinator == nil else {
             AppLogger.error(error: "Attempt to present multiple QR scan view coordinators")
             return
@@ -246,7 +246,7 @@ extension SendCoordinator: SendDestinationRoutable {
         }
 
         let text = Localization.sendQrcodeScanInfo(networkName)
-        let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
+        let options = QRScanViewCoordinator.Options(output: output, text: text)
         qrScanViewCoordinator.start(with: options)
 
         self.qrScanViewCoordinator = qrScanViewCoordinator

@@ -298,12 +298,16 @@ extension SendDestinationViewModel {
 
 extension SendDestinationViewModel: SendDestinationAddressViewRoutable {
     func didTapScanQRButton() {
-        let binding = Binding<String>(get: { "" }, set: { [weak self] value in
-            self?.sendQRCodeService.qrCodeDidScanned(value: value)
-        })
-
         analyticsLogger.logQRScannerOpened()
-        router?.openQRScanner(with: binding, networkName: networkName)
+        router?.openQRScanner(output: self, networkName: networkName)
+    }
+}
+
+// MARK: - QRScannerOutput
+
+extension SendDestinationViewModel: QRScannerOutput {
+    func qrScanDidScan(string: String) {
+        sendQRCodeService.qrCodeDidScanned(value: string)
     }
 }
 

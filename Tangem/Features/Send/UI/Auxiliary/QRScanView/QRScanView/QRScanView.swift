@@ -41,7 +41,7 @@ struct QRScanView: View {
     @ViewBuilder
     private var cameraView: some View {
         if viewModel.hasCameraAccess {
-            QRScannerView(code: viewModel.code)
+            QRScannerView(code: .init(get: { "" }, set: { viewModel.qrScanDidScan(code: $0) }))
         } else {
             Color.black
         }
@@ -128,13 +128,15 @@ private struct CrosshairShape: Shape {
 
 #if DEBUG
 
-struct QRScanView_Previews_Sheet: PreviewProvider {
-    @State static var code: String = ""
+private final class PreviewQRScannerOutput: QRScannerOutput {
+    func qrScanDidScan(string: String) {}
+}
 
+struct QRScanView_Previews_Sheet: PreviewProvider {
     static var previews: some View {
         Text("A")
             .sheet(isPresented: .constant(true)) {
-                QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
+                QRScanView(viewModel: .init(text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", output: PreviewQRScannerOutput(), router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
                     .background(
                         Image("qr_code_example")
                     )
@@ -144,10 +146,8 @@ struct QRScanView_Previews_Sheet: PreviewProvider {
 }
 
 struct QRScanView_Previews_Inline: PreviewProvider {
-    @State static var code: String = ""
-
     static var previews: some View {
-        QRScanView(viewModel: .init(code: $code, text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
+        QRScanView(viewModel: .init(text: "Please align your QR code with the square to scan it. Ensure you scan ERC-20 network address.", output: PreviewQRScannerOutput(), router: QRScanViewCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })))
             .background(
                 Image("qr_code_example")
             )

@@ -12,18 +12,22 @@ import PhotosUI
 import TangemLocalization
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
+protocol QRScannerOutput: AnyObject {
+    func qrScanDidScan(string: String)
+}
+
 final class QRScanViewModel: ObservableObject, Identifiable {
     @Published var isFlashActive = false
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var hasCameraAccess = false
 
-    let code: Binding<String>
     let text: String
-    let router: QRScanViewRoutable
+    weak var output: QRScannerOutput?
+    weak var router: QRScanViewRoutable?
 
-    init(code: Binding<String>, text: String, router: QRScanViewRoutable) {
-        self.code = code
+    init(text: String, output: QRScannerOutput, router: QRScanViewRoutable) {
         self.text = text
+        self.output = output
         self.router = router
     }
 
@@ -61,8 +65,12 @@ final class QRScanViewModel: ObservableObject, Identifiable {
         }
     }
 
+    func qrScanDidScan(code: String) {
+        output?.qrScanDidScan(string: code)
+    }
+
     func scanFromGallery() {
-        router.openImagePicker()
+        router?.openImagePicker()
     }
 
     func didSelectImage(_ image: UIImage?) {
@@ -74,11 +82,11 @@ final class QRScanViewModel: ObservableObject, Identifiable {
         }
 
         DispatchQueue.main.async {
-            self.code.wrappedValue = code
+            self.output?.qrScanDidScan(string: code)
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.router.dismiss()
+            self.router?.dismiss()
         }
     }
 
@@ -96,18 +104,18 @@ final class QRScanViewModel: ObservableObject, Identifiable {
 
     private func presentAccessDeniedAlert() {
         let selectFromGalleryButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedGalleryButton) { [router] in
-            router.openImagePicker()
+            router?.openImagePicker()
         }
 
         let settingsButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedSettingsButton) { [router] in
-            router.openSettings()
+            router?.openSettings()
         }
 
         let cancelButton = ConfirmationDialogViewModel.Button(
             title: Localization.commonCancel,
             role: .cancel,
             action: { [router] in
-                router.dismiss()
+                router?.dismiss()
             }
         )
 

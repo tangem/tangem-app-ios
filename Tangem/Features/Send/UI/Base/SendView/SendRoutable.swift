@@ -15,7 +15,7 @@ import struct TangemUIUtils.AlertBinder
 protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SwapRoutable, SendFeeSelectorRoutable, AnyObject {
     func dismiss(reason: SendDismissReason)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
-    func openQRScanner(with codeBinding: Binding<String>, networkName: String)
+    func openQRScanner(output: QRScannerOutput, networkName: String)
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
     func openExplorer(url: URL)
     func openShareSheet(url: URL)
