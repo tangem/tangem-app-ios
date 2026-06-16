@@ -63,7 +63,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(rankColor)
 
                 Text(ratingText)
-                    .style(.Tangem.Heading20.semibold, color: rankColor)
+                    .style(Font.Tangem.Heading20.semibold, color: rankColor)
 
                 Assets.DesignSystem.oliveRight.image
                     .renderingMode(.template)
@@ -88,7 +88,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(Color.Tangem.Graphic.Status.positive)
 
                 Text("\(value)")
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
             }
         case .down(let value):
             HStack(spacing: .unit(.half)) {
@@ -102,7 +102,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(Color.Tangem.Graphic.Status.warning)
 
                 Text("\(value)")
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
             }
         case .none:
             EmptyView()

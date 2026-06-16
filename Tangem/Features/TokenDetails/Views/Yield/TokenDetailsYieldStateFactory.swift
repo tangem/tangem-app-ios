@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import TangemAssets
 import TangemUI
 import TangemLocalization
 
@@ -141,7 +143,7 @@ private extension TokenDetailsYieldStateFactory {
         let promoFormattedApy = formattedApy(promoApy)
 
         var heading = AttributedString(Localization.yieldApyBoostBannerTitle)
-        heading.font = .Tangem.Body16.medium
+        heading.setFontStyle(Font.Tangem.Body16.medium)
         heading.foregroundColor = .Tangem.Text.Neutral.primary
 
         let apyLineText = "\(Localization.yieldModuleTokenDetailsEarnNotificationApy) \(originalFormattedApy)"
@@ -149,7 +151,7 @@ private extension TokenDetailsYieldStateFactory {
             + " → \(promoFormattedApy)"
 
         var apyLine = AttributedString(apyLineText)
-        apyLine.font = .Tangem.Body16.medium
+        apyLine.setFontStyle(Font.Tangem.Body16.medium)
         apyLine.foregroundColor = .Tangem.Text.Neutral.primary
 
         if let originalApyRange = apyLine.range(of: originalFormattedApy) {

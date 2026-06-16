@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import TangemAssets
 import Combine
 import TangemFoundation
 import TangemUI
@@ -20,8 +22,8 @@ class CommonMainNavigationBalanceProvider {
     private let balanceFormatter = BalanceFormatter()
 
     private let balanceFormattingOptions = TotalBalanceFormattingOptions(
-        integerPartFont: .Tangem.Body16.medium,
-        fractionalPartFont: .Tangem.Body16.medium,
+        integerPartFont: Font.Tangem.Body16.medium,
+        fractionalPartFont: Font.Tangem.Body16.medium,
         integerPartColor: .Tangem.Text.Neutral.primary,
         fractionalPartColor: .Tangem.Text.Neutral.secondary,
         fractionalPartIncludesDecimalSeparator: true
