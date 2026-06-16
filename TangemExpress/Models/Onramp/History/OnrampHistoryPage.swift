@@ -8,4 +8,4 @@
 
 import Foundation
 
-public typealias OnrampHistoryPage = TransactionHistoryPage<OnrampHistoryRecord>
+public typealias OnrampHistoryPage = TransactionHistoryPage<OnrampTransaction>
