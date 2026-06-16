@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import class UIKit.UIApplication
 import Combine
@@ -16,6 +17,9 @@ import struct TangemUIUtils.AlertBinder
 
 final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published var selectedBlockchainNetworkId: String?
     @Published var selectedBlockchainName: String = ""
@@ -24,8 +28,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
-
-    @Published var alert: AlertBinder?
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
@@ -51,6 +53,10 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
     private var didLogScreenAnalytics = false
     private var foundStandardToken: CoinModel?
+    private var resolvedLookupContractAddress: String?
+    private var resolvedStorageContractAddress: String?
+    private var contractAddressResolver: ContractAddressResolver?
+    private var contractAddressResolverNetworkId: String?
     private var settings: ManageTokensSettings
     private let userTokensManager: UserTokensManager
     private let context: ManageTokensContext
@@ -100,6 +106,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let userTokensManager = context.findUserTokensManager(for: tokenItem) ?? context.userTokensManager
             try userTokensManager.addTokenItemPrecondition(tokenItem)
 
+            // `add` persists the token and, when it isn't already present, inserts its blockchain
+            // network. Capture whether the network existed beforehand so it can be removed together
+            // with the token if key derivation fails.
+            let networkItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+            let networkWasAlreadyAdded = userTokensManager.contains(networkItem, derivationInsensitive: false)
+
             userTokensManager.add(tokenItem) { [weak self] result in
                 guard let self else { return }
 
@@ -112,11 +124,19 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                         return
                     }
 
-                    alert = error.alertBinder
+                    // The token (and its freshly inserted network) is persisted before key
+                    // derivation runs and isn't undone on failure. Remove what was added so an
+                    // underivable custom token isn't left in the portfolio and the error is shown
+                    // on every attempt.
+                    userTokensManager.remove(tokenItem)
+                    if !networkWasAlreadyAdded {
+                        userTokensManager.remove(networkItem)
+                    }
+                    alertPresenter.present(alert: error.alertBinder)
                 }
             }
         } catch {
-            alert = error.alertBinder
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 
@@ -140,6 +160,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         selectedBlockchainNetworkId = blockchain.networkId
         selectedBlockchainName = blockchain.displayName
 
+        resetContractAddressResolver()
         updateDefaultDerivationOption()
         validate()
     }
@@ -191,31 +212,32 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .flatMap { viewModel, contractAddress -> AnyPublisher<[CoinModel], Never> in
-                let result: AnyPublisher<[CoinModel], Never>
-                let contractAddressError: Error?
-
-                do {
-                    if contractAddress.isEmpty {
-                        result = .just(output: [])
-                        contractAddressError = nil
-                    } else {
-                        let enteredContractAddress = try viewModel.enteredContractAddress(
-                            in: viewModel.enteredBlockchain()
-                        )
-
-                        result = viewModel.findToken(contractAddress: enteredContractAddress)
-                        contractAddressError = nil
-
-                        viewModel.isLoading = true
-                    }
-                } catch {
-                    result = .just(output: [])
-                    contractAddressError = error
+            .flatMapLatest { viewModel, contractAddress -> AnyPublisher<[CoinModel], Never> in
+                guard !contractAddress.isEmpty else {
+                    viewModel.contractAddressError = nil
+                    viewModel.resolvedLookupContractAddress = nil
+                    viewModel.resolvedStorageContractAddress = nil
+                    return .just(output: [])
                 }
 
-                self.contractAddressError = contractAddressError
-                return result
+                let blockchain: Blockchain
+                do {
+                    blockchain = try viewModel.enteredBlockchain()
+                } catch {
+                    viewModel.contractAddressError = error
+                    viewModel.resolvedLookupContractAddress = nil
+                    viewModel.resolvedStorageContractAddress = nil
+                    return .just(output: [])
+                }
+
+                viewModel.isLoading = true
+                viewModel.resolvedLookupContractAddress = nil
+                viewModel.resolvedStorageContractAddress = nil
+
+                return viewModel.resolveAndFindToken(
+                    contractAddress: contractAddress,
+                    in: blockchain
+                )
             }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] currencyModels in
@@ -257,13 +279,16 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
         let derivationPath = enteredDerivationPath()
+        let validationContractAddress = currentLookupContractAddressForValidation()
+        let storageContractAddress = currentStorageContractAddressForCreation()
 
-        let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
+        let missingTokenInformation = validationContractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
         if !blockchain.canHandleCustomTokens || missingTokenInformation
-            || !SupportedTokensFilter.canHandleCustomToken(contractAddress: contractAddress, blockchain: blockchain) {
+            || !SupportedTokensFilter.canHandleCustomToken(contractAddress: validationContractAddress, blockchain: blockchain) {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
-            let enteredContractAddress = try enteredContractAddress(in: blockchain)
+            _ = try enteredContractAddress(validationContractAddress, in: blockchain)
+            let enteredStorageContractAddress = try enteredContractAddress(storageContractAddress, in: blockchain)
 
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
                 throw TokenCreationErrors.emptyFields
@@ -282,7 +307,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let token = Token(
                 name: name,
                 symbol: symbol.uppercased(),
-                contractAddress: enteredContractAddress,
+                contractAddress: enteredStorageContractAddress,
                 decimalCount: decimals,
                 id: foundStandardTokenItem?.id
             )
@@ -292,9 +317,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     }
 
     private func validateEnteredContractAddress() throws {
+        let validationContractAddress = currentLookupContractAddressForValidation()
+
         guard
             selectedBlockchainSupportsTokens,
-            !contractAddress.isEmpty
+            !validationContractAddress.isEmpty
         else {
             return
         }
@@ -305,7 +332,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
         do {
             let blockchain = try enteredBlockchain()
-            _ = try enteredContractAddress(in: blockchain)
+            _ = try enteredContractAddress(validationContractAddress, in: blockchain)
         } catch {
             throw TokenSearchError.failedToFindToken
         }
@@ -327,8 +354,9 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
-        let contractAddress = convertContractAddressIfPossible(contractAddress, in: blockchain)
+    private func enteredContractAddress(_ rawContractAddress: String? = nil, in blockchain: Blockchain) throws -> String {
+        let sourceAddress = rawContractAddress ?? contractAddress
+        let contractAddress = convertContractAddressIfPossible(sourceAddress, in: blockchain)
         let validator = ContractAddressValidatorFactory(blockchain: blockchain).makeValidator()
 
         guard validator.validateCustomTokenAddress(contractAddress) else {
@@ -338,6 +366,96 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         return contractAddress
     }
 
+    private func resolveAndFindToken(
+        contractAddress: String,
+        in blockchain: Blockchain
+    ) -> AnyPublisher<[CoinModel], Never> {
+        return resolveContractAddress(contractAddress, in: blockchain)
+            .map { Result<(lookupAddress: String, storageAddress: String), Error>.success($0) }
+            .catch { error in
+                Just(Result<(lookupAddress: String, storageAddress: String), Error>.failure(error))
+            }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .flatMap { viewModel, result -> AnyPublisher<[CoinModel], Never> in
+                switch result {
+                case .success(let resolvedAddress):
+                    do {
+                        viewModel.resolvedLookupContractAddress = resolvedAddress.lookupAddress
+                        viewModel.resolvedStorageContractAddress = resolvedAddress.storageAddress
+                        let enteredContractAddress = try viewModel.enteredContractAddress(
+                            resolvedAddress.lookupAddress,
+                            in: blockchain
+                        )
+
+                        return viewModel.findToken(contractAddress: enteredContractAddress)
+                            .receiveOnMain()
+                            .handleEvents(receiveOutput: { _ in
+                                viewModel.contractAddressError = nil
+                            })
+                            .eraseToAnyPublisher()
+                    } catch {
+                        viewModel.contractAddressError = error
+                        viewModel.resolvedLookupContractAddress = nil
+                        viewModel.resolvedStorageContractAddress = nil
+                        return .just(output: [])
+                    }
+                case .failure(let error):
+                    viewModel.contractAddressError = error
+                    viewModel.resolvedLookupContractAddress = nil
+                    viewModel.resolvedStorageContractAddress = nil
+                    return .just(output: [])
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func resolveContractAddress(
+        _ contractAddress: String,
+        in blockchain: Blockchain
+    ) -> AnyPublisher<(lookupAddress: String, storageAddress: String), Error> {
+        Future.async { [weak self] in
+            guard let self else {
+                throw CancellationError()
+            }
+
+            do {
+                let resolver = try contractAddressResolver(for: blockchain)
+                let resolvedAddress = try await resolver.resolve(contractAddress)
+
+                return (
+                    lookupAddress: resolvedAddress.lookupAddress,
+                    storageAddress: resolvedAddress.storageAddress
+                )
+            } catch {
+                throw TokenCreationErrors.invalidContractAddress
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
+    private func contractAddressResolver(for blockchain: Blockchain) throws -> ContractAddressResolver {
+        if contractAddressResolverNetworkId == blockchain.networkId,
+           let contractAddressResolver {
+            return contractAddressResolver
+        }
+
+        let resolver = try ContractAddressResolverFactory(
+            blockchain: blockchain,
+            blockchainSdkKeysConfig: keysManager.blockchainSdkKeysConfig,
+            apiList: apiListProvider.apiList
+        ).makeResolver()
+
+        contractAddressResolver = resolver
+        contractAddressResolverNetworkId = blockchain.networkId
+        return resolver
+    }
+
+    private func resetContractAddressResolver() {
+        contractAddressResolver = nil
+        contractAddressResolverNetworkId = nil
+    }
+
     private func convertContractAddressIfPossible(_ contractAddress: String, in blockchain: Blockchain?) -> String {
         guard let blockchain else {
             return contractAddress
@@ -345,8 +463,16 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
 
         let converter = CustomTokenContractAddressConverter(blockchain: blockchain)
 
-        let enteredSymbol = symbol.isEmpty ? nil : symbol
+        let enteredSymbol = symbol.nilIfEmpty
         return converter.convert(contractAddress, symbol: enteredSymbol)
+    }
+
+    private func currentLookupContractAddressForValidation() -> String {
+        return resolvedLookupContractAddress?.nilIfEmpty ?? contractAddress
+    }
+
+    private func currentStorageContractAddressForCreation() -> String {
+        return resolvedStorageContractAddress?.nilIfEmpty ?? contractAddress
     }
 
     private func checkLocalStorage() throws {
@@ -411,7 +537,14 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             decimals = "\(token.decimalCount)"
             symbol = token.symbol
             name = token.name
-            contractAddress = token.contractAddress
+
+            let tokenContractAddress = token.contractAddress
+            let lookupContractAddress = resolvedLookupContractAddress?.nilIfEmpty ?? tokenContractAddress
+            let storageContractAddress = resolvedStorageContractAddress?.nilIfEmpty ?? tokenContractAddress
+
+            contractAddress = storageContractAddress
+            resolvedLookupContractAddress = lookupContractAddress
+            resolvedStorageContractAddress = storageContractAddress
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
@@ -420,6 +553,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             decimals = ""
             symbol = ""
             name = ""
+            resolvedLookupContractAddress = nil
+            resolvedStorageContractAddress = nil
         }
 
         validate()

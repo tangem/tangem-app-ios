@@ -119,25 +119,28 @@ class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, 
     }
 }
 
-// MARK: - XPUBWalletManagerUpdater
+// MARK: - MultipleXPUBWalletManagerUpdater
 
-extension BitcoinWalletManager: XPUBWalletManagerUpdater {
-    func updateWalletManager(xpub: String) async throws {
+extension BitcoinWalletManager: XPUBWalletManagerUpdater, MultipleXPUBWalletManagerUpdater {
+    func updateWalletManager(xpubs: [UTXOXpubScriptType]) async throws {
         do {
-            let response: UTXOXpubNetworkProviderUpdatingResponse = try await networkService.getInfo(xpub: xpub).async()
-            try updateWallet(with: response)
+            let responses = try await networkService.getInfo(xpubs: xpubs).async()
+            try updateWallet(with: responses)
         } catch {
             wallet.clearAmounts()
             throw error
         }
     }
 
-    private func updateWallet(with response: UTXOXpubNetworkProviderUpdatingResponse) throws {
-        let userDerivations = response.info.addresses.map(\.usedAddress.derivationPath)
-        wallet.update(userDerivations: userDerivations)
+    private func updateWallet(with responses: [UTXOXpubNetworkProviderUpdatingResponse]) throws {
+        let usedAddressesFromInfo = responses.flatMap(\.info.addresses).map(\.usedAddress)
+        let usedAddressesFromOutputs = responses.flatMap(\.outputs.keys)
+        let usedAddresses = (usedAddressesFromInfo + usedAddressesFromOutputs).unique()
+
+        wallet.update(usedAddresses: usedAddresses)
 
         unspentOutputManager.clearOutputs()
-        try response.outputs.forEach { address, outputs in
+        try responses.flatMap(\.outputs).forEach { address, outputs in
             if let address = wallet.addresses.first(where: { $0.value == address.address }) {
                 unspentOutputManager.update(outputs: outputs, for: address)
             } else {
@@ -150,8 +153,12 @@ extension BitcoinWalletManager: XPUBWalletManagerUpdater {
         wallet.add(coinValue: balance)
 
         let mapper = PendingTransactionRecordMapper()
-        let pending = response.pending.map {
-            mapper.mapToPendingTransactionRecord(record: $0, blockchain: wallet.blockchain, address: wallet.address)
+        let pending = responses.flatMap(\.pending).map { record in
+            mapper.mapToPendingTransactionRecord(
+                record: record,
+                blockchain: wallet.blockchain,
+                address: wallet.address
+            )
         }
 
         wallet.updatePendingTransaction(pending)
@@ -209,6 +216,10 @@ extension BitcoinWalletManager: TransactionSender {
 // MARK: - XPUBAddressesWalletManagerProvider
 
 extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
+    var hasPendingUnspentOutputs: Bool {
+        !unspentOutputManager.pendingOutputs().isEmpty
+    }
+
     func compoundTransactionIfNeeded() -> (amount: Amount, destination: String)? {
         let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
         guard balance > 0 else {
@@ -221,11 +232,15 @@ extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
 
         let plainWalletScripts = plainWallet.addresses
             .compactMap { ($0 as? LockingScriptAddress)?.lockingScript }
+            .toSet()
 
-        let hasOutputsOutsidePlainWallet = unspentOutputManager.availableOutputs()
-            .contains { !plainWalletScripts.contains($0.script) }
+        let outputScripts = unspentOutputManager.availableOutputs()
+            .map(\.script)
+            .toSet()
 
-        guard hasOutputsOutsidePlainWallet else {
+        let outputsOutsidePlainWallet = outputScripts.subtracting(plainWalletScripts)
+
+        guard !outputsOutsidePlainWallet.isEmpty else {
             return nil
         }
 
@@ -269,26 +284,50 @@ extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
     }
 }
 
+// MARK: - XPUBAddressesBalancesChecker
+
+extension BitcoinWalletManager: XPUBAddressesBalancesChecker {
+    func checkOtherAddressesBalances(xpubKey: Wallet.PublicKey.XPUBKey) async throws -> XPUBAddressesBalancesReport {
+        let xpub = try XPUBUtils.generateXPUB(key: xpubKey, isTestnet: wallet.blockchain.isTestnet)
+        let scriptTypes = try XPUBUtils.scriptTypes(blockchain: wallet.blockchain, xpub: xpub)
+        let info = try await networkService.getInfo(xpubs: scriptTypes).async()
+
+        let walletAddresses = wallet.addresses.uniqueProperties(\.value).toSet()
+
+        let otherAddressesBalances: [String: Decimal] = info.flatMap(\.info.addresses)
+            .filter { !walletAddresses.contains($0.usedAddress.address) && $0.balance > 0 }
+            .reduce(into: [:]) { $0[$1.usedAddress.address] = $1.balance }
+
+        return XPUBAddressesBalancesReport(otherAddressesBalances: otherAddressesBalances)
+    }
+}
+
 // MARK: - Private
 
 private extension BitcoinWalletManager {
+    /// Maps each pre-image hash to its own `SignData`, preserving the input order.
+    ///
+    /// Grouping by public key would scramble the order relative to `transaction.inputs`
+    /// (the resulting signatures are flattened in group order, not input order), while
+    /// `buildForSend`/`compile` re-associate signatures with inputs positionally. For a
+    /// multi-address wallet that spends UTXOs from several derived keys this produced a
+    /// signature/public-key/hash mismatch. Keeping a 1:1 order-preserving mapping makes
+    /// the positional zip downstream correct again.
     func mapToSignData(preImageHashes: [UTXOTransactionSerializerPreImageHash]) -> [SignData] {
-        let grouped = Dictionary(grouping: preImageHashes) { preImageHash -> DerivationPublicKey in
-            switch preImageHash.spendableType {
+        preImageHashes.map { preImageHash in
+            let key: DerivationPublicKey = switch preImageHash.spendableType {
             case .publicKey(let key):
-                return key
+                key
             case .redeemScript:
-                return DerivationPublicKey(
+                DerivationPublicKey(
                     publicKey: wallet.publicKey.blockchainKey,
                     derivationPath: wallet.publicKey.derivationPath
                 )
             }
-        }
 
-        return grouped.map { key, hashes in
-            SignData(
+            return SignData(
                 derivationPath: key.derivationPath,
-                hashes: hashes.map(\.hashToSign),
+                hashes: [preImageHash.hashToSign],
                 publicKey: key.publicKey
             )
         }

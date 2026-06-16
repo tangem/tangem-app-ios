@@ -20,7 +20,8 @@ class WalletManagerFactoryProvider {
         dependencies: BlockchainSdkDependencies(
             accountCreator: BlockchainAccountCreator(),
             dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName),
-            isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
+            isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled),
+            isYieldModuleUpdateEnabled: FeatureProvider.isAvailable(.yieldModuleUpdate)
         ),
         apiList: apiList
     )

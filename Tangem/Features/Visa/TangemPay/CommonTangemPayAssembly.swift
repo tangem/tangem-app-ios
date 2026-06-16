@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemPay
 
 final class CommonTangemPayAssembly: TangemPayAssembly {
@@ -14,5 +15,15 @@ final class CommonTangemPayAssembly: TangemPayAssembly {
 
     func makeCardDetailsRepository(for tangemPayAccount: TangemPayAccount) -> TangemPayCardDetailsRepository {
         CommonTangemPayCardDetailsRepository(tangemPayAccount: tangemPayAccount)
+    }
+
+    func makeExpressCEXTransactionDispatcher(
+        withdrawTransactionService: TangemPayWithdrawTransactionService,
+        walletPublicKey: Wallet.PublicKey?
+    ) -> TransactionDispatcher {
+        TangemPayExpressCEXTransactionDispatcher(
+            withdrawTransactionService: withdrawTransactionService,
+            walletPublicKey: walletPublicKey
+        )
     }
 }

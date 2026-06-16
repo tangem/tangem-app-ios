@@ -91,7 +91,6 @@ extension StakingFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
@@ -122,14 +121,14 @@ extension StakingFlowFactory: SendBaseBuildable {
                 dataProvider: stakingModel,
                 analyticsLogger: analyticsLogger,
                 output: stakingModel,
-                confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo)
+                confirmTransactionPolicy: stakingableToken.confirmTransactionPolicy
             ),
             feeCurrencyProviderDataBuilder: CommonSendFeeCurrencyProviderDataBuilder(
                 sourceTokenInput: stakingModel
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: stakingableToken.tangemIconProvider
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: stakingModel)
         )
     }
 }
@@ -156,7 +155,8 @@ extension StakingFlowFactory: SendAmountStepBuildable {
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
                 validator: stakingableToken.transactionValidator,
-                stakingManagerStatePublisher: manager.statePublisher
+                stakingManagerStatePublisher: manager.statePublisher,
+                analyticsLogger: analyticsLogger
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),
             notificationService: .none,

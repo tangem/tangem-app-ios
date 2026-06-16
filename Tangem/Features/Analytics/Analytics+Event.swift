@@ -78,6 +78,9 @@ extension Analytics {
         case onboardingButtonChat = "[Onboarding] Button - Chat"
 
         case buttonManageTokens = "[Portfolio] Button - Manage Tokens"
+        case buttonAddAndOrganize = "[Portfolio] Button - Add & Organize"
+        case buttonAddTokens = "[Portfolio] Button - Add tokens"
+        case buttonOrganizeTokens = "[Portfolio] Button - Organize Tokens"
         case organizeTokensScreenOpened = "[Portfolio / Organize Tokens] Organize Tokens Screen Opened"
         case organizeTokensButtonSortByBalance = "[Portfolio / Organize Tokens] Button - By Balance"
         case organizeTokensButtonGroup = "[Portfolio / Organize Tokens] Button - Group"
@@ -132,6 +135,7 @@ extension Analytics {
         case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
         case mainButtonUpgrade = "[Main Screen] Button - Upgrade"
         case mainNoticeUpgradeToColdWallet = "[Main Screen] Notice - Upgrade To Cold Wallet"
+        case addFundsPromoButton = "[Main Screen] Button - Add Funds Promo"
 
         // MARK: - Send
 
@@ -348,6 +352,10 @@ extension Analytics {
         case swapTokenSelected = "[Swap] Token Selected"
         case swapNoticeUnavailableToSwapPair = "[Swap] Notice - Unavailable To Swap Pair"
         case swapPreselectedTokenChanged = "[Swap] Pre-selected token changed"
+        case swapFastAmountInput = "[Swap] Fast amount input"
+
+        case swapTypeReselection = "[Swap] Swap type re-selection"
+        case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
 
         // MARK: - Seed phrase
 
@@ -407,6 +415,7 @@ extension Analytics {
         case walletPromoButtonClicked = "[Main Screen] Note Promo Button"
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
+        case addFundsBannerAppear = "[Main Screen] Notice - Add Funds"
 
         // MARK: - BlockchainSdk exceptions
 
@@ -482,6 +491,7 @@ extension Analytics {
         case stakingConfirmationScreenOpened = "[Staking] Confirmation Screen Opened"
         case stakingErrors = "[Staking] Errors"
         case stakingErrorTransactionRejected = "[Staking] Error - Transaction Rejected"
+        case stakingErrorSumLimit = "[Staking] Error - Sum Limit"
         case stakingAppErrors = "[Staking] App Errors"
         case stakingSelectedCurrency = "[Staking] Selected Currency"
         case stakingButtonShare = "[Staking] Button - Share"
@@ -609,10 +619,16 @@ extension Analytics {
         case onrampFastestMethodClicked = "[Onramp] Fastest Method Clicked"
         case onrampBestRateClicked = "[Onramp] Best Rate Clicked"
         case onrampButtonAllOffers = "[Onramp] Button - All Offers"
+        case onrampButtonNAP = "[Onramp] Button - NAP"
+        case onrampNAPScreenOpened = "[Onramp] NAP Screen Opened"
+        case onrampVerifyScreenOpened = "[Onramp] Verify Screen Opened"
+        case onrampButtonVerify = "[Onramp] Button - Verify"
+        case onrampButtonChooseAnotherMethod = "[Onramp] Button - Choose Another Method"
 
         // MARK: - Action Buttons
 
         case actionButtonsBuyButton = "[Main Screen] Button - Buy"
+        case mainScreenButtonAddFunds = "[Main Screen] Button - Add Funds"
         case actionButtonsSellButton = "[Main Screen] Button - Sell"
         case actionButtonsSwapButton = "[Main Screen] Button - Swap"
         case actionButtonsSwapScreenOpened = "[Main Screen] Swap Screen Opened"
@@ -627,9 +643,17 @@ extension Analytics {
         case actionButtonsHotTokenClicked = "[Main Screen] Hot Token Clicked"
         case actionButtonsHotTokenError = "[Main Screen] Hot Token Error"
 
+        // MARK: - Add Funds
+
+        case addFundsButtonBuy = "[Add Funds] Button - Buy"
+        case addFundsButtonSwap = "[Add Funds] Button - Swap"
+        case addFundsButtonReceive = "[Add Funds] Button - Receive"
+        case addFundsButtonGoToToken = "[Add Funds] Button - Go to Token"
+
         // MARK: - Stories
 
         case storiesSwapStory = "[Stories] Swap Story"
+        case storiesYieldPromoStory = "[Stories] Yield Promo Story"
         case storiesError = "[Stories] Error"
 
         // MARK: - Tangem API Service
@@ -675,6 +699,7 @@ extension Analytics {
         case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
         case visaOnboardingChooseWalletPopup = "[Visa Onboarding] Choose Wallet Popup"
         case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
+        case visaOnboardingVisaShortForHWActivationScreenOpened = "[Visa Onboarding] Visa Short For HW Activation Screen Opened"
 
         case visaOnboardingVisaKYCCanceled = "[Visa Onboarding] Visa KYC Canceled"
         case visaOnboardingVisaKYCRejected = "[Visa Onboarding] Visa KYC Rejected"
@@ -682,6 +707,8 @@ extension Analytics {
 
         case visaOnboardingVisaPermanentButtonClicked = "[Visa Onboarding] Visa Permanent Button Clicked"
         case visaOnboardingVisaPermanentBannerClicked = "[Visa Onboarding] Visa Permanent Banner Clicked"
+        case visaOnboardingPermanentButtonShowed = "[Visa Onboarding] Visa Permanent Button Showed"
+        case visaOnboardingPermanentBannerShowed = "[Visa Onboarding] Visa Permanent Banner Showed"
 
         case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
         case visaScreenCardSettingsClicked = "[Visa Card Management] Button - Card Settings"
@@ -776,6 +803,7 @@ extension Analytics {
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
+        case mainScreenButtonExploreYieldMode = "[Main Screen] Button - Explore Yield mode"
 
         // MARK: - News
 

@@ -28,12 +28,21 @@ struct DynamicAddressesCompoundTransactionView: View {
                     .setButtonsLoadingState(to: viewModel.notificationButtonIsLoading)
             }
 
-            MainButton(
-                title: Localization.commonConfirm,
-                icon: viewModel.mainButtonIcon,
-                isLoading: viewModel.isLoading,
-                action: viewModel.confirm
-            )
+            if viewModel.needsHoldToConfirm {
+                HoldToConfirmButton(
+                    title: Localization.commonConfirm,
+                    isLoading: viewModel.isLoading,
+                    isDisabled: false,
+                    action: viewModel.confirm
+                )
+            } else {
+                MainButton(
+                    title: Localization.commonConfirm,
+                    icon: viewModel.mainButtonIcon,
+                    isLoading: viewModel.isLoading,
+                    action: viewModel.confirm
+                )
+            }
         }
     }
 }

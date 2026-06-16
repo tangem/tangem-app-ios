@@ -79,20 +79,7 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
     func getDApps(forUserWalletId userWalletId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         try fetchIfNeeded()
 
-        return inMemoryCache.compactMap { dApp in
-            switch dApp {
-            case .v1(let model):
-                if model.userWalletID == userWalletId {
-                    return dApp
-                }
-            case .v2(let model):
-                if model.wrapped.userWalletID == userWalletId {
-                    return dApp
-                }
-            }
-
-            return nil
-        }
+        return inMemoryCache.filter { $0.userWalletID == userWalletId }
     }
 
     func getAllDApps() throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
@@ -148,12 +135,9 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         var removed: [WalletConnectConnectedDApp] = []
 
         for dApp in inMemoryCache {
-            switch dApp {
-            case .v1(let model) where model.userWalletID == userWalletId:
+            if dApp.userWalletID == userWalletId {
                 removed.append(dApp)
-            case .v2(let model) where model.wrapped.userWalletID == userWalletId:
-                removed.append(dApp)
-            default:
+            } else {
                 retained.append(dApp)
             }
         }
@@ -177,8 +161,12 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         guard !isWarmedUp else { return }
 
         do {
-            let dAppDTOs: [WalletConnectConnectedDAppPersistentDTO]? = try persistentStorage.value(for: .walletConnectSessions)
-            let dApps = dAppDTOs?.map(WalletConnectConnectedDAppMapper.mapToDomain) ?? []
+            // Legacy v1 records (pre-account-scope) lack `identifier` and would fail to decode against the
+            // current DTO shape. Decode element-by-element so a stray legacy entry doesn't poison the whole
+            // read; legacy rows are filtered out in memory at warm-up and overwritten in storage only when a
+            // subsequent write occurs.
+            let dAppDTOs: [FailableDecodable<WalletConnectConnectedDAppPersistentDTO>]? = try persistentStorage.value(for: .walletConnectSessions)
+            let dApps = dAppDTOs?.compactMap(\.value).map(WalletConnectConnectedDAppMapper.mapToDomain) ?? []
             isWarmedUp = true
             inMemoryCache = dApps
             rebuildTopicIndex()
@@ -212,5 +200,13 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
 private extension WalletConnectConnectedDApp {
     func matchesIdentity(of other: WalletConnectConnectedDApp) -> Bool {
         session.topic == other.session.topic && accountId == other.accountId
+    }
+}
+
+private struct FailableDecodable<Wrapped: Decodable>: Decodable {
+    let value: Wrapped?
+
+    init(from decoder: Decoder) throws {
+        value = try? Wrapped(from: decoder)
     }
 }

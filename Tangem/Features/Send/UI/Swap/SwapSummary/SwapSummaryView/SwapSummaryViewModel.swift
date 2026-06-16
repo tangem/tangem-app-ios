@@ -22,6 +22,9 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var notificationButtonIsLoading = false
 
     @Published private(set) var isMaxAmountButtonHidden: Bool = false
+    // Hidden by default: keep the fractions off-screen until the source token balance
+    // is confirmed to be strictly positive, otherwise they would flash on a zero balance.
+    @Published private(set) var areAmountFractionsHidden: Bool = true
     @Published private(set) var isActionInProcessing: Bool = false
 
     @Published private(set) var mainButtonIsUpdating: Bool = false
@@ -33,11 +36,15 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var transactionDescription: AttributedString?
     @Published private(set) var alert: AlertBinder?
 
+    @Published private(set) var formVariant: SwapFormVariant
+    @Published var shouldAnimateBestRateBadge: Bool = true
+
     var mainButtonIsLoading: Bool { isActionInProcessing }
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
+    private let formVariantResolver: SwapFormVariantResolver
 
     weak var router: SwapSummaryStepRoutable?
 
@@ -48,7 +55,8 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
         feeCompactViewModel: SendFeeCompactViewModel,
-        sourceTokenInput: SendSourceTokenInput
+        sourceTokenInput: SendSourceTokenInput,
+        formVariantResolver: SwapFormVariantResolver = SwapFormVariantResolver()
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
@@ -56,9 +64,41 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
         self.feeCompactViewModel = feeCompactViewModel
+        self.formVariantResolver = formVariantResolver
+        formVariant = formVariantResolver.currentVariant()
 
         bind()
         bind(sourceTokenInput: sourceTokenInput)
+        applyFormVariant(formVariant)
+    }
+
+    func userDidSelectFormVariant(_ variant: SwapFormVariant) {
+        guard variant != formVariant else { return }
+        let previous = formVariant
+        formVariant = variant
+        applyFormVariant(variant)
+        formVariantResolver.setVariant(variant)
+        analyticsLogger.logSwapTypeReselection(from: previous, to: variant)
+    }
+
+    func logScreenOpened() {
+        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
+        analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
+    }
+
+    func makeFormVariantMenu() -> FormVariantMenu {
+        let items = SwapFormVariant.allCases.map { variant in
+            SendStepNavigationLeadingViewType.DotsMenuItem(
+                id: variant.rawValue,
+                title: variant.menuTitle,
+                action: { [weak self] in self?.userDidSelectFormVariant(variant) }
+            )
+        }
+        return FormVariantMenu(selectedId: formVariant.rawValue, items: items)
+    }
+
+    private func applyFormVariant(_ variant: SwapFormVariant) {
+        swapAmountViewModel.update(isReceiveFiatHidden: variant == .simple)
     }
 
     func bind(sourceTokenInput: SendSourceTokenInput) {
@@ -70,7 +110,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
         sourceTokenInput.sourceTokenPublisher
             .compactMap { $0.value }
-            .map { CommonConfirmTransactionPolicy(userWalletInfo: $0.userWalletInfo).needsHoldToConfirm }
+            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
             .receiveOnMain()
             .assign(to: &$mainButtonNeedsHold)
     }
@@ -79,8 +119,14 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func userDidTapMaxAmount() {
         interactor.userDidRequestMaxAmount()
+    }
+
+    func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
+        analyticsLogger.logTapAmountFraction(fraction)
+        interactor.userDidRequestSourceAmount(fraction: fraction)
     }
 
     func userDidTapMainActionButton() {
@@ -127,6 +173,11 @@ private extension SwapSummaryViewModel {
             .assign(to: &$isMaxAmountButtonHidden)
 
         interactor
+            .areAmountFractionsHiddenPublisher
+            .receiveOnMain()
+            .assign(to: &$areAmountFractionsHidden)
+
+        interactor
             .isNotificationButtonIsLoading
             .receiveOnMain()
             .assign(to: &$notificationButtonIsLoading)
@@ -156,6 +207,11 @@ private extension SwapSummaryViewModel {
 // MARK: - Types
 
 extension SwapSummaryViewModel {
+    struct FormVariantMenu {
+        let selectedId: String
+        let items: [SendStepNavigationLeadingViewType.DotsMenuItem]
+    }
+
     @RawCaseName
     enum ProviderState: Identifiable {
         case loading

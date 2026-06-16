@@ -82,6 +82,9 @@ struct TangemPayCardManagementView: View {
         }
         .navigationBarBackButtonHidden(viewModel.cardRenameViewModel != nil)
         .animation(.easeInOut, value: viewModel.cardRenameViewModel != nil)
+        .sheet(item: $viewModel.addToApplePayGuideViewModel) {
+            TangemPayAddToAppPayGuideView(viewModel: $0)
+        }
         .alert(item: $viewModel.alert) { $0.alert }
         .onAppear(perform: viewModel.onAppear)
     }

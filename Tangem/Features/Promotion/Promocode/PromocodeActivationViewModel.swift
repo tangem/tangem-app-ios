@@ -24,17 +24,19 @@ final class PromocodeActivationViewModel: ObservableObject {
     private let promoCode: String
     private let refcode: String?
     private let campaign: String?
+    private let dismissAction: () -> Void
 
-    private let alertOkButton = Alert.Button.default(Text(Localization.commonOk)) {
-        UIApplication.dismissTop(animated: false)
+    private var alertOkButton: Alert.Button {
+        Alert.Button.default(Text(Localization.commonOk), action: dismissAction)
     }
 
     // MARK: - Init
 
-    init(promoCode: String, refcode: String?, campaign: String?) {
+    init(promoCode: String, refcode: String?, campaign: String?, dismissAction: @escaping () -> Void) {
         self.promoCode = promoCode
         self.refcode = refcode
         self.campaign = campaign
+        self.dismissAction = dismissAction
 
         Analytics.log(.bitcoinPromoDeeplinkActivation)
     }

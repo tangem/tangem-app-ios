@@ -95,8 +95,8 @@ final class TangemStoriesViewModel: ObservableObject {
 
         guard let state else { return }
 
-        storyFinalizeTask = Task { [finalizeStoryUseCase] in
-            await finalizeStoryUseCase(state.activeStory.id)
+        storyFinalizeTask = Task { [finalizeStoryUseCase, activeStory = state.activeStory] in
+            await finalizeStoryUseCase(activeStory)
         }
 
         guard
