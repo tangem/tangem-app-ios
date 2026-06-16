@@ -140,7 +140,7 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 analyticsLogger.logExchangeTapped()
                 let helper = SwapPredefinedParametersHelper()
                 guard let parameters = helper.makeParameters(
-                    origin: .markets(walletModel: walletModel),
+                    walletModel: walletModel,
                     userWalletInfo: userWalletInfo
                 ) else {
                     break
