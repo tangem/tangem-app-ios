@@ -112,7 +112,9 @@ extension CommonAddressBookRepository: AddressBookRepository {
         case .fetched(let remote):
             do {
                 let contacts = try decode(remote)
-                try? persistentStorage.saveEnvelope(mapper.mapToDTO(remote.envelope), for: walletId)
+                // The local cache is the durable store until the real backend (T4) lands, so a write
+                // failure must invalidate (via the catch) rather than advance the ETag over a stale cache.
+                try persistentStorage.saveEnvelope(mapper.mapToDTO(remote.envelope), for: walletId)
                 eTagStorage.saveETag(remote.etag, for: walletId)
                 contactsSubject.send(contacts)
                 syncStateSubject.send(.synced)
