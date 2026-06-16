@@ -18,6 +18,7 @@ actor CommonExpressManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
+    private let featureFlags: ExpressFeatureFlags
 
     // MARK: - Inputs
 
@@ -33,11 +34,13 @@ actor CommonExpressManager {
     init(
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
-        expressRepository: ExpressRepository
+        expressRepository: ExpressRepository,
+        featureFlags: ExpressFeatureFlags
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
+        self.featureFlags = featureFlags
     }
 }
 
@@ -62,7 +65,7 @@ extension CommonExpressManager: ExpressManager {
 
         case .some(let pair):
             let providers = try await loadProviders(for: pair)
-            let selected = providers.availableProviders(rate: .float).best()
+            let selected = bestProvider(from: providers.availableProviders(rate: .float))
             return update(state: .swap(selected: selected, providers: providers))
 
         case .none:
@@ -84,7 +87,7 @@ extension CommonExpressManager: ExpressManager {
         case .none:
             // Reset all providers to idle
             providers.all.forEach { $0.reset() }
-            let selected = providers.availableProviders(rate: .float).best()
+            let selected = bestProvider(from: providers.availableProviders(rate: .float))
             return update(state: .swap(selected: selected, providers: providers))
 
         // Fall back to fixed-rate providers when the caller sends `.from` but only fixed-rate providers exist.
@@ -155,7 +158,7 @@ private extension CommonExpressManager {
         // Check that task is still relevant after await (pair might have changed)
         guard providersTask == task else { return }
 
-        let selected = providers.availableProviders(rate: .float).best()
+        let selected = bestProvider(from: providers.availableProviders(rate: .float))
         update(state: .swap(selected: selected, providers: providers))
     }
 
@@ -197,7 +200,13 @@ private extension CommonExpressManager {
     }
 
     func reloadQuotes(candidates: [ExpressAvailableProvider], type: ExpressManagerUpdatingType) async -> ExpressManagerState {
-        defer { candidates.updateIsBestFlag() }
+        defer {
+            if featureFlags.isChooseBestDEXEnabled {
+                candidates.updateIsBestFlagPreferringDEX()
+            } else {
+                candidates.updateIsBestFlag()
+            }
+        }
 
         let names = candidates.map { $0.provider.name }.joined(separator: ", ")
         ExpressLogger.info(self, "Start a parallel updating in providers: \(names)")
@@ -224,12 +233,16 @@ private extension CommonExpressManager {
         return state
     }
 
+    func bestProvider(from providers: [ExpressAvailableProvider]) -> ExpressAvailableProvider? {
+        featureFlags.isChooseBestDEXEnabled ? providers.bestPreferringDEX() : providers.best()
+    }
+
     func stateWithBestProvider(from candidates: [ExpressAvailableProvider]) -> ExpressManagerState {
         guard case .swap(let previousSelected, let providers) = currentState else {
             return currentState
         }
 
-        let best = candidates.best()
+        let best = bestProvider(from: candidates)
         if let best, best !== previousSelected {
             best.pair.source.analyticsLogger.bestProviderSelected(best)
         }

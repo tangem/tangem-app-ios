@@ -9,8 +9,10 @@ import Foundation
 
 public struct ExpressFeatureFlags {
     public let isApproveWithSwapEnabled: Bool
+    public let isChooseBestDEXEnabled: Bool
 
-    public init(isApproveWithSwapEnabled: Bool) {
+    public init(isApproveWithSwapEnabled: Bool, isChooseBestDEXEnabled: Bool) {
         self.isApproveWithSwapEnabled = isApproveWithSwapEnabled
+        self.isChooseBestDEXEnabled = isChooseBestDEXEnabled
     }
 }
