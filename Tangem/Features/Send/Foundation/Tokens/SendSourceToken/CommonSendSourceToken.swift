@@ -24,7 +24,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let emailDataCollectorBuilder: any EmailDataCollectorBuilder
 
     var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {
-        get async { await transactionHistoryEnricherFactory?() }
+        get async { await transactionHistoryEnricherFactory() }
     }
 
     let transactionDispatcherProvider: any TransactionDispatcherProvider
@@ -43,5 +43,5 @@ struct CommonSendSourceToken: SendSourceToken {
     let extraId: String?
 
     /// - Note: Implementation details, not a part of public API of `SendSourceToken`.
-    let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory?
+    let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory
 }
