@@ -136,7 +136,7 @@ struct EarnBestOpportunitiesListView: View {
         VStack(spacing: Layout.emptyViewSpacing) {
             if isRedesignEnabled {
                 Text(Localization.earnNoResults)
-                    .style(.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Body14.regular, color: .Tangem.Text.Neutral.tertiary)
             } else {
                 Text(Localization.earnNoResults)
                     .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
@@ -146,7 +146,7 @@ struct EarnBestOpportunitiesListView: View {
                 Button(action: clearFilterAction) {
                     Text(Localization.earnClearFilter)
                         .style(
-                            isRedesignEnabled ? .Tangem.Body16.semibold : Fonts.Bold.caption1,
+                            isRedesignEnabled ? Font.Tangem.Body16.semibold : TangemFontStyle(font: Fonts.Bold.caption1),
                             color: isRedesignEnabled ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
                         )
                 }

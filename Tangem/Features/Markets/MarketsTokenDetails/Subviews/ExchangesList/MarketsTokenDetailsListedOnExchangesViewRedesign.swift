@@ -36,7 +36,7 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
         HStack(spacing: .unit(.x4)) {
             VStack(alignment: .leading, spacing: .unit(.x1)) {
                 Text(Localization.marketsTokenDetailsListedOn)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                     .lineLimit(1)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesTitle)
 
@@ -48,7 +48,7 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
                             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesEmptyText)
                     }
                 }
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(1)
             }
 

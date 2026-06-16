@@ -30,7 +30,7 @@ struct NewsArticleHeaderView: View {
             scoreAndTimeLine
 
             Text(article.title)
-                .style(.Tangem.Heading28.regular, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading28.semibold, color: .Tangem.Text.Neutral.primary)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -56,7 +56,7 @@ struct NewsArticleHeaderView: View {
 
     private func redesignTag(title: String) -> some View {
         Text(title)
-            .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
             .padding(.horizontal, .unit(.x3))
             .padding(.vertical, .unit(.x2))
@@ -70,12 +70,12 @@ struct NewsArticleHeaderView: View {
                     rating: article.score,
                     isHighlighted: true,
                     spacing: .unit(.x2),
-                    font: .Tangem.Body16.medium
+                    font: Font.Tangem.Body16.medium
                 )
             }
 
             Text("•")
-                .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
 
             HStack(spacing: .unit(.x2)) {
                 Assets.Glyphs.calendar.image
@@ -86,7 +86,7 @@ struct NewsArticleHeaderView: View {
                     .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
 
                 Text(article.relativeTime)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
             }
         }
     }
