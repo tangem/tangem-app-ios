@@ -51,7 +51,7 @@ private extension MarketsDescriptionDialogueView {
                 .setHorizontalLayout(.intrinsic)
             }
         )
-        .titleFont(Font.Tangem.Heading17.medium)
+        .titleFont(Font.Tangem.Heading17.semibold.font) // [REDACTED_INFO]: tracking deferred
         .titleColor(Color.Tangem.Text.Neutral.primary)
         .padding(.horizontal, .unit(.x4))
         .padding(.top, .unit(.x3))

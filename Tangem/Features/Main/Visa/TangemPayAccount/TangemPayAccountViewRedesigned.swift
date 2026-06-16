@@ -190,7 +190,7 @@ private extension TangemPayAccountTile {
         static let dimmedOpacity: Double = 0.6
     }
 
-    static let balanceFont: Font = TangemRowConstants.Style.Title.font
+    static let balanceFont = TangemRowConstants.Style.Title.font
     static let balanceIntegerColor: Color = .Tangem.Text.Neutral.primary
     static let balanceDecimalColor: Color = .Tangem.Text.Neutral.secondary
 
