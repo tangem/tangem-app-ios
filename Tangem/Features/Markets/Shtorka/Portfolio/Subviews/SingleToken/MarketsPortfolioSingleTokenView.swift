@@ -59,7 +59,7 @@ private extension MarketsPortfolioSingleTokenView {
 
     func tokenName() -> some View {
         Text(viewModel.tokenName)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
