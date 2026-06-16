@@ -137,23 +137,22 @@ extension ExpressCurrencyViewModel {
             wallet: LoadingResult<any SendGenericToken, Error>,
             viewType: ExpressCurrencyViewType
         ) {
+            canChangeCurrency = !wallet.isLoading
+
             switch wallet {
             case .loading:
-                canChangeCurrency = false
                 tokenIconState = .loading
                 symbolState = .loading
                 balanceState = .loading(cached: .none)
 
             case .success(let wallet as SendSourceToken):
                 headerType = wallet.header.asSendTokenHeader(actionType: .swap, isSource: viewType == .send)
-                canChangeCurrency = true
                 symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
                 tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
                 // balanceState is updated via publisher subscription in ViewModel
 
             case .success(let wallet as SendReceiveToken):
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
                 tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: false))
                 balanceState = .empty
@@ -161,21 +160,18 @@ extension ExpressCurrencyViewModel {
             case .success(let wallet):
                 assertionFailure("Don't have implementation for \(wallet)")
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 tokenIconState = .notAvailable
                 symbolState = .noData
                 balanceState = .empty
 
             case .failure(let error as SwapModel.SwapModelError) where error == .tokenSelectionRequired:
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 tokenIconState = .tokenSelectionRequired
                 symbolState = .initialized
                 balanceState = .loaded(text: "")
 
             case .failure:
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 tokenIconState = .notAvailable
                 symbolState = .noData
                 balanceState = .empty

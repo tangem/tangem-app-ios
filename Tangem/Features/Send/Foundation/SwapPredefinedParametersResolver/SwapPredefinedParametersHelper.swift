@@ -9,19 +9,8 @@
 import Foundation
 
 struct SwapPredefinedParametersHelper {
-    enum Origin {
-        case tokenDetails(walletModel: any WalletModel)
-        case markets(walletModel: any WalletModel)
-    }
-
-    func makeParameters(origin: Origin, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
-        switch origin {
-        case .tokenDetails(let walletModel):
-            return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-
-        case .markets(let walletModel):
-            return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-        }
+    func makeParameters(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
+        resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
     }
 }
 
