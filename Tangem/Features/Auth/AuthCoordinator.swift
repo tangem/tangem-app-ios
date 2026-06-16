@@ -24,6 +24,10 @@ final class AuthCoordinator: CoordinatorObject {
 
     @Published var rootViewModel: AuthViewModel?
 
+    // MARK: - Child coordinators
+
+    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
+
     required init(
         dismissAction: @escaping Action<ScanDismissOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -54,6 +58,20 @@ extension AuthCoordinator: AuthRoutable {
 
     func openMain(with userWalletModel: UserWalletModel) {
         dismiss(with: .main(userWalletModel))
+    }
+
+    func openAddWallet() {
+        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWallet):
+                self?.dismiss(with: .main(userWallet))
+            }
+        }
+
+        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .signIn)
+        coordinator.start(with: inputOptions)
+        addWalletSelectorCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
