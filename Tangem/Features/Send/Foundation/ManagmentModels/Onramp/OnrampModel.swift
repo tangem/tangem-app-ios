@@ -510,6 +510,8 @@ extension OnrampModel: OnrampRedirectingOutput {
             date: Date(),
             fromAmount: data.fromAmount,
             fromCurrencyCode: data.fromCurrencyCode,
+            toAmount: data.toAmount,
+            countryCode: data.countryCode,
             externalTxId: data.externalTxId,
             externalTxUrl: data.externalTxURL?.absoluteString
         )
