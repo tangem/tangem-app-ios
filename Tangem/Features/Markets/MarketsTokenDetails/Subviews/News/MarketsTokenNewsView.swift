@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemFoundation
 import TangemAssets
+import TangemUI
 
 struct MarketsTokenNewsView: View {
     let items: [CarouselNewsItem]
@@ -21,14 +22,19 @@ struct MarketsTokenNewsView: View {
 
             content
         }
+        // Carousel bleeds past the 16pt horizontal padding that
+        // `MarketsTokenDetailsContentViewRedesign` applies to the whole content stack — the same
+        // edge-to-edge pattern the main Markets shtorka widget uses (`NewsWidgetViewRedesign`).
+        .padding(.horizontal, -SizeUnit.x4.value)
     }
 
     // MARK: - Private Implementation
 
     private var header: some View {
         Text(Localization.newsRelatedNews)
-            .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+            .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
             .frame(maxWidth: .infinity, alignment: .leading)
+            // Mirrors the widget header's 16pt outer + 8pt inner horizontal padding.
             .padding(.horizontal, Constants.horizontalPadding)
             .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
     }

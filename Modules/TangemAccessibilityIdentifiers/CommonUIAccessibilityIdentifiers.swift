@@ -13,6 +13,8 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let grabber = "commonUIGrabber"
     public static let closeButton = "commonUICloseButton"
     public static let backButton = "commonUIBackButton"
+    public static let addButton = "commonUIAddButton"
+    public static let shareButton = "commonUIShareButton"
 
     /// Entity summary view components
     public static let entityProviderName = "commonUIEntityProviderName"

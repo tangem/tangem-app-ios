@@ -7,6 +7,8 @@
 //
 
 import TangemLocalization
+import struct BlockchainSdk.EIP712TypedData
+import enum BlockchainSdk.JSON
 
 enum WCRequestDetailsEIP712Parser {
     static func parse(typedData: EIP712TypedData, method: WalletConnectMethod) -> [WCTransactionDetailsSection] {

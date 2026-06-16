@@ -31,17 +31,17 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     // MARK: - State
 
     @Binding private var selectedIndex: Int
+    @Binding private var headerHeightRatio: CGFloat
     @State private var scrolledID: Data.Element.ID?
     @State private var scrollOffset: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
-    @State private var elasticContainerModel: TangemElasticContainerModel
+    @StateObject private var elasticContainerModel: TangemElasticContainerModel
     @State private var scrollPhase: ScrollPhase = .awaitingLayout
 
     // MARK: - Configuration
 
     private let viewportHeight: CGFloat
     private var isScrollDisabled: Bool = false
-    private var onHeaderHeightRatioChange: ((CGFloat) -> Void)?
     private var onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?
 
     private let coordinateSpaceName = "pagerScrollView"
@@ -52,20 +52,22 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
     init(
         data: Data,
         selectedIndex: Binding<Int>,
+        headerHeightRatio: Binding<CGFloat>,
         isScrollDisabled: Bool,
         viewportHeight: CGFloat,
         refreshScrollViewInteractor: RefreshScrollViewInteractor,
-        onHeaderHeightRatioChange: ((CGFloat) -> Void)?,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
     ) {
         self.data = data
         _selectedIndex = selectedIndex
+        _headerHeightRatio = headerHeightRatio
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
-        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
-        self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
+        _elasticContainerModel = StateObject(
+            wrappedValue: TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        )
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -90,7 +92,7 @@ struct FullPagePagerViewModern<Data, Header, Body>: View
             pageWidth = newWidth
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
-            onHeaderHeightRatioChange?($0)
+            headerHeightRatio = $0
         }
     }
 

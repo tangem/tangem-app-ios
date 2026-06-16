@@ -41,6 +41,8 @@ public struct TangemMainActionButton: View {
                     color: buttonState.isNormal ? Color.Tangem.Text.Neutral.primary : Color.Tangem.Text.Status.disabled
                 )
                 .lineLimit(1)
+                .contentShape(.rect)
+                .onTapGesture(perform: action)
         }
     }
 }
