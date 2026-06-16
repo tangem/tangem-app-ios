@@ -7,12 +7,23 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
+    let destinationAddressViewModel: SendDestinationAddressViewModel
+    let additionalFieldViewModel: SendDestinationAdditionalFieldViewModel
+
     private weak var coordinator: AddressBookAddAddressRoutable?
 
     init(coordinator: AddressBookAddAddressRoutable) {
         self.coordinator = coordinator
+
+        destinationAddressViewModel = SendDestinationAddressViewModel(
+            textViewModel: .init(),
+            address: .init(string: "", source: .textField)
+        )
+
+        additionalFieldViewModel = SendDestinationAdditionalFieldViewModel(title: Localization.sendExtrasHintMemo)
     }
 
     func userDidRequestDismiss() {
