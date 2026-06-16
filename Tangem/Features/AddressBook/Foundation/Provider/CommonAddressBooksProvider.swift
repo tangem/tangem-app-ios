@@ -31,7 +31,7 @@ extension CommonAddressBooksProvider: AddressBooksProvider {
                     })
                     .eraseToAnyPublisher()
 
-                return AddressBookWallet(wallet: model.userWalletInfo, addressBookPublisher: publisher)
+                return AddressBookWallet(wallet: model.userWalletInfo, addressBookManager: manager)
             }
     }
 }

@@ -60,8 +60,10 @@ final class CommonAddressBookManager {
     // MARK: - Verification
 
     private func verify(_ contact: AddressBookDecodedContact) -> AddressBookContact? {
+        let builder = AddressBookVerifiedAddressEntryBuilder()
+
         let verified = contact.addresses.compactMap { entry in
-            AddressBookVerifiedAddressEntry.make(
+            builder.make(
                 verifying: entry,
                 contactId: contact.id,
                 contactName: contact.name,

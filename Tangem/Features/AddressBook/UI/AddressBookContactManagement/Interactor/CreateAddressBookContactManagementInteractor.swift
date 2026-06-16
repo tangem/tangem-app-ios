@@ -113,7 +113,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             throw AddressBookManagementError.walletUnavailable
         }
 
-        let name = try AddressBookContactName(validating: nameSubject.value)
+        let name = try AddressBookContactNameValidator().validate(nameSubject.value)
 
         try await addressBookManager.createContact(name: name, entries: addressesSubject.value)
     }
