@@ -115,11 +115,11 @@ struct ExpressAPITarget: Moya.TargetType {
     var task: Moya.Task {
         switch target {
         case .assets(let request): .requestJSONEncodable(request)
-        case .pairs(let request):.requestJSONEncodable(request)
-        case .exchangeSent(let request):.requestJSONEncodable(request)
-        case .providers:.requestPlain
-        case .exchangeQuote(let request):.requestParameters(request)
-        case .exchangeData(let request):.requestParameters(request)
+        case .pairs(let request): .requestJSONEncodable(request)
+        case .exchangeSent(let request): .requestJSONEncodable(request)
+        case .providers: .requestPlain
+        case .exchangeQuote(let request): .requestParameters(request)
+        case .exchangeData(let request): .requestParameters(request)
         case .exchangeStatus(let request): .requestParameters(request)
         case .exchangeHistory(let request): .requestParameters(request)
         case .exchangeHistoryDelta(let request): .requestParameters(request)
@@ -129,9 +129,9 @@ struct ExpressAPITarget: Moya.TargetType {
         case .onrampPaymentMethods: .requestPlain
         case .onrampPairs(let request): .requestJSONEncodable(request)
         case .onrampQuote(let request): .requestParameters(request)
-        case .onrampData(let request):.requestParameters(request)
+        case .onrampData(let request): .requestParameters(request)
         case .onrampNativePaymentData(let request): .requestJSONEncodable(request)
-        case .onrampStatus(let request):.requestParameters(request)
+        case .onrampStatus(let request): .requestParameters(request)
         case .onrampHistory(let request): .requestParameters(request)
         case .onrampHistoryDelta(let request): .requestParameters(request)
         }
