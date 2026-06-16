@@ -15,9 +15,14 @@ struct ExpressProviderFormatter {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     let balanceFormatter: BalanceFormatter
+    let isStablecoinOrderingEnabled: Bool
 
-    init(balanceFormatter: BalanceFormatter = .init()) {
+    init(
+        balanceFormatter: BalanceFormatter = .init(),
+        isStablecoinOrderingEnabled: Bool = FeatureProvider.isAvailable(.swapExchangeRateDisplay)
+    ) {
         self.balanceFormatter = balanceFormatter
+        self.isStablecoinOrderingEnabled = isStablecoinOrderingEnabled
     }
 
     func mapToBadge(availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool = false) -> ProviderBadge? {
@@ -39,8 +44,8 @@ struct ExpressProviderFormatter {
 
     func mapToRateSubtitle(
         state: ExpressProviderManagerState,
-        senderCurrencyCode: String?,
-        destinationCurrencyCode: String?,
+        senderTokenItem: TokenItem?,
+        destinationTokenItem: TokenItem?,
         option: RateSubtitleFormattingOption
     ) -> ProviderRowViewModel.Subtitle {
         switch state {
@@ -60,8 +65,8 @@ struct ExpressProviderFormatter {
             return mapToRateSubtitle(
                 fromAmount: quote.fromAmount,
                 toAmount: quote.expectAmount,
-                senderCurrencyCode: senderCurrencyCode,
-                destinationCurrencyCode: destinationCurrencyCode,
+                senderTokenItem: senderTokenItem,
+                destinationTokenItem: destinationTokenItem,
                 option: option
             )
         }
@@ -70,27 +75,48 @@ struct ExpressProviderFormatter {
     func mapToRateSubtitle(
         fromAmount: Decimal,
         toAmount: Decimal,
-        senderCurrencyCode: String?,
-        destinationCurrencyCode: String?,
+        senderTokenItem: TokenItem?,
+        destinationTokenItem: TokenItem?,
         option: RateSubtitleFormattingOption
     ) -> ProviderRowViewModel.Subtitle {
         switch option {
         case .exchangeRate:
-            guard let senderCurrencyCode, let destinationCurrencyCode else {
+            guard let senderTokenItem, let destinationTokenItem else {
                 return .text(CommonError.noData.localizedDescription)
             }
 
-            let rate = toAmount / fromAmount
-            let formattedSourceAmount = balanceFormatter.formatCryptoBalance(1, currencyCode: senderCurrencyCode)
-            let formattedDestinationAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: destinationCurrencyCode)
+            guard fromAmount > 0, toAmount > 0 else {
+                return .text(AppConstants.emDashSign)
+            }
 
-            return .text("\(formattedSourceAmount) ≈ \(formattedDestinationAmount)")
+            let displaySide: SwapRateDisplaySide = isStablecoinOrderingEnabled
+                ? SwapRateDisplaySideResolver.resolve(from: senderTokenItem, to: destinationTokenItem)
+                : .fromIsBase
+            let baseSymbol: String
+            let quoteSymbol: String
+            let rate: Decimal
+
+            switch displaySide {
+            case .fromIsBase:
+                baseSymbol = senderTokenItem.currencySymbol
+                quoteSymbol = destinationTokenItem.currencySymbol
+                rate = toAmount / fromAmount
+            case .toIsBase:
+                baseSymbol = destinationTokenItem.currencySymbol
+                quoteSymbol = senderTokenItem.currencySymbol
+                rate = fromAmount / toAmount
+            }
+
+            let formattedBaseAmount = balanceFormatter.formatCryptoBalance(1, currencyCode: baseSymbol)
+            let formattedQuoteAmount = balanceFormatter.formatCryptoBalance(rate, currencyCode: quoteSymbol)
+
+            return .text("\(formattedBaseAmount) ≈ \(formattedQuoteAmount)")
         case .exchangeReceivedAmount:
-            guard let destinationCurrencyCode else {
+            guard let destinationTokenItem else {
                 return .text(CommonError.noData.localizedDescription)
             }
 
-            let formatted = balanceFormatter.formatCryptoBalance(toAmount, currencyCode: destinationCurrencyCode)
+            let formatted = balanceFormatter.formatCryptoBalance(toAmount, currencyCode: destinationTokenItem.currencySymbol)
             return .text(formatted)
         }
     }

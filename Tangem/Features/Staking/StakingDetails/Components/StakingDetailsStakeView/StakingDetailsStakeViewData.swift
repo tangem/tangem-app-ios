@@ -106,7 +106,7 @@ extension StakingDetailsStakeViewData {
 
     enum IconType: Hashable {
         case icon(ImageType, colors: Colors)
-        case image(url: URL?)
+        case image(StakingTargetIconViewData)
 
         struct Colors: Equatable {
             let foreground: Color
@@ -122,8 +122,8 @@ extension StakingDetailsStakeViewData {
             switch self {
             case .icon(let imageType, _):
                 hasher.combine(imageType)
-            case .image(let url):
-                hasher.combine(url)
+            case .image(let data):
+                hasher.combine(data)
             }
         }
     }

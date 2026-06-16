@@ -48,6 +48,9 @@ struct MarketTokenRowView: View {
 
     private var iconView: some View {
         IconView(url: viewModel.imageURL, size: iconSize, forceKingfisher: true)
+            // Adds +4pt on top of `TangemTwoLineRowLayout`'s shared icon spacing (8) to reach the
+            // 12pt icon ↔ name gap from the latest design review without forking the DS layout.
+            .padding(.trailing, SizeUnit.x1.value)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
     }
 
