@@ -12,6 +12,7 @@ private final class UIEnvironment {
     let floatingSheetViewModel = FloatingSheetViewModel()
     let alertPresenter = AlertPresenterViewModel()
     let shareActivitiesPresenter = ShareActivitiesViewModel()
+    let overlayViewPresenter = OverlayViewPresenterViewModel()
 }
 
 private struct UIEnvironmentKey: InjectionKey {
@@ -75,6 +76,10 @@ extension InjectedValues {
     var overlayShareActivitiesPresenter: any ShareActivitiesPresenter {
         environment.shareActivitiesPresenter
     }
+
+    var overlayViewPresenter: any OverlayViewPresenter {
+        environment.overlayViewPresenter
+    }
 }
 
 // MARK: - AppOverlaysManager support
@@ -97,6 +102,10 @@ struct AppOverlaysDependencies {
 
     var alertPresenterViewModel: AlertPresenterViewModel {
         injectedValues.environment.alertPresenter
+    }
+
+    var overlayViewPresenterViewModel: OverlayViewPresenterViewModel {
+        injectedValues.environment.overlayViewPresenter
     }
 }
 
