@@ -27,15 +27,31 @@ public protocol EthereumNetworkProvider {
 // MARK: - Public helpers
 
 public extension Error {
-    /// Whether this error represents an EVM `execution reverted` response (JSON-RPC error code 3).
+    /// Whether this error represents an EVM `execution reverted` response.
     var isEVMExecutionReverted: Bool {
-        guard let multiError = self as? MultiNetworkProviderError,
-              let apiError = multiError.networkError as? JSONRPC.APIError,
-              apiError.code == 3
-        else {
-            return false
+        if let apiError = self as? JSONRPC.APIError {
+            return apiError.isContractExecutionError
         }
 
-        return true
+        if let multiError = self as? MultiNetworkProviderError, let apiError = multiError.networkError as? JSONRPC.APIError {
+            return apiError.isContractExecutionError
+        }
+
+        return false
     }
+}
+
+extension JSONRPC.APIError {
+    /// EIP-1474 defines code 3 for failed contract execution; some nodes omit
+    /// the code and report reverts with only the message filled in.
+    var isContractExecutionError: Bool {
+        if code == Self.executionRevertedCode {
+            return true
+        }
+
+        return message?.range(of: Self.executionRevertedMessage, options: .caseInsensitive) != nil
+    }
+
+    private static let executionRevertedCode = 3
+    private static let executionRevertedMessage = "execution reverted"
 }
