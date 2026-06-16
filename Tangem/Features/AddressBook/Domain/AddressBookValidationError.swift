@@ -16,6 +16,7 @@ enum AddressBookValidationError: Error, Hashable {
     case nameNotUnique
     case noEntries
     case tooManyEntries
+    case addressEmpty
     case invalidAddressForNetwork(AddressBookNetworkID)
     case duplicateAddressNetworkPair
 }

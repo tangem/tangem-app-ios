@@ -12,7 +12,7 @@ import Combine
 /// No-op manager for locked wallets and previews/mocks: a locked or fake wallet contributes no
 /// contacts and accepts no mutations.
 final class NoopAddressBookManager: AddressBookManager {
-    var contactsPublisher: AnyPublisher<[ContactReadModel], Never> {
+    var contactsPublisher: AnyPublisher<[Contact], Never> {
         Just([]).eraseToAnyPublisher()
     }
 
