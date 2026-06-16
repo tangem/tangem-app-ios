@@ -166,6 +166,7 @@ struct SupportedBlockchains {
             .plasma(testnet: false),
             .monad(testnet: false),
             .seiEvm(testnet: false),
+            .adi(testnet: false),
         ]
     }
 
@@ -235,6 +236,7 @@ struct SupportedBlockchains {
             .linea(testnet: true),
             .monad(testnet: true),
             .plasma(testnet: true),
+            .adi(testnet: true),
             .seiEvm(testnet: true),
         ]
     }
