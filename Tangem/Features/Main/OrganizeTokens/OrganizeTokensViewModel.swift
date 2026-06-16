@@ -27,6 +27,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private weak var coordinator: OrganizeTokensRoutable?
 
     private let userWalletModel: UserWalletModel
+    private let analyticsLogger: TokensManagementAnalyticsLogger
     private var optionsEditing: OrganizeTokensOptionsEditing? // Optional property due to late binding
     private let dragAndDropActionsCache = OrganizeTokensDragAndDropActionsAggregatedCache()
     private var currentlyDraggedSectionIdentifier: AnyHashable?
@@ -46,18 +47,18 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
     init(
         userWalletModel: UserWalletModel,
-        coordinator: OrganizeTokensRoutable
+        coordinator: OrganizeTokensRoutable,
+        analyticsLogger: TokensManagementAnalyticsLogger
     ) {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+        self.analyticsLogger = analyticsLogger
+
+        logScreenOpened()
     }
 
     func onViewWillAppear() {
         bind()
-    }
-
-    func onViewAppear() {
-        logScreenOpened()
     }
 
     private func bind() {
@@ -356,13 +357,14 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.async {
             self.headerViewModel = OrganizeTokensHeaderViewModel(
                 optionsProviding: optionsProviding,
-                optionsEditing: optionsEditing
+                optionsEditing: optionsEditing,
+                analyticsLogger: self.analyticsLogger
             )
         }
     }
 
     private func logScreenOpened() {
-        Analytics.log(.organizeTokensScreenOpened)
+        analyticsLogger.logOrganizeTokensScreenOpened()
     }
 
     private func logOnSaveButtonTap(

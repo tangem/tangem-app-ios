@@ -15,8 +15,10 @@ public final class FinalizeStoryUseCase {
         self.storyDataCache = storyDataCache
     }
 
-    public func callAsFunction(_ storyId: TangemStory.ID) async {
-        storyAvailabilityService.markStoryAsShown(storyId: storyId)
-        await storyDataCache.removeStory(with: storyId)
+    public func callAsFunction(_ story: TangemStory) async {
+        guard !story.isRepeatable else { return }
+
+        storyAvailabilityService.markStoryAsShown(storyId: story.id)
+        await storyDataCache.removeStory(with: story.id)
     }
 }
