@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public enum ThumbnailWalletViewType {
+public enum ThumbnailWalletViewType: Equatable {
     case card(ThumbnailCardPathBuilder.FillColors)
     case twoCards(ThumbnailTwoCardsPathBuilder.FillColors)
     case threeCards(ThumbnailThreeCardsPathBuilder.FillColors)

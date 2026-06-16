@@ -16,5 +16,6 @@ extension Analytics {
 
     enum StoryType: String {
         case swap = "Swap"
+        case yieldFirstActivationAPYBoost = "Yield First Activation APY Boost"
     }
 }

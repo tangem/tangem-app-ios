@@ -35,7 +35,7 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
             principalContent
         }
         .padding(.horizontal, .unit(.x4))
-        .padding(.top, .unit(.x2))
+        .padding(.top, .unit(.x4))
         .padding(.bottom, .unit(.x3))
         .background(alignment: .top) {
             VariableBlur(direction: .down)
@@ -45,41 +45,3 @@ public struct NavigationHeader<L: View, P: View, T: View>: View {
         }
     }
 }
-
-// MARK: - Previews
-
-#if DEBUG
-#Preview {
-    VStack {
-        NavigationHeader(
-            leadingContent: {
-                TangemNavigationHeader.LeadingIcon()
-            },
-            principalContent: {
-                LoadableBalanceView(
-                    state: .loaded(text: .string("100 $")),
-                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                    loader: .init(size: CGSize(width: 102, height: 24), cornerRadius: 6),
-                    accessibilityIdentifier: .empty
-                )
-            },
-            trailingContent: {
-                TangemNavigationHeader.TrailingButtons(
-                    secondaryAction: TangemNavigationHeader.ActionInfo(
-                        action: {},
-                        accessibilityIdentifier: .empty,
-                        accessibilityLabel: .empty
-                    ),
-                    action: TangemNavigationHeader.ActionInfo(
-                        action: {},
-                        accessibilityIdentifier: .empty,
-                        accessibilityLabel: .empty
-                    )
-                )
-            }
-        )
-        Spacer()
-    }
-    .background(Color.Tangem.Surface.level1)
-}
-#endif

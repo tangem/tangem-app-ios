@@ -79,13 +79,9 @@ final class WalletConnectEventsService {
         })?.blockchain else { return }
 
         let accountIds = Set(
-            dApps.compactMap { dApp -> String? in
-                guard dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId }) else {
-                    return nil
-                }
-
-                return dApp.accountId
-            }
+            dApps
+                .filter { $0.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId }) }
+                .map(\.accountId)
         )
 
         guard accountIds.isNotEmpty else {

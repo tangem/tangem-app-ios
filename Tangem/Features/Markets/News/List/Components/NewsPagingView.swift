@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUI
 
 /// Horizontal pager for swiping between news cards (Apple Stocks-like behavior)
@@ -53,7 +54,11 @@ struct NewsPagingView<Content: View>: View {
             }
 
             if pageCount > 1 {
-                PageIndicatorView(totalPages: pageCount, currentIndex: currentIndex)
+                if FeatureProvider.isAvailable(.redesign) {
+                    PageIndicatorViewRedesign(totalPages: pageCount, currentIndex: currentIndex)
+                } else {
+                    PageIndicatorView(totalPages: pageCount, currentIndex: currentIndex)
+                }
             }
         }
     }
