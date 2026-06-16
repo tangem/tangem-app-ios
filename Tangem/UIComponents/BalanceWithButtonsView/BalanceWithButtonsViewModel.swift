@@ -11,7 +11,9 @@ import Combine
 import TangemFoundation
 import SwiftUI
 import TangemMacro
+import TangemLocalization
 
+// [REDACTED_INFO]: Delete when redesign toggle is removed
 enum BalancesState {
     case common(viewModel: CommonBalancesViewModel)
     case yield(viewModel: YieldBalancesViewModel)
@@ -150,7 +152,10 @@ extension BalanceWithButtonsViewModel {
         case available
 
         var title: String {
-            rawValue.capitalized
+            switch self {
+            case .all: Localization.commonAll
+            case .available: Localization.stakingDetailsAvailable
+            }
         }
     }
 }

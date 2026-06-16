@@ -37,20 +37,22 @@ final class TangemPayNotificationManager {
             .tangemPayAccountModelPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, accountModel -> AnyPublisher<[NotificationViewInput], Never> in
-                if let accountModel {
-                    accountModel.statePublisher
-                        .withWeakCaptureOf(manager)
-                        .map { manager, state in
-                            if let event = state.asNotificationEvent() {
-                                [manager.makeNotificationViewInput(event: event)]
-                            } else {
-                                []
-                            }
-                        }
-                        .eraseToAnyPublisher()
-                } else {
-                    Just([]).eraseToAnyPublisher()
+                guard let accountModel else {
+                    return Just([]).eraseToAnyPublisher()
                 }
+                return accountModel.statePublisher
+                    .withWeakCaptureOf(manager)
+                    .map { [weak accountModel] manager, state in
+                        let hasCachedAccount = accountModel?.lastKnownTangemPayAccount != nil
+                        if hasCachedAccount, state.isSyncNeeded || state.isUnavailable {
+                            return []
+                        }
+                        if let event = state.errorNotificationEvent(icon: manager.mainButtonIcon) {
+                            return [manager.makeNotificationViewInput(event: event)]
+                        }
+                        return []
+                    }
+                    .eraseToAnyPublisher()
             }
             .sink(receiveValue: notificationInputsSubject.send)
     }
@@ -85,27 +87,5 @@ extension TangemPayNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         // Notifications are not dismissable
-    }
-}
-
-// MARK: - TangemPayLocalState+notificationEvent
-
-private extension TangemPayLocalState {
-    func asNotificationEvent() -> TangemPayNotificationEvent? {
-        switch self {
-        case .unavailable:
-            .unavailable
-
-        case .loading,
-             .kycRequired,
-             .kycDeclined,
-             .issuingCard,
-             .failedToIssueCard,
-             .tangemPayAccount,
-             .cardDeactivated,
-             .syncNeeded,
-             .syncInProgress:
-            nil
-        }
     }
 }

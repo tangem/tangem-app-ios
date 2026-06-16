@@ -14,13 +14,13 @@ import TangemMacro
 indirect enum YieldModuleManagerState: Equatable {
     case disabled
     case loading(cachedState: YieldModuleManagerState?)
-    case notActive
+    case notActive(promoStatus: YieldPromoStatus)
     case processing(action: ProcessingAction)
-    case active(YieldSupplyInfo)
+    case active(info: YieldSupplyInfo, promoStatus: YieldPromoStatus)
     case failedToLoad(error: String, cachedState: YieldModuleManagerState?)
 
     var balance: Amount? {
-        if case .active(let value) = self {
+        if case .active(let value, _) = self {
             return value.balance
         }
         return nil
@@ -32,6 +32,14 @@ indirect enum YieldModuleManagerState: Equatable {
     }
 }
 
+enum YieldPromoStatus: Equatable {
+    /// Campaign not yet loaded, or this token is not part of the active promo.
+    case undefined
+    case notStarted
+    case active
+    case completed
+}
+
 struct YieldModuleManagerStateInfo: Equatable {
     let marketInfo: YieldModuleMarketInfo?
 
@@ -39,7 +47,7 @@ struct YieldModuleManagerStateInfo: Equatable {
 }
 
 extension YieldModuleManagerStateInfo {
-    static let empty = YieldModuleManagerStateInfo(marketInfo: nil, state: .notActive)
+    static let empty = YieldModuleManagerStateInfo(marketInfo: nil, state: .notActive(promoStatus: .undefined))
 }
 
 extension YieldModuleManagerState {
@@ -66,7 +74,7 @@ extension YieldModuleManagerState {
 
     var activeInfo: YieldSupplyInfo? {
         switch self {
-        case .active(let info):
+        case .active(let info, _):
             return info
         case .failedToLoad(_, let cached?):
             return cached.activeInfo

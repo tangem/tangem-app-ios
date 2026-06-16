@@ -2,6 +2,26 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>address_book_addresses</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>адрес</string>
+        <key>few</key>
+        <string>адреса</string>
+        <key>many</key>
+        <string>адресов</string>
+        <key>other</key>
+        <string>адресов</string>
+      </dict>
+    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -55,9 +75,9 @@
         <key>one</key>
         <string>%li день назад</string>
         <key>few</key>
-        <string></string>
+        <string>%li дня назад</string>
         <key>many</key>
-        <string></string>
+        <string>%li дней назад</string>
         <key>other</key>
         <string>%li дней назад</string>
       </dict>
@@ -468,13 +488,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Токен %li не совместим с этим адресом</string>
+        <string>%li токен не совместим с этим адресом</string>
         <key>few</key>
-        <string></string>
+        <string>%li токена не совместимы с этим адресом</string>
         <key>many</key>
-        <string>Токены %li не совместимы с этим адресом</string>
+        <string>%li токенов не совместимо с этим адресом</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>%li токены не совместимы с этим адресом</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -488,9 +508,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>карта</string>
+        <key>few</key>
+        <string>карты</string>
+        <key>many</key>
+        <string>карт</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>карты</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
