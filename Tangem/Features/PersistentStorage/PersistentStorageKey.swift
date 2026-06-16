@@ -14,7 +14,6 @@ enum PersistentStorageKey {
     case wallets(cid: String)
     /// - Note: Supersedes `wallets(cid:)`.
     case accounts(cid: String)
-    case allWalletConnectSessionsOld
     case walletConnectSessions
     case pendingExpressTransactions
     case pendingOnrampTransactions
@@ -29,8 +28,6 @@ enum PersistentStorageKey {
             return "wallets_\(cid)"
         case .accounts(let cid):
             return "accounts_\(cid)"
-        case .allWalletConnectSessionsOld:
-            return "wc_sessions"
         case .walletConnectSessions:
             return "wallet_connect_sessions"
         case .pendingExpressTransactions:
@@ -52,8 +49,6 @@ enum PersistentStorageKey {
     var shouldEnableCompleteFileProtection: Bool {
         switch self {
         case .accounts:
-            false
-        case .allWalletConnectSessionsOld:
             false
         case .onrampPreference:
             false

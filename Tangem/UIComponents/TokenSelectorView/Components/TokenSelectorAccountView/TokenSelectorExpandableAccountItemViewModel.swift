@@ -11,6 +11,7 @@ import Combine
 import TangemAccounts
 import TangemLocalization
 import TangemUI
+import TangemFoundation
 
 final class TokenSelectorExpandableAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - View State

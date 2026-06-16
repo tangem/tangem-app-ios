@@ -117,24 +117,12 @@ enum WalletConnectModuleFactory {
             uri: uri
         )
 
-        let migrationService = WalletConnectAccountMigrationService(
-            userWalletRepository: userWalletRepository,
-            connectedDAppRepository: connectedDAppRepository,
-            appSettings: AppSettings.shared
-        )
-
-        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
-            migrationService: migrationService,
-            logger: WCLogger
-        )
-
         let interactor = WalletConnectDAppConnectionInteractor(
             getDAppConnectionProposal: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchains: WalletConnectResolveAvailableBlockchainsUseCase(),
             approveDAppProposal: WalletConnectApproveDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
             rejectDAppProposal: WalletConnectRejectDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
-            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository),
-            migrateToAccounts: migrateToAccountsUseCase
+            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository)
         )
 
         let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()

@@ -13,7 +13,7 @@ import TangemFoundation
 
 class CommonPendingOnrampTransactionsManager {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
-    @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
+    @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
     private let tokenItem: TokenItem
@@ -33,7 +33,7 @@ class CommonPendingOnrampTransactionsManager {
 
     private let pendingTransactionsSubject = CurrentValueSubject<[PendingOnrampTransaction], Never>([])
 
-    private let terminalTransactions = ThreadSafeContainer<[PendingOnrampTransaction]>([])
+    private let terminalTransactionsStorage = TerminalTransactionsStorage()
     private var pollingInitiatingTask: Task<Void, Never>?
     private var pollingResultTask: Task<Void, Never>?
 
@@ -70,7 +70,7 @@ class CommonPendingOnrampTransactionsManager {
                 for: record
             )
 
-            pendingExpressTransactionAnalyticsTracker.trackStatusForOnrampTransaction(
+            await pendingExpressTransactionAnalyticsTracker.trackStatusForOnrampTransaction(
                 transactionId: pendingTransaction.transactionRecord.expressTransactionId,
                 tokenSymbol: tokenItem.currencySymbol,
                 currencySymbol: pendingTransaction.transactionRecord.fromCurrencyCode,
@@ -108,16 +108,16 @@ class CommonPendingOnrampTransactionsManager {
                 let previous = previousAndCurrentRequests.previous
                 let current = previousAndCurrentRequests.current
 
-                let nonTerminal = current.filter { !$0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
-                let terminal = current.filter { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
-                terminalTransactions.mutate { $0 = terminal }
+                let nonTerminalTransactions = current.filter { !$0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
+                let terminalTransactions = current.filter { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
+                await terminalTransactionsStorage.performIsolated { $0.transactions = terminalTransactions }
 
                 let shouldForceReload = previous?.count ?? 0 != current.count
-                await pollingService.startPolling(requests: nonTerminal, force: shouldForceReload)
+                await pollingService.startPolling(requests: nonTerminalTransactions, force: shouldForceReload)
 
                 // If there are no transactions to poll, send terminal-only or empty
-                if nonTerminal.isEmpty {
-                    pendingTransactionsSubject.send(terminal)
+                if nonTerminalTransactions.isEmpty {
+                    pendingTransactionsSubject.send(terminalTransactions)
                 }
             }
         }
@@ -129,7 +129,8 @@ class CommonPendingOnrampTransactionsManager {
                 guard let self else { return }
 
                 let polledTransactions = responses.map(\.data)
-                let allTransactions = (polledTransactions + terminalTransactions.read()).sorted(by: \.transactionRecord.date)
+                let terminalTransactions = await terminalTransactionsStorage.transactions
+                let allTransactions = (polledTransactions + terminalTransactions).sorted(by: \.transactionRecord.date)
                 let transactionsToUpdateInRepository = responses.compactMap { response in
                     response.hasChanges ? response.data.transactionRecord : nil
                 }
@@ -173,8 +174,18 @@ extension CommonPendingOnrampTransactionsManager: PendingExpressTransactionsMana
     }
 }
 
-extension CommonPendingOnrampTransactionsManager {
+// MARK: - Constants
+
+private extension CommonPendingOnrampTransactionsManager {
     enum Constants {
-        static let statusUpdateTimeout: Double = 10
+        static let statusUpdateTimeout: TimeInterval = 10
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CommonPendingOnrampTransactionsManager {
+    private actor TerminalTransactionsStorage {
+        var transactions: [PendingOnrampTransaction] = []
     }
 }
