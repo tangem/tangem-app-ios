@@ -155,6 +155,7 @@ enum NFTChainConverter {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .seiEvm:
             return nil
         }

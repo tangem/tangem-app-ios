@@ -25,9 +25,12 @@ struct MarketsRatingHeaderViewRedesign: View {
 
     private var orderButtonView: some View {
         TangemDropDown(
-            data: viewModel.marketListOrderTypeOptions,
-            selection: $viewModel.marketListOrderType
+            singleSelection: $viewModel.marketListOrderType,
+            in: viewModel.marketListOrderTypeOptions
         )
+        .accessibilityIdentifier { order in
+            MarketsAccessibilityIdentifiers.marketsSortOption(order.rawValue)
+        }
         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSortButton)
     }
 
@@ -36,5 +39,8 @@ struct MarketsRatingHeaderViewRedesign: View {
             data: viewModel.marketPriceIntervalTypeOptions,
             selection: $viewModel.marketPriceIntervalType
         )
+        .accessibilityIdentifier { interval in
+            MarketsAccessibilityIdentifiers.marketsIntervalSegment(interval.marketsAccessibilityId)
+        }
     }
 }

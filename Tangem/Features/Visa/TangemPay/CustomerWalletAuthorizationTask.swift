@@ -16,16 +16,13 @@ import TangemVisa
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
     private let customerWalletId: String
     private let authorizationService: TangemPayAuthorizationService
-    private let pendingDerivations: [Data: [DerivationPath]]
 
     public init(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService,
-        pendingDerivations: [Data: [DerivationPath]]
+        authorizationService: TangemPayAuthorizationService
     ) {
         self.customerWalletId = customerWalletId
         self.authorizationService = authorizationService
-        self.pendingDerivations = pendingDerivations
     }
 
     public func run(in session: CardSession, completion: @escaping CompletionResult<Response>) {
@@ -33,21 +30,16 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
             var derivationResult: DerivationResult = [:]
 
             do {
-                var combinedPendingDerivations = handler.pendingDerivations
-
                 let derivationPath = TangemPayUtilities.derivationPath
                 let wallets = session.environment.card?.wallets
-                let seedKey = wallets?.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey
 
-                // Proceed with derivation even without the TangemPay seed key,
-                // so that other pending derivations are not blocked
-                if let seedKey {
-                    combinedPendingDerivations[seedKey, default: []].append(derivationPath)
+                guard let seedKey = wallets?.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
+                    throw CustomerWalletAuthorizationTaskError.derivedKeyNotFound
                 }
 
-                derivationResult = try await DeriveMultipleWalletPublicKeysTask(combinedPendingDerivations).run(in: session)
+                derivationResult = try await DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]]).run(in: session)
 
-                guard let seedKey, let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
+                guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
                     throw CustomerWalletAuthorizationTaskError.derivedKeyNotFound
                 }
 

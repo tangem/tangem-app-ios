@@ -54,9 +54,6 @@ private extension SolanaTransactionHistoryMapper {
         switch amountType {
         case .coin, .reserve:
             amountDelta = solDelta(transaction: transaction, walletAddress: walletAddress)
-            if amountDelta == 0 {
-                return nil
-            }
 
             switch kind {
             case .transfer(let instruction):
@@ -143,9 +140,9 @@ private extension SolanaTransactionHistoryMapper {
                     return .transfer
                 }
 
-                return .contractMethodName(name: Constants.operationType)
+                return .unknownOperation
             case .otherOperation:
-                return .contractMethodName(name: Constants.operationType)
+                return .unknownOperation
             }
         }()
 
@@ -443,6 +440,5 @@ private extension SolanaTransactionHistoryMapper {
         static let stakeDelegateType = "delegate"
         static let stakeDeactivateType = "deactivate"
         static let withdrawType = "withdraw"
-        static let operationType = "operation"
     }
 }

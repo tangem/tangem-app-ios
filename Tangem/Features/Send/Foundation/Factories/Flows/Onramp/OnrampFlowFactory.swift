@@ -37,8 +37,13 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 
     lazy var buyActionBuilder = OnrampOfferViewModelBuyActionBuilder(
         geoEligibilityService: geoEligibilityService,
+        tokenItem: tokenItem,
         amountInput: onrampModel,
-        authorizationHandler: onrampModel
+        applePayPresenter: OnrampApplePayPresenter(
+            authorizationHandler: onrampModel,
+            analyticsLogger: analyticsLogger
+        ),
+        analyticsLogger: analyticsLogger
     )
 
     init(
@@ -146,7 +151,7 @@ extension OnrampFlowFactory: SendBaseBuildable {
             feeCurrencyProviderDataBuilder: EmptySendFeeCurrencyProviderDataBuilder(),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: sourceToken.tangemIconProvider
+            mainButtonUIOptionsProvider: OnrampSendMainButtonUIOptionsProvider()
         )
     }
 }
