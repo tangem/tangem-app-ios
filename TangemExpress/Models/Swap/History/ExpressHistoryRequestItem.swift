@@ -13,4 +13,10 @@ public struct ExpressHistoryRequestItem {
     public let cursor: Any?
 
     public let limit: Int?
+
+    public init(walletAddress: String, cursor: Any?, limit: Int?) {
+        self.walletAddress = walletAddress
+        self.cursor = cursor
+        self.limit = limit
+    }
 }
