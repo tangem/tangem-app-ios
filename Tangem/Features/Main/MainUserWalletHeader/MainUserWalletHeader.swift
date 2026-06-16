@@ -14,14 +14,9 @@ import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct MainUserWalletHeader: View {
-    let model: MainUserWalletHeaderModel
-
-    @ObservedObject private var headerViewModel: MainHeaderViewModel
-
-    init(model: MainUserWalletHeaderModel) {
-        self.model = model
-        headerViewModel = model.headerViewModel
-    }
+    @ObservedObject var headerViewModel: MainHeaderViewModel
+    let actionButtonsViewModel: ActionButtonsViewModel?
+    let showPagingIndicatorStub: Bool
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var height: CGFloat = .unit(.x12)
@@ -30,58 +25,21 @@ struct MainUserWalletHeader: View {
     var body: some View {
         VStack(spacing: 0) {
             balance
+                .padding(.bottom, Paddings.balanceBottom)
 
-            switch headerViewModel.subtitleViewState {
-            case .progress(let value):
-                RestoreProgressChip(progress: value)
-                    .padding(.top, .unit(.x3))
-            case .text:
-                walletNameWithThumbnail
-                    .padding(.top, .unit(.x3))
-            }
+            subtitle
+                .padding(.bottom, Paddings.subtitleBottom)
 
-            if let paginationState = model.paginationState {
-                TangemPagination(
-                    totalPages: paginationState.totalPages,
-                    currentIndex: paginationState.currentIndex
-                )
-                .pagerStationary()
-                .padding(.top, .unit(.x5))
-            }
+            pagingIndicatorStub
 
-            if let actionButtonsViewModel = model.actionButtonsViewModel {
+            if let actionButtonsViewModel {
                 RedesignActionButtonsView(viewModel: actionButtonsViewModel)
-                    .padding(.top, .unit(.x15))
+                    .padding(.top, .unit(.x11))
                     .padding(.bottom, .unit(.x6))
             }
         }
         .frame(maxWidth: .infinity)
         .animation(.easeInOut(duration: 0.2), value: subtitleAnimationKey)
-    }
-
-    private var subtitleAnimationKey: SubtitleAnimationKey {
-        switch headerViewModel.subtitleViewState {
-        case .text: .text
-        case .progress: .progress
-        }
-    }
-
-    private enum SubtitleAnimationKey {
-        case text
-        case progress
-    }
-
-    @ViewBuilder
-    private var walletNameWithThumbnail: some View {
-        HStack(spacing: SizeUnit.x1.value) {
-            Text(headerViewModel.userWalletName)
-                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
-
-            if let walletThumbnailType = headerViewModel.walletThumbnailType {
-                MiniatureWalletView(type: walletThumbnailType)
-                    .frame(width: thumbnailSize, height: thumbnailSize)
-            }
-        }
     }
 
     private var balance: some View {
@@ -100,6 +58,44 @@ struct MainUserWalletHeader: View {
         .lineLimit(1)
         .minimumScaleFactor(0.7)
         .frame(height: height)
+    }
+
+    @ViewBuilder
+    private var pagingIndicatorStub: some View {
+        if showPagingIndicatorStub {
+            Spacer(minLength: .zero)
+                .frame(height: Sizes.pagingIndicatorHeight)
+        }
+    }
+
+    @ViewBuilder
+    private var subtitle: some View {
+        switch headerViewModel.subtitleViewState {
+        case .progress(let value):
+            RestoreProgressChip(progress: value)
+
+        case .text:
+            walletNameWithThumbnail
+        }
+    }
+
+    private var walletNameWithThumbnail: some View {
+        HStack(spacing: SizeUnit.x1.value) {
+            Text(headerViewModel.userWalletName)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
+
+            if let walletThumbnailType = headerViewModel.walletThumbnailType {
+                MiniatureWalletView(type: walletThumbnailType)
+                    .frame(width: thumbnailSize, height: thumbnailSize)
+            }
+        }
+    }
+
+    private var subtitleAnimationKey: SubtitleAnimationKey {
+        switch headerViewModel.subtitleViewState {
+        case .text: .text
+        case .progress: .progress
+        }
     }
 }
 
@@ -209,6 +205,22 @@ private extension MainUserWalletHeader {
     }
 }
 
+extension MainUserWalletHeader {
+    private enum SubtitleAnimationKey {
+        case text
+        case progress
+    }
+
+    enum Paddings {
+        static let balanceBottom = CGFloat.unit(.x3)
+        static let subtitleBottom = CGFloat.unit(.x2)
+    }
+
+    enum Sizes {
+        static let pagingIndicatorHeight = CGFloat.unit(.x8)
+    }
+}
+
 // MARK: - Previews
 
 #if DEBUG
@@ -218,11 +230,11 @@ private extension MainUserWalletHeader {
 
     VStack(spacing: 20) {
         ForEach(provider.models.indices, id: \.self) { index in
-            MainUserWalletHeader(model: MainUserWalletHeaderModel(
+            MainUserWalletHeader(
                 headerViewModel: provider.models[index],
                 actionButtonsViewModel: nil,
-                paginationState: nil
-            ))
+                showPagingIndicatorStub: false
+            )
             .onTapGesture {
                 let infoProvider = provider.infoProviders[index]
                 infoProvider.tapAction(infoProvider)
