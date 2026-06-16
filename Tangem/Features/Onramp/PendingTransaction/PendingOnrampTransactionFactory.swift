@@ -67,11 +67,11 @@ struct PendingOnrampTransactionFactory {
             userWalletId: transactionRecord.destinationTokenTxInfo.userWalletId,
             tokenItem: transactionRecord.destinationTokenTxInfo.tokenItem,
             address: transactionRecord.destinationTokenTxInfo.address,
-            amountString: currentOnrampTransaction.toAmount.map(\.stringValue) ?? "",
+            amountString: currentOnrampTransaction.to.amount.map(\.stringValue) ?? "",
             isCustom: transactionRecord.destinationTokenTxInfo.isCustom
         )
-        transactionRecord.externalTxId = currentOnrampTransaction.externalTxId
-        transactionRecord.externalTxURL = currentOnrampTransaction.externalTxURL?.absoluteString
+        transactionRecord.externalTxId = currentOnrampTransaction.externalTx?.id
+        transactionRecord.externalTxURL = currentOnrampTransaction.externalTx?.url?.absoluteString
 
         return PendingOnrampTransaction(
             transactionRecord: transactionRecord,
