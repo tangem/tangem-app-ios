@@ -11,7 +11,7 @@ import Foundation
 /// An address entry whose signature has been verified. Its initializer is `fileprivate`, so the only
 /// way to obtain one is `AddressBookVerifiedAddressEntryBuilder` (declared alongside it): an unverified
 /// or forged entry cannot structurally reach the UI or the Send Flow.
-struct AddressBookVerifiedAddressEntry: Hashable {
+struct AddressBookVerifiedAddressEntry: AddressBookEntry {
     let id: AddressBookAddressEntryID
     let address: String
     let networkId: AddressBookNetworkID

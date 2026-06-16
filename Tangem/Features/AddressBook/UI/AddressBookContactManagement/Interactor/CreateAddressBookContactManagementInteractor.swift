@@ -51,8 +51,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         colorSubject.eraseToAnyPublisher()
     }
 
-    var addressesPublisher: AnyPublisher<[AddressBookEntryDraft], Never> {
-        addressesSubject.eraseToAnyPublisher()
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> {
+        addressesSubject.map { AddressBookContactDraftEntries($0) }.eraseToAnyPublisher()
     }
 
     var walletPublisher: AnyPublisher<WalletRowType?, Never> {
@@ -69,7 +69,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
-        addressesSubject.map { $0.count < 20 }.eraseToAnyPublisher()
+        addressesSubject.map { Set($0.map(\.address)).count < AddressBookContactDraftEntries.maxAddressCount }.eraseToAnyPublisher()
     }
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
@@ -99,6 +99,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     func add(entries: [AddressBookEntryDraft]) throws {
+        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+
         addressesSubject.value.append(contentsOf: entries)
     }
 
@@ -109,7 +111,11 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     func save() async throws {
         let name = try AddressBookContactNameValidator().validate(nameSubject.value)
 
-        try await addressBookManager.createContact(name: name, entries: addressesSubject.value)
+        guard let entries = AddressBookContactDraftEntries(addressesSubject.value) else {
+            throw AddressBookValidationError.noEntries
+        }
+
+        try await addressBookManager.createContact(name: name, entries: entries)
     }
 
     func delete() async throws {}
