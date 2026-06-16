@@ -8,4 +8,4 @@
 
 import Foundation
 
-public typealias ExchangeHistoryPage = TransactionHistoryPage<ExchangeHistoryRecord>
+public typealias ExchangeHistoryPage = TransactionHistoryPage<ExchangeTransaction>
