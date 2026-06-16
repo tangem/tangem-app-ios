@@ -14,7 +14,6 @@ import TangemLocalization
 import TangemUI
 
 final class CreateAddressBookContactManagementInteractor {
-    typealias DraftRow = AddressBookContactManagementViewModel.DraftRow
     typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
 
     @Injected(\.userWalletRepository)
@@ -22,7 +21,7 @@ final class CreateAddressBookContactManagementInteractor {
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
-    private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
+    private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
     private let walletId: UserWalletId
@@ -54,7 +53,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         colorSubject.eraseToAnyPublisher()
     }
 
-    var addressesPublisher: AnyPublisher<[DraftRow], Never> {
+    var addressesPublisher: AnyPublisher<[AddressBookEntryDraft], Never> {
         addressesSubject.eraseToAnyPublisher()
     }
 
@@ -101,11 +100,11 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         colorSubject.send(color)
     }
 
-    func add(address: DraftRow) throws {
-        addressesSubject.value.append(address)
+    func add(entries: [AddressBookEntryDraft]) throws {
+        addressesSubject.value.append(contentsOf: entries)
     }
 
-    func deleteAddress(id: String) {
+    func deleteAddress(id: AddressEntryID) {
         addressesSubject.value.removeAll { $0.id == id }
     }
 
@@ -115,11 +114,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         }
 
         let name = try ContactName(validating: nameSubject.value)
-        let entries = addressesSubject.value.map {
-            AddressBookEntryDraft(address: $0.address, networkId: AddressBookNetworkID("ethereum"), memo: nil)
-        }
 
-        try await addressBookManager.createContact(name: name, entries: entries)
+        try await addressBookManager.createContact(name: name, entries: addressesSubject.value)
     }
 
     func delete() async throws {}

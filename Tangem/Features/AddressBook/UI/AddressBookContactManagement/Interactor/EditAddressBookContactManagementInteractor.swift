@@ -14,7 +14,6 @@ import TangemLocalization
 import TangemUI
 
 final class EditAddressBookContactManagementInteractor {
-    typealias DraftRow = AddressBookContactManagementViewModel.DraftRow
     typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
 
     @Injected(\.userWalletRepository)
@@ -25,7 +24,7 @@ final class EditAddressBookContactManagementInteractor {
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
-    private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
+    private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
     private var addressBookManager: AddressBookManager? {
@@ -38,7 +37,9 @@ final class EditAddressBookContactManagementInteractor {
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
-        addressesSubject = .init(contact.entries.map { DraftRow(id: $0.id.stringValue, address: $0.address) })
+        addressesSubject = .init(contact.entries.map {
+            AddressBookEntryDraft(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo)
+        })
         walletSubject = .init(Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.userWalletInfo)
     }
 }
@@ -56,7 +57,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         colorSubject.eraseToAnyPublisher()
     }
 
-    var addressesPublisher: AnyPublisher<[DraftRow], Never> {
+    var addressesPublisher: AnyPublisher<[AddressBookEntryDraft], Never> {
         addressesSubject.eraseToAnyPublisher()
     }
 
@@ -105,11 +106,11 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         colorSubject.send(color)
     }
 
-    func add(address: DraftRow) throws {
-        addressesSubject.value.append(address)
+    func add(entries: [AddressBookEntryDraft]) throws {
+        addressesSubject.value.append(contentsOf: entries)
     }
 
-    func deleteAddress(id: String) {
+    func deleteAddress(id: AddressEntryID) {
         addressesSubject.value.removeAll { $0.id == id }
     }
 
@@ -128,7 +129,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         }
 
         let originalIds = Set(contact.entries.map(\.id))
-        let currentIds = Set(drafts.compactMap { UUID(uuidString: $0.id).map { AddressEntryID(rawValue: $0) } })
+        let currentIds = Set(drafts.map(\.id))
 
         // Remove entries the user deleted.
         for entry in contact.entries where !currentIds.contains(entry.id) {
@@ -140,13 +141,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
             try await addressBookManager.renameContact(id: contactId, to: name)
         }
 
-        // Add freshly entered addresses (drafts without an existing entry id).
-        let addedEntries = drafts
-            .filter { draft in
-                guard let uuid = UUID(uuidString: draft.id) else { return true }
-                return !originalIds.contains(AddressEntryID(rawValue: uuid))
-            }
-            .map { AddressBookEntryDraft(address: $0.address, networkId: AddressBookNetworkID("ethereum"), memo: nil) }
+        // Add freshly entered addresses (drafts whose id is not among the original entries).
+        let addedEntries = drafts.filter { !originalIds.contains($0.id) }
 
         if !addedEntries.isEmpty {
             try await addressBookManager.addEntries(addedEntries, toContactWith: contactId)
