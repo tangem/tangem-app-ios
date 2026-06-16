@@ -99,7 +99,7 @@ final class SwapModel {
 
         if shouldStartInitialLoading {
             Task.detached { [weak self] in
-                await self?.initialLoadingV2()
+                await self?.initialLoading()
             }
         }
 
@@ -900,7 +900,7 @@ extension SwapModel {
 // MARK: - Initial (pair) loading
 
 extension SwapModel {
-    private func initialLoadingV2() async {
+    private func initialLoading() async {
         switch (_sourceToken.value, _receiveToken.value) {
         case (.success, .success):
             swappingPairDidChange()
@@ -1463,10 +1463,10 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
-        swapSourceAndReceiveTokenV2()
+        swapSourceAndReceiveToken()
     }
 
-    private func swapSourceAndReceiveTokenV2() {
+    private func swapSourceAndReceiveToken() {
         let sourceResult = _sourceToken.value
         let receiveResult = _receiveToken.value
 
