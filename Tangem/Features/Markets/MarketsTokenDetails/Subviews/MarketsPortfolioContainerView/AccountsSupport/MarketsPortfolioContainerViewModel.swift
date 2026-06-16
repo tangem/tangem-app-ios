@@ -536,7 +536,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
             let helper = SwapPredefinedParametersHelper()
             guard let parameters = helper.makeParameters(
-                origin: .markets(walletModel: walletModel),
+                walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
                 return

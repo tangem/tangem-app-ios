@@ -284,7 +284,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(walletModel: walletModel),
+                walletModel: walletModel,
                 userWalletInfo: userWalletInfo
             ) else {
                 return
