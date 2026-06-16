@@ -24,6 +24,7 @@ extension OnrampSummaryInteractorSuggestedOffers {
 @CaseFlagable
 enum OnrampSummaryInteractorSuggestedOfferItem {
     case recent(OnrampProvider)
+    case nativeApplePay(OnrampProvider)
     case great(OnrampProvider)
     case fastest(OnrampProvider)
     case plain(OnrampProvider)
@@ -31,6 +32,7 @@ enum OnrampSummaryInteractorSuggestedOfferItem {
     var provider: OnrampProvider {
         switch self {
         case .recent(let provider): provider
+        case .nativeApplePay(let provider): provider
         case .great(let provider): provider
         case .fastest(let provider): provider
         case .plain(let provider): provider
