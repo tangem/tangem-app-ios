@@ -43,6 +43,7 @@ struct AddressBookAddAddressView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationTitle(Text(Localization.addressBookAddAddress))
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) { bottomButton }
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
@@ -63,5 +64,18 @@ struct AddressBookAddAddressView: View {
                     .frame(width: 20, height: 20)
             }
         }
+    }
+
+    private var bottomButton: some View {
+        TangemButton(
+            content: .text(AttributedString(Localization.addressBookAddAddress)),
+            action: viewModel.userDidRequestAddAddress
+        )
+        .setCornerStyle(.rounded)
+        .setHorizontalLayout(.infinity)
+        .setSize(.x12)
+        .setStyleType(.primary)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 }

@@ -47,6 +47,11 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     func userDidRequestNetworksChange() {
         // [REDACTED_TODO_COMMENT]
     }
+
+    func userDidRequestAddAddress() {
+        interactor.userDidRequestSave()
+        coordinator?.dismissAddAddress()
+    }
 }
 
 // MARK: - Private

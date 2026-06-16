@@ -12,6 +12,10 @@ import TangemFoundation
 import TangemLocalization
 import BlockchainSdk
 
+protocol AddressBookAddAddressOutput: AnyObject {
+    func userDidAddAddress(address: AddressBookContactManagementViewModel.DraftRow)
+}
+
 protocol AddressBookAddAddressInteractor {
     var addressValid: AnyPublisher<Bool, Never> { get }
     var addressError: AnyPublisher<String?, Never> { get }
@@ -21,11 +25,18 @@ protocol AddressBookAddAddressInteractor {
 
     func update(address: String, source: Analytics.DestinationAddressSource) async
     func update(additionalField: String)
+
+    func userDidRequestSave()
 }
 
 final class CommonAddressBookAddAddressInteractor {
     private let userWalletInfo: UserWalletInfo
+    private weak var output: AddressBookAddAddressOutput?
+
     private let addressResolver = AddressBlockchainResolver()
+
+    private let _address = CurrentValueSubject<String, Never>("")
+    private let _additionalField = CurrentValueSubject<SendDestinationAdditionalField, Never>(.notSupported)
 
     private let _addressValid = CurrentValueSubject<Bool, Never>(false)
     private let _addressError = CurrentValueSubject<Error?, Never>(nil)
@@ -33,8 +44,9 @@ final class CommonAddressBookAddAddressInteractor {
     private let _addressAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
 
-    init(userWalletInfo: UserWalletInfo) {
+    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput) {
         self.userWalletInfo = userWalletInfo
+        self.output = output
     }
 }
 
@@ -62,8 +74,8 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     func update(address: String, source: Analytics.DestinationAddressSource) async {
-        guard !address.trimmed().isEmpty else {
-            apply(networks: [], valid: false, error: nil)
+        guard !address.isEmpty else {
+            apply(address: address, networks: [], valid: false, error: nil)
             return
         }
 
@@ -73,39 +85,55 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
         )
 
         guard !networks.isEmpty else {
-            apply(networks: [], valid: false, error: AddressBookAddAddressError.invalidAddress)
+            apply(address: address, networks: [], valid: false, error: AddressBookAddAddressError.invalidAddress)
             return
         }
 
-        apply(networks: networks, valid: true, error: nil)
+        apply(address: address, networks: networks, valid: true, error: nil)
     }
 
     func update(additionalField value: String) {
-        guard let blockchain = _resolvedNetworks.value.singleElement, _additionalFieldType.value != nil else {
+        guard let blockchain = _resolvedNetworks.value.singleElement,
+              let fieldType = _additionalFieldType.value else {
+            _additionalField.send(.notSupported)
             _addressAdditionalFieldError.send(nil)
             return
         }
 
         guard !value.isEmpty else {
+            _additionalField.send(.empty(type: fieldType))
             _addressAdditionalFieldError.send(nil)
             return
         }
 
         do {
-            _ = try TransactionParamsBuilder(blockchain: blockchain).transactionParameters(value: value)
+            let params = try TransactionParamsBuilder(blockchain: blockchain).transactionParameters(value: value)
+            _additionalField.send(.filled(type: fieldType, value: value, params: params))
             _addressAdditionalFieldError.send(nil)
+
         } catch TransactionParamsBuilderError.extraIdNotSupported {
+            _additionalField.send(.notSupported)
             _addressAdditionalFieldError.send(nil)
+
         } catch {
+            _additionalField.send(.notSupported)
             _addressAdditionalFieldError.send(error)
         }
+    }
+
+    func userDidRequestSave() {
+        let draft = AddressBookContactManagementViewModel
+            .DraftRow(id: UUID().uuidString, address: _address.value)
+
+        output?.userDidAddAddress(address: draft)
     }
 }
 
 // MARK: - Private
 
 private extension CommonAddressBookAddAddressInteractor {
-    func apply(networks: Set<BSDKBlockchain>, valid: Bool, error: Error?) {
+    func apply(address: String, networks: Set<BSDKBlockchain>, valid: Bool, error: Error?) {
+        _address.send(address)
         _resolvedNetworks.send(networks)
         _addressValid.send(valid)
         _addressError.send(error)

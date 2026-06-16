@@ -196,7 +196,7 @@ private extension AddressBookContactManagementViewModel {
             return
         }
 
-        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo)
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self)
     }
 
     func deleteRow(id: String) {
@@ -214,9 +214,7 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.save()
             coordinator?.dismissContactManagement()
         } catch {
-            guard !error.isCancellationError else { return }
-
-            presentGenericError()
+            presentGenericError(message: error.localizedDescription)
         }
     }
 
@@ -231,14 +229,24 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.delete()
             coordinator?.dismissContactManagement()
         } catch {
-            guard !error.isCancellationError else { return }
-
-            presentGenericError()
+            presentGenericError(message: error.localizedDescription)
         }
     }
 
-    func presentGenericError() {
-        errorAlert = AlertBinder(title: Localization.commonError, message: Localization.commonUnknownError)
+    func presentGenericError(message: String) {
+        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+    }
+}
+
+// MARK: - AddressBookAddAddressOutput
+
+extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
+    func userDidAddAddress(address: DraftRow) {
+        do {
+            try interactor.add(address: address)
+        } catch {
+            presentGenericError(message: error.localizedDescription)
+        }
     }
 }
 
