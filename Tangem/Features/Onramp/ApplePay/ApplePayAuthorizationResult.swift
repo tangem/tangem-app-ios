@@ -29,6 +29,8 @@ struct ApplePayAuthorizationResult {
     }
 
     func fail(_ error: Error? = nil) {
-        resultHandler(.init(status: .failure, errors: error.map { [$0] }))
+        // Drop anything that isn't a PassKit error.
+        let errors: [Error]? = error.flatMap { $0.isPassKitError ? [$0] : nil }
+        resultHandler(.init(status: .failure, errors: errors))
     }
 }

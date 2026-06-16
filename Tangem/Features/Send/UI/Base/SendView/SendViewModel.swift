@@ -48,10 +48,9 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
-    let tangemIconProvider: TangemIconProvider
-
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
+    private let mainButtonUIOptionsProvider: any SendMainButtonUIOptionsProvider
     private let alertBuilder: SendAlertBuilder
     private let mailDataBuilder: SendMailDataBuilder
     private let approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder
@@ -66,28 +65,29 @@ final class SendViewModel: ObservableObject {
     private var isValidSubscription: AnyCancellable?
     private var isUpdatingSubscription: AnyCancellable?
     private var isValidContinueSubscription: AnyCancellable?
+    private var navigationBarRefreshSubscription: AnyCancellable?
 
     init(
         interactor: SendBaseInteractor,
         stepsManager: SendStepsManager,
+        mainButtonUIOptionsProvider: any SendMainButtonUIOptionsProvider,
         alertBuilder: SendAlertBuilder,
         mailDataBuilder: SendMailDataBuilder,
         approveViewModelInputDataBuilder: SendApproveViewModelInputDataBuilder,
         feeCurrencyProviderDataBuilder: SendFeeCurrencyProviderDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
         blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
-        tangemIconProvider: TangemIconProvider,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
         self.stepsManager = stepsManager
+        self.mainButtonUIOptionsProvider = mainButtonUIOptionsProvider
         self.alertBuilder = alertBuilder
         self.mailDataBuilder = mailDataBuilder
         self.approveViewModelInputDataBuilder = approveViewModelInputDataBuilder
         self.feeCurrencyProviderDataBuilder = feeCurrencyProviderDataBuilder
         self.analyticsLogger = analyticsLogger
         self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
-        self.tangemIconProvider = tangemIconProvider
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
@@ -122,11 +122,6 @@ final class SendViewModel: ObservableObject {
         case .close:
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
-    }
-
-    func needsHoldAction(mainButtonType: SendMainButtonType) -> Bool {
-        guard case .action(let needsHold) = mainButtonType else { return false }
-        return needsHold && flowActionType != .approve
     }
 
     func userDidTapBackButton() {
@@ -168,6 +163,14 @@ final class SendViewModel: ObservableObject {
         case .some(let mainButtonType):
             coordinator?.dismiss(reason: .mainButtonTap(type: mainButtonType))
         }
+    }
+
+    func mainButtonNeedsHoldAction(mainButtonType: SendMainButtonType) -> Bool {
+        mainButtonUIOptionsProvider.mainButtonNeedsHoldAction(mainButtonType: mainButtonType, flowActionType: flowActionType)
+    }
+
+    func mainButtonIcon(mainButtonType: SendMainButtonType) -> MainButton.Icon? {
+        mainButtonUIOptionsProvider.mainButtonIcon(mainButtonType: mainButtonType, flowActionType: flowActionType)
     }
 }
 
@@ -287,6 +290,14 @@ private extension SendViewModel {
         isUpdatingSubscription = step.isUpdatingPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.mainButtonUpdating, on: self, ownership: .weak)
+
+        navigationBarRefreshSubscription = nil
+        if case .swap(let swapViewModel) = step.type {
+            navigationBarRefreshSubscription = swapViewModel.$formVariant
+                .dropFirst()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in self?.objectWillChange.send() }
+        }
     }
 
     func bind() {

@@ -57,6 +57,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         asset.name
     }
 
+    var allAddresses: [Address] {
+        mainTokenWalletModel.allAddresses
+    }
+
     var addresses: [Address] {
         mainTokenWalletModel.addresses
     }
@@ -328,8 +332,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.canFetchHistory
     }
 
-    func clearHistory() {
-        mainTokenWalletModel.clearHistory()
+    func clearHistory() async {
+        await mainTokenWalletModel.clearHistory()
     }
 
     var stakingManagerState: StakingManagerState {
