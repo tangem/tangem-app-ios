@@ -95,6 +95,7 @@ struct TransactionDispatcherProviderStub: TransactionDispatcherProvider {
     func makeTransferTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeApproveTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
+    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeCEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }

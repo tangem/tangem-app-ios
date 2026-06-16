@@ -329,12 +329,12 @@ extension Analytics {
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapButtonPermissionLearnMore = "[Swap] Button - Permission Learn More"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
+        case swapGasEstimationOverrideError = "[Swap] Gas Estimation Override Error"
 
         case swapProviderClicked = "[Swap] Provider Clicked"
         case swapProviderChosen = "[Swap] Provider Chosen"
         case swapButtonStatus = "[Swap] Button - Status"
         case swapButtonExplore = "[Swap] Button - Explore"
-        case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeNotEnoughFunds = "[Swap] Notice - Not Enough Funds"
@@ -476,6 +476,9 @@ extension Analytics {
         case notificationSettingsScreenOpened = "[Push] Notification Settings Screen Opened"
         case pushNotificationSettingsToggleClicked = "[Push] Toggle Clicked"
         case pushBannerOpenSettingsTapped = "[Push] Banner - Open Settings Tapped"
+        case warningScreenShown = "[Warning Screen] Shown"
+        case warningScreenEnableTapped = "[Warning Screen] Enable Tapped"
+        case warningScreenSkipTapped = "[Warning Screen] Skip Tapped"
 
         // MARK: - Staking
 
@@ -499,6 +502,7 @@ extension Analytics {
         case stakingConfirmationScreenOpened = "[Staking] Confirmation Screen Opened"
         case stakingErrors = "[Staking] Errors"
         case stakingErrorTransactionRejected = "[Staking] Error - Transaction Rejected"
+        case stakingErrorSumLimit = "[Staking] Error - Sum Limit"
         case stakingAppErrors = "[Staking] App Errors"
         case stakingSelectedCurrency = "[Staking] Selected Currency"
         case stakingButtonShare = "[Staking] Button - Share"

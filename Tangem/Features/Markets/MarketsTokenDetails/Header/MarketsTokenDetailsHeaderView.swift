@@ -95,6 +95,8 @@ private extension MarketsTokenDetailsHeaderView {
                 .animation(.none, value: priceDate)
             }
         }
+        // The price → date spacing is 16pt per design; the surrounding VStack already adds 4pt.
+        .padding(.top, .unit(.x3))
     }
 }
 

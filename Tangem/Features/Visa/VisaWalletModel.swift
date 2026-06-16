@@ -233,6 +233,8 @@ extension VisaWalletModel: WalletModel {
         tokenItem.name
     }
 
+    var allAddresses: [Address] { [] }
+
     var addresses: [Address] { [] }
 
     var defaultAddress: Address {

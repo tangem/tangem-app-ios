@@ -85,6 +85,7 @@ extension Analytics {
         case tokenChosen = "Token Chosen"
         case availableTokens = "Available tokens"
         case provider = "Provider"
+        case rpcProvider = "RPC Provider"
         case rateType = "Rate Type"
         case commission = "Commission"
         case place = "Place"
@@ -179,5 +180,11 @@ extension Analytics {
         case swapType = "Swap type"
         case typeFrom = "Type from"
         case typeTo = "Type to"
+
+        // MARK: - Push notifications warning screen
+
+        case variant
+        case zone
+        case walletId = "wallet_id"
     }
 }

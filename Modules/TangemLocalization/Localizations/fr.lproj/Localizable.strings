@@ -214,6 +214,7 @@
 "common_attention" = "Attention";
 "common_available_networks" = "Réseaux disponibles";
 "common_back" = "Retour";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Sauvegarde";
 "common_balance_title" = "Solde";
 "common_balance" = "Solde : %@";
@@ -245,6 +246,7 @@
 "common_copy" = "Copier";
 "common_create" = "Créer";
 "common_custom" = "Personnalisé";
+"common_delete" = "Supprimer";
 "common_disable" = "Désactiver";
 "common_disabled" = "Désactivé";
 "common_disabling" = "Disabling";
@@ -1263,6 +1265,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Les récompenses s'accumulent automatiquement sur votre solde de staking quotidiennement.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Les récompenses sont ajoutées à votre solde de staking. Fonds gagnés : %@";
 "staking_details_available" = "Disponible";
 "staking_details_average_reward_rate" = "Taux de récompense moyen";
@@ -1675,6 +1679,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Impossible de couvrir les frais";
 "tangempay_reissue_card_insufficient_funds" = "Fonds insuffisants pour réémettre la carte";
 "tangempay_reissue_card_title" = "Réémettre votre carte ?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Nous réparons un problème technique. Veuillez réessayer plus tard.";
 "tangempay_service_unavailable_title" = "Service temporairement indisponible";
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
@@ -2087,6 +2094,7 @@
 "wc_all_dapps_disconnected" = "Toutes les dApps sont déconnectées";
 "wc_allow_to_spend" = "Autoriser à dépenser";
 "wc_approve_description" = "En approuvant, vous autorisez la dApp ou le contrat intelligent à utiliser les jetons dans de futures transactions.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Adresse";
 "wc_common_connect" = "Connecter";
 "wc_common_loading" = "Chargement";

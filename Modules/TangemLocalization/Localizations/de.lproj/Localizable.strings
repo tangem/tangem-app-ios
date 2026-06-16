@@ -214,6 +214,7 @@
 "common_attention" = "Achtung";
 "common_available_networks" = "Verfügbare Netzwerke";
 "common_back" = "Zurück";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Sicherungskopie";
 "common_balance_title" = "Saldo";
 "common_balance" = "Bilanz: %@";
@@ -245,6 +246,7 @@
 "common_copy" = "Kopieren";
 "common_create" = "Erstellen";
 "common_custom" = "Eigen";
+"common_delete" = "Entfernen";
 "common_disable" = "Deaktivieren";
 "common_disabled" = "Deaktiviert";
 "common_disabling" = "Deaktivieren";
@@ -1263,6 +1265,8 @@
 "staking_details_apr" = "Effektiver Jahreszins";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Belohnungen sammeln sich täglich automatisch in deinem Staking-Konto an.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Die Belohnungen werden auf Dein Stakingguthaben aufgezinst. Verdiente Gelder: %@";
 "staking_details_available" = "Verfügbar";
 "staking_details_average_reward_rate" = "Durchschnittliche Belohnungsquote";
@@ -1675,6 +1679,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Gebühr kann nicht gedeckt werden";
 "tangempay_reissue_card_insufficient_funds" = "Unzureichendes Guthaben, um die Karte neu auszustellen";
 "tangempay_reissue_card_title" = "Ihre Karte neu ausstellen?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
@@ -2087,6 +2094,7 @@
 "wc_all_dapps_disconnected" = "Alle dApps getrennt";
 "wc_allow_to_spend" = "Erlaubnis auszugeben";
 "wc_approve_description" = "Durch die Genehmigung erlaubst Du dApps oder Smart Contracts, Token in zukünftigen Transaktionen zu verwenden.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Vertragsadresse";
 "wc_common_connect" = "Verbinden";
 "wc_common_loading" = "Laden";

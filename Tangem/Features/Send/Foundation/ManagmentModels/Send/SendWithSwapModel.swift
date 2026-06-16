@@ -415,6 +415,22 @@ extension SendWithSwapModel: SendSwapProvidersOutput {
     }
 }
 
+// MARK: - SwapApproveInput
+
+extension SendWithSwapModel: SwapApproveInput {
+    var approvePolicy: BSDKApprovePolicy {
+        swapModel.approvePolicy
+    }
+}
+
+// MARK: - SwapApproveOutput
+
+extension SendWithSwapModel: SwapApproveOutput {
+    func userDidSelectApprovePolicy(_ policy: BSDKApprovePolicy) {
+        swapModel.userDidSelectApprovePolicy(policy)
+    }
+}
+
 // MARK: - SendFeeUpdater
 
 extension SendWithSwapModel: SendFeeUpdater {

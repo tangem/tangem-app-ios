@@ -17,6 +17,7 @@ struct SendSwapProvidersSelectorProviderViewData: Identifiable {
     let isDisabled: Bool
     let badge: Badge?
     let subtitles: [Subtitle]
+    let showTrailingSettingsButton: Bool
 }
 
 extension SendSwapProvidersSelectorProviderViewData {

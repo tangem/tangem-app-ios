@@ -23,7 +23,6 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private(set) lazy var expressManager = makeExpressManager()
-    private(set) lazy var expressDestinationService = makeExpressDestinationService()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
@@ -38,12 +37,11 @@ private extension CommonExpressDependenciesFactory {
     func makeExpressManager() -> ExpressManager {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
-            expressRepository: swapRepository
+            expressRepository: swapRepository,
+            featureFlags: ExpressFeatureFlags(
+                isApproveWithSwapEnabled: FeatureProvider.isAvailable(.approveFlowV2)
+            )
         )
-    }
-
-    func makeExpressDestinationService() -> ExpressDestinationService {
-        CommonExpressDestinationService()
     }
 
     func makeExpressAPIProvider() -> ExpressAPIProvider {

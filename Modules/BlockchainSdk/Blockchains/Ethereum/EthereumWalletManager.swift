@@ -74,7 +74,7 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         let fromPublisher = addressConverter.convertToETHAddressPublisher(defaultSourceAddress)
         let destinationPublisher = addressConverter.convertToETHAddressPublisher(destination)
@@ -338,7 +338,7 @@ private extension EthereumWalletManager {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         return networkService.getEIP1559Fee(
             to: destination,
@@ -388,7 +388,7 @@ private extension EthereumWalletManager {
         destination: String,
         value: String?,
         data: Data?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<[Fee], Error> {
         return networkService.getLegacyFee(
             to: destination,
@@ -439,7 +439,7 @@ private extension EthereumWalletManager {
         .map { [wallet] fees in
             fees.map {
                 $0.increasingGasLimit(
-                    byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                    byPercents: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent,
                     blockchain: wallet.blockchain,
                     decimalValue: wallet.blockchain.decimalValue
                 )
@@ -550,12 +550,13 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         destination: String,
         value: String?,
         data: Data?,
+        stateOverride: EthereumStateOverride?,
         otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee {
         // Get fee for the transaction using pre-built calldata. Pick the market fee (index 1).
-        let fees = try await getFee(destination: destination, value: value, data: data).async()
+        let fees = try await getFee(destination: destination, value: value, data: data, stateOverride: stateOverride).async()
 
         guard let params = fees[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee

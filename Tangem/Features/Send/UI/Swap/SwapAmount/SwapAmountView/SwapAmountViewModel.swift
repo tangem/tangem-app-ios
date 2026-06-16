@@ -87,14 +87,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         // Buttons updating
         interactor.receivedTokenPublisher
             .map { result in
-                if FeatureProvider.isAvailable(.swapPipelineV2) {
-                    return result.isLoading
-                }
-
-                // below save old logic
-                let hasToken = result.value as? SendSourceToken != nil
-                let isDisabled = result.isLoading || !hasToken
-                return isDisabled
+                result.isLoading
             }
             .removeDuplicates()
             .receiveOnMain()
@@ -154,13 +147,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapChangeSourceTokenButton() {
         let receiveToken = receiveTokenInput?.receiveToken.value?.tokenItem
-
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
-            return
-        }
-
-        guard receiveToken != nil else { return }
         router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
     }
 
@@ -171,13 +157,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapChangeReceiveTokenButton() {
         let sourceToken = sourceTokenInput?.sourceToken.value?.tokenItem
-
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
-            return
-        }
-
-        guard sourceToken != nil else { return }
         router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
     }
 
@@ -228,10 +207,7 @@ private extension SwapAmountViewModel {
     }
 
     func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
-        sourceExpressCurrencyViewModel.update(
-            wallet: sourceToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: .init(tokenItem: initialTokenItem)
-        )
+        sourceExpressCurrencyViewModel.update(wallet: sourceToken.mapValue { $0 as SendGenericToken })
 
         switch sourceToken {
         case .loading:
@@ -274,10 +250,7 @@ private extension SwapAmountViewModel {
         receiveToken: LoadingResult<SendReceiveToken, any Error>,
         isApproximate: Bool
     ) {
-        receiveExpressCurrencyViewModel.update(
-            wallet: receiveToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: .init(tokenItem: initialTokenItem)
-        )
+        receiveExpressCurrencyViewModel.update(wallet: receiveToken.mapValue { $0 as SendGenericToken })
 
         switch (receiveToken, amount) {
         case (.loading, _), (_, .loading):

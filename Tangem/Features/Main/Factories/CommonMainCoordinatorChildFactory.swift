@@ -17,16 +17,6 @@ final class CommonMainCoordinatorChildFactory: MainCoordinatorChildFactory {
         ActionButtonsBuyCoordinator(dismissAction: dismissAction)
     }
 
-    func makeSwapCoordinator(
-        userWalletModel: UserWalletModel,
-        dismissAction: @escaping Action<FeeCurrencyNavigatingDismissOption?>,
-    ) -> ActionButtonsSwapCoordinator {
-        ActionButtonsSwapCoordinator(
-            userWalletModel: userWalletModel,
-            dismissAction: dismissAction
-        )
-    }
-
     func makeSellCoordinator(
         userWalletModel: UserWalletModel,
         dismissAction: @escaping Action<ActionButtonsSendToSellModel?>
