@@ -46,15 +46,15 @@ struct LoadableBalanceViewStateBuilder {
     func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
-            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance)
+            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance, formattingOptions: .defaultOptions)
             return .loading(cached: .attributed(attributed)) // Shining text
         case .loading(.empty):
             return .loading(cached: .none) // Usual skeleton
         case .failure(let cachedType):
-            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cachedType.value)
+            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cachedType.value, formattingOptions: .defaultOptions)
             return .failed(cached: .attributed(attributed), icon: .none)
         case .loaded(let string):
-            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: string)
+            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: string, formattingOptions: .defaultOptions)
             return .loaded(text: .attributed(attributed))
         }
     }
