@@ -30,12 +30,12 @@ public struct OnrampNativePaymentRequestItem {
 
 public extension OnrampNativePaymentRequestItem {
     struct UserData {
-        public let email: String?
+        public let email: String
         public let firstName: String?
         public let lastName: String?
         public let billingAddress: BillingAddress?
 
-        public init(email: String?, firstName: String?, lastName: String?, billingAddress: BillingAddress?) {
+        public init(email: String, firstName: String?, lastName: String?, billingAddress: BillingAddress?) {
             self.email = email
             self.firstName = firstName
             self.lastName = lastName
@@ -44,30 +44,21 @@ public extension OnrampNativePaymentRequestItem {
     }
 
     struct BillingAddress {
-        public let street: String?
         public let city: String?
-        public let subAdministrativeArea: String?
         public let state: String?
         public let postalCode: String?
         public let country: String?
-        public let isoCountryCode: String?
 
         public init(
-            street: String?,
             city: String?,
-            subAdministrativeArea: String?,
             state: String?,
             postalCode: String?,
-            country: String?,
-            isoCountryCode: String?
+            country: String?
         ) {
-            self.street = street
             self.city = city
-            self.subAdministrativeArea = subAdministrativeArea
             self.state = state
             self.postalCode = postalCode
             self.country = country
-            self.isoCountryCode = isoCountryCode
         }
     }
 }

@@ -48,6 +48,8 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
                 providerView
 
+                viewModel.ratingViewModel.map(RatingView.init)
+
                 statusesView
 
                 ForEach(viewModel.notificationViewInputs) {
