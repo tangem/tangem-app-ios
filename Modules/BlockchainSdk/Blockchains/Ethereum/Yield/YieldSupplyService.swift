@@ -22,6 +22,19 @@ public protocol YieldSupplyService {
     func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount
     func getBalances(address: String, tokens: [Token]) async -> [Token: Result<Amount, Error>]
     func allowance(tokenContractAddress: String) async throws -> String
+
+    func makeVersionChecker() -> YieldModuleVersionChecker?
+    func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider?
+}
+
+public extension YieldSupplyService {
+    func makeVersionChecker() -> YieldModuleVersionChecker? { nil }
+    func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider? { nil }
+}
+
+public protocol YieldModuleSwapExecutionRegistryProvider {
+    func isAllowedSpender(_ spender: String) async throws -> Bool
+    func isAllowedTarget(_ target: String) async throws -> Bool
 }
 
 public final class EthereumYieldSupplyService: YieldSupplyService {
@@ -65,7 +78,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
 
             let result = try await networkService.ethCall(request: request).async()
 
-            guard let yieldContract = extractAddress(from: result) else {
+            guard let yieldContract = YieldModuleUtils.parseEthereumAddress(result) else {
                 throw YieldModuleError.noYieldContractFound
             }
 
@@ -93,7 +106,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
 
         let result = try await networkService.ethCall(request: request).async()
 
-        guard let yieldContract = extractAddress(from: result) else {
+        guard let yieldContract = YieldModuleUtils.parseEthereumAddress(result) else {
             throw YieldModuleError.noYieldContractFound
         }
 
@@ -202,31 +215,80 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
             contractAddress: tokenContractAddress
         ).async()
     }
+
+    public func makeVersionChecker() -> YieldModuleVersionChecker? {
+        guard let factoryAddress = try? contractAddressFactory.getYieldSupplyContractAddresses().factoryContractAddress else {
+            return nil
+        }
+
+        return CommonYieldModuleVersionChecker(
+            networkService: networkService,
+            blockchain: wallet.blockchain,
+            walletAddress: wallet.defaultAddress.value,
+            factoryContractAddress: factoryAddress,
+            dataStorage: dataStorage
+        )
+    }
+
+    public func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider? {
+        guard let registryAddress = try? contractAddressFactory.getYieldSupplyContractAddresses().swapExecutionRegistryContractAddress else {
+            return nil
+        }
+
+        return CommonYieldModuleSwapExecutionRegistryProvider(
+            networkService: networkService,
+            registryAddress: registryAddress
+        )
+    }
 }
 
-private extension EthereumYieldSupplyService {
-    func extractAddress(from hexString: String) -> String? {
-        let noHexPrefixString = hexString.removeHexPrefix()
+private final class CommonYieldModuleSwapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider {
+    private let networkService: EthereumNetworkService
+    private let registryAddress: String
 
-        let isZeroChar: ((Character) -> Bool) = { $0 == "0" }
-
-        guard noHexPrefixString.count >= Constants.ethereumAddressLength else {
-            return nil
-        }
-
-        // must be all zeros
-        let prefixToDrop = String(noHexPrefixString.prefix(noHexPrefixString.count - Constants.ethereumAddressLength))
-
-        // must be non-zero
-        let addressPart = String(noHexPrefixString.suffix(Constants.ethereumAddressLength))
-
-        guard prefixToDrop.allSatisfy(isZeroChar),
-              !addressPart.allSatisfy(isZeroChar) else {
-            return nil
-        }
-
-        return addressPart.addHexPrefix()
+    init(networkService: EthereumNetworkService, registryAddress: String) {
+        self.networkService = networkService
+        self.registryAddress = registryAddress
     }
+
+    func isAllowedSpender(_ spender: String) async throws -> Bool {
+        try await isAllowed(method: AllowedSpenderMethod(spender: spender))
+    }
+
+    func isAllowedTarget(_ target: String) async throws -> Bool {
+        try await isAllowed(method: AllowedTargetMethod(target: target))
+    }
+
+    private func isAllowed(method: SmartContractMethod) async throws -> Bool {
+        let request = YieldSmartContractRequest(contractAddress: registryAddress, method: method)
+        let result = try await networkService.ethCall(request: request).async()
+
+        guard let value = BigUInt(result.removeHexPrefix(), radix: 16) else {
+            throw YieldModuleError.unableToParseData
+        }
+
+        return value == 1
+    }
+}
+
+private struct AllowedSpenderMethod {
+    let spender: String
+}
+
+extension AllowedSpenderMethod: SmartContractMethod {
+    /// - Note: First 4 bytes of Keccak-256 hash for `allowedSpenders(address)`.
+    var methodId: String { "0xd8528af0" }
+    var data: Data { defaultData() }
+}
+
+private struct AllowedTargetMethod {
+    let target: String
+}
+
+extension AllowedTargetMethod: SmartContractMethod {
+    /// - Note: First 4 bytes of Keccak-256 hash for `allowedTargets(address)`.
+    var methodId: String { "0xb8fe8d5f" }
+    var data: Data { defaultData() }
 }
 
 private extension EthereumYieldSupplyService {
@@ -273,7 +335,6 @@ private extension EthereumYieldSupplyService {
 extension EthereumYieldSupplyService {
     enum Constants {
         static let yieldContractAddressStorageKey = "yieldContractAddressStorageKey"
-        static let ethereumAddressLength = 40
     }
 }
 

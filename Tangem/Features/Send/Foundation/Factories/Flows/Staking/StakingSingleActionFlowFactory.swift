@@ -94,7 +94,6 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             action: action
         )
 
@@ -126,7 +125,7 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: stakingableToken.tangemIconProvider
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: actionModel)
         )
     }
 }

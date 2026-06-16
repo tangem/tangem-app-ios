@@ -16,10 +16,14 @@ typealias TangemPayTransactionRecord = TangemPayTransactionHistoryResponse.Trans
 
 final class TangemPayTransactionHistoryService {
     private let apiService: CustomerInfoManagementService
+    private let cacheStorage: TangemPayTransactionHistoryCacheStorage?
+    private let customerWalletId: String?
     private let mapper = TangemPayTransactionHistoryMapper()
 
     private let stateSubject = CurrentValueSubject<TransactionsListView.State, Never>(.loading)
     private let taskProcessor = SingleTaskProcessor<Void, Never>()
+
+    private var bag = Set<AnyCancellable>()
 
     @MainActor
     private(set) var reachedEndOfHistoryList: Bool = false
@@ -27,8 +31,50 @@ final class TangemPayTransactionHistoryService {
     @MainActor
     private(set) var records: [TangemPayTransactionRecord] = []
 
-    init(apiService: CustomerInfoManagementService) {
+    init(
+        apiService: CustomerInfoManagementService,
+        cacheStorage: TangemPayTransactionHistoryCacheStorage? = nil,
+        customerWalletId: String? = nil,
+        isTangemPayUnavailablePublisher: AnyPublisher<Bool, Never>
+    ) {
         self.apiService = apiService
+        self.cacheStorage = cacheStorage
+        self.customerWalletId = customerWalletId
+
+        Task { @MainActor [weak self] in
+            self?.applyCachedRecordsIfNeeded()
+        }
+
+        isTangemPayUnavailablePublisher
+            .filter { $0 }
+            .removeDuplicates()
+            .receiveOnMain()
+            .sink { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.applyCachedRecordsIfNeeded()
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func loadCachedRecords() -> [TangemPayTransactionRecord]? {
+        guard let cacheStorage, let customerWalletId else { return nil }
+        return cacheStorage.cachedTransactions(customerWalletId: customerWalletId)
+    }
+
+    @MainActor
+    private func applyCachedRecordsIfNeeded() {
+        guard records.isEmpty, let cached = loadCachedRecords(), !cached.isEmpty else {
+            return
+        }
+        records = cached
+        stateSubject.send(.loaded(mapper.formatTransactions(records)))
+    }
+
+    @MainActor
+    private func storeCacheIfPossible() {
+        guard let cacheStorage, let customerWalletId, !records.isEmpty else { return }
+        cacheStorage.saveCachedTransactions(records, customerWalletId: customerWalletId)
     }
 }
 
@@ -68,8 +114,11 @@ extension TangemPayTransactionHistoryService {
                         reachedEndOfHistoryList = newRecords.count != Constants.numberOfItemsOnPage
 
                         stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                        storeCacheIfPossible()
                     } catch {
-                        stateSubject.send(.error(error))
+                        if records.isEmpty {
+                            stateSubject.send(.error(error))
+                        }
                     }
                 }
             }
@@ -98,8 +147,11 @@ extension TangemPayTransactionHistoryService {
                 }
 
                 stateSubject.send(.loaded(mapper.formatTransactions(records)))
+                storeCacheIfPossible()
             } catch {
-                stateSubject.send(.error(error))
+                if records.isEmpty {
+                    stateSubject.send(.error(error))
+                }
             }
         }
     }
