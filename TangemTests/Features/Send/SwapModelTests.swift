@@ -143,16 +143,8 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
         )
     }
 
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction {
-        ExpressTransaction(
-            providerId: "",
-            externalStatus: .unknown,
-            refundedCurrency: nil,
-            externalTxId: nil,
-            externalTxURL: nil,
-            averageDuration: nil,
-            createdAt: nil
-        )
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
+        fatalError("Not used in tests")
     }
 
     func exchangeSent(result: ExpressTransactionSentResult) async throws {}
@@ -198,7 +190,7 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
     }
 
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
-        OnrampTransaction(fromAmount: .zero, toAmount: nil, status: .unknown, externalTxId: nil, externalTxURL: nil)
+        fatalError("Not used in tests")
     }
 
     /// History
