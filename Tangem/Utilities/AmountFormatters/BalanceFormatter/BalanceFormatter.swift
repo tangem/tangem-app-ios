@@ -140,7 +140,7 @@ struct BalanceFormatter {
     /// - Returns: Parameters that can be used with SwiftUI `Text` view
     func formatAttributedTotalBalance(
         fiatBalance: String,
-        formattingOptions: TotalBalanceFormattingOptions = .defaultOptions,
+        formattingOptions: TotalBalanceFormattingOptions,
         formatter: NumberFormatter? = nil
     ) -> AttributedString {
         let formatter = formatter ?? makeAttributedTotalBalanceFormatter()
