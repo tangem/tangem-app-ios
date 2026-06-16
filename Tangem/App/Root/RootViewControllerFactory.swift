@@ -39,7 +39,6 @@ struct RootViewControllerFactory {
 
         let rootView = rootView
             .environment(\.mainWindowSize, window.screen.bounds.size)
-            .environment(\.overlayCollapsedHeight, overlayCollapsedHeight)
 
         let contentViewController = UIHostingController(rootView: rootView)
 

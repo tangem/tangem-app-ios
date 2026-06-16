@@ -245,6 +245,7 @@ struct TokenDetailsView: View {
             Menu("", systemImage: "ellipsis") {
                 ForEach(viewModel.dotsMenuItems) { menuItem in
                     Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                        .frame(width: .unit(.x11), height: .unit(.x11))
                         .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
                 }
             }
