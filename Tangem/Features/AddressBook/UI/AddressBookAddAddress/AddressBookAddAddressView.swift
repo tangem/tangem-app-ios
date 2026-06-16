@@ -15,7 +15,7 @@ struct AddressBookAddAddressView: View {
     @ObservedObject var viewModel: AddressBookAddAddressViewModel
 
     var body: some View {
-        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 20)) {
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendDestinationAddressView(viewModel: $0)
             }
@@ -30,9 +30,38 @@ struct AddressBookAddAddressView: View {
             }
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
+
+            GroupedSection(viewModel.addressNetworksType) { networks in
+                TangemRow(title: Localization.commonNetwork)
+                    .verticalAlignment(.center)
+                    .end { makeNetworksValue(networks: networks) }
+                    .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
+            }
+            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
+            .horizontalPadding(0)
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationTitle(Text(Localization.addressBookAddAddress))
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
+        HStack(spacing: 4) {
+            let title = switch networks {
+            case .idle: Localization.addressBookSelectNetwork
+            case .resolved(let networks): networks.map { $0.currencySymbol }.joined(separator: ", ")
+            }
+
+            Text(title)
+                .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                .lineLimit(1)
+
+            if networks.isEditable {
+                Assets.Glyphs.selectIcon.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Tokens.Theme.Icon.secondary)
+                    .frame(width: 20, height: 20)
+            }
+        }
     }
 }

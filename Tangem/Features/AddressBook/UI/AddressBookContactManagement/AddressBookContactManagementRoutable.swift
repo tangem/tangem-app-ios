@@ -10,5 +10,5 @@ import Foundation
 
 protocol AddressBookContactManagementRoutable: AnyObject {
     func dismissContactManagement()
-    func openAddAddress()
+    func openAddAddress(userWalletInfo: UserWalletInfo)
 }

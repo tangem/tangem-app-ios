@@ -59,8 +59,9 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress() {
-        addAddressViewModel = AddressBookAddAddressViewModel(coordinator: self)
+    func openAddAddress(userWalletInfo: UserWalletInfo) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo)
+        addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self)
     }
 }
 

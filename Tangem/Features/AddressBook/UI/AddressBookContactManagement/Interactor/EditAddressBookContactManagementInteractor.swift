@@ -59,8 +59,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
             .map { walletInfo in
                 walletInfo.map {
                     WalletRowType(
-                        userWalletId: $0.id,
-                        wallet: $0.name,
+                        userWalletInfo: $0,
                         isEditable: Self.userWalletRepository.models.count > 1
                     )
                 }
