@@ -18,4 +18,5 @@ protocol TransactionHistoryRepository: Sendable {
 
     /// For local enrichment of transactions.
     func add(_ transaction: ExchangeTransaction) async throws
+    func add(_ transaction: OnrampTransaction) async throws
 }

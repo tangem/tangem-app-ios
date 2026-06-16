@@ -53,6 +53,34 @@ enum SentExpressTransactionHistoryMapper {
         )
     }
 
+    static func mapToOnrampTransaction(_ transaction: SentOnrampTransactionData) -> OnrampTransaction {
+        OnrampTransaction(
+            txId: transaction.txId,
+            providerId: transaction.provider.id,
+            status: .waitingForPayment,
+            failReason: nil, // Obviously, the transaction has been just sent and cannot fail at this point
+            externalTx: mapToExternalTxInfo(id: transaction.externalTxId, url: transaction.externalTxUrl.flatMap(URL.init(string:))),
+            payOut: PayOutInfo(
+                address: transaction.destinationAddress,
+                hash: nil // Unknown at this point
+            ),
+            from: OnrampHistoryFiatAsset(
+                currencyCode: transaction.fromCurrencyCode,
+                amount: transaction.fromAmount
+            ),
+            to: OnrampHistoryCryptoAsset(
+                currency: transaction.destinationTokenItem.expressCurrency.asCurrency,
+                amount: transaction.toAmount,
+                actualAmount: nil, // Unknown at this point
+                decimals: transaction.destinationTokenItem.decimalCount
+            ),
+            paymentMethod: transaction.paymentMethod.id,
+            countryCode: transaction.countryCode,
+            createdAt: transaction.date,
+            updatedAt: transaction.date
+        )
+    }
+
     private static func mapToExternalTxInfo(id: String?, url: URL?) -> ExternalTxInfo? {
         guard let id else {
             return nil
