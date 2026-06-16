@@ -13,8 +13,10 @@ import TangemUIUtils
 struct NewsDeeplinkContainerView: View {
     @StateObject private var coordinator: NewsDeeplinkCoordinator
 
-    init(newsId: Int) {
-        _coordinator = StateObject(wrappedValue: NewsDeeplinkCoordinator(newsId: newsId))
+    init(newsId: Int, dismissAction: @escaping () -> Void) {
+        _coordinator = StateObject(
+            wrappedValue: NewsDeeplinkCoordinator(newsId: newsId, dismissAction: dismissAction)
+        )
     }
 
     var body: some View {
