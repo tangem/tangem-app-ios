@@ -143,10 +143,10 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         return data
     }
 
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction {
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
         let request = ExpressDTO.Swap.ExchangeStatus.Request(txId: transactionId)
         let response = try await expressAPIService.exchangeStatus(request: request)
-        let transaction = expressAPIMapper.mapToExpressTransaction(response: response)
+        let transaction = try expressAPIMapper.mapToExchangeTransaction(record: response)
         return transaction
     }
 
@@ -286,7 +286,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
         let request = ExpressDTO.Onramp.Status.Request(txId: transactionId)
         let response = try await expressAPIService.onrampStatus(request: request)
-        return try expressAPIMapper.mapToOnrampTransaction(response: response)
+        return try expressAPIMapper.mapToOnrampTransaction(record: response)
     }
 
     // MARK: - History
