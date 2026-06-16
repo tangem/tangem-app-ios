@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import TangemAssets
 
 struct BalanceFormatter {
     static var defaultEmptyBalanceString: String { AppConstants.enDashSign }
@@ -145,13 +146,15 @@ struct BalanceFormatter {
         let formatter = formatter ?? makeAttributedTotalBalanceFormatter()
         let decimalSeparator = formatter.decimalSeparator ?? ""
         var attributedString = AttributedString(fiatBalance)
-        attributedString.font = formattingOptions.integerPartFont
+        attributedString.font = formattingOptions.integerPartFont.font
+        attributedString.tracking = formattingOptions.integerPartFont.tracking
         attributedString.foregroundColor = formattingOptions.integerPartColor
 
         if let separatorRange = attributedString.range(of: decimalSeparator) {
             let lowerBound = formattingOptions.fractionalPartIncludesDecimalSeparator ? separatorRange.lowerBound : separatorRange.upperBound
             let fractionalPartRange = Range<AttributedString.Index>(uncheckedBounds: (lower: lowerBound, upper: attributedString.endIndex))
-            attributedString[fractionalPartRange].font = formattingOptions.fractionalPartFont
+            attributedString[fractionalPartRange].font = formattingOptions.fractionalPartFont.font
+            attributedString[fractionalPartRange].tracking = formattingOptions.fractionalPartFont.tracking
             attributedString[fractionalPartRange].foregroundColor = formattingOptions.fractionalPartColor
         }
 

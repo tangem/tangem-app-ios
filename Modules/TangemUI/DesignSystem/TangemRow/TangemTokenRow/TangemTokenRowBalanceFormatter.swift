@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 public enum TangemTokenRowBalanceFormatter {
     /// Creates an `AttributedString` with different colors for integer and decimal parts.
@@ -18,12 +19,12 @@ public enum TangemTokenRowBalanceFormatter {
     /// - Returns: An `AttributedString` with the appropriate styling applied
     public static func formatWithDecimalColoring(
         _ balance: String,
-        font: Font,
+        font: TangemFontStyle,
         integerColor: Color,
         decimalColor: Color
     ) -> AttributedString {
         var attributed = AttributedString(balance)
-        attributed.font = font
+        attributed.setFontStyle(font)
         attributed.foregroundColor = integerColor
 
         let separator = Locale.current.decimalSeparator ?? "."
