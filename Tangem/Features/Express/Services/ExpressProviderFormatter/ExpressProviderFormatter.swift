@@ -37,9 +37,15 @@ struct ExpressProviderFormatter {
         }
 
         let canShowBest = !geoEligibilityService.isUK && !hasHighPriceImpactWarning
-        let isBest = availableProvider.isBest
+        guard canShowBest else {
+            return .none
+        }
 
-        return canShowBest && isBest ? .bestRate : .none
+        if availableProvider.isBestDEX {
+            return .bestDexRate
+        }
+
+        return availableProvider.isBest ? .bestRate : .none
     }
 
     func mapToRateSubtitle(
@@ -177,5 +183,13 @@ extension ExpressProviderFormatter {
         case permissionNeeded
         case fcaWarning
         case bestRate
+        case bestDexRate
+
+        var isBest: Bool {
+            switch self {
+            case .bestRate, .bestDexRate: true
+            case .permissionNeeded, .fcaWarning: false
+            }
+        }
     }
 }
