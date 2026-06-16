@@ -24,6 +24,13 @@ final class CommonMarketsWidgetEarnService {
     private var updateTask: AnyCancellable?
 
     private let mapper = EarnModelMapper()
+    private let ethereumP2PFilter: EarnEthereumP2PFilter
+
+    // MARK: - Init
+
+    init(ethereumP2PFilter: EarnEthereumP2PFilter) {
+        self.ethereumP2PFilter = ethereumP2PFilter
+    }
 
     deinit {
         updateTask?.cancel()
@@ -57,9 +64,14 @@ extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
                 )
 
                 let response = try await service.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
-                let earnTokenModels = response.items.map { service.mapper.mapToEarnTokenModel(from: $0) }
+                let filteredItems = try await service.ethereumP2PFilter.filter(response.items)
+                let earnTokenModels = filteredItems.map { service.mapper.mapToEarnTokenModel(from: $0) }
                 service.earnResultValueSubject.send(.success(earnTokenModels))
             } catch {
+                if error.isCancellationError {
+                    return
+                }
+
                 service.earnResultValueSubject.send(.failure(error))
             }
         }.eraseToAnyCancellable()

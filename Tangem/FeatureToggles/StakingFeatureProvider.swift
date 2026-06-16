@@ -71,12 +71,12 @@ extension StakingFeatureProvider {
             StakingItem(network: .bsc, contractAddress: nil),
             StakingItem(network: .ton, contractAddress: nil),
             StakingItem(network: .cardano, contractAddress: nil),
+            StakingItem(network: .ethereum, contractAddress: nil),
         ]
     }
 
     static var testableBlockchainItems: Set<StakingItem> {
         [
-            StakingItem(network: .ethereum, contractAddress: nil),
         ]
     }
 

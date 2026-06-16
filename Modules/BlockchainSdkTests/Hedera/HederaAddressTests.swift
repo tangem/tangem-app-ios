@@ -11,8 +11,10 @@ import TangemSdk
 import CryptoKit
 import Testing
 import class WalletCore.PrivateKey
+import TangemNetworkUtils
 @testable import BlockchainSdk
 
+@Suite(.serialized)
 struct HederaAddressTests {
     @Test
     func testHederaEd25519() throws {
@@ -128,4 +130,119 @@ struct HederaAddressTests {
         #expect(!addressService.validate("0.0.402d300706052b8104000a03220002d588ec1000770949ab77516c77ee729774de1c8fe058cab6d64f1b12ffc8ff07")) // Account Alias
         #expect(!addressService.validate(""))
     }
+
+    @Test
+    func hederaCustomTokenNormalizedAddressResolution() async throws {
+        let resolver = makeHederaContractAddressResolver(
+            providerConfiguration: makeMockProviderConfiguration(statusCode: 200, body: "{}"),
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+        let address = "0.0.123456"
+
+        let resolved = try await resolver.resolve(address)
+        #expect(resolved.lookupAddress == address)
+        #expect(resolved.storageAddress == address)
+        #expect(!resolved.isERC20)
+    }
+
+    @Test
+    func hederaCustomTokenZeroPrefixEVMConversion() async throws {
+        let resolver = makeHederaContractAddressResolver(
+            providerConfiguration: makeMockProviderConfiguration(statusCode: 200, body: "{}"),
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+        let evmAddress = "0x00000000000000000000000000000000000004d2"
+
+        let resolved = try await resolver.resolve(evmAddress)
+        #expect(resolved.lookupAddress == "0.0.1234")
+        #expect(resolved.storageAddress == "0.0.1234")
+        #expect(!resolved.isERC20)
+    }
+
+    @Test
+    func hederaCustomTokenMirrorLookupConversion() async throws {
+        let providerConfiguration = makeMockProviderConfiguration(
+            statusCode: 200,
+            body: #"{"contract_id":"0.0.424242"}"#
+        )
+        let resolver = makeHederaContractAddressResolver(
+            providerConfiguration: providerConfiguration,
+            baseURLOverride: try #require(URL(string: "https://unit-test.hedera"))
+        )
+
+        let evmAddress = "0xf3DbcEeedDC4BBd1B66492B66EC0B8eC317b511B"
+        let resolved = try await resolver.resolve(evmAddress)
+        #expect(resolved.lookupAddress == "0.0.424242")
+        #expect(resolved.storageAddress == "0xf3dbceeeddc4bbd1b66492b66ec0b8ec317b511b")
+        #expect(resolved.isERC20)
+    }
+}
+
+private extension HederaAddressTests {
+    func makeHederaContractAddressResolver(
+        providerConfiguration: TangemProviderConfiguration,
+        baseURLOverride: URL
+    ) -> any ContractAddressResolver {
+        let restProvider = HederaRESTNetworkProvider(
+            targetConfiguration: NodeInfo(url: baseURLOverride),
+            providerConfiguration: providerConfiguration
+        )
+        let consensusProvider = HederaConsensusNetworkProvider(
+            isTestnet: false,
+            timeout: providerConfiguration.urlSessionConfiguration.timeoutIntervalForRequest
+        )
+        let networkService = HederaNetworkService(
+            consensusProvider: consensusProvider,
+            restProviders: [restProvider]
+        )
+
+        return HederaContractAddressResolver(
+            isTestnet: false,
+            networkService: networkService
+        )
+    }
+
+    func makeMockProviderConfiguration(statusCode: Int, body: String) -> TangemProviderConfiguration {
+        MockURLProtocol.responseData = Data(body.utf8)
+        MockURLProtocol.statusCode = statusCode
+
+        let configuration = URLSessionConfiguration.ephemeral.copy() as! URLSessionConfiguration
+        configuration.protocolClasses = [MockURLProtocol.self]
+        return TangemProviderConfiguration(
+            logOptions: nil,
+            urlSessionConfiguration: configuration
+        )
+    }
+}
+
+private final class MockURLProtocol: URLProtocol {
+    nonisolated(unsafe) static var responseData = Data()
+    nonisolated(unsafe) static var statusCode = 200
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard let url = request.url else {
+            return
+        }
+
+        let response = HTTPURLResponse(
+            url: url,
+            statusCode: Self.statusCode,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "application/json"]
+        )!
+
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Self.responseData)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
 }

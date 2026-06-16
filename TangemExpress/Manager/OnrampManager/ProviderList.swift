@@ -116,6 +116,23 @@ public extension ProvidersList {
     }
 
     func fastest() -> OnrampProvider? {
-        flatMap { $0.providers }.first(where: { $0.processingTimeType == .fastest })
+        let providers = flatMap { $0.providers }
+        if let nativeApplePay = providers.nativeApplePay() {
+            return nativeApplePay
+        }
+        return providers.first(where: { $0.processingTimeType == .fastest })
+    }
+}
+
+// MARK: - Sequence<OnrampProvider>
+
+public extension Sequence where Element == OnrampProvider {
+    func nativeApplePay() -> OnrampProvider? {
+        filter { provider in
+            provider.paymentMethod.type == .applePay
+                && provider.quote?.nativePaymentAvailable == true
+                && provider.quote?.quoteId != nil
+        }
+        .min()
     }
 }
