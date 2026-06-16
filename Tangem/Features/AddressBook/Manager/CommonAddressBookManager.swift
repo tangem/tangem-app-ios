@@ -83,23 +83,41 @@ final class CommonAddressBookManager {
 
     // MARK: - Signing
 
-    private struct EntryToSign {
-        let id: AddressBookAddressEntryID
-        let address: String
-        let networkId: AddressBookNetworkID
-        let memo: String?
-    }
-
-    private func sign(_ entries: [EntryToSign], contactId: AddressBookContactID, name: AddressBookContactName) async throws -> [AddressBookDecodedAddressEntry] {
-        let payloads = entries.map {
+    private func sign(_ drafts: [AddressBookEntryDraft], contactId: AddressBookContactID, name: AddressBookContactName) async throws -> [AddressBookDecodedAddressEntry] {
+        let payloads = drafts.map {
             AddressBookSignedTuplePayload(address: $0.address, networkId: $0.networkId, memo: $0.memo, contactId: contactId, name: name)
         }
 
         let signatures = try await signer.sign(digests: payloads.map(\.digest), walletPublicKey: walletPublicKey)
 
-        return zip(entries, signatures).map { entry, signature in
-            AddressBookDecodedAddressEntry(id: entry.id, address: entry.address, networkId: entry.networkId, memo: entry.memo, signature: signature)
+        return zip(drafts, signatures).map { draft, signature in
+            AddressBookDecodedAddressEntry(id: draft.id, address: draft.address, networkId: draft.networkId, memo: draft.memo, signature: signature)
         }
+    }
+
+    /// The signed entries that replace a contact's address list. A rename re-signs every entry — the name
+    /// is part of the signed tuple; otherwise an entry identical to the one loaded keeps its signature and
+    /// only added or edited entries are signed, so a delete-only edit needs no card tap (spec 2.1.1 / 3.4).
+    private func signedEntries(for drafts: [AddressBookEntryDraft], replacing contact: AddressBookDecodedContact, name: AddressBookContactName) async throws -> [AddressBookDecodedAddressEntry] {
+        if name != contact.name {
+            return try await sign(drafts, contactId: contact.id, name: name)
+        }
+
+        let existingById = Dictionary(contact.addresses.map { ($0.id, $0) }, uniquingKeysWith: { current, _ in current })
+
+        func reusable(_ draft: AddressBookEntryDraft) -> AddressBookDecodedAddressEntry? {
+            guard let previous = existingById[draft.id],
+                  previous.address == draft.address, previous.networkId == draft.networkId, previous.memo == draft.memo else {
+                return nil
+            }
+            return previous
+        }
+
+        let toSign = drafts.filter { reusable($0) == nil }
+        let signed = toSign.isEmpty ? [] : try await sign(toSign, contactId: contact.id, name: name)
+        let signedById = Dictionary(signed.map { ($0.id, $0) }, uniquingKeysWith: { current, _ in current })
+
+        return drafts.compactMap { signedById[$0.id] ?? reusable($0) }
     }
 
     // MARK: - Validation helpers
@@ -120,10 +138,10 @@ final class CommonAddressBookManager {
         }
     }
 
-    /// `(address, networkId)` must be unique *within a contact*. Repetition across different contacts
-    /// in the same wallet is allowed (per the create API rule).
-    private func ensureNoDuplicatePairs(existing: [(String, AddressBookNetworkID)], adding drafts: [AddressBookEntryDraft]) throws {
-        var keys = Set(existing.map { dedupKey($0.0, $0.1) })
+    /// `(address, networkId)` must be unique *within a contact*. The same pair may repeat across
+    /// different contacts of the same wallet (per the create API rule).
+    private func ensureNoDuplicatePairs(_ drafts: [AddressBookEntryDraft]) throws {
+        var keys = Set<String>()
 
         for draft in drafts {
             guard keys.insert(dedupKey(draft.address, draft.networkId)).inserted else {
@@ -133,7 +151,7 @@ final class CommonAddressBookManager {
     }
 
     private func ensureAddressesNonEmpty(_ drafts: [AddressBookEntryDraft]) throws {
-        let hasEmptyAddress = drafts.contains { $0.address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        let hasEmptyAddress = drafts.contains { $0.address.trimmed().isEmpty }
 
         if hasEmptyAddress {
             throw AddressBookValidationError.addressEmpty
@@ -153,14 +171,14 @@ final class CommonAddressBookManager {
     }
 
     /// Rebuilds a contact preserving its identity, walletId and createdAt while bumping updatedAt.
-    private func touched(_ contact: AddressBookDecodedContact, name: AddressBookContactName? = nil, addresses: [AddressBookDecodedAddressEntry]? = nil) -> AddressBookDecodedContact {
+    private func touched(_ contact: AddressBookDecodedContact, name: AddressBookContactName? = nil, addresses: [AddressBookDecodedAddressEntry]) -> AddressBookDecodedContact {
         AddressBookDecodedContact(
             id: contact.id,
             walletId: contact.walletId,
             name: name ?? contact.name,
             createdAt: contact.createdAt,
             updatedAt: Date(),
-            addresses: addresses ?? contact.addresses
+            addresses: addresses
         )
     }
 }
@@ -191,11 +209,10 @@ extension CommonAddressBookManager: AddressBookManager {
 
         let contacts = snapshot
         try ensureNameUnique(name, excluding: nil)
-        try ensureNoDuplicatePairs(existing: [], adding: drafts)
+        try ensureNoDuplicatePairs(drafts)
 
         let contactId = AddressBookContactID()
-        let toSign = drafts.map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
-        let entries = try await sign(toSign, contactId: contactId, name: name)
+        let entries = try await sign(drafts, contactId: contactId, name: name)
         let now = Date()
         let contact = AddressBookDecodedContact(
             id: contactId,
@@ -210,46 +227,20 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, entries: AddressBookContactDraftEntries) async throws {
-        let drafts = entries.raw
-
         guard entries.addressCount <= AddressBookContactDraftEntries.maxAddressCount else {
             throw AddressBookValidationError.tooManyAddresses
         }
 
+        let drafts = entries.raw
         try ensureAddressesNonEmpty(drafts)
 
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)
         try ensureNameUnique(name, excluding: id)
         // The new state is exactly `drafts`, so the pairs must be unique among themselves.
-        try ensureNoDuplicatePairs(existing: [], adding: drafts)
+        try ensureNoDuplicatePairs(drafts)
 
-        // Re-sign only what changed: a rename touches the signed tuple of every entry, otherwise an entry
-        // identical to the one loaded keeps its signature — so a delete-only edit needs no card tap.
-        let nameChanged = name != contact.name
-        let existingById = Dictionary(contact.addresses.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-
-        var resolved: [AddressBookAddressEntryID: AddressBookDecodedAddressEntry] = [:]
-        if !nameChanged {
-            for draft in drafts {
-                if let previous = existingById[draft.id],
-                   previous.address == draft.address, previous.networkId == draft.networkId, previous.memo == draft.memo {
-                    resolved[draft.id] = previous
-                }
-            }
-        }
-
-        let toSign = drafts
-            .filter { resolved[$0.id] == nil }
-            .map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
-
-        if !toSign.isEmpty {
-            for signed in try await sign(toSign, contactId: id, name: name) {
-                resolved[signed.id] = signed
-            }
-        }
-
-        let addresses = drafts.compactMap { resolved[$0.id] }
+        let addresses = try await signedEntries(for: drafts, replacing: contact, name: name)
         let updated = touched(contact, name: name, addresses: addresses)
 
         try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
