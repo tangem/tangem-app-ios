@@ -44,6 +44,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     private var sourceTokenCancellable: AnyCancellable?
     private var sourceTokenAmountCancellable: AnyCancellable?
 
+    private var isInputDisabledCancellable: AnyCancellable?
+
     private var receiveTokenCancellable: AnyCancellable?
     private var highPriceImpactCancellable: AnyCancellable?
 
@@ -59,6 +61,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         self.stateProvider = stateProvider
         self.sourceTokenInput = sourceTokenInput
         self.receiveTokenInput = receiveTokenInput
+
         sourceExpressCurrencyViewModel = .init(
             viewType: .send,
             headerType: .action(name: Localization.swappingFromTitle),
@@ -77,10 +80,10 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
         receiveCryptoAmountState = .initialized
 
-        bind()
+        bind(stateProvider: stateProvider)
     }
 
-    func bind() {
+    func bind(stateProvider: SwapModelStateProvider) {
         // Buttons updating
         interactor.receivedTokenPublisher
             .map { result in
@@ -97,10 +100,19 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .receiveOnMain()
             .assign(to: &$isSwapButtonDisabled)
 
-        sourceExpressCurrencyStateCancellable = stateProvider?.statePublisher
+        sourceExpressCurrencyStateCancellable = stateProvider.statePublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { $0.updateSourceExpressCurrencyState(providersState: $1) }
+
+        isInputDisabledCancellable = Publishers.CombineLatest3(
+            interactor.sourceTokenPublisher,
+            interactor.receivedTokenPublisher,
+            stateProvider.statePublisher
+        )
+        .withWeakCaptureOf(self)
+        .receiveOnMain()
+        .sink { $0.updateExpressCurrencyInputEnabledState(sourceToken: $1.0, receiveToken: $1.1, providersState: $1.2) }
 
         // Source token / amount updating
 
@@ -171,6 +183,10 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     func userDidTapNetworkFeeInfoButton(_ message: String) {
         alertPresenter.present(alert: .init(title: "", message: message))
     }
+
+    func update(isReceiveFiatHidden: Bool) {
+        receiveExpressCurrencyViewModel.update(isFiatAmountHidden: isReceiveFiatHidden)
+    }
 }
 
 // MARK: - Private
@@ -189,18 +205,20 @@ private extension SwapAmountViewModel {
         default:
             sourceExpressCurrencyViewModel.update(errorState: .none)
         }
-
-        updateExpressCurrencyInputEnabledState(providersState: providersState)
     }
 
-    func updateExpressCurrencyInputEnabledState(providersState: SwapModel.ProvidersState) {
-        switch providersState {
-        case .loaded(let providers, _, _):
+    func updateExpressCurrencyInputEnabledState(
+        sourceToken: LoadingResult<SendSourceToken, Error>,
+        receiveToken: LoadingResult<SendReceiveToken, Error>,
+        providersState: SwapModel.ProvidersState
+    ) {
+        switch (sourceToken, receiveToken, providersState) {
+        case (.success, .success, .loaded(let providers, _, .idle)):
             isInputDisabled = providers.isEmpty
-        case .loading(.rates), .loading(.autoupdate), .loading(.fee):
-            break // Keep current state during rates/autoupdate/fee loading to avoid interrupting typing
-        case .idle, .failure, .loading(.providers), .loading(.provider):
+        case (_, .failure, _), (.failure, _, _):
             isInputDisabled = true
+        default:
+            isInputDisabled = false
         }
     }
 

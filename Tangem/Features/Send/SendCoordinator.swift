@@ -337,7 +337,7 @@ extension SendCoordinator: OnrampRoutable {
 
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {
         Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+            await floatingSheetPresenter.replaceActive(with: viewModel)
         }
     }
 
@@ -352,6 +352,17 @@ extension SendCoordinator: OnrampRoutable {
         })
 
         dismissOnrampRedirecting()
+    }
+
+    func openOnrampKYCVerification(providerName: String, routable: OnrampKYCVerificationSheetRoutable) {
+        let viewModel = OnrampKYCVerificationSheetViewModel(
+            providerName: providerName,
+            routable: routable
+        )
+        Task { @MainActor in
+            UIApplication.shared.endEditing()
+            await floatingSheetPresenter.replaceActive(with: viewModel)
+        }
     }
 }
 

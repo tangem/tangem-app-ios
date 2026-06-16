@@ -18,13 +18,16 @@ final class TangemPayMainViewModel: ObservableObject {
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
+        // Re-evaluates the account state so it can recover from a stale `.unavailable` / `.syncNeeded`
+        // once the backend is reachable again — otherwise the banner and dimming would persist.
+        async let stateRefresh: Void? = tangemPayAccount.account?.refreshState()
         async let balanceUpdate: Void = tangemPayAccount.loadBalance()
 
         if !isDeactivated {
             async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
-            _ = await (balanceUpdate, transactionsUpdate)
+            _ = await (stateRefresh, balanceUpdate, transactionsUpdate)
         } else {
-            await balanceUpdate
+            _ = await (stateRefresh, balanceUpdate)
         }
     }
 
@@ -36,12 +39,25 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var shouldDisplayReplacingCardBanner: Bool = false
     @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published private(set) var cardNumberEnd: String
+    @Published private(set) var inlineNotifications: [NotificationViewInput] = []
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
 
+    var isStale: Bool {
+        !inlineNotifications.isEmpty
+    }
+
+    var shouldDimTransactions: Bool {
+        isStale && tangemPayTransactionHistoryState.isLoaded
+    }
+
     var isDeactivated: Bool {
         tangemPayAccount.isDeactivated
+    }
+
+    var actionButtonsDisabled: Bool {
+        freezingState.shouldDisableActionButtons || isStale
     }
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
@@ -76,7 +92,12 @@ final class TangemPayMainViewModel: ObservableObject {
         cardNumberEnd = cardDetailsRepository.lastFourDigits
 
         transactionHistoryService = TangemPayTransactionHistoryService(
-            apiService: tangemPayAccount.customerService
+            apiService: tangemPayAccount.customerService,
+            cacheStorage: AppSettings.shared,
+            customerWalletId: userWalletInfo.id.stringValue,
+            isTangemPayUnavailablePublisher: tangemPayAccount.account?.statePublisher
+                .map(\.indicatesStaleData)
+                .eraseToAnyPublisher() ?? Empty<Bool, Never>().eraseToAnyPublisher()
         )
 
         pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(
@@ -99,6 +120,10 @@ final class TangemPayMainViewModel: ObservableObject {
         runTask { [self] in
             await transactionHistoryService.reloadHistory()
         }
+    }
+
+    func renewSession() {
+        coordinator?.renewTangemPaySession()
     }
 
     @MainActor
@@ -168,6 +193,7 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaScreenVisaMainScreenOpened, contextParams: .userWallet(userWalletInfo.id))
 
         runTask { [tangemPayAccount] in
+            await tangemPayAccount.loadCustomerInfo()
             await tangemPayAccount.loadBalance()
         }
     }
@@ -292,6 +318,46 @@ private extension TangemPayMainViewModel {
             }
             .receiveOnMain()
             .assign(to: &$pendingExpressTransactions)
+
+        bindInlineNotifications()
+    }
+
+    func bindInlineNotifications() {
+        guard let accountModel = tangemPayAccount.account else { return }
+
+        accountModel.statePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { viewModel, state -> [NotificationViewInput] in
+                guard let event = state.errorNotificationEvent(icon: viewModel.mainButtonIcon) else {
+                    return []
+                }
+                return [viewModel.makeInlineNotification(for: event)]
+            }
+            .assign(to: &$inlineNotifications)
+    }
+
+    func makeInlineNotification(for event: TangemPayNotificationEvent) -> NotificationViewInput {
+        NotificationsFactory().buildNotificationInput(
+            for: event,
+            buttonAction: { [weak self] _, action in
+                self?.handleInlineNotificationButtonTap(action)
+            },
+            dismissAction: nil
+        )
+    }
+
+    func handleInlineNotificationButtonTap(_ action: NotificationButtonActionType) {
+        switch action {
+        case .renewTangemPaySession:
+            renewSession()
+        default:
+            break
+        }
+    }
+
+    var mainButtonIcon: MainButton.Icon? {
+        CommonTangemIconProvider(config: userWalletInfo.config).getMainButtonIcon()
     }
 
     func makeSendSwapableToken() -> (any SendSwapableToken)? {

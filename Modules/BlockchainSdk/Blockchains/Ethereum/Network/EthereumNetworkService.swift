@@ -18,7 +18,6 @@ class EthereumNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
 
     let blockchainName: String
-    let terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes = .failure
 
     private let decimals: Int
     private let abiEncoder: ABIEncoder
@@ -37,6 +36,14 @@ class EthereumNetworkService: MultiNetworkProvider {
         self.decimals = decimals
         self.abiEncoder = abiEncoder
         self.blockchainName = blockchainName
+    }
+
+    func shouldStopSwitching(error: Error) -> Bool {
+        guard let apiError = error as? JSONRPC.APIError else {
+            return false
+        }
+
+        return apiError.isContractExecutionError
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
@@ -196,6 +203,12 @@ class EthereumNetworkService: MultiNetworkProvider {
             $0.getPendingTxCount(for: address)
                 .tryMap { try EthereumMapper.mapInt($0) }
                 .eraseToAnyPublisher()
+        }
+    }
+
+    func getStorageAt(address: String, slot: String) -> AnyPublisher<String, Error> {
+        providerPublisher {
+            $0.getStorageAt(address: address, slot: slot)
         }
     }
 

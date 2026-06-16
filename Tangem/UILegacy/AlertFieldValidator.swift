@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import TangemFoundation
 
 class AlertFieldValidator: NSObject {
     private let isValid: (String) -> Bool

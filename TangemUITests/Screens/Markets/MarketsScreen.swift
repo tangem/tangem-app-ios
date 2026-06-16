@@ -73,7 +73,11 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func selectNetwork(_ name: String) -> Self {
         XCTContext.runActivity(named: "Select \(name) network") { _ in
-            app.buttons[TokenAccessibilityIdentifiers.networkCell(for: name)].waitAndTap()
+            // Redesigned Add Token sheet pre-selects the network for single-network tokens, so the cell is absent.
+            let cell = app.buttons[TokenAccessibilityIdentifiers.networkCell(for: name)]
+            if cell.waitForExistence(timeout: .conditional) {
+                cell.waitAndTap()
+            }
             return self
         }
     }
@@ -101,7 +105,10 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func tapGetTokenLaterButton() -> Self {
         XCTContext.runActivity(named: "Tap Get token Later button") { _ in
-            getTokenLaterButton.waitAndTap()
+            // Redesigned Add Token flow closes the sheet directly after confirm — the follow-up "Get token later" prompt is absent.
+            if getTokenLaterButton.waitForExistence(timeout: .conditional) {
+                getTokenLaterButton.waitAndTap()
+            }
             return self
         }
     }
@@ -189,7 +196,7 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func tapShowTokensUnderCapButton() -> Self {
         XCTContext.runActivity(named: "Tap 'Show tokens' under cap button") { _ in
-            tokensUnderCapExpandButton.waitAndTap()
+            tokensUnderCapExpandButton.waitAndTapWithScroll()
             return self
         }
     }
@@ -275,15 +282,19 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     }
 
     @discardableResult
-    func verifySearchFieldIsEmptyAndClearButtonHidden() -> Self {
-        XCTContext.runActivity(named: "Verify Markets search field is empty and clear button hidden") { _ in
+    func waitSearchFieldIsEmpty() -> Self {
+        XCTContext.runActivity(named: "Wait Markets search field is empty") { _ in
             waitAndAssertTrue(searchField, "Markets search field should exist")
-            XCTAssertTrue(searchField.value as? String == "" || searchField.label.isEmpty, "Search field should be empty")
-            waitAndAssertTrue(
-                searchFieldClearButton,
-                "Clear button should not be visible when search field is empty"
+            let field = searchField
+            let expectation = XCTNSPredicateExpectation(
+                predicate: NSPredicate { _, _ in
+                    let value = (field.value as? String) ?? ""
+                    return value.isEmpty || field.label.isEmpty
+                },
+                object: nil
             )
-
+            let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Search field should become empty")
             return self
         }
     }

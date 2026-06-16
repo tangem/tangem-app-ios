@@ -36,6 +36,20 @@ final class TangemPayManager: TangemPayAccountModel {
 
     private(set) var customerId: String?
 
+    var lastKnownTangemPayAccount: TangemPayAccount? {
+        guard
+            let cached = customerInfoCacheStorage.cachedCustomerInfo(customerWalletId: customerWalletId),
+            let productInstance = cached.productInstance
+        else {
+            return nil
+        }
+        return tangemPayAccountBuilder.makeTangemPayAccount(
+            customerInfo: cached,
+            productInstance: productInstance,
+            account: self
+        )
+    }
+
     private var customerWalletId: String {
         userWalletId.stringValue
     }
@@ -53,6 +67,7 @@ final class TangemPayManager: TangemPayAccountModel {
     private let orderIdStorage: TangemPayOrderIdStorage
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
+    private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
     private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
@@ -70,6 +85,7 @@ final class TangemPayManager: TangemPayAccountModel {
         orderIdStorage: TangemPayOrderIdStorage,
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
+        customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
@@ -82,9 +98,17 @@ final class TangemPayManager: TangemPayAccountModel {
         self.orderIdStorage = orderIdStorage
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
+        self.customerInfoCacheStorage = customerInfoCacheStorage
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         bind()
+
+        if let cached = lastKnownTangemPayAccount {
+            stateSubject.value = .tangemPayAccount(cached)
+            runTask { [cached] in
+                await cached.loadBalance()
+            }
+        }
 
         runTask { [self] in
             await refreshState()
@@ -92,16 +116,12 @@ final class TangemPayManager: TangemPayAccountModel {
     }
 
     func authorizeWithCustomerWallet(
-        authorizingInteractor: TangemPayAuthorizing,
-        pendingDerivations: [PendingDerivation]
+        authorizingInteractor: TangemPayAuthorizing
     ) async {
-        let derivationPaths = PendingDerivationHelper.pendingDerivationPathsKeyedByPublicKeys(pendingDerivations)
-
         do {
             let authorizingResponse = try await authorizingInteractor.authorize(
                 customerWalletId: customerWalletId,
-                authorizationService: authorizationService,
-                pendingDerivations: derivationPaths
+                authorizationService: authorizationService
             )
 
             keysRepository.update(derivations: authorizingResponse.derivationResult)
@@ -137,6 +157,7 @@ final class TangemPayManager: TangemPayAccountModel {
                 paeraCustomerFlagRepository.setIsKYCHidden(true, for: customerWalletId)
                 paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
                 paeraCustomerFlagRepository.setShouldShowGetBanner(false)
+                customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
                 stateSubject.value = nil
                 onFinish(true)
             } catch {
@@ -197,6 +218,10 @@ final class TangemPayManager: TangemPayAccountModel {
                 customerInfo: customerInfo,
                 productInstance: productInstance
             )
+            customerInfoCacheStorage.saveCachedCustomerInfo(
+                customerInfo,
+                customerWalletId: customerWalletId
+            )
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
@@ -225,14 +250,13 @@ final class TangemPayManager: TangemPayAccountModel {
         }
     }
 
-    func syncTokens(
+    func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        pendingDerivations: [PendingDerivation],
         completion: @escaping () -> Void
     ) {
         runTask { [self] in
             stateSubject.value = .syncInProgress
-            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor, pendingDerivations: pendingDerivations)
+            await authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
             completion()
         }
     }
