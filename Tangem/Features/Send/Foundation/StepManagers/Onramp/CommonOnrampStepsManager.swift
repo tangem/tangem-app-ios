@@ -24,6 +24,7 @@ final class CommonOnrampStepsManager {
 
     private var stack: [SendStep]
     private weak var output: SendStepsManagerOutput?
+    private var pendingKYCProceedToWidget: (() -> Void)?
 
     init(
         onrampStep: OnrampSummaryStep,
@@ -134,6 +135,33 @@ extension CommonOnrampStepsManager: OnrampModelRoutable {
 
     func openFinishStep() {
         performFinish()
+    }
+
+    func openOnrampKYCVerification(provider: OnrampProvider, onProceedToWidget: @escaping () -> Void) {
+        pendingKYCProceedToWidget = onProceedToWidget
+        router?.openOnrampKYCVerification(
+            providerName: provider.provider.name,
+            routable: self
+        )
+    }
+}
+
+// MARK: - OnrampKYCVerificationSheetRoutable
+
+extension CommonOnrampStepsManager: OnrampKYCVerificationSheetRoutable {
+    func onProceedToWidget() {
+        let proceed = pendingKYCProceedToWidget
+        pendingKYCProceedToWidget = nil
+        proceed?()
+    }
+
+    func onChooseAnother() {
+        pendingKYCProceedToWidget = nil
+        openOnrampAllOffers()
+    }
+
+    func onClose() {
+        pendingKYCProceedToWidget = nil
     }
 }
 

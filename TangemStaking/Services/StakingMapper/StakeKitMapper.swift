@@ -366,7 +366,7 @@ struct StakeKitMapper {
             name: validator.name ?? "No name",
             preferred: validator.preferred ?? false,
             partner: validator.name?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == StakingConstants.partnerName,
-            iconURL: validator.image.flatMap { URL(string: $0) },
+            image: validator.image.flatMap { URL(string: $0) }.map(StakingTargetImage.url),
             rewardType: rewardType,
             rewardRate: mapToRewardRate(validator: validator),
             status: mapToValidatorStatus(validator.status)

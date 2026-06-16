@@ -105,7 +105,7 @@ private extension CommonSendDestinationWalletDataProvider {
                 transactionHistoryUpdater: walletModel,
                 transactionHistoryMapper: TransactionHistoryMapper(
                     currencySymbol: walletModel.tokenItem.currencySymbol,
-                    walletAddresses: walletAddresses,
+                    addressesProvider: walletModel,
                     showSign: false,
                     isToken: walletModel.tokenItem.isToken
                 )

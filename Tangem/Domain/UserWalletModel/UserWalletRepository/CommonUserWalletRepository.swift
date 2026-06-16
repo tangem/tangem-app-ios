@@ -17,7 +17,7 @@ import TangemFoundation
 import TangemMobileWalletSdk
 import TangemPay
 
-class CommonUserWalletRepository: UserWalletRepository {
+final class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
@@ -56,8 +56,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
     private var _locked: Bool = true
-
-    init() {}
 
     deinit {
         AppLogger.debug("CommonUserWalletRepository deinit")

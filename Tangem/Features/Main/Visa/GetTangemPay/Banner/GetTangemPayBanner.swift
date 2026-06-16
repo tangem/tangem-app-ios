@@ -11,6 +11,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemAssets
 
+// [REDACTED_INFO]: legacy view, replaced by NotificationBanner-based item under `.redesign`. Delete after redesign cleanup.
 struct GetTangemPayBannerView: View {
     var viewModel: GetTangemPayBannerViewModel
 
@@ -42,6 +43,9 @@ struct GetTangemPayBannerView: View {
         }
         .onTapGesture {
             viewModel.bannerTapped()
+        }
+        .onAppear {
+            viewModel.onAppear()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 4)

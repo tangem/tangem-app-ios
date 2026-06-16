@@ -14,27 +14,32 @@ struct P2PMapper {
     let item: StakingTokenItem = .ethereum
     let rewardType: RewardType = .apy
 
-    func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
+    func mapToYieldInfo(
+        from response: P2PDTO.Vaults.VaultsInfo,
+        targetAmountInfos: [String: StakingTargetAmountLimitInfo]
+    ) throws -> StakingYieldInfo {
         let vaults = response.vaults
             .filter { !$0.isSmoothingPool && !$0.isPrivate }
-            .map { mapToStakingTargetInfo(from: $0) }
+            .filter { $0.vaultAddress.lowercased() != Constants.mockVaultAddress }
+            .map { mapToStakingTargetInfo(from: $0, targetAmountInfos: targetAmountInfos) }
 
         let rewardRateValues = RewardRateValues(
             aprs: vaults.compactMap(\.rewardRate),
             rewardRate: .zero
         )
 
-        let maximumStakeAmount = vaults.compactMap { $0.maximumStakeAmount }.compactMap { $0 }.min()
+        let maximumStakeAmount = vaults.compactMap(\.maximumStakeAmount).min()
+        let isAvailable = vaults.contains { $0.status != .full }
 
         return StakingYieldInfo(
             id: item.network.rawValue,
-            isAvailable: true,
+            isAvailable: isAvailable,
             rewardType: rewardType,
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: StakingConstants.p2pEnterMinimumRequirements,
-            exitMinimumRequirement: .zero,
+            exitMinimumRequirement: StakingConstants.p2pExitMinimumRequirements,
             targets: vaults,
-            preferredTargets: vaults,
+            preferredTargets: vaults.filter { $0.status != .full },
             item: item,
             unbondingPeriod: .variable(minDays: 1, maxDays: 4),
             warmupPeriod: .constant(days: 0),
@@ -94,7 +99,7 @@ struct P2PMapper {
             )
         }
 
-        if let rewards = response.stake.totalEarnedAssets, rewards > .zero {
+        if let rewards = response.stake.totalEarnedAssets, rewards > .zero, !balances.isEmpty {
             balances.append(
                 StakingBalanceInfo(
                     item: .ethereum,
@@ -134,21 +139,30 @@ struct P2PMapper {
         )
     }
 
-    func mapToStakingTargetInfo(from vault: P2PDTO.Vaults.Vault) -> StakingTargetInfo {
-        StakingTargetInfo(
+    func mapToStakingTargetInfo(
+        from vault: P2PDTO.Vaults.Vault,
+        targetAmountInfos: [String: StakingTargetAmountLimitInfo]
+    ) -> StakingTargetInfo {
+        let info = targetAmountInfos[vault.vaultAddress.lowercased()]
+        let remaining: Decimal? = {
+            guard let limit = info?.limit,
+                  let totalAssets = vault.totalAssets,
+                  limit - totalAssets > Constants.availabilityThreshold else {
+                return nil
+            }
+            return limit - totalAssets
+        }()
+        let isAvailable = remaining != nil
+        return StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
-            preferred: true,
+            preferred: isAvailable,
             partner: false,
-            iconURL: nil,
+            image: .local(.p2pVault),
             rewardType: rewardType,
-            rewardRate: vault.apy ?? .zero,
-            status: .active,
-            maximumStakeAmount: vault.totalAssets.flatMap { totalAssets in
-                vault.capacity.flatMap { capacity in
-                    capacity - totalAssets
-                }
-            }
+            rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
+            status: isAvailable ? .active : .full,
+            maximumStakeAmount: remaining
         )
     }
 
@@ -178,5 +192,13 @@ public extension StakingTokenItem {
             decimals: blockchain.decimalCount,
             symbol: blockchain.currencySymbol
         )
+    }
+}
+
+private extension P2PMapper {
+    enum Constants {
+        static let percentMultiplier = Decimal(100)
+        static let availabilityThreshold = Decimal(stringValue: "0.1")!
+        static let mockVaultAddress = "0xb72668d6ff7a0e318f83097a754c6aed0f8af034"
     }
 }

@@ -2,6 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <key>address_book_addresses</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>%li件のアドレス</string>
+      </dict>
+    </dict>
     <key>card_label_card_count</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -246,7 +260,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>以下に表示される%li個の単語を順番どおりに書き留め、安全で他人に知られない場所に保管してください。</string>
+        <string>以下に表示される%li個の単語を順番どおりに書き留め、安全で他人に知られていない場所に保管してください。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>

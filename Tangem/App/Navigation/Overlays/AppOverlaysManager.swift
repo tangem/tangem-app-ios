@@ -95,10 +95,17 @@ final class AppOverlaysManager {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { manager, activeSheet in
-                guard activeSheet == nil else { return }
-                manager.restoreMainWindowKeyboardIfNeeded()
+                manager.updateOverlayAccessibility(hasActiveSheet: activeSheet != nil)
+                if activeSheet == nil {
+                    manager.restoreMainWindowKeyboardIfNeeded()
+                }
             }
             .store(in: &cancellables)
+    }
+
+    /// Bridges the overlay window into Maestro's accessibility snapshot.
+    private func updateOverlayAccessibility(hasActiveSheet: Bool) {
+        overlayWindow?.rootViewController?.view.accessibilityViewIsModal = hasActiveSheet
     }
 
     private func bindAppTheme() {
@@ -220,7 +227,7 @@ extension AppOverlaysManager {
             viewModel: state.storiesHostViewModel,
             storyViews: state.storiesHostViewModel.storyViewModels.map { storyViewModel in
                 let pageViews = Self.makeStoryPages(for: state.activeStory, using: state.storiesHostViewModel, imageCache: imageCache)
-                    .map(StoryPageView.init)
+                    .map(StoryPageContainerView.init)
 
                 return StoryView(viewModel: storyViewModel, pageViews: pageViews)
             }
@@ -228,18 +235,8 @@ extension AppOverlaysManager {
     }
 
     private static func makeStoryPages(for story: TangemStory, using viewModel: StoriesHostViewModel, imageCache: ImageCache) -> [any View] {
-        switch story {
-        case .swap(let data):
-            makeSwapStoryPages(from: data, imageCache: imageCache)
-        case .swapLegacy(let data):
-            makeSwapStoryPages(from: data, imageCache: imageCache)
-        }
-    }
-
-    private static func makeSwapStoryPages(from data: some SwapStoryDataPagesContainer, imageCache: ImageCache) -> [any View] {
-        data.pagesKeyPaths.map { pageKeyPath in
-            let page = data[keyPath: pageKeyPath]
-            return SwapStoryPageView(page: page, kingfisherImageCache: imageCache)
+        story.pages.map { page in
+            StoryPageView(page: page, kingfisherImageCache: imageCache)
         }
     }
 }

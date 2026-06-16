@@ -42,7 +42,6 @@ final class ActionButtonsViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
     private let lastButtonTapped = PassthroughSubject<ActionButtonModel, Never>()
-    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
 
     private var lastSellInitializeState: SellServiceState?
 
@@ -77,12 +76,6 @@ final class ActionButtonsViewModel: ObservableObject {
             coordinator: coordinator,
             lastButtonTapped: lastButtonTapped,
             userWalletModel: userWalletModel
-        )
-
-        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
-            userWalletConfig: userWalletModel.config,
-            walletModelsPublisher: AccountWalletModelsAggregator.walletModelsPublisher(from: userWalletModel.accountModelsManager),
-            updatePublisher: userWalletModel.updatePublisher
         )
 
         bind()
@@ -140,10 +133,7 @@ private extension ActionButtonsViewModel {
 
     func restoreButtonsState() {
         let lastExpressUpdatingState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
-        updateSwapButtonState(
-            expressUpdateState: lastExpressUpdatingState,
-            isActionButtonsAvailable: balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailable
-        )
+        updateSwapButtonState(expressUpdateState: lastExpressUpdatingState)
         updateBuyButtonStateWithExpress(lastExpressUpdatingState)
 
         if let lastSellInitializeState {
@@ -206,9 +196,6 @@ private extension ActionButtonsViewModel {
 
 private extension ActionButtonsViewModel {
     func bindSwapAvailability() {
-        let isActionButtonsAvailablePublisher = balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-
         let walletModelsActionsUpdatePublisher = AccountWalletModelsAggregator
             .walletModelsPublisher(from: userWalletModel.accountModelsManager)
             .flatMapLatest { walletModels in
@@ -223,15 +210,12 @@ private extension ActionButtonsViewModel {
 
         expressAvailabilityProvider
             .expressAvailabilityUpdateState
-            .combineLatest(isActionButtonsAvailablePublisher, walletModelsActionsUpdatePublisher)
+            .combineLatest(walletModelsActionsUpdatePublisher)
             .withWeakCaptureOf(self)
             .sink { viewModel, input in
                 // `walletModelsActionsUpdatePublisher` acts just as a trigger to re-evaluate swap button state
-                let (expressUpdateState, isActionButtonsAvailable, _) = input
-                viewModel.updateSwapButtonState(
-                    expressUpdateState: expressUpdateState,
-                    isActionButtonsAvailable: isActionButtonsAvailable
-                )
+                let (expressUpdateState, _) = input
+                viewModel.updateSwapButtonState(expressUpdateState: expressUpdateState)
             }
             .store(in: &bag)
     }
@@ -251,13 +235,8 @@ private extension ActionButtonsViewModel {
             .store(in: &bag)
     }
 
-    func updateSwapButtonState(expressUpdateState: ExpressAvailabilityUpdateState, isActionButtonsAvailable: Bool) {
+    func updateSwapButtonState(expressUpdateState: ExpressAvailabilityUpdateState) {
         runTask(in: self) { @MainActor viewModel in
-            guard isActionButtonsAvailable else {
-                viewModel.swapActionButtonViewModel.updateState(to: .unavailable)
-                return
-            }
-
             let hasCache = viewModel.expressAvailabilityProvider.hasCache
 
             switch (expressUpdateState, hasCache) {
