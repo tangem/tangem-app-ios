@@ -138,7 +138,7 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
-            origin: .tokenDetails(walletModel: walletModel),
+            walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo
         ) else { return }
 
