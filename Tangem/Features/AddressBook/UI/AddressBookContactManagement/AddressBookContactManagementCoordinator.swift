@@ -36,8 +36,10 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let interactor: AddressBookContactManagementInteractor = switch options {
-        case .add(let walletId): CreateAddressBookContactManagementInteractor(walletId: walletId)
-        case .edit(let contact, let walletId): EditAddressBookContactManagementInteractor(contact: contact, walletId: walletId)
+        case .add(let walletId, let addressBookManager):
+            CreateAddressBookContactManagementInteractor(walletId: walletId, addressBookManager: addressBookManager)
+        case .edit(let contact, let walletId, let addressBookManager):
+            EditAddressBookContactManagementInteractor(contact: contact, walletId: walletId, addressBookManager: addressBookManager)
         }
 
         rootViewModel = AddressBookContactManagementViewModel(interactor: interactor, coordinator: self)
@@ -48,8 +50,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add(walletId: UserWalletId)
-        case edit(contact: AddressBookContact, walletId: UserWalletId)
+        case add(walletId: UserWalletId, addressBookManager: AddressBookManager)
+        case edit(contact: AddressBookContact, walletId: UserWalletId, addressBookManager: AddressBookManager)
     }
 }
 

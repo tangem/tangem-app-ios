@@ -38,6 +38,7 @@ final class CommonAddressBookManager {
         self.normalizeAddress = normalizeAddress
 
         bind()
+        Task { await load() }
     }
 
     private func bind() {

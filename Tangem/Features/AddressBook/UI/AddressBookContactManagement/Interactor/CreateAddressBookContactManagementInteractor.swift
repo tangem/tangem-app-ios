@@ -25,13 +25,11 @@ final class CreateAddressBookContactManagementInteractor {
     private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
     private let walletId: UserWalletId
+    private let addressBookManager: AddressBookManager
 
-    private var addressBookManager: AddressBookManager? {
-        Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.addressBookManager
-    }
-
-    init(walletId: UserWalletId) {
+    init(walletId: UserWalletId, addressBookManager: AddressBookManager) {
         self.walletId = walletId
+        self.addressBookManager = addressBookManager
 
         nameSubject = .init("")
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
@@ -109,10 +107,6 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     func save() async throws {
-        guard let addressBookManager else {
-            throw AddressBookManagementError.walletUnavailable
-        }
-
         let name = try AddressBookContactNameValidator().validate(nameSubject.value)
 
         try await addressBookManager.createContact(name: name, entries: addressesSubject.value)

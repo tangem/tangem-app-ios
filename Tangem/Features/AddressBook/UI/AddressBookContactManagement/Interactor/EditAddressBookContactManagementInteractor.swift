@@ -21,19 +21,17 @@ final class EditAddressBookContactManagementInteractor {
 
     private let contact: AddressBookContact
     private let walletId: UserWalletId
+    private let addressBookManager: AddressBookManager
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
-    private var addressBookManager: AddressBookManager? {
-        Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.addressBookManager
-    }
-
-    init(contact: AddressBookContact, walletId: UserWalletId) {
+    init(contact: AddressBookContact, walletId: UserWalletId, addressBookManager: AddressBookManager) {
         self.contact = contact
         self.walletId = walletId
+        self.addressBookManager = addressBookManager
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
@@ -115,10 +113,6 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func save() async throws {
-        guard let addressBookManager else {
-            throw AddressBookManagementError.walletUnavailable
-        }
-
         let contactId = contact.id
         let name = try AddressBookContactNameValidator().validate(nameSubject.value)
         let drafts = addressesSubject.value
@@ -150,10 +144,6 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func delete() async throws {
-        guard let addressBookManager else {
-            throw AddressBookManagementError.walletUnavailable
-        }
-
         try await addressBookManager.deleteContact(id: contact.id)
     }
 }
