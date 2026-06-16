@@ -137,6 +137,45 @@ extension ExpressDTO {
             }
         }
 
+        // MARK: - Transaction
+
+        /// A single exchange transaction; both `exchange-status` and `history/exchange[/delta]` return this payload shape.
+        struct Transaction: Decodable {
+            let txId: String
+            let providerId: String
+            let fromAddress: String?
+            let payinAddress: String
+            let payinExtraId: String?
+            let payoutAddress: String
+            let refundAddress: String?
+            let refundExtraId: String?
+            let rateType: String
+            let status: String
+            let externalTxId: String?
+            let externalTxUrl: String?
+            let payinHash: String?
+            let payoutHash: String?
+            let refundNetwork: String?
+            let refundContractAddress: String?
+            let createdAt: Date
+            let updatedAt: Date?
+            let payTill: Date?
+            let averageDuration: TimeInterval?
+
+            // fromAsset info
+            let fromContractAddress: String
+            let fromNetwork: String
+            let fromDecimals: Int
+            let fromAmount: String
+
+            // toAsset info
+            let toContractAddress: String
+            let toNetwork: String
+            let toDecimals: Int
+            let toAmount: String
+            let toActualAmount: String?
+        }
+
         // MARK: - ExchangeStatus
 
         enum ExchangeStatus {
@@ -144,16 +183,7 @@ extension ExpressDTO {
                 let txId: String
             }
 
-            struct Response: Decodable {
-                let providerId: Provider.Id
-                let status: String
-                let refundNetwork: String?
-                let refundContractAddress: String?
-                let externalTxId: String?
-                let externalTxUrl: String?
-                let averageDuration: TimeInterval?
-                let createdAt: Date?
-            }
+            typealias Response = Transaction
         }
 
         enum ExchangeSent {
@@ -183,7 +213,7 @@ extension ExpressDTO {
             }
 
             struct Response: Decodable {
-                let items: [Record]
+                let items: [Transaction]
                 let pagination: Pagination
             }
 
@@ -195,43 +225,6 @@ extension ExpressDTO {
                 let hasMore: Bool? // [REDACTED_TODO_COMMENT]
                 @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
                 let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
-            }
-
-            struct Record: Decodable {
-                let txId: String
-                let providerId: String
-                let fromAddress: String
-                let payinAddress: String
-                let payinExtraId: String?
-                let payoutAddress: String
-                let refundAddress: String?
-                let refundExtraId: String?
-                let rateType: String
-                let status: String
-                let externalTxId: String?
-                let externalTxStatus: String?
-                let externalTxUrl: String?
-                let payinHash: String?
-                let payoutHash: String?
-                let refundNetwork: String?
-                let refundContractAddress: String?
-                let createdAt: Date
-                let updatedAt: Date?
-                let payTill: Date?
-                let averageDuration: TimeInterval?
-
-                // fromAsset info
-                let fromContractAddress: String
-                let fromNetwork: String
-                let fromDecimals: Int
-                let fromAmount: String
-
-                // toAsset info
-                let toContractAddress: String
-                let toNetwork: String
-                let toDecimals: Int
-                let toAmount: String
-                let toActualAmount: String?
             }
         }
 
@@ -246,7 +239,7 @@ extension ExpressDTO {
             }
 
             struct Response: Decodable {
-                let items: [History.Record]
+                let items: [Transaction]
                 let pagination: Pagination
             }
 

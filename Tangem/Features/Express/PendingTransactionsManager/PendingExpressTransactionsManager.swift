@@ -222,7 +222,7 @@ class CommonPendingExpressTransactionsManager {
             let refundedTokenItem = await handleRefundedTokenIfNeeded(
                 blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
                 providerType: transactionRecord.provider.type,
-                refundedCurrency: expressTransaction.refundedCurrency
+                refundedCurrency: expressTransaction.refund?.currency
             )
 
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
@@ -231,7 +231,7 @@ class CommonPendingExpressTransactionsManager {
                 for: transactionRecord
             )
 
-            ExpressLogger.info("Transaction external status: \(expressTransaction.externalStatus.rawValue)")
+            ExpressLogger.info("Transaction status: \(expressTransaction.status.rawValue)")
             ExpressLogger.info("Refunded token: \(String(describing: refundedTokenItem))")
 
             await pendingExpressTransactionAnalyticsTracker.trackStatusForSwapTransaction(
