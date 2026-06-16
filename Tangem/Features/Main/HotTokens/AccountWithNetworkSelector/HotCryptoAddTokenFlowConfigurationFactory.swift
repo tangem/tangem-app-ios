@@ -69,9 +69,14 @@ private extension HotCryptoAddTokenFlowConfigurationFactory {
         }
 
         let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
-        let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
         coordinator.close()
-        coordinator.openOnramp(input: sendInput, parameters: .none)
+
+        if FeatureProvider.isAvailable(.addFundsStage1) {
+            coordinator.openAddFunds(userWalletInfo: userWalletInfo, walletModel: walletModel)
+        } else {
+            let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            coordinator.openOnramp(input: sendInput, parameters: .none)
+        }
     }
 
     static func makeAccountFilter(

@@ -29,7 +29,5 @@ struct RavencoinMainNetworkParams: UTXONetworkParams {
     /// nExtCoinType = 175;
     let coinType: UInt32 = 175
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
-    /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L44
-    /// static const unsigned int DUST_RELAY_TX_FEE = 3000;
-    let dustRelayTxFee = 3000
+    let dustCalculator: UTXONetworkParamsDustCalculator = .ravencoinMainnet
 }

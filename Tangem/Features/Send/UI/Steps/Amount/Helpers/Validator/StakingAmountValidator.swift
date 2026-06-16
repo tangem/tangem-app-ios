@@ -18,17 +18,20 @@ class StakingAmountValidator {
     private var minimumAmount: Decimal?
     private var maximumAmount: Decimal?
     private let stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>
+    private let analyticsLogger: StakingSendAnalyticsLogger
     private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     init(
         tokenItem: TokenItem,
         validator: TransactionValidator,
-        stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>
+        stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never>,
+        analyticsLogger: StakingSendAnalyticsLogger
     ) {
         self.tokenItem = tokenItem
         self.validator = validator
         self.stakingManagerStatePublisher = stakingManagerStatePublisher
+        self.analyticsLogger = analyticsLogger
         bind()
     }
 
@@ -68,12 +71,13 @@ extension StakingAmountValidator: SendAmountValidator {
         }
 
         if let maximumAmount, amount > maximumAmount {
-            throw StakingValidationError.maxAmountRequirementError(
-                balanceFormatter.formatCryptoBalance(
-                    maximumAmount,
-                    currencyCode: tokenItem.currencySymbol
-                )
+            let maxAmountFormatted = balanceFormatter.formatCryptoBalance(
+                maximumAmount,
+                currencyCode: tokenItem.currencySymbol
             )
+            let error = StakingValidationError.maxAmountRequirementError(maxAmountFormatted)
+            analyticsLogger.logErrorSumLimit(errorMessage: error.localizedDescription)
+            throw error
         }
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)

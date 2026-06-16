@@ -104,7 +104,6 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
-            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             actionType: actionType.sendFlowActionType
         )
 
@@ -137,7 +136,7 @@ extension RestakingFlowFactory: SendBaseBuildable {
             ),
             analyticsLogger: analyticsLogger,
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: tokenItem),
-            tangemIconProvider: stakingableToken.tangemIconProvider
+            mainButtonUIOptionsProvider: CommonSendMainButtonUIOptionsProvider(sourceTokenInput: restakingModel)
         )
     }
 }

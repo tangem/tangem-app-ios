@@ -21,4 +21,5 @@ protocol OnrampRoutable {
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel)
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder)
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void)
+    func openOnrampKYCVerification(providerName: String, routable: OnrampKYCVerificationSheetRoutable)
 }
