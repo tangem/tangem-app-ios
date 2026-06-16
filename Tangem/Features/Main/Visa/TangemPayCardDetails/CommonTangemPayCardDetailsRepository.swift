@@ -27,6 +27,10 @@ final class CommonTangemPayCardDetailsRepository: TangemPayCardDetailsRepository
         tangemPayAccount.cardDisplayNamePublisher
     }
 
+    var isReissuingPublisher: AnyPublisher<Bool, Never> {
+        tangemPayAccount.isReissuingCardPublisher
+    }
+
     private let tangemPayAccount: TangemPayAccount
 
     init(tangemPayAccount: TangemPayAccount) {
