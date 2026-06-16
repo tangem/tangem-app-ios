@@ -180,7 +180,7 @@ extension CommonAddressBookManager: AddressBookManager {
         try ensureNoDuplicatePairs(existing: [], adding: drafts)
 
         let contactId = ContactID()
-        let toSign = drafts.map { EntryToSign(id: AddressEntryID(), address: $0.address, networkId: $0.networkId, memo: $0.memo) }
+        let toSign = drafts.map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
         let entries = try await sign(toSign, contactId: contactId, name: name)
         let now = Date()
         let contact = DecodedContact(
@@ -218,7 +218,7 @@ extension CommonAddressBookManager: AddressBookManager {
 
         try ensureNoDuplicatePairs(existing: contact.addresses.map { ($0.address, $0.networkId) }, adding: drafts)
 
-        let toSign = drafts.map { EntryToSign(id: AddressEntryID(), address: $0.address, networkId: $0.networkId, memo: $0.memo) }
+        let toSign = drafts.map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
         let signed = try await sign(toSign, contactId: id, name: contact.name)
         let updated = touched(contact, addresses: contact.addresses + signed)
 

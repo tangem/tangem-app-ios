@@ -30,7 +30,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published var errorAlert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
-    @Published private var drafts: [DraftRow] = []
+    @Published private var drafts: [AddressBookEntryDraft] = []
     @Published private var canAddNewAddress: Bool = true
 
     let title: String
@@ -173,10 +173,10 @@ private extension AddressBookContactManagementViewModel {
             .assign(to: &$addressesSection)
     }
 
-    func makeAddressesSection(drafts: [DraftRow], canAddNewAddress: Bool) -> [AddressRowType] {
+    func makeAddressesSection(drafts: [AddressBookEntryDraft], canAddNewAddress: Bool) -> [AddressRowType] {
         var types: [AddressRowType] = drafts.map { draft in
             .address(
-                AddressBookContactAddressRowViewModel(id: draft.id, address: draft.address) { [weak self] in
+                AddressBookContactAddressRowViewModel(id: draft.id.stringValue, address: draft.address) { [weak self] in
                     self?.deleteRow(id: draft.id)
                 }
             )
@@ -199,7 +199,7 @@ private extension AddressBookContactManagementViewModel {
         coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self)
     }
 
-    func deleteRow(id: String) {
+    func deleteRow(id: AddressEntryID) {
         interactor.deleteAddress(id: id)
     }
 
@@ -241,9 +241,9 @@ private extension AddressBookContactManagementViewModel {
 // MARK: - AddressBookAddAddressOutput
 
 extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
-    func userDidAddAddress(address: DraftRow) {
+    func userDidAddAddress(entries: [AddressBookEntryDraft]) {
         do {
-            try interactor.add(address: address)
+            try interactor.add(entries: entries)
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
@@ -253,11 +253,6 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
 // MARK: - Types
 
 extension AddressBookContactManagementViewModel {
-    struct DraftRow: Identifiable {
-        let id: String
-        var address: String
-    }
-
     enum AddressRowType: Identifiable {
         case address(AddressBookContactAddressRowViewModel)
         case addNewAddress(AddressBookContactAddNewAddressRowViewModel)
