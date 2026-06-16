@@ -116,7 +116,10 @@ struct CarouselNewsView: View {
             Spacer(minLength: .zero)
         }
         .frame(maxWidth: .infinity)
-        .redesignNewsCarouselCardBackground()
+        .redesignNewsCarouselCardBackground(
+            cornerRadius: CarouselNewsCardView.Layout.RedesignCard.allNewsCornerRadius,
+            showBorder: true
+        )
     }
 
     private var iconView: some View {
