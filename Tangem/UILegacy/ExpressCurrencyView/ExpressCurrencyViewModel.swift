@@ -115,6 +115,10 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     func update(fiatAmountState: LoadableTextView.State) {
         state.fiatAmountState = fiatAmountState
     }
+
+    func update(isFiatAmountHidden: Bool) {
+        state.isFiatAmountHidden = isFiatAmountHidden
+    }
 }
 
 extension ExpressCurrencyViewModel {
@@ -127,6 +131,7 @@ extension ExpressCurrencyViewModel {
         var tokenIconState: TokenIconState
         var symbolState: LoadableTextView.State
         var canChangeCurrency: Bool
+        var isFiatAmountHidden: Bool = false
 
         mutating func update(
             wallet: LoadingResult<any SendGenericToken, Error>,

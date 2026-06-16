@@ -57,7 +57,7 @@ struct EnvironmentSetupView: View {
 
     // [REDACTED_TODO_COMMENT]
     private var surveySparrowControls: some View {
-        VStack {
+        VStack(spacing: 16) {
             Text("SurveySparrow demo token:")
                 .font(.headline)
 

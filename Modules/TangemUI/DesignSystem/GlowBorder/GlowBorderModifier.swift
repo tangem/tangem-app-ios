@@ -186,7 +186,7 @@ private struct GlowGradientOverlay: View, Equatable {
 
 // MARK: - View Extension
 
-extension View {
+public extension View {
     func glowBorder(
         effect: GlowBorderEffect,
         cornerRadius: CGFloat = SizeUnit.x6.value

@@ -11,11 +11,6 @@ import SwiftUI
 public struct StepsFlowView: View {
     @StateObject private var viewModel: StepsFlowViewModel
 
-    @State private var navigationTitle: String?
-    @State private var navigationLeadingItem: StepsFlowNavBarItem?
-    @State private var navigationTrailingItem: StepsFlowNavBarItem?
-    @State private var isLoading: Bool = false
-
     private let configuration: StepsFlowConfiguration
 
     public init(
@@ -31,7 +26,7 @@ public struct StepsFlowView: View {
             flowBar
             stepsContent
         }
-        .overlay(StepsFlowLoading(isLoading: isLoading))
+        .overlay(StepsFlowLoading(isLoading: viewModel.currentIsLoading))
         .animation(.default, value: viewModel.currentStepId)
     }
 }
@@ -41,9 +36,9 @@ public struct StepsFlowView: View {
 private extension StepsFlowView {
     var flowBar: some View {
         StepsFlowBar(
-            title: navigationTitle,
-            leadingItem: navigationLeadingItem,
-            trailingItem: navigationTrailingItem,
+            title: viewModel.currentTitle,
+            leadingItem: viewModel.currentLeadingItem,
+            trailingItem: viewModel.currentTrailingItem,
             progressBarValue: viewModel.progressValue,
             configuration: configuration
         )
@@ -89,10 +84,10 @@ private extension StepsFlowView {
     func stepView(_ step: StepsFlowStep) -> some View {
         StepsFlowContent(
             step: step,
-            onTitle: { navigationTitle = $0 },
-            onLeadingItem: { navigationLeadingItem = $0 },
-            onTrailingItem: { navigationTrailingItem = $0 },
-            onLoading: { isLoading = $0 }
+            onTitle: { viewModel.update(stepId: step.id, title: $0) },
+            onLeadingItem: { viewModel.update(stepId: step.id, leadingItem: $0) },
+            onTrailingItem: { viewModel.update(stepId: step.id, trailingItem: $0) },
+            onLoading: { viewModel.update(stepId: step.id, isLoading: $0) }
         )
         .frame(maxHeight: .infinity, alignment: .top)
     }
