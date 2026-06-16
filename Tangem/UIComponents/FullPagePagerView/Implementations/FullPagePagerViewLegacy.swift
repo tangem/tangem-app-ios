@@ -30,13 +30,15 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     // MARK: - State
 
     @Binding private var selectedIndex: Int
+    @Binding private var headerHeightRatio: CGFloat
+
     /// Tracks the current scroll offset for smooth body synchronization during gestures
     @State private var scrollOffset: CGFloat = 0
     /// Measured header height reported by UIKit, used to constrain header frame
     @State private var headerHeight: CGFloat = 0
     @State private var pageWidth: CGFloat = 0
 
-    @State private var elasticContainerModel: TangemElasticContainerModel
+    @StateObject private var elasticContainerModel: TangemElasticContainerModel
 
     // MARK: - Configuration
 
@@ -50,20 +52,22 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
     init(
         data: Data,
         selectedIndex: Binding<Int>,
+        headerHeightRatio: Binding<CGFloat>,
         isScrollDisabled: Bool,
         viewportHeight: CGFloat,
         refreshScrollViewInteractor: RefreshScrollViewInteractor,
-        onHeaderHeightRatioChange: ((CGFloat) -> Void)?,
         onPageChangeCallback: ((CardsInfoPageChangeReason) -> Void)?,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder bodyFactory: @escaping BodyFactory
     ) {
         self.data = data
         _selectedIndex = selectedIndex
+        _headerHeightRatio = headerHeightRatio
         self.isScrollDisabled = isScrollDisabled
         self.viewportHeight = viewportHeight
-        elasticContainerModel = TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
-        self.onHeaderHeightRatioChange = onHeaderHeightRatioChange
+        _elasticContainerModel = StateObject(
+            wrappedValue: TangemElasticContainerModel(scrollViewInteractor: refreshScrollViewInteractor)
+        )
         self.onPageChangeCallback = onPageChangeCallback
         self.headerFactory = headerFactory
         self.bodyFactory = bodyFactory
@@ -86,7 +90,7 @@ struct FullPagePagerViewLegacy<Data, Header, Body>: View
             scrollOffset = CGFloat(selectedIndex) * newPageWidth
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) {
-            onHeaderHeightRatioChange?($0)
+            headerHeightRatio = $0
         }
     }
 

@@ -83,6 +83,7 @@ extension PublicKeyType {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .seiEvm:
             self = PublicKeyType.secp256k1Extended
         case .stellar,

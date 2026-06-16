@@ -22,6 +22,7 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
     @Published private(set) var notificationButtonIsLoading: Bool = false
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var mainButtonIcon: MainButton.Icon? = .trailing(Assets.tangemIcon)
+    @Published private(set) var needsHoldToConfirm: Bool = false
 
     private let transferModel: TransferModel
     private let notificationManager: SendNotificationManager
@@ -128,6 +129,12 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
             .map { $0.tangemIconProvider.getMainButtonIcon() }
             .receiveOnMain()
             .assign(to: &$mainButtonIcon)
+
+        transferModel.sourceTokenPublisher
+            .compactMap { $0.value }
+            .map { $0.confirmTransactionPolicy.needsHoldToConfirm }
+            .receiveOnMain()
+            .assign(to: &$needsHoldToConfirm)
     }
 
     private func logNotEnoughFeeNotice(notifications: [NotificationViewInput]) {
