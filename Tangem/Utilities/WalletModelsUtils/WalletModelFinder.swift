@@ -7,11 +7,28 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemFoundation
 
 enum WalletModelFinder {
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
+
+    static func findMainWalletModel(address: String, blockchain: Blockchain) throws -> Result {
+        for userWalletModel in userWalletRepository.models {
+            let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+
+            if let walletModel = walletModels.first(where: { walletModel in
+                walletModel.isMainToken
+                    && walletModel.tokenItem.blockchain == blockchain
+                    && walletModel.addresses.contains { $0.value.caseInsensitiveEquals(to: address) }
+            }) {
+                return Result(userWalletModel: userWalletModel, walletModel: walletModel)
+            }
+        }
+
+        throw Error.walletModelNotFound
+    }
 
     static func findMainWalletModel(defaultAddress: String) throws -> Result {
         for userWalletModel in userWalletRepository.models {

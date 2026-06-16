@@ -27,7 +27,5 @@ struct CloreMainNetworkParams: UTXONetworkParams {
     let coinType: UInt32 = 1313
 
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
-    /// https://github.com/dashpay/dash/blob/master/src/policy/policy.h#L44
-    /// static const unsigned int DUST_RELAY_TX_FEE = 3000;
-    let dustRelayTxFee = 3000
+    let dustCalculator: UTXONetworkParamsDustCalculator = BitcoinUTXONetworkParamsDustCalculator(dustRelayTxFee: 3000)
 }

@@ -12,7 +12,7 @@ import XCTest
 final class ResetCardUITests: BaseTestCase {
     func testResetToFactorySettings_CheckboxBehavior() throws {
         setAllureId(3974)
-        launchApp()
+        launchApp(tangemApiType: .mock)
 
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

@@ -15,28 +15,26 @@ struct OrganizeTokensHeaderView: View {
 
     var body: some View {
         HStack(spacing: 8.0) {
-            Group {
-                FlexySizeButtonWithLeadingIcon(
-                    title: viewModel.sortByBalanceButtonTitle,
-                    icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
-                    isToggled: viewModel.isSortByBalanceEnabled,
-                    action: viewModel.toggleSortState
-                )
-                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton)
-
-                FlexySizeButtonWithLeadingIcon(
-                    title: viewModel.groupingButtonTitle,
-                    icon: Assets.OrganizeTokens.makeGroupIcon.image,
-                    action: viewModel.toggleGroupState
-                )
-                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.groupButton)
-            }
-            .background(
-                Colors.Background
-                    .primary
-                    .opacity(0.5)
-                    .cornerRadiusContinuous(10.0)
+            FlexySizeButtonWithLeadingIcon(
+                title: viewModel.sortByBalanceButtonTitle,
+                icon: Assets.OrganizeTokens.byBalanceSortIcon.image,
+                isToggled: viewModel.isSortByBalanceEnabled,
+                action: viewModel.toggleSortState
             )
+            .if(FeatureProvider.isAvailable(.manageTokensImprovements)) {
+                $0.overrideBackgroundColor(Colors.Background.action)
+            }
+            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton)
+
+            FlexySizeButtonWithLeadingIcon(
+                title: viewModel.groupingButtonTitle,
+                icon: Assets.OrganizeTokens.makeGroupIcon.image,
+                action: viewModel.toggleGroupState
+            )
+            .if(FeatureProvider.isAvailable(.manageTokensImprovements)) {
+                $0.overrideBackgroundColor(Colors.Background.action)
+            }
+            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.groupButton)
         }
     }
 }
@@ -51,7 +49,8 @@ struct OrganizeTokensHeaderView_Previews: PreviewProvider {
         )
         let viewModel = OrganizeTokensHeaderViewModel(
             optionsProviding: optionsManager,
-            optionsEditing: optionsManager
+            optionsEditing: optionsManager,
+            analyticsLogger: TokensManagementAnalyticsLogger()
         )
         return OrganizeTokensHeaderView(viewModel: viewModel)
     }
