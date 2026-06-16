@@ -714,7 +714,7 @@ private extension CommonYieldModuleManager {
     }
 
     func arePushNotificationsEnabled() -> Bool {
-        userWalletRepository.selectedModel?.userTokensPushNotificationsManager.status.isActive ?? false
+        userWalletRepository.selectedModel?.userWalletPushNotificationsManager.preferences.preference(for: .transactionAlerts).isEnabled ?? false
     }
 }
 

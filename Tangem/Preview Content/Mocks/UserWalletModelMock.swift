@@ -79,11 +79,12 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
-    var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
-        CommonUserTokensPushNotificationsManager(
+    var userWalletPushNotificationsManager: UserWalletPushNotificationsManager {
+        CommonUserWalletPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub()
+            remoteStatusSyncing: UserWalletPushNotificationsRemoteStatusSyncingStub(),
+            notificationPreferencesProvider: NotificationPreferencesProviderStub()
         )
     }
 

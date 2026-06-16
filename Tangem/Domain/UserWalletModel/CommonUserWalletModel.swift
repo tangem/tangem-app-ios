@@ -28,7 +28,7 @@ class CommonUserWalletModel {
     let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
 
-    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
     var emailConfig: EmailConfig? {
@@ -56,7 +56,7 @@ class CommonUserWalletModel {
         keysRepository: KeysRepository,
         keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
-        userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         accountModelsManager: AccountModelsManager
     ) {
         self.walletInfo = walletInfo
@@ -67,7 +67,7 @@ class CommonUserWalletModel {
         self.keysRepository = keysRepository
         self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
-        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)

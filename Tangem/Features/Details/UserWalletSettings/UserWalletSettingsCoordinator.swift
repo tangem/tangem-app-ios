@@ -250,28 +250,6 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
     }
 }
 
-// MARK: - TransactionNotificationsRowToggleRoutable
-
-extension UserWalletSettingsCoordinator: TransactionNotificationsRowToggleRoutable {
-    func openTransactionNotifications() {
-        let transactionNotificationsModalViewModel = TransactionNotificationsModalViewModel(coordinator: self)
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: transactionNotificationsModalViewModel)
-        }
-    }
-}
-
-// MARK: - TransactionNotificationsModalRoutable
-
-extension UserWalletSettingsCoordinator: TransactionNotificationsModalRoutable {
-    func dismissTransactionNotifications() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-}
-
 // MARK: - UserSettingsAccountsRoutable
 
 extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {

@@ -71,7 +71,6 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - User token list management
 
-    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws
 
     // MARK: - Action Buttons
@@ -141,11 +140,11 @@ protocol TangemApiService: AnyObject {
     // MARK: - UserWallets
 
     /// Retrieves all user wallets associated with the given application ID
-    /// - Returns: Array of user wallet details including ID, name and notification status
+    /// - Returns: Array of user wallet details including ID and name
     func getUserWallets(applicationUid: String) async throws -> [UserWalletDTO.Response]
 
     /// Retrieves details for a specific user wallet
-    /// - Returns: User wallet details including ID, name and notification status
+    /// - Returns: User wallet details including ID and name
     func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response
 
     /// Update user wallet data model

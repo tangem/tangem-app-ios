@@ -42,7 +42,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
-    @Published var pushNotificationsViewModel: TransactionNotificationsRowToggleViewModel?
     @Published var notificationSettingsViewModel: DefaultRowViewModel?
 
     @Published var forgetViewModel: DefaultRowViewModel?
@@ -215,7 +214,6 @@ private extension UserWalletSettingsViewModel {
         cardSettingsViewModel = nil
         referralViewModel = nil
         nftViewModel = nil
-        pushNotificationsViewModel = nil
         notificationSettingsViewModel = nil
         mobileAccessCodeViewModel = nil
         mobileBackupViewModel = nil
@@ -262,18 +260,10 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
-            notificationSettingsViewModel = DefaultRowViewModel(
-                title: Localization.pushNotificationSettingsTitle,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
-            )
-        } else {
-            pushNotificationsViewModel = TransactionNotificationsRowToggleViewModel(
-                userTokensPushNotificationsManager: userWalletModel.userTokensPushNotificationsManager,
-                coordinator: coordinator,
-                showPushSettingsAlert: weakify(self, forFunction: UserWalletSettingsViewModel.displayEnablePushSettingsAlert)
-            )
-        }
+        notificationSettingsViewModel = DefaultRowViewModel(
+            title: Localization.pushNotificationSettingsTitle,
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.openNotificationSettings)
+        )
 
         if userWalletModel.config.hasFeature(.userWalletBackup) {
             forgetViewModel = DefaultRowViewModel(
@@ -405,36 +395,6 @@ private extension UserWalletSettingsViewModel {
             title: Localization.mainManageTokens,
             accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.manageTokensButton,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
-        )
-    }
-
-    func displayEnablePushSettingsAlert() {
-        let buttons: AlertBuilder.Buttons = .init(
-            primaryButton: .default(
-                Text(Localization.pushNotificationsPermissionAlertNegativeButton),
-                action: { [weak self] in
-                    guard let self else { return }
-
-                    pushNotificationsViewModel?.isPushNotifyEnabled = false
-                    coordinator?.onAlertDismiss()
-                }
-            ),
-            secondaryButton: .default(
-                Text(Localization.pushNotificationsPermissionAlertPositiveButton),
-                action: { [weak self] in
-                    guard let self else { return }
-
-                    pushNotificationsViewModel?.isPushNotifyEnabled = false
-                    coordinator?.openAppSettings()
-                    coordinator?.onAlertDismiss()
-                }
-            )
-        )
-
-        alert = AlertBuilder.makeAlert(
-            title: Localization.pushNotificationsPermissionAlertTitle,
-            message: Localization.pushNotificationsPermissionAlertDescription,
-            with: buttons
         )
     }
 }
