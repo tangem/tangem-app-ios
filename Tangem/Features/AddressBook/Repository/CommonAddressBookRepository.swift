@@ -104,7 +104,10 @@ extension CommonAddressBookRepository: AddressBookRepository {
             loadFromCache()
             syncStateSubject.send(.synced)
         case .notFound:
-            contactsSubject.send([])
+            // The stub backend is in-memory and empty after a relaunch, so the local encrypted cache
+            // is the source of truth until the real backend (T4) lands. An empty cache yields no
+            // contacts, which is the correct "no book yet" result for a fresh wallet.
+            loadFromCache()
             syncStateSubject.send(.synced)
         case .fetched(let remote):
             do {
@@ -138,8 +141,10 @@ extension CommonAddressBookRepository: AddressBookRepository {
         let knownETag = eTagStorage.loadETag(for: walletId)
         let result = try await networkService.saveAddressBook(envelope, walletId: walletId, knownETag: knownETag)
 
+        // The local cache is the durable store until the real backend (T4) lands, so a write failure
+        // must surface rather than be silently swallowed.
+        try persistentStorage.saveEnvelope(mapper.mapToDTO(envelope), for: walletId)
         eTagStorage.saveETag(result.etag, for: walletId)
-        try? persistentStorage.saveEnvelope(mapper.mapToDTO(envelope), for: walletId)
         contactsSubject.send(contacts)
         syncStateSubject.send(.synced)
     }
