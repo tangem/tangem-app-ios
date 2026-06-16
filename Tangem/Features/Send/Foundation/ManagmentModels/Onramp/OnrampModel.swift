@@ -12,8 +12,6 @@ import Combine
 import TangemFoundation
 
 class OnrampModel {
-    typealias TransactionHistoryEnricherFactory = () async -> TransactionHistoryExpressDataEnriching?
-
     // MARK: - Data
 
     private let _currency: CurrentValueSubject<LoadingResult<OnrampFiatCurrency, Error>, Never>
@@ -42,7 +40,7 @@ class OnrampModel {
     private let onrampRepository: OnrampRepository
     private let analyticsLogger: OnrampManagementModelAnalyticsLogger
     private let redirectSettingsBuilder: OnrampRedirectSettingsBuilder
-    private let transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory
+    private let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory
 
     private let autoupdatingTimer: AutoupdatingTimer
     private var autoupdatingTimerSubscription: AnyCancellable?
@@ -62,7 +60,7 @@ class OnrampModel {
         analyticsLogger: OnrampManagementModelAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
         redirectSettingsBuilder: OnrampRedirectSettingsBuilder,
-        transactionHistoryEnricherFactory: @escaping TransactionHistoryEnricherFactory,
+        transactionHistoryEnricherFactory: @escaping TransactionHistoryExpressDataEnriching.Factory,
         predefinedValues: PredefinedValues,
     ) {
         self.userWalletId = userWalletId
