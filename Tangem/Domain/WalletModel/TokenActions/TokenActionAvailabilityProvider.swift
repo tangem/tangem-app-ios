@@ -13,8 +13,6 @@ import enum BlockchainSdk.Blockchain
 struct TokenActionAvailabilityProvider {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    private let userWalletsActionButtonsAvailabilityProvider = UserWalletsActionButtonsAvailabilityProvider()
-
     private let userWalletConfig: UserWalletConfig
     private let walletModel: any WalletModel
     private let sellCryptoUtility: SellCryptoUtility
@@ -211,7 +209,7 @@ extension TokenActionAvailabilityProvider {
             return .customToken
         }
 
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -233,14 +231,9 @@ extension TokenActionAvailabilityProvider {
              .oldCard,
              .zeroFeeCurrencyBalance,
              .noAccount,
+             .zeroWalletBalance,
              .none:
             break
-        case .zeroWalletBalance:
-            if userWalletConfig.hasFeature(.isBalanceRestrictionActive) {
-                return userWalletsActionButtonsAvailabilityProvider.isActionButtonsAvailable(walletModel: walletModel) ? .available : .hidden
-            } else {
-                break
-            }
         }
 
         let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
@@ -284,7 +277,7 @@ extension TokenActionAvailabilityProvider {
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -344,7 +337,7 @@ extension TokenActionAvailabilityProvider {
             return .demo(disabledLocalizedReason: disabledLocalizedReason)
         }
 
-        if case .active(let info) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
+        if case .active(let info, _) = walletModel.yieldModuleManager?.state?.state, info.isAllowancePermissionRequired {
             return .yieldModuleApproveNeeded
         }
 
@@ -448,11 +441,36 @@ extension TokenActionAvailabilityProvider {
     }
 }
 
+// MARK: - Dynamic Addresses Management
+
+extension TokenActionAvailabilityProvider {
+    enum DynamicAddressesActionAvailabilityStatus {
+        case available
+        case hasPendingTransaction(blockchainDisplayName: String)
+    }
+
+    var isDynamicAddressesActionAvailable: Bool {
+        if case .available = dynamicAddressesAvailability {
+            return true
+        }
+
+        return false
+    }
+
+    var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {
+        if case .hasPendingTransaction(let blockchain) = walletModel.sendingRestrictions {
+            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
+        }
+
+        return .available
+    }
+}
+
 // MARK: Stake
 
 extension TokenActionAvailabilityProvider {
     var isStakeAvailable: Bool {
-        isStakeFeatureAvailable && isSendAvailable
+        isStakeFeatureAvailable && isSendAvailable && isStakingOfferAvailable
     }
 
     /// Checks whether staking is available for the token without considering `isSendAvailable`.
@@ -461,6 +479,19 @@ extension TokenActionAvailabilityProvider {
         let canStake = stakingFeatureProvider.isAvailable(for: walletModel.tokenItem)
 
         return canStake
+    }
+
+    private var isStakingOfferAvailable: Bool {
+        switch walletModel.stakingManagerState {
+        case .staked:
+            return true
+        case .availableToStake(let yield):
+            return yield.isAvailable
+        case .loading(let cached), .loadingError(_, let cached):
+            return cached != nil
+        case .notEnabled, .temporaryUnavailable:
+            return false
+        }
     }
 }
 

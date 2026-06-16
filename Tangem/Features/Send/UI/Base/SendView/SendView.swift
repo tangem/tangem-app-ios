@@ -72,6 +72,22 @@ struct SendView: View {
 
         case .backButton:
             NavigationToolbarButton.back(placement: placement, action: viewModel.userDidTapBackButton)
+
+        case .dotsMenu(let selectedId, let items):
+            ToolbarItem(placement: placement) {
+                Menu {
+                    Picker(selection: dotsMenuSelectionBinding(selectedId: selectedId, items: items)) {
+                        ForEach(items, id: \.id) { item in
+                            Text(item.title).tag(item.id)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                    .pickerStyle(.inline)
+                } label: {
+                    NavbarDotsImage()
+                }
+            }
         }
     }
 
@@ -168,7 +184,7 @@ struct SendView: View {
     private func bottomActionButton(_ mainButtonType: SendMainButtonType) -> some View {
         if viewModel.mainButtonUpdating {
             bottomAction(type: mainButtonType, isLoading: true)
-        } else if viewModel.needsHoldAction(mainButtonType: mainButtonType) {
+        } else if viewModel.mainButtonNeedsHoldAction(mainButtonType: mainButtonType) {
             bottomHoldAction(mainButtonType)
         } else {
             bottomAction(type: mainButtonType, isLoading: viewModel.mainButtonLoading)
@@ -178,7 +194,7 @@ struct SendView: View {
     private func bottomAction(type mainButtonType: SendMainButtonType, isLoading: Bool) -> some View {
         MainButton(
             title: mainButtonType.title(action: viewModel.flowActionType),
-            icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
+            icon: viewModel.mainButtonIcon(mainButtonType: mainButtonType),
             style: .primary,
             size: .default,
             isLoading: isLoading,
@@ -204,5 +220,15 @@ struct SendView: View {
         ListFooterOverlayShadowView(opacities: [0, 0.95, 1])
             .frame(height: bottomGradientHeight)
             .visible(viewModel.shouldShowBottomOverlay)
+    }
+
+    private func dotsMenuSelectionBinding(
+        selectedId: String,
+        items: [SendStepNavigationLeadingViewType.DotsMenuItem]
+    ) -> Binding<String> {
+        Binding(
+            get: { selectedId },
+            set: { newId in items.first(where: { $0.id == newId })?.action() }
+        )
     }
 }

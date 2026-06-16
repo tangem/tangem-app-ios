@@ -28,15 +28,8 @@ struct SendFactory {
         case .swap(.to(let receiveToken)):
             return SwapFlowFactory(receiveToken: receiveToken)
 
-        case .swap(.pair(let source, let destination)):
-            return SwapFlowFactory(sourceToken: source, receiveToken: destination)
-
         case .swap(.deferredPairResolution(let source, let resolver)):
-            return SwapFlowFactory(
-                sourceToken: source,
-                receiveToken: nil,
-                swapTokenPairResolver: resolver
-            )
+            return SwapFlowFactory(sourceToken: source, receiveToken: nil, swapTokenPairResolver: resolver)
 
         case .nft(let transferableToken, let parameters):
             return TransferNFTFlowFactory(

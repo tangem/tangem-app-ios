@@ -31,6 +31,7 @@ final class WelcomeCoordinator: CoordinatorObject {
 
     @Published var welcomeOnboardingCoordinator: WelcomeOnboardingCoordinator? = nil
     @Published var createWalletSelectorCoordinator: CreateWalletSelectorCoordinator? = nil
+    @Published var tangemPayMobileOnboardingCoordinator: TangemPayMobileOnboardingCoordinator? = nil
 
     // MARK: - Child view models
 
@@ -43,11 +44,15 @@ final class WelcomeCoordinator: CoordinatorObject {
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($welcomeOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($tangemPayMobileOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append(mailPresenterLifecycleSubject.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
             .eraseToAnyPublisher()
     }
+
+    private var tangemPayMobileOnboardingObserver: AnyCancellable?
+    private var needsToShowTangemPayMobileOnboarding = false
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -64,28 +69,74 @@ final class WelcomeCoordinator: CoordinatorObject {
         storiesModel.setDelegate(delegate: welcomeViewModel)
         storiesModel.setLifecyclePublisher(publisher: lifecyclePublisher)
         rootViewModel = welcomeViewModel
-        showWelcomeOnboardingIfNeeded()
-    }
 
-    private func showWelcomeOnboardingIfNeeded() {
-        let factory = PushNotificationsHelpersFactory()
-        let availabilityProvider = factory.makeAvailabilityProviderForWelcomeOnboarding(using: pushNotificationsInteractor)
-        let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
-        let builder = WelcomeOnboardingStepsBuilder(isPushNotificationsAvailable: availabilityProvider.isAvailable)
-        let steps = builder.buildSteps()
-        guard !steps.isEmpty else {
-            return
+        if let onboarding = WelcomeOnboardingsHelper().getStartupOnboarding() {
+            switch onboarding {
+            case .welcome(let steps):
+                showWelcomeOnboarding(steps: steps)
+            case .tangemPayMobile:
+                showTangemPayMobileOnboarding()
+            }
         }
 
+        bindTangemPayMobileOnboarding()
+    }
+
+    private func bindTangemPayMobileOnboarding() {
+        tangemPayMobileOnboardingObserver = AppSettings.shared.$needsTangemPayMobileOnboarding
+            .dropFirst()
+            .first()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { coordinator, isOnboardingNeeded in
+                guard coordinator.tangemPayMobileOnboardingCoordinator == nil, isOnboardingNeeded else {
+                    return
+                }
+
+                // If the notification-permission (welcome) onboarding is still on screen,
+                // defer Tangem Pay onboarding until the user dismisses it, so the screens
+                // are shown sequentially instead of racing.
+                if coordinator.welcomeOnboardingCoordinator != nil {
+                    coordinator.needsToShowTangemPayMobileOnboarding = true
+                } else {
+                    coordinator.showTangemPayMobileOnboarding()
+                }
+            }
+    }
+
+    private func showWelcomeOnboarding(steps: [WelcomeOnboardingStep]) {
+        let factory = PushNotificationsHelpersFactory()
+        let permissionManager = factory.makePermissionManagerForWelcomeOnboarding(using: pushNotificationsInteractor)
+
         let dismissAction: Action<WelcomeOnboardingCoordinator.OutputOptions> = { [weak self] _ in
+            guard let self else { return }
             withAnimation(.easeIn) {
-                self?.welcomeOnboardingCoordinator = nil
+                self.welcomeOnboardingCoordinator = nil
+            }
+
+            if needsToShowTangemPayMobileOnboarding {
+                needsToShowTangemPayMobileOnboarding = false
+                showTangemPayMobileOnboarding()
             }
         }
 
         let coordinator = WelcomeOnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(steps: steps, pushNotificationsPermissionManager: permissionManager))
         welcomeOnboardingCoordinator = coordinator
+    }
+
+    private func showTangemPayMobileOnboarding() {
+        let dismissAction: Action<TangemPayMobileOnboardingCoordinator.OutputOptions> = { [weak self] options in
+            guard let self else { return }
+            switch options {
+            case .main(let userWalletModel):
+                dismiss(with: .main(userWalletModel))
+            }
+        }
+
+        let coordinator = TangemPayMobileOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: ())
+        tangemPayMobileOnboardingCoordinator = coordinator
     }
 }
 

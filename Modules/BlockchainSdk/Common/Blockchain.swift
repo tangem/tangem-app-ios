@@ -112,6 +112,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case monad(testnet: Bool)
     case arbitrumNova
     case plasma(testnet: Bool)
+    case adi(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -171,7 +172,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll(let testnet),
              .linea(let testnet),
              .monad(let testnet),
-             .plasma(let testnet):
+             .plasma(let testnet),
+             .adi(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -357,6 +359,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .seiEvm:
             return 18
         case .cardano,
@@ -565,6 +568,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "MON"
         case .plasma:
             return "XPL"
+        case .adi:
+            return "ADI"
         }
     }
 
@@ -669,6 +674,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Monad" + testnetSuffix
         case .arbitrumNova:
             return "Arbitrum Nova"
+        case .adi:
+            return "ADI" + testnetSuffix
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -965,6 +972,7 @@ public extension Blockchain {
         case .monad: return isTestnet ? 10143 : 143
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
+        case .adi: return isTestnet ? 99999 : 36900
         case .seiEvm: return isTestnet ? 1328 : 1329
         default:
             return nil
@@ -1055,6 +1063,7 @@ public extension Blockchain {
         case .monad: return true
         case .arbitrumNova: return true
         case .plasma: return true
+        case .adi: return false // eth_feeHistory respond without reward field, further logic produces error
         case .seiEvm: return true
         default:
             assertionFailure("Don't forget about evm here")
@@ -1224,6 +1233,7 @@ extension Blockchain: Codable {
         case .monad: return "monad"
         case .arbitrumNova: return "arbitrum-nova"
         case .plasma: return "plasma"
+        case .adi: return "adi-token"
         }
     }
 
@@ -1342,6 +1352,7 @@ extension Blockchain: Codable {
         case "monad": self = .monad(testnet: isTestnet)
         case "arbitrum-nova": self = .arbitrumNova
         case "plasma": self = .plasma(testnet: isTestnet)
+        case "adi-token": self = .adi(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1648,6 +1659,8 @@ private extension Blockchain {
             }
         case .plasma:
             return "plasma"
+        case .adi:
+            return "adi-token"
         }
     }
 
@@ -1717,6 +1730,7 @@ extension Blockchain {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .seiEvm:
             return EthereumWalletAssembly()
         case .optimism,
