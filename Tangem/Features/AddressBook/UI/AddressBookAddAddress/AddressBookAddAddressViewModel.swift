@@ -24,9 +24,27 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         )
 
         additionalFieldViewModel = SendDestinationAdditionalFieldViewModel(title: Localization.sendExtrasHintMemo)
+
+        destinationAddressViewModel.router = self
     }
 
     func userDidRequestDismiss() {
         coordinator?.dismissAddAddress()
+    }
+}
+
+// MARK: - SendDestinationAddressViewRoutable
+
+extension AddressBookAddAddressViewModel: SendDestinationAddressViewRoutable {
+    func didTapScanQRButton() {
+        coordinator?.openQRScanner(output: self)
+    }
+}
+
+// MARK: - QRScannerOutput
+
+extension AddressBookAddAddressViewModel: QRScannerOutput {
+    func qrScanDidScan(string: String) {
+        destinationAddressViewModel.update(address: .init(string: string, source: .qrCode))
     }
 }

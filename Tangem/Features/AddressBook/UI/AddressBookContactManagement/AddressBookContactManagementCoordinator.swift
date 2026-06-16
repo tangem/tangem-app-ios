@@ -21,6 +21,10 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
     @Published var addAddressViewModel: AddressBookAddAddressViewModel?
 
+    // MARK: - Child coordinators
+
+    @Published var qrScanViewCoordinator: QRScanViewCoordinator?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -65,5 +69,14 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
 extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
     func dismissAddAddress() {
         addAddressViewModel = nil
+    }
+
+    func openQRScanner(output: QRScannerOutput) {
+        let coordinator = QRScanViewCoordinator { [weak self] in
+            self?.qrScanViewCoordinator = nil
+        }
+
+        coordinator.start(with: .init(output: output, text: ""))
+        qrScanViewCoordinator = coordinator
     }
 }
