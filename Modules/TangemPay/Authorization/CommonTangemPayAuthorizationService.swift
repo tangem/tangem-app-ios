@@ -21,11 +21,11 @@ final class CommonTangemPayAuthorizationService {
     private let apiType: VisaAPIType
     private let apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>
 
-    private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
+    private let authorizationTokensHolder: OSAllocatedUnfairLock<TangemPayAuthorizationTokens?>
     private let taskProcessor = SingleTaskProcessor<Void, TangemPayAPIServiceError>()
 
     private var tokens: TangemPayAuthorizationTokens? {
-        authorizationTokensHolder.read()
+        authorizationTokensHolder { $0 }
     }
 
     init(
@@ -39,7 +39,7 @@ final class CommonTangemPayAuthorizationService {
         self.authorizationTokensRepository = authorizationTokensRepository
         self.apiType = apiType
         self.apiService = apiService
-        authorizationTokensHolder = ThreadSafeContainer(tokens)
+        authorizationTokensHolder = OSAllocatedUnfairLock(initialState: tokens)
     }
 
     private func refreshTokenIfNeeded() async throws(TangemPayAPIServiceError) {
@@ -105,9 +105,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationTokensHandl
     }
 
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws {
-        authorizationTokensHolder.mutate {
-            $0 = tokens
-        }
+        authorizationTokensHolder { $0 = tokens }
 
         try authorizationTokensRepository.save(tokens: tokens, customerWalletId: customerWalletId)
     }

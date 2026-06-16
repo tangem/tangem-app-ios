@@ -52,6 +52,7 @@ struct DecimalNumberTextField: View {
                    newValue.count > maxTextLength {
                     viewModel.textFieldTextBinding.value = String(newValue.prefix(maxTextLength))
                 }
+                viewModel.sanitize()
             }
     }
 

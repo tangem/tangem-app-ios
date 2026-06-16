@@ -12,8 +12,15 @@ import TangemMacro
 import TangemExpress
 import TangemLocalization
 import TangemFoundation
+import TangemUI
 
 final class OnrampSummaryViewModel: ObservableObject, Identifiable {
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
+
+    @Injected(\.onrampRepository)
+    private var onrampRepository: OnrampRepository
+
     @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -103,7 +110,7 @@ private extension OnrampSummaryViewModel {
         case .success(let offers):
             return .suggestedOffers(.init(
                 recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0) },
-                recommended: offers.recommended.map { mapToRecommendedOnrampOfferViewModel(suggestedOfferType: $0) },
+                recommended: offers.recommended.map { mapToRecommendedItem(suggestedOfferType: $0) },
             ))
         }
     }
@@ -124,7 +131,7 @@ private extension OnrampSummaryViewModel {
         return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
     }
 
-    func mapToRecommendedOnrampOfferViewModel(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> OnrampOfferViewModel {
+    func mapToRecommendedItem(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem) -> RecommendedItem {
         let provider = suggestedOfferType.provider
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
 
@@ -143,7 +150,42 @@ private extension OnrampSummaryViewModel {
             }
         )
 
-        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(title: title, provider: provider, buyAction: buyAction)
+        let isNativeApplePay = suggestedOfferType.isNativeApplePay
+        let infoAction: (() -> Void)? = isNativeApplePay ? { [weak self] in self?.openProviderRequirementsSheet() } : nil
+        let legalNotice = isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
+        let footnote = isNativeApplePay ? makeCumulativeLimitFootnote(for: provider) : nil
+
+        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
+            title: title,
+            provider: provider,
+            buyAction: buyAction,
+            infoAction: infoAction,
+            legalNotice: legalNotice
+        )
+
+        return RecommendedItem(viewModel: viewModel, footnote: footnote)
+    }
+
+    func makeCumulativeLimitFootnote(for provider: OnrampProvider) -> String {
+        let preferenceCurrencyCode = onrampRepository.preferenceCurrency?.identity.code.uppercased()
+        let providerName = provider.provider.name
+        let limit = Constants.cumulativeLimitAmount
+
+        switch preferenceCurrencyCode {
+        case AppConstants.usdCurrencyCode:
+            return Localization.onrampNativePaymentCumulativeLimit("\(limit) \(AppConstants.usdCurrencyCode)", providerName)
+        case AppConstants.eurCurrencyCode:
+            return Localization.onrampNativePaymentCumulativeLimit("\(limit) \(AppConstants.eurCurrencyCode)", providerName)
+        default:
+            return Localization.onrampNativePaymentCumulativeLimitEquivalent("\(limit) \(AppConstants.usdCurrencyCode)", providerName)
+        }
+    }
+
+    func openProviderRequirementsSheet() {
+        let viewModel = OnrampProviderRequirementsBottomSheetViewModel()
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 }
 
@@ -160,6 +202,21 @@ extension OnrampSummaryViewModel {
 
     struct SuggestedOffers: Hashable {
         let recent: OnrampOfferViewModel?
-        let recommended: [OnrampOfferViewModel]
+        let recommended: [RecommendedItem]
+    }
+
+    struct RecommendedItem: Hashable, Identifiable {
+        let viewModel: OnrampOfferViewModel
+        let footnote: String?
+
+        var id: Int { hashValue }
+    }
+}
+
+// MARK: - Constants
+
+private extension OnrampSummaryViewModel {
+    enum Constants {
+        static let cumulativeLimitAmount = 700
     }
 }
