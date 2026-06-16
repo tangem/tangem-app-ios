@@ -613,7 +613,7 @@ private extension TokenDetailsViewModel {
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
         let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
             formattedFiatBalance,
-            font: .Tangem.Body16.medium,
+            font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
             decimalColor: .Tangem.Text.Neutral.secondary
         )

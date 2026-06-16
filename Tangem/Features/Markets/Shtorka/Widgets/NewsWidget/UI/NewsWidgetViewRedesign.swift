@@ -46,7 +46,7 @@ struct NewsWidgetViewRedesign: View {
         HStack(alignment: .center, spacing: .zero) {
             Text(Localization.commonNews)
                 .lineLimit(1)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .skeletonable(
                     isShown: viewModel.headerLoadingState.isHeaderSkeletonable,
                     size: CGSize(width: 120, height: 24) * scaleFactor,
@@ -78,11 +78,11 @@ struct NewsWidgetViewRedesign: View {
                 .foregroundStyle(NewsHeaderGradient.linearGradient)
 
             Text("Tangem AI")
-                .style(.Tangem.Body16.medium, color: .clear)
+                .style(Font.Tangem.Body16.medium, color: .clear)
                 .overlay(
                     NewsHeaderGradient.linearGradient.mask(
                         Text("Tangem AI")
-                            .style(.Tangem.Body16.medium, color: .black)
+                            .style(Font.Tangem.Body16.medium, color: .black)
                     )
                 )
         }
@@ -92,7 +92,7 @@ struct NewsWidgetViewRedesign: View {
         Button(action: viewModel.handleAllNewsTap) {
             HStack(spacing: .zero) {
                 Text(Localization.commonSeeAll)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 Assets.chevron.image
                     .renderingMode(.template)

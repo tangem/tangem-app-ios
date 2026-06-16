@@ -57,23 +57,23 @@ private extension EarnTokenItemViewRedesign {
     func primaryLeading() -> some View {
         HStack(alignment: .lastTextBaseline, spacing: textHorizontalSpacing) {
             Text(viewModel.name)
-                .style(.Tangem.Body15.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body15.semibold, color: .Tangem.Text.Neutral.primary)
 
             Text(viewModel.symbol)
-                .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
         }
         .lineLimit(1)
     }
 
     func primaryTrailing() -> some View {
         Text(viewModel.rateText)
-            .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
     func secondaryLeading() -> some View {
         Text(viewModel.networkName)
-            .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
             .lineLimit(1)
     }
 
