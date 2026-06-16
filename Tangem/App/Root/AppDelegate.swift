@@ -10,7 +10,7 @@ import UIKit
 import TangemAssets
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
