@@ -11,6 +11,7 @@ import Foundation
 protocol YieldModuleFlowFactory {
     func makeYieldPromoCoordinator(
         apy: Decimal,
+        isApyBoostPromo: Bool,
         dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
     ) -> YieldModulePromoCoordinator
 
@@ -20,7 +21,9 @@ protocol YieldModuleFlowFactory {
 
     func makeYieldAvailableNotificationViewModel(
         apy: Decimal,
-        onButtonTap: @escaping (Decimal) -> Void
+        style: YieldAvailableNotificationViewModel.Style,
+        onLearnMoreTap: @escaping (Decimal) -> Void,
+        onActivateTap: ((Decimal) -> Void)?
     ) -> YieldAvailableNotificationViewModel
 
     func makeYieldStatusViewModel(
@@ -52,7 +55,11 @@ final class CommonYieldModuleFlowFactory {
 
     // MARK: - View Models
 
-    private func makeYieldPromoViewModel(apy: Decimal, coordinator: YieldModulePromoCoordinator) -> YieldModulePromoViewModel {
+    private func makeYieldPromoViewModel(
+        apy: Decimal,
+        isApyBoostPromo: Bool,
+        coordinator: YieldModulePromoCoordinator
+    ) -> YieldModulePromoViewModel {
         let interactor = makeInteractor()
         let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor)
 
@@ -60,6 +67,7 @@ final class CommonYieldModuleFlowFactory {
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
             apy: apy,
+            isApyBoostPromo: isApyBoostPromo,
             coordinator: coordinator,
             startFlowFactory: startFlowFactory,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
@@ -133,19 +141,27 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
         )
     }
 
-    func makeYieldAvailableNotificationViewModel(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) -> YieldAvailableNotificationViewModel {
+    func makeYieldAvailableNotificationViewModel(
+        apy: Decimal,
+        style: YieldAvailableNotificationViewModel.Style,
+        onLearnMoreTap: @escaping (Decimal) -> Void,
+        onActivateTap: ((Decimal) -> Void)?
+    ) -> YieldAvailableNotificationViewModel {
         YieldAvailableNotificationViewModel(
             apy: apy,
-            onButtonTap: onButtonTap
+            style: style,
+            onLearnMoreTap: onLearnMoreTap,
+            onActivateTap: onActivateTap
         )
     }
 
     func makeYieldPromoCoordinator(
         apy: Decimal,
+        isApyBoostPromo: Bool,
         dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
     ) -> YieldModulePromoCoordinator {
         let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
-        let viewModel = makeYieldPromoViewModel(apy: apy, coordinator: coordinator)
+        let viewModel = makeYieldPromoViewModel(apy: apy, isApyBoostPromo: isApyBoostPromo, coordinator: coordinator)
         let options = YieldModulePromoCoordinator.Options(viewModel: viewModel)
 
         coordinator.start(with: options)

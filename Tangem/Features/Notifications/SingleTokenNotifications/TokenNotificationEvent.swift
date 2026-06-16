@@ -27,6 +27,7 @@ enum TokenNotificationEvent: Hashable {
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
     case cloreMigration
+    case dynamicAddressesFundsFound(currencySymbol: String, blockchainName: String)
 }
 
 extension TokenNotificationEvent: NotificationEvent {
@@ -69,6 +70,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningMaticMigrationTitle)
         case .cloreMigration:
             return .string(Localization.warningCloreMigrationTitle)
+        case .dynamicAddressesFundsFound:
+            return .string(Localization.dynamicAddressesNotificationFundsFoundTitle)
         }
     }
 
@@ -121,6 +124,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.warningMaticMigrationMessage
         case .cloreMigration:
             return Localization.warningCloreMigrationDescription
+        case .dynamicAddressesFundsFound:
+            return Localization.dynamicAddressesNotificationFundsFoundDescription
         }
     }
 
@@ -141,7 +146,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _),
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
              .staking,
-             .cloreMigration:
+             .cloreMigration,
+             .dynamicAddressesFundsFound:
             return .primary
         }
     }
@@ -153,7 +159,8 @@ extension TokenNotificationEvent: NotificationEvent {
         case .networkUnreachable,
              .bnbBeaconChainRetirement,
              .maticMigration,
-             .cloreMigration:
+             .cloreMigration,
+             .dynamicAddressesFundsFound:
             return .init(iconType: .image(Assets.attention))
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning))
@@ -186,7 +193,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _),
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _),
-             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _):
+             .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _),
+             .dynamicAddressesFundsFound:
             return .warning
         }
     }
@@ -207,7 +215,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .staking,
              .manaLevel,
              .maticMigration,
-             .cloreMigration:
+             .cloreMigration,
+             .dynamicAddressesFundsFound:
             return false
         }
     }
@@ -244,6 +253,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(.stake)
         case .cloreMigration:
             return .init(.openCloreMigration)
+        case .dynamicAddressesFundsFound:
+            return .init(.openDynamicAddressesEnter)
         }
     }
 }
@@ -318,6 +329,7 @@ extension TokenNotificationEvent {
         case .manaLevel: return nil
         case .maticMigration: return nil
         case .cloreMigration: return nil
+        case .dynamicAddressesFundsFound: return .dynamicAddressesNoticeFundsFound
         }
     }
 
@@ -332,6 +344,8 @@ extension TokenNotificationEvent {
             ]
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction), _):
             return [.token: revealTransaction.currencySymbol, .blockchain: revealTransaction.blockchainName]
+        case .dynamicAddressesFundsFound(let currencySymbol, let blockchainName):
+            return [.token: currencySymbol, .blockchain: blockchainName]
         case .rentFee,
              .noAccount,
              .existentialDepositWarning,

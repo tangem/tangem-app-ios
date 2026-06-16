@@ -427,10 +427,9 @@
     {
       "identity" : "reown-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/reown-com/reown-swift.git",
+      "location" : "git@github.com:tangem-developments/reown-swift.git",
       "state" : {
-        "revision" : "35bad6889201a4028096f40a978a427e6cef0b24",
-        "version" : "2.2.8"
+        "revision" : "62114d209ec942ea7ce6eb7c154980212f980bb0"
       }
     },
     {

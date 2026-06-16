@@ -68,6 +68,7 @@ extension TangemPayMainCoordinator {
     struct Options {
         let userWalletInfo: UserWalletInfo
         let tangemPayAccount: TangemPayAccount
+        let userWalletModel: any UserWalletModel
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -101,6 +102,20 @@ extension TangemPayMainCoordinator {
 // MARK: - TangemPayMainRoutable
 
 extension TangemPayMainCoordinator: TangemPayMainRoutable {
+    func renewTangemPaySession() {
+        guard
+            let userWalletModel = options?.userWalletModel,
+            let tangemPayAccountModel = userWalletModel.accountModelsManager.tangemPayAccountModel
+        else {
+            return
+        }
+
+        tangemPayAccountModel.renewSession(
+            authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor,
+            completion: {}
+        )
+    }
+
     func openCardManagement() {
         guard let options else {
             assertionFailure("TangemPayMainCoordinator.Options not found")
@@ -126,6 +141,38 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
                 userWalletId: options.userWalletInfo.id,
                 coordinator: self
             )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openMaximumCardsIssuedSheet() {
+        let viewModel = TangemPayMaximumCardsIssuedSheetViewModel(
+            onClose: { [weak self] in
+                Task { @MainActor in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                }
+            }
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openIssueAdditionalCardCostPopup(
+        offer: TangemPayCustomerOffer,
+        fee: TangemPayCustomerOffer.Fee,
+        issueCard: @escaping () async throws -> Void
+    ) {
+        guard let options else { return }
+        let viewModel = TangemPayIssueAdditionalCardCostPopupViewModel(
+            offer: offer,
+            fee: fee,
+            userWalletId: options.userWalletInfo.id,
+            tangemPayAccount: options.tangemPayAccount,
+            issueCard: issueCard,
+            coordinator: self
+        )
+        Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -436,6 +483,7 @@ extension TangemPayMainCoordinator: TangemPayCardManagementRoutable {
     private static func formatFee(amount: Decimal, currency: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")
         formatter.currencyCode = currency
         return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
     }
@@ -464,5 +512,37 @@ extension TangemPayMainCoordinator: TangemPayReissueSheetRoutable {
 extension TangemPayMainCoordinator: TangemPayDailyLimitRoutable {
     func closeTangemPayDailyLimit() {
         tangemPayDailyLimitViewModel = nil
+    }
+}
+
+// MARK: - TangemPayIssueAdditionalCardCostPopupRoutable
+
+extension TangemPayMainCoordinator: TangemPayIssueAdditionalCardCostPopupRoutable {
+    func issueCostPopupDidConfirm() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func issueCostPopupDidRequestAddFunds() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            rootViewModel?.addFunds()
+        }
+    }
+
+    func issueCostPopupDidFail(error: Error) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            rootViewModel?.alert = error.alertBinder
+        }
+    }
+
+    func issueCostPopupDidCancel() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }

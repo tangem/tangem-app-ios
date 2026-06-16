@@ -35,13 +35,13 @@ struct EarnTypeFilterBottomSheetViewRedesign: View {
                 EarnNetworkFilterSelectedRowView(data: $0, selection: $viewModel.currentSelection)
             }
             .separatorStyle(.none)
-            .settings(\.backgroundColor, Color.Tangem.Surface.level2)
+            .settings(\.backgroundColor, Color.Tangem.Surface.level3)
             .padding(.horizontal, contentHorizontalPadding)
 
             cancelButton
                 .padding(cancelPadding)
         }
-        .background(Color.Tangem.Surface.level3)
+        .background(Color.Tangem.Surface.level2)
     }
 }
 

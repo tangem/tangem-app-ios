@@ -23,7 +23,15 @@ struct ActionButtonsBuyCoordinatorView: View {
                     ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
                 }
                 .transition(SendTransitions.transition)
+            case .addFunds(let addFundsViewModel):
+                NavigationStack {
+                    AddFundsView(viewModel: addFundsViewModel)
+                }
+                .transition(SendTransitions.transition)
             case .onramp(let sendCoordinator):
+                SendCoordinatorView(coordinator: sendCoordinator)
+                    .transition(SendTransitions.transition)
+            case .swap(let sendCoordinator):
                 SendCoordinatorView(coordinator: sendCoordinator)
                     .transition(SendTransitions.transition)
             }

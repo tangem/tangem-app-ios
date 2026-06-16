@@ -1,0 +1,23 @@
+Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Left / 12, 16, 20, 24, 28 / Regular
+Arrow Right / 12, 16, 20, 24, 28 / Regular
+Arrow Swap Horizontal / 12, 16, 20, 24, 28, 32 / Regular
+Arrow Up / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Down / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Left / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
+Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
+Control Box / 20, 24 / Filled & Regular
+Control Checkmark / 20, 24 / Regular
+Control Circle / 20, 24 / Filled & Regular
+Control Indeterminate / 20, 24 / Regular
+Cross / 12, 16, 20, 24, 28, 32 / Regular
+Dot / 12, 16, 20, 24, 28, 32 / Filled
+Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
+Scan / 12, 16, 20, 24, 28 / Regular
+Sign Equal / 12, 16, 20, 24, 28, 32 / Regular
+Sign Minus / 12, 16, 20, 24, 28 / Regular
+Sign Plus / 12, 16, 20, 24, 28 / Regular
+Sign USD / 12, 16, 20, 24, 28, 32 / Regular
+Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
+Triangle Up / 12, 16, 20, 24, 28, 32 / Regular

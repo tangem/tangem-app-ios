@@ -34,7 +34,11 @@ struct ActionButtonsBuyView: View {
         .searchType(.native)
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
         .background(Colors.Background.tertiary.ignoresSafeArea())
-        .navigationTitle(Localization.commonBuy)
+        .navigationTitle(
+            FeatureProvider.isAvailable(.addFundsStage1)
+                ? Localization.swappingToTitle
+                : Localization.commonBuy
+        )
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)

@@ -53,8 +53,8 @@ public struct TangemTokenRow: View {
             loadedLayout(content: content)
         case .error(let message):
             errorLayout(message: message)
-        case .compact(let price):
-            compactLayout(price: price)
+        case .compact(let subtitle, let trailingIcon):
+            compactLayout(subtitle: subtitle, trailingIcon: trailingIcon)
         }
     }
 
@@ -112,23 +112,34 @@ public struct TangemTokenRow: View {
 
     // MARK: - Compact Layout
 
-    private func compactLayout(price: String?) -> some View {
+    private func compactLayout(subtitle: LoadableBalanceView.State, trailingIcon: ImageType?) -> some View {
         TangemTwoLineRowLayout(
             icon: { tokenIconView },
             primaryLeading: { tokenNameView(isDisabled: false) },
-            primaryTrailing: { EmptyView() },
-            secondaryLeading: {
-                if let price {
-                    Text(price)
-                        .style(Constants.Style.TokenPrice.font, color: Constants.Style.TokenPrice.color)
-                        .lineLimit(1)
-                } else {
-                    styledDashText
+            secondaryLeading: { compactSubtitleView(state: subtitle) },
+            centeredTrailing: {
+                if let trailingIcon {
+                    trailingIcon.image
+                        .renderingMode(.template)
+                        .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
                 }
-            },
-            secondaryTrailing: { EmptyView() }
+            }
         )
         .compressionPolicy(.balanced)
+    }
+
+    private func compactSubtitleView(state: LoadableBalanceView.State) -> some View {
+        LoadableBalanceView(
+            state: state,
+            style: LoadableBalanceView.Style(
+                font: Constants.Style.TokenPrice.font,
+                textColor: Constants.Style.TokenPrice.color
+            ),
+            loader: LoadableBalanceView.LoaderStyle(
+                size: priceLoaderSize,
+                cornerRadiusStyle: .capsule
+            )
+        )
     }
 
     // MARK: - Token Name With Badge
@@ -312,12 +323,6 @@ public struct TangemTokenRow: View {
             loaderSize: priceLoaderSize,
             loaderCornerRadiusStyle: .capsule
         )
-    }
-
-    private var styledDashText: some View {
-        Text(verbatim: .enDashSign)
-            .style(Constants.Style.TokenPrice.font, color: Constants.Style.TokenPrice.color)
-            .lineLimit(1)
     }
 
     // MARK: - Price Change

@@ -18,11 +18,13 @@ import TangemLocalization
 /// On earlier iOS versions, an icon with a round background is used.
 /// - SeeAlso: ``NavigationBarButton`` when you need a button outside of ``View.toolbar(content:)``.
 public struct NavigationToolbarButton: CustomizableToolbarContent {
-    private let sfSymbol: String
-    private let iconAsset: ImageType
-    private let placement: ToolbarItemPlacement
-    private let accessibilityIdentifier: String?
-    private let action: () -> Void
+    let sfSymbol: String
+    let iconAsset: ImageType
+    let placement: ToolbarItemPlacement
+    var isRedesign: Bool
+    var accessibilityIdentifier: String?
+    var accessibilityLabel: String?
+    let action: () -> Void
 
     /// Creates a navigation toolbar button.
     /// - Parameters:
@@ -34,12 +36,14 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
         sfSymbol: String,
         iconAsset: ImageType,
         placement: ToolbarItemPlacement,
+        isRedesign: Bool = false,
         accessibilityIdentifier: String? = nil,
         action: @escaping () -> Void
     ) {
         self.sfSymbol = sfSymbol
         self.iconAsset = iconAsset
         self.placement = placement
+        self.isRedesign = isRedesign
         self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
@@ -47,26 +51,25 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     public var body: some CustomizableToolbarContent {
         ToolbarItem(id: sfSymbol, placement: placement) {
             toolbarButton
+                .accessibilityLabel(accessibilityLabel)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 
     @ViewBuilder
     private var toolbarButton: some View {
-        if #available(iOS 26.0, *) {
+        if isRedesign || isLiquidGlassSupported {
             systemLabelButton
         } else {
             circleIconButton
         }
     }
 
-    @available(iOS 26.0, *)
     private var systemLabelButton: some View {
-        Button(action: action) {
-            Image(systemName: sfSymbol)
-                .foregroundStyle(Colors.Text.primary1)
-                .fontWeight(.semibold)
-        }
+        Button("", systemImage: sfSymbol, action: action)
+            .labelStyle(.iconOnly)
+            .tint(Color.Tangem.Graphic.Neutral.primary)
+            .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
     }
 
     private var circleIconButton: some View {
@@ -86,6 +89,26 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     }
 }
 
+public extension NavigationToolbarButton {
+    func accessibilityIdentifier(_ identifier: String) -> Self {
+        var mutableCopy = self
+        mutableCopy.accessibilityIdentifier = identifier
+        return mutableCopy
+    }
+
+    func accessibilityLabel(_ label: String) -> Self {
+        var mutableCopy = self
+        mutableCopy.accessibilityLabel = label
+        return mutableCopy
+    }
+
+    func redesigned() -> Self {
+        var mutableCopy = self
+        mutableCopy.isRedesign = true
+        return mutableCopy
+    }
+}
+
 // MARK: - Factory methods
 
 public extension NavigationToolbarButton {
@@ -95,6 +118,18 @@ public extension NavigationToolbarButton {
 
     static func close(placement: ToolbarItemPlacement, action: @escaping () -> Void) -> NavigationToolbarButton {
         navigationToolbarButton(for: .close, placement: placement, action: action)
+    }
+
+    static func add(placement: ToolbarItemPlacement, action: @escaping () -> Void) -> NavigationToolbarButton {
+        navigationToolbarButton(for: .add, placement: placement, action: action)
+    }
+
+    static func share(placement: ToolbarItemPlacement, action: @escaping () -> Void) -> NavigationToolbarButton {
+        navigationToolbarButton(for: .share, placement: placement, action: action)
+    }
+
+    static func details(placement: ToolbarItemPlacement, action: @escaping () -> Void) -> NavigationToolbarButton {
+        navigationToolbarButton(for: .details, placement: placement, action: action)
     }
 
     private static func navigationToolbarButton(

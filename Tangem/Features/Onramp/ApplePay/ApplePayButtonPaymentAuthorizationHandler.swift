@@ -7,5 +7,12 @@
 //
 
 protocol ApplePayButtonPaymentAuthorizationHandler: AnyObject {
+    func applePaySheetWillPresent()
+    func applePaySheetDidFinish()
     func handleApplePayAuthorization(_ result: ApplePayAuthorizationResult)
+}
+
+extension ApplePayButtonPaymentAuthorizationHandler {
+    func applePaySheetWillPresent() {}
+    func applePaySheetDidFinish() {}
 }

@@ -40,7 +40,6 @@ enum EarnAddTokenFlowConfigurationFactory {
                 return [tokenItem]
             },
             isTokenAdded: isTokenAdded,
-            accountSelectionAvailability: .disabled,
             accountSelectionBehavior: makeCustomExecuteActionBehavior(
                 coordinator: coordinator,
                 isTokenAdded: isTokenAdded

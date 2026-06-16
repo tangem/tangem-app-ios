@@ -24,6 +24,7 @@ struct ActiveStakingViewData {
     enum RewardsState {
         case noRewards
         case rewardsToClaim(String)
+        case compoundedRewardsEarned(String)
     }
 }
 
@@ -92,6 +93,9 @@ struct ActiveStakingView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         case .rewardsToClaim(let string):
             SensitiveText(builder: Localization.stakingDetailsRewardsToClaim, sensitive: string)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+        case .compoundedRewardsEarned(let cryptoFormatted):
+            SensitiveText(builder: Localization.stakingDetailsAutocompoundRewardsEarned, sensitive: cryptoFormatted)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
         }
     }

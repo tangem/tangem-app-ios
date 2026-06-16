@@ -9,12 +9,65 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemFoundation
 
 struct NewsArticleHeaderView: View {
     let article: NewsArticleModel
     var onShareTap: (() -> Void)?
 
     var body: some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            redesignContent
+        } else {
+            legacyContent
+        }
+    }
+
+    // MARK: - Redesign
+
+    private var redesignContent: some View {
+        VStack(alignment: .leading, spacing: .unit(.x4)) {
+            scoreAndTimeLine
+
+            Text(article.title)
+                .style(.Tangem.Heading28.regular, color: .Tangem.Text.Neutral.primary)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, .unit(.x1))
+        .padding(.vertical, .unit(.x1_5))
+    }
+
+    private var scoreAndTimeLine: some View {
+        HStack(spacing: .unit(.x2)) {
+            HStack(spacing: .unit(.x2)) {
+                NewsRatingViewRedesign(
+                    rating: article.score,
+                    isHighlighted: true,
+                    spacing: .unit(.x2)
+                )
+            }
+
+            Text("•")
+                .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+
+            HStack(spacing: .unit(.x2)) {
+                Assets.Glyphs.calendar.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+
+                Text(article.relativeTime)
+                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.secondary)
+            }
+        }
+    }
+
+    // MARK: - Legacy
+
+    private var legacyContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 4) {
                 NewsScoreBadgeView(score: article.score)
