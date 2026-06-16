@@ -31,6 +31,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
     @Published var addressBookCoordinator: AddressBookCoordinator?
 
     // MARK: - Child view models
@@ -109,6 +110,20 @@ extension DetailsCoordinator: DetailsRoutable {
         let options = OnboardingCoordinator.Options.input(input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
+    }
+
+    func openAddWallet() {
+        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.dismiss()
+            }
+        }
+
+        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .settings)
+        coordinator.start(with: inputOptions)
+        addWalletSelectorCoordinator = coordinator
     }
 
     func openAppSettings() {
