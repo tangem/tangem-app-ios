@@ -24,9 +24,7 @@ struct AddressBookContactManagementView: View {
             .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
             .navigationTitle(Text(viewModel.title))
             .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge: .bottom) {
-                bottomButton
-            }
+            .safeAreaInset(edge: .bottom) { bottomButton }
             .toolbar {
                 NavigationToolbarButton
                     .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
