@@ -108,8 +108,10 @@ final class CommonAddressBookManager {
         "\(normalizeAddress(address, networkId))|\(networkId.rawValue)"
     }
 
-    private func ensureNameUnique(_ name: AddressBookContactName, excluding contactId: AddressBookContactID?, in contacts: [AddressBookDecodedContact]) throws {
-        let duplicate = contacts.contains { contact in
+    private func ensureNameUnique(_ name: AddressBookContactName, excluding contactId: AddressBookContactID?) throws {
+        // Only visible (verified) contacts constrain the name: a fully-unverifiable contact is hidden
+        // from the user (spec 2.1.3), so it must not block a name whose owner the user cannot see or delete.
+        let duplicate = contactsSubject.value.contains { contact in
             contact.id != contactId && contact.name.value.caseInsensitiveCompare(name.value) == .orderedSame
         }
 
@@ -188,7 +190,7 @@ extension CommonAddressBookManager: AddressBookManager {
         try ensureAddressesNonEmpty(drafts)
 
         let contacts = snapshot
-        try ensureNameUnique(name, excluding: nil, in: contacts)
+        try ensureNameUnique(name, excluding: nil)
         try ensureNoDuplicatePairs(existing: [], adding: drafts)
 
         let contactId = AddressBookContactID()
@@ -218,7 +220,7 @@ extension CommonAddressBookManager: AddressBookManager {
 
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)
-        try ensureNameUnique(name, excluding: id, in: contacts)
+        try ensureNameUnique(name, excluding: id)
         // The new state is exactly `drafts`, so the pairs must be unique among themselves.
         try ensureNoDuplicatePairs(existing: [], adding: drafts)
 
