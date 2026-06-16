@@ -219,12 +219,15 @@ struct MarketsMainView: View {
     }
 
     private var redesignTitleView: some View {
-        // `Heading28.regular` is the DS alias for the SF Pro semibold 28pt token; latest design
-        // review keeps the same visual weight, so no change is required here.
-        titleView(
-            titleFont: Font.Tangem.Heading28.regular, titleColor: Color.Tangem.Text.Neutral.primary,
-            dateFont: Font.Tangem.Heading28.regular, dateColor: Color.Tangem.Text.Neutral.tertiary
-        )
+        VStack(alignment: .leading, spacing: .zero) {
+            Text(viewModel.headerTitle)
+                .style(Font.Tangem.Heading28.semibold, color: Color.Tangem.Text.Neutral.primary)
+                .opacity(listOverlayTitleOpacity)
+
+            Text(viewModel.headerDate)
+                .style(Font.Tangem.Heading28.semibold, color: Color.Tangem.Text.Neutral.tertiary)
+                .opacity(listOverlayTitleOpacity)
+        }
     }
 
     // MARK: - Helpers

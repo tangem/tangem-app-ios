@@ -56,7 +56,7 @@ private extension TokenDetailsBalanceView {
     var balancePicker: some View {
         HStack(spacing: balancePickerSpacing) {
             Text(viewModel.balanceMode.title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
 
             if viewModel.canChangeBalanceMode {
                 Assets.DesignSystem.sort.image

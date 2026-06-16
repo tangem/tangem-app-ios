@@ -18,9 +18,9 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     let trailing: Trailing
 
     private var iconSettings: AccountIconView.Settings = .defaultSized
-    private var nameFont: Font = Fonts.Bold.subheadline
+    private var nameFontStyle = TangemFontStyle(font: Fonts.Bold.subheadline)
     private var nameColor: Color = Colors.Text.primary1
-    private var subtitleFont: Font = Fonts.Regular.caption1
+    private var subtitleFontStyle = TangemFontStyle(font: Fonts.Regular.caption1)
     private var subtitleColor: Color = Colors.Text.tertiary
 
     public init(
@@ -54,11 +54,11 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     private var contentStack: some View {
         VStack(alignment: .leading, spacing: 2.0) {
             Text(name)
-                .style(nameFont, color: nameColor)
+                .style(nameFontStyle, color: nameColor)
                 .lineLimit(1)
 
             subtitle
-                .style(subtitleFont, color: subtitleColor)
+                .style(subtitleFontStyle, color: subtitleColor)
                 .lineLimit(1)
         }
     }
@@ -72,15 +72,23 @@ extension AccountIconWithContentView: Setupable {
     }
 
     public func nameStyle(font: Font, color: Color) -> Self {
+        nameStyle(font: TangemFontStyle(font: font), color: color)
+    }
+
+    public func nameStyle(font: TangemFontStyle, color: Color) -> Self {
         map {
-            $0.nameFont = font
+            $0.nameFontStyle = font
             $0.nameColor = color
         }
     }
 
     public func subtitleStyle(font: Font, color: Color) -> Self {
+        subtitleStyle(font: TangemFontStyle(font: font), color: color)
+    }
+
+    public func subtitleStyle(font: TangemFontStyle, color: Color) -> Self {
         map {
-            $0.subtitleFont = font
+            $0.subtitleFontStyle = font
             $0.subtitleColor = color
         }
     }
@@ -136,8 +144,8 @@ public extension AccountIconWithContentView where Subtitle == EmptyView, Trailin
             name: "Redesigned",
             subtitle: { Text("Tangem DS tokens") }
         )
-        .nameStyle(font: .Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
-        .subtitleStyle(font: .Tangem.Caption13.regular, color: .Tangem.Text.Neutral.tertiary)
+        .nameStyle(font: Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+        .subtitleStyle(font: Font.Tangem.Caption13.regular, color: .Tangem.Text.Neutral.tertiary)
     }
     .padding()
 }

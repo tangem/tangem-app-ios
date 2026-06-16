@@ -35,13 +35,13 @@ struct MarketsTokenSearchRecentsView: View {
         HStack(alignment: .center, spacing: .zero) {
             Text(Localization.marketsSearchHintHeader)
                 .lineLimit(1)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
 
             Spacer(minLength: .unit(.x2))
 
             Button(action: onClearAll) {
                 Text(Localization.marketsSearchClearAllHints)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             }
         }
         .padding(.vertical, .unit(.x3))
@@ -74,7 +74,7 @@ struct MarketsTokenSearchRecentsView: View {
             VStack(alignment: .leading, spacing: .unit(.x3)) {
                 Text(Localization.marketsCommonTitle)
                     .lineLimit(1)
-                    .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                     .padding(.horizontal, .unit(.x2))
                     .padding(.bottom, .unit(.x2))
                     .padding(.top, .unit(.x4))

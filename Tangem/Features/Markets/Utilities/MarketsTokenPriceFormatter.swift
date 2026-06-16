@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import SwiftUI
+import TangemAssets
 
 /// An experimental implementation, currently used only in the `Markets` module.
 /// Most likely requires some tuning and improvements ([REDACTED_INFO] and [REDACTED_INFO]).
@@ -92,8 +94,8 @@ final class MarketsTokenPriceFormatter {
         )
 
         let formattingOptions = TotalBalanceFormattingOptions(
-            integerPartFont: .Tangem.Title44.semibold,
-            fractionalPartFont: .Tangem.Title44.semibold,
+            integerPartFont: Font.Tangem.Title44.semibold,
+            fractionalPartFont: Font.Tangem.Title44.semibold,
             integerPartColor: .Tangem.Text.Neutral.primary,
             fractionalPartColor: .Tangem.Text.Neutral.tertiary,
             fractionalPartIncludesDecimalSeparator: true

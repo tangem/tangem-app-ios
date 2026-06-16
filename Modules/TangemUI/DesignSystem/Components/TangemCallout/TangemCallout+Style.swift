@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 // MARK: - Style
 
 extension TangemCallout {
-    var textFont: Font { .Tangem.Caption11.semibold }
+    var textFont: TangemFontStyle { Font.Tangem.Caption11.semibold }
     var shape: some Shape { .capsule }
 
     func alignment(arrowAlignment: ArrowAlignment) -> Alignment {
