@@ -31,8 +31,8 @@ struct AddressBookCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.contactManagementViewModel) {
-                AddressBookContactManagementView(viewModel: $0)
+            .sheet(item: $coordinator.contactManagementCoordinator) {
+                AddressBookContactManagementCoordinatorView(coordinator: $0)
             }
     }
 }

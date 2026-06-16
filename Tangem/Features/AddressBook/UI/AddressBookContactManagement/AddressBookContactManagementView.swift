@@ -19,21 +19,19 @@ struct AddressBookContactManagementView: View {
     @FocusState private var isNameFocused: Bool
 
     var body: some View {
-        NavigationStack {
-            scrollContent
-                .scrollDismissesKeyboard(.interactively)
-                .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-                .navigationTitle(Text(viewModel.title))
-                .navigationBarTitleDisplayMode(.inline)
-                .safeAreaInset(edge: .bottom) {
-                    bottomButton
-                }
-                .toolbar {
-                    NavigationToolbarButton
-                        .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
-                }
-                .alert(item: $viewModel.errorAlert) { $0.alert }
-        }
+        scrollContent
+            .scrollDismissesKeyboard(.interactively)
+            .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+            .navigationTitle(Text(viewModel.title))
+            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) {
+                bottomButton
+            }
+            .toolbar {
+                NavigationToolbarButton
+                    .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
+            }
+            .alert(item: $viewModel.errorAlert) { $0.alert }
     }
 
     private var scrollContent: some View {
