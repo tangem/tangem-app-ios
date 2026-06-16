@@ -13,7 +13,7 @@ import TangemFoundation
 import TangemLocalization
 
 final class KaspaWalletManager: BaseWalletManager, WalletManager {
-    private typealias IncompleteTokenTransactionsInMemoryStorage = ThreadSafeContainer<
+    private typealias IncompleteTokenTransactionsInMemoryStorage = OSAllocatedUnfairLock<
         [KaspaIncompleteTokenTransactionStorageID: KaspaKRC20.IncompleteTokenTransactionParams]
     >
 
@@ -22,7 +22,7 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
     private let txBuilder: KaspaTransactionBuilder
     private let unspentOutputManager: UnspentOutputManager
     private let dataStorage: BlockchainDataStorage
-    private var incompleteTokenTransactionsInMemoryStorage: IncompleteTokenTransactionsInMemoryStorage = [:]
+    private let incompleteTokenTransactionsInMemoryStorage: IncompleteTokenTransactionsInMemoryStorage = .init(initialState: [:])
     private var lastLoadedCardTokens: [Token] = []
     private var pendingTokenTransactionHashes: [Token: Set<String>] = [:]
 
@@ -483,7 +483,7 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
                     }
                 }
 
-                inMemoryStorage.mutate { storage in
+                inMemoryStorage { storage in
                     storage.merge(storedTransactionParams, uniquingKeysWith: { old, _ in old })
                 }
 
@@ -503,19 +503,25 @@ final class KaspaWalletManager: BaseWalletManager, WalletManager {
         case .coin, .reserve, .feeResource:
             return nil
         case .token(let token):
-            return incompleteTokenTransactionsInMemoryStorage[token.asStorageId(walletAddress: wallet.address)]
+            return incompleteTokenTransactionsInMemoryStorage { storage in
+                storage[token.asStorageId(walletAddress: wallet.address)]
+            }
         }
     }
 
     private func store(incompleteTokenTransaction: KaspaKRC20.IncompleteTokenTransactionParams, for token: Token) async {
         let storageId = token.asStorageId(walletAddress: wallet.address)
-        incompleteTokenTransactionsInMemoryStorage.mutate { $0[storageId] = incompleteTokenTransaction }
+        incompleteTokenTransactionsInMemoryStorage { storage in
+            storage[storageId] = incompleteTokenTransaction
+        }
         await dataStorage.store(key: storageId.id, value: incompleteTokenTransaction)
     }
 
     private func removeIncompleteTokenTransaction(for token: Token) async {
         let storageId = token.asStorageId(walletAddress: wallet.address)
-        incompleteTokenTransactionsInMemoryStorage.mutate { $0[storageId] = nil }
+        incompleteTokenTransactionsInMemoryStorage { storage in
+            storage[storageId] = nil
+        }
         await dataStorage.store(key: storageId.id, value: nil as KaspaKRC20.IncompleteTokenTransactionParams?)
     }
 
