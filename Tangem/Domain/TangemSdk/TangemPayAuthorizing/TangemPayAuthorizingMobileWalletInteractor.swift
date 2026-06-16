@@ -35,8 +35,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
 
     func authorize(
         customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService,
-        pendingDerivations: [Data: [DerivationPath]]
+        authorizationService: TangemPayAuthorizationService
     ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
         var derivationResult: DerivationResult = [:]
 
@@ -44,25 +43,21 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             let context = try await unlock()
             let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
-            var combinedPendingDerivations = pendingDerivations
-
             let derivationPath = TangemPayUtilities.derivationPath
             let wallets = mobileWallet.wallets
-            let seedKey = wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey
 
-            // Proceed with derivation even without the TangemPay seed key,
-            // so that other pending derivations are not blocked
-            if let seedKey {
-                combinedPendingDerivations[seedKey, default: []].append(derivationPath)
+            // Authorization always needs the TangemPay seed-key derivation.
+            guard let seedKey = wallets.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
+                throw Error.derivedKeyNotFound
             }
 
-            let rawResult = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: combinedPendingDerivations)
+            let rawResult = try mobileWalletSdk.deriveKeys(context: context, derivationPaths: [seedKey: [derivationPath]])
 
             derivationResult = rawResult.reduce(into: [:]) { partialResult, keyInfo in
                 partialResult[keyInfo.key] = .init(keys: keyInfo.value.derivedKeys)
             }
 
-            guard let seedKey, let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
+            guard let extendedPublicKey = derivationResult[seedKey]?[derivationPath] else {
                 throw Error.derivedKeyNotFound
             }
 

@@ -16,6 +16,8 @@ class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
 
+    @Injected(\.stakingTargetAmountLimitProvider) var targetAmountLimitProvider: StakingTargetAmountLimitProvider
+
     func makeStakeKitAPIProvider() -> StakeKitAPIProvider {
         return TangemStakingFactory().makeStakeKitAPIProvider(
             credential: StakingAPICredential(apiKey: keysManager.stakeKitKey),

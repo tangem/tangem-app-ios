@@ -20,18 +20,17 @@ struct AddCustomTokenDerivationPathWriterView: View {
     @State private var textFieldColor: Color = Colors.Text.primary1
 
     var body: some View {
-        GroupedScrollView {
+        VStack(spacing: 16) {
             derivationInputSection
-        }
-        .overlay(alignment: .bottom) {
+
             MainButton(
                 title: Localization.commonSave,
                 isDisabled: !viewModel.derivationPathState.isSuccess,
                 action: viewModel.save
             )
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Text(Localization.customTokenCustomDerivationTitle))
         .navigationBarTitleDisplayMode(.inline)
