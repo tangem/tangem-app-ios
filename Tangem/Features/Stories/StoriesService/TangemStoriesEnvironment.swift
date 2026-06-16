@@ -84,4 +84,8 @@ extension TangemStory {
             ? .swap(.initialWithoutImages)
             : .swapLegacy(.initialWithoutImages)
     }
+
+    static var yieldFirstActivationAPYBoostStory: TangemStory {
+        .yieldFirstActivationAPYBoost(.initialWithoutImages)
+    }
 }

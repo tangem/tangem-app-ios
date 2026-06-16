@@ -36,3 +36,16 @@ public extension TransactionHistoryProvider {
         }
     }
 }
+
+public extension TransactionHistory {
+    enum ProviderError: LocalizedError {
+        case requestKeyNotSupported
+
+        public var errorDescription: String? {
+            switch self {
+            case .requestKeyNotSupported:
+                return "Request key is not supported by this provider"
+            }
+        }
+    }
+}

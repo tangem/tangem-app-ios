@@ -20,21 +20,36 @@ struct SolanaTransactionHistoryMapperTests {
     private let tokenDestinationAddress = "TokenDestination111111111111111111111111111"
 
     @Test
-    func decodeSignatureItem() throws {
+    func decodeTransactionsForAddress() throws {
         let json = """
         {
-          "blockTime": 1739362549,
-          "confirmationStatus": "finalized",
-          "err": null,
-          "memo": null,
-          "signature": "signature_1",
-          "slot": 320159884
+          "data": [
+            {
+              "blockTime": 1739362549,
+              "slot": 320159884,
+              "transaction": {
+                "message": {
+                  "accountKeys": [
+                    "\(walletAddress)",
+                    "\(destinationAddress)"
+                  ],
+                  "instructions": []
+                },
+                "signatures": ["signature_1"]
+              },
+              "meta": null,
+              "version": 0
+            }
+          ],
+          "paginationToken": "320159884:0"
         }
         """
 
-        let item = try decode(SolanaTransactionHistoryDTO.SignatureItem.self, from: json)
-        #expect(item.signature == "signature_1")
-        #expect(item.slot == 320159884)
+        let response = try decode(SolanaTransactionHistoryDTO.TransactionsForAddress.self, from: json)
+        #expect(response.data.count == 1)
+        #expect(response.data[0].transaction.signatures.first == "signature_1")
+        #expect(response.data[0].slot == 320159884)
+        #expect(response.paginationToken == "320159884:0")
     }
 
     @Test

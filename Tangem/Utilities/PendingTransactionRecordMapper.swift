@@ -46,6 +46,8 @@ struct PendingTransactionRecordMapper {
             interactionAddress: interactionAddress(for: transaction),
             timeFormatted: timeFormatted,
             amount: amount(for: transaction),
+            value: formatter.formatDecimal(transaction.amount.value),
+            currencyCode: transaction.amount.currencySymbol,
             isOutgoing: !transaction.isIncoming,
             transactionType: transactionType(for: transaction),
             status: .inProgress,

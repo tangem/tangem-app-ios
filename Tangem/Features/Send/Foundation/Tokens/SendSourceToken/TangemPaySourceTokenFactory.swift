@@ -54,6 +54,7 @@ struct TangemPaySourceTokenFactory {
             transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: nil,
             tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             tokenItem: tokenItem,
             fiatItem: fiatItem,
             address: defaultAddressString,
