@@ -72,7 +72,7 @@ private extension MarketsTokenSearchView {
     ) -> some View {
         VStack(alignment: .leading, spacing: sectionHeaderContentSpacing) {
             Text(title)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .padding(.leading, headerLeadingPadding)
 
             content()
@@ -121,7 +121,7 @@ private extension MarketsTokenSearchView {
 
     var searchEmptyView: some View {
         Text(viewModel.searchEmptyTitle)
-            .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
+            .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.tertiary)
             .frame(maxWidth: .infinity)
             .padding(.top, searchEmptyTopPadding)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)

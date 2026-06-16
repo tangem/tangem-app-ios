@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemLocalization
 import struct SwiftUI.Color
+import struct SwiftUI.Font
 import TangemUI
 import TangemAssets
 
@@ -134,7 +135,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
     func attributedCryptoBalance(_ balance: String) -> Text {
         let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
             balance,
-            font: .Tangem.Caption12.semibold,
+            font: Font.Tangem.Caption12.semibold,
             integerColor: .Tangem.Text.Neutral.secondary,
             decimalColor: .Tangem.Text.Neutral.secondary
         )
@@ -143,7 +144,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
 
     func attributedUnreachableBalance() -> Text {
         var attributed = AttributedString(Localization.commonUnreachable)
-        attributed.font = .Tangem.Caption12.semibold
+        attributed.setFontStyle(Font.Tangem.Caption12.semibold)
         attributed.foregroundColor = .Tangem.Text.Status.attention
         return .attributed(attributed)
     }
@@ -196,7 +197,7 @@ private extension MarketsPortfolioTokenListRowViewModel {
     func attributedFiatBalance(_ balance: String) -> Text {
         let attributedBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
             balance,
-            font: .Tangem.Body16.medium,
+            font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
             decimalColor: .Tangem.Text.Neutral.secondary
         )

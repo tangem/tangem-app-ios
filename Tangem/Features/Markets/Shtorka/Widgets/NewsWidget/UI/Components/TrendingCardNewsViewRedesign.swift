@@ -33,14 +33,14 @@ struct TrendingCardNewsViewRedesign: View {
             HStack(spacing: .unit(.x2)) {
                 NewsRatingViewRedesign(rating: "\(item.rating) • \(item.timeAgo)", isHighlighted: true)
                 Text(Localization.feedTrendingNow)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
             }
 
             FixedSpacer(height: .unit(.x2))
 
             Text(item.title)
                 .multilineTextAlignment(.leading)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
 
             Spacer(minLength: .unit(.x4))
 
