@@ -70,6 +70,7 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
             .labelStyle(.iconOnly)
             .tint(Color.Tangem.Graphic.Neutral.primary)
             .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
+            .frame(width: 44, height: 44)
     }
 
     private var circleIconButton: some View {
