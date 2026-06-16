@@ -142,7 +142,7 @@ private extension TangemSegmentedPicker {
 
     func itemContent(_ item: Item) -> some View {
         Text(item.text)
-            .style(.Tangem.Body15.semibold, color: .Tangem.Tabs.textSecondary)
+            .style(Font.Tangem.Body15.semibold, color: .Tangem.Tabs.textSecondary)
             .lineLimit(1)
     }
 
