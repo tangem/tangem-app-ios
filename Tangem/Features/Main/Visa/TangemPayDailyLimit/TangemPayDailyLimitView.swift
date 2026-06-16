@@ -17,6 +17,14 @@ struct TangemPayDailyLimitView: View {
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            redesignedBody
+        } else {
+            legacyBody
+        }
+    }
+
+    private var legacyBody: some View {
         NavigationStack {
             Group {
                 switch viewModel.state {
@@ -149,5 +157,120 @@ struct TangemPayDailyLimitView: View {
             .padding(.bottom, 20)
             .padding(.horizontal, 16)
         }
+    }
+}
+
+// MARK: - Redesigned
+
+private extension TangemPayDailyLimitView {
+    var redesignedBody: some View {
+        NavigationStack {
+            Group {
+                switch viewModel.state {
+                case .editLimit:
+                    redesignedEditLimitView
+                        .focused($isInputFocused)
+                        .onAppear { isInputFocused = true }
+                case .success:
+                    redesignedSuccessView
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    if viewModel.isEditingLimit {
+                        Text(Localization.tangempayCardPageDailyLimitTitle)
+                            .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                    }
+                }
+
+                if viewModel.isEditingLimit {
+                    NavigationToolbarButton.back(placement: .topBarLeading, action: viewModel.close)
+                }
+            }
+            .toolbar(viewModel.isEditingLimit ? .visible : .hidden, for: .navigationBar)
+            .bindAlert($viewModel.alert)
+            .onAppear {
+                viewModel.onAppear()
+            }
+        }
+    }
+
+    var redesignedEditLimitView: some View {
+        VStack(spacing: 0) {
+            redesignedAmountSection
+
+            Spacer()
+
+            VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+                redesignedPresetsRow
+                    .padding(.horizontal, DesignSystem.Tokens.Spacing.s150)
+
+                TangemButtonV2(
+                    label: AttributedString(Localization.tangempayDailyLimitSetButton),
+                    accessibilityLabel: Localization.tangempayDailyLimitSetButton,
+                    action: viewModel.submit
+                )
+                .size(.x12)
+                .styleType(.default)
+                .horizontalLayout(.infinity)
+                .isLoading(viewModel.isLoading)
+                .disabled(!viewModel.isSubmitEnabled)
+                .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+            }
+            .padding(.bottom, DesignSystem.Tokens.Spacing.s100)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DesignSystem.Tokens.Theme.Bg.secondary.ignoresSafeArea())
+    }
+
+    var redesignedAmountSection: some View {
+        VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+            Text(viewModel.hintText)
+                .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.tertiary)
+
+            SendDecimalNumberTextField(viewModel: viewModel.amountFieldViewModel)
+                .prefixSuffixOptions(.suffix(text: viewModel.currency, hasSpace: true))
+                .appearance(.init(
+                    font: DesignSystem.Tokens.Font.Display.medium.font,
+                    textColor: DesignSystem.Tokens.Theme.Text.primary,
+                    placeholderColor: DesignSystem.Tokens.Theme.Text.tertiary
+                ))
+                .alignment(.center)
+        }
+        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+        .padding(.vertical, DesignSystem.Tokens.Spacing.s400)
+        .frame(maxWidth: .infinity)
+    }
+
+    var redesignedPresetsRow: some View {
+        HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+            ForEach(viewModel.presetValues, id: \.self) { value in
+                Button {
+                    viewModel.selectPreset(value)
+                } label: {
+                    Text("\(value)$")
+                        .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, DesignSystem.Tokens.Spacing.s125)
+                        .padding(.vertical, DesignSystem.Tokens.Spacing.s050)
+                        .background(DesignSystem.Tokens.Theme.Bg.tertiary)
+                        .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._200)
+                }
+            }
+        }
+    }
+
+    var redesignedSuccessView: some View {
+        TangemPaySuccessView(
+            model: .init(
+                icon: DesignSystem.Icons.Success.regular20,
+                title: Localization.tangempayCardPageDailyLimitSuccessTitle,
+                subtitle: Localization.tangempayCardPageDailyLimitSuccessDescription,
+                buttonTitle: Localization.commonDone
+            ),
+            action: viewModel.close
+        )
     }
 }

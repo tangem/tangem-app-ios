@@ -214,6 +214,7 @@
 "common_attention" = "请注意";
 "common_available_networks" = "可用网络";
 "common_back" = "返回";
+"common_backup_error" = "Backup Error";
 "common_backup" = "备份";
 "common_balance_title" = "余额";
 "common_balance" = "余额： %@";
@@ -245,6 +246,7 @@
 "common_copy" = "复制";
 "common_create" = "创建";
 "common_custom" = "定制";
+"common_delete" = "删除";
 "common_disable" = "禁用";
 "common_disabled" = "已禁用";
 "common_disabling" = "禁用";
@@ -1263,6 +1265,8 @@
 "staking_details_apr" = "年利率";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "奖励每日自动累积到您的质押余额中。";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "奖励将累积到您的质押余额中。已赚取资金： %@";
 "staking_details_available" = "可用";
 "staking_details_average_reward_rate" = "平均奖励率";
@@ -1675,6 +1679,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "无法支付费用";
 "tangempay_reissue_card_insufficient_funds" = "资金不足，无法更换卡片";
 "tangempay_reissue_card_title" = "要重新发行您的卡片吗？";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题，请稍后再试。";
 "tangempay_service_unavailable_title" = "服务暂时不可用";
 "tangempay_service_unreachable_try_later" = "无法显示详细信息。但刷卡支付功能仍然可用。";
@@ -2087,6 +2094,7 @@
 "wc_all_dapps_disconnected" = "所有dApp已断开连接";
 "wc_allow_to_spend" = "允许支出";
 "wc_approve_description" = "通过批准，您允许 dApp 或智能合约在未来的交易中使用代币。";
+"wc_change_address" = "Change address";
 "wc_common_address" = "地址";
 "wc_common_connect" = "连接";
 "wc_common_loading" = "加载中";

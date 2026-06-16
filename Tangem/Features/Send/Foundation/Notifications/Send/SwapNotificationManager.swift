@@ -98,12 +98,6 @@ private extension CommonSwapNotificationManager {
         state: SwapModel.ProvidersState
     ) -> [SwapNotificationEvent] {
         switch (source, receive, state) {
-        case (.success, .failure(ExpressDestinationServiceError.destinationNotFound(let source)), _):
-            return [.noDestinationTokens(tokenName: source.name)]
-
-        case (.failure(ExpressDestinationServiceError.sourceNotFound(let destination)), .success, _):
-            return [.noDestinationTokens(tokenName: destination.name)]
-
         // Expected when couldn't load the providers list
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
@@ -263,6 +257,20 @@ private extension CommonSwapNotificationManager {
             return events
 
         case .readyToSwap(let readyState):
+            var events: [SwapNotificationEvent] = []
+
+            if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
+            }
+
+            return events
+
+        case .readyToApproveAndSwap(let readyState):
             var events: [SwapNotificationEvent] = []
 
             if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {

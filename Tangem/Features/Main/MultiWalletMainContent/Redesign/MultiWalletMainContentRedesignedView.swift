@@ -105,7 +105,7 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Empty List
 
     private var emptyList: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x4)) {
             MultiWalletTokenItemsEmptyView()
                 .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
                 .textColor(Color.Tangem.Text.Neutral.tertiary)
@@ -237,6 +237,6 @@ private struct TokenItemContainerView: View {
 
 private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
-    static let cornerRadius: CGFloat = .unit(.x5)
+    static let cornerRadius: CGFloat = .unit(.x6)
     static let tokenListBackgroundColor = Color.Tangem.Surface.level3
 }

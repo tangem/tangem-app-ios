@@ -260,7 +260,9 @@ extension CommonWalletModel: WalletModel {
 
     var wallet: Wallet { walletManager.wallet }
 
-    var addresses: [Address] { wallet.addresses.filter { !$0.type.isUsed } }
+    var allAddresses: [Address] { wallet.addresses }
+
+    var addresses: [Address] { allAddresses.filter { !$0.type.isUsed } }
 
     var defaultAddress: Address { wallet.defaultAddress }
 

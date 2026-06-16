@@ -68,8 +68,6 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
-            .adi(testnet: false),
-            .seiEvm(testnet: false),
         ]
     }
 
@@ -167,6 +165,8 @@ struct SupportedBlockchains {
             .arbitrumNova,
             .plasma(testnet: false),
             .monad(testnet: false),
+            .seiEvm(testnet: false),
+            .adi(testnet: false),
         ]
     }
 

@@ -13,9 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li address</string>
+        <string>адреса</string>
+        <key>few</key>
+        <string>адреси</string>
+        <key>many</key>
+        <string>адрес</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>адрес</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -69,9 +73,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li day ago</string>
+        <string>%li день тому</string>
+        <key>few</key>
+        <string>%li дні тому</string>
+        <key>many</key>
+        <string>%li днів тому</string>
         <key>other</key>
-        <string>%li days ago</string>
+        <string>%li дня тому</string>
       </dict>
     </dict>
     <key>common_hours</key>
@@ -85,9 +93,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li hour</string>
+        <string>година</string>
+        <key>few</key>
+        <string>години</string>
+        <key>many</key>
+        <string>годин</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>години</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -476,9 +488,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token isn't compatible with this address</string>
+        <string>%li токен не сумісний із цією адресою</string>
+        <key>few</key>
+        <string>%li токени не сумісні із цією адресою</string>
+        <key>many</key>
+        <string>%li токенів не сумісно із цією адресою</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>%li токени не сумісні із цією адресою</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -492,9 +508,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>картка</string>
+        <key>few</key>
+        <string>картки</string>
+        <key>many</key>
+        <string>карток</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>картки</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>

@@ -15,20 +15,16 @@ enum Feature: String, Hashable, CaseIterable {
     case exchangeOnlyWithinSingleAddress
     case experimentService
     case walletConnectBitcoin
-    case mainQRScan
     case surveySparrow
-    case gaslessDexAndApprove
     case solanaTxHistoryEnabled
     case solanaScaledUIEnabled
     case dynamicAddresses
     case usdtRevokeGaslessFee
     case yieldModuleUpdate
-    case swapPipelineV2
     case tangemPayMobileOnboarding
     case onrampNativePayment
     case xrplTransactionHistory
     case sendBalanceSendSplitRows
-    case swapStoriesV2
     case addFundsStage1
     case swapProviderTypeFilter
     case swapPendingTxStateDate
@@ -48,7 +44,9 @@ enum Feature: String, Hashable, CaseIterable {
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case approveFlowV2
     case addAndOrganizeRedesign
+    case addressBook
 
     var name: String {
         switch self {
@@ -58,20 +56,16 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
         case .experimentService: return "Experiment service"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
-        case .mainQRScan: return "Main QR Scan"
         case .surveySparrow: return "SurveySparrow service integration"
-        case .gaslessDexAndApprove: return "Gasless Fees For Dex and Approve"
         case .solanaTxHistoryEnabled: return "Solana Transaction History"
         case .solanaScaledUIEnabled: return "Solana Scaled UI"
         case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
-        case .swapPipelineV2: return "Swap Pipeline V2"
         case .tangemPayMobileOnboarding: return "1489_TangemPayNewMobileOnboarding"
         case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
-        case .swapStoriesV2: return "Swap Stories V2"
         case .swapProviderTypeFilter: return "13675_Swap_Provider_Type_Filter"
         case .swapInProgressV2: return "Swap In Progress V2"
         case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
@@ -91,7 +85,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
+        case .addressBook: return "10801-Address-Book"
         }
     }
 
@@ -101,22 +97,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .redesign: return .version("5.40")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
-        case .experimentService: return .unspecified
+        case .experimentService: return .version("5.39")
         case .walletConnectBitcoin: return .unspecified
-        case .mainQRScan: return .version("5.36")
         case .surveySparrow: return .unspecified
-        case .gaslessDexAndApprove: return .version("5.37")
         case .solanaTxHistoryEnabled: return .version("5.39")
         case .solanaScaledUIEnabled: return .version("5.39")
         case .dynamicAddresses: return .version("5.39")
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
-        case .swapPipelineV2: return .version("5.38")
         case .tangemPayMobileOnboarding: return .version("5.39")
         case .onrampNativePayment: return .version("5.39")
         case .xrplTransactionHistory: return .unspecified
         case .sendBalanceSendSplitRows: return .version("5.39")
-        case .swapStoriesV2: return .version("5.38")
         case .swapProviderTypeFilter: return .version("5.39")
         case .swapInProgressV2: return .version("5.39")
         case .swapPendingTxStateDate: return .version("5.39")
@@ -125,7 +117,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapSimpleMode: return .version("5.39")
         case .swapMaxAmountFractions: return .version("5.39")
         case .pushNotificationsSettings: return .unspecified
-        case .adiMainScreenDefault: return .unspecified
+        case .adiMainScreenDefault: return .version("5.39")
         case .swapExchangeRateDisplay: return .version("5.39")
         case .swapRateExperience: return .version("5.39")
         case .yieldApyBoostPromo: return .unspecified
@@ -136,7 +128,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return .version("5.40")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
+        case .approveFlowV2: return .unspecified
         case .addAndOrganizeRedesign: return .version("5.40")
+        case .addressBook: return .unspecified
         }
     }
 }

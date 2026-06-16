@@ -214,6 +214,7 @@
 "common_attention" = "Attention";
 "common_available_networks" = "Available networks";
 "common_back" = "Back";
+"common_backup_error" = "Backup Error";
 "common_backup" = "Backup";
 "common_balance_title" = "Balance";
 "common_balance" = "Balance: %@";
@@ -245,6 +246,7 @@
 "common_copy" = "Copy";
 "common_create" = "Create";
 "common_custom" = "Custom";
+"common_delete" = "Delete";
 "common_disable" = "Disable";
 "common_disabled" = "Disabled";
 "common_disabling" = "Disabling";
@@ -1263,6 +1265,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Rewards automatically accumulate in your staking balance daily.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Available";
 "staking_details_average_reward_rate" = "Average Reward Rate";
@@ -1675,6 +1679,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
 "tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
 "tangempay_reissue_card_title" = "Replace your card?";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_title" = "Remove account?";
+"tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "Service unreachable. However, card payments are still working.";
@@ -2087,6 +2094,7 @@
 "wc_all_dapps_disconnected" = "All dApps disconnected";
 "wc_allow_to_spend" = "Allow to spend";
 "wc_approve_description" = "By approving, you allow dApp or Smart contract to use tokens in future transactions.";
+"wc_change_address" = "Change address";
 "wc_common_address" = "Address";
 "wc_common_connect" = "Connect";
 "wc_common_loading" = "Loading";

@@ -24,6 +24,7 @@ protocol DetailsRoutable: AnyObject {
     func openSocialNetwork(url: URL)
 
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
+    func openAddressBook()
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()

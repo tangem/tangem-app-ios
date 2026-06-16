@@ -27,6 +27,10 @@ extension TangemPayTransactionDispatcherProvider: TransactionDispatcherProvider 
         UnsupportedTransactionDispatcher()
     }
 
+    func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher {
+        UnsupportedTransactionDispatcher()
+    }
+
     func makeCEXTransactionDispatcher() -> TransactionDispatcher {
         transactionDispatcher
     }

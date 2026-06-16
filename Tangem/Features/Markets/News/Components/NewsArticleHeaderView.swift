@@ -33,9 +33,34 @@ struct NewsArticleHeaderView: View {
                 .style(.Tangem.Heading28.regular, color: .Tangem.Text.Neutral.primary)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+            if article.categories.isNotEmpty {
+                redesignTags
+            }
         }
         .padding(.horizontal, .unit(.x1))
         .padding(.vertical, .unit(.x1_5))
+    }
+
+    private var redesignTags: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: .unit(.x1)) {
+                ForEach(article.categories) { category in
+                    redesignTag(title: category.name)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func redesignTag(title: String) -> some View {
+        Text(title)
+            .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            .lineLimit(1)
+            .padding(.horizontal, .unit(.x3))
+            .padding(.vertical, .unit(.x2))
+            .background(Color.Tangem.Markers.backgroundTintedGray, in: Capsule())
     }
 
     private var scoreAndTimeLine: some View {
@@ -44,7 +69,8 @@ struct NewsArticleHeaderView: View {
                 NewsRatingViewRedesign(
                     rating: article.score,
                     isHighlighted: true,
-                    spacing: .unit(.x2)
+                    spacing: .unit(.x2),
+                    font: .Tangem.Body16.medium
                 )
             }
 

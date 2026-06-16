@@ -18,7 +18,6 @@ class EthereumNetworkService: MultiNetworkProvider {
     var currentProviderIndex: Int = 0
 
     let blockchainName: String
-    let terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes = .failure
 
     private let decimals: Int
     private let abiEncoder: ABIEncoder
@@ -37,6 +36,14 @@ class EthereumNetworkService: MultiNetworkProvider {
         self.decimals = decimals
         self.abiEncoder = abiEncoder
         self.blockchainName = blockchainName
+    }
+
+    func shouldStopSwitching(error: Error) -> Bool {
+        guard let apiError = error as? JSONRPC.APIError else {
+            return false
+        }
+
+        return apiError.isContractExecutionError
     }
 
     func send(transaction: String) -> AnyPublisher<String, Error> {
@@ -59,7 +66,7 @@ class EthereumNetworkService: MultiNetworkProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<EthereumEIP1559FeeResponse, Error> {
         let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
         let feeHistoryPublisher = getFeeHistory()
@@ -80,7 +87,7 @@ class EthereumNetworkService: MultiNetworkProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<EthereumLegacyFeeResponse, Error> {
         let gasPricePublisher = getGasPrice()
         let gasLimitPublisher = getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
@@ -146,7 +153,7 @@ class EthereumNetworkService: MultiNetworkProvider {
         from: String,
         value: String?,
         data: String?,
-        stateOverride: [String: EthereumAccountOverride]? = nil
+        stateOverride: EthereumStateOverride? = nil
     ) -> AnyPublisher<BigUInt, Error> {
         return providerPublisher {
             $0.getGasLimit(to: to, from: from, value: value, data: data, stateOverride: stateOverride)
