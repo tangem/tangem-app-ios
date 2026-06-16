@@ -10,5 +10,4 @@ import Foundation
 
 enum AddressBookManagerError: Error {
     case contactNotFound
-    case entryNotFound
 }
