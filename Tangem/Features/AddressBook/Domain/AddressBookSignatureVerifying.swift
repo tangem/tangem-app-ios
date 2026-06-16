@@ -10,7 +10,7 @@ import Foundation
 
 /// Verifies a wallet-key signature against a precomputed 32-byte digest.
 ///
-/// The only consumer is `AddressBookVerifiedAddressEntry.make(verifying:...)`, which is the sole construction
+/// The only consumer is `AddressBookVerifiedAddressEntryBuilder.make(verifying:...)`, which is the sole construction
 /// path for a `AddressBookVerifiedAddressEntry`. Implementations must verify against the *digest* directly and
 /// must not re-hash it.
 protocol AddressBookSignatureVerifying {

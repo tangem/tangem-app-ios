@@ -120,7 +120,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         }
 
         let contactId = contact.id
-        let name = try AddressBookContactName(validating: nameSubject.value)
+        let name = try AddressBookContactNameValidator().validate(nameSubject.value)
         let drafts = addressesSubject.value
 
         guard !drafts.isEmpty else {
