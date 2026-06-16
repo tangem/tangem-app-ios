@@ -10,4 +10,5 @@ import Foundation
 
 protocol TransactionHistoryExpressDataEnriching: Sendable {
     func enrich(with transaction: SentSwapTransactionData) async
+    func enrich(with transaction: SentOnrampTransactionData) async
 }
