@@ -40,6 +40,16 @@ public struct ExpressSwappableDataItem {
         amountType.amount
     }
 
+    /// For DEX/DEXBridge providers, returns the yield contract address if available; otherwise falls back to the regular source address.
+    var dexFromAddress: String {
+        switch providerInfo.type {
+        case .dex, .dexBridge:
+            return source.yieldContractAddress ?? source.address
+        case .cex, .onramp, .unknown:
+            return source.address
+        }
+    }
+
     func sourceAmountWEI() -> String? {
         switch amountType {
         case .from(let value):
@@ -64,6 +74,7 @@ public struct ExpressSwappableDataItem {
 public extension ExpressSwappableDataItem {
     struct SourceWalletInfo {
         let address: String
+        let yieldContractAddress: String?
         let currency: ExpressWalletCurrency
         let coinCurrency: ExpressWalletCurrency
     }

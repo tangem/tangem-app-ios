@@ -176,6 +176,7 @@ struct AccountDerivationPathHelper {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .seiEvm:
             return true
         case .chia:

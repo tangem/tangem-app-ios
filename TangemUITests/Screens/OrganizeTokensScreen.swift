@@ -16,10 +16,15 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     private lazy var sortByBalanceButton = button(.sortByBalanceButton)
     private lazy var groupButton = button(.groupButton)
     private lazy var applyButton = button(.applyButton)
+    private lazy var closeButton = app.buttons[CommonUIAccessibilityIdentifiers.closeButton].firstMatch
+    private lazy var sortMenuTrigger = app.descendants(matching: .any)
+        .matching(identifier: OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger)
+        .firstMatch
 
     @discardableResult
     func sortByBalance() -> Self {
         XCTContext.runActivity(named: "Sort tokens by balance") { _ in
+            openSortMenu()
             sortByBalanceButton.waitAndTap()
             return self
         }
@@ -28,9 +33,14 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     @discardableResult
     func cancelOrganizeTokens() -> MainScreen {
         XCTContext.runActivity(named: "Cancel organize tokens (dismiss sheet)") { _ in
-            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400))
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            // Redesign exposes an explicit close button; legacy layout relies on swipe-down dismiss.
+            if closeButton.waitForExistence(timeout: .conditional) {
+                closeButton.waitAndTap()
+            } else {
+                let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+                let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400))
+                startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            }
             return MainScreen(app)
         }
     }
@@ -45,6 +55,7 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     @discardableResult
     func group() -> Self {
         XCTContext.runActivity(named: "Group tokens by network") { _ in
+            openSortMenu()
             groupButton.waitAndTap()
             waitForGroupingState(expectedGrouped: true)
             return self
@@ -54,6 +65,7 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     @discardableResult
     func ungroup() -> Self {
         XCTContext.runActivity(named: "Ungroup tokens") { _ in
+            openSortMenu()
             groupButton.waitAndTap()
             waitForGroupingState(expectedGrouped: false)
             return self
@@ -61,31 +73,19 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     }
 
     func isGrouped() -> Bool {
-        waitAndAssertTrue(groupButton, "Wait for group button to exist")
-        let groupButtonTitle = groupButton.label.lowercased()
-        if groupButtonTitle.contains("ungroup") {
-            return true
-        }
-        if groupButtonTitle.contains("group") {
-            return false
-        }
-
-        let networkHeaders = tokensList.descendants(matching: .staticText)
-            .allElementsBoundByIndex
-            .filter { element in
-                let text = element.label.lowercased()
-                return text.hasSuffix("network")
-            }
-
-        if !networkHeaders.isEmpty {
+        _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
+        // Use `firstMatch.exists` (atomic snapshot lookup) to avoid both XCUI mid-iteration races and the SwiftFormat empty_count rewrite.
+        let networkHeader = tokensList.descendants(matching: .staticText)
+            .matching(NSPredicate(format: "label ENDSWITH[c] %@", "network"))
+            .firstMatch
+        if networkHeader.exists {
             return true
         }
 
-        let sectionDragIcons = tokensList.descendants(matching: .image)
+        let sectionDragIcon = tokensList.descendants(matching: .image)
             .matching(NSPredicate(format: "label == %@", Assets.OrganizeTokens.groupDragAndDropIcon.name))
-            .allElementsBoundByIndex
-
-        return !sectionDragIcons.isEmpty
+            .firstMatch
+        return sectionDragIcon.exists
     }
 
     @discardableResult
@@ -93,20 +93,6 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
         XCTContext.runActivity(named: "Verify tokens grouping state is \(expectedState)") { _ in
             let actualState = isGrouped()
             XCTAssertEqual(actualState, expectedState, "Expected grouping state: \(expectedState), but got: \(actualState)")
-            return self
-        }
-    }
-
-    @discardableResult
-    func verifyGroupingButtonState(expectedToShowUngroup: Bool) -> Self {
-        XCTContext.runActivity(named: "Verify grouping button shows \(expectedToShowUngroup ? "Ungroup" : "Group")") { _ in
-            let buttonTitle = groupButton.label
-            let showsUngroup = isGroupingButtonShowingUngroup()
-            XCTAssertEqual(
-                showsUngroup,
-                expectedToShowUngroup,
-                "Expected button to show \(expectedToShowUngroup ? "Ungroup" : "Group"), but got: '\(buttonTitle)'"
-            )
             return self
         }
     }
@@ -260,18 +246,19 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
         return element
     }
 
-    private func isGroupingButtonShowingUngroup() -> Bool {
-        let buttonTitle = groupButton.label.lowercased()
-        return buttonTitle.contains("ungroup")
+    private func openSortMenu() {
+        // Redesign wraps sort/group in a dropdown menu; legacy exposes them as direct buttons.
+        if sortMenuTrigger.waitForExistence(timeout: .conditional) {
+            sortMenuTrigger.waitAndTap()
+        }
     }
 
     private func waitForGroupingState(expectedGrouped: Bool, timeout: TimeInterval = 5.0) {
-        let expectedButtonText = expectedGrouped ? "Ungroup" : "Group"
-        let predicate = NSPredicate(format: "label CONTAINS[c] %@", expectedButtonText)
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: groupButton)
-
-        let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
-        XCTAssertEqual(result, .completed, "Timed out waiting for group button to show '\(expectedButtonText)'")
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if isGrouped() == expectedGrouped { return }
+        }
+        XCTFail("Timed out waiting for grouping state to be \(expectedGrouped)")
     }
 
     /// Parses identifier format: organizeTokens_accountHeader_<outerSection>_<accountId>_<accountName>
@@ -295,6 +282,7 @@ enum OrganizeTokensScreenElement: String, UIElement {
     case sortByBalanceButton
     case groupButton
     case applyButton
+    case sortMenuTrigger
 
     var accessibilityIdentifier: String {
         switch self {
@@ -306,6 +294,8 @@ enum OrganizeTokensScreenElement: String, UIElement {
             return OrganizeTokensAccessibilityIdentifiers.groupButton
         case .applyButton:
             return OrganizeTokensAccessibilityIdentifiers.applyButton
+        case .sortMenuTrigger:
+            return OrganizeTokensAccessibilityIdentifiers.sortMenuTrigger
         }
     }
 }
