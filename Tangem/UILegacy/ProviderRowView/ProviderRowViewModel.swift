@@ -85,6 +85,7 @@ extension ProviderRowViewModel {
         case permissionNeeded
         case fcaWarning
         case bestRate
+        case bestDexRate
         case recommended
     }
 
