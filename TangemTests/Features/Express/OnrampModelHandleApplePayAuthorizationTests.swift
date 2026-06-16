@@ -227,6 +227,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
             analyticsLogger: NoOpOnrampSendAnalyticsLogger(),
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
+            transactionHistoryEnricherFactory: { nil },
             predefinedValues: .init(amount: nil)
         )
     }
