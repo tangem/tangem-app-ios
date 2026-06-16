@@ -19,6 +19,10 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
                     .navigationLinks(links)
             }
         }
+        .sheet(item: $coordinator.qrScanViewCoordinator) {
+            QRScanViewCoordinatorView(coordinator: $0)
+                .ignoresSafeArea()
+        }
     }
 
     @ViewBuilder

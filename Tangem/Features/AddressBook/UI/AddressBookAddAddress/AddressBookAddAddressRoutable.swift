@@ -10,4 +10,5 @@ import Foundation
 
 protocol AddressBookAddAddressRoutable: AnyObject {
     func dismissAddAddress()
+    func openQRScanner(output: QRScannerOutput)
 }
