@@ -39,7 +39,7 @@ final class NotificationSettingsViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private weak var coordinator: NotificationSettingsRoutable?
 
-    private var userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    private var userWalletPushNotificationsManager: UserWalletPushNotificationsManager
 
     @Published private var isSystemPermissionGranted: Bool = false
 
@@ -93,7 +93,7 @@ final class NotificationSettingsViewModel: ObservableObject {
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
 
-        userTokensPushNotificationsManager = userWalletModel.userTokensPushNotificationsManager
+        userWalletPushNotificationsManager = userWalletModel.userWalletPushNotificationsManager
 
         setupViewModels()
         bind()
@@ -122,7 +122,7 @@ final class NotificationSettingsViewModel: ObservableObject {
         retryTask?.cancel()
         retryTask = runTask(in: self) { @MainActor viewModel in
             defer { viewModel.isRetryButtonBusy = false }
-            try? await viewModel.userTokensPushNotificationsManager.refetchPreferences()
+            try? await viewModel.userWalletPushNotificationsManager.refetchPreferences()
         }
     }
 }
@@ -173,7 +173,7 @@ private extension NotificationSettingsViewModel {
             }
             .store(in: &bag)
 
-        userTokensPushNotificationsManager
+        userWalletPushNotificationsManager
             .preferencesPublisher
             .removeDuplicates()
             .receiveOnMain()
@@ -185,7 +185,6 @@ private extension NotificationSettingsViewModel {
     }
 
     func setupViewModels() {
-        transactionAlertsEnabled = userTokensPushNotificationsManager.status.isActive
         rebuildToggleViewModels()
     }
 
@@ -303,7 +302,7 @@ private extension NotificationSettingsViewModel {
             guard !Task.isCancelled else { return }
 
             do {
-                try await userTokensPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
+                try await userWalletPushNotificationsManager.tryUpdateEnableState(value: value, for: channel)
             } catch is CancellationError {
                 return
             } catch {
@@ -341,7 +340,7 @@ private extension NotificationSettingsViewModel {
             guard let self else { return }
 
             do {
-                try await userTokensPushNotificationsManager.tryUpdateEnableState(value: true, for: channel)
+                try await userWalletPushNotificationsManager.tryUpdateEnableState(value: true, for: channel)
             } catch is CancellationError {
                 return
             } catch {

@@ -18,7 +18,7 @@ struct CommonUserWalletModelDependencies {
     let keysDerivingInteractor: KeysDeriving
     let totalBalanceProvider: TotalBalanceProvider
     let nftManager: NFTManager
-    let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
@@ -74,13 +74,13 @@ struct CommonUserWalletModelDependencies {
         )
         derivationManager?.configure(with: accountModelsManager)
 
-        let userTokensPushNotificationsManager = Self.makeUserTokensPushNotificationsManager(
+        let userWalletPushNotificationsManager = Self.makeUserWalletPushNotificationsManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager,
             remoteStatusSyncing: accountModelsManagerDependencies.cryptoAccountsRepository
         )
-        self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
-        accountModelsManagerDependencies.networkMapper.externalParametersProvider = userTokensPushNotificationsManager
+        self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
+        accountModelsManagerDependencies.networkMapper.externalParametersProvider = userWalletPushNotificationsManager
 
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
@@ -248,27 +248,19 @@ private extension CommonUserWalletModelDependencies {
         return accountModelsManager
     }
 
-    static func makeUserTokensPushNotificationsManager(
+    static func makeUserWalletPushNotificationsManager(
         userWalletId: UserWalletId,
         accountModelsManager: AccountModelsManager,
-        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
-    ) -> (UserTokensPushNotificationsManager & UserTokenListExternalParametersProvider) {
-        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
-            let notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
+        remoteStatusSyncing: UserWalletPushNotificationsRemoteStatusSyncing
+    ) -> (UserWalletPushNotificationsManager & UserTokenListExternalParametersProvider) {
+        let notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
 
-            return CommonUserWalletPushNotificationsManager(
-                userWalletId: userWalletId,
-                accountModelsManager: accountModelsManager,
-                remoteStatusSyncing: remoteStatusSyncing,
-                notificationPreferencesProvider: notificationPreferencesProvider
-            )
-        } else {
-            return CommonUserTokensPushNotificationsManager(
-                userWalletId: userWalletId,
-                accountModelsManager: accountModelsManager,
-                remoteStatusSyncing: remoteStatusSyncing
-            )
-        }
+        return CommonUserWalletPushNotificationsManager(
+            userWalletId: userWalletId,
+            accountModelsManager: accountModelsManager,
+            remoteStatusSyncing: remoteStatusSyncing,
+            notificationPreferencesProvider: notificationPreferencesProvider
+        )
     }
 
     static func makeTotalBalanceProvider(

@@ -117,21 +117,6 @@ final class UserWalletPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        // Fire on any flip of system permission (`true ↔ false`), typically the user toggling
-        // push in iOS Settings. Needs two known readings, so it relies on at least one prior
-        // `didBecomeActive`.
-        isAuthorizedValuePublisher
-            .removeDuplicates()
-            .pairwise()
-            .filter { previous, current in
-                previous != current
-            }
-            .combineLatest(isUserTokenListReadyPublisher)
-            .receiveOnMain()
-            .map { _ in PushNotificationsUpdateTriggerEvent.updateStatusRequired }
-            .subscribe(eventsSubject)
-            .store(in: &bag)
-
         let hasNotCompletedAllowanceOnboardingPublisher = PushNotificationsAllowanceBootstrapPolicy
             .hasNotCompletedOnboardingPublisher(userWalletId: userWalletId)
 

@@ -162,19 +162,11 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         from cryptoAccounts: [StoredCryptoAccount],
         retryCount: Int
     ) async throws(CryptoAccountsNetworkServiceError) {
-        // Push Settings on: notification state moved to the notification-preferences store, so tokens go
-        // to the v2 endpoint with no `notifyStatus` in the body. Off: the legacy v1 contract is untouched.
-        let usesV2TokensContract = FeatureProvider.isAvailable(.pushNotificationsSettings)
-
         return try await retry(retryCount: retryCount) {
             do {
                 let (_, userTokensDTO) = mapper.map(request: cryptoAccounts)
 
-                if usesV2TokensContract {
-                    try await tangemApiService.saveTokensV2(list: userTokensDTO.omittingNotifyStatus(), for: userWalletId.stringValue)
-                } else {
-                    try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
-                }
+                try await tangemApiService.saveTokensV2(list: userTokensDTO, for: userWalletId.stringValue)
             } catch let error as CryptoAccountsNetworkServiceError {
                 throw error // Just re-throw an original error
             } catch let error as TangemAPIError where error.code == .notFound {

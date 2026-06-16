@@ -93,21 +93,8 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
-        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list))
-
-        return try await withErrorLoggingPipeline(target: target) {
-            let response = try await provider.asyncRequest(target)
-            // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
-            // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
-            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
-        }
-    }
-
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
-        // Contract v1.3 dropped `notifyStatus` from the v2 `/tokens` payload; strip it here so a caller-supplied
-        // value (every current call site builds one for v1) can't leak into the request and trip backend validation.
-        let target = TangemApiTarget(type: .saveUserWalletTokensV2(key: key, list: list.omittingNotifyStatus()))
+        let target = TangemApiTarget(type: .saveUserWalletTokensV2(key: key, list: list))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)

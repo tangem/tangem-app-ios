@@ -59,7 +59,7 @@ struct CommonUserWalletModelFactory {
             keysRepository: dependencies.keysRepository,
             keysDerivingInteractor: dependencies.keysDerivingInteractor,
             totalBalanceProvider: dependencies.totalBalanceProvider,
-            userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
+            userWalletPushNotificationsManager: dependencies.userWalletPushNotificationsManager,
             accountModelsManager: dependencies.accountModelsManager
         )
 

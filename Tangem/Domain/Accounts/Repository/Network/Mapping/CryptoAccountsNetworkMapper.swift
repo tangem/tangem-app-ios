@@ -51,8 +51,6 @@ final class CryptoAccountsNetworkMapper {
                 )
             }
 
-        let notifyStatusValue = mapTokenListNotifyStatusValue()
-
         // Currently, we assume that all accounts share the same grouping option
         let group = mapGroupType(groupingOption: request.first?.grouping)
 
@@ -68,7 +66,6 @@ final class CryptoAccountsNetworkMapper {
             tokens: uniqueTokens,
             group: group,
             sort: sort,
-            notifyStatus: notifyStatusValue,
             version: Constants.apiVersion
         )
 
@@ -194,18 +191,6 @@ final class CryptoAccountsNetworkMapper {
         case .byBalance:
             return .balance
         }
-    }
-
-    private func mapTokenListNotifyStatusValue() -> Bool {
-        if let externalParametersProvider {
-            return externalParametersProvider.provideTokenListNotifyStatusValue()
-        }
-
-        let message = "Programmer error: '\(self)' is not configured with 'UserTokenListExternalParametersProvider' instance before using"
-        AccountsLogger.error(error: message)
-        assertionFailure(message)
-
-        return false
     }
 
     // MARK: - Remote to Stored

@@ -149,7 +149,7 @@ final class CommonPushNotificationsSyncService: NSObject {
 
                 for userWalletModel in service.userWalletRepository.models {
                     userWalletModel
-                        .userTokensPushNotificationsManager
+                        .userWalletPushNotificationsManager
                         .process(.walletApplicationBindingSynchronized)
                 }
             } catch {
@@ -162,9 +162,9 @@ final class CommonPushNotificationsSyncService: NSObject {
     }
 }
 
-// MARK: - UserTokensPushNotificationsService
+// MARK: - UserWalletPushNotificationsService
 
-extension CommonPushNotificationsSyncService: UserTokensPushNotificationsService {
+extension CommonPushNotificationsSyncService: UserWalletPushNotificationsService {
     /// Initializes the push notifications service.
     /// Checks the registration of appUid (creates or updates the application on the server),
     /// fetches the list of wallets linked to the appUid.

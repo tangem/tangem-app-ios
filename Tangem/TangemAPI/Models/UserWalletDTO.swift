@@ -14,7 +14,5 @@ enum UserWalletDTO {
         let id: String
         /// Display name of the wallet
         let name: String?
-        /// Flag indicating if notifications are enabled for this wallet
-        let notifyStatus: Bool
     }
 }

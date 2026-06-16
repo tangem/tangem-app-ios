@@ -1,5 +1,5 @@
 //
-//  UserTokensPushNotificationsRemoteStatusSyncing.swift
+//  UserWalletPushNotificationsRemoteStatusSyncing.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol UserTokensPushNotificationsRemoteStatusSyncing {
+protocol UserWalletPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus()
 }

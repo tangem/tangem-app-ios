@@ -62,10 +62,6 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
-    func saveTokens(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
-        throw "Not implemented"
-    }
-
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
         throw "Not implemented"
     }
