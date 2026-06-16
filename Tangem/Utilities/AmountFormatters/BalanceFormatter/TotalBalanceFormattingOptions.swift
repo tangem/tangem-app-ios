@@ -10,16 +10,16 @@ import SwiftUI
 import TangemAssets
 
 struct TotalBalanceFormattingOptions {
-    let integerPartFont: Font
-    let fractionalPartFont: Font
+    let integerPartFont: TangemFontStyle
+    let fractionalPartFont: TangemFontStyle
     let integerPartColor: Color
     let fractionalPartColor: Color
     let fractionalPartIncludesDecimalSeparator: Bool
 
     static var defaultOptions: TotalBalanceFormattingOptions {
         .init(
-            integerPartFont: Fonts.Regular.title1,
-            fractionalPartFont: Fonts.Bold.title3,
+            integerPartFont: TangemFontStyle(font: Fonts.Regular.title1),
+            fractionalPartFont: TangemFontStyle(font: Fonts.Bold.title3),
             integerPartColor: Colors.Text.primary1,
             fractionalPartColor: Colors.Text.primary1,
             fractionalPartIncludesDecimalSeparator: false
@@ -28,8 +28,8 @@ struct TotalBalanceFormattingOptions {
 
     static var defaultOptionsRedesign: TotalBalanceFormattingOptions {
         .init(
-            integerPartFont: .Tangem.Title44.semibold,
-            fractionalPartFont: .Tangem.Heading28.regular,
+            integerPartFont: Font.Tangem.Title44.semibold,
+            fractionalPartFont: Font.Tangem.Heading28.semibold,
             integerPartColor: .Tangem.Text.Neutral.primary,
             fractionalPartColor: .Tangem.Text.Neutral.primary,
             fractionalPartIncludesDecimalSeparator: true

@@ -140,14 +140,14 @@ private extension TangemSearchField {
 
     var textInput: some View {
         TextField("", text: $text)
-            .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             .focused($isFocused)
             .accessibilityIdentifier(textFieldAccessibilityIdentifier)
     }
 
     var textPlaceholder: some View {
         Text(fieldPlaceholderText)
-            .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.tertiary)
             .lineLimit(1)
     }
 
