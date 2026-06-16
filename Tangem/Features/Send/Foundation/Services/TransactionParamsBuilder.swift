@@ -137,6 +137,7 @@ struct TransactionParamsBuilder {
              .monad,
              .arbitrumNova,
              .plasma,
+             .adi,
              .seiEvm:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
