@@ -14,9 +14,9 @@ public struct NewsRatingViewRedesign: View {
     private let rating: String
     private let isHighlighted: Bool
     private let spacing: CGFloat
-    private let font: Font
+    private let font: TangemFontStyle
 
-    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: Font = .Tangem.Caption12.semibold) {
+    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemFontStyle = Font.Tangem.Caption12.semibold) {
         self.rating = rating
         self.isHighlighted = isHighlighted
         self.spacing = spacing

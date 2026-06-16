@@ -40,12 +40,12 @@ struct NewsSourceCardView: View {
                             .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
 
                         Text(source.sourceName)
-                            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                             .lineLimit(1)
                     }
 
                     Text(source.title)
-                        .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
                         .lineLimit(RedesignConstants.titleLineLimit)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -56,7 +56,7 @@ struct NewsSourceCardView: View {
                     Spacer(minLength: .unit(.x8))
 
                     Text(source.publishedAt)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                         .lineLimit(1)
                 }
                 .frame(maxHeight: .infinity, alignment: .topLeading)

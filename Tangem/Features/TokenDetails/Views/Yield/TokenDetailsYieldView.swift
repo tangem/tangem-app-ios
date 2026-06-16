@@ -73,10 +73,10 @@ private extension TokenDetailsYieldView {
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -114,7 +114,7 @@ private extension TokenDetailsYieldView {
                     Text(item.title)
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -160,11 +160,11 @@ private extension TokenDetailsYieldView {
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 HStack(spacing: spinnerSpacing) {
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
                     spinner
                 }
@@ -207,13 +207,13 @@ private extension TokenDetailsYieldView {
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     HStack(spacing: badgeSpacing) {
                         Text(item.title)
-                            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                         badge.map { badgeView(type: $0) }
                     }
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 

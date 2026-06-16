@@ -297,7 +297,7 @@ public struct TangemTokenRow: View {
 
         return LoadableTextView(
             state: state,
-            font: Constants.Style.TokenPrice.font,
+            style: Constants.Style.TokenPrice.font,
             textColor: Constants.Style.TokenPrice.color,
             loaderSize: priceLoaderSize,
             loaderCornerRadiusStyle: .capsule
@@ -313,7 +313,7 @@ public struct TangemTokenRow: View {
 
         return LoadableTextView(
             state: state,
-            font: Constants.Style.TokenPrice.font,
+            style: Constants.Style.TokenPrice.font,
             textColor: Constants.Style.TokenPrice.color,
             loaderSize: priceLoaderSize,
             loaderCornerRadiusStyle: .capsule

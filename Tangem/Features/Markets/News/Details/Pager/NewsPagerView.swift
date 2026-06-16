@@ -312,7 +312,7 @@ private struct NewsPageContentView: View {
                 }
 
                 Text(Localization.newsLike)
-                    .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             }
             .padding(.horizontal, .unit(.x3))
             .frame(height: 36)

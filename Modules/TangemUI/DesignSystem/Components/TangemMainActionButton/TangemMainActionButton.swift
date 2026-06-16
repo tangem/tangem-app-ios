@@ -38,7 +38,7 @@ public struct TangemMainActionButton: View {
 
             Text(title)
                 .style(
-                    .Tangem.Subheadline.medium,
+                    Font.Tangem.Subheadline.medium,
                     color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
                 // [REDACTED_TODO_COMMENT]

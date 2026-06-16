@@ -31,16 +31,16 @@ struct TokensManagementChooserView: View {
         isRedesign ? Constants.redesignRowCornerRadius : Constants.rowCornerRadius
     }
 
-    private var titleFont: Font {
-        isRedesign ? .Tangem.Body16.medium : Fonts.Bold.subheadline
+    private var titleFont: TangemFontStyle {
+        isRedesign ? Font.Tangem.Body16.medium : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var titleColor: Color {
         isRedesign ? .Tangem.Text.Neutral.primary : Colors.Text.primary1
     }
 
-    private var subtitleFont: Font {
-        isRedesign ? .Tangem.Caption12.semibold : Fonts.Regular.caption1
+    private var subtitleFont: TangemFontStyle {
+        isRedesign ? Font.Tangem.Caption12.semibold : TangemFontStyle(font: Fonts.Regular.caption1)
     }
 
     private var subtitleColor: Color {
