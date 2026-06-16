@@ -7,6 +7,7 @@
 //
 
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 extension TokenItemViewModel {
     var tokenRowViewData: TangemTokenRowViewData {
@@ -22,7 +23,12 @@ extension TokenItemViewModel {
             name: name,
             badge: badgeViewData,
             content: contentState,
-            hasMonochromeIcon: hasMonochromeIcon
+            hasMonochromeIcon: hasMonochromeIcon,
+            accessibilityIdentifiers: TangemTokenRowViewData.AccessibilityIdentifiers(
+                tokenName: MainAccessibilityIdentifiers.tokenTitle,
+                fiatBalance: MainAccessibilityIdentifiers.tokenBalance(for: name),
+                rewardsBadge: MainAccessibilityIdentifiers.tokenItemEarnBadge
+            )
         )
     }
 }

@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import TangemAssets
+import TangemFoundation
 
 extension Token {
     var isCustom: Bool { id == nil }
@@ -19,7 +20,7 @@ extension Token {
         let defaultValue = Colors.Old.tangemGrayLight4
         let hexPart = contractAddress.removeHexPrefix()
         let colorPrefix = String(hexPart.prefix(6))
-        if colorPrefix.hexToInteger != nil {
+        if colorPrefix.hexToInt() != nil {
             let hex = String(colorPrefix)
             return Color(hex: hex) ?? defaultValue
 

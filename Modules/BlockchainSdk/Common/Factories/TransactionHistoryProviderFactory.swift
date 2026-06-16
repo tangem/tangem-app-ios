@@ -14,6 +14,7 @@ public struct TransactionHistoryProviderFactory {
     private let apiList: APIList
     private let tangemProviderConfig: TangemProviderConfiguration
     private let isSolanaTransactionHistoryEnabled: Bool
+    private let isXrpTransactionHistoryEnabled: Bool
 
     // MARK: - Init
 
@@ -21,12 +22,14 @@ public struct TransactionHistoryProviderFactory {
         keysConfig: BlockchainSdkKeysConfig,
         tangemProviderConfig: TangemProviderConfiguration,
         apiList: APIList,
-        isSolanaTransactionHistoryEnabled: Bool
+        isSolanaTransactionHistoryEnabled: Bool,
+        isXrpTransactionHistoryEnabled: Bool
     ) {
         self.keysConfig = keysConfig
         self.tangemProviderConfig = tangemProviderConfig
         self.apiList = apiList
         self.isSolanaTransactionHistoryEnabled = isSolanaTransactionHistoryEnabled
+        self.isXrpTransactionHistoryEnabled = isXrpTransactionHistoryEnabled
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -113,6 +116,12 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .zkSync
             )
+        case .adi:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .adi
+            )
         case .algorand(_, let isTestnet):
             let node: NodeInfo
             if isTestnet {
@@ -135,15 +144,30 @@ public struct TransactionHistoryProviderFactory {
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: KaspaTransactionHistoryMapper(blockchain: input.blockchain)
             )
-        case .solana:
-            guard isSolanaTransactionHistoryEnabled else {
-                return nil
-            }
-
+        case .solana where isSolanaTransactionHistoryEnabled:
             return SolanaTransactionHistoryProvider(
                 configuration: .alchemy(apiKey: keysConfig.alchemyApiKey),
                 networkConfiguration: input.tangemProviderConfig,
                 mapper: SolanaTransactionHistoryMapper(blockchain: input.blockchain)
+            )
+        case .xrp where isXrpTransactionHistoryEnabled:
+            let serviceFactory = WalletNetworkServiceFactory(
+                blockchainSdkKeysConfig: keysConfig,
+                tangemProviderConfig: tangemProviderConfig,
+                apiList: apiList
+            )
+
+            let networkService: XRPNetworkService
+            do {
+                networkService = try serviceFactory.makeServiceWithType(for: blockchain)
+            } catch {
+                BSDKLogger.error("Failed to create XRP network service for transaction history", error: error)
+                return nil
+            }
+
+            return XRPTransactionHistoryProvider(
+                networkService: networkService,
+                mapper: XRPTransactionHistoryMapper(blockchain: input.blockchain)
             )
         default:
             return nil

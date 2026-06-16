@@ -15,7 +15,6 @@ import TangemFoundation
 // `005` - DAppPersistenceError
 // `006` - WebSocketError
 // `007` - WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError
-// `008` - WalletConnectSavedSessionMigrationService.Error
 // `009` - WalletConnectTransactionRequestProcessingError
 // `010` - WalletConnectSignError
 // `011` - WalletConnectURIParsingError
@@ -100,17 +99,6 @@ extension WebSocketError: UniversalError {
 extension WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError: UniversalError {
     var errorCode: Int {
         107007000
-    }
-}
-
-extension WalletConnectSavedSessionMigrationService.Error: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .invalidDAppURL:
-            107008000
-        case .userWalletNotFound:
-            107008001
-        }
     }
 }
 
