@@ -31,7 +31,7 @@ struct TransactionSubtitleView: View {
 
     private var prefixView: some View {
         Text(directionPrefix)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
     }
 
     @ViewBuilder
@@ -42,13 +42,13 @@ struct TransactionSubtitleView: View {
                 AccountIconView(data: icon)
                     .settings(.smallSized)
                 Text(name)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
             }
 
         case .wallet(let name):
             Text(name)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(1)
 
         case .accountInWallet(let accountName, let accountIcon, let walletName):
@@ -56,12 +56,12 @@ struct TransactionSubtitleView: View {
                 AccountIconView(data: accountIcon)
                     .settings(.smallSized)
                 Text(accountName)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
                 Text(Localization.commonIn)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 Text(walletName)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
             }
 
@@ -69,7 +69,7 @@ struct TransactionSubtitleView: View {
             HStack(spacing: .unit(.x1)) {
                 addressBlockies(image: blockiesImage)
                 Text(short)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }

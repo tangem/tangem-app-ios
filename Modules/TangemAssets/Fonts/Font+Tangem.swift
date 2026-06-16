@@ -7,8 +7,113 @@
 //
 
 import SwiftUI
+import UIKit
 
-// MARK: - Tangem fonts
+// MARK: - TangemFontStyle
+
+public struct TangemFontStyle: Hashable, Sendable {
+    public let font: Font
+    public let tracking: CGFloat
+    let metrics: Metrics?
+
+    struct Metrics: Hashable, Sendable {
+        let size: CGFloat
+        let lineHeight: CGFloat
+        let weight: Font.Weight
+    }
+
+    /// Redesign tier: fixed `sp` size + line height, applied with `@ScaledMetric` on the `View` path.
+    init(size: CGFloat, lineHeight: CGFloat, weight: Font.Weight, tracking: CGFloat) {
+        font = .system(size: size, weight: weight)
+        self.tracking = tracking
+        metrics = Metrics(size: size, lineHeight: lineHeight, weight: weight)
+    }
+
+    /// Legacy wrap: a raw `Font` with no line height (used by `[REDACTED_INFO]` redesign toggles).
+    public init(font: Font, tracking: CGFloat = 0) {
+        self.font = font
+        self.tracking = tracking
+        metrics = nil
+    }
+}
+
+public extension View {
+    func font(_ style: TangemFontStyle) -> some View {
+        modifier(TangemFontStyleModifier(style: style))
+    }
+
+    func style(_ style: TangemFontStyle, color: Color) -> some View {
+        modifier(TangemFontStyleModifier(style: style)).foregroundStyle(color)
+    }
+}
+
+private struct TangemFontStyleModifier: ViewModifier {
+    let style: TangemFontStyle
+    @ScaledMetric private var scaledSize: CGFloat
+
+    init(style: TangemFontStyle) {
+        self.style = style
+        _scaledSize = ScaledMetric(wrappedValue: style.metrics?.size ?? 0, relativeTo: .body)
+    }
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if let metrics = style.metrics {
+            content
+                .font(.system(size: scaledSize, weight: metrics.weight))
+                .lineSpacing(scaledLineSpacing(metrics))
+                .tracking(style.tracking)
+        } else {
+            content
+                .font(style.font)
+                .tracking(style.tracking)
+        }
+    }
+
+    /// `lineSpacing` adds to the font's intrinsic line height, so the gap is the design line height
+    /// minus the font's natural line height — not minus the point size.
+    private func scaledLineSpacing(_ metrics: TangemFontStyle.Metrics) -> CGFloat {
+        max(0, scaledLineHeight(metrics) - intrinsicLineHeight(metrics))
+    }
+
+    private func scaledLineHeight(_ metrics: TangemFontStyle.Metrics) -> CGFloat {
+        guard metrics.size > 0 else { return metrics.lineHeight }
+
+        return metrics.lineHeight * (scaledSize / metrics.size)
+    }
+
+    private func intrinsicLineHeight(_ metrics: TangemFontStyle.Metrics) -> CGFloat {
+        UIFont.systemFont(ofSize: scaledSize, weight: metrics.weight.uiWeight).lineHeight
+    }
+}
+
+private extension Font.Weight {
+    var uiWeight: UIFont.Weight {
+        switch self {
+        case .ultraLight: .ultraLight
+        case .thin: .thin
+        case .light: .light
+        case .regular: .regular
+        case .medium: .medium
+        case .semibold: .semibold
+        case .bold: .bold
+        case .heavy: .heavy
+        case .black: .black
+        default: .regular
+        }
+    }
+}
+
+public extension AttributedString {
+    mutating func setFontStyle(_ style: TangemFontStyle) {
+        var container = AttributeContainer()
+        container.font = style.font
+        container.tracking = style.tracking
+        mergeAttributes(container)
+    }
+}
+
+// MARK: - Tangem fonts ([REDACTED_INFO]: weights collapsed; each tier carries design tracking)
 
 public extension Font {
     enum Tangem {
@@ -31,92 +136,88 @@ public extension Font {
 // MARK: - Caption11
 
 public extension Font.Tangem.Caption11 {
-    static let regular: Font = .caption2.weight(.regular)
-    static let medium: Font = .caption2.weight(.medium)
-    static let semibold: Font = .caption2.weight(.semibold)
+    static let medium = TangemFontStyle(size: 11, lineHeight: 12, weight: .medium, tracking: 0.06)
+    static let regular = medium
+    static let semibold = TangemFontStyle(size: 11, lineHeight: 12, weight: .medium, tracking: 0.15)
 }
 
 // MARK: - Caption12
 
 public extension Font.Tangem.Caption12 {
-    static let regular: Font = .caption.weight(.regular)
-    static let semibold: Font = .caption.weight(.medium)
+    static let medium = TangemFontStyle(size: 12, lineHeight: 16, weight: .medium, tracking: 0)
+    static let regular = medium
+    static let semibold = TangemFontStyle(size: 12, lineHeight: 16, weight: .medium, tracking: 0.1)
 }
 
 // MARK: - Caption13
 
 public extension Font.Tangem.Caption13 {
-    static let regular: Font = .footnote.weight(.regular)
-    static let medium: Font = .footnote.weight(.medium)
-    static let semibold: Font = .footnote.weight(.semibold)
+    static let medium = TangemFontStyle(size: 13, lineHeight: 16, weight: .medium, tracking: -0.08)
+    static let regular = medium
+    static let semibold = TangemFontStyle(size: 13, lineHeight: 16, weight: .medium, tracking: 0.1)
 }
 
 // MARK: - Subheadline
 
 public extension Font.Tangem.Subheadline {
-    static let regular: Font = .subheadline.weight(.regular)
-    static let medium: Font = .subheadline.weight(.medium)
+    static let medium = TangemFontStyle(size: 14, lineHeight: 16, weight: .medium, tracking: -0.15)
+    static let regular = medium
 }
 
 // MARK: - Body14
 
 public extension Font.Tangem.Body14 {
-    static let regular: Font = .subheadline.weight(.medium)
+    static let regular = TangemFontStyle(size: 14, lineHeight: 16, weight: .medium, tracking: -0.15)
 }
 
 // MARK: - Body15
 
 public extension Font.Tangem.Body15 {
-    static let regular: Font = .subheadline.weight(.regular)
-    static let semibold: Font = .subheadline.weight(.medium)
+    static let medium = TangemFontStyle(size: 15, lineHeight: 16, weight: .medium, tracking: -0.23)
+    static let regular = medium
+    static let semibold = medium
 }
 
 // MARK: - Body16
 
 public extension Font.Tangem.Body16 {
-    static let regular: Font = .callout.weight(.regular)
-    static let semibold: Font = .callout.weight(.semibold)
-    static let medium: Font = .callout.weight(.medium)
+    static let medium = TangemFontStyle(size: 16, lineHeight: 20, weight: .medium, tracking: -0.31)
+    static let regular = medium
+    static let semibold = medium
 }
 
 // MARK: - Heading17
 
 public extension Font.Tangem.Heading17 {
-    static let regular: Font = .body.weight(.regular)
-    static let medium: Font = .body.weight(.medium)
-    static let semibold: Font = .body.weight(.semibold)
+    static let semibold = TangemFontStyle(size: 17, lineHeight: 20, weight: .semibold, tracking: -0.12)
 }
 
 // MARK: - Heading20
 
 public extension Font.Tangem.Heading20 {
-    static let regular: Font = .title3.weight(.regular)
-    static let semibold: Font = .title3.weight(.semibold)
+    static let semibold = TangemFontStyle(size: 20, lineHeight: 24, weight: .semibold, tracking: -0.12)
 }
 
 // MARK: - Heading22
 
 public extension Font.Tangem.Heading22 {
-    static let regular: Font = .title2.weight(.regular)
-    static let bold: Font = .title2.weight(.bold)
+    static let semibold = TangemFontStyle(size: 22, lineHeight: 28, weight: .semibold, tracking: -0.12)
 }
 
 // MARK: - Heading28
 
 public extension Font.Tangem.Heading28 {
-    static let regular: Font = .title.weight(.semibold)
-    static let bold: Font = .title.weight(.bold)
+    static let semibold = TangemFontStyle(size: 28, lineHeight: 36, weight: .semibold, tracking: -0.37)
 }
 
 // MARK: - Heading34
 
 public extension Font.Tangem.Heading34 {
-    static let regular: Font = .largeTitle.weight(.regular)
-    static let bold: Font = .largeTitle.weight(.bold)
+    static let semibold = TangemFontStyle(size: 34, lineHeight: 44, weight: .semibold, tracking: -0.37)
 }
 
 // MARK: - Title44
 
 public extension Font.Tangem.Title44 {
-    static let semibold = Font.system(size: 44, weight: .semibold, design: .default)
+    static let semibold = TangemFontStyle(size: 44, lineHeight: 48, weight: .semibold, tracking: -0.92)
 }

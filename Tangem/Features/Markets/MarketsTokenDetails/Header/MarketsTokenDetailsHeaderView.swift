@@ -50,10 +50,10 @@ private extension MarketsTokenDetailsHeaderView {
     var nameView: some View {
         HStack(alignment: .lastTextBaseline, spacing: nameSpacing) {
             Text(tokenName)
-                .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
 
             Text(tokenSymbol)
-                .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)
         }
         .lineLimit(1)
     }
@@ -63,7 +63,7 @@ private extension MarketsTokenDetailsHeaderView {
             // This `Text` view acts as an invisible container, maintaining constant height
             // to prevent UI from jumping when the font of the price label is scaled down
             Text(Constants.priceStubText)
-                .style(.Tangem.Title44.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Title44.semibold, color: .Tangem.Text.Neutral.primary)
                 .opacity(.zero)
                 .accessibilityHidden(true)
 
@@ -84,7 +84,7 @@ private extension MarketsTokenDetailsHeaderView {
     var priceChangeView: some View {
         HStack(alignment: .firstTextBaseline, spacing: priceSpacing) {
             Text(priceDate)
-                .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
 
             if let priceChangeState {
                 PriceChangeView(

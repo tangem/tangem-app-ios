@@ -52,14 +52,14 @@ struct NewsItemView: View {
             FixedSpacer(height: .unit(.x2))
 
             Text(viewModel.title)
-                .style(.Tangem.Body16.regular, color: textColor)
+                .style(Font.Tangem.Body16.regular, color: textColor)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
             FixedSpacer(height: .unit(.x2))
 
             Text(viewModel.relativeTime)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
 
             FixedSpacer(height: .unit(.x2))
 
@@ -82,20 +82,20 @@ struct NewsItemView: View {
             HStack(spacing: .unit(.x2)) {
                 NewsRatingViewRedesign(rating: viewModel.score, isHighlighted: true)
                 Text(Localization.feedTrendingNow)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
             }
 
             FixedSpacer(height: .unit(.x2))
 
             Text(viewModel.title)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
             FixedSpacer(height: .unit(.x2))
 
             Text(viewModel.relativeTime)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
 
             FixedSpacer(height: 18.0)
 
