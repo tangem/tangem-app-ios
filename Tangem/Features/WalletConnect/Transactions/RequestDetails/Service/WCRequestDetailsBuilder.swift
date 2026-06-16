@@ -36,7 +36,9 @@ struct WCRequestDetailsBuilder: Equatable {
             []
         case .sendTransfer:
             WCBtcSendTransferDetailsModel(for: method, source: source, blockchain: blockchain).data
-        case .getAccountAddresses, .signPsbt:
+        case .getAccountAddresses:
+            WCBtcGetAccountAddressesDetailsModel(for: method, source: source).data
+        case .signPsbt:
             []
         }
     }
