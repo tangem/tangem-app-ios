@@ -491,6 +491,8 @@ private enum StubFixtures {
             txId: "native-tx",
             fromAmount: 100,
             fromCurrencyCode: "USD",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         )
@@ -503,6 +505,8 @@ private enum StubFixtures {
             redirectURL: URL(string: "https://example.com/redirect")!,
             fromAmount: 100,
             fromCurrencyCode: "USD",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         )
