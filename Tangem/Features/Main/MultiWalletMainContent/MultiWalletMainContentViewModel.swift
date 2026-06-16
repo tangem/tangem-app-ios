@@ -864,7 +864,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             delegate?.displayAddressCopiedToast()
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(walletModel: walletModel),
+                walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
                 return
