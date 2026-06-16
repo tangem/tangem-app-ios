@@ -78,7 +78,7 @@ struct MarketTokenRowView: View {
                 negativeColor: .Tangem.Text.Status.warning,
                 originalColor: .Tangem.Text.Neutral.primary
             )
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
     }
 
@@ -95,7 +95,7 @@ struct MarketTokenRowView: View {
 
             Text(viewModel.marketCap)
                 .lineLimit(1)
-                .style(.Tangem.Caption12.semibold, color: marketCapColor)
+                .style(Font.Tangem.Caption12.semibold, color: marketCapColor)
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenMarketCap)
 
             if let maxApy = viewModel.maxApy {
@@ -145,7 +145,7 @@ struct MarketTokenRowView: View {
                 .foregroundStyle(colors.oliveColor)
 
             Text(rating)
-                .style(.Tangem.Caption12.semibold, color: colors.textColor)
+                .style(Font.Tangem.Caption12.semibold, color: colors.textColor)
 
             Assets.DesignSystem.oliveRight.image
                 .resizable()
