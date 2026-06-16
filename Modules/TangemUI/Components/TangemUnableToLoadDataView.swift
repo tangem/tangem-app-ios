@@ -22,7 +22,7 @@ public struct TangemUnableToLoadDataView: View {
     public var body: some View {
         VStack(spacing: SizeUnit.x3.value) {
             Text(Localization.marketsLoadingErrorTitle)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
 
             TangemButton(
                 content: .text(AttributedString(Localization.tryToLoadDataAgainButtonTitle)),

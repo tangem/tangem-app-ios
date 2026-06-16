@@ -28,7 +28,7 @@ struct MarketsTokenNewsView: View {
 
     private var header: some View {
         Text(Localization.newsSources)
-            .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
             .frame(maxWidth: .infinity, alignment: .leading)
             // Mirrors the widget header's 16pt outer + 8pt inner horizontal padding.
             .padding(.horizontal, Constants.horizontalPadding)

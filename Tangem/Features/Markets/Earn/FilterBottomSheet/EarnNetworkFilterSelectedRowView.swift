@@ -27,7 +27,7 @@ struct EarnNetworkFilterSelectedRowView<ID: Hashable>: View {
         Button(action: { selection.isActive(compare: data.id).toggle() }) {
             HStack(spacing: 0) {
                 Text(data.title)
-                    .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
 
                 Spacer(minLength: horizontalMinLength)
 

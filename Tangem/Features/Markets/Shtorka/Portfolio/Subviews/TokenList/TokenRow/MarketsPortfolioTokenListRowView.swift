@@ -47,7 +47,7 @@ private extension MarketsPortfolioTokenListRowView {
 
     func tokenName() -> some View {
         Text(viewModel.tokenName)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
@@ -57,7 +57,7 @@ private extension MarketsPortfolioTokenListRowView {
 
     func networkName() -> some View {
         Text(viewModel.networkName)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             .lineLimit(1)
     }
 

@@ -57,8 +57,14 @@ private extension TangemPayBalanceView {
         BalanceFormatter().formatAttributedTotalBalance(
             fiatBalance: raw,
             formattingOptions: .init(
-                integerPartFont: DesignSystem.Tokens.Font.Display.medium.font,
-                fractionalPartFont: DesignSystem.Tokens.Font.Heading.medium.font,
+                integerPartFont: TangemFontStyle(
+                    font: DesignSystem.Tokens.Font.Display.medium.font,
+                    tracking: DesignSystem.Tokens.Font.Display.medium.letterSpacing
+                ),
+                fractionalPartFont: TangemFontStyle(
+                    font: DesignSystem.Tokens.Font.Heading.medium.font,
+                    tracking: DesignSystem.Tokens.Font.Heading.medium.letterSpacing
+                ),
                 integerPartColor: DesignSystem.Tokens.Theme.Text.primary,
                 fractionalPartColor: DesignSystem.Tokens.Theme.Text.primary,
                 fractionalPartIncludesDecimalSeparator: true

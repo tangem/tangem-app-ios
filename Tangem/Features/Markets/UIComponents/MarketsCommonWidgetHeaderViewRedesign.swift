@@ -30,7 +30,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
         HStack(alignment: .center, spacing: .zero) {
             Text(headerTitle)
                 .lineLimit(1)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .skeletonable(
                     isShown: isLoadingState.isHeaderSkeletonable,
                     size: CGSize(width: 120, height: 24) * scaleFactor,
@@ -63,7 +63,7 @@ struct MarketsCommonWidgetHeaderViewRedesign: View {
         } label: {
             HStack(spacing: 0) {
                 Text(buttonTitle ?? "")
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 Assets.chevron.image
                     .renderingMode(.template)

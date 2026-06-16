@@ -34,7 +34,7 @@ private extension MarketsTokenDetailsLinksViewRedesign {
     func sectionView(_ item: MarketsTokenDetailsLinkSection) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(item.section.title)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .padding(.horizontal, sectionHorizontalPadding)
                 .padding(.top, titleTopPadding)
 
@@ -53,7 +53,7 @@ private extension MarketsTokenDetailsLinksViewRedesign {
 
     func linkButton(for item: LinkItem) -> some View {
         var text = AttributedString(item.data.text)
-        text.font = .Tangem.Body16.semibold
+        text.setFontStyle(Font.Tangem.Body16.semibold)
 
         let content: TangemButton.Content = {
             if let imageType = item.iconImageType {

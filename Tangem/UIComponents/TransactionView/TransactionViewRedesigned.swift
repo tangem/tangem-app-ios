@@ -49,7 +49,7 @@ struct TransactionViewRedesigned: View {
     private var nameView: some View {
         HStack(spacing: .unit(.x2)) {
             Text(display.title)
-                .style(.Tangem.Body16.medium, color: nameColor)
+                .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
 
             if viewModel.inProgress {
@@ -60,7 +60,7 @@ struct TransactionViewRedesigned: View {
 
     private var amountView: some View {
         Text(viewModel.amount.value)
-            .style(.Tangem.Body16.medium, color: amountColor)
+            .style(Font.Tangem.Body16.medium, color: amountColor)
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
@@ -74,7 +74,7 @@ struct TransactionViewRedesigned: View {
 
         case .text(let description):
             Text(description)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
 
@@ -87,7 +87,7 @@ struct TransactionViewRedesigned: View {
     private var currencyView: some View {
         if viewModel.amount.currencyCode.isNotEmpty {
             Text(viewModel.amount.currencyCode)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
         }
     }

@@ -176,7 +176,7 @@ public struct NotificationBanner: View, Setupable {
             if title.characters.isNotEmpty {
                 Text(title)
                     .style(
-                        .Tangem.Body16.medium,
+                        Font.Tangem.Body16.medium,
                         color: .Tangem.Text.Neutral.primary
                     )
                     .lineLimit(nil)
@@ -188,7 +188,7 @@ public struct NotificationBanner: View, Setupable {
             if subtitle.characters.isNotEmpty {
                 Text(subtitle)
                     .style(
-                        .Tangem.Caption12.semibold,
+                        Font.Tangem.Caption12.semibold,
                         color: .Tangem.Text.Neutral.secondary
                     )
                     .lineLimit(nil)

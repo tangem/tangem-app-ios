@@ -36,18 +36,18 @@ struct EarnTokenTileView: View {
                 HStack(alignment: .firstBaselineCustom, spacing: .unit(.half)) {
                     Text(viewModel.name)
                         .lineLimit(1)
-                        .style(.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body16.medium, color: Color.Tangem.Text.Neutral.primary)
 
                     Text(viewModel.symbol)
                         .lineLimit(1)
-                        .style(.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
+                        .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Neutral.secondary)
                 }
 
                 FixedSpacer(height: .unit(.x1))
 
                 Text(viewModel.rateText)
                     .lineLimit(1)
-                    .style(.Tangem.Caption12.semibold, color: Color.Tangem.Text.Status.positive)
+                    .style(Font.Tangem.Caption12.semibold, color: Color.Tangem.Text.Status.positive)
             }
             .frame(width: RedesignLayout.tileWidth, alignment: .topLeading)
             .padding(.bottom, .unit(.x1))
