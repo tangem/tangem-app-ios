@@ -18,7 +18,7 @@ public struct EmptyAddressesProvider: Wallet.AddressesProvider {
     public var changeAddress: any Address { emptyAddress }
 
     public mutating func update(address: any Address) {}
-    public mutating func update(userDerivations: [DerivationPath]) {}
+    public mutating func update(usedAddresses: [UTXOUsedAddress]) {}
 }
 
 public struct EmptyAddress: Address {

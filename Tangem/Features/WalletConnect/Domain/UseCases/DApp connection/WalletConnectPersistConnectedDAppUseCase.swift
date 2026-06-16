@@ -23,20 +23,14 @@ final class WalletConnectPersistConnectedDAppUseCase {
         selectedUserWallet: some UserWalletModel,
         selectedAccount: any CryptoAccountModel
     ) async throws(WalletConnectDAppPersistenceError) {
-        let wrapped = WalletConnectConnectedDAppV1(
+        let connectedDApp = WalletConnectConnectedDApp(
+            accountId: selectedAccount.id.walletConnectIdentifierString,
             session: dAppSession,
             userWalletID: selectedUserWallet.userWalletId.stringValue,
             dAppData: connectionProposal.dAppData,
             verificationStatus: connectionProposal.verificationStatus,
             dAppBlockchains: dAppBlockchains,
             connectionDate: Date.now
-        )
-
-        let connectedDApp = WalletConnectConnectedDApp.v2(
-            WalletConnectConnectedDAppV2(
-                accountId: selectedAccount.id.walletConnectIdentifierString,
-                wrapped: wrapped
-            )
         )
 
         try await repository.save(dApp: connectedDApp)
