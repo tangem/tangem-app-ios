@@ -20,10 +20,12 @@ public class ExpressAvailableProvider {
     public var expressFeeProvider: ExpressFeeProvider { context.expressFeeProvider }
 
     public var isBest: Bool { _isBest { $0 } }
+    public var isBestDEX: Bool { _isBestDEX { $0 } }
 
     // MARK: - Updatable state
 
     private let _isBest = OSAllocatedUnfairLock<Bool>(initialState: false)
+    private let _isBestDEX = OSAllocatedUnfairLock<Bool>(initialState: false)
 
     init(context: ExpressProviderFlowContext, manager: ExpressProviderManager) {
         self.context = context
@@ -46,6 +48,10 @@ extension ExpressAvailableProvider {
         _isBest { $0 = isBest }
     }
 
+    func update(isBestDEX: Bool) {
+        _isBestDEX { $0 = isBestDEX }
+    }
+
     func update(request: ExpressAvailableProviderUpdatingRequest) async {
         guard let request = makeRequest(request: request) else {
             ExpressLogger.info(self, "Skip updateState: amount is empty (nil or zero)")
@@ -65,6 +71,7 @@ extension ExpressAvailableProvider {
 
     func reset() {
         _isBest { $0 = false }
+        _isBestDEX { $0 = false }
 
         manager.reset()
     }
@@ -117,12 +124,73 @@ public extension Array where Element == ExpressAvailableProvider {
         sorted(by: ExpressProviderManagerComparator.isBetter)
     }
 
+    func sortedByAttractivelyPreferringBestDEX() -> [ExpressAvailableProvider] {
+        sorted { lhs, rhs in
+            if lhs.isBestDEX != rhs.isBestDEX {
+                return lhs.isBestDEX
+            }
+
+            return ExpressProviderManagerComparator.isBetter(lhs: lhs, rhs: rhs)
+        }
+    }
+
     func best() -> ExpressAvailableProvider? {
         self.min(by: ExpressProviderManagerComparator.isBetter)
     }
 
+    func bestPreferringDEX() -> ExpressAvailableProvider? {
+        let bestDEX = eligibleForBestCandidates().filter { $0.provider.type.isDEX && !$0.getState().isPermissionRequired }.best()
+        return bestDEX ?? best()
+    }
+
     func updateIsBestFlag() {
-        let candidates = filter { provider in
+        let candidates = eligibleForBestCandidates()
+
+        guard candidates.count > 1 else {
+            forEach { provider in
+                provider.update(isBest: false)
+                provider.update(isBestDEX: false)
+            }
+            return
+        }
+
+        let best = candidates.best()
+
+        forEach { provider in
+            provider.update(isBest: provider === best)
+            provider.update(isBestDEX: false)
+        }
+
+        let providers = map(\.provider.name).joined(separator: ", ")
+        ExpressLogger.info("Update providers \(providers). Best: \(best?.provider.name ?? "no best provider")")
+    }
+
+    func updateIsBestFlagPreferringDEX() {
+        let candidates = eligibleForBestCandidates()
+
+        guard candidates.count > 1 else {
+            forEach { provider in
+                provider.update(isBest: false)
+                provider.update(isBestDEX: false)
+            }
+            return
+        }
+
+        let best = candidates.best()
+        let bestDEX = candidates.filter { $0.provider.type.isDEX && !$0.getState().isPermissionRequired }.best()
+        let distinctBestDEX = bestDEX === best ? nil : bestDEX
+
+        forEach { provider in
+            provider.update(isBest: provider === best)
+            provider.update(isBestDEX: provider === distinctBestDEX)
+        }
+
+        let providers = map(\.provider.name).joined(separator: ", ")
+        ExpressLogger.info("Update providers \(providers). Best: \(best?.provider.name ?? "no best provider"), best DEX: \(distinctBestDEX?.provider.name ?? "no distinct best DEX")")
+    }
+
+    private func eligibleForBestCandidates() -> [ExpressAvailableProvider] {
+        filter { provider in
             let state = provider.getState()
             switch state {
             case .error, .restriction(.tooSmallAmount, _), .restriction(.tooBigAmount, _):
@@ -131,20 +199,6 @@ public extension Array where Element == ExpressAvailableProvider {
                 return state.quote != nil
             }
         }
-
-        guard candidates.count > 1 else {
-            forEach { $0.update(isBest: false) }
-            return
-        }
-
-        let best = candidates.best()
-
-        forEach { provider in
-            provider.update(isBest: provider === best)
-        }
-
-        let providers = map(\.provider.name).joined(separator: ", ")
-        ExpressLogger.info("Update providers \(providers). Best: \(best?.provider.name ?? "no best provider")")
     }
 
     func showableProviders() -> [ExpressAvailableProvider] {
