@@ -15,7 +15,7 @@ protocol PendingExpressTransactionAnalyticsTracker {
         tokenSymbol: String,
         status: PendingExpressTransactionStatus,
         provider: ExpressPendingTransactionRecord.Provider
-    )
+    ) async
 
     func trackStatusForOnrampTransaction(
         transactionId: String,
@@ -23,7 +23,7 @@ protocol PendingExpressTransactionAnalyticsTracker {
         currencySymbol: String,
         status: PendingExpressTransactionStatus,
         provider: ExpressPendingTransactionRecord.Provider
-    )
+    ) async
 }
 
 private struct PendingExpressTransactionAnalyticsTrackerKey: InjectionKey {
@@ -31,7 +31,7 @@ private struct PendingExpressTransactionAnalyticsTrackerKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var pendingExpressTransactionAnalayticsTracker: PendingExpressTransactionAnalyticsTracker {
+    var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker {
         get { Self[PendingExpressTransactionAnalyticsTrackerKey.self] }
         set { Self[PendingExpressTransactionAnalyticsTrackerKey.self] = newValue }
     }

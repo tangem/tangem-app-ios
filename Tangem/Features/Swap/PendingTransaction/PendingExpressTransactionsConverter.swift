@@ -55,6 +55,8 @@ struct PendingExpressTransactionsConverter {
             return .init(
                 id: record.expressTransactionId,
                 title: title,
+                stateTitle: record.transactionStatus.pendingStatusTitle,
+                referenceDate: record.createdAt ?? record.date,
                 sourceIconInfo: sourceIconInfo,
                 sourceAmountText: sourceAmountText,
                 destinationIconInfo: destinationIconInfo,

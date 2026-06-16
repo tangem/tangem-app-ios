@@ -41,5 +41,5 @@ extension CommonAddressesProvider: Wallet.AddressesProvider {
         }
     }
 
-    public mutating func update(userDerivations: [DerivationPath]) {}
+    public mutating func update(usedAddresses: [UTXOUsedAddress]) {}
 }

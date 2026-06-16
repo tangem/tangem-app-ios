@@ -16,6 +16,7 @@ struct AppCoordinatorView: CoordinatorView {
 
     @Injected(\.overlayContentContainer) private var overlayContentContainer: OverlayContentContainer
     @Injected(\.viewHierarchySnapshotterInitializer) private var viewHierarchySnapshotterInitializer: ViewHierarchySnapshottingInitializable
+    @Injected(\.appOverlaysDependencies.overlayViewPresenterViewModel) private var overlayViewPresenterViewModel: OverlayViewPresenterViewModel
 
     @Environment(\.mainWindowSize) var mainWindowSize: CGSize
     @Namespace private var namespace
@@ -41,6 +42,7 @@ struct AppCoordinatorView: CoordinatorView {
                 // Ensures that this is a full-screen container and keyboard avoidance is disabled to mitigate [REDACTED_INFO]
                 .ignoresSafeArea(.all, edges: .vertical)
             }
+            .modifier(OverlayViewPresenterModifier(viewModel: overlayViewPresenterViewModel))
             .bottomSheet(
                 item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
                 backgroundColor: Colors.Background.primary

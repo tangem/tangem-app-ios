@@ -13,7 +13,7 @@ public struct StakingTargetInfo: Hashable {
     public let name: String
     public let preferred: Bool
     public let partner: Bool
-    public let iconURL: URL?
+    public let image: StakingTargetImage?
     public let rewardType: RewardType
     public let rewardRate: Decimal
     public let status: StakingTargetInfoStatus
@@ -24,7 +24,7 @@ public struct StakingTargetInfo: Hashable {
         name: String,
         preferred: Bool,
         partner: Bool,
-        iconURL: URL?,
+        image: StakingTargetImage?,
         rewardType: RewardType,
         rewardRate: Decimal,
         status: StakingTargetInfoStatus,
@@ -34,7 +34,7 @@ public struct StakingTargetInfo: Hashable {
         self.name = name
         self.partner = partner
         self.preferred = preferred
-        self.iconURL = iconURL
+        self.image = image
         self.rewardType = rewardType
         self.rewardRate = rewardRate
         self.status = status

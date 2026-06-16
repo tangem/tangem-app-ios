@@ -11,9 +11,7 @@ import Foundation
 struct WelcomeOnboardingStepsBuilder {
     private let isPushNotificationsAvailable: Bool
 
-    init(
-        isPushNotificationsAvailable: Bool
-    ) {
+    init(isPushNotificationsAvailable: Bool) {
         self.isPushNotificationsAvailable = isPushNotificationsAvailable
     }
 

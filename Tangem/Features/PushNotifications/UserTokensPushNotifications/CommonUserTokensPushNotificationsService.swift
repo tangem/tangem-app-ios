@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import TangemFoundation
-import FirebaseMessaging
 import Combine
 import CombineExt
+import TangemFoundation
+import TangemFirebaseDynamicShim
 
 final class CommonUserTokensPushNotificationsService: NSObject {
     // MARK: - Services

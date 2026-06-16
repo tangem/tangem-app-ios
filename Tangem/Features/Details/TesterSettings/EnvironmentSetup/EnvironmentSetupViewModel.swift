@@ -9,12 +9,12 @@
 import Combine
 import SwiftUI
 import TangemExpress
-import FirebaseMessaging
 import TangemVisa
-import struct TangemUIUtils.AlertBinder
-import TangemStaking
-import TangemAccessibilityIdentifiers
 import TangemPay
+import TangemStaking
+import TangemFirebaseDynamicShim
+import TangemAccessibilityIdentifiers
+import struct TangemUIUtils.AlertBinder
 
 final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
@@ -145,6 +145,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: GaslessTransactionsAPIType.prod.rawValue,
                     get: { $0.gaslessTransactionsAPIType.rawValue },
                     set: { $0.gaslessTransactionsAPIType = GaslessTransactionsAPIType(rawValue: $1) ?? .prod }
+                ),
+                pickerStyle: .menu
+            ),
+            DefaultPickerRowViewModel(
+                title: "Apple Pay merchant env",
+                options: ApplePayMerchantType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: ApplePayMerchantType.sandbox.rawValue,
+                    get: { $0.applePayMerchantType.rawValue },
+                    set: { $0.applePayMerchantType = ApplePayMerchantType(rawValue: $1) ?? .sandbox }
                 ),
                 pickerStyle: .menu
             ),
