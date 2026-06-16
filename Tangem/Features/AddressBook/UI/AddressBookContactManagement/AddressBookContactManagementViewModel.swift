@@ -191,11 +191,8 @@ private extension AddressBookContactManagementViewModel {
         return types
     }
 
-    /// Mock: appends a synthetic EVM address. The full "enter address → detect networks → memo" flow
-    /// is a follow-up; this exercises the create/add CRUD path end to end.
     func addNewAddress() {
-        let address = "0x" + String((0 ..< 40).map { _ in "0123456789abcdef".randomElement()! })
-        try? interactor.add(address: DraftRow(id: UUID().uuidString, address: address))
+        coordinator?.openAddAddress()
     }
 
     func deleteRow(id: String) {
