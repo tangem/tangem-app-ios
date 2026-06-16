@@ -1,5 +1,5 @@
 //
-//  ContactName.swift
+//  AddressBookContactName.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import Foundation
 /// user input is `init(validating:)`, which enforces the product rules — 1...50 characters after
 /// trimming and no emoji, line breaks, tabs, invisible characters or HTML. Uniqueness within a
 /// wallet is enforced separately by the manager.
-struct ContactName: Hashable {
+struct AddressBookContactName: Hashable {
     static let maxLength = 50
 
     let value: String
@@ -62,7 +62,7 @@ struct ContactName: Hashable {
     }
 }
 
-extension ContactName: Codable {
+extension AddressBookContactName: Codable {
     init(from decoder: Decoder) throws {
         // Names stored inside the signed, encrypted blob are trusted and decoded as-is.
         value = try decoder.singleValueContainer().decode(String.self)

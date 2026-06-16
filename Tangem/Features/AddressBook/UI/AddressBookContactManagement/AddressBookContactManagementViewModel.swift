@@ -199,7 +199,7 @@ private extension AddressBookContactManagementViewModel {
         coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self)
     }
 
-    func deleteRow(id: AddressEntryID) {
+    func deleteRow(id: AddressBookAddressEntryID) {
         interactor.deleteAddress(id: id)
     }
 

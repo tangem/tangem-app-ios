@@ -88,7 +88,7 @@ private extension AddressBookContactsListViewModel {
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(walletId: UserWalletId, contacts: [Contact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(walletId: UserWalletId, contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
                 self?.coordinator?.openEditContact(contact: contact, walletId: walletId)

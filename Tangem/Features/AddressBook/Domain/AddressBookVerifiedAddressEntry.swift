@@ -1,5 +1,5 @@
 //
-//  VerifiedAddressEntry.swift
+//  AddressBookVerifiedAddressEntry.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,13 +11,13 @@ import Foundation
 /// An address entry whose signature has been verified. There is no public initializer: the only way
 /// to obtain a value is `make(verifying:...)`, so an unverified or forged entry cannot structurally
 /// reach the UI or the Send Flow.
-struct VerifiedAddressEntry: Hashable {
-    let id: AddressEntryID
+struct AddressBookVerifiedAddressEntry: Hashable {
+    let id: AddressBookAddressEntryID
     let address: String
     let networkId: AddressBookNetworkID
     let memo: String?
 
-    private init(id: AddressEntryID, address: String, networkId: AddressBookNetworkID, memo: String?) {
+    private init(id: AddressBookAddressEntryID, address: String, networkId: AddressBookNetworkID, memo: String?) {
         self.id = id
         self.address = address
         self.networkId = networkId
@@ -27,13 +27,13 @@ struct VerifiedAddressEntry: Hashable {
     /// Verifies `decoded` against the owning contact's `name`/`id` and the wallet public key. Returns
     /// `nil` when the signature does not match, so the caller drops the entry and reports analytics.
     static func make(
-        verifying decoded: DecodedAddressEntry,
-        contactId: ContactID,
-        contactName: ContactName,
+        verifying decoded: AddressBookDecodedAddressEntry,
+        contactId: AddressBookContactID,
+        contactName: AddressBookContactName,
         walletPublicKey: Data,
         verifier: AddressBookSignatureVerifying
-    ) -> VerifiedAddressEntry? {
-        let payload = SignedTuplePayload(
+    ) -> AddressBookVerifiedAddressEntry? {
+        let payload = AddressBookSignedTuplePayload(
             address: decoded.address,
             networkId: decoded.networkId,
             memo: decoded.memo,
@@ -45,7 +45,7 @@ struct VerifiedAddressEntry: Hashable {
             return nil
         }
 
-        return VerifiedAddressEntry(
+        return AddressBookVerifiedAddressEntry(
             id: decoded.id,
             address: decoded.address,
             networkId: decoded.networkId,

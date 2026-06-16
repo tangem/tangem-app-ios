@@ -13,9 +13,9 @@ import Combine
 /// encrypt/decrypt. It publishes *decoded* (not yet verified) contacts — signature verification is
 /// the manager's responsibility.
 protocol AddressBookRepository: AnyObject {
-    var contactsPublisher: AnyPublisher<[DecodedContact], Never> { get }
+    var contactsPublisher: AnyPublisher<[AddressBookDecodedContact], Never> { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
     func load() async
-    func save(contacts: [DecodedContact]) async throws
+    func save(contacts: [AddressBookDecodedContact]) async throws
 }

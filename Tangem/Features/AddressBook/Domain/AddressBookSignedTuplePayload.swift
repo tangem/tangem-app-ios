@@ -1,5 +1,5 @@
 //
-//  SignedTuplePayload.swift
+//  AddressBookSignedTuplePayload.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -15,12 +15,12 @@ import CryptoKit
 /// in exactly this order with no separators. A `nil` memo contributes an empty string. This layout
 /// is a cross-platform contract: it must match other clients byte-for-byte, otherwise a signature
 /// made on one device will not verify on another.
-struct SignedTuplePayload {
+struct AddressBookSignedTuplePayload {
     let address: String
     let networkId: AddressBookNetworkID
     let memo: String?
-    let contactId: ContactID
-    let name: ContactName
+    let contactId: AddressBookContactID
+    let name: AddressBookContactName
 
     var canonicalData: Data {
         var data = Data()

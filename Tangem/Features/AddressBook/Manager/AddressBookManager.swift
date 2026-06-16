@@ -19,15 +19,15 @@ import Combine
 protocol AddressBookManager: AnyObject {
     /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped;
     /// a contact whose every entry is invalid is omitted entirely (spec 2.1.3).
-    var contactsPublisher: AnyPublisher<[Contact], Never> { get }
+    var contactsPublisher: AnyPublisher<[AddressBookContact], Never> { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
     func load() async
 
-    func createContact(name: ContactName, entries: [AddressBookEntryDraft]) async throws
-    func renameContact(id: ContactID, to name: ContactName) async throws
-    func addEntries(_ entries: [AddressBookEntryDraft], toContactWith id: ContactID) async throws
-    func updateEntry(id: AddressEntryID, inContactWith contactId: ContactID, to draft: AddressBookEntryDraft) async throws
-    func deleteEntry(id: AddressEntryID, fromContactWith contactId: ContactID) async throws
-    func deleteContact(id: ContactID) async throws
+    func createContact(name: AddressBookContactName, entries: [AddressBookEntryDraft]) async throws
+    func renameContact(id: AddressBookContactID, to name: AddressBookContactName) async throws
+    func addEntries(_ entries: [AddressBookEntryDraft], toContactWith id: AddressBookContactID) async throws
+    func updateEntry(id: AddressBookAddressEntryID, inContactWith contactId: AddressBookContactID, to draft: AddressBookEntryDraft) async throws
+    func deleteEntry(id: AddressBookAddressEntryID, fromContactWith contactId: AddressBookContactID) async throws
+    func deleteContact(id: AddressBookContactID) async throws
 }

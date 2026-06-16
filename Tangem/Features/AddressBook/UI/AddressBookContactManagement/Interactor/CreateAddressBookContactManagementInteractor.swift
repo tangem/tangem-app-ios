@@ -104,7 +104,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         addressesSubject.value.append(contentsOf: entries)
     }
 
-    func deleteAddress(id: AddressEntryID) {
+    func deleteAddress(id: AddressBookAddressEntryID) {
         addressesSubject.value.removeAll { $0.id == id }
     }
 
@@ -113,7 +113,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             throw AddressBookManagementError.walletUnavailable
         }
 
-        let name = try ContactName(validating: nameSubject.value)
+        let name = try AddressBookContactName(validating: nameSubject.value)
 
         try await addressBookManager.createContact(name: name, entries: addressesSubject.value)
     }

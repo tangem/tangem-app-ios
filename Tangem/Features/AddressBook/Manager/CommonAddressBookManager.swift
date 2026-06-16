@@ -18,8 +18,8 @@ final class CommonAddressBookManager {
     private let verifier: AddressBookSignatureVerifying
     private let normalizeAddress: (String, AddressBookNetworkID) -> String
 
-    private let decodedContacts = OSAllocatedUnfairLock(initialState: [DecodedContact]())
-    private let contactsSubject = CurrentValueSubject<[Contact], Never>([])
+    private let decodedContacts = OSAllocatedUnfairLock(initialState: [AddressBookDecodedContact]())
+    private let contactsSubject = CurrentValueSubject<[AddressBookContact], Never>([])
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -48,20 +48,20 @@ final class CommonAddressBookManager {
             .store(in: &bag)
     }
 
-    private func handle(decoded: [DecodedContact]) {
+    private func handle(decoded: [AddressBookDecodedContact]) {
         decodedContacts.withLock { $0 = decoded }
         contactsSubject.send(decoded.compactMap(verify(_:)))
     }
 
-    private var snapshot: [DecodedContact] {
+    private var snapshot: [AddressBookDecodedContact] {
         decodedContacts.withLock { $0 }
     }
 
     // MARK: - Verification
 
-    private func verify(_ contact: DecodedContact) -> Contact? {
+    private func verify(_ contact: AddressBookDecodedContact) -> AddressBookContact? {
         let verified = contact.addresses.compactMap { entry in
-            VerifiedAddressEntry.make(
+            AddressBookVerifiedAddressEntry.make(
                 verifying: entry,
                 contactId: contact.id,
                 contactName: contact.name,
@@ -75,27 +75,27 @@ final class CommonAddressBookManager {
             return nil
         }
 
-        return Contact(id: contact.id, walletId: walletId, name: contact.name, entries: entries)
+        return AddressBookContact(id: contact.id, walletId: walletId, name: contact.name, entries: entries)
     }
 
     // MARK: - Signing
 
     private struct EntryToSign {
-        let id: AddressEntryID
+        let id: AddressBookAddressEntryID
         let address: String
         let networkId: AddressBookNetworkID
         let memo: String?
     }
 
-    private func sign(_ entries: [EntryToSign], contactId: ContactID, name: ContactName) async throws -> [DecodedAddressEntry] {
+    private func sign(_ entries: [EntryToSign], contactId: AddressBookContactID, name: AddressBookContactName) async throws -> [AddressBookDecodedAddressEntry] {
         let payloads = entries.map {
-            SignedTuplePayload(address: $0.address, networkId: $0.networkId, memo: $0.memo, contactId: contactId, name: name)
+            AddressBookSignedTuplePayload(address: $0.address, networkId: $0.networkId, memo: $0.memo, contactId: contactId, name: name)
         }
 
         let signatures = try await signer.sign(digests: payloads.map(\.digest), walletPublicKey: walletPublicKey)
 
         return zip(entries, signatures).map { entry, signature in
-            DecodedAddressEntry(id: entry.id, address: entry.address, networkId: entry.networkId, memo: entry.memo, signature: signature)
+            AddressBookDecodedAddressEntry(id: entry.id, address: entry.address, networkId: entry.networkId, memo: entry.memo, signature: signature)
         }
     }
 
@@ -105,7 +105,7 @@ final class CommonAddressBookManager {
         "\(normalizeAddress(address, networkId))|\(networkId.rawValue)"
     }
 
-    private func ensureNameUnique(_ name: ContactName, excluding contactId: ContactID?, in contacts: [DecodedContact]) throws {
+    private func ensureNameUnique(_ name: AddressBookContactName, excluding contactId: AddressBookContactID?, in contacts: [AddressBookDecodedContact]) throws {
         let duplicate = contacts.contains { contact in
             contact.id != contactId && contact.name.value.caseInsensitiveCompare(name.value) == .orderedSame
         }
@@ -135,7 +135,7 @@ final class CommonAddressBookManager {
         }
     }
 
-    private func contact(with id: ContactID, in contacts: [DecodedContact]) throws -> DecodedContact {
+    private func contact(with id: AddressBookContactID, in contacts: [AddressBookDecodedContact]) throws -> AddressBookDecodedContact {
         guard let contact = contacts.first(where: { $0.id == id }) else {
             throw AddressBookManagerError.contactNotFound
         }
@@ -143,13 +143,13 @@ final class CommonAddressBookManager {
         return contact
     }
 
-    private func replacing(contactWith id: ContactID, by contact: DecodedContact, in contacts: [DecodedContact]) -> [DecodedContact] {
+    private func replacing(contactWith id: AddressBookContactID, by contact: AddressBookDecodedContact, in contacts: [AddressBookDecodedContact]) -> [AddressBookDecodedContact] {
         contacts.map { $0.id == id ? contact : $0 }
     }
 
     /// Rebuilds a contact preserving its identity, walletId and createdAt while bumping updatedAt.
-    private func touched(_ contact: DecodedContact, name: ContactName? = nil, addresses: [DecodedAddressEntry]? = nil) -> DecodedContact {
-        DecodedContact(
+    private func touched(_ contact: AddressBookDecodedContact, name: AddressBookContactName? = nil, addresses: [AddressBookDecodedAddressEntry]? = nil) -> AddressBookDecodedContact {
+        AddressBookDecodedContact(
             id: contact.id,
             walletId: contact.walletId,
             name: name ?? contact.name,
@@ -163,7 +163,7 @@ final class CommonAddressBookManager {
 // MARK: - AddressBookManager protocol conformance
 
 extension CommonAddressBookManager: AddressBookManager {
-    var contactsPublisher: AnyPublisher<[Contact], Never> {
+    var contactsPublisher: AnyPublisher<[AddressBookContact], Never> {
         contactsSubject.eraseToAnyPublisher()
     }
 
@@ -175,12 +175,12 @@ extension CommonAddressBookManager: AddressBookManager {
         await repository.load()
     }
 
-    func createContact(name: ContactName, entries drafts: [AddressBookEntryDraft]) async throws {
+    func createContact(name: AddressBookContactName, entries drafts: [AddressBookEntryDraft]) async throws {
         guard !drafts.isEmpty else {
             throw AddressBookValidationError.noEntries
         }
 
-        guard drafts.count <= Contact.maxEntries else {
+        guard drafts.count <= AddressBookContact.maxEntries else {
             throw AddressBookValidationError.tooManyEntries
         }
 
@@ -190,11 +190,11 @@ extension CommonAddressBookManager: AddressBookManager {
         try ensureNameUnique(name, excluding: nil, in: contacts)
         try ensureNoDuplicatePairs(existing: [], adding: drafts)
 
-        let contactId = ContactID()
+        let contactId = AddressBookContactID()
         let toSign = drafts.map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
         let entries = try await sign(toSign, contactId: contactId, name: name)
         let now = Date()
-        let contact = DecodedContact(
+        let contact = AddressBookDecodedContact(
             id: contactId,
             walletId: walletId.stringValue,
             name: name,
@@ -206,7 +206,7 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: contacts + [contact])
     }
 
-    func renameContact(id: ContactID, to name: ContactName) async throws {
+    func renameContact(id: AddressBookContactID, to name: AddressBookContactName) async throws {
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)
         try ensureNameUnique(name, excluding: id, in: contacts)
@@ -219,11 +219,11 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
     }
 
-    func addEntries(_ drafts: [AddressBookEntryDraft], toContactWith id: ContactID) async throws {
+    func addEntries(_ drafts: [AddressBookEntryDraft], toContactWith id: AddressBookContactID) async throws {
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)
 
-        guard contact.addresses.count + drafts.count <= Contact.maxEntries else {
+        guard contact.addresses.count + drafts.count <= AddressBookContact.maxEntries else {
             throw AddressBookValidationError.tooManyEntries
         }
 
@@ -237,7 +237,7 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
     }
 
-    func updateEntry(id entryId: AddressEntryID, inContactWith contactId: ContactID, to draft: AddressBookEntryDraft) async throws {
+    func updateEntry(id entryId: AddressBookAddressEntryID, inContactWith contactId: AddressBookContactID, to draft: AddressBookEntryDraft) async throws {
         let contacts = snapshot
         let contact = try contact(with: contactId, in: contacts)
 
@@ -262,7 +262,7 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: replacing(contactWith: contactId, by: updated, in: contacts))
     }
 
-    func deleteEntry(id entryId: AddressEntryID, fromContactWith contactId: ContactID) async throws {
+    func deleteEntry(id entryId: AddressBookAddressEntryID, fromContactWith contactId: AddressBookContactID) async throws {
         let contacts = snapshot
         let contact = try contact(with: contactId, in: contacts)
         let remaining = contact.addresses.filter { $0.id != entryId }
@@ -277,7 +277,7 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: replacing(contactWith: contactId, by: updated, in: contacts))
     }
 
-    func deleteContact(id: ContactID) async throws {
+    func deleteContact(id: AddressBookContactID) async throws {
         try await repository.save(contacts: snapshot.filter { $0.id != id })
     }
 }

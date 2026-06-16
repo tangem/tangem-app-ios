@@ -19,7 +19,7 @@ final class EditAddressBookContactManagementInteractor {
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
 
-    private let contact: Contact
+    private let contact: AddressBookContact
     private let walletId: UserWalletId
 
     private let nameSubject: CurrentValueSubject<String, Never>
@@ -31,7 +31,7 @@ final class EditAddressBookContactManagementInteractor {
         Self.userWalletRepository.models.first { $0.userWalletId == walletId }?.addressBookManager
     }
 
-    init(contact: Contact, walletId: UserWalletId) {
+    init(contact: AddressBookContact, walletId: UserWalletId) {
         self.contact = contact
         self.walletId = walletId
 
@@ -110,7 +110,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         addressesSubject.value.append(contentsOf: entries)
     }
 
-    func deleteAddress(id: AddressEntryID) {
+    func deleteAddress(id: AddressBookAddressEntryID) {
         addressesSubject.value.removeAll { $0.id == id }
     }
 
@@ -120,7 +120,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         }
 
         let contactId = contact.id
-        let name = try ContactName(validating: nameSubject.value)
+        let name = try AddressBookContactName(validating: nameSubject.value)
         let drafts = addressesSubject.value
 
         guard !drafts.isEmpty else {
