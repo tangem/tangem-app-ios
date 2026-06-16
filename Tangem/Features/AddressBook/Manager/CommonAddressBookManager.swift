@@ -207,6 +207,52 @@ extension CommonAddressBookManager: AddressBookManager {
         try await repository.save(contacts: contacts + [contact])
     }
 
+    func updateContact(id: AddressBookContactID, name: AddressBookContactName, entries: AddressBookContactDraftEntries) async throws {
+        let drafts = entries.raw
+
+        guard entries.addressCount <= AddressBookContactDraftEntries.maxAddressCount else {
+            throw AddressBookValidationError.tooManyAddresses
+        }
+
+        try ensureAddressesNonEmpty(drafts)
+
+        let contacts = snapshot
+        let contact = try contact(with: id, in: contacts)
+        try ensureNameUnique(name, excluding: id, in: contacts)
+        // The new state is exactly `drafts`, so the pairs must be unique among themselves.
+        try ensureNoDuplicatePairs(existing: [], adding: drafts)
+
+        // Re-sign only what changed: a rename touches the signed tuple of every entry, otherwise an entry
+        // identical to the one loaded keeps its signature — so a delete-only edit needs no card tap.
+        let nameChanged = name != contact.name
+        let existingById = Dictionary(contact.addresses.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        var resolved: [AddressBookAddressEntryID: AddressBookDecodedAddressEntry] = [:]
+        if !nameChanged {
+            for draft in drafts {
+                if let previous = existingById[draft.id],
+                   previous.address == draft.address, previous.networkId == draft.networkId, previous.memo == draft.memo {
+                    resolved[draft.id] = previous
+                }
+            }
+        }
+
+        let toSign = drafts
+            .filter { resolved[$0.id] == nil }
+            .map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
+
+        if !toSign.isEmpty {
+            for signed in try await sign(toSign, contactId: id, name: name) {
+                resolved[signed.id] = signed
+            }
+        }
+
+        let addresses = drafts.compactMap { resolved[$0.id] }
+        let updated = touched(contact, name: name, addresses: addresses)
+
+        try await repository.save(contacts: replacing(contactWith: id, by: updated, in: contacts))
+    }
+
     func renameContact(id: AddressBookContactID, to name: AddressBookContactName) async throws {
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)

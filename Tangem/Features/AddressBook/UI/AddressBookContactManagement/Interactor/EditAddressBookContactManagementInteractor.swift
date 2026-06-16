@@ -115,34 +115,15 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func save() async throws {
-        let contactId = contact.id
         let name = try AddressBookContactNameValidator().validate(nameSubject.value)
-        let drafts = addressesSubject.value
 
-        guard !drafts.isEmpty else {
-            try await addressBookManager.deleteContact(id: contactId)
+        // Deleting the last address deletes the contact; otherwise the whole edit is applied atomically.
+        guard let entries = AddressBookContactDraftEntries(addressesSubject.value) else {
+            try await addressBookManager.deleteContact(id: contact.id)
             return
         }
 
-        let originalIds = Set(contact.entries.raw.map(\.id))
-        let currentIds = Set(drafts.map(\.id))
-
-        // Remove entries the user deleted.
-        for entry in contact.entries.raw where !currentIds.contains(entry.id) {
-            try await addressBookManager.deleteEntry(id: entry.id, fromContactWith: contactId)
-        }
-
-        // `name` is part of the signed tuple, so a rename re-signs every remaining entry.
-        if name != contact.name {
-            try await addressBookManager.renameContact(id: contactId, to: name)
-        }
-
-        // Add freshly entered addresses (drafts whose id is not among the original entries).
-        let addedEntries = drafts.filter { !originalIds.contains($0.id) }
-
-        if let added = AddressBookContactDraftEntries(addedEntries) {
-            try await addressBookManager.addEntries(added, toContactWith: contactId)
-        }
+        try await addressBookManager.updateContact(id: contact.id, name: name, entries: entries)
     }
 
     func delete() async throws {
