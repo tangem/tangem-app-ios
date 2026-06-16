@@ -16,17 +16,12 @@ struct AddressBookContactViewModel: Identifiable {
 
     let action: () -> Void
 
-    init(contact: ContactReadModel, action: @escaping () -> Void) {
+    init(contact: Contact, action: @escaping () -> Void) {
         let name = contact.name.value
-
-        let addressCount: Int = switch contact {
-        case .valid(let value): value.entries.count
-        case .allEntriesInvalid: 0
-        }
 
         id = contact.id.stringValue
         title = name
-        subtitle = Localization.addressBookAddresses(addressCount)
+        subtitle = Localization.addressBookAddresses(contact.entries.count)
         letter = "\(name.prefix(1).uppercased())"
 
         self.action = action

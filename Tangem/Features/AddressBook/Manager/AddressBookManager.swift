@@ -18,8 +18,8 @@ import Combine
 /// different contacts of the same wallet.
 protocol AddressBookManager: AnyObject {
     /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped;
-    /// a contact whose every entry is invalid surfaces as `.allEntriesInvalid`.
-    var contactsPublisher: AnyPublisher<[ContactReadModel], Never> { get }
+    /// a contact whose every entry is invalid is omitted entirely (spec 2.1.3).
+    var contactsPublisher: AnyPublisher<[Contact], Never> { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
     func load() async

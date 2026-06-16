@@ -155,9 +155,13 @@ private extension CommonAddressBookAddAddressInteractor {
         }
 
         _additionalFieldType.send(additionalFieldType)
+        _addressAdditionalFieldError.send(nil)
 
-        if additionalFieldType == nil {
-            _addressAdditionalFieldError.send(nil)
+        // A network change must not carry a memo entered for a previous resolution into the signed entry.
+        if let additionalFieldType {
+            _additionalField.send(.empty(type: additionalFieldType))
+        } else {
+            _additionalField.send(.notSupported)
         }
     }
 }

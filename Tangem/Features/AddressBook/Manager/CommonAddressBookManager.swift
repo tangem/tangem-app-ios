@@ -19,7 +19,7 @@ final class CommonAddressBookManager {
     private let normalizeAddress: (String, AddressBookNetworkID) -> String
 
     private let decodedContacts = OSAllocatedUnfairLock(initialState: [DecodedContact]())
-    private let contactsSubject = CurrentValueSubject<[ContactReadModel], Never>([])
+    private let contactsSubject = CurrentValueSubject<[Contact], Never>([])
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -50,7 +50,7 @@ final class CommonAddressBookManager {
 
     private func handle(decoded: [DecodedContact]) {
         decodedContacts.withLock { $0 = decoded }
-        contactsSubject.send(decoded.map(verify(_:)))
+        contactsSubject.send(decoded.compactMap(verify(_:)))
     }
 
     private var snapshot: [DecodedContact] {
@@ -59,7 +59,7 @@ final class CommonAddressBookManager {
 
     // MARK: - Verification
 
-    private func verify(_ contact: DecodedContact) -> ContactReadModel {
+    private func verify(_ contact: DecodedContact) -> Contact? {
         let verified = contact.addresses.compactMap { entry in
             VerifiedAddressEntry.make(
                 verifying: entry,
@@ -70,11 +70,12 @@ final class CommonAddressBookManager {
             )
         }
 
+        // A contact whose entries all fail verification is not shown at all (spec 2.1.3).
         guard let entries = NonEmptyArray(verified) else {
-            return .allEntriesInvalid(id: contact.id, name: contact.name, walletId: walletId)
+            return nil
         }
 
-        return .valid(Contact(id: contact.id, walletId: walletId, name: contact.name, entries: entries))
+        return Contact(id: contact.id, walletId: walletId, name: contact.name, entries: entries)
     }
 
     // MARK: - Signing
@@ -126,6 +127,14 @@ final class CommonAddressBookManager {
         }
     }
 
+    private func ensureAddressesNonEmpty(_ drafts: [AddressBookEntryDraft]) throws {
+        let hasEmptyAddress = drafts.contains { $0.address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
+        if hasEmptyAddress {
+            throw AddressBookValidationError.addressEmpty
+        }
+    }
+
     private func contact(with id: ContactID, in contacts: [DecodedContact]) throws -> DecodedContact {
         guard let contact = contacts.first(where: { $0.id == id }) else {
             throw AddressBookManagerError.contactNotFound
@@ -154,7 +163,7 @@ final class CommonAddressBookManager {
 // MARK: - AddressBookManager protocol conformance
 
 extension CommonAddressBookManager: AddressBookManager {
-    var contactsPublisher: AnyPublisher<[ContactReadModel], Never> {
+    var contactsPublisher: AnyPublisher<[Contact], Never> {
         contactsSubject.eraseToAnyPublisher()
     }
 
@@ -174,6 +183,8 @@ extension CommonAddressBookManager: AddressBookManager {
         guard drafts.count <= Contact.maxEntries else {
             throw AddressBookValidationError.tooManyEntries
         }
+
+        try ensureAddressesNonEmpty(drafts)
 
         let contacts = snapshot
         try ensureNameUnique(name, excluding: nil, in: contacts)
@@ -216,6 +227,7 @@ extension CommonAddressBookManager: AddressBookManager {
             throw AddressBookValidationError.tooManyEntries
         }
 
+        try ensureAddressesNonEmpty(drafts)
         try ensureNoDuplicatePairs(existing: contact.addresses.map { ($0.address, $0.networkId) }, adding: drafts)
 
         let toSign = drafts.map { EntryToSign(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo) }
@@ -232,6 +244,8 @@ extension CommonAddressBookManager: AddressBookManager {
         guard contact.addresses.contains(where: { $0.id == entryId }) else {
             throw AddressBookManagerError.entryNotFound
         }
+
+        try ensureAddressesNonEmpty([draft])
 
         let others = contact.addresses.filter { $0.id != entryId }
         try ensureNoDuplicatePairs(existing: others.map { ($0.address, $0.networkId) }, adding: [draft])

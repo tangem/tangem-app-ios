@@ -88,12 +88,10 @@ private extension AddressBookContactsListViewModel {
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(walletId: UserWalletId, contacts: [ContactReadModel]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(walletId: UserWalletId, contacts: [Contact]) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
-                guard case .valid(let validContact) = contact else { return }
-
-                self?.coordinator?.openEditContact(contact: validContact, walletId: walletId)
+                self?.coordinator?.openEditContact(contact: contact, walletId: walletId)
             }
         }
     }
