@@ -37,6 +37,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
+    @Published var notificationSettingsCoordinator: NotificationSettingsCoordinator?
 
     // MARK: - Child view models
 
@@ -152,6 +153,19 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
         ) { [weak self] _ in
             self?.manageTokensCoordinator = nil
         }
+    }
+
+    func openNotificationSettings(userWalletModel: UserWalletModel) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.notificationSettingsCoordinator = nil
+        }
+
+        let coordinator = NotificationSettingsCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: userWalletModel)
+        notificationSettingsCoordinator = coordinator
     }
 
     func openMobileBackupNeeded(

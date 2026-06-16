@@ -59,6 +59,7 @@ final class CommonEarnDataService: EarnDataProvider {
     private let limitPerPage: Int = 20
     private let repeatRequestDelayInSeconds: TimeInterval = 10
     private let mapper = EarnModelMapper()
+    private let ethereumP2PFilter: EarnEthereumP2PFilter
 
     private var taskCancellable: AnyCancellable?
     private var scheduledFetchTask: AnyCancellable?
@@ -67,7 +68,9 @@ final class CommonEarnDataService: EarnDataProvider {
 
     // MARK: - Init
 
-    init() {}
+    init(ethereumP2PFilter: EarnEthereumP2PFilter) {
+        self.ethereumP2PFilter = ethereumP2PFilter
+    }
 
     deinit {
         mostlyUsedUpdateTask?.cancel()
@@ -94,7 +97,8 @@ final class CommonEarnDataService: EarnDataProvider {
                 )
 
                 let response = try await provider.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
-                let models = response.items.map { provider.mapper.mapToEarnTokenModel(from: $0) }
+                let filteredItems = try await provider.ethereumP2PFilter.filter(response.items)
+                let models = filteredItems.map { provider.mapper.mapToEarnTokenModel(from: $0) }
 
                 await MainActor.run {
                     provider.applyMostlyUsedTokens(models)
@@ -179,7 +183,9 @@ final class CommonEarnDataService: EarnDataProvider {
             networkIds: filter.networkIds
         )
 
-        return try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
+        let response = try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
+        let filteredItems = try await ethereumP2PFilter.filter(response.items)
+        return EarnDTO.List.Response(items: filteredItems, meta: response.meta)
     }
 
     @MainActor
