@@ -48,6 +48,36 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
     private var maxFee: String?
 
+    // MARK: - Promo State
+
+    @Published
+    private(set) var promoStatus: YieldPromoStatus = .undefined
+
+    @Published
+    private var isBonusPaidOutBannerDismissed = false
+
+    private let yieldPromoStatusProvider = YieldPromoStatusProvider()
+    private var daysLeftToUnlockBonus: Int?
+
+    var promoBonusText: String? {
+        switch promoStatus {
+        case .active:
+            daysLeftToUnlockBonus.map { days in
+                "\(days) \(Localization.commonDaysNoParam(days)) \(Localization.yieldPromoLeftTitle)"
+            }
+
+        case .completed:
+            Localization.yieldPromoCompleted
+
+        case .notStarted, .undefined:
+            nil
+        }
+    }
+
+    var showsBonusPaidOutBanner: Bool {
+        promoStatus == .completed && !isBonusPaidOutBannerDismissed
+    }
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
@@ -102,6 +132,10 @@ final class YieldModuleActiveViewModel: ObservableObject {
         )
     }
 
+    func onPromoBonusTap() {
+        coordinator?.openYieldApyBoostStory()
+    }
+
     // MARK: - Public Implementation
 
     func openReadMore() {
@@ -138,6 +172,23 @@ final class YieldModuleActiveViewModel: ObservableObject {
         }
         Task { await getApy() }
         Task { await fetchChartData() }
+        Task { await getYieldPromoData() }
+    }
+
+    @MainActor
+    private func getYieldPromoData() async {
+        await yieldPromoStatusProvider.refreshPromoStatusIfEligible(
+            userWalletId: walletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem
+        )
+
+        let promoState = await yieldPromoStatusProvider.promoState(
+            userWalletId: walletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem
+        )
+
+        daysLeftToUnlockBonus = promoState.daysLeftToUnlockBonus
+        promoStatus = promoState.status
     }
 
     @MainActor
@@ -330,5 +381,11 @@ private extension YieldModuleActiveViewModel {
 
     func createHasUndepositedAmountsNotification(undepositedAmount: String) -> YieldModuleNotificationBannerParams {
         notificationManager.createHasUndepositedAmountsNotification(undepositedAmount: undepositedAmount)
+    }
+}
+
+extension YieldModuleActiveViewModel {
+    func onBonusPaidOutBannerDismiss() {
+        isBonusPaidOutBannerDismissed = true
     }
 }

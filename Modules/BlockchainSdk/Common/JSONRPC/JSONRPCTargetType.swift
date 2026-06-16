@@ -7,10 +7,9 @@
 //
 
 import Moya
-import TangemFoundation
 
 protocol JSONRPCTargetType: TargetType {
-    static var id: ThreadSafeContainer<Int> { get set }
+    static func nextRequestID() -> Int
 
     var rpcMethod: String { get }
     var params: [AnyEncodable] { get }
@@ -21,8 +20,7 @@ extension JSONRPCTargetType {
     var method: Moya.Method { .post }
 
     var task: Task {
-        Self.id.mutate { $0 += 1 }
-        let request = JSONRPC.Request(id: Self.id.read(), method: rpcMethod, params: params)
+        let request = JSONRPC.Request(id: Self.nextRequestID(), method: rpcMethod, params: params)
         return .requestJSONEncodable(request)
     }
 }

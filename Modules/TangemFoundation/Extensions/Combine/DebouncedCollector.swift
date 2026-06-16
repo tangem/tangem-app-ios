@@ -18,7 +18,6 @@ public extension Publishers {
         private let dueTime: S.SchedulerTimeType.Stride
         private let scheduler: S
         private let options: S.SchedulerOptions?
-        private let lock = OSAllocatedUnfairLock()
 
         init(upstream: Upstream, dueTime: S.SchedulerTimeType.Stride, scheduler: S, options: S.SchedulerOptions?) {
             self.upstream = upstream
@@ -30,16 +29,21 @@ public extension Publishers {
         public func receive<Subscriber>(
             subscriber: Subscriber
         ) where Subscriber: Combine.Subscriber, Failure == Subscriber.Failure, Output == Subscriber.Input {
-            var reset = false
+            let state = State()
             upstream
                 .receive(on: scheduler)
                 .scan([]) { result, element in
-                    lock { reset ? [element] : result + [element] }
+                    state.lock { state.reset ? [element] : result + [element] }
                 }
-                .handleEvents(receiveOutput: { _ in lock { reset = false }})
+                .handleEvents(receiveOutput: { _ in state.lock { state.reset = false } })
                 .debounce(for: dueTime, scheduler: scheduler, options: options)
-                .handleEvents(receiveOutput: { _ in lock { reset = true }})
+                .handleEvents(receiveOutput: { _ in state.lock { state.reset = true } })
                 .receive(subscriber: subscriber)
+        }
+
+        private final class State {
+            let lock = OSAllocatedUnfairLock()
+            var reset = false
         }
     }
 }

@@ -80,6 +80,8 @@ extension ExpressProviderError: @retroactive UniversalError {
             103006002
         case .transactionTypeMismatch:
             103006003
+        case .yieldModuleSwapUnavailable:
+            103006004
         }
     }
 }

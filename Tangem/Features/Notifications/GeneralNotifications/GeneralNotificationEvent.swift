@@ -25,13 +25,14 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case legacyDerivation
     case systemDeprecationTemporary
     case systemDeprecationPermanent(version: String, date: String)
-    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?)
+    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?, hasNFCInteraction: Bool)
     case walletLocked
     case missingBackup
     case supportedOnlySingleCurrencyWallet
     case backupErrors
     case mobileFinishActivation(hasPositiveBalance: Bool, hasBackup: Bool)
     case mobileUpgrade
+    case addFunds
     case pushNotificationsPermissionRequest
     case initialWalletTokenSyncCompleted
 }
@@ -56,9 +57,11 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp:
             return .survey
 
-        case .pushNotificationsPermissionRequest,
-             .initialWalletTokenSyncCompleted:
-            return .informational
+        case .pushNotificationsPermissionRequest:
+            return .informational()
+
+        case .initialWalletTokenSyncCompleted:
+            return .informational(.leading)
 
         default:
             return nil
@@ -117,6 +120,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.userPushNotificationBannerTitle)
         case .initialWalletTokenSyncCompleted:
             return .string(Localization.initialWalletSyncBannerTitle)
+        case .addFunds:
+            return .string(Localization.mainAddFundsPromoTitle)
         }
     }
 
@@ -146,8 +151,12 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSystemUpdateMessage
         case .systemDeprecationPermanent(let version, let dateString):
             return Localization.warningIosDeprecationMessage(version, dateString)
-        case .missingDerivation(let numberOfNetworks, _):
-            return Localization.warningMissingDerivationMessage(numberOfNetworks)
+        case .missingDerivation(let numberOfNetworks, _, let hasNFCInteraction):
+            if hasNFCInteraction {
+                return Localization.warningMissingDerivationMessage(numberOfNetworks)
+            } else {
+                return Localization.warningMissingDerivationNoNfcMessage(numberOfNetworks)
+            }
         case .walletLocked:
             return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
         case .missingBackup:
@@ -164,6 +173,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.userPushNotificationBannerSubtitle
         case .initialWalletTokenSyncCompleted:
             return Localization.initialWalletSyncBannerDescription
+        case .addFunds:
+            return Localization.mainAddFundsPromoDescription
         }
     }
 
@@ -218,6 +229,11 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.pushNotifyBannerIcon), size: CGSize(width: 54, height: 54))
         case .initialWalletTokenSyncCompleted:
             return .init(iconType: .image(Assets.blueCircleWarning))
+        case .addFunds:
+            return .init(
+                iconType: .image(Assets.coinsSwap),
+                size: CGSize(width: 24, height: 24)
+            )
         }
     }
 
@@ -235,7 +251,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .rateApp,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest,
-             .initialWalletTokenSyncCompleted:
+             .initialWalletTokenSyncCompleted,
+             .addFunds:
             return .info
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -267,7 +284,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .supportedOnlySingleCurrencyWallet,
              .backupErrors,
              .mobileUpgrade,
-             .mobileFinishActivation:
+             .mobileFinishActivation,
+             .addFunds:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -302,7 +320,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
             ])
-        case .missingDerivation(_, let icon):
+        case .missingDerivation(_, let icon, _):
             guard let buttonAction else {
                 break
             }
@@ -353,6 +371,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .openManageTokensAfterWalletSuccessImport, isWithLoader: false),
             ])
+        case .addFunds:
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(action: buttonAction, actionType: .addFunds, isWithLoader: false),
+            ])
         default: break
         }
         return .plain
@@ -385,6 +410,7 @@ extension GeneralNotificationEvent {
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         case .initialWalletTokenSyncCompleted: return nil
+        case .addFunds: return .addFundsBannerAppear
         }
     }
 

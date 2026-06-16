@@ -13,9 +13,9 @@ import TangemAccessibilityIdentifiers
 
 public struct StoryView: View {
     @ObservedObject private var viewModel: StoryViewModel
-    private let pageViews: [StoryPageView]
+    private let pageViews: [StoryPageContainerView]
 
-    public init(viewModel: StoryViewModel, pageViews: [StoryPageView]) {
+    public init(viewModel: StoryViewModel, pageViews: [StoryPageContainerView]) {
         self.viewModel = viewModel
         self.pageViews = pageViews
     }

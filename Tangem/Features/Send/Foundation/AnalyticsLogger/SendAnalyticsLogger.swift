@@ -40,12 +40,14 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
     func logNoticeNotEnoughFee()
+    func logErrorSumLimit(errorMessage: String)
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
     SendOnrampOffersAnalyticsLogger,
     SendOnrampProvidersAnalyticsLogger,
     SendOnrampPaymentMethodAnalyticsLogger,
+    SendOnrampNAPAnalyticsLogger,
     SendFinishAnalyticsLogger {
     func setup(onrampProvidersInput: OnrampProvidersInput)
 
@@ -198,6 +200,12 @@ protocol SendOnrampPaymentMethodAnalyticsLogger {
     func logOnrampPaymentMethodChosen(paymentMethod: OnrampPaymentMethod)
 }
 
+protocol SendOnrampNAPAnalyticsLogger {
+    func logOnrampButtonNAP(amount: Decimal, currencyCode: String)
+    func logOnrampNAPScreenOpened()
+    func logOnrampVerifyScreenOpened(amount: Decimal, currencyCode: String)
+}
+
 protocol SendSwapProvidersAnalyticsLogger {
     func logSendSwapProvidersChosen(provider: ExpressProvider)
 }
@@ -207,6 +215,18 @@ protocol SendSummaryAnalyticsLogger {
     func logUserDidTapOnProvider()
 
     func logSummaryStepOpened()
+
+    func logTapAmountFraction(_ fraction: SwapAmountFraction)
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant)
+    func logSwapTypeScreenOpened(variant: SwapFormVariant)
+}
+
+extension SendSummaryAnalyticsLogger {
+    func logTapAmountFraction(_ fraction: SwapAmountFraction) {}
+
+    func logSwapTypeReselection(from: SwapFormVariant, to: SwapFormVariant) {}
+    func logSwapTypeScreenOpened(variant: SwapFormVariant) {}
 }
 
 protocol SendFinishAnalyticsLogger {

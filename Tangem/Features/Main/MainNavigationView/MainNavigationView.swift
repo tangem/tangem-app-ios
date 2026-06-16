@@ -13,9 +13,6 @@ struct MainNavigationView: View {
     @ObservedObject var viewModel: MainNavigationViewModel
 
     var body: some View {
-        MainNavigationBalanceView(
-            state: viewModel.balance,
-            style: .init(font: .Tangem.Body16.semibold, textColor: .Tangem.Text.Neutral.primary)
-        )
+        MainNavigationBalanceView(state: viewModel.balance)
     }
 }

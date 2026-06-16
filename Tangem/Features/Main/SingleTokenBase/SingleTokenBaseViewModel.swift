@@ -20,16 +20,20 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 @available(iOS, deprecated: 100000, message: "Avoid adding another derived class. Rethink your architectural decisions.")
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published final var alert: AlertBinder?
     @Published final var transactionHistoryState: TransactionsListView.State = .loading
     @Published final var isReloadingTransactionHistory: Bool = false
     @Published final var isFulfillingAssetRequirements = false
     @Published final var actionButtons: [FixedSizeButtonWithIconInfo] = []
+
     @Published final var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published final var notifications = [NotificationBannerItem]()
+
     @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
-    @Published private(set) final var miniChartData: LoadingResult<[Double]?, any Error> = .loading
+    @Published private(set) final var miniChartData: LoadingResult<[Double], any Error> = .loading
 
     private(set) final lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: 0.2),
@@ -56,13 +60,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private var amountType: Amount.AmountType { walletModel.tokenItem.amountType }
 
-    final var rateFormatted: String {
-        priceFormatter.formatPrice(walletModel.quote?.price)
-    }
-
-    final var priceChangeState: PriceChangeView.State {
-        priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
-    }
+    @Published private(set) final var rateFormatted: String = ""
+    @Published private(set) final var priceChangeState: PriceChangeView.State = .loading
 
     final var blockchain: Blockchain { blockchainNetwork.blockchain }
 
@@ -76,15 +75,33 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private lazy var transactionHistoryMapper = TransactionHistoryMapper(
         currencySymbol: currencySymbol,
-        walletAddresses: walletModel.addressesString,
+        addressesProvider: walletModel,
         showSign: true,
         isToken: walletModel.tokenItem.isToken
     )
+
+    /// Resolver is cheap to rebuild and `isAccountsMode` can flip while the screen is alive
+    /// (user adds first account), so we recompute on every history rebuild.
+    private var subtitleOwnerResolver: SubtitleOwnerResolver {
+        SubtitleOwnerResolver(
+            blockchain: walletModel.tokenItem.blockchain,
+            currentUserWalletId: userWalletInfo.id,
+            isAccountsMode: isAccountsMode
+        )
+    }
+
+    private var isAccountsMode: Bool {
+        userWalletRepository.models.contains {
+            $0.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        }
+    }
 
     private lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
     private lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
+
+    final let isRedesign: Bool = FeatureProvider.isAvailable(.redesign)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -172,14 +189,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     final func onButtonReloadHistory() {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
-        // We should reset transaction history to initial state here
-        walletModel.clearHistory()
-
-        DispatchQueue.main.async {
-            self.isReloadingTransactionHistory = true
+        runTask(in: self) { viewModel in
+            // We should reset transaction history to initial state here
+            await viewModel.walletModel.clearHistory()
+            await MainActor.run { viewModel.isReloadingTransactionHistory = true }
+            await viewModel.performLoadHistory()
         }
-
-        performLoadHistory()
     }
 
     func copyDefaultAddress() {
@@ -205,13 +220,18 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
+    /// Sync convenience wrapper for `func performLoadHistory() async`.
     private func performLoadHistory() {
-        Task {
-            await walletModel.updateTransactionsHistory()
-            await MainActor.run {
-                if isReloadingTransactionHistory {
-                    isReloadingTransactionHistory = false
-                }
+        Task { [weak self] in
+            await self?.performLoadHistory()
+        }
+    }
+
+    private func performLoadHistory() async {
+        await walletModel.updateTransactionsHistory()
+        await MainActor.run {
+            if isReloadingTransactionHistory {
+                isReloadingTransactionHistory = false
             }
         }
     }
@@ -290,11 +310,17 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
 extension SingleTokenBaseViewModel {
     private func prepareSelf() {
+        updateMarketPriceState()
         bind()
         setupActionButtons()
         setupMiniChart()
         updateActionButtons()
         performLoadHistory()
+    }
+
+    private func updateMarketPriceState() {
+        rateFormatted = priceFormatter.formatPrice(walletModel.quote?.price)
+        priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
     private func bind() {
@@ -342,13 +368,22 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
+        let notificationsMapper = MultiWalletNotificationBannerMapper()
+
         notificationManager.notificationPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .removeDuplicates()
             // Fix for reappearing banner notifications.
             // [REDACTED_TODO_COMMENT]
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .assign(to: \.tokenNotificationInputs, on: self, ownership: .weak)
+            .sink { [weak self] notificationViewInput in
+                guard self?.isRedesign == true else {
+                    self?.tokenNotificationInputs = notificationViewInput
+                    return
+                }
+
+                self?.notifications = notificationsMapper.mapItems(notificationViewInput)
+            }
             .store(in: &bag)
 
         walletModel.actionsUpdatePublisher
@@ -387,6 +422,17 @@ extension SingleTokenBaseViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.updateActionButtons()
+            }
+            .store(in: &bag)
+
+        // The quote is reloaded when the app currency changes, so keep the Market price block in sync
+        // with the new currency without requiring a pull to refresh.
+        walletModel.ratePublisher
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.updateMarketPriceState()
             }
             .store(in: &bag)
     }
@@ -466,7 +512,14 @@ extension SingleTokenBaseViewModel {
         case .error(let error):
             transactionHistoryState = .error(error)
         case .loaded(let records):
-            let listItems = transactionHistoryMapper.mapTransactionListItem(from: records)
+            // [REDACTED_INFO]: redesign collapses old txs into monthly groups and resolves rich
+            // account/wallet chips per row; legacy keeps day-only buckets and plain addresses.
+            let redesignEnabled = FeatureProvider.isAvailable(.redesign)
+            let listItems = transactionHistoryMapper.mapTransactionListItem(
+                from: records,
+                groupingStyle: redesignEnabled ? .dayThenMonth : .day,
+                subtitleOwnerResolver: redesignEnabled ? subtitleOwnerResolver : nil
+            )
             transactionHistoryState = .loaded(listItems)
         }
     }
@@ -475,7 +528,7 @@ extension SingleTokenBaseViewModel {
         do {
             let mapper = MarketsTokenHistoryChartMapper()
 
-            let chartPoints = try mapper
+            let chartPoints: [Double] = try mapper
                 .mapAndSortValues(from: data)
                 .map(\.price.doubleValue)
             miniChartData = .success(chartPoints)
@@ -553,6 +606,10 @@ extension SingleTokenBaseViewModel {
         }
 
         tokenRouter.openOnramp(walletModel: walletModel)
+    }
+
+    final func openOnramp(parameters: PredefinedOnrampParameters) {
+        tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
     }
 
     private func openSend() {
@@ -693,6 +750,17 @@ extension SingleTokenBaseViewModel {
         ])
 
         openReceive()
+    }
+
+    func performTokenAction(_ type: TokenActionType) {
+        switch type {
+        case .buy: openBuyCryptoAction()
+        case .send: openSendAction()
+        case .receive: openReceiveAction()
+        case .exchange: openExchangeAction()
+        case .sell: openSellAction()
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
+        }
     }
 }
 

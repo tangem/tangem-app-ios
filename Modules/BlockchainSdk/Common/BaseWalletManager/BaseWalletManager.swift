@@ -96,6 +96,9 @@ extension BaseWalletManager: WalletManagerUpdater {
             case (.xpub(let xpub), let updater as XPUBWalletManagerUpdater):
                 try await updater.updateWalletManager(xpub: xpub)
 
+            case (.xpubs(let xpubs), let updater as MultipleXPUBWalletManagerUpdater):
+                try await updater.updateWalletManager(xpubs: xpubs)
+
             default:
                 throw InternalError.walletManagerUpdaterNotSetup
             }

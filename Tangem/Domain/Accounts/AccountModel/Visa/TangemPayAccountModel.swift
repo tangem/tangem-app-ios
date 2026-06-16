@@ -14,12 +14,16 @@ protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.Stan
     var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
 
+    /// Last successfully loaded `TangemPayAccount`. Retained across transient error states
+    /// (`.unavailable`, `.syncNeeded`) so the UI can keep navigating to the Payment Account
+    /// screen and show cached balance/transactions while the backend is unavailable.
+    var lastKnownTangemPayAccount: TangemPayAccount? { get }
+
     var customerId: String? { get }
 
     func refreshState() async
-    func syncTokens(
+    func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
-        pendingDerivations: [PendingDerivation],
         completion: @escaping () -> Void
     )
 }
