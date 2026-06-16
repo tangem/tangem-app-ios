@@ -49,7 +49,7 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 extension AddressBookContactManagementCoordinator {
     enum Options {
         case add(walletId: UserWalletId)
-        case edit(contact: Contact, walletId: UserWalletId)
+        case edit(contact: AddressBookContact, walletId: UserWalletId)
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  ContactID.swift
+//  AddressBookAddressEntryID.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,31 +8,28 @@
 
 import Foundation
 
-/// Immutable, client-generated identity of a `Contact`.
+/// Immutable, client-generated identity of an `AddressEntry`.
 ///
-/// Serialized as a lowercase UUID string both inside the encrypted address-book blob and inside the
-/// signed tuple (see `SignedTuplePayload`). The lowercase form is part of the cross-platform
-/// signature contract and must match other clients byte-for-byte.
-struct ContactID: Hashable {
+/// Serialized as a lowercase UUID string, mirroring `AddressBookContactID`.
+struct AddressBookAddressEntryID: Hashable {
     let rawValue: UUID
 
     init(rawValue: UUID = UUID()) {
         self.rawValue = rawValue
     }
 
-    /// Canonical lowercase string used for serialization and signing.
     var stringValue: String {
         rawValue.uuidString.lowercased()
     }
 }
 
-extension ContactID: Codable {
+extension AddressBookAddressEntryID: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let raw = try container.decode(String.self)
 
         guard let uuid = UUID(uuidString: raw) else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid contact UUID: \(raw)")
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid address entry UUID: \(raw)")
         }
 
         rawValue = uuid

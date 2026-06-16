@@ -16,7 +16,7 @@ struct AddressBookContactViewModel: Identifiable {
 
     let action: () -> Void
 
-    init(contact: Contact, action: @escaping () -> Void) {
+    init(contact: AddressBookContact, action: @escaping () -> Void) {
         let name = contact.name.value
 
         id = contact.id.stringValue

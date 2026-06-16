@@ -50,7 +50,7 @@ extension AddressBookCoordinator: AddressBookContactsListRoutable {
         openContactManagement(options: .add(walletId: walletId))
     }
 
-    func openEditContact(contact: Contact, walletId: UserWalletId) {
+    func openEditContact(contact: AddressBookContact, walletId: UserWalletId) {
         openContactManagement(options: .edit(contact: contact, walletId: walletId))
     }
 }

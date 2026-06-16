@@ -12,7 +12,7 @@ import Combine
 /// No-op manager for locked wallets and previews/mocks: a locked or fake wallet contributes no
 /// contacts and accepts no mutations.
 final class NoopAddressBookManager: AddressBookManager {
-    var contactsPublisher: AnyPublisher<[Contact], Never> {
+    var contactsPublisher: AnyPublisher<[AddressBookContact], Never> {
         Just([]).eraseToAnyPublisher()
     }
 
@@ -21,10 +21,10 @@ final class NoopAddressBookManager: AddressBookManager {
     }
 
     func load() async {}
-    func createContact(name: ContactName, entries: [AddressBookEntryDraft]) async throws {}
-    func renameContact(id: ContactID, to name: ContactName) async throws {}
-    func addEntries(_ entries: [AddressBookEntryDraft], toContactWith id: ContactID) async throws {}
-    func updateEntry(id: AddressEntryID, inContactWith contactId: ContactID, to draft: AddressBookEntryDraft) async throws {}
-    func deleteEntry(id: AddressEntryID, fromContactWith contactId: ContactID) async throws {}
-    func deleteContact(id: ContactID) async throws {}
+    func createContact(name: AddressBookContactName, entries: [AddressBookEntryDraft]) async throws {}
+    func renameContact(id: AddressBookContactID, to name: AddressBookContactName) async throws {}
+    func addEntries(_ entries: [AddressBookEntryDraft], toContactWith id: AddressBookContactID) async throws {}
+    func updateEntry(id: AddressBookAddressEntryID, inContactWith contactId: AddressBookContactID, to draft: AddressBookEntryDraft) async throws {}
+    func deleteEntry(id: AddressBookAddressEntryID, fromContactWith contactId: AddressBookContactID) async throws {}
+    func deleteContact(id: AddressBookContactID) async throws {}
 }

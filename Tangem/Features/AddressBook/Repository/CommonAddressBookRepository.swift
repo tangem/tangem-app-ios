@@ -21,7 +21,7 @@ final class CommonAddressBookRepository {
     private let blobCodec: AddressBookBlobCodec
     private let mapper = AddressBookNetworkMapper()
 
-    private let contactsSubject = CurrentValueSubject<[DecodedContact], Never>([])
+    private let contactsSubject = CurrentValueSubject<[AddressBookDecodedContact], Never>([])
     private let syncStateSubject = CurrentValueSubject<AddressBookSyncState, Never>(.synced)
 
     init(
@@ -43,7 +43,7 @@ final class CommonAddressBookRepository {
         encryptionKey = keyProvider.encryptionKey(forWalletPublicKeySeed: walletPublicKeySeed)
     }
 
-    private func decode(_ remote: RemoteAddressBook) throws -> [DecodedContact] {
+    private func decode(_ remote: RemoteAddressBook) throws -> [AddressBookDecodedContact] {
         guard remote.envelope.version == AddressBookBlobCodec.supportedVersion else {
             throw AddressBookRepositoryError.unsupportedBlobVersion(remote.envelope.version)
         }
@@ -76,7 +76,7 @@ final class CommonAddressBookRepository {
 // MARK: - AddressBookRepository protocol conformance
 
 extension CommonAddressBookRepository: AddressBookRepository {
-    var contactsPublisher: AnyPublisher<[DecodedContact], Never> {
+    var contactsPublisher: AnyPublisher<[AddressBookDecodedContact], Never> {
         contactsSubject.eraseToAnyPublisher()
     }
 
@@ -127,7 +127,7 @@ extension CommonAddressBookRepository: AddressBookRepository {
         }
     }
 
-    func save(contacts: [DecodedContact]) async throws {
+    func save(contacts: [AddressBookDecodedContact]) async throws {
         let plaintext = try blobCodec.encode(AddressBookPlaintext(contacts: contacts))
         let sealedBox = try encryptionService.seal(plaintext, using: encryptionKey)
 
