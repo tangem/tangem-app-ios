@@ -10,8 +10,6 @@ import BlockchainSdk
 import TangemExpress
 
 struct CommonSendSourceToken: SendSourceToken {
-    typealias TransactionHistoryEnricherFactory = () async -> TransactionHistoryExpressDataEnriching?
-
     let userWalletInfo: UserWalletInfo
     let id: WalletModelId
     let header: TokenHeader
@@ -45,5 +43,5 @@ struct CommonSendSourceToken: SendSourceToken {
     let extraId: String?
 
     /// - Note: Implementation details, not a part of public API of `SendSourceToken`.
-    let transactionHistoryEnricherFactory: TransactionHistoryEnricherFactory?
+    let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory?
 }
