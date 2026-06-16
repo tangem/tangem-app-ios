@@ -18,14 +18,20 @@ class SendSwapProviderFinishViewModel: ObservableObject, Identifiable {
 
     @Published var subtitle: String = ""
 
-    init(tokenItem: TokenItem, provider: ExpressAvailableProvider) {
+    init(sourceTokenItem: TokenItem, receiveTokenItem: TokenItem, provider: ExpressAvailableProvider) {
         title = provider.provider.name
         providerType = provider.provider.type.title
         providerIcon = provider.provider.imageURL
 
-        if let quote = provider.getState().quote {
-            let source = BalanceFormatter().formatCryptoBalance(1, currencyCode: tokenItem.currencySymbol)
-            subtitle = "\(source) \(AppConstants.approximatelyEqualSign) \(quote.rate.formatted())"
+        let formatted = ExpressProviderFormatter().mapToRateSubtitle(
+            state: provider.getState(),
+            senderTokenItem: sourceTokenItem,
+            destinationTokenItem: receiveTokenItem,
+            option: .exchangeRate
+        )
+
+        if case .text(let text) = formatted {
+            subtitle = text
         }
     }
 }

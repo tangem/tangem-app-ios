@@ -107,6 +107,36 @@ class UnspentOutputManagerTests {
         #expect(preImage.fee == 360)
     }
 
+    @Test
+    func pendingAndAvailableOutputsPartitionByConfirmation() async throws {
+        // given
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let confirmedA = UnspentOutput(blockId: 10, txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb", index: 0, amount: 3000)
+        let confirmedB = UnspentOutput(blockId: 11, txId: "5509df5c6e2631dcb093d5bc09065b156039f400a7b1642caa5c7ec88a260b61", index: 0, amount: 1000)
+        let pendingA = UnspentOutput(blockId: 0, txId: "3841e727416897dbce40ddf2e5eec1cfb255058c1ad1ce5cb7cee0ca2140706b", index: 0, amount: 500)
+        let pendingB = UnspentOutput(blockId: 0, txId: "7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246", index: 1, amount: 700)
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: [confirmedA, confirmedB, pendingA, pendingB], for: address)
+
+        // when
+        let available = manager.availableOutputs()
+        let pending = manager.pendingOutputs()
+
+        // then
+        let availableTxIds = Set(available.map(\.txId))
+        let pendingTxIds = Set(pending.map(\.txId))
+
+        #expect(availableTxIds == [confirmedA.txId, confirmedB.txId])
+        #expect(pendingTxIds == [pendingA.txId, pendingB.txId])
+        #expect(availableTxIds.isDisjoint(with: pendingTxIds))
+
+        #expect(manager.confirmedBalance() == confirmedA.amount + confirmedB.amount)
+        #expect(manager.unconfirmedBalance() == pendingA.amount + pendingB.amount)
+    }
+
     /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246
     @Test
     func spendingFullAmountWithReducedAmountOnFee() async throws {

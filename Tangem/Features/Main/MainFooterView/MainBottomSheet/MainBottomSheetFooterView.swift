@@ -36,7 +36,7 @@ struct MainBottomSheetFooterView: View {
                 searchBarClearButtonAccessibilityIdentifier: nil
             )
             .padding(.bottom, bottomInset)
-            .background(Colors.Background.primary) // Fills a small gap at the bottom on notchless devices
+            .background(backgroundColor) // Fills a small gap at the bottom on notchless devices
             .overlay(alignment: .top) {
                 snapshotOverlay
             }
@@ -68,6 +68,14 @@ struct MainBottomSheetFooterView: View {
         @unknown default:
             assertionFailure("Unknown color scheme '\(String(describing: colorScheme))' received")
             return viewModel.footerSnapshot?.lightAppearance
+        }
+    }
+
+    private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            Color.Tangem.Surface.level2
+        } else {
+            Colors.Background.primary
         }
     }
 
