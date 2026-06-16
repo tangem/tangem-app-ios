@@ -56,8 +56,8 @@ actor CommonTransactionHistoryProviderRegistry {
             refcode: walletInfo.refcodeProvider?.getRefcode()
         )
 
-        let exchangeStorage = InMemoryTransactionHistoryRecordsStorage<ExchangeHistoryRecord>()
-        let onrampStorage = InMemoryTransactionHistoryRecordsStorage<OnrampHistoryRecord>()
+        let exchangeStorage = InMemoryTransactionHistoryRecordsStorage<ExchangeTransaction>()
+        let onrampStorage = InMemoryTransactionHistoryRecordsStorage<OnrampTransaction>()
 
         let exchangeNetworkService = TransactionHistoryNetworkServiceFactory.makeExchangeService(
             apiProvider: apiProvider,
