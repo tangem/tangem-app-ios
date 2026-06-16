@@ -13,12 +13,18 @@ import TangemLocalization
 
 public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
     private let principalContent: PrincipalContent
-
+    private let trailingButtonsHaveLiquidGlassEffect: Bool
     private let scanQRCodeAction: () -> Void
     private let detailsAction: () -> Void
 
-    public init(principalContent: PrincipalContent, scanQRCodeAction: @escaping () -> Void, detailsAction: @escaping () -> Void) {
-        self.principalContent = principalContent
+    public init(
+        @ViewBuilder principalContent: () -> PrincipalContent,
+        trailingButtonsHaveLiquidGlassEffect: Bool,
+        scanQRCodeAction: @escaping () -> Void,
+        detailsAction: @escaping () -> Void
+    ) {
+        self.principalContent = principalContent()
+        self.trailingButtonsHaveLiquidGlassEffect = trailingButtonsHaveLiquidGlassEffect
         self.scanQRCodeAction = scanQRCodeAction
         self.detailsAction = detailsAction
     }
@@ -39,7 +45,7 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
     private func liquidGlassToolbar(_ content: Content) -> some View {
         content
             .onGeometryChange(for: CGFloat.self, of: \.size.width) { fullContentWidth in
-                navigationBarWidth = fullContentWidth - NavigationBarInset.horizontal * 2
+                navigationBarWidth = max(0, fullContentWidth - NavigationBarInset.horizontal * 2)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -58,9 +64,21 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
                     .frame(width: navigationBarWidth / 2 + principalContentWidth / 2)
                 }
 
-                qrScanButton
-                detailsButton
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: .zero) {
+                        qrScanButton
+                        detailsButton
+                    }
+                    .glassEffect(
+                        trailingButtonsHaveLiquidGlassEffect ? .regular.interactive() : .identity,
+                        in: .capsule
+                    )
+                    .glassEffectTransition(.materialize)
+                    .offset(x: 8)
+                }
+                .sharedBackgroundVisibility(.hidden)
             }
+            .animation(.default, value: trailingButtonsHaveLiquidGlassEffect)
             // [REDACTED_USERNAME], this is crucial for leading glass effect removal. ToolbarRole.browser also works
             .toolbarRole(.editor)
     }
@@ -76,8 +94,13 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
                     principalContent
                 }
 
-                qrScanButton
-                detailsButton
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: .zero) {
+                        qrScanButton
+                        detailsButton
+                    }
+                    .offset(x: 10)
+                }
             }
             .backportTranslucentNavigationBar()
     }
@@ -90,28 +113,34 @@ public struct MainViewRedesignToolbar<PrincipalContent: View>: ViewModifier {
             .foregroundStyle(Color.Tangem.Graphic.Neutral.primary)
     }
 
-    private var qrScanButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button(action: scanQRCodeAction) {
-                Assets.Glyphs.scanQrIcon.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: .unit(.x7), height: .unit(.x7))
-                    .foregroundColor(Colors.Icon.primary1)
-                    .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-            .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
-            .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
-            .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
+    private var qrScanButton: some View {
+        Button(action: scanQRCodeAction) {
+            Assets.Glyphs.scanQrIcon.image
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: .unit(.x7), height: .unit(.x7))
+                .foregroundColor(Colors.Icon.primary1)
+                .frame(width: .unit(.x11), height: .unit(.x11))
+                .padding(.leading, isLiquidGlassSupported ? .unit(.x1) : .zero)
+                .contentShape(.rect)
         }
+        .buttonStyle(.plain)
+        .accessibility(label: Text(Localization.voiceOverOpenNewWalletConnectSession))
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.scanQrButton)
     }
 
-    private var detailsButton: some ToolbarContent {
-        NavigationToolbarButton.details(placement: .topBarTrailing, action: detailsAction)
-            .redesigned()
-            .accessibilityLabel(Localization.voiceOverOpenCardDetails)
-            .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
+    private var detailsButton: some View {
+        Button(action: detailsAction) {
+            Image(systemName: "ellipsis")
+                .frame(width: .unit(.x7), height: .unit(.x7))
+                .foregroundColor(Colors.Icon.primary1)
+                .frame(width: .unit(.x11), height: .unit(.x11))
+                .padding(.trailing, isLiquidGlassSupported ? .unit(.x1) : .zero)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Localization.voiceOverOpenCardDetails)
+        .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 }
 
