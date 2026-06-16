@@ -452,13 +452,25 @@ private extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        isScanning = true
-
         Analytics.log(
             .buttonAddWallet,
             params: [.source: .settings],
             contextParams: .empty
         )
+
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
+            addNewUserWallet()
+        } else {
+            scanNewUserWallet()
+        }
+    }
+
+    func addNewUserWallet() {
+        coordinator?.openAddWallet()
+    }
+
+    func scanNewUserWallet() {
+        isScanning = true
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
