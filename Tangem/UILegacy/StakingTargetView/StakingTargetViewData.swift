@@ -15,7 +15,7 @@ struct StakingTargetViewData: Hashable, Identifiable {
 
     let address: String
     let name: String
-    let imageURL: URL?
+    let image: StakingTargetIconViewData
     let isPartner: Bool
     let subtitleType: SubtitleType?
     let detailsType: DetailsType?
@@ -34,14 +34,14 @@ struct StakingTargetViewData: Hashable, Identifiable {
     init(
         address: String,
         name: String,
-        imageURL: URL?,
+        image: StakingTargetIconViewData,
         isPartner: Bool = false,
         subtitleType: SubtitleType?,
         detailsType: DetailsType?
     ) {
         self.address = address
         self.name = name
-        self.imageURL = imageURL
+        self.image = image
         self.isPartner = isPartner
         self.subtitleType = subtitleType
         self.detailsType = detailsType

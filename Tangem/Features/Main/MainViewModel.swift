@@ -29,7 +29,6 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
 
-    let headerHeightRatioPublisher: AnyPublisher<CGFloat, Never>
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
     private(set) lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
@@ -56,7 +55,6 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - Internal state
 
-    private let headerHeightRatioSubject = PassthroughSubject<CGFloat, Never>()
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
 
     private var shouldDelayBottomSheetVisibility = true
@@ -80,7 +78,6 @@ final class MainViewModel: ObservableObject {
         self.swipeDiscoveryHelper = swipeDiscoveryHelper
         self.mainUserWalletPageBuilderFactory = mainUserWalletPageBuilderFactory
         self.pushNotificationsAvailabilityProvider = pushNotificationsAvailabilityProvider
-        headerHeightRatioPublisher = headerHeightRatioSubject.eraseToAnyPublisher()
         nftFeatureLifecycleHandler = NFTFeatureLifecycleHandler()
 
         pages = mainUserWalletPageBuilderFactory.createPages(
@@ -172,10 +169,6 @@ final class MainViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.coordinator?.beginHandlingIncomingActions()
         }
-    }
-
-    func onHeaderHeightRatioChange(_ ratio: CGFloat) {
-        headerHeightRatioSubject.send(ratio)
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {

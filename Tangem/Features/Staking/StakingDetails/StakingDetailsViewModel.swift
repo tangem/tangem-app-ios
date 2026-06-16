@@ -293,6 +293,15 @@ private extension StakingDetailsViewModel {
                 rewardsValue,
                 currencyCode: tokenItem.currencySymbol
             )
+
+            if yield.item.network == .ethereum, yield.rewardClaimingType == .auto {
+                rewardViewData = RewardViewData(
+                    state: .compoundedRewardsEarned(cryptoFormatted: rewardsCryptoFormatted),
+                    networkType: yield.item.network
+                )
+                return
+            }
+
             let rewardsFiat = tokenItem.currencyId.flatMap {
                 BalanceConverter().convertToFiat(rewardsValue, currencyId: $0)
             }
