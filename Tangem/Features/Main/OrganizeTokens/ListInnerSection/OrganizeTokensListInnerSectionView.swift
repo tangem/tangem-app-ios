@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 
+// [REDACTED_INFO]: legacy organize-tokens inner section, replaced by OrganizeTokensListInnerSectionViewRedesigned behind `.redesign` flag
 struct OrganizeTokensListInnerSectionView: View {
     let title: String
     var identifier: AnyHashable = 0 // Placeholder value when the view has no corresponding identifier from the VM

@@ -19,6 +19,7 @@
 		B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0B11A072C787FE70018A2A6 /* MarkdownUI */; };
 		B0D70D482CE5FB6800A8A0F1 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = B0D70D472CE5FB6800A8A0F1 /* JWTDecode */; };
 		B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
+		B608021A2ECEA1E600CC5F4E /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = B608020E2ECEA1E600CC5F4E /* AnyCodable */; };
 		B61B905A2F912D950081CC13 /* BlockchainSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B61B90592F912D950081CC13 /* BlockchainSdk */; };
 		B62C16792CBE095A00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C16782CBE095A00522683 /* Alamofire */; };
 		B62C167B2CBE0A1E00522683 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B62C167A2CBE0A1E00522683 /* Alamofire */; };
@@ -34,10 +35,6 @@
 		B67E38C72CC7259B00D660EB /* TangemSdk in Frameworks */ = {isa = PBXBuildFile; productRef = B67E38C62CC7259B00D660EB /* TangemSdk */; };
 		B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */; };
 		B6A0FE812F91386800E28A09 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6A0FE802F91386800E28A09 /* BigInt */; };
-		B6C02EAC2F856B000003ADBE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */; };
-		B6C02EAE2F856B000003ADBE /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */; };
-		B6C02EB02F856B000003ADBE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EAF2F856B000003ADBE /* FirebaseMessaging */; };
-		B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = B6C02EB12F856B000003ADBE /* FirebasePerformance */; };
 		B6C0D3FB2CBDC6DD001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FA2CBDC6DD001113ED /* Moya */; };
 		B6C0D3FD2CBDC6FE001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D3FC2CBDC6FE001113ED /* Moya */; };
 		B6C0D4092CBDCD34001113ED /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = B6C0D4082CBDCD34001113ED /* Moya */; };
@@ -48,6 +45,9 @@
 		B6DDDE7E2CF39729008DEA94 /* AmplitudeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE7D2CF39729008DEA94 /* AmplitudeSwift */; };
 		B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */ = {isa = PBXBuildFile; productRef = B6DDDE802CF39C69008DEA94 /* AnalyticsConnector */; };
 		B6E27FA52DFD1CAC00B29813 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6E27FA42DFD1CAC00B29813 /* TangemModules */; };
+		B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = B6EF56642FAD132F000E1C6A /* TangemModules */; };
+		B6FBA5E0000000000000000B /* TangemFirebaseDynamicShim in Frameworks */ = {isa = PBXBuildFile; productRef = B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */; };
+		B6FBA5E0000000000000000C /* TangemFirebaseDynamicShim in Embed Frameworks */ = {isa = PBXBuildFile; productRef = B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B6FDC0AB2F902F280061FD2B /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6FDC0AA2F902F280061FD2B /* BigInt */; };
 		B6FF157E2F8F2A6E000C63B6 /* BigInt in Frameworks */ = {isa = PBXBuildFile; productRef = B6FF157D2F8F2A6E000C63B6 /* BigInt */; };
 		C21C40C82F7D778F00CF1555 /* GoogleService-Info-Alpha.plist in Resources */ = {isa = PBXBuildFile; fileRef = C21C40A42F7D778F00CF1555 /* GoogleService-Info-Alpha.plist */; };
@@ -196,6 +196,7 @@
 				EFEE239E2BFF62D60099917E /* TangemStaking.framework in Embed Frameworks */,
 				EF9E29A92B4F0C9900418559 /* TangemExpress.framework in Embed Frameworks */,
 				B099338B2B5517EC00240CDB /* TangemVisa.framework in Embed Frameworks */,
+				B6FBA5E0000000000000000C /* TangemFirebaseDynamicShim in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,9 +314,7 @@
 				B6DBDE4A2F97790F00885068 /* Hiero in Frameworks */,
 				DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */,
 				B62C167F2CBE0B7900522683 /* Moya in Frameworks */,
-				B6C02EB22F856B000003ADBE /* FirebasePerformance in Frameworks */,
 				B6FF157E2F8F2A6E000C63B6 /* BigInt in Frameworks */,
-				B6C02EB02F856B000003ADBE /* FirebaseMessaging in Frameworks */,
 				B0B11A082C787FE70018A2A6 /* MarkdownUI in Frameworks */,
 				B69FC9092CF67D9300A5C51D /* GDPerformanceView-Swift in Frameworks */,
 				B67E38C12CC71A2C00D660EB /* TangemSdk in Frameworks */,
@@ -326,11 +325,9 @@
 				C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */,
 				EFEE239D2BFF62D60099917E /* TangemStaking.framework in Frameworks */,
 				B62C16812CBE0BA000522683 /* Alamofire in Frameworks */,
-				B6C02EAE2F856B000003ADBE /* FirebaseCrashlytics in Frameworks */,
 				B6DDDE812CF39C69008DEA94 /* AnalyticsConnector in Frameworks */,
 				C2B5B4FF2F59DD9200C89C89 /* SurveySparrowSdk in Frameworks */,
 				B6DDDE752CF39079008DEA94 /* BlockiesSwift in Frameworks */,
-				B6C02EAC2F856B000003ADBE /* FirebaseAnalytics in Frameworks */,
 				2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */,
 				C24285662F55E35B004F0348 /* DataPipelines in Frameworks */,
 				B6C144072DFD1BF8008E9478 /* DGCharts in Frameworks */,
@@ -342,6 +339,7 @@
 				DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */,
 				B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
 				B6457BD02F9120CA00C91066 /* TangemMacro in Frameworks */,
+				B6FBA5E0000000000000000B /* TangemFirebaseDynamicShim in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -404,6 +402,7 @@
 				F92DB9CD2CD4C3D200C16530 /* TangemModules in Frameworks */,
 				B62C167D2CBE0A3D00522683 /* Alamofire in Frameworks */,
 				B6C0D4092CBDCD34001113ED /* Moya in Frameworks */,
+				B608021A2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,6 +410,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B6EF56652FAD132F000E1C6A /* TangemModules in Frameworks */,
 				EF9E299D2B4F0C9100418559 /* TangemExpress.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -601,12 +601,9 @@
 				C24285652F55E35B004F0348 /* DataPipelines */,
 				C246566F2F575ACD00270AA7 /* MessagingPushFCM */,
 				C2B5B4FE2F59DD9200C89C89 /* SurveySparrowSdk */,
-				B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */,
-				B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */,
-				B6C02EAF2F856B000003ADBE /* FirebaseMessaging */,
-				B6C02EB12F856B000003ADBE /* FirebasePerformance */,
 				B6FF157D2F8F2A6E000C63B6 /* BigInt */,
 				B6457BCF2F9120CA00C91066 /* TangemMacro */,
+				B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */,
 				B6DBDE492F97790F00885068 /* Hiero */,
 			);
 			productName = "Tangem Tap";
@@ -759,6 +756,7 @@
 				B6C0D4082CBDCD34001113ED /* Moya */,
 				B62C167C2CBE0A3D00522683 /* Alamofire */,
 				F92DB9CC2CD4C3D200C16530 /* TangemModules */,
+				B608020E2ECEA1E600CC5F4E /* AnyCodable */,
 			);
 			productName = TangemExpress;
 			productReference = EF9E29932B4F0C8800418559 /* TangemExpress.framework */;
@@ -928,9 +926,9 @@
 				C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */,
 				C24285412F55E085004F0348 /* XCRemoteSwiftPackageReference "customerio-ios" */,
 				C2B5B4D82F59D93B00C89C89 /* XCRemoteSwiftPackageReference "surveysparrow-ios-sdk" */,
-				B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B6FF157C2F8F2A6E000C63B6 /* XCRemoteSwiftPackageReference "BigInt" */,
 				B6457BCE2F9120CA00C91066 /* XCLocalSwiftPackageReference "TangemMacro" */,
+				B6FBA5E0000000000000000D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */,
 				B6DBDE482F97790F00885068 /* XCRemoteSwiftPackageReference "hiero-sdk-swift" */,
 			);
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
@@ -7417,6 +7415,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = TangemMacro;
 		};
+		B6FBA5E0000000000000000D /* XCLocalSwiftPackageReference "TangemFirebaseDynamicShim" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = TangemFirebaseDynamicShim;
+		};
 		C2FC44052F3E66F900A61EAB /* XCLocalSwiftPackageReference "TangemTestKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = TangemTestKit;
@@ -7498,14 +7500,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.1.1;
-			};
-		};
-		B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.12.0;
 			};
 		};
 		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
@@ -7598,10 +7592,10 @@
 		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/reown-com/reown-swift.git";
+			repositoryURL = "git@github.com:tangem-developments/reown-swift.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.2.8;
+				kind = revision;
+				revision = 62114d209ec942ea7ce6eb7c154980212f980bb0;
 			};
 		};
 		DCED46512EF04FBC0021AC0D /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
@@ -7728,26 +7722,6 @@
 			package = B6FF157C2F8F2A6E000C63B6 /* XCRemoteSwiftPackageReference "BigInt" */;
 			productName = BigInt;
 		};
-		B6C02EAB2F856B000003ADBE /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		B6C02EAD2F856B000003ADBE /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		B6C02EAF2F856B000003ADBE /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
-		};
-		B6C02EB12F856B000003ADBE /* FirebasePerformance */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B6C02EAA2F856B000003ADBE /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebasePerformance;
-		};
 		B6C0D3FA2CBDC6DD001113ED /* Moya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */;
@@ -7797,6 +7771,15 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
 			productName = TangemModules;
+		};
+		B6EF56642FAD132F000E1C6A /* TangemModules */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = TangemModules;
+		};
+		B6FBA5E0000000000000000A /* TangemFirebaseDynamicShim */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TangemFirebaseDynamicShim;
 		};
 		B6FDC0AA2F902F280061FD2B /* BigInt */ = {
 			isa = XCSwiftPackageProductDependency;

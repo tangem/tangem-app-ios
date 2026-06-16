@@ -16,12 +16,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var sellActionButton = staticText(.sellTitle)
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
+    private lazy var addAndManageOrganizeRow = app.buttons[TokensManagementChooserAccessibilityIdentifiers.organizeTokensRow].firstMatch
     private lazy var detailsButton = button(.detailsButton)
     private lazy var actionButtonsList = otherElement(.actionButtonsList)
     private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
-    private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
+    /// Type-agnostic: redesign exposes this as `Button`, legacy as `Other`. Drop after redesign rollout.
+    private lazy var missingDerivationNotification = app.descendants(matching: .any)
+        .matching(identifier: MainAccessibilityIdentifiers.missingDerivationNotification)
+        .firstMatch
     private lazy var walletLockedNotification = button(.walletLockedNotification)
     private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
     private lazy var tangemPayTile = app.buttons[TangemPayAccessibilityIdentifiers.mainScreenTile].firstMatch
@@ -29,15 +33,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
-            validateHeaderCardImage(for: cardType)
+            validateMainHeader(for: cardType)
 
             switch cardType {
             case .twin, .xrpNote, .xlmBird:
                 XCTAssertTrue(actionButtonsList.waitForExistence(timeout: .robustUIUpdate), "Action buttons list should exist for twin cards")
-
-                let buttonTexts = actionButtonsList.buttons.allElementsBoundByIndex.map { $0.label }
-                XCTAssertTrue(buttonTexts.contains("Buy"), "Buy button should exist")
-                XCTAssertTrue(buttonTexts.contains("Receive"), "Receive button should exist")
             case .wallet, .wallet2, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
                 XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
                 XCTAssertTrue(buyActionButton.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
@@ -126,7 +126,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func tapToken(_ label: String) -> TokenScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-            tokenElement(named: label).waitAndTapWithScroll()
+            let token = tokenElement(named: label)
+            scrollTokensListToHittable(token)
+            token.waitAndTap()
             return TokenScreen(app)
         }
     }
@@ -167,6 +169,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 organizeTokensButton.waitAndTap(timeout: .robustUIUpdate),
                 "Should successfully tap organize tokens button"
             )
+
+            // Redesign inserts the Add & Manage chooser sheet between the entry button and Organize Tokens.
+            if addAndManageOrganizeRow.waitForExistence(timeout: .conditional) {
+                addAndManageOrganizeRow.waitAndTap()
+            }
 
             return OrganizeTokensScreen(app)
         }
@@ -281,7 +288,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
             let tokenTitleElements = tokenTitleQuery.allElementsBoundByIndex
             let stableElements = tokenTitleElements.filter { element in
-                element.exists && element.isHittable && !element.label.isEmpty
+                element.exists && !element.label.isEmpty
             }
 
             let sortedElements = stableElements.sorted { element1, element2 in
@@ -359,7 +366,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
             let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
             start.press(forDuration: 0.1, thenDragTo: end)
-            waitAndAssertTrue(headerCardImage, "Header card image should exist after switching wallet")
+            waitAndAssertTrue(totalBalance, "Main header should exist after switching wallet")
             return self
         }
     }
@@ -371,7 +378,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.18))
             let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.18))
             start.press(forDuration: 0.1, thenDragTo: end)
-            waitAndAssertTrue(headerCardImage, "Header card image should exist after switching wallet")
+            waitAndAssertTrue(totalBalance, "Main header should exist after switching wallet")
             return self
         }
     }
@@ -478,6 +485,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             waitAndAssertTrue(token, "Token '\(tokenName)' should exist")
+            scrollTokensListToHittable(token)
 
             // Wait for balance to load — context menu captures content at presentation time
             let balanceElement = tokensList.staticTexts[MainAccessibilityIdentifiers.tokenBalance(for: tokenName)].firstMatch
@@ -496,6 +504,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 if attempt < maxAttempts {
                     app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
                     _ = token.waitForExistence(timeout: .quick)
+                    scrollTokensListToHittable(token)
                 }
             }
 
@@ -573,6 +582,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenCount(tokenName: String) -> Int {
         XCTContext.runActivity(named: "Get count of tokens with name: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToHittable(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -592,6 +602,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getAllTokenBalances(tokenName: String) -> [String] {
         XCTContext.runActivity(named: "Get all balances for token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToHittable(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -628,6 +639,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func getTokenBalance(tokenName: String, tokenIndex: Int = 0) -> String {
         XCTContext.runActivity(named: "Get balance for token: \(tokenName) at index: \(tokenIndex)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            scrollTokensListToHittable(tokenElement(named: tokenName))
 
             // Get all balance elements with the same accessibility identifier
             let balanceElements = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenBalance(for: tokenName))
@@ -749,28 +761,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
-    // MARK: - Badge Validation Methods
-
-    @discardableResult
-    func assertSwapButtonHasBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has badge indicator on main screen") { _ in
-            XCTAssertTrue(swapActionButton.waitForExistence(timeout: .robustUIUpdate), "Swap button should exist")
-            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
-            waitAndAssertTrue(badge, "Swap button badge should be displayed on main screen")
-            return self
-        }
-    }
-
-    @discardableResult
-    func assertSwapButtonHasNoBadge() -> Self {
-        XCTContext.runActivity(named: "Assert Swap button has no badge indicator on main screen") { _ in
-            XCTAssertTrue(swapActionButton.waitForExistence(timeout: .robustUIUpdate), "Swap button should exist")
-            let badge = app.otherElements[ActionButtonsAccessibilityIdentifiers.swapButtonBadge].firstMatch
-            XCTAssertFalse(badge.exists, "Swap button badge should not be displayed on main screen")
-            return self
-        }
-    }
-
     @discardableResult
     func openMarketsSheetWithSwipe() -> MarketsAndNewsScreen {
         XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
@@ -809,8 +799,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
     /// Waits for main screen elements before coordinate-based wallet swipe.
     private func waitForMainScreenReadyForSwipe() {
-        waitAndAssertTrue(headerCardImage, "Header card image should exist before swiping wallet")
         waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
+        // Loading state exposes the header via `totalBalanceShimmer` instead of `totalBalance`.
+        let headerExists = totalBalance.waitForExistence(timeout: .conditional)
+            || totalBalanceShimmer.waitForExistence(timeout: .conditional)
+        XCTAssertTrue(headerExists, "Main header should exist before swiping wallet")
     }
 
     /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
@@ -833,6 +826,31 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             // Wait for scroll animation to settle
             _ = organizeTokensButton.waitForState(state: .hittable)
         }
+    }
+
+    /// Scrolls inside `tokensList` (not the whole app) and pushes the row above the Markets sheet grabber when they overlap.
+    @discardableResult
+    private func scrollTokensListToHittable(_ element: XCUIElement, attempts: Int = 5) -> Bool {
+        waitAndAssertTrue(tokensList, "Tokens list should exist before scrolling")
+
+        for _ in 0 ..< attempts {
+            if element.exists, element.isHittable {
+                if grabber.exists, element.frame.maxY > grabber.frame.minY {
+                    scrollTokensList(byOffset: -(element.frame.maxY - grabber.frame.minY + 50))
+                    continue
+                }
+                return true
+            }
+            scrollTokensList(byOffset: -250)
+        }
+
+        return element.exists && element.isHittable
+    }
+
+    private func scrollTokensList(byOffset dy: CGFloat) {
+        let start = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        let end = start.withOffset(CGVector(dx: 0, dy: dy))
+        start.press(forDuration: 0.1, thenDragTo: end)
     }
 
     private func isGrouped() -> Bool {
@@ -892,15 +910,15 @@ enum MainScreenElement: String, UIElement {
 }
 
 extension MainScreen {
-    private func validateHeaderCardImage(for cardType: CardMockAccessibilityIdentifiers) {
-        XCTContext.runActivity(named: "Validate header card image for card type: \(cardType.rawValue)") { _ in
+    private func validateMainHeader(for cardType: CardMockAccessibilityIdentifiers) {
+        XCTContext.runActivity(named: "Validate main header for card type: \(cardType.rawValue)") { _ in
             switch cardType {
             case .xlmBird, .v3seckp:
                 break
             default:
                 XCTAssertTrue(
-                    headerCardImage.waitForExistence(timeout: .robustUIUpdate),
-                    "Header card image should be present for card type: \(cardType.rawValue)"
+                    totalBalance.waitForExistence(timeout: .robustUIUpdate),
+                    "Main header total balance should be present for card type: \(cardType.rawValue)"
                 )
             }
         }

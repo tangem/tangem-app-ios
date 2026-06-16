@@ -31,7 +31,5 @@ struct RavencoinTestNetworkParams: UTXONetworkParams {
 
     let signHashType: UTXONetworkParamsSignHashType = .bitcoinAll
 
-    /// https://github.com/RavenProject/Ravencoin/blob/master/src/policy/policy.h#L48
-    /// static const unsigned int DUST_RELAY_TX_FEE = 3000;
-    let dustRelayTxFee = 3000
+    let dustCalculator: UTXONetworkParamsDustCalculator = .ravencoinTestnet
 }

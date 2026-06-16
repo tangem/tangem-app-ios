@@ -22,6 +22,10 @@ struct MultiWalletMainContentRedesignedView: View {
         VStack(spacing: .unit(.x4)) {
             notificationBanners
 
+            if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
+                TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+            }
+
             listContent
                 .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
 
@@ -230,5 +234,5 @@ private struct TokenItemContainerView: View {
 private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
     static let cornerRadius: CGFloat = .unit(.x5)
-    static let tokenListBackgroundColor = Color.Tangem.Surface.level2
+    static let tokenListBackgroundColor = Color.Tangem.Surface.level3
 }
