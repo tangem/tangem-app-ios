@@ -111,7 +111,7 @@ struct AddressBookContactManagementView: View {
 
     private func makeWalletValue(wallet: AddressBookContactManagementViewModel.WalletRowType) -> some View {
         HStack(spacing: 4) {
-            Text(wallet.wallet)
+            Text(wallet.name)
                 .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
                 .lineLimit(1)
 

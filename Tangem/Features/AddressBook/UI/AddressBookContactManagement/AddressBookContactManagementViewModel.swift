@@ -192,7 +192,11 @@ private extension AddressBookContactManagementViewModel {
     }
 
     func addNewAddress() {
-        coordinator?.openAddAddress()
+        guard let wallet = selectedWallet else {
+            return
+        }
+
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo)
     }
 
     func deleteRow(id: String) {
@@ -259,10 +263,11 @@ extension AddressBookContactManagementViewModel {
     }
 
     struct WalletRowType: Identifiable {
-        let userWalletId: UserWalletId
-        let wallet: String
+        let userWalletInfo: UserWalletInfo
         let isEditable: Bool
 
-        var id: String { userWalletId.stringValue }
+        var id: String { userWalletInfo.id.stringValue }
+        var name: String { userWalletInfo.name }
+        var supportedBlockchains: Set<BSDKBlockchain> { userWalletInfo.config.supportedBlockchains }
     }
 }
