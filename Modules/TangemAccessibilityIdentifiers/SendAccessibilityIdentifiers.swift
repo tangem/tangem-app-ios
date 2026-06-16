@@ -101,6 +101,7 @@ public enum SendAccessibilityIdentifiers {
 
     /// Swap Provider Selector
     public static let swapProviderBestRateBadge = "sendSwapProviderBestRateBadge"
+    public static let swapProviderBestDexRateBadge = "sendSwapProviderBestDexRateBadge"
 
     public static func swapProviderSelectorRow(name: String) -> String {
         "sendSwapProviderSelectorRow_\(name)"
