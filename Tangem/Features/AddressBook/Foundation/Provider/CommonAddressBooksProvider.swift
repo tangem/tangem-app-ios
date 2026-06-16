@@ -23,15 +23,10 @@ extension CommonAddressBooksProvider: AddressBooksProvider {
         userWalletRepository.models
             .filter { !$0.isUserWalletLocked }
             .map { model in
-                let manager = model.addressBookManager
-
-                let publisher = manager.contactsPublisher
-                    .handleEvents(receiveSubscription: { _ in
-                        Task { await manager.load() }
-                    })
-                    .eraseToAnyPublisher()
-
-                return AddressBookWallet(wallet: model.userWalletInfo, addressBookManager: manager)
+                AddressBookWallet(
+                    wallet: model.userWalletInfo,
+                    addressBookManager: model.addressBookManager
+                )
             }
     }
 }

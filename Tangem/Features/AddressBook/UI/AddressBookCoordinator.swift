@@ -46,12 +46,12 @@ extension AddressBookCoordinator {
 // MARK: - AddressBookContactsListRoutable
 
 extension AddressBookCoordinator: AddressBookContactsListRoutable {
-    func openAddContact(walletId: UserWalletId) {
-        openContactManagement(options: .add(walletId: walletId))
+    func openAddContact(walletId: UserWalletId, addressBookManager: AddressBookManager) {
+        openContactManagement(options: .add(walletId: walletId, addressBookManager: addressBookManager))
     }
 
-    func openEditContact(contact: AddressBookContact, walletId: UserWalletId) {
-        openContactManagement(options: .edit(contact: contact, walletId: walletId))
+    func openEditContact(contact: AddressBookContact, walletId: UserWalletId, addressBookManager: AddressBookManager) {
+        openContactManagement(options: .edit(contact: contact, walletId: walletId, addressBookManager: addressBookManager))
     }
 }
 

@@ -40,9 +40,12 @@ final class AddressBookContactsListViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        guard let walletId = selectedAddressBook?.wallet.id else { return }
+        guard let selectedAddressBook else { return }
 
-        coordinator?.openAddContact(walletId: walletId)
+        coordinator?.openAddContact(
+            walletId: selectedAddressBook.wallet.id,
+            addressBookManager: selectedAddressBook.addressBookManager
+        )
     }
 }
 
@@ -82,16 +85,16 @@ private extension AddressBookContactsListViewModel {
             .flatMapLatest { viewModel, addressBook in
                 addressBook.addressBookPublisher
                     .withWeakCaptureOf(viewModel)
-                    .map { .success($0.mapToAddressBookContactViewModels(walletId: addressBook.wallet.id, contacts: $1)) }
+                    .map { .success($0.mapToAddressBookContactViewModels(walletId: addressBook.wallet.id, addressBookManager: addressBook.addressBookManager, contacts: $1)) }
             }
             .receive(on: DispatchQueue.main)
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(walletId: UserWalletId, contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(walletId: UserWalletId, addressBookManager: AddressBookManager, contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
-                self?.coordinator?.openEditContact(contact: contact, walletId: walletId)
+                self?.coordinator?.openEditContact(contact: contact, walletId: walletId, addressBookManager: addressBookManager)
             }
         }
     }
