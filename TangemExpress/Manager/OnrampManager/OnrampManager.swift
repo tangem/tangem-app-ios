@@ -24,6 +24,15 @@ public protocol OnrampManager: Actor {
 
     /// Load the data to perform the native payment (Apple Pay)
     func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult
+
+    func findRecentOnrampTransaction(
+        payoutAddress: String,
+        since: Date,
+        toContractAddress: String,
+        toNetwork: String,
+        providerId: ExpressProvider.Id,
+        limit: Int?
+    ) async throws -> OnrampTransaction?
 }
 
 // MARK: - OnrampUpdatingAmount
