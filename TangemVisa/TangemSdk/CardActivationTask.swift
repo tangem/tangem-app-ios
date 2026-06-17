@@ -333,14 +333,16 @@ private extension CardActivationTask {
                 }
 
                 self?.orderSubscription = nil
-            }, receiveValue: { activationOrder in
+            }, receiveValue: { [weak self] activationOrder in
+                guard let self else { return }
+
                 VisaLogger.info("Activation order received. Continue with order signing")
-                self.signOrder(
+                signOrder(
                     orderToSign: activationOrder,
                     in: session,
                     completion: completion
                 )
-                self.orderSubscription = nil
+                orderSubscription = nil
             })
     }
 
