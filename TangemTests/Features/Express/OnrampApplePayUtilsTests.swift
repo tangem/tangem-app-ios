@@ -20,7 +20,7 @@ struct OnrampApplePayUtilsTests {
         let config = ApplePayProviderConfig(
             merchantIdentifier: "merchant.example.tangem",
             countryCode: "DE",
-            summaryItemLabel: "Pay Example (via Tangem)"
+            summaryItemLabel: "Example (via Tangem)"
         )
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
@@ -43,7 +43,7 @@ struct OnrampApplePayUtilsTests {
         let config = ApplePayProviderConfig(
             merchantIdentifier: "merchant.example.tangem",
             countryCode: "US",
-            summaryItemLabel: "Pay Example (via Tangem)"
+            summaryItemLabel: "Example (via Tangem)"
         )
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
@@ -52,7 +52,7 @@ struct OnrampApplePayUtilsTests {
         )
 
         #expect(request.paymentSummaryItems.count == 1)
-        #expect(request.paymentSummaryItems.first?.label == "Pay Example (via Tangem)")
+        #expect(request.paymentSummaryItems.first?.label == "Example (via Tangem)")
         #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: amount))
         #expect(request.paymentSummaryItems.first?.type == .final)
     }
