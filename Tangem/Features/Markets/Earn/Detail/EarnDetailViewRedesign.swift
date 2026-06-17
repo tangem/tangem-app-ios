@@ -116,6 +116,6 @@ private extension EarnDetailViewRedesign {
 
     var navigationTitle: some View {
         Text(Localization.earnTitle)
-            .style(.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
     }
 }

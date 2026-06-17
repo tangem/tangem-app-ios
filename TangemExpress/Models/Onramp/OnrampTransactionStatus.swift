@@ -21,3 +21,15 @@ public enum OnrampTransactionStatus: String, Codable {
     case finished
     case paused
 }
+
+public extension OnrampTransactionStatus {
+    var isFailureTerminal: Bool {
+        switch self {
+        case .expired, .failed, .refunded:
+            return true
+        case .unknown, .created, .waitingForPayment, .paymentProcessing, .verifying,
+             .paid, .sending, .refunding, .finished, .paused:
+            return false
+        }
+    }
+}

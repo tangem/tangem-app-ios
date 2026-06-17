@@ -113,7 +113,7 @@ struct TransactionsListViewRedesigned: View {
     private func sectionHeader(title: String) -> some View {
         HStack {
             Text(title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
 
             Spacer()
         }
@@ -181,7 +181,7 @@ private struct StatusStateView: View {
 
             Text(message)
                 .multilineTextAlignment(.center)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
                 .padding(.horizontal, .unit(.x9))
 
             if primaryButton != nil || secondaryButton != nil {
