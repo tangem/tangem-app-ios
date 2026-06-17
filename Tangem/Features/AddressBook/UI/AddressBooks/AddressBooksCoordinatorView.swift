@@ -1,5 +1,5 @@
 //
-//  AddressBookCoordinatorView.swift
+//  AddressBooksCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,13 @@
 
 import SwiftUI
 
-struct AddressBookCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: AddressBookCoordinator
+struct AddressBooksCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: AddressBooksCoordinator
 
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                AddressBookView(viewModel: rootViewModel)
+                AddressBooksView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
 

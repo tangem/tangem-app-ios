@@ -1,5 +1,5 @@
 //
-//  AddressBookCoordinator.swift
+//  AddressBooksCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,13 +9,13 @@
 import Foundation
 import Combine
 
-class AddressBookCoordinator: CoordinatorObject {
+class AddressBooksCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
 
-    @Published private(set) var rootViewModel: AddressBookViewModel?
+    @Published private(set) var rootViewModel: AddressBooksViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -26,18 +26,26 @@ class AddressBookCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AddressBookViewModel(coordinator: self)
+        rootViewModel = .init(coordinator: self)
     }
 }
 
 // MARK: - Options
 
-extension AddressBookCoordinator {
+extension AddressBooksCoordinator {
     enum Options {
         case `default`
     }
 }
 
-// MARK: - AddressBookRoutable
+// MARK: - AddressBooksRoutable
 
-extension AddressBookCoordinator: AddressBookRoutable {}
+extension AddressBooksCoordinator: AddressBooksRoutable {
+    func openAddContact() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openEditContact(contact: AddressBookContact) {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
