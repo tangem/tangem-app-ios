@@ -76,7 +76,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         await publish(context.optimisticPreferences)
 
-        let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
+        let request = NotificationPreferencesDTO.Body(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
@@ -93,6 +93,42 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
             // Single-flight means a cancelled write is never superseded by a newer one, so leaving
             // its unconfirmed optimistic value in `preferencesSubject` would desync it from
             // `lastConfirmedPreferences` and let the next write compose from an unconfirmed snapshot.
+            if let rollbackPreferences = await stateStore.finishUpdate(completion: .failure(context.rollbackPreferences)) {
+                await publish(rollbackPreferences)
+            }
+
+            scheduleReconciliationFetchIfNeeded()
+            throw error
+        }
+    }
+
+    func enableAll() async throws {
+        guard let context = await stateStore.beginEnableAllUpdate() else {
+            throw NotificationPreferencesUpdateError.writeRejected
+        }
+
+        await publish(context.optimisticPreferences)
+
+        let request = NotificationPreferencesDTO.Body(preferences: context.optimisticPreferences)
+
+        do {
+            try await tangemApiService.updateNotificationPreferences(
+                userWalletId: userWalletId,
+                preferences: request
+            )
+
+            try Task.checkCancellation()
+
+            _ = await stateStore.finishUpdate(completion: .success(context.optimisticPreferences))
+
+            // The PUT is confirmed; refresh from the server but don't fail the operation if that
+            // read fails — the optimistic snapshot is already the confirmed state.
+            try? await fetchPreferences()
+
+            // If the fetch above failed, a snapshot dropped during the write is still owed;
+            // this retries it (no-op when the fetch already reconciled).
+            scheduleReconciliationFetchIfNeeded()
+        } catch {
             if let rollbackPreferences = await stateStore.finishUpdate(completion: .failure(context.rollbackPreferences)) {
                 await publish(rollbackPreferences)
             }

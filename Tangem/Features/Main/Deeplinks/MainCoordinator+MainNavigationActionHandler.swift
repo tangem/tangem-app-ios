@@ -266,11 +266,6 @@ extension MainCoordinator {
                 return false
             }
 
-            guard FeatureProvider.isAvailable(.swapPipelineV2) else {
-                coordinator?.openDeepLink(.swap(userWalletModel: userWalletModel))
-                return true
-            }
-
             let walletModels = AccountWalletModelsAggregator.walletModels(
                 from: userWalletModel.accountModelsManager
             )

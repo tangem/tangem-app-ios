@@ -18,6 +18,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     let cardNameDisplayMode: CardNameDisplayMode
 
     @Published private(set) var lastFourDigits: String
+    @Published private(set) var isReissuing: Bool = false
     @Published var state: TangemPayCardDetailsState
     @Published var isFlipped: Bool = false
     @Published var cardName: String = ""
@@ -25,7 +26,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
 
     var onCardNameTapped: (() -> Void)?
 
-    private var expectedState: TangemPayCardDetailsState? = nil
+    private var expectedState: TangemPayCardDetailsState?
 
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
@@ -52,6 +53,11 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
         repository.cardNamePublisher
             .receiveOnMain()
             .assign(to: \.cardName, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        repository.isReissuingPublisher
+            .receiveOnMain()
+            .assign(to: \.isReissuing, on: self, ownership: .weak)
             .store(in: &bag)
 
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)

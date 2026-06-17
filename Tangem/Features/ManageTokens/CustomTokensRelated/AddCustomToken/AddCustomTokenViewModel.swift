@@ -19,6 +19,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published var selectedBlockchainNetworkId: String?
     @Published var selectedBlockchainName: String = ""
@@ -27,8 +28,6 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
-
-    @Published var alert: AlertBinder?
 
     @Published var addButtonDisabled = false
     @Published var isLoading = false
@@ -107,6 +106,12 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let userTokensManager = context.findUserTokensManager(for: tokenItem) ?? context.userTokensManager
             try userTokensManager.addTokenItemPrecondition(tokenItem)
 
+            // `add` persists the token and, when it isn't already present, inserts its blockchain
+            // network. Capture whether the network existed beforehand so it can be removed together
+            // with the token if key derivation fails.
+            let networkItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+            let networkWasAlreadyAdded = userTokensManager.contains(networkItem, derivationInsensitive: false)
+
             userTokensManager.add(tokenItem) { [weak self] result in
                 guard let self else { return }
 
@@ -119,11 +124,19 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                         return
                     }
 
-                    alert = error.alertBinder
+                    // The token (and its freshly inserted network) is persisted before key
+                    // derivation runs and isn't undone on failure. Remove what was added so an
+                    // underivable custom token isn't left in the portfolio and the error is shown
+                    // on every attempt.
+                    userTokensManager.remove(tokenItem)
+                    if !networkWasAlreadyAdded {
+                        userTokensManager.remove(networkItem)
+                    }
+                    alertPresenter.present(alert: error.alertBinder)
                 }
             }
         } catch {
-            alert = error.alertBinder
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 

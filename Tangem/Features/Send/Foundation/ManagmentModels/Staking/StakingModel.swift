@@ -333,7 +333,7 @@ private extension StakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(
+        analyticsLogger.logStakingTransactionSent(
             amount: _amount.value,
             fee: .market,
             signerType: result.signerType,
@@ -348,11 +348,12 @@ private extension StakingModel {
              .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .loadTransactionInfo,
              .actionNotSupported:
             break
         case .sendTxError(_, let error):
-            analyticsLogger.logTransactionRejected(error: error)
+            analyticsLogger.logStakingTransactionRejected(error: error)
         }
     }
 }

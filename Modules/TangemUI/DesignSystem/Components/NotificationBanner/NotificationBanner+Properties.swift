@@ -55,6 +55,15 @@ public extension NotificationBanner {
             }
         }
 
+        var borderColor: Color {
+            switch self {
+            case .status, .survey, .informational:
+                return .Tangem.Border.Neutral.banner.opacity(0.15)
+            case .critical, .warning, .promo:
+                return .clear
+            }
+        }
+
         var isClosable: Bool {
             isStackable
         }
@@ -72,11 +81,13 @@ public extension NotificationBanner {
     enum Content: Equatable, Sendable {
         case text(TextOnly)
         case textWithIcon(TextWithIcon)
+        case textWithLoadableIcon(TextWithLoadableIcon)
 
         public var text: TextOnly {
             switch self {
             case .text(let textOnly): textOnly
             case .textWithIcon(let data): data.text
+            case .textWithLoadableIcon(let data): data.text
             }
         }
 
@@ -87,6 +98,11 @@ public extension NotificationBanner {
                 return CGSize(
                     width: textWithIcon.icon.width.value,
                     height: textWithIcon.icon.height.value
+                )
+            case .textWithLoadableIcon(let data):
+                return CGSize(
+                    width: data.icon.width.value,
+                    height: data.icon.height.value
                 )
             }
         }
@@ -134,6 +150,35 @@ public extension NotificationBanner {
         ) {
             self.imageType = imageType
             self.renderingMode = renderingMode
+            self.alignment = alignment
+            self.width = width
+            self.height = height
+        }
+    }
+
+    struct TextWithLoadableIcon: Equatable, Sendable {
+        public let text: TextOnly
+        public let icon: LoadableIcon
+
+        public init(text: TextOnly, icon: LoadableIcon) {
+            self.text = text
+            self.icon = icon
+        }
+    }
+
+    struct LoadableIcon: Equatable, Sendable {
+        public let url: URL
+        public let alignment: Alignment
+        public let width: SizeUnit
+        public let height: SizeUnit
+
+        public init(
+            url: URL,
+            alignment: Alignment = .topLeading,
+            width: SizeUnit = .x6,
+            height: SizeUnit = .x6
+        ) {
+            self.url = url
             self.alignment = alignment
             self.width = width
             self.height = height

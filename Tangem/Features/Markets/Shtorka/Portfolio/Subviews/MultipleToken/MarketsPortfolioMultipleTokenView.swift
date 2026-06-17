@@ -61,14 +61,15 @@ private extension MarketsPortfolioMultipleTokenView {
         )
         .setStyleType(.secondary)
         .setCornerStyle(.rounded)
-        .setSize(.x10)
+        .setSize(.x9)
         .allowsHitTesting(false)
     }
 
     func iconSet() -> some View {
         let icon = TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: CGSize(width: tokenIconSide, height: tokenIconSide)
+            size: CGSize(width: tokenIconSide, height: tokenIconSide),
+            isWithOverlays: false
         )
 
         let offsetStep = viewModel.tokenIconSetOffset(
@@ -92,7 +93,7 @@ private extension MarketsPortfolioMultipleTokenView {
 
     func tokenName() -> some View {
         Text(viewModel.tokenName)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
@@ -102,7 +103,7 @@ private extension MarketsPortfolioMultipleTokenView {
 
     func tokensCount() -> some View {
         Text(viewModel.tokensCount)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             .lineLimit(1)
     }
 

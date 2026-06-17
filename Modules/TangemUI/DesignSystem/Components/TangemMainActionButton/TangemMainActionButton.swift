@@ -33,15 +33,16 @@ public struct TangemMainActionButton: View {
     public var body: some View {
         VStack(spacing: SizeUnit.x2.value) {
             TangemButtonV2(icon: icon, accessibilityLabel: nil, action: action)
-                .size(.x14)
+                .size(Size.buttonSize)
                 .styleType(.material(.glass))
 
             Text(title)
                 .style(
-                    .Tangem.Subheadline.medium,
+                    Font.Tangem.Subheadline.medium,
                     color: ActionControlAppearance.contentColor(isEnabled: isEnabled)
                 )
-                .lineLimit(nil)
+                // [REDACTED_TODO_COMMENT]
+                .lineLimit(1)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .contentShape(.rect)
@@ -55,5 +56,14 @@ public struct TangemMainActionButton: View {
                     .environment(\.isEnabled, true)
             }
         }
+    }
+}
+
+// MARK: - Layout
+
+public extension TangemMainActionButton {
+    enum Size {
+        static let buttonSize: TangemButtonV2.Size = .x14
+        public static var buttonSide: CGFloat { buttonSize.height }
     }
 }

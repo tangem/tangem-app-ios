@@ -220,7 +220,7 @@ private extension SendViewModel {
     @MainActor
     func proceed(error: TransactionDispatcherResult.Error) {
         switch error {
-        case .userCancelled, .transactionNotFound, .actionNotSupported:
+        case .userCancelled, .transactionNotFound, .feeNotFound, .actionNotSupported:
             break
         case .informationRelevanceServiceError:
             showAlert(alertBuilder.makeFeeRetryAlert { [weak self] in
@@ -272,7 +272,7 @@ private extension SendViewModel {
                     .makeMailData(approveTransaction: approveData, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-            case .cex(let expressTransaction, _), .dex(let expressTransaction, _):
+            case .cex(let expressTransaction, _), .dex(let expressTransaction, _), .approveAndDex(let expressTransaction, _, _):
                 let (emailDataCollector, recipient) = try mailDataBuilder
                     .makeMailData(expressTransaction: expressTransaction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)

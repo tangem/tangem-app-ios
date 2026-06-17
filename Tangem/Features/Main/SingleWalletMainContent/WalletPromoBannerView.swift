@@ -40,13 +40,13 @@ struct WalletPromoBannerView: View {
                 .frame(width: iconWidth, height: iconHeight)
 
             Text(Localization.walletPromoBannerTitle)
-                .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, titlePadding)
 
             Text(Localization.walletPromoBannerDescription)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, descriptionPadding)

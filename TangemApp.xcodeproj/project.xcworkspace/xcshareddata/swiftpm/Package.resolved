@@ -1,5 +1,5 @@
 {
-  "originHash" : "9ac2acb695fe0482eeafe3c481cd68e438ed5b835b0a1837d8d2073d340f1544",
+  "originHash" : "c2cc2335fa78bec441d7cb37c15ee42be9148e4c7b6d3f84f70783cdca60c350",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -427,10 +427,9 @@
     {
       "identity" : "reown-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/reown-com/reown-swift.git",
+      "location" : "git@github.com:tangem-developments/reown-swift.git",
       "state" : {
-        "revision" : "35bad6889201a4028096f40a978a427e6cef0b24",
-        "version" : "2.2.8"
+        "revision" : "62114d209ec942ea7ce6eb7c154980212f980bb0"
       }
     },
     {

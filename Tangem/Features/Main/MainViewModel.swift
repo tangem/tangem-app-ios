@@ -25,9 +25,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - ViewState
 
-    @Published var pages: [MainUserWalletPageBuilder] = []
+    @Published private(set) var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
-    @Published var isHorizontalScrollDisabled = false
+    @Published private(set) var isPullToRefreshRunning = false
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -194,6 +194,20 @@ final class MainViewModel: ObservableObject {
            ) {
             AppPresenter.shared.show(alert)
         }
+    }
+
+    @MainActor
+    func pullToRefresh() async {
+        let timeout = 120
+        try? await Task.run(
+            withTimeout: .seconds(timeout),
+            code: {
+                await self.onPullToRefresh()
+            },
+            onTimeout: {
+                AppLogger.error(error: "MainViewModel.pullToRefresh timeout after \(timeout) seconds.")
+            }
+        ).value
     }
 
     // MARK: - User wallets pages management
@@ -490,10 +504,10 @@ final class MainViewModel: ObservableObject {
     @MainActor
     private func onPullToRefresh() async {
         defer {
-            isHorizontalScrollDisabled = false
+            isPullToRefreshRunning = false
         }
 
-        isHorizontalScrollDisabled = true
+        isPullToRefreshRunning = true
 
         guard
             let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId,
@@ -612,7 +626,7 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
-        static let pushNotificationAuthorizationRequestDelay = 0.5
+        static let pushNotificationAuthorizationRequestDelay = 1.0
         static let bottomSheetVisibilityColdStartDelay = 0.5
     }
 }

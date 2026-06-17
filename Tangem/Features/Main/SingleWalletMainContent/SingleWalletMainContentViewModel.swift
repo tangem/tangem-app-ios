@@ -35,7 +35,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     // MARK: - Dependencies
 
-    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let userWalletNotificationManager: NotificationManager
@@ -285,7 +284,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(walletModel: walletModel),
+                walletModel: walletModel,
                 userWalletInfo: userWalletInfo
             ) else {
                 return

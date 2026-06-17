@@ -235,11 +235,14 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     // MARK: - Action Buttons Validation Methods
 
     @discardableResult
-    func waitForActionButtons(requireSendOrTransfer: Bool = true) -> Self {
+    func waitForActionButtons(requireSendOrTransfer: Bool = true, requireSwapEnabled: Bool = true) -> Self {
         XCTContext.runActivity(named: "Wait for action buttons") { _ in
             // Swap is direct in every layout (legacy, inlineList, buttonsRow).
             waitAndAssertTrue(swapButton, "Swap button should exist")
-            XCTAssertTrue(swapButton.isEnabled, "Swap button should be enabled")
+            // Swap is legitimately disabled for tokens without an exchange route (e.g. VeThor).
+            if requireSwapEnabled {
+                XCTAssertTrue(swapButton.isEnabled, "Swap button should be enabled")
+            }
             // Legacy/inlineList: direct Buy/Receive/Send; buttonsRow: Buy/Receive under `Add Funds`, Send under `Transfer`.
             waitForEither(buyButton, or: addFundsButton, "Buy or Add Funds entry should be visible")
             waitForEither(receiveButton, or: addFundsButton, "Receive or Add Funds entry should be visible")

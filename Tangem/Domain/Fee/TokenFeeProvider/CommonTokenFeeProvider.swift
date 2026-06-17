@@ -10,7 +10,6 @@ import Combine
 import Foundation
 import TangemFoundation
 import TangemMacro
-import enum BlockchainSdk.EthereumFeeParametersConstants
 
 let FeeLogger = AppLogger.tag("TokenFeeProvider")
 
@@ -201,6 +200,15 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
             return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
 
+        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approveInput):
+            return try await updateApproveWithSwapFees(
+                amount: amount,
+                destination: destination,
+                txData: txData,
+                otherNativeFee: otherNativeFee,
+                approveInput: approveInput
+            )
+
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
 
@@ -274,6 +282,11 @@ private extension CommonTokenFeeProvider {
             break
         case .approve:
             // Approve but tokenFeeLoader is not EthereumTokenFeeLoader
+            updateState(state: .unavailable(.notSupported))
+        case .approveWithSwap where tokenFeeLoader is EthereumTokenFeeLoader:
+            // One-tap approve+swap is EVM-only (allowance + state override)
+            break
+        case .approveWithSwap:
             updateState(state: .unavailable(.notSupported))
         }
     }
@@ -376,10 +389,16 @@ private extension CommonTokenFeeProvider {
 
     private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
-            amount: amount,
-            destination: destination,
-            txData: txData,
-            otherNativeFee: otherNativeFee
+            request: EthereumFeeRequestData(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
+        )
+        try Task.checkCancellation()
+        return fees
+    }
+
+    private func updateApproveWithSwapFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, approveInput: ApproveWithSwapInput) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getApproveWithSwapFee(
+            request: EthereumFeeRequestData(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee),
+            approveInput: approveInput
         )
         try Task.checkCancellation()
         return fees

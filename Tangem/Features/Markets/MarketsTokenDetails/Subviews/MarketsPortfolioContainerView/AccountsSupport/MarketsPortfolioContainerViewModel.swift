@@ -85,7 +85,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         Analytics.log(event: .marketsChartButtonBuy, params: makeAnalyticsParams(for: walletModel))
-        coordinator?.openOnramp(input: sendInput, parameters: .none)
+        coordinator?.openAddFunds(input: sendInput)
     }
 
     @MainActor
@@ -536,7 +536,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
             let helper = SwapPredefinedParametersHelper()
             guard let parameters = helper.makeParameters(
-                origin: .markets(walletModel: walletModel),
+                walletModel: walletModel,
                 userWalletInfo: userWalletModel.userWalletInfo
             ) else {
                 return

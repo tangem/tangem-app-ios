@@ -20,7 +20,10 @@ protocol MultiNetworkProvider: AnyObject, HostProvider {
     var providers: [Provider] { get }
     var blockchainName: String { get }
     var currentProviderIndex: Int { get set }
-    var terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes { get }
+
+    /// Return `true` for errors that are final for every node (e.g. a deterministic
+    /// contract revert), so retrying the request on another host won't help.
+    func shouldStopSwitching(error: Error) -> Bool
 }
 
 extension MultiNetworkProvider {
@@ -34,7 +37,7 @@ extension MultiNetworkProvider {
 
     var host: String { provider?.host ?? .unknown }
 
-    var terminalStatusCodes: MultiNetworkProviderTerminalStatusCodes { .empty }
+    func shouldStopSwitching(error: Error) -> Bool { false }
 
     func providerPublisher<T>(for requestPublisher: @escaping (_ provider: Provider) -> AnyPublisher<T, Error>) -> AnyPublisher<T, Error> {
         guard let provider else {
@@ -51,15 +54,15 @@ extension MultiNetworkProvider {
                     let message = String(data: response.data, encoding: .utf8) ?? "no response data"
                     NetworkLogger.error("MultiNetworkProvider catch error: \(message)", error: error)
 
-                    if terminalStatusCodes.shouldStopSwitching(response.statusCode) {
-                        return .anyFail(error: error)
-                    }
-
                 case BlockchainSdkError.noAccount, BlockchainSdkError.accountNotActivated, HorizonRequestError.notFound:
                     return .anyFail(error: error)
 
                 default:
                     NetworkLogger.error(error: error)
+                }
+
+                if shouldStopSwitching(error: error) {
+                    return .anyFail(error: error)
                 }
 
                 let beforeSwitchIfNeededHost = host
@@ -117,5 +120,18 @@ struct MultiNetworkProviderError: UniversalError {
 
     var errorCode: Int {
         networkError.errorCode
+    }
+}
+
+// MARK: - Error+
+
+public extension Error {
+    /// The RPC host the underlying multi-provider request last failed on, formatted for analytics.
+    var lastRetryHostForAnalytics: String? {
+        guard let providerError = self as? MultiNetworkProviderError else {
+            return nil
+        }
+
+        return HostAnalyticsFormatterUtil().formattedHost(from: providerError.lastRetryHost)
     }
 }

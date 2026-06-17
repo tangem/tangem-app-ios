@@ -154,7 +154,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     override func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .empty,
-             .unlock:
+             .unlock,
+             .yieldBoostPromoLater:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
@@ -612,7 +613,7 @@ private extension TokenDetailsViewModel {
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
         let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
             formattedFiatBalance,
-            font: .Tangem.Body16.medium,
+            font: Font.Tangem.Body16.medium,
             integerColor: .Tangem.Text.Neutral.primary,
             decimalColor: .Tangem.Text.Neutral.secondary
         )

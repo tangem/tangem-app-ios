@@ -9,53 +9,14 @@
 import Foundation
 
 struct SwapPredefinedParametersHelper {
-    enum Origin {
-        case tokenDetails(walletModel: any WalletModel)
-        case markets(walletModel: any WalletModel)
-    }
-
-    func makeParameters(origin: Origin, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
-        switch origin {
-        case .tokenDetails(let walletModel):
-            if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            }
-
-            return makeFromParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-
-        case .markets(let walletModel):
-            if FeatureProvider.isAvailable(.swapPipelineV2) {
-                return resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-            }
-
-            return makeToParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
-        }
+    func makeParameters(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters? {
+        resolveParameters(walletModel: walletModel, userWalletInfo: userWalletInfo)
     }
 }
 
 // MARK: - Private
 
 private extension SwapPredefinedParametersHelper {
-    func makeToParameters(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters {
-        let receiveToken = CommonSendSwapableTokenFactory(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
-
-        return .to(receiveToken)
-    }
-
-    func makeFromParameters(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> PredefinedSwapParameters {
-        let sourceToken = CommonSendSwapableTokenFactory(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            operationType: .swap
-        ).makeSwapableToken()
-
-        return .from(sourceToken)
-    }
-
     func resolveParameters(
         walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo

@@ -64,6 +64,7 @@ public protocol GaslessTransactionFeeProvider {
         destination: String,
         value: String?,
         data: Data?,
+        stateOverride: EthereumStateOverride?,
         otherNativeFee: Decimal?,
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal

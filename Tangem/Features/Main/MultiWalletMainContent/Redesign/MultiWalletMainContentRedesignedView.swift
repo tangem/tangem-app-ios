@@ -22,12 +22,14 @@ struct MultiWalletMainContentRedesignedView: View {
         VStack(spacing: .unit(.x4)) {
             notificationBanners
 
-            if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
-                TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
-            }
+            VStack(spacing: .unit(.x3)) {
+                if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
+                    TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+                }
 
-            listContent
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+                listContent
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+            }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 TangemNFTEntrypointRow(viewModel: nftEntrypointViewModel)
@@ -80,14 +82,14 @@ struct MultiWalletMainContentRedesignedView: View {
     private var organizeButton: some View {
         TangemButton(
             content: .combined(
-                text: AttributedString(Localization.organizeTokensTitle),
+                text: AttributedString(viewModel.organizeTokensButtonTitle),
                 icon: Assets.OrganizeTokens.filterIcon,
                 iconPosition: .left
             ),
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
         .setCornerStyle(.rounded)
-        .setStyleType(.secondary)
+        .setStyleType(.primaryInverse)
         .setSize(.x9)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
@@ -105,7 +107,7 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Empty List
 
     private var emptyList: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x4)) {
             MultiWalletTokenItemsEmptyView()
                 .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
                 .textColor(Color.Tangem.Text.Neutral.tertiary)
@@ -133,7 +135,7 @@ struct MultiWalletMainContentRedesignedView: View {
                         tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
                     }
                 }
-                .cornerRadius(.unit(.x5))
+                .cornerRadius(.unit(.x6))
                 .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
             }
         }
@@ -237,6 +239,6 @@ private struct TokenItemContainerView: View {
 
 private enum MultiWalletMainContentConstants {
     static let placeholderCount = 3
-    static let cornerRadius: CGFloat = .unit(.x5)
+    static let cornerRadius: CGFloat = .unit(.x6)
     static let tokenListBackgroundColor = Color.Tangem.Surface.level3
 }

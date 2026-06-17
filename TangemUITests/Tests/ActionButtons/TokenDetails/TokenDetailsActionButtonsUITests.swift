@@ -122,4 +122,24 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             .waitForActionButtons(requireSendOrTransfer: false)
             .verifySendUnavailable()
     }
+
+    func testTokenDetailsSend_AvailableForFundedToken_UnavailableForEmptyToken() {
+        setAllureId(591)
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
+            .tapToken("Bitcoin")
+            .waitForActionButtons(requireSendOrTransfer: false)
+            .verifySendUnavailable()
+            .goBackToMain()
+            .tapToken("Ethereum")
+            .waitForActionButtons()
+            .tapSendButton()
+            .waitForDisplay()
+    }
 }

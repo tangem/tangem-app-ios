@@ -13,6 +13,7 @@ import TangemFoundation
 import TangemUIUtils
 
 class SendRoutableMock: SendRoutable {
+    func openLearnMoreAboutApprove() {}
     func dismiss(reason: SendDismissReason) {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}

@@ -17,9 +17,9 @@ struct MarketTokenRowView: View {
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
     @ScaledMetric private var iconSide: CGFloat = 40
-    @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x4.value
+    @ScaledMetric private var horizontalPadding: CGFloat = SizeUnit.x3.value
     @ScaledMetric private var verticalPadding: CGFloat = SizeUnit.x3.value
-    @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x2.value
+    @ScaledMetric private var chartSpacing: CGFloat = SizeUnit.x3.value
 
     var body: some View {
         Button(action: { viewModel.didTapAction?() }) {
@@ -78,7 +78,7 @@ struct MarketTokenRowView: View {
                 negativeColor: .Tangem.Text.Status.warning,
                 originalColor: .Tangem.Text.Neutral.primary
             )
-            .style(.Tangem.Caption13.regular, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
     }
 
@@ -95,7 +95,7 @@ struct MarketTokenRowView: View {
 
             Text(viewModel.marketCap)
                 .lineLimit(1)
-                .style(.Tangem.Caption12.semibold, color: marketCapColor)
+                .style(Font.Tangem.Caption12.semibold, color: marketCapColor)
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenMarketCap)
 
             if let maxApy = viewModel.maxApy {
@@ -145,7 +145,7 @@ struct MarketTokenRowView: View {
                 .foregroundStyle(colors.oliveColor)
 
             Text(rating)
-                .style(.Tangem.Caption12.semibold, color: colors.textColor)
+                .style(Font.Tangem.Caption12.semibold, color: colors.textColor)
 
             Assets.DesignSystem.oliveRight.image
                 .resizable()
@@ -169,7 +169,7 @@ struct MarketTokenRowView: View {
     }
 
     private var chartSize: CGSize {
-        CGSize(width: 56, height: 24) * scaleFactor
+        CGSize(width: 48, height: 24) * scaleFactor
     }
 }
 

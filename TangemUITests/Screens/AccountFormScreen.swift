@@ -138,8 +138,10 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
     func verifyNameFieldValue(_ expectedValue: String) -> Self {
         XCTContext.runActivity(named: "Verify name field value is '\(expectedValue)'") { _ in
             waitAndAssertTrue(nameInput, "Wait for name input field")
+            // App clamps the name via SwiftUI onChange, so the value settles asynchronously.
+            let matched = nameInput.waitForValue(expectedValue)
             let actualValue = nameInput.value as? String ?? ""
-            XCTAssertEqual(actualValue, expectedValue, "Name field value should be '\(expectedValue)' but was '\(actualValue)'")
+            XCTAssertTrue(matched, "Name field value should be '\(expectedValue)' but was '\(actualValue)'")
             return self
         }
     }

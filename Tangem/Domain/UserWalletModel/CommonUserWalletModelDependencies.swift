@@ -253,11 +253,22 @@ private extension CommonUserWalletModelDependencies {
         accountModelsManager: AccountModelsManager,
         remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     ) -> (UserTokensPushNotificationsManager & UserTokenListExternalParametersProvider) {
-        return CommonUserTokensPushNotificationsManager(
-            userWalletId: userWalletId,
-            accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: remoteStatusSyncing
-        )
+        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
+            let notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
+
+            return CommonUserWalletPushNotificationsManager(
+                userWalletId: userWalletId,
+                accountModelsManager: accountModelsManager,
+                remoteStatusSyncing: remoteStatusSyncing,
+                notificationPreferencesProvider: notificationPreferencesProvider
+            )
+        } else {
+            return CommonUserTokensPushNotificationsManager(
+                userWalletId: userWalletId,
+                accountModelsManager: accountModelsManager,
+                remoteStatusSyncing: remoteStatusSyncing
+            )
+        }
     }
 
     static func makeTotalBalanceProvider(

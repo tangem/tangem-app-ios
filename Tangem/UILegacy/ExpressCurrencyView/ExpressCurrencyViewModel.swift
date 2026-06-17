@@ -47,8 +47,8 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         )
     }
 
-    func update(wallet: LoadingResult<any SendGenericToken, Error>, initialWalletId: WalletModelId) {
-        state.update(wallet: wallet, viewType: viewType, initialWalletId: initialWalletId)
+    func update(wallet: LoadingResult<any SendGenericToken, Error>) {
+        state.update(wallet: wallet, viewType: viewType)
 
         if case .success(let wallet as SendSourceToken) = wallet {
             balanceStateCancellable = wallet.availableBalanceProvider.formattedBalanceTypePublisher
@@ -135,28 +135,24 @@ extension ExpressCurrencyViewModel {
 
         mutating func update(
             wallet: LoadingResult<any SendGenericToken, Error>,
-            viewType: ExpressCurrencyViewType,
-            initialWalletId: WalletModelId
+            viewType: ExpressCurrencyViewType
         ) {
+            canChangeCurrency = !wallet.isLoading
+
             switch wallet {
             case .loading:
-                canChangeCurrency = false
                 tokenIconState = .loading
                 symbolState = .loading
                 balanceState = .loading(cached: .none)
 
             case .success(let wallet as SendSourceToken):
                 headerType = wallet.header.asSendTokenHeader(actionType: .swap, isSource: viewType == .send)
-                // V2: always allow changing currency from token details entry point
-                canChangeCurrency = FeatureProvider.isAvailable(.swapPipelineV2) || wallet.id != initialWalletId
                 symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
                 tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
                 // balanceState is updated via publisher subscription in ViewModel
 
             case .success(let wallet as SendReceiveToken):
                 headerType = .action(name: viewType.actionName())
-                // V2: allow changing receive token (V1 locked it)
-                canChangeCurrency = FeatureProvider.isAvailable(.swapPipelineV2)
                 symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
                 tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: false))
                 balanceState = .empty
@@ -164,21 +160,18 @@ extension ExpressCurrencyViewModel {
             case .success(let wallet):
                 assertionFailure("Don't have implementation for \(wallet)")
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 tokenIconState = .notAvailable
                 symbolState = .noData
                 balanceState = .empty
 
             case .failure(let error as SwapModel.SwapModelError) where error == .tokenSelectionRequired:
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 tokenIconState = .tokenSelectionRequired
                 symbolState = .initialized
                 balanceState = .loaded(text: "")
 
             case .failure:
                 headerType = .action(name: viewType.actionName())
-                canChangeCurrency = true
                 tokenIconState = .notAvailable
                 symbolState = .noData
                 balanceState = .empty

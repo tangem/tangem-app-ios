@@ -17,6 +17,9 @@ protocol TangemPayCardManagementRoutable: AnyObject {
     func openTangemPayCheckPin(card: TangemPayCard)
 
     func openTangemPayFreezeSheet(userWalletId: UserWalletId, freezeAction: @escaping () -> Void)
+    func openTangemPayUnfreezeSheet(userWalletId: UserWalletId, unfreezeAction: @escaping () -> Void)
+
+    func openTangemPayBiometryNotSetSheet()
 
     func openTangemPayReissueSheet(
         userWalletId: UserWalletId,
@@ -28,6 +31,11 @@ protocol TangemPayCardManagementRoutable: AnyObject {
         userWalletId: UserWalletId,
         card: TangemPayCard,
         onLoadingChange: @escaping (Bool) -> Void,
+        onError: @escaping () -> Void
+    )
+    func openTangemPayCloseCardSheet(
+        userWalletId: UserWalletId,
+        card: TangemPayCard,
         onError: @escaping () -> Void
     )
 

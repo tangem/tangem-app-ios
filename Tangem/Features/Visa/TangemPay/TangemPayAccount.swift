@@ -264,6 +264,12 @@ final class TangemPayAccount {
         cards.first { $0.cardId == cardId }
     }
 
+    func cardDisplayName(forCardId cardId: String) -> String? {
+        multipleCardsEnabled
+            ? card(cardId: cardId)?.displayName
+            : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
+    }
+
     deinit {
         orderStatusPollingService.cancel()
     }
@@ -658,7 +664,7 @@ private extension TangemPayAccount {
             seenCardIds.insert(cardId)
         }
 
-        return newCards
+        return newCards.sorted { $0.cardId < $1.cardId }
     }
 
     enum Constants {

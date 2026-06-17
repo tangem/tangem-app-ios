@@ -87,7 +87,7 @@ final class DynamicAddressesCompoundTransactionViewModel: ObservableObject {
 
     private func proceed(error: TransactionDispatcherResult.Error) {
         switch error {
-        case .userCancelled, .transactionNotFound, .actionNotSupported:
+        case .userCancelled, .transactionNotFound, .feeNotFound, .actionNotSupported:
             break
         case .informationRelevanceServiceError:
             alertPresenter.present(
