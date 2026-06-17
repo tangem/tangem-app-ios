@@ -312,6 +312,21 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     @MainActor
+    func openSecurityScoreDetails(
+        with providers: [MarketsTokenDetailsSecurityScore.Provider],
+        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable
+    ) {
+        let viewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
+            with: providers,
+            routable: routable,
+            closeAction: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+            }
+        )
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    @MainActor
     func openInfoDialogue(title: String, message: String) {
         let viewModel = MarketsDescriptionDialogueViewModel(
             title: title,
@@ -377,7 +392,7 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
-            origin: .markets(walletModel: walletModel),
+            walletModel: walletModel,
             userWalletInfo: userWalletModel.userWalletInfo
         ) else {
             return

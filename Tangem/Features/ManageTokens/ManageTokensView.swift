@@ -47,8 +47,8 @@ struct ManageTokensView: View {
         isRedesign ? Constants.redesignCardCornerRadius : Constants.cardCornerRadius
     }
 
-    private var rowTitleFont: Font {
-        isRedesign ? .Tangem.Body15.semibold : Fonts.Bold.subheadline
+    private var rowTitleFont: TangemFontStyle {
+        isRedesign ? Font.Tangem.Body15.semibold : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var rowTitleColor: Color {
@@ -264,7 +264,8 @@ private extension ManageTokensView {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,
-            coordinator: nil
+            coordinator: nil,
+            presentsAlertsViaOverlay: false
         ))
     }
 }

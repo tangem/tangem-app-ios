@@ -14,6 +14,14 @@ public final class SensitiveTextVisibilityState: ObservableObject {
     public static let shared = SensitiveTextVisibilityState()
 
     @Published public var isHidden: Bool = false
+    @Published public var maskedBalanceString: String = MaskedBalance.legacy
 
     public init() {}
+}
+
+public extension SensitiveTextVisibilityState {
+    enum MaskedBalance {
+        public static let legacy = "\u{2217}\u{2217}\u{2217}"
+        public static let redesigned = "\u{2731}\u{2731}\u{2731}"
+    }
 }
