@@ -35,8 +35,8 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.appSettingsCoordinator) {
                 AppSettingsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.addressBookCoordinator) {
-                AddressBookCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.addressBooksCoordinator) {
+                AddressBooksCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.tosViewModel) {
                 DetailsTOSView(viewModel: $0)
