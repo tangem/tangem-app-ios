@@ -10,7 +10,7 @@ import Combine
 import TangemFoundation
 
 /// Real provider backed by the per-wallet `AddressBookManager`. Vends each wallet's verified
-/// `AddressBookContact` stream and triggers a load on subscription so the manager publishes the current book.
+/// `AddressBookContact` stream; loading is owned by the manager (it loads once on creation).
 final class CommonAddressBooksProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository

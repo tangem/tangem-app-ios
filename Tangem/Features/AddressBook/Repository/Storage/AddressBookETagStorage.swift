@@ -14,3 +14,18 @@ protocol AddressBookETagStorage: Initializable {
     func saveETag(_ eTag: String, for userWalletId: UserWalletId)
     func clearETag(for userWalletId: UserWalletId)
 }
+
+// MARK: - AddressBookETagStorage+InjectedValues
+
+extension InjectedValues {
+    var addressBookETagStorage: AddressBookETagStorage {
+        get { Self[AddressBookETagStorageKey.self] }
+        set { Self[AddressBookETagStorageKey.self] = newValue }
+    }
+}
+
+// MARK: - Private implementation
+
+private struct AddressBookETagStorageKey: InjectionKey {
+    static var currentValue: AddressBookETagStorage = CommonAddressBookETagStorage()
+}

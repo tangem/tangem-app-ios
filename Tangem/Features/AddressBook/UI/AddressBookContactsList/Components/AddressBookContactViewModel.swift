@@ -21,7 +21,7 @@ struct AddressBookContactViewModel: Identifiable {
 
         id = contact.id.stringValue
         title = name
-        subtitle = Localization.addressBookAddresses(contact.entries.count)
+        subtitle = Localization.addressBookAddresses(contact.entries.addressCount)
         letter = "\(name.prefix(1).uppercased())"
 
         self.action = action
