@@ -132,9 +132,9 @@ class FakeWalletManager: WalletManager {
     }
 
     private func bind() {
-        loadingStateObserver = $state.sink { state in
+        loadingStateObserver = $state.sink { [weak self] state in
             if case .loading = state {
-                self.scheduleSwitchFromLoadingState()
+                self?.scheduleSwitchFromLoadingState()
             }
         }
     }
