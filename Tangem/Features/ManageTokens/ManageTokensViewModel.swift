@@ -23,11 +23,14 @@ class ManageTokensViewModel: ObservableObject {
     @Published var needsCardDerivation: Bool = false
     @Published var alert: AlertBinder?
 
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     private let adapter: ManageTokensAdapter
     private let userTokensManager: UserTokensManager
     private let walletModelsManager: WalletModelsManager
     private let context: ManageTokensContext
     private weak var coordinator: ManageTokensRoutable?
+    private let presentsAlertsViaOverlay: Bool
 
     private let customTokensFullList = CurrentValueSubject<[CustomTokenItemViewInfo], Never>([])
     private var bag = Set<AnyCancellable>()
@@ -35,13 +38,15 @@ class ManageTokensViewModel: ObservableObject {
     init(
         adapter: ManageTokensAdapter,
         context: ManageTokensContext,
-        coordinator: ManageTokensRoutable?
+        coordinator: ManageTokensRoutable?,
+        presentsAlertsViaOverlay: Bool
     ) {
         self.adapter = adapter
         userTokensManager = context.userTokensManager
         walletModelsManager = context.walletModelsManager
         self.coordinator = coordinator
         self.context = context
+        self.presentsAlertsViaOverlay = presentsAlertsViaOverlay
 
         manageTokensListViewModel = .init(
             loader: self,
@@ -71,7 +76,7 @@ class ManageTokensViewModel: ObservableObject {
                     return
                 }
 
-                alert = failure.alertBinder
+                presentAlert(failure.alertBinder)
             }
         }
     }
@@ -80,12 +85,20 @@ class ManageTokensViewModel: ObservableObject {
         let tokenItem = info.tokenItem
         let alertBuilder = HideTokenAlertBuilder()
         if userTokensManager.canRemove(tokenItem) {
-            alert = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: { [weak self] in
+            presentAlert(alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: { [weak self] in
                 self?.userTokensManager.remove(tokenItem)
                 self?.showPortfolioUpdatedToast()
-            })
+            }))
         } else {
-            alert = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
+            presentAlert(alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem))
+        }
+    }
+
+    private func presentAlert(_ binder: AlertBinder) {
+        if presentsAlertsViaOverlay {
+            alertPresenter.present(alert: binder)
+        } else {
+            alert = binder
         }
     }
 
@@ -98,8 +111,12 @@ class ManageTokensViewModel: ObservableObject {
 
         adapter
             .alertPublisher
+            .compactMap { $0 }
             .receive(on: DispatchQueue.main)
-            .assign(to: \.alert, on: self, ownership: .weak)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, binder in
+                viewModel.presentAlert(binder)
+            }
             .store(in: &bag)
 
         adapter
