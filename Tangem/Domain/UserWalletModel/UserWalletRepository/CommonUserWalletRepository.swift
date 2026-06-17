@@ -390,7 +390,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         models[userWalletId] = unlockedModel
         await unlockUnprotectedMobileWalletsIfNeeded()
+
         sendEvent(.unlockedWallet(userWalletId: userWalletId))
+        select(userWalletId: userWalletId)
+
         return unlockedModel
     }
 
