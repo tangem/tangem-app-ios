@@ -21,6 +21,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
+    let showsBackButton: Bool
 
     let title = Localization.commonTangemWallet
     let description = Localization.welcomeCreateWalletHardwareDescription
@@ -45,8 +46,9 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
     private weak var coordinator: CreateWalletSelectorRoutable?
 
-    init(coordinator: CreateWalletSelectorRoutable) {
+    init(coordinator: CreateWalletSelectorRoutable, showsBackButton: Bool) {
         self.coordinator = coordinator
+        self.showsBackButton = showsBackButton
     }
 }
 
