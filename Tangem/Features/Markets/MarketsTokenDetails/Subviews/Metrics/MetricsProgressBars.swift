@@ -13,9 +13,18 @@ import TangemUI
 
 struct MetricsCardContainer<Content: View>: View {
     let backgroundColor: Color
+    let action: () -> Void
     @ViewBuilder let content: Content
 
     var body: some View {
+        Button(
+            action: action,
+            label: label
+        )
+        .buttonStyle(.plain)
+    }
+
+    private func label() -> some View {
         content
             .frame(
                 maxWidth: .infinity,
