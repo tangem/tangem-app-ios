@@ -59,6 +59,7 @@ public struct NotificationBannerContainer<Item: NotificationBannerContainerItem>
         switch stackingType {
         case .carousel:
             NotificationBannerCarousel(items: items)
+                .hasClipShape(false)
 
         case .stack:
             NotificationBannerStack(items: items) { item in
