@@ -99,17 +99,31 @@ extension WalletModel {
 // MARK: - WalletModelUpdater
 
 protocol WalletModelUpdater {
-    func update(silent: Bool, options: WalletModelUpdateOptions) async
+    /// - Parameter updateToken: Identifies the update cycle this call belongs to. A batch update of multiple
+    /// wallet models (e.g. `updateAll`) passes a single token to every wallet model, so calls originating
+    /// from the same cycle can be recognized and deduplicated instead of redoing the same work more than once.
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async
 
     func updateTransactionHistory() async
     func updateAfterSendingTransaction()
 }
 
 extension WalletModelUpdater {
-    /// It can be call as `Fire-and-forget` update
+    /// Overload for a standalone update: mints a fresh `updateToken` so the call forms its own cycle
+    /// and isn't coalesced with any other update.
+    /// Use when you need to update a single wallet model without triggering updates for other wallet models.
+    func update(silent: Bool, options: WalletModelUpdateOptions) async {
+        await update(silent: silent, options: options, updateToken: UUID())
+    }
+
+    /// Overload for the `Fire-and-forget` style call.
     @discardableResult
-    func startUpdateTask(silent: Bool = false, options: WalletModelUpdateOptions = .full) -> Task<Void, Never> {
-        Task { await update(silent: silent, options: options) }
+    func startUpdateTask(
+        silent: Bool = false,
+        options: WalletModelUpdateOptions = .full,
+        updateToken: some Hashable = UUID()
+    ) -> Task<Void, Never> {
+        Task { await update(silent: silent, options: options, updateToken: updateToken) }
     }
 }
 
