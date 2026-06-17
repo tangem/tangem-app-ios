@@ -48,6 +48,7 @@ enum Feature: String, Hashable, CaseIterable {
     case approveFlowV2
     case addAndOrganizeRedesign
     case addressBook
+    case stakingFlowV2
 
     var name: String {
         switch self {
@@ -90,6 +91,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
         case .addressBook: return "10801-Address-Book"
+        case .stakingFlowV2: return "14492_Staking_Flow_V2"
         }
     }
 
@@ -134,6 +136,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .approveFlowV2: return .unspecified
         case .addAndOrganizeRedesign: return .version("5.40")
         case .addressBook: return .unspecified
+        case .stakingFlowV2: return .unspecified
         }
     }
 }
