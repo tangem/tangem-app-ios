@@ -123,7 +123,7 @@ class CommonPendingExpressTransactionsManager {
                         continue
                     }
 
-                    guard let loadedPendingTransaction = await self?.loadPendingTransactionStatus(for: record) else {
+                    guard let loadedPendingTransaction = try await self?.loadPendingTransactionStatus(for: record) else {
                         // If received error from backend and transaction was already displayed on TokenDetails screen
                         // we need to send previously received transaction, otherwise it will hide on TokenDetails
                         if let previousResult = self?.transactionsInProgressSubject.value.first(where: { $0.transactionRecord.expressTransactionId == record.expressTransactionId }) {
@@ -200,7 +200,7 @@ class CommonPendingExpressTransactionsManager {
         }
     }
 
-    private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async -> PendingExpressTransaction? {
+    private func loadPendingTransactionStatus(for transactionRecord: ExpressPendingTransactionRecord) async throws -> PendingExpressTransaction? {
         do {
             ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
             let sourceUserWalletId = transactionRecord.expressUserWalletId ?? transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId
@@ -209,11 +209,16 @@ class CommonPendingExpressTransactionsManager {
                 .refcodeProvider?.getRefcode()
             let provider = cachingExpressAPIProviderFactory.provider(for: sourceUserWalletId, refcode: refcode)
             let expressTransaction = try await provider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
+
+            try Task.checkCancellation()
+
             let refundedTokenItem = await handleRefundedTokenIfNeeded(
                 blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
                 providerType: transactionRecord.provider.type,
                 refundedCurrency: expressTransaction.refund?.currency
             )
+
+            try Task.checkCancellation()
 
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
                 expressTransaction: expressTransaction,
@@ -232,6 +237,11 @@ class CommonPendingExpressTransactionsManager {
             )
             return pendingTransaction
         } catch {
+            // Propagating cancellation
+            if error is CancellationError || Task.isCancelled {
+                throw error
+            }
+
             ExpressLogger.error("Failed to load status info for transaction with id: \(transactionRecord.expressTransactionId)", error: error)
             return nil
         }
