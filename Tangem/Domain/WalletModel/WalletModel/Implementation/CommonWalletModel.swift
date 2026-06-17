@@ -369,7 +369,7 @@ extension CommonWalletModel: WalletModel {
 // MARK: - WalletModelUpdater
 
 extension CommonWalletModel: WalletModelUpdater {
-    func update(silent: Bool, options: WalletModelUpdateOptions) async {
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
         let logger = AppLogger.tag("WalletModelUpdater")
 
         async let balancesUpdate: () = {

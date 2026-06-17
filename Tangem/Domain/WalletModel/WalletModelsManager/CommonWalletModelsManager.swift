@@ -132,6 +132,8 @@ class CommonWalletModelsManager {
         let count = walletModels.count
         // [REDACTED_TODO_COMMENT]
         let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
+        // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
+        let updateToken = UUID()
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
@@ -140,7 +142,7 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    await walletModels[index].update(silent: silent, options: options)
+                    await walletModels[index].update(silent: silent, options: options, updateToken: updateToken)
                 }
             }
             await group.waitForAll()

@@ -166,8 +166,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         .just(output: state)
     }
 
-    func update(silent: Bool, options: WalletModelUpdateOptions) async {
-        await mainTokenWalletModel.update(silent: silent, options: options)
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
+        await mainTokenWalletModel.update(silent: silent, options: options, updateToken: updateToken)
     }
 
     func updateTransactionHistory() async {
