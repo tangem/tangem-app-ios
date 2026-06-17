@@ -13,7 +13,6 @@ import TangemExpress
 struct OnrampOfferViewModelBuyActionBuilder {
     let geoEligibilityService: GeoEligibilityService
     let tokenItem: TokenItem
-    let countryCode: String
     let applePayPresenter: any OnrampApplePayPresenting
     let analyticsLogger: any SendOnrampNAPAnalyticsLogger
 
@@ -26,12 +25,10 @@ struct OnrampOfferViewModelBuyActionBuilder {
         tokenItem: TokenItem,
         amountInput: OnrampAmountInput,
         applePayPresenter: any OnrampApplePayPresenting,
-        analyticsLogger: any SendOnrampNAPAnalyticsLogger,
-        countryCode: String = Locale.current.region?.identifier ?? "US"
+        analyticsLogger: any SendOnrampNAPAnalyticsLogger
     ) {
         self.geoEligibilityService = geoEligibilityService
         self.tokenItem = tokenItem
-        self.countryCode = countryCode
         self.amountInput = amountInput
         self.applePayPresenter = applePayPresenter
         self.analyticsLogger = analyticsLogger
@@ -69,7 +66,7 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
-        guard let merchantIdentifier = OnrampApplePayConstants.merchantIdentifier(forProviderId: provider.provider.id) else {
+        guard let config = OnrampApplePayConstants.config(forProviderId: provider.provider.id) else {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
@@ -81,9 +78,8 @@ struct OnrampOfferViewModelBuyActionBuilder {
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: currencyCode,
-            countryCode: countryCode,
-            summaryItemLabel: summaryItemLabel,
-            merchantIdentifier: merchantIdentifier
+            config: config,
+            summaryItemLabel: summaryItemLabel
         )
 
         return .nativeApplePay { [applePayPresenter, analyticsLogger] in

@@ -17,37 +17,38 @@ struct OnrampApplePayUtilsTests {
     @Test("makePaymentRequest sets the merchant, networks, capabilities, currency, and country")
     func makePaymentRequestShape() throws {
         let amount = try #require(Decimal(string: "99.99"))
+        let config = ApplePayProviderConfig(merchantIdentifier: "merchant.example.tangem", countryCode: "DE")
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: "EUR",
-            countryCode: "DE",
-            summaryItemLabel: "1 ETH",
-            merchantIdentifier: "merchant.example.tangem"
+            config: config,
+            summaryItemLabel: "1 ETH"
         )
 
         #expect(request.merchantIdentifier == "merchant.example.tangem")
         #expect(request.supportedNetworks == [.visa, .masterCard])
-        #expect(request.merchantCapabilities == .threeDSecure)
+        #expect(request.merchantCapabilities == [.threeDSecure, .credit, .debit])
         #expect(request.currencyCode == "EUR")
         #expect(request.countryCode == "DE")
         #expect(Set(request.requiredBillingContactFields) == Set([.postalAddress, .name]))
         #expect(Set(request.requiredShippingContactFields) == Set([.emailAddress]))
     }
 
-    @Test("makePaymentRequest exposes a single summary item with the supplied label and amount")
+    @Test("makePaymentRequest exposes a single final summary item with the supplied label and amount")
     func makePaymentRequestSummaryItem() throws {
         let amount = try #require(Decimal(string: "12.50"))
+        let config = ApplePayProviderConfig(merchantIdentifier: "merchant.example.tangem", countryCode: "US")
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: "USD",
-            countryCode: "US",
-            summaryItemLabel: "0.005 ETH",
-            merchantIdentifier: "merchant.example.tangem"
+            config: config,
+            summaryItemLabel: "0.005 ETH"
         )
 
         #expect(request.paymentSummaryItems.count == 1)
         #expect(request.paymentSummaryItems.first?.label == "0.005 ETH")
         #expect(request.paymentSummaryItems.first?.amount == NSDecimalNumber(decimal: amount))
+        #expect(request.paymentSummaryItems.first?.type == .final)
     }
 
     @Test("mapPaymentResult base64-encodes the payment token, reads email from shipping contact and forwards billing fields")
