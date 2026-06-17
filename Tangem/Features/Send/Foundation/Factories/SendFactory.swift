@@ -46,6 +46,34 @@ struct SendFactory {
                 sellParameters: parameters
             )
 
+        // V2 staking (Feature.stakingFlowV2) — one factory for every staking action. When the toggle is
+        // off these `where` cases don't match and the flow falls through to the legacy cases below.
+        case .staking(let stakingableToken, let manager, let walletModelDependenciesProvider, _)
+            where FeatureProvider.isAvailable(.stakingFlowV2):
+            return StakeFactory(
+                stakingableToken: stakingableToken,
+                manager: manager,
+                // Default action with full available amount; the provider's step plan decides whether
+                // the amount is editable (most chains) or fixed (Cardano).
+                action: StakingAction(
+                    amount: stakingableToken.availableBalanceProvider.balanceType.value ?? 0,
+                    targetType: .empty,
+                    type: .stake
+                ),
+                walletModelDependenciesProvider: walletModelDependenciesProvider
+            )
+
+        case .restaking(let stakingableToken, let manager, let action) where FeatureProvider.isAvailable(.stakingFlowV2):
+            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
+
+        case .unstaking(let stakingableToken, let manager, let action) where FeatureProvider.isAvailable(.stakingFlowV2):
+            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
+
+        case .stakingSingleAction(let stakingableToken, let manager, let action) where FeatureProvider.isAvailable(.stakingFlowV2):
+            return StakeFactory(stakingableToken: stakingableToken, manager: manager, action: action, walletModelDependenciesProvider: nil)
+
+        // Legacy staking flows (removed with the stakingFlowV2 toggle).
+
         // We are using restaking flow here because it doesn't allow to edit amount
         case .staking(let stakingableToken, let manager, _, let stakingParams) where !stakingParams.isStakingAmountEditable:
             return RestakingFlowFactory(
