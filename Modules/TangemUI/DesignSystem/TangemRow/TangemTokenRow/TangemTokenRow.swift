@@ -269,7 +269,7 @@ public struct TangemTokenRow: View {
         case .value(let text):
             .loaded(text: .string(text))
         case .failed(let cached):
-            .failed(cached: .string(cached), icon: .trailing)
+            .failed(cached: .string(cached), icon: .leading)
         }
 
         return LoadableBalanceView(
