@@ -122,6 +122,8 @@ struct UserWalletView: View {
 
     private var content: some View {
         pageBuilder.content
+            // Contain banner carousels within the page: the pager disables scroll clipping for the header fade.
+            .clipped()
     }
 
     private var contentFooterSpacer: some View {

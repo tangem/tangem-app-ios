@@ -123,7 +123,8 @@ private extension TangemCarousel {
     }
 
     var dragGesture: some Gesture {
-        DragGesture()
+        // minimumDistance 0 claims the drag on touch-down so an enclosing pager yields instead of stealing the pan.
+        DragGesture(minimumDistance: 0)
             .updating($translation) { value, state, _ in
                 state = value.translation.width
             }
