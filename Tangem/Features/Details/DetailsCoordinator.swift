@@ -32,7 +32,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
-    @Published var addressBookCoordinator: AddressBookCoordinator?
+    @Published var addressBooksCoordinator: AddressBooksCoordinator?
 
     // MARK: - Child view models
 
@@ -172,12 +172,12 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openAddressBook() {
         let dismissAction: Action<Void> = { [weak self] _ in
-            self?.addressBookCoordinator = nil
+            self?.addressBooksCoordinator = nil
         }
 
-        let coordinator = AddressBookCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let coordinator = AddressBooksCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         coordinator.start(with: .default)
-        addressBookCoordinator = coordinator
+        addressBooksCoordinator = coordinator
     }
 
     func openEnvironmentSetup() {
