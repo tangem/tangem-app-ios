@@ -109,7 +109,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
             tokenItem: Self.testTokenItem,
             amountInput: nilCurrencyInput,
             applePayPresenter: presenter,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
         )
 
         let action = builder.make(
@@ -181,7 +181,7 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
 
         #expect(presenter.presentCallCount == 1)
         #expect(presenter.lastRequest?.currencyCode == "USD")
-        #expect(presenter.lastRequest?.countryCode == "US")
+        #expect(presenter.lastRequest?.countryCode == "LT")
         #expect(presenter.lastProvider === provider)
 
         presenter.lastOnWillBuy?()
@@ -191,16 +191,14 @@ final class OnrampOfferViewModelBuyActionBuilderTests {
     // MARK: - Helpers
 
     private func makeBuilder(
-        isApplePayAllowed: Bool = true,
-        countryCode: String = "US"
+        isApplePayAllowed: Bool = true
     ) -> OnrampOfferViewModelBuyActionBuilder {
         OnrampOfferViewModelBuyActionBuilder(
             geoEligibilityService: StubGeoEligibilityService(isApplePayAllowed: isApplePayAllowed),
             tokenItem: Self.testTokenItem,
             amountInput: amountInput,
             applePayPresenter: presenter,
-            analyticsLogger: analyticsLogger,
-            countryCode: countryCode
+            analyticsLogger: analyticsLogger
         )
     }
 

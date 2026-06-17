@@ -13,37 +13,48 @@ enum ApplePayMerchantType: String, CaseIterable {
     case sandbox
 }
 
+struct ApplePayProviderConfig: Equatable {
+    let merchantIdentifier: String
+    let countryCode: String
+}
+
 enum OnrampApplePayConstants {
-    private static let productionIdentifiers: [String: String] = [
-        "mercuryo": "merchant.mercuryo.com.tangem.tangem",
+    private static let productionConfigs: [String: ApplePayProviderConfig] = [
+        "mercuryo": ApplePayProviderConfig(
+            merchantIdentifier: "merchant.mercuryo.com.tangem.tangem",
+            countryCode: "LT"
+        ),
     ]
 
-    private static let sandboxIdentifiers: [String: String] = [
-        "mercuryo": "merchant.sandbox.mercuryo.com.tangem.tangem",
+    private static let sandboxConfigs: [String: ApplePayProviderConfig] = [
+        "mercuryo": ApplePayProviderConfig(
+            merchantIdentifier: "merchant.sandbox.mercuryo.com.tangem.tangem",
+            countryCode: "LT"
+        ),
     ]
 
-    static func merchantIdentifier(forProviderId providerId: String) -> String? {
-        merchantIdentifier(
+    static func config(forProviderId providerId: String) -> ApplePayProviderConfig? {
+        config(
             forProviderId: providerId,
             isProduction: AppEnvironment.current.isProduction,
             nonProductionMerchantType: FeatureStorage.instance.applePayMerchantType
         )
     }
 
-    static func merchantIdentifier(
+    static func config(
         forProviderId providerId: String,
         isProduction: Bool,
         nonProductionMerchantType: ApplePayMerchantType
-    ) -> String? {
+    ) -> ApplePayProviderConfig? {
         let resolved: ApplePayMerchantType = isProduction ? .production : nonProductionMerchantType
-        let table = identifiers(for: resolved)
+        let table = configs(for: resolved)
         return table[providerId.lowercased()]
     }
 
-    private static func identifiers(for type: ApplePayMerchantType) -> [String: String] {
+    private static func configs(for type: ApplePayMerchantType) -> [String: ApplePayProviderConfig] {
         switch type {
-        case .production: return productionIdentifiers
-        case .sandbox: return sandboxIdentifiers
+        case .production: return productionConfigs
+        case .sandbox: return sandboxConfigs
         }
     }
 }
