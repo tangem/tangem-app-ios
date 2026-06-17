@@ -112,6 +112,8 @@ class CommonPendingExpressTransactionsManager {
                 var transactionsToUpdateInRepository = [ExpressPendingTransactionRecord]()
 
                 for pendingTransaction in pendingTransactionsToRequest {
+                    try Task.checkCancellation()
+
                     let record = pendingTransaction.transactionRecord
 
                     // We have not any sense to update the terminated status
@@ -144,7 +146,6 @@ class CommonPendingExpressTransactionsManager {
                     }
 
                     transactionsToSchedule.append(loadedPendingTransaction)
-                    try Task.checkCancellation()
                 }
 
                 try Task.checkCancellation()
@@ -158,11 +159,7 @@ class CommonPendingExpressTransactionsManager {
                     self?.expressPendingTransactionsRepository.updateItems(transactionsToUpdateInRepository)
                 }
 
-                try Task.checkCancellation()
-
                 try await Task.sleep(for: .seconds(Constants.statusUpdateTimeout))
-
-                try Task.checkCancellation()
 
                 ExpressLogger.info("Not all pending transactions finished. Requesting after status update after timeout for \(transactionsToSchedule.count) transaction(s)")
                 self?.updateTransactionsStatuses(forceReload: true)
