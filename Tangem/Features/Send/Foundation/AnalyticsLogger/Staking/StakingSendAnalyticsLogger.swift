@@ -10,7 +10,6 @@ import TangemStaking
 import BlockchainSdk
 
 protocol StakingSendAnalyticsLogger: StakeModelAnalyticsLogger,
-    StakingAnalyticsLogger,
     StakingManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
     SendAmountAnalyticsLogger,
