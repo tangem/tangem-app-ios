@@ -21,7 +21,8 @@ struct CardanoTransactionTests {
     private let ownAddress = "addr1q8043m5heeaydnvtmmkyuhe6qv5havvhsf0d26q3jygsspxlyfpyk6yqkw0yhtyvtr0flekj84u64az82cufmqn65zdsylzk23"
 
     init() {
-        transactionBuilder = CardanoTransactionBuilder(address: ownAddress)
+        // Keep the previous absolute TTL so the expected transaction hashes below stay valid.
+        transactionBuilder = CardanoTransactionBuilder(address: ownAddress, ttl: 190000000)
     }
 
     /// Successful transaction
@@ -309,8 +310,7 @@ struct CardanoTransactionTests {
 
         let output = try transactionBuilder.buildCompiledForSend(
             transaction: transaction,
-            signatures: [signatureInfo1, signatureInfo2],
-            ttl: 69885081
+            signatures: [signatureInfo1, signatureInfo2]
         )
 
         let expectedHex = "84a400800180020004828302820040581c7d7ac07a2f2a25b7a4db868a40720621c4939cf6aefbb9a11464f1a68200820040a100828258206d8a0b425bd2ec9692af39b1c0cf0e51caa07a603550e22f54091e872c7df2905840677c901704be027d9a1734e8aa06f0700009476fa252baaae0de280331746a320a61456d842d948ea5c0e204fc36f3bd04c88ca7ee3d657d5a38014243c37c07825820e554163344aafc2bbefe778a6953ddce0583c2f8e0a0686929c020ca33e0693258401fa21bdc62b85ca217bf08cbacdeba2fadaf33dc09ee3af9cc25b40f24822a1a42cfbc03585cc31a370ef75aaec4d25db6edcf329e40a4e725ec8718c94f220af5f6"
