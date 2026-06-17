@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import Foundation
 import UIKit
+import TangemLocalization
 import TangemUI
 import TangemFoundation
 import TangemVisa
@@ -133,6 +134,9 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             } catch {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
                 AppLogger.error("Failed to load card details", error: error)
+
+                Toast(view: WarningToast(text: Localization.tangempayCardDetailsErrorText))
+                    .present(layout: .top(padding: 20), type: .temporary())
             }
         }
     }
