@@ -30,14 +30,16 @@ public struct SensitiveText: View {
     }
 
     public var body: some View {
+        let maskedBalanceString = visibilityState.maskedBalanceString
+
         switch textType {
         case .string(let string):
-            Text(visibilityState.isHidden ? Constants.maskedBalanceString : string)
+            Text(visibilityState.isHidden ? maskedBalanceString : string)
         case .attributed(let string):
-            Text(visibilityState.isHidden ? AttributedString(Constants.maskedBalanceString) : string)
+            Text(visibilityState.isHidden ? AttributedString(maskedBalanceString) : string)
                 .monospacedDigit()
         case .builder(let builder, let sensitive):
-            Text(builder(visibilityState.isHidden ? Constants.maskedBalanceString : sensitive))
+            Text(builder(visibilityState.isHidden ? maskedBalanceString : sensitive))
         }
     }
 }
@@ -77,13 +79,5 @@ extension SensitiveText.TextType: Hashable {
         case .builder(let builder, let sensitive):
             hasher.combine(builder(sensitive))
         }
-    }
-}
-
-// MARK: - Constants
-
-public extension SensitiveText {
-    enum Constants {
-        public static let maskedBalanceString: String = "\u{2217}\u{2217}\u{2217}"
     }
 }

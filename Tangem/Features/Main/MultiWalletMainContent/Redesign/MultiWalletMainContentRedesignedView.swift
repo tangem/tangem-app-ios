@@ -22,12 +22,14 @@ struct MultiWalletMainContentRedesignedView: View {
         VStack(spacing: .unit(.x4)) {
             notificationBanners
 
-            if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
-                TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
-            }
+            VStack(spacing: .unit(.x3)) {
+                if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
+                    TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
+                }
 
-            listContent
-                .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+                listContent
+                    .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
+            }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
                 TangemNFTEntrypointRow(viewModel: nftEntrypointViewModel)
@@ -87,7 +89,7 @@ struct MultiWalletMainContentRedesignedView: View {
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
         .setCornerStyle(.rounded)
-        .setStyleType(.secondary)
+        .setStyleType(.primaryInverse)
         .setSize(.x9)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
