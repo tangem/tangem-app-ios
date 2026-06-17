@@ -9,20 +9,25 @@
 import Foundation
 import TangemLocalization
 import TangemFoundation
+import TangemUI
 
-final class MarketsTokenDetailsSecurityScoreDetailsViewModel: Identifiable {
+final class MarketsTokenDetailsSecurityScoreDetailsViewModel: FloatingSheetContentViewModel {
     var title: String { Localization.marketsTokenDetailsSecurityScore }
     var subtitle: String { Localization.marketsTokenDetailsSecurityScoreDescription }
     let providers: [SecurityScoreProviderData]
+
+    let closeAction: (() -> Void)?
 
     private weak var routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?
 
     init(
         providers: [MarketsTokenDetailsSecurityScoreDetailsViewModel.SecurityScoreProviderData],
-        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?
+        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?,
+        closeAction: (() -> Void)? = nil
     ) {
         self.providers = providers
         self.routable = routable
+        self.closeAction = closeAction
     }
 
     func onProviderLinkTap(with identifier: SecurityScoreProviderData.ID) {
