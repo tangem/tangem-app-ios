@@ -312,6 +312,21 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     @MainActor
+    func openSecurityScoreDetails(
+        with providers: [MarketsTokenDetailsSecurityScore.Provider],
+        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable
+    ) {
+        let viewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
+            with: providers,
+            routable: routable,
+            closeAction: { [weak self] in
+                self?.floatingSheetPresenter.removeActiveSheet()
+            }
+        )
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+
+    @MainActor
     func openInfoDialogue(title: String, message: String) {
         let viewModel = MarketsDescriptionDialogueViewModel(
             title: title,
