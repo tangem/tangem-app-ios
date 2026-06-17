@@ -16,7 +16,6 @@ final class CommonAddressBookManager {
     private let repository: AddressBookRepository
     private let signer: AddressBookSigning
     private let verifier: AddressBookSignatureVerifying
-    private let normalizeAddress: (String, AddressBookNetworkID) -> String
 
     private let decodedContacts = OSAllocatedUnfairLock(initialState: [AddressBookDecodedContact]())
     private let contactsSubject = CurrentValueSubject<[AddressBookContact], Never>([])
@@ -27,15 +26,13 @@ final class CommonAddressBookManager {
         walletPublicKey: Data,
         repository: AddressBookRepository,
         signer: AddressBookSigning,
-        verifier: AddressBookSignatureVerifying,
-        normalizeAddress: @escaping (String, AddressBookNetworkID) -> String = { address, _ in address }
+        verifier: AddressBookSignatureVerifying
     ) {
         self.walletId = walletId
         self.walletPublicKey = walletPublicKey
         self.repository = repository
         self.signer = signer
         self.verifier = verifier
-        self.normalizeAddress = normalizeAddress
 
         bind()
         Task { await load() }
@@ -103,7 +100,7 @@ final class CommonAddressBookManager {
             return try await sign(drafts, contactId: contact.id, name: name)
         }
 
-        let existingById = Dictionary(contact.addresses.map { ($0.id, $0) }, uniquingKeysWith: { current, _ in current })
+        let existingById = contact.addresses.keyedFirst(by: \.id)
 
         func reusable(_ draft: AddressBookEntryDraft) -> AddressBookDecodedAddressEntry? {
             guard let previous = existingById[draft.id],
@@ -115,7 +112,7 @@ final class CommonAddressBookManager {
 
         let toSign = drafts.filter { reusable($0) == nil }
         let signed = toSign.isEmpty ? [] : try await sign(toSign, contactId: contact.id, name: name)
-        let signedById = Dictionary(signed.map { ($0.id, $0) }, uniquingKeysWith: { current, _ in current })
+        let signedById = signed.keyedFirst(by: \.id)
 
         return drafts.compactMap { signedById[$0.id] ?? reusable($0) }
     }
@@ -123,7 +120,7 @@ final class CommonAddressBookManager {
     // MARK: - Validation helpers
 
     private func dedupKey(_ address: String, _ networkId: AddressBookNetworkID) -> String {
-        "\(normalizeAddress(address, networkId))|\(networkId.rawValue)"
+        "\(address)|\(networkId.rawValue)"
     }
 
     private func ensureNameUnique(_ name: AddressBookContactName, excluding contactId: AddressBookContactID?) throws {
@@ -141,12 +138,10 @@ final class CommonAddressBookManager {
     /// `(address, networkId)` must be unique *within a contact*. The same pair may repeat across
     /// different contacts of the same wallet (per the create API rule).
     private func ensureNoDuplicatePairs(_ drafts: [AddressBookEntryDraft]) throws {
-        var keys = Set<String>()
+        let keys = drafts.map { dedupKey($0.address, $0.networkId) }
 
-        for draft in drafts {
-            guard keys.insert(dedupKey(draft.address, draft.networkId)).inserted else {
-                throw AddressBookValidationError.duplicateAddressNetworkPair
-            }
+        guard keys.unique().count == keys.count else {
+            throw AddressBookValidationError.duplicateAddressNetworkPair
         }
     }
 

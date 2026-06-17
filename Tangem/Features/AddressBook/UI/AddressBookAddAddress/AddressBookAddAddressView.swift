@@ -21,7 +21,7 @@ struct AddressBookAddAddressView: View {
             }
             .interItemSpacing(12)
             .innerContentPadding(12)
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
@@ -29,7 +29,7 @@ struct AddressBookAddAddressView: View {
                 DefaultFooterView(Localization.sendRecipientMemoFooter)
             }
             .innerContentPadding(12)
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
 
             GroupedSection(viewModel.addressNetworksType) { networks in
                 TangemRow(title: Localization.commonNetwork)

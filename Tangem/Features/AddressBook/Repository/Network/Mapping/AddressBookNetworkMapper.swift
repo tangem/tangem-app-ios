@@ -24,7 +24,7 @@ struct AddressBookNetworkMapper {
         return formatter
     }()
 
-    func mapToEnvelope(_ item: AddressBooksResponseDTO.Item) throws -> RemoteAddressBook {
+    func mapToEnvelope(_ item: AddressBookDTO.Response.Item) throws -> RemoteAddressBook {
         let envelope = try makeEnvelope(
             version: AddressBookBlobCodec.supportedVersion,
             walletId: item.walletId,
@@ -37,7 +37,7 @@ struct AddressBookNetworkMapper {
         return RemoteAddressBook(etag: item.etag, envelope: envelope)
     }
 
-    func mapToEnvelope(_ dto: AddressBookEnvelopeDTO) throws -> AddressBookEnvelope {
+    func mapToEnvelope(_ dto: AddressBookDTO.Envelope) throws -> AddressBookEnvelope {
         try makeEnvelope(
             version: dto.version,
             walletId: dto.walletId,
@@ -48,8 +48,8 @@ struct AddressBookNetworkMapper {
         )
     }
 
-    func mapToDTO(_ envelope: AddressBookEnvelope) -> AddressBookEnvelopeDTO {
-        AddressBookEnvelopeDTO(
+    func mapToDTO(_ envelope: AddressBookEnvelope) -> AddressBookDTO.Envelope {
+        AddressBookDTO.Envelope(
             version: envelope.version,
             walletId: envelope.walletId.stringValue,
             updatedAt: Self.dateFormatter.string(from: envelope.updatedAt),
@@ -71,10 +71,10 @@ struct AddressBookNetworkMapper {
             throw MappingError.invalidDate(updatedAt)
         }
 
-        let sealedBox = AddressBookSealedBox(
-            nonce: try data(fromHex: nonce, field: "nonce"),
-            ciphertext: try data(fromHex: ciphertext, field: "ciphertext"),
-            tag: try data(fromHex: authTag, field: "auth_tag")
+        let sealedBox = try AddressBookSealedBox(
+            nonce: data(fromHex: nonce, field: "nonce"),
+            ciphertext: data(fromHex: ciphertext, field: "ciphertext"),
+            tag: data(fromHex: authTag, field: "auth_tag")
         )
 
         return AddressBookEnvelope(

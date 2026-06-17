@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// Address-book contact entries, generic over the entry kind: `AddressBookEntryDraft` while editing and
 /// `AddressBookVerifiedAddressEntry` for the verified read model. The single home for the entry-set
@@ -22,10 +23,8 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
 
     let raw: [Entry]
 
-    var count: Int { raw.count }
-
-    /// Number of distinct addresses — the user-facing unit the cap applies to, not the entry `count`.
-    var addressCount: Int { Set(raw.map(\.address)).count }
+    /// Number of distinct addresses — the user-facing unit the cap applies to, not the flat entry count.
+    var addressCount: Int { raw.uniqueProperties(\.address).count }
 
     init?(_ raw: [Entry]) {
         guard !raw.isEmpty else {
@@ -66,18 +65,16 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
     /// (address, networkId) uniqueness within the contact. The manager re-validates authoritatively on
     /// save (with address normalization).
     static func validate(adding entries: [Entry], to existing: [Entry]) throws {
-        let addresses = Set(existing.map(\.address)).union(entries.map(\.address))
+        let all = existing + entries
 
-        guard addresses.count <= maxAddressCount else {
+        guard all.uniqueProperties(\.address).count <= maxAddressCount else {
             throw AddressBookValidationError.tooManyAddresses
         }
 
-        var pairs = Set(existing.map(pairKey))
+        let pairs = all.map { pairKey($0) }
 
-        for entry in entries {
-            guard pairs.insert(pairKey(entry)).inserted else {
-                throw AddressBookValidationError.duplicateAddressNetworkPair
-            }
+        guard pairs.unique().count == pairs.count else {
+            throw AddressBookValidationError.duplicateAddressNetworkPair
         }
     }
 

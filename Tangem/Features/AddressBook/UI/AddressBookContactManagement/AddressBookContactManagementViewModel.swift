@@ -164,33 +164,32 @@ private extension AddressBookContactManagementViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: &$mainButtonIcon)
 
-        Publishers.CombineLatest($entries, $canAddNewAddress)
+        Publishers
+            .CombineLatest($entries, $canAddNewAddress)
             .withWeakCaptureOf(self)
-            .map { viewModel, args in
-                viewModel.makeAddressesSection(entries: args.0, canAddNewAddress: args.1)
-            }
+            .map { $0.makeAddressesSection(entries: $1.0, canAddNewAddress: $1.1) }
             .receive(on: DispatchQueue.main)
             .assign(to: &$addressesSection)
     }
 
     func makeAddressesSection(entries: AddressBookContactDraftEntries?, canAddNewAddress: Bool) -> [AddressRowType] {
         // One row per address — an address may be saved in several networks; the row shows that count.
-        var types: [AddressRowType] = (entries?.groupedByAddress ?? []).map { group in
-            .address(
-                AddressBookContactAddressRowViewModel(
-                    id: group.id,
-                    address: group.address,
-                    networksCount: group.networks.count
-                ) { [weak self] in
-                    self?.deleteAddress(entryIds: group.networks.map(\.id))
-                }
-            )
+        let grouped = entries?.groupedByAddress ?? []
+        var types: [AddressRowType] = grouped.map { group in
+            let rowViewModel = AddressBookContactAddressRowViewModel(
+                id: group.id,
+                address: group.address,
+                networksCount: group.networks.count
+            ) { [weak self] in
+                self?.deleteAddress(entryIds: group.networks.map(\.id))
+            }
+
+            return .address(rowViewModel)
         }
 
         if canAddNewAddress {
-            types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(action: { [weak self] in
-                self?.addNewAddress()
-            })))
+            let rowViewModel = AddressBookContactAddNewAddressRowViewModel { [weak self] in self?.addNewAddress() }
+            types.append(.addNewAddress(rowViewModel))
         }
 
         return types
@@ -210,29 +209,31 @@ private extension AddressBookContactManagementViewModel {
 
     @MainActor
     func save() async {
-        guard !isProcessing else { return }
-
-        isProcessing = true
-        defer { isProcessing = false }
-
-        do {
-            try await interactor.save()
-            coordinator?.dismissContactManagement()
-        } catch {
-            presentGenericError(message: error.localizedDescription)
+        await proceed { [weak self] in
+            try await self?.interactor.save()
+            self?.coordinator?.dismissContactManagement()
         }
     }
 
     @MainActor
     func delete() async {
+        await proceed { [weak self] in
+            try await self?.interactor.delete()
+            self?.coordinator?.dismissContactManagement()
+        }
+    }
+
+    @MainActor
+    func proceed(action: () async throws -> Void) async {
         guard !isProcessing else { return }
 
         isProcessing = true
         defer { isProcessing = false }
 
         do {
-            try await interactor.delete()
-            coordinator?.dismissContactManagement()
+            try await action()
+        } catch is CancellationError {
+            // Do nothing
         } catch {
             presentGenericError(message: error.localizedDescription)
         }

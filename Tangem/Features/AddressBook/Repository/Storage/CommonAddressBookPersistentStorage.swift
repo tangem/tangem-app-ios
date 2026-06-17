@@ -12,16 +12,16 @@ import TangemFoundation
 struct CommonAddressBookPersistentStorage: AddressBookPersistentStorage {
     @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
 
-    func loadEnvelope(for walletId: UserWalletId) -> AddressBookEnvelopeDTO? {
+    func loadEnvelope(for walletId: UserWalletId) -> AddressBookDTO.Envelope? {
         try? persistentStorage.value(for: key(for: walletId))
     }
 
-    func saveEnvelope(_ envelope: AddressBookEnvelopeDTO, for walletId: UserWalletId) throws {
+    func saveEnvelope(_ envelope: AddressBookDTO.Envelope, for walletId: UserWalletId) throws {
         try persistentStorage.store(value: envelope, for: key(for: walletId))
     }
 
     func clear(for walletId: UserWalletId) {
-        let empty: AddressBookEnvelopeDTO? = nil
+        let empty: AddressBookDTO.Envelope? = nil
         try? persistentStorage.store(value: empty, for: key(for: walletId))
     }
 

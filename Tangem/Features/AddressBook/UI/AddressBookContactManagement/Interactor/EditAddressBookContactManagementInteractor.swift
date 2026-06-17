@@ -56,7 +56,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> {
-        addressesSubject.map { AddressBookContactDraftEntries($0) }.eraseToAnyPublisher()
+        addressesSubject.map { AddressBookContactDraftEntries($0) }.removeDuplicates().eraseToAnyPublisher()
     }
 
     var walletPublisher: AnyPublisher<WalletRowType?, Never> {
@@ -73,7 +73,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
-        addressesSubject.map { Set($0.map(\.address)).count < AddressBookContactDraftEntries.maxAddressCount }.eraseToAnyPublisher()
+        addressesSubject.map { $0.uniqueProperties(\.address).count < AddressBookContactDraftEntries.maxAddressCount }.removeDuplicates().eraseToAnyPublisher()
     }
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> {
