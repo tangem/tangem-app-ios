@@ -18,8 +18,6 @@ struct OnrampOfferViewModelBuyActionBuilder {
 
     weak var amountInput: OnrampAmountInput?
 
-    private let balanceFormatter = BalanceFormatter()
-
     init(
         geoEligibilityService: GeoEligibilityService,
         tokenItem: TokenItem,
@@ -70,16 +68,10 @@ struct OnrampOfferViewModelBuyActionBuilder {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
         }
 
-        let summaryItemLabel = balanceFormatter.formatCryptoBalance(
-            quote.expectedAmount,
-            currencyCode: tokenItem.currencySymbol
-        )
-
         let request = OnrampApplePayUtils.makePaymentRequest(
             amount: amount,
             currencyCode: currencyCode,
-            config: config,
-            summaryItemLabel: summaryItemLabel
+            config: config
         )
 
         return .nativeApplePay { [applePayPresenter, analyticsLogger] in

@@ -16,20 +16,23 @@ enum ApplePayMerchantType: String, CaseIterable {
 struct ApplePayProviderConfig: Equatable {
     let merchantIdentifier: String
     let countryCode: String
+    let summaryItemLabel: String
 }
 
 enum OnrampApplePayConstants {
     private static let productionConfigs: [String: ApplePayProviderConfig] = [
         "mercuryo": ApplePayProviderConfig(
             merchantIdentifier: "merchant.mercuryo.com.tangem.tangem",
-            countryCode: "LT"
+            countryCode: "LT",
+            summaryItemLabel: "Pay Mercuryo (via Tangem)"
         ),
     ]
 
     private static let sandboxConfigs: [String: ApplePayProviderConfig] = [
         "mercuryo": ApplePayProviderConfig(
             merchantIdentifier: "merchant.sandbox.mercuryo.com.tangem.tangem",
-            countryCode: "LT"
+            countryCode: "LT",
+            summaryItemLabel: "Pay Mercuryo (via Tangem)"
         ),
     ]
 
