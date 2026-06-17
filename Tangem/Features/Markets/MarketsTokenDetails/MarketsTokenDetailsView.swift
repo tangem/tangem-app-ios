@@ -234,6 +234,7 @@ struct MarketsTokenDetailsView: View {
                     onGeneratedAITapAction: viewModel.onGenerateAITapAction
                 )
         }
+        // [REDACTED_INFO]: legacy security score sheet, redesign uses a floating sheet (global presenter)
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
             MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
                 .adaptivePresentationDetents()
