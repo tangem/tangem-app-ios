@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemExpress
 import TangemFoundation
 
@@ -29,11 +30,10 @@ class CommonPendingExpressTransactionsManager {
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
-    private let transactionsToUpdateStatusSubject = CurrentValueSubject<[ExpressPendingTransactionRecord], Never>([])
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
     private let pendingTransactionFactory = PendingExpressTransactionFactory()
 
-    private var bag = Set<AnyCancellable>()
+    private var expressPendingTransactionsRepositorySubscription: AnyCancellable?
     private var updateTask: Task<Void, Never>?
     private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
 
@@ -59,22 +59,16 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func bind() {
-        expressPendingTransactionsRepository
+        let transactionFactory = PendingExpressTransactionFactory()
+
+        expressPendingTransactionsRepositorySubscription = expressPendingTransactionsRepository
             .transactionsPublisher
             .withWeakCaptureOf(self)
             .map { manager, txRecords in
                 manager.filterRelatedTokenTransactions(list: txRecords)
             }
-            .assign(to: \.transactionsToUpdateStatusSubject.value, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        transactionsToUpdateStatusSubject
             .removeDuplicates()
-            .map { transactions in
-                let factory = PendingExpressTransactionFactory()
-                let savedPendingTransactions = transactions.map(factory.buildPendingExpressTransaction(for:))
-                return savedPendingTransactions
-            }
+            .mapMany(transactionFactory.buildPendingExpressTransaction(for:))
             .withWeakCaptureOf(self)
             .sink { manager, transactions in
                 ExpressLogger.info("Receive new transactions to update: \(transactions.count). Number of already scheduled transactions: \(manager.transactionsScheduledForUpdate.count)")
@@ -84,7 +78,6 @@ class CommonPendingExpressTransactionsManager {
                 manager.transactionsInProgressSubject.send(transactions)
                 manager.updateTransactionsStatuses(forceReload: shouldForceReload)
             }
-            .store(in: &bag)
     }
 
     private func cancelTask() {
