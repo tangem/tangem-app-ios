@@ -39,7 +39,7 @@ struct WCRequestDetailsBuilder: Equatable {
         case .getAccountAddresses:
             WCBtcGetAccountAddressesDetailsModel(for: method, source: source).data
         case .signPsbt:
-            []
+            WCBtcSignPsbtDetailsModel(for: method, source: source).data
         }
     }
 }
