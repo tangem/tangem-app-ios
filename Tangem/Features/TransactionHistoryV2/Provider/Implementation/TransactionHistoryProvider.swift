@@ -16,7 +16,12 @@ final actor TransactionHistoryProvider {
     private let repository: TransactionHistoryRepository
     private let syncMetadataStorage: () async -> SyncMetadataStorage
     private let tokenItem: TokenItem
-    private let maskedAddress: String
+    private let userWalletId: UserWalletId
+    private let address: String
+
+    private nonisolated var maskedAddress: String {
+        address.prefix(4) + "••••" + address.suffix(4)
+    }
 
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
     private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
@@ -35,7 +40,9 @@ final actor TransactionHistoryProvider {
     ) {
         self.repository = repository
         self.tokenItem = tokenItem
-        maskedAddress = address.prefix(4) + "••••" + address.suffix(4)
+        self.userWalletId = userWalletId
+        self.address = address
+
         syncMetadataStorage = { @MainActor in
             SyncMetadataStorage(userWalletId: userWalletId, address: address)
         }
@@ -254,6 +261,14 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
         } catch {
             TransactionHistoryLogger.error(self, "Failed to enrich with sent onramp transaction", error: error)
         }
+    }
+}
+
+// MARK: - Identifiable protocol conformance
+
+extension TransactionHistoryProvider: Identifiable {
+    nonisolated var id: String {
+        userWalletId.stringValue + address
     }
 }
 

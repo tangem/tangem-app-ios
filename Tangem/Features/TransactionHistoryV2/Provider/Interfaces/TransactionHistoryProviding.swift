@@ -8,4 +8,4 @@
 
 import Foundation
 
-typealias TransactionHistoryProviding = TransactionHistorySyncing & TransactionHistoryExpressDataEnriching
+typealias TransactionHistoryProviding = Identifiable & TransactionHistorySyncing & TransactionHistoryExpressDataEnriching

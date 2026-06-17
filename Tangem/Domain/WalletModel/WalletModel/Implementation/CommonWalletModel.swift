@@ -16,6 +16,35 @@ import TangemFoundation
 import TangemExpress
 import TangemSdk
 
+// [REDACTED_TODO_COMMENT]
+actor _TransactionHistoryUpdatingHelper {
+    private struct UpdateTaskKey: Hashable {
+        let updateToken: AnyHashable
+        let providerId: AnyHashable
+    }
+
+    static let shared: _TransactionHistoryUpdatingHelper = .init() // [REDACTED_TODO_COMMENT]
+
+    private var scheduledUpdateTasks: Set<UpdateTaskKey> = []
+
+    private init() {}
+
+    func updateHistoryIfNeeded(
+        using provider: any TransactionHistoryProviding,
+        updateToken: AnyHashable,
+        action: (_ provider: any TransactionHistoryProviding) -> Void
+    ) async {
+        let updateTaskKey = UpdateTaskKey(updateToken: updateToken, providerId: provider.id.toAnyHashable())
+
+        guard scheduledUpdateTasks.insert(updateTaskKey).inserted else {
+            // Update with this provider for this update iteration (determined by the `updateToken`) is already scheduled, skip it
+            return
+        }
+
+        action(provider)
+    }
+}
+
 class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
@@ -391,7 +420,7 @@ extension CommonWalletModel: WalletModelUpdater {
             if options.contains(.transactionHistory) {
                 await _transactionHistoryService?.clearHistory()
 
-                await updateTransactionHistory()
+                await updateTransactionHistory(updateToken: updateToken)
             }
         }()
 
@@ -408,12 +437,17 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     func updateTransactionHistory() async {
-        async let transactionHistoryV2Update = updateV2TransactionHistory()
+        // Passing dummy update token here since this is not batched update of multiple wallet models
+        await updateTransactionHistory(updateToken: UUID())
+    }
+
+    private func updateTransactionHistory(updateToken: some Hashable) async {
+        async let transactionHistoryV2Update = updateV2TransactionHistory(updateToken: updateToken)
         async let bsdkTransactionHistoryUpdate = updateBSDKTransactionHistory()
         _ = await (transactionHistoryV2Update, bsdkTransactionHistoryUpdate)
     }
 
-    private func updateV2TransactionHistory() async {
+    private func updateV2TransactionHistory(updateToken: some Hashable) async {
         // Some networks may support different, non-BSDK-driven tx history sources,
         // so we need to trigger update for them even if the `_transactionHistoryService` is absent
         do {
@@ -436,7 +470,9 @@ extension CommonWalletModel: WalletModelUpdater {
             // 1. `syncInitial` calls are re-entrant and synchronized, so they can be safely called multiple times
             // 2. In almost all cases there is a single provider, so `TaskGroup` is an overkill here, simple `for` loop is enough
             for provider in transactionHistoryProviders {
-                Task { await provider.syncInitial() }
+                await _TransactionHistoryUpdatingHelper.shared.updateHistoryIfNeeded(using: provider, updateToken: updateToken) { provider in
+                    Task { await provider.syncInitial() }
+                }
             }
         } catch {
             // [REDACTED_TODO_COMMENT]
