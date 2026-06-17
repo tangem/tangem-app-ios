@@ -24,7 +24,7 @@ enum OnrampApplePayConstants {
         "mercuryo": ApplePayProviderConfig(
             merchantIdentifier: "merchant.mercuryo.com.tangem.tangem",
             countryCode: "LT",
-            summaryItemLabel: "Pay Mercuryo (via Tangem)"
+            summaryItemLabel: "Mercuryo (via Tangem)"
         ),
     ]
 
@@ -32,7 +32,7 @@ enum OnrampApplePayConstants {
         "mercuryo": ApplePayProviderConfig(
             merchantIdentifier: "merchant.sandbox.mercuryo.com.tangem.tangem",
             countryCode: "LT",
-            summaryItemLabel: "Pay Mercuryo (via Tangem)"
+            summaryItemLabel: "Mercuryo (via Tangem)"
         ),
     ]
 

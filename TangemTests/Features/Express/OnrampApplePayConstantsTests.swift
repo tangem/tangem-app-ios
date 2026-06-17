@@ -14,7 +14,7 @@ struct OnrampApplePayConstantsTests {
     private static let mercuryoProductionId = "merchant.mercuryo.com.tangem.tangem"
     private static let mercuryoSandboxId = "merchant.sandbox.mercuryo.com.tangem.tangem"
     private static let mercuryoCountryCode = "LT"
-    private static let mercuryoSummaryItemLabel = "Pay Mercuryo (via Tangem)"
+    private static let mercuryoSummaryItemLabel = "Mercuryo (via Tangem)"
 
     @Test("Production build always returns production config, regardless of stored merchant type")
     func productionBuildIgnoresStoredType() {
