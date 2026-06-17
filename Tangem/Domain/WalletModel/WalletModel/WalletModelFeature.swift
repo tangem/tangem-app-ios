@@ -20,7 +20,7 @@ enum WalletModelFeature {
     case staking
 
     /// - Note: This is a **V2** transaction history, do not confuse with the legacy one (`TransactionHistoryService`).
-    case transactionHistory(provider: TransactionHistoryProviding)
+    case transactionHistory(provider: any TransactionHistoryProviding)
 }
 
 // MARK: - Convenience accessors
@@ -33,7 +33,7 @@ extension Array where Element == WalletModelFeature {
         return nil
     }
 
-    var transactionHistoryProvider: TransactionHistoryProviding? {
+    var transactionHistoryProvider: (any TransactionHistoryProviding)? {
         for case .transactionHistory(let provider) in self {
             return provider
         }

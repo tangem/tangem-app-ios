@@ -89,7 +89,7 @@ actor CommonTransactionHistoryProviderRegistry {
 // MARK: - TransactionHistoryProviderRegistry protocol conformance
 
 extension CommonTransactionHistoryProviderRegistry: TransactionHistoryProviderRegistry {
-    func provider(for key: TransactionHistoryProviderKey) -> TransactionHistoryProviding {
+    func provider(for key: TransactionHistoryProviderKey) -> any TransactionHistoryProviding {
         if let existing = providers[key] {
             return existing
         }

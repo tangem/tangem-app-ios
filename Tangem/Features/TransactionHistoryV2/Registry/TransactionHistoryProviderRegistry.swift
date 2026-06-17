@@ -9,5 +9,5 @@
 import Foundation
 
 protocol TransactionHistoryProviderRegistry: Sendable {
-    func provider(for key: TransactionHistoryProviderKey) async -> TransactionHistoryProviding
+    func provider(for key: TransactionHistoryProviderKey) async -> any TransactionHistoryProviding
 }

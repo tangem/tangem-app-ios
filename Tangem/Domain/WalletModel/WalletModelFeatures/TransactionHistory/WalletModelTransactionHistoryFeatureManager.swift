@@ -15,7 +15,7 @@ final class WalletModelTransactionHistoryFeatureManager {
     private let key: TransactionHistoryProviderKey
     private let tokenItem: TokenItem
     private let registry: TransactionHistoryProviderRegistry
-    private let transactionHistoryProviderSubject = CurrentValueSubject<TransactionHistoryProviding?, Never>(nil)
+    private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistoryProviding)?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
     private var isFeatureAvailable: Bool {
@@ -62,9 +62,9 @@ final class WalletModelTransactionHistoryFeatureManager {
 // MARK: - WalletModelFeatureManager protocol conformance
 
 extension WalletModelTransactionHistoryFeatureManager: WalletModelFeatureManager {
-    var featurePayload: TransactionHistoryProviding? { transactionHistoryProviderSubject.value }
+    var featurePayload: (any TransactionHistoryProviding)? { transactionHistoryProviderSubject.value }
 
-    var featurePayloadPublisher: AnyPublisher<TransactionHistoryProviding?, Never> {
+    var featurePayloadPublisher: AnyPublisher<(any TransactionHistoryProviding)?, Never> {
         transactionHistoryProviderSubject.eraseToAnyPublisher()
     }
 }
