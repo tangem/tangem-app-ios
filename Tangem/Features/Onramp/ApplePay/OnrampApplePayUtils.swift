@@ -13,8 +13,7 @@ enum OnrampApplePayUtils {
     static func makePaymentRequest(
         amount: Decimal,
         currencyCode: String,
-        config: ApplePayProviderConfig,
-        summaryItemLabel: String
+        config: ApplePayProviderConfig
     ) -> PKPaymentRequest {
         let request = PKPaymentRequest()
         request.merchantIdentifier = config.merchantIdentifier
@@ -25,7 +24,7 @@ enum OnrampApplePayUtils {
         request.requiredBillingContactFields = [.postalAddress, .name]
         request.requiredShippingContactFields = [.emailAddress]
         request.paymentSummaryItems = [
-            PKPaymentSummaryItem(label: summaryItemLabel, amount: amount as NSDecimalNumber, type: .final),
+            PKPaymentSummaryItem(label: config.summaryItemLabel, amount: amount as NSDecimalNumber, type: .final),
         ]
         return request
     }
