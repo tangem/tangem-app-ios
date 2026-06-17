@@ -199,7 +199,7 @@ struct MainHorizontalPagingScrollView: View {
 
         let navigationBarProgress = clamp(-contentProperties.contentOffsetY / headerBalanceTextHeight, min: 0, max: 1)
 
-        scrollAdjustedValues.didScrollToTop = contentProperties.contentOffsetY == safeAreaInsetsTop
+        scrollAdjustedValues.didScrollToTop = contentProperties.contentOffsetY >= safeAreaInsetsTop - Sizes.scrolledToTopTolerance
         scrollAdjustedValues.navigationBarBalanceOpacity = navigationBarBalanceOpacity(for: navigationBarProgress)
         scrollAdjustedValues.navigationBarBalanceOffsetY = navigationBarBalanceOffsetY(for: navigationBarProgress)
         scrollAdjustedValues.pagingIndicatorOpacity = contentProperties.pagingIndicatorOpacity
@@ -343,6 +343,7 @@ extension MainHorizontalPagingScrollView {
     private enum Sizes {
         static let navigationBalanceMaxYOffset = CGFloat.unit(.x4)
         static let pullToRefreshThreshold: CGFloat = 150
+        static let scrolledToTopTolerance: CGFloat = 0.5
     }
 
     private struct ScrollAdjustedValues: Equatable {
