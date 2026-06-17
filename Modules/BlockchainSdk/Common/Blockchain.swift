@@ -458,7 +458,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .disChain:
             return "DIS"
         case .ton:
-            return "TON"
+            return "GRAM"
         case .kava:
             return "KAVA"
         case .kaspa:
@@ -690,7 +690,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case _ where isL2EthereumNetwork:
             "\(displayName) (ETH)"
         case .ton:
-            "Toncoin"
+            "Gram"
         case .fantom:
             "Fantom"
         case .odysseyChain:
