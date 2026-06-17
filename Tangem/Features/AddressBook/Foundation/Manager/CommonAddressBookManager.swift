@@ -119,10 +119,6 @@ final class CommonAddressBookManager {
 
     // MARK: - Validation helpers
 
-    private func dedupKey(_ address: String, _ networkId: AddressBookNetworkID) -> String {
-        "\(address)|\(networkId.rawValue)"
-    }
-
     private func ensureNameUnique(_ name: AddressBookContactName, excluding contactId: AddressBookContactID?) throws {
         // Only visible (verified) contacts constrain the name: a fully-unverifiable contact is hidden
         // from the user (spec 2.1.3), so it must not block a name whose owner the user cannot see or delete.
@@ -132,16 +128,6 @@ final class CommonAddressBookManager {
 
         if duplicate {
             throw AddressBookValidationError.nameNotUnique
-        }
-    }
-
-    /// `(address, networkId)` must be unique *within a contact*. The same pair may repeat across
-    /// different contacts of the same wallet (per the create API rule).
-    private func ensureNoDuplicatePairs(_ drafts: [AddressBookEntryDraft]) throws {
-        let keys = drafts.map { dedupKey($0.address, $0.networkId) }
-
-        guard keys.unique().count == keys.count else {
-            throw AddressBookValidationError.duplicateAddressNetworkPair
         }
     }
 
@@ -196,15 +182,11 @@ extension CommonAddressBookManager: AddressBookManager {
     func createContact(name: AddressBookContactName, entries: AddressBookContactDraftEntries) async throws {
         let drafts = entries.raw
 
-        guard entries.addressCount <= AddressBookContactDraftEntries.maxAddressCount else {
-            throw AddressBookValidationError.tooManyAddresses
-        }
-
         try ensureAddressesNonEmpty(drafts)
+        try AddressBookContactDraftEntries.validate(adding: drafts, to: [])
 
         let contacts = snapshot
         try ensureNameUnique(name, excluding: nil)
-        try ensureNoDuplicatePairs(drafts)
 
         let contactId = AddressBookContactID()
         let entries = try await sign(drafts, contactId: contactId, name: name)
@@ -222,18 +204,15 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, entries: AddressBookContactDraftEntries) async throws {
-        guard entries.addressCount <= AddressBookContactDraftEntries.maxAddressCount else {
-            throw AddressBookValidationError.tooManyAddresses
-        }
-
         let drafts = entries.raw
+
         try ensureAddressesNonEmpty(drafts)
+        // The new state is exactly `drafts`: cap + (address, networkId) uniqueness among themselves.
+        try AddressBookContactDraftEntries.validate(adding: drafts, to: [])
 
         let contacts = snapshot
         let contact = try contact(with: id, in: contacts)
         try ensureNameUnique(name, excluding: id)
-        // The new state is exactly `drafts`, so the pairs must be unique among themselves.
-        try ensureNoDuplicatePairs(drafts)
 
         let addresses = try await signedEntries(for: drafts, replacing: contact, name: name)
         let updated = touched(contact, name: name, addresses: addresses)
