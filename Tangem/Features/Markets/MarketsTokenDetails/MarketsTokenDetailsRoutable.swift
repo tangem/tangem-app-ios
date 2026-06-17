@@ -22,4 +22,9 @@ protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutab
     func openInfoDialogue(title: String, message: String)
     @MainActor
     func openFullDescriptionDialogue(title: String, description: String, onGenerateAITapAction: @escaping () -> Void)
+    @MainActor
+    func openSecurityScoreDetails(
+        with providers: [MarketsTokenDetailsSecurityScore.Provider],
+        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable
+    )
 }
