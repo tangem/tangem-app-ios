@@ -66,11 +66,11 @@ private extension TokenDetailsStakingView {
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
                         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -114,7 +114,7 @@ private extension TokenDetailsStakingView {
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
                         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                     rewardsStateView(state: item.rewardsState)
@@ -126,7 +126,7 @@ private extension TokenDetailsStakingView {
                     SensitiveText(item.fiatBalance)
 
                     SensitiveText(item.cryptoBalance)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 }
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)
             }
@@ -151,11 +151,11 @@ private extension TokenDetailsStakingView {
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                 Text(item.description)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                     .lineLimit(nil)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -175,10 +175,10 @@ private extension TokenDetailsStakingView {
         switch state {
         case .claimed(let text):
             SensitiveText(text)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
         case .empty(let text):
             Text(text)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
         case .auto: // [REDACTED_TODO_COMMENT]
             EmptyView()
         }

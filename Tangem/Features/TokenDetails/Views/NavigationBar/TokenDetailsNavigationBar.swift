@@ -33,7 +33,7 @@ struct TokenDetailsNavigationBar: View {
             storage
         }
         .foregroundStyle(Color.Tangem.Text.Neutral.primary)
-        .font(.Tangem.Body16.semibold)
+        .font(Font.Tangem.Body16.semibold)
     }
 
     @ViewBuilder
@@ -111,6 +111,6 @@ struct TokenDetailsNavigationBar: View {
 
     private var subtitle: some View {
         Text(viewModel.subtitle)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
     }
 }

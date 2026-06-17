@@ -39,7 +39,8 @@ private extension CommonExpressDependenciesFactory {
             expressAPIProvider: expressAPIProvider,
             expressRepository: swapRepository,
             featureFlags: ExpressFeatureFlags(
-                isApproveWithSwapEnabled: FeatureProvider.isAvailable(.approveFlowV2)
+                isApproveWithSwapEnabled: FeatureProvider.isAvailable(.approveFlowV2),
+                isChooseBestDEXEnabled: FeatureProvider.isAvailable(.swapChooseBestDEX)
             )
         )
     }

@@ -23,7 +23,7 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
                     marketPositionValue(state: state, rankColor: color)
@@ -45,7 +45,7 @@ struct MetricsMarketPositionCard: View {
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsMarketRating,
                         color: color,
-                        action: { viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating) }
+                        action: action
                     )
                 }
             }
@@ -63,7 +63,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(rankColor)
 
                 Text(ratingText)
-                    .style(.Tangem.Heading20.semibold, color: rankColor)
+                    .style(Font.Tangem.Heading20.semibold, color: rankColor)
 
                 Assets.DesignSystem.oliveRight.image
                     .renderingMode(.template)
@@ -88,7 +88,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(Color.Tangem.Graphic.Status.positive)
 
                 Text("\(value)")
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
             }
         case .down(let value):
             HStack(spacing: .unit(.half)) {
@@ -102,11 +102,15 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(Color.Tangem.Graphic.Status.warning)
 
                 Text("\(value)")
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
             }
         case .none:
             EmptyView()
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating)
     }
 
     // MARK: - Rank Colors

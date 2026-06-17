@@ -60,13 +60,13 @@ struct AddFundsOptionView: View {
 
     private var titleView: some View {
         Text(option.title)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
     private var subtitleView: some View {
         Text(option.subtitle)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             .lineLimit(1)
     }
 
