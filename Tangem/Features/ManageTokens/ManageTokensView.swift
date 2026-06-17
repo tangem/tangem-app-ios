@@ -264,7 +264,8 @@ private extension ManageTokensView {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,
-            coordinator: nil
+            coordinator: nil,
+            presentsAlertsViaOverlay: false
         ))
     }
 }
