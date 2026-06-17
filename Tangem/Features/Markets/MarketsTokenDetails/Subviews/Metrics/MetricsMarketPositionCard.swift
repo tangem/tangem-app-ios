@@ -23,7 +23,7 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
                     marketPositionValue(state: state, rankColor: color)
@@ -45,7 +45,7 @@ struct MetricsMarketPositionCard: View {
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsMarketRating,
                         color: color,
-                        action: { viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating) }
+                        action: action
                     )
                 }
             }
@@ -107,6 +107,10 @@ struct MetricsMarketPositionCard: View {
         case .none:
             EmptyView()
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating)
     }
 
     // MARK: - Rank Colors
