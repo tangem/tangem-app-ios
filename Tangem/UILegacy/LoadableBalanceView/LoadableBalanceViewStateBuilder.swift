@@ -75,7 +75,8 @@ struct LoadableBalanceViewStateBuilder {
             return .failed(cached: .string(Localization.commonUnreachable))
         case .failed(.some(let cached), _):
             let formatted = formatter.formatFiatBalance(cached, currencyCode: currencyCode)
-            return .failed(cached: .string(formatted), icon: .trailing)
+            let icon: LoadableBalanceView.State.Icon = FeatureProvider.isAvailable(.redesign) ? .leading : .trailing
+            return .failed(cached: .string(formatted), icon: icon)
         case .loaded(let balance):
             let formatted = formatter.formatFiatBalance(balance, currencyCode: currencyCode)
             return .loaded(text: .string(formatted))
