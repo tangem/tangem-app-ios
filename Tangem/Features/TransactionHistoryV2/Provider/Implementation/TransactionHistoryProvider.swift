@@ -20,7 +20,7 @@ final actor TransactionHistoryProvider {
     private let address: String
 
     private nonisolated var maskedAddress: String {
-        address.prefix(4) + "••••" + address.suffix(4)
+        address.prefix(Constants.maskedAddressPrefixSuffixLength) + "••••" + address.suffix(Constants.maskedAddressPrefixSuffixLength)
     }
 
     private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
@@ -294,6 +294,7 @@ private extension TransactionHistoryProvider {
     enum Constants {
         static let pullToRefreshThrottle: TimeInterval = 10
         static let postBroadcastDelay: Duration = .seconds(5)
+        static let maskedAddressPrefixSuffixLength = 4
     }
 }
 
