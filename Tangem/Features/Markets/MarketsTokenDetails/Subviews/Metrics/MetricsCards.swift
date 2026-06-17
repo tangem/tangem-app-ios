@@ -17,7 +17,7 @@ struct MetricsMarketCapCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 MetricsValueText(viewModel.record(for: .marketCapitalization)?.recordData)
 
@@ -25,10 +25,14 @@ struct MetricsMarketCapCard: View {
 
                 MetricsInfoLabel(
                     title: Localization.marketsTokenDetailsMarketCapitalization,
-                    action: { viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketCapitalization) }
+                    action: action
                 )
             }
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketCapitalization)
     }
 }
 
@@ -51,7 +55,7 @@ struct MetricsTradingVolumeCard: View {
     }
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 titleRow
 
@@ -90,11 +94,13 @@ struct MetricsTradingVolumeCard: View {
 
             MetricsInfoLabel(
                 title: Localization.marketsTokenDetailsTradingVolume,
-                action: {
-                    viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.tradingVolume)
-                }
+                action: action
             )
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.tradingVolume)
     }
 }
 
@@ -104,7 +110,7 @@ struct MetricsFDVCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
     var body: some View {
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 MetricsValueText(viewModel.record(for: .fullyDilutedValuation)?.recordData)
 
@@ -120,13 +126,15 @@ struct MetricsFDVCard: View {
 
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsFullyDilutedValuation,
-                        action: {
-                            viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.fullyDilutedValuation)
-                        }
+                        action: action
                     )
                 }
             }
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.fullyDilutedValuation)
     }
 }
 
