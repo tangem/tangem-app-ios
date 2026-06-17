@@ -157,7 +157,7 @@ class CommonWalletModel {
                 .dropFirst() // drop initial value
                 .withWeakCaptureOf(self)
                 .asyncMap { walletModel, _ in
-                    await walletModel.update(silent: false, features: .balances)
+                    await walletModel.update(silent: false, options: .balances)
                 }
                 .sink { _ in }
                 .store(in: &bag)
@@ -233,7 +233,7 @@ class CommonWalletModel {
             try await Task.sleep(for: .seconds(10))
 
             self?.walletManager.setNeedsUpdate()
-            await self?.update(silent: false, features: .full)
+            await self?.update(silent: false, options: .full)
         }
     }
 }
@@ -369,11 +369,11 @@ extension CommonWalletModel: WalletModel {
 // MARK: - WalletModelUpdater
 
 extension CommonWalletModel: WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+    func update(silent: Bool, options: WalletModelUpdateOptions) async {
         let logger = AppLogger.tag("WalletModelUpdater")
 
         async let balancesUpdate: () = {
-            if features.contains(.balances) {
+            if options.contains(.balances) {
                 if !silent { await updateState(.loading) }
 
                 async let update: () = walletManager.update()
@@ -389,7 +389,7 @@ extension CommonWalletModel: WalletModelUpdater {
         }()
 
         async let transactionHistoryUpdate: () = {
-            if features.contains(.transactionHistory) {
+            if options.contains(.transactionHistory) {
                 await _transactionHistoryService?.clearHistory()
 
                 await updateTransactionHistory()
@@ -593,7 +593,7 @@ extension CommonWalletModel: WalletModelHelpers {
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
             updateWallet: { [weak self] in
-                await self?.update(silent: false, features: .full)
+                await self?.update(silent: false, options: .full)
             }
         )
     }
@@ -838,7 +838,7 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         let updatedBlockchainNetwork = try await dynamicAddressesManager.enableDynamicAddresses()
         tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
 
-        await update(silent: false, features: .full)
+        await update(silent: false, options: .full)
     }
 
     @MainActor
@@ -850,7 +850,7 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         let updatedBlockchainNetwork = try dynamicAddressesManager.disableDynamicAddresses()
         tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
 
-        await update(silent: false, features: .full)
+        await update(silent: false, options: .full)
     }
 }
 
@@ -951,7 +951,7 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
         statePublisher
             .withWeakCaptureOf(self)
             .map { walletModel, _ in
-                // `_receiveAddressService` gets updated in the `update(silent:features:)` method call, which in turn
+                // `_receiveAddressService` gets updated in the `update(silent:options:)` method call, which in turn
                 // also updates the `_state` property and triggers `statePublisher` to emit a new value
                 walletModel._receiveAddressService.addressTypes
             }

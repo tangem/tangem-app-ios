@@ -38,7 +38,7 @@ class FakeWalletModelsManager: WalletModelsManager {
 
     func updateAll(silent: Bool) async {
         await TaskGroup.executeKeepingOrder(items: walletModels) {
-            await $0.update(silent: silent, features: .balances)
+            await $0.update(silent: silent, options: .balances)
         }
     }
 

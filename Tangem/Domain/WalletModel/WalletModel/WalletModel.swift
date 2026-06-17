@@ -99,7 +99,7 @@ extension WalletModel {
 // MARK: - WalletModelUpdater
 
 protocol WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async
+    func update(silent: Bool, options: WalletModelUpdateOptions) async
 
     func updateTransactionHistory() async
     func updateAfterSendingTransaction()
@@ -108,19 +108,17 @@ protocol WalletModelUpdater {
 extension WalletModelUpdater {
     /// It can be call as `Fire-and-forget` update
     @discardableResult
-    func startUpdateTask(silent: Bool = false, features: [WalletModelUpdaterFeatureType] = .full) -> Task<Void, Never> {
-        Task { await update(silent: silent, features: features) }
+    func startUpdateTask(silent: Bool = false, options: WalletModelUpdateOptions = .full) -> Task<Void, Never> {
+        Task { await update(silent: silent, options: options) }
     }
 }
 
-enum WalletModelUpdaterFeatureType {
-    case balances
-    case transactionHistory
-}
+struct WalletModelUpdateOptions: OptionSet {
+    let rawValue: Int
 
-extension [WalletModelUpdaterFeatureType] {
-    static let balances: [WalletModelUpdaterFeatureType] = [.balances]
-    static let full: [WalletModelUpdaterFeatureType] = [.balances, .transactionHistory]
+    static let balances = WalletModelUpdateOptions(rawValue: 1 << 0)
+    static let transactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
+    static let full: WalletModelUpdateOptions = [.balances, .transactionHistory]
 }
 
 // MARK: - WalletModelBalancesProvider
