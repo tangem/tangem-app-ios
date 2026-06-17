@@ -32,9 +32,9 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
 
     func start(with options: InputOptions) {
         if AppSettings.shared.shouldShowMobilePromoWalletSelector {
-            rootPromoViewModel = CreateWalletSelectorPromoViewModel(coordinator: self)
+            rootPromoViewModel = CreateWalletSelectorPromoViewModel(coordinator: self, showsBackButton: options.showsBackButton)
         } else {
-            rootViewModel = CreateWalletSelectorViewModel(coordinator: self)
+            rootViewModel = CreateWalletSelectorViewModel(coordinator: self, showsBackButton: options.showsBackButton)
         }
     }
 }
@@ -112,7 +112,13 @@ private extension CreateWalletSelectorCoordinator {
 // MARK: - Options
 
 extension CreateWalletSelectorCoordinator {
-    struct InputOptions {}
+    struct InputOptions {
+        let showsBackButton: Bool
+
+        init(showsBackButton: Bool = true) {
+            self.showsBackButton = showsBackButton
+        }
+    }
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)
