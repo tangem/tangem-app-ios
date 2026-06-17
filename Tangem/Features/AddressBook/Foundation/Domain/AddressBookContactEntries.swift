@@ -62,8 +62,7 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
     }
 
     /// Strict mutation-time validation, used by the editor before save: the max-count cap and
-    /// (address, networkId) uniqueness within the contact. The manager re-validates authoritatively on
-    /// save (with address normalization).
+    /// (address, networkId) uniqueness within the contact. The manager re-validates authoritatively on save.
     static func validate(adding entries: [Entry], to existing: [Entry]) throws {
         let all = existing + entries
 
@@ -79,7 +78,7 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
     }
 
     private static func pairKey(_ entry: Entry) -> String {
-        "\(entry.address)|\(entry.memo ?? "")|\(entry.networkId.rawValue)"
+        "\(entry.address)|\(entry.networkId.rawValue)"
     }
 }
 
