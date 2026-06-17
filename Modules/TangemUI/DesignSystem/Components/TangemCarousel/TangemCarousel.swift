@@ -88,13 +88,17 @@ private extension TangemCarousel {
             ForEach(items, id: \.id) { item in
                 content(item.element)
                     .frame(width: containerWidth)
+                    // Once a drag passes the gesture's slop, disable the content so an
+                    // in-flight press (e.g. a banner button) is canceled and a swipe started
+                    // on a button never fires it. A pure tap keeps translation at 0.
+                    .disabled(translation != 0)
             }
         }
         .frame(width: containerWidth, alignment: .leading)
         .offset(x: -CGFloat(baseIndex) * pageStep)
         .offset(x: effectiveTranslation)
         .animation(.easeOut(duration: animationDuration), value: translation)
-        .if(data.count > 1) { $0.highPriorityGesture(dragGesture) }
+        .if(data.count > 1) { $0.simultaneousGesture(dragGesture) }
     }
 }
 
