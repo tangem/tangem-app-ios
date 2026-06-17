@@ -51,6 +51,7 @@ enum Feature: String, Hashable, CaseIterable {
     case addressBook
     case stakingFlowV2
     case swapChooseBestDEX
+    case hideStoriesInMobileWallet
 
     var name: String {
         switch self {
@@ -96,6 +97,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
         case .addressBook: return "10801-Address-Book"
         case .stakingFlowV2: return "14492_Staking_Flow_V2"
+        case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
 
@@ -138,11 +140,12 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPaySpendRedesign: return .unspecified
         case .onrampApplePayHistoryFallback: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
-        case .approveFlowV2: return .unspecified
+        case .approveFlowV2: return .version("5.40")
         case .addAndOrganizeRedesign: return .version("5.40")
-        case .swapChooseBestDEX: return .unspecified
+        case .swapChooseBestDEX: return .version("5.40")
         case .addressBook: return .unspecified
         case .stakingFlowV2: return .unspecified
+        case .hideStoriesInMobileWallet: return .version("5.40")
         }
     }
 }
