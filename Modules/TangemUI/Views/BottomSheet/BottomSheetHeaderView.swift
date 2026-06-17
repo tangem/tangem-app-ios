@@ -17,7 +17,7 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     private let trailing: Trailing
     private let titleAccessibilityIdentifier: String?
 
-    private var titleFont: Font = Fonts.Bold.body
+    private var titleStyle = TangemFontStyle(font: Fonts.Bold.body)
     private var titleColor: Color = Colors.Text.primary1
     private var subtitleSpacing: CGFloat = 12
     private var verticalPadding: CGFloat = 12
@@ -41,7 +41,7 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
             // Title layer
             VStack(spacing: subtitleSpacing) {
                 Text(title)
-                    .style(titleFont, color: titleColor)
+                    .style(titleStyle, color: titleColor)
                     .accessibilityIdentifier(titleAccessibilityIdentifier)
 
                 if let subtitle {
@@ -69,7 +69,14 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
 
 extension BottomSheetHeaderView: Setupable {
     public func titleFont(_ font: Font) -> Self {
-        map { $0.titleFont = font }
+        map { $0.titleStyle = TangemFontStyle(font: font) }
+    }
+
+    public func titleStyle(_ style: TangemFontStyle, color: Color) -> Self {
+        map {
+            $0.titleStyle = style
+            $0.titleColor = color
+        }
     }
 
     public func titleColor(_ color: Color) -> Self {

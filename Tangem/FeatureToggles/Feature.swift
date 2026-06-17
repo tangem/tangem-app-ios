@@ -44,9 +44,13 @@ enum Feature: String, Hashable, CaseIterable {
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case onrampApplePayHistoryFallback
+    case mobileWalletMultiCreation
     case approveFlowV2
     case addAndOrganizeRedesign
     case addressBook
+    case swapChooseBestDEX
+    case hideStoriesInMobileWallet
 
     var name: String {
         switch self {
@@ -85,9 +89,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
+        case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
+        case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
         case .addressBook: return "10801-Address-Book"
+        case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
 
@@ -128,9 +136,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return .version("5.40")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
-        case .approveFlowV2: return .unspecified
+        case .onrampApplePayHistoryFallback: return .unspecified
+        case .mobileWalletMultiCreation: return .unspecified
+        case .approveFlowV2: return .version("5.40")
         case .addAndOrganizeRedesign: return .version("5.40")
+        case .swapChooseBestDEX: return .version("5.40")
         case .addressBook: return .unspecified
+        case .hideStoriesInMobileWallet: return .version("5.40")
         }
     }
 }

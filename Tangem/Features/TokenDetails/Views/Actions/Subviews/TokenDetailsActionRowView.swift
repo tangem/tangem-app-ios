@@ -59,7 +59,7 @@ struct TokenDetailsActionRowView: View {
     private var titleView: some View {
         Text(item.title)
             .style(
-                .Tangem.Body16.medium,
+                Font.Tangem.Body16.medium,
                 color: ActionControlAppearance.contentColor(isEnabled: item.isAvailable)
             )
             .lineLimit(1)
@@ -69,7 +69,7 @@ struct TokenDetailsActionRowView: View {
     private var subtitleView: some View {
         if let subtitle = item.subtitle {
             Text(subtitle)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
         } else {
             EmptyView()

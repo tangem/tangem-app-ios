@@ -245,6 +245,7 @@ struct TokenDetailsView: View {
             Menu("", systemImage: "ellipsis") {
                 ForEach(viewModel.dotsMenuItems) { menuItem in
                     Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                        .frame(width: .unit(.x11), height: .unit(.x11))
                         .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
                 }
             }
@@ -366,10 +367,16 @@ private extension TokenDetailsView {
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
+        expressAPIProvider: onrampExpressAPIProvider,
+        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
+            userWalletId: userWalletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem,
+            expressAPIProvider: onrampExpressAPIProvider
+        )
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,

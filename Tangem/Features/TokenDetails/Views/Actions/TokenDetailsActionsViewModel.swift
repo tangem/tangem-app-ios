@@ -148,17 +148,26 @@ private extension TokenDetailsActionsViewModel {
 
     func makeTransferButton() -> TokenDetailsActionsButton? {
         let options = groupOptions(from: outgoingOptions())
-        guard options.isNotEmpty else { return nil }
+        guard options.isNotEmpty else {
+            return makeTransferButton(isAvailable: false, action: {})
+        }
 
-        return TokenDetailsActionsButton(
+        return makeTransferButton(
+            isAvailable: true,
+            action: { [weak self] in
+                self?.handleGroupTap(kind: .transfer, options: options)
+            }
+        )
+    }
+
+    func makeTransferButton(isAvailable: Bool, action: @escaping () -> Void) -> TokenDetailsActionsButton {
+        TokenDetailsActionsButton(
             id: .transfer,
             title: Localization.commonTransfer,
             icon: Assets.arrowUpMini,
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.transferButton,
-            isAvailable: true,
-            action: { [weak self] in
-                self?.handleGroupTap(kind: .transfer, options: options)
-            },
+            isAvailable: isAvailable,
+            action: action,
             longPressAction: nil
         )
     }
