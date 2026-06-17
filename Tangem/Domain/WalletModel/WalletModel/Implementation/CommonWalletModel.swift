@@ -371,6 +371,7 @@ extension CommonWalletModel: WalletModel {
 extension CommonWalletModel: WalletModelUpdater {
     func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
         let logger = AppLogger.tag("WalletModelUpdater")
+        logger.info(self, "Start update with token '\(updateToken)'")
 
         async let balancesUpdate: () = {
             if options.contains(.balances) {
@@ -382,9 +383,7 @@ extension CommonWalletModel: WalletModelUpdater {
 
                 _ = await (update, quotes, staking)
                 await _receiveAddressService.update(with: wallet.addresses)
-
                 await walletManagerDidUpdate()
-                logger.info(self, "Update method finished with state '\(walletManager.state)'")
             }
         }()
 
@@ -398,6 +397,8 @@ extension CommonWalletModel: WalletModelUpdater {
 
         // Keep parallel updating
         _ = await (balancesUpdate, transactionHistoryUpdate)
+
+        logger.info(self, "Update with token '\(updateToken)' finished with state '\(walletManager.state)'")
     }
 
     func updateAfterSendingTransaction() {
