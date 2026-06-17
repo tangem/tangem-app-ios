@@ -118,7 +118,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
+    func update(silent: Bool, options: WalletModelUpdateOptions) async {}
 
     func updateTransactionHistory() async {}
 

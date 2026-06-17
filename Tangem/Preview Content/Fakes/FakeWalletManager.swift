@@ -151,7 +151,7 @@ class FakeWalletManager: WalletManager {
     private func updateWalletModels() {
         Task {
             await TaskGroup.executeKeepingOrder(items: walletModels) { walletModel in
-                await walletModel.update(silent: true, features: .balances)
+                await walletModel.update(silent: true, options: .balances)
             }
         }
     }

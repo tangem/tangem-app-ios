@@ -130,6 +130,8 @@ class CommonWalletModelsManager {
         // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
         let maxConcurrentUpdates = 5
         let count = walletModels.count
+        // [REDACTED_TODO_COMMENT]
+        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
@@ -138,8 +140,7 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    // [REDACTED_TODO_COMMENT]
-                    await walletModels[index].update(silent: silent, features: FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances)
+                    await walletModels[index].update(silent: silent, options: options)
                 }
             }
             await group.waitForAll()

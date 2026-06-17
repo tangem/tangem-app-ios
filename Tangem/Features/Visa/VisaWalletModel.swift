@@ -54,7 +54,7 @@ class VisaWalletModel {
 }
 
 extension VisaWalletModel: WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+    func update(silent: Bool, options: WalletModelUpdateOptions) async {
         // [REDACTED_TODO_COMMENT]
     }
 
