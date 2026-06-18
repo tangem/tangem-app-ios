@@ -28,7 +28,7 @@ struct MainPageTangemTokenRow: View {
             .onTapGesture(perform: viewModel.tapAction)
             .highlightable(color: .Tangem.Button.backgroundPrimary.opacity(0.03))
             // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
-            .previewContentShape(cornerRadius: .unit(.x4))
+            .previewContentShape(cornerRadius: .unit(.x6))
             .contextMenu {
                 ForEach(viewModel.contextActionSections, id: \.self) { section in
                     Section {

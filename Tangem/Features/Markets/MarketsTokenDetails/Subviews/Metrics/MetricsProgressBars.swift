@@ -13,16 +13,25 @@ import TangemUI
 
 struct MetricsCardContainer<Content: View>: View {
     let backgroundColor: Color
+    let action: () -> Void
     @ViewBuilder let content: Content
 
     var body: some View {
+        Button(
+            action: action,
+            label: label
+        )
+        .buttonStyle(.plain)
+    }
+
+    private func label() -> some View {
         content
-            .padding(.unit(.x4))
             .frame(
                 maxWidth: .infinity,
-                minHeight: 104,
+                minHeight: 72,
                 alignment: .leading
             )
+            .padding(.unit(.x4))
             .background(
                 backgroundColor
             )
@@ -37,27 +46,18 @@ struct MetricsProgressBar: View {
     let foregroundColor: Color
     let backgroundColor: Color
 
-    private let gapSize: CGFloat = .unit(.x1)
-
     var body: some View {
         GeometryReader { geometry in
             let clampedProgress = min(max(progress, 0), 1)
-            let totalWidth = geometry.size.width
-            let fillWidth = totalWidth * clampedProgress
-            let remainingWidth = totalWidth - fillWidth - gapSize
+            let fillWidth = geometry.size.width * clampedProgress
 
-            HStack(spacing: gapSize) {
-                if fillWidth > 0 {
+            Capsule()
+                .fill(backgroundColor)
+                .overlay(alignment: .leading) {
                     Capsule()
                         .fill(foregroundColor)
                         .frame(width: fillWidth)
                 }
-
-                if remainingWidth > 0 {
-                    Capsule()
-                        .fill(backgroundColor)
-                }
-            }
         }
         .frame(height: .unit(.x1_5))
     }

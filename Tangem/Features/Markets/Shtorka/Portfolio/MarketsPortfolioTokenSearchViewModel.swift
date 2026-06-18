@@ -11,6 +11,7 @@ import Combine
 import CombineExt
 import TangemFoundation
 import TangemAssets
+import struct SwiftUI.Font
 import TangemLocalization
 
 final class MarketsPortfolioTokenSearchViewModel: ObservableObject {
@@ -34,7 +35,7 @@ final class MarketsPortfolioTokenSearchViewModel: ObservableObject {
     var showAllTitle: AttributedString {
         let title = isExpanded ? Localization.feedSearchShowLessUserAssets : Localization.feedSearchShowAllUserAssets
         var string = AttributedString(title)
-        string.font = .Tangem.Subheadline.medium
+        string.setFontStyle(Font.Tangem.Subheadline.medium)
         string.foregroundColor = .Tangem.Text.Neutral.primary
         return string
     }

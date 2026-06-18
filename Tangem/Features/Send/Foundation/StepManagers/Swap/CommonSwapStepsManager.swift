@@ -59,7 +59,6 @@ extension CommonSwapStepsManager: SendStepsManager {
         switch currentStep().type {
         case .swap:
             let leading: SendStepNavigationLeadingViewType? = {
-                guard FeatureProvider.isAvailable(.swapSimpleMode) else { return nil }
                 let menu = summaryStep.makeFormVariantMenu()
                 return .dotsMenu(selectedId: menu.selectedId, items: menu.items)
             }()

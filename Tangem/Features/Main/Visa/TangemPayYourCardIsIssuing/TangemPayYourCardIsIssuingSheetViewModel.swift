@@ -13,7 +13,9 @@ import TangemUI
 
 final class TangemPayYourCardIsIssuingSheetViewModel: TangemPayPopupViewModel {
     var icon: Image {
-        Assets.warningIcon.image
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+            ? DesignSystem.Icons.Clock.regular32.image
+            : Assets.warningIcon.image
     }
 
     var title: AttributedString {

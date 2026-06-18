@@ -18,10 +18,9 @@ protocol SwapSummaryInteractor: AnyObject {
     var transactionDescription: AnyPublisher<AttributedString?, Never> { get }
     var isNotificationButtonIsLoading: AnyPublisher<Bool, Never> { get }
     var isActionInProcessing: AnyPublisher<Bool, Never> { get }
+    var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount()
     func userDidRequestSourceAmount(fraction: SwapAmountFraction)
     func userDidRequestSwap()
 }
@@ -30,6 +29,7 @@ class CommonSwapSummaryInteractor {
     private weak var input: SwapSummaryInput?
     private weak var output: SwapSummaryOutput?
     private weak var sourceTokenInput: SendSourceTokenInput?
+    private weak var swapModelStateProvider: SwapModelStateProvider?
 
     private let swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder
 
@@ -38,11 +38,13 @@ class CommonSwapSummaryInteractor {
         output: SwapSummaryOutput,
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
+        swapModelStateProvider: SwapModelStateProvider,
         swapDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder,
     ) {
         self.input = input
         self.output = output
         self.sourceTokenInput = sourceTokenInput
+        self.swapModelStateProvider = swapModelStateProvider
         self.swapDescriptionBuilder = swapDescriptionBuilder
     }
 }
@@ -131,13 +133,26 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         return input.isReadyToSendPublisher
     }
 
-    func userDidRequestSwap() {
-        output?.userDidRequestSwap()
+    var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> {
+        guard let swapModelStateProvider else {
+            assertionFailure("SwapModelStateProvider is not found")
+            return Empty().eraseToAnyPublisher()
+        }
+
+        return swapModelStateProvider.statePublisher
+            .filter { !$0.isLoading }
+            .map { state -> SwapSummaryViewModel.MainButtonState in
+                switch state {
+                case .loaded(.transfer, _): .transfer
+                default: .swap
+                }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount() {
-        output?.userDidRequestMaxAmount()
+    func userDidRequestSwap() {
+        output?.userDidRequestSwap()
     }
 
     func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
