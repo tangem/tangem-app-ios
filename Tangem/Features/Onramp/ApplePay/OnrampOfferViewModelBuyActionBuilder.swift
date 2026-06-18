@@ -42,10 +42,6 @@ struct OnrampOfferViewModelBuyActionBuilder {
         onWillBuy: @escaping () -> Void,
         onWidgetBuy: @escaping () -> Void
     ) -> OnrampOfferViewModel.BuyAction {
-        guard FeatureProvider.isAvailable(.onrampNativePayment) else {
-            return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
-        }
-
         // Native Apple Pay is restricted in some regions; fall back to the web widget there.
         guard geoEligibilityService.isApplePayAllowed else {
             return widget(onWillBuy: onWillBuy, onWidgetBuy: onWidgetBuy)
