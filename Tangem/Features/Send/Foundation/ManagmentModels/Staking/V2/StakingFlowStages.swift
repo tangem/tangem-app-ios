@@ -68,7 +68,8 @@ struct StakingFlowStages {
             fee: fee,
             target: action.targetInfo,
             isAmountEditable: stepPlan.amount.isEditable,
-            includesStakesCount: stepPlan.includesStakesCount
+            includesStakesCount: stepPlan.includesStakesCount,
+            isEnter: action.type.isEnter
         )
 
         // Entering a position (stake) surfaces extra "max" / different-validator hints on the ready state.
@@ -100,12 +101,13 @@ struct StakingFlowStages {
         )
     }
 
-    func finalize(amount: Decimal, fee: Decimal, target: StakingTargetInfo?, isAmountEditable: Bool, includesStakesCount: Bool) -> StakeFlowState {
-        let includeFee = isAmountEditable
+    func finalize(amount: Decimal, fee: Decimal, target: StakingTargetInfo?, isAmountEditable: Bool, includesStakesCount: Bool, isEnter: Bool) -> StakeFlowState {
+        let spendsWallet = isAmountEditable && isEnter
+        let includeFee = spendsWallet
             && feeIncludedCalculator.shouldIncludeFee(makeFee(fee), into: makeAmount(amount))
         let resolvedAmount = includeFee ? amount - fee : amount
 
-        if let validationError = validate(amount: isAmountEditable ? resolvedAmount : .zero, fee: fee) {
+        if let validationError = validate(amount: spendsWallet ? resolvedAmount : .zero, fee: fee) {
             return validationError
         }
 
@@ -147,4 +149,5 @@ enum StakeModelError: Error {
     case revokeAndApproveNotSupported
     case accountIsNotInitialized
     case notReady
+    case networkNotSupported
 }

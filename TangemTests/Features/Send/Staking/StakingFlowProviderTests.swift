@@ -241,10 +241,24 @@ struct StakingFlowProviderTests {
         }
 
         #expect(make(.solana) is SolanaStakingFlowProvider)
+        #expect(make(.cosmos) is CosmosStakingFlowProvider)
         #expect(make(.cardano) is CardanoStakingFlowProvider)
         #expect(make(.ton) is TONStakingFlowProvider)
         #expect(make(.ethereum, contract: "0xcontract") is EthereumStakingFlowProvider)
         #expect(make(.ethereum, contract: nil) is EthereumP2PStakingFlowProvider)
+        #expect(make(.kava) is UnsupportedStakingFlowProvider)
+        #expect(make(.near) is UnsupportedStakingFlowProvider)
+        #expect(make(.polkadot) is UnsupportedStakingFlowProvider)
+    }
+
+    @Test("An unsupported network resolves to a failure instead of running another flow")
+    func unsupportedNetworkFails() async throws {
+        let provider = UnsupportedStakingFlowProvider(action: StakingAction(amount: 5, targetType: .empty, type: .stake))
+
+        guard case .failure(.network) = try await provider.updateState(amount: nil, target: nil) else {
+            Issue.record("Expected a network failure")
+            return
+        }
     }
 
     // MARK: - Helpers

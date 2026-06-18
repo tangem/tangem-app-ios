@@ -315,6 +315,9 @@ extension StakeFactory: SendFinishStepBuildable {
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+        SendFinishStepBuilder.Dependencies(
+            analyticsLogger: analyticsLogger,
+            headerTitleProvider: StakingFinishHeaderTitleProvider()
+        )
     }
 }

@@ -25,8 +25,7 @@ enum StakingFlowProviderFactory {
         case .cosmos:
             return CosmosStakingFlowProvider(action: action, stages: stages)
         case .kava, .near, .polkadot:
-            assertionFailure("Staking is not supported for \(network)")
-            return CosmosStakingFlowProvider(action: action, stages: stages)
+            return UnsupportedStakingFlowProvider(action: action)
         case .bsc:
             return BSCStakingFlowProvider(action: action, stages: stages)
         case .tron:
