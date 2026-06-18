@@ -186,7 +186,7 @@ private extension SendAmountFinishViewModel {
                 ).string(from: $0)
             }
 
-            let showTilde = isApproximateAmount && flowActionType.isSwapFlow && FeatureProvider.isAvailable(.swapInProgressV2)
+            let showTilde = isApproximateAmount && flowActionType.isSwapFlow
             let amountText = formattedAmount.map { SwapAmountFormatter.formatAmount($0, isApproximate: showTilde) } ?? ""
 
             receiveSmallAmountViewModel = .init(
