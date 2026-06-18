@@ -38,6 +38,10 @@ enum AppConstants {
     static let cadCurrencyCode = "CAD"
     static let gbpCurrencyCode = "GBP"
 
+    /// Duration of the launch (splash) screen fade-out when transitioning to the main screen.
+    /// Shared so that UI appearing on the main screen can wait for the splash screen to fully disappear.
+    static let launchScreenDismissalDuration: TimeInterval = 0.3
+
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
     static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
