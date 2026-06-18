@@ -234,11 +234,15 @@ struct MarketsTokenDetailsView: View {
                     onGeneratedAITapAction: viewModel.onGenerateAITapAction
                 )
         }
-        // [REDACTED_INFO]: legacy security score sheet, redesign uses a floating sheet (global presenter)
-        .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
-            MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
-                .adaptivePresentationDetents()
-                .background(Colors.Background.tertiary.ignoresSafeArea())
+        .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
+            if viewModel.isRedesignEnabled {
+                MarketsTokenDetailsSecurityScoreDetailsRedesignedView(viewModel: detailsViewModel)
+            } else {
+                // [REDACTED_INFO]: legacy security score sheet
+                MarketsTokenDetailsSecurityScoreDetailsView(viewModel: detailsViewModel)
+                    .adaptivePresentationDetents()
+                    .background(Colors.Background.tertiary.ignoresSafeArea())
+            }
         }
         .animation(.default, value: viewModel.state)
         .animation(.default, value: viewModel.isLoading)
