@@ -45,7 +45,7 @@ final class TokenDeeplinkHandler {
 
         // Happy path: the token is already present in the local portfolio.
         if let walletModel = walletModelLocator.findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath) {
-            guard TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable() else {
+            guard TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isTokenInteractionAvailable() else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
@@ -153,7 +153,7 @@ final class TokenDeeplinkHandler {
                 let coordinator,
                 !userWalletRepository.isLocked,
                 let walletModel,
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
+                TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isTokenInteractionAvailable()
             else {
                 // The action was already claimed (we returned `true`), so `pendingAction` is cleared.
                 // Intentionally avoid `discardIncomingAction()` here: a newer pending action may have arrived

@@ -573,7 +573,9 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.accountModelsManager
     }
 
-    func validate() -> Bool { userWalletModel.validate() }
+    var backupState: UserWalletBackupState {
+        userWalletModel.backupState
+    }
 
     func update(type: UpdateRequest) {
         userWalletModel.update(type: type)

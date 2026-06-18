@@ -117,9 +117,7 @@ class FakeUserWalletModel: UserWalletModel {
         .just(output: totalBalance)
     }
 
-    func validate() -> Bool {
-        return true
-    }
+    var backupState: UserWalletBackupState { .valid }
 
     func update(type: UpdateRequest) {
         switch type {
