@@ -41,6 +41,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     func makeBackupService() -> BackupService { GenericBackupServiceFactory(isAccessCodeSet: false).makeBackupService() }
     func makeTangemSdk() -> TangemSdk { GenericTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk() }
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory { MainHeaderProviderFactoryStub() }
+    func makeActionButtonsRole() -> ActionButtonsWalletRole { ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false) }
 }
 
 // MARK: - TangemSigner
