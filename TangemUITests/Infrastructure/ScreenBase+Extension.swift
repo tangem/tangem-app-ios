@@ -132,8 +132,15 @@ extension ScreenBase {
         if clearButton.exists {
             clearButton.tap()
         }
-        element.typeText(text)
+        typeReliably(element: element, text: text)
         app.hideKeyboard()
+    }
+
+    /// Types per character so per-keystroke onChange handlers (e.g. length clamps) settle between inputs.
+    func typeReliably(element: XCUIElement, text: String) {
+        for character in text {
+            element.typeText(String(character))
+        }
     }
 
     func clearText(element: XCUIElement) {

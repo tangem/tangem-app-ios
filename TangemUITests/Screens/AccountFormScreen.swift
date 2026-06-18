@@ -36,7 +36,7 @@ final class AccountFormScreen: ScreenBase<AccountFormScreenElement> {
             if clearButton.exists {
                 clearButton.tap()
             }
-            nameInput.typeText(name)
+            typeReliably(element: nameInput, text: name)
             dismissKeyboard()
             return self
         }
