@@ -7,7 +7,7 @@
 //
 
 struct CommonBuyTokenAvailabilitySorter {
-    let userWalletModelConfig: UserWalletConfig
+    let userWalletInfo: UserWalletInfo
 }
 
 // MARK: - TokenAvailabilitySorter
@@ -26,7 +26,7 @@ extension CommonBuyTokenAvailabilitySorter: TokenAvailabilitySorter {
     }
 
     private func tokenAvailableToBuy(_ walletModel: any WalletModel) -> Bool {
-        let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
         return availabilityProvider.isBuyAvailable
     }
 }
