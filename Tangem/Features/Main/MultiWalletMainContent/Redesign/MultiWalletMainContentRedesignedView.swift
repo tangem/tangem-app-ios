@@ -128,7 +128,7 @@ struct MultiWalletMainContentRedesignedView: View {
     // MARK: - Accounts List
 
     private var accountsList: some View {
-        LazyVStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x2)) {
             ForEach(viewModel.accountSections) { accountSection in
                 ExpandableAccountItemView(viewModel: accountSection.model) {
                     LazyVStack(spacing: 0) {
