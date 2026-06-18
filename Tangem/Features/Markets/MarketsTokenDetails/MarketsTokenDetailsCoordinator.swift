@@ -77,7 +77,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     private func resolvePresentationStyleForInnerFlow() -> MarketsTokenDetailsPresentationStyle {
         switch presentationStyle {
-        case .marketsSheet:
+        case .marketsSheet, .addFundsSheet:
             return .marketsSheet
 
         // [REDACTED_USERNAME], if we're already in a fullScreenCover, navigationStack should be used for inner flows.
@@ -569,6 +569,51 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
 
         flowViewModel.showAddToken(viewModel)
+    }
+
+    func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
+        Task { @MainActor in
+            weak var flowViewModelRef: MarketsPortfolioFlowViewModel?
+
+            let portfolioViewModel = MarketsPortfolioTokenListViewModel(
+                walletModels: walletModels,
+                dismissesOnSelect: false,
+                onSelect: { [weak self] walletModel in
+                    guard let self, let flowViewModel = flowViewModelRef else { return }
+                    showAddFunds(in: flowViewModel, walletModel: walletModel, walletDataProvider: walletDataProvider)
+                },
+                coordinator: self
+            )
+
+            let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
+            flowViewModelRef = flowViewModel
+
+            floatingSheetPresenter.enqueue(sheet: flowViewModel)
+        }
+    }
+
+    private func showAddFunds(
+        in flowViewModel: MarketsPortfolioFlowViewModel,
+        walletModel: any WalletModel,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        guard let userWalletModel = walletDataProvider.userWalletModels[walletModel.userWalletId] else {
+            return
+        }
+
+        Task { @MainActor in
+            let viewModel = AddFundsViewModel(
+                input: .init(
+                    mode: .sheet(.full),
+                    primaryAction: .goToToken,
+                    walletModel: walletModel,
+                    userWalletModel: userWalletModel
+                ),
+                coordinator: self
+            )
+
+            flowViewModel.showAddFunds(viewModel)
+        }
     }
 
     private func openPortfolioTokenDetails(walletModel: any WalletModel) {

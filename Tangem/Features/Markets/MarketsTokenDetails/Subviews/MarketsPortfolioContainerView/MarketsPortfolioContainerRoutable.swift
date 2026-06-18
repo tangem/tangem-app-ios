@@ -26,4 +26,6 @@ protocol MarketsPortfolioContainerRoutable: AnyObject {
         addTokenInputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         walletDataProvider: MarketsWalletDataProvider
     )
+
+    func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider)
 }
