@@ -100,17 +100,17 @@ extension CommonSwapStepsManager: SendStepsManager {
 // MARK: - SwapSummaryStepRoutable
 
 extension CommonSwapStepsManager: SwapSummaryStepRoutable {
-    func summaryStepRequestEditSourceToken(tokenItem: TokenItem?) {
+    func summaryStepRequestEditSourceToken(receiveToken: WalletTokenItem?) {
         router?.openSwapTokenSelector(
             swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
-            direction: .toDestination(tokenItem)
+            direction: .toDestination(receiveToken)
         )
     }
 
-    func summaryStepRequestEditReceiveToken(tokenItem: TokenItem?) {
+    func summaryStepRequestEditReceiveToken(sourceToken: WalletTokenItem?) {
         router?.openSwapTokenSelector(
             swapTokenSelectorViewModelBuilder: tokenSelectorBuilder,
-            direction: .fromSource(tokenItem)
+            direction: .fromSource(sourceToken)
         )
     }
 

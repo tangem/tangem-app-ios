@@ -53,7 +53,8 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
     func userDidTapHotCryptoToken(_ token: HotCryptoToken) {
         ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: token.tokenItem?.currencySymbol ?? token.name)
-        coordinator?.openAddHotToken(hotToken: token, userWalletModels: userWalletModels)
+        let scopeWalletModels = hotCryptoScopeWalletModels(selectedChipId: tokenSelectorViewModel.selectedChipId)
+        coordinator?.openAddHotToken(hotToken: token, userWalletModels: scopeWalletModels)
     }
 }
 
@@ -62,20 +63,41 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 private extension ActionButtonsBuyViewModel {
     func bind() {
         hotCryptoService.hotCryptoItemsPublisher
-            .map { [weak self] in self?.mapHotCryptoItems($0) ?? [] }
+            .combineLatest(tokenSelectorViewModel.$selectedChipId)
+            .map { [weak self] items, selectedChipId in
+                self?.mapHotCryptoItems(items, selectedChipId: selectedChipId) ?? []
+            }
             .receiveOnMain()
             .assign(to: &$hotCryptoItems)
     }
 
-    func mapHotCryptoItems(_ items: [HotCryptoDTO.Response.HotToken]) -> [HotCryptoToken] {
-        let allSupportedBlockchains = Set(userWalletModels.flatMap { $0.config.supportedBlockchains })
-        let tokenMapper = TokenItemMapper(supportedBlockchains: allSupportedBlockchains)
+    func mapHotCryptoItems(_ items: [HotCryptoDTO.Response.HotToken], selectedChipId: String?) -> [HotCryptoToken] {
+        let scopeWalletModels = hotCryptoScopeWalletModels(selectedChipId: selectedChipId)
+
+        guard scopeWalletModels.isNotEmpty else {
+            return []
+        }
+
+        let supportedBlockchains = Set(scopeWalletModels.flatMap { $0.config.supportedBlockchains })
+        let tokenMapper = TokenItemMapper(supportedBlockchains: supportedBlockchains)
 
         let mappedTokens = items.map { HotCryptoToken(from: $0, tokenMapper: tokenMapper, imageHost: nil) }
-        return filterHotTokens(mappedTokens)
+        return filterHotTokens(mappedTokens, userWalletModels: scopeWalletModels)
     }
 
-    func filterHotTokens(_ hotTokens: [HotCryptoToken]) -> [HotCryptoToken] {
+    func hotCryptoScopeWalletModels(selectedChipId: String?) -> [UserWalletModel] {
+        let scopeWalletModels: [UserWalletModel]
+        if let selectedChipId,
+           let selected = userWalletModels.first(where: { $0.userWalletId.stringValue == selectedChipId }) {
+            scopeWalletModels = [selected]
+        } else {
+            scopeWalletModels = userWalletModels
+        }
+
+        return scopeWalletModels.filter { $0.config.makeActionButtonsRole().providesHotCryptoTokens }
+    }
+
+    func filterHotTokens(_ hotTokens: [HotCryptoToken], userWalletModels: [UserWalletModel]) -> [HotCryptoToken] {
         hotTokens.filter { hotToken in
             guard let tokenItem = hotToken.tokenItem else { return false }
 
@@ -98,6 +120,7 @@ extension ActionButtonsBuyViewModel: TokenSelectorViewModelOutput {
             return
         }
 
+        // Card-linked gating happens in AddFundsViewModel, so no extra gate is needed here.
         coordinator?.openAddFunds(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
     }
 }

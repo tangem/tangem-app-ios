@@ -37,6 +37,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let rateAppController: RateAppInteractionController
@@ -62,6 +63,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?,
         accountModel: (any CryptoAccountModel)?
     ) {
+        self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
         self.rateAppController = rateAppController
@@ -169,6 +171,13 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     override func copyDefaultAddress() {
+        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = unavailableAlert
+            return
+        }
+
         super.copyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
@@ -240,7 +249,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        addFundsRoutable?.openBuy(userWalletModels: userWalletModels)
+        addFundsRoutable?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
     }
 }
 
@@ -264,7 +273,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionsProvider {
         return actionBuilder.buildContextActionsSections(
             tokenItem: tokenItemViewModel.tokenItem,
             walletModel: walletModel,
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             canNavigateToMarketsDetails: isMarketsDetailsAvailable,
             canHideToken: false
         )
@@ -277,10 +286,20 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
     func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         switch action {
         case .buy:
+            if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.buyAvailablity) {
+                alert = unavailableAlert
+                return
+            }
+
             contextActionTokenRouter.openOnramp(walletModel: walletModel)
         case .send:
             contextActionTokenRouter.openSend(walletModel: walletModel)
         case .receive:
+            if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain) {
+                alert = unavailableAlert
+                return
+            }
+
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
@@ -290,6 +309,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
             ) else {
                 return
             }
+
             contextActionTokenRouter.openSwap(parameters: parameters)
         case .sell:
             contextActionTokenRouter.openSell(for: walletModel)
@@ -298,6 +318,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .yield:
             contextActionTokenRouter.openYieldModule(walletModel: walletModel)
         case .copyAddress:
+            // Gated inside copyDefaultAddress() via receiveAvailability.
             copyDefaultAddress()
         case .marketsDetails:
             openMarketsTokenDetails()

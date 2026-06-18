@@ -472,7 +472,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private func tokenItemTapped(_ walletModelId: WalletModelId) {
         guard
             let walletModel = findWalletModel(with: walletModelId),
-            TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable()
+            TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isTokenInteractionAvailable()
         else {
             return
         }
@@ -628,10 +628,10 @@ extension MultiWalletMainContentViewModel {
 
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        coordinator?.openBuy(userWalletModels: userWalletModels)
+        coordinator?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
     }
 
-    private func openSupport() {
+    private func openBackupErrorSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
         let dataCollector = DetailsFeedbackDataCollector(
@@ -645,8 +645,8 @@ extension MultiWalletMainContentViewModel {
 
         coordinator?.openMail(
             with: dataCollector,
-            emailType: .appFeedback(subject: EmailConfig.default.subject),
-            recipient: EmailConfig.default.recipient
+            emailType: .appFeedback(subject: EmailConfig.backupError.subject),
+            recipient: EmailConfig.backupError.recipient
         )
     }
 
@@ -757,8 +757,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             rateAppController.openFeedbackMail()
         case .openAppStoreReview:
             rateAppController.openAppStoreReview()
-        case .support:
-            openSupport()
+        case .backupErrorSupport:
+            openBackupErrorSupport()
         case .openMobileFinishActivation:
             openMobileFinishActivation()
         case .openMobileUpgrade:
@@ -809,7 +809,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionsProvider {
         return actionBuilder.buildContextActionsSections(
             tokenItem: tokenItemViewModel.tokenItem,
             walletModel: walletModel,
-            userWalletConfig: userWalletModel.config,
+            userWalletInfo: userWalletModel.userWalletInfo,
             canNavigateToMarketsDetails: true,
             canHideToken: canManageTokens
         )
@@ -838,16 +838,35 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             return
         }
 
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        let availabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
+
         switch action {
         case .buy:
+            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.buyAvailablity) {
+                error = unavailableAlert
+                return
+            }
+
             tokenRouter.openOnramp(walletModel: walletModel)
         case .send:
             tokenRouter.openSend(walletModel: walletModel)
         case .receive:
+            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.receiveAvailability, blockchain: walletModel.tokenItem.blockchain) {
+                error = unavailableAlert
+                return
+            }
+
             tokenRouter.openReceive(walletModel: walletModel)
         case .sell:
             openSell(for: walletModel)
         case .copyAddress:
+            // Copying the receive address is the first step of topping up, so it must be blocked on a card-linked wallet.
+            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.receiveAvailability, blockchain: walletModel.tokenItem.blockchain) {
+                error = unavailableAlert
+                return
+            }
+
             logContextTap(action: action, for: tokenItemViewModel)
             UIPasteboard.general.string = walletModel.defaultAddressString
             delegate?.displayAddressCopiedToast()
@@ -859,6 +878,7 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             ) else {
                 return
             }
+
             tokenRouter.openSwap(parameters: parameters)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
@@ -894,7 +914,13 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
 
 private extension MultiWalletMainContentViewModel {
     func makeActionButtonsViewModel() -> ActionButtonsViewModel? {
-        guard let coordinator, canManageTokens else { return nil }
+        guard let coordinator else { return nil }
+
+        // Single-token products (e.g. Nodl) can't manage tokens, so the row is pinned via the role flag instead.
+        let shouldForceActionButtonsRow = userWalletModel.config.makeActionButtonsRole().forcesActionButtonsRow
+            && ActionButtonsVisibility(config: userWalletModel.config).hasVisibleButtons
+
+        guard canManageTokens || shouldForceActionButtonsRow else { return nil }
 
         return .init(
             coordinator: coordinator,
