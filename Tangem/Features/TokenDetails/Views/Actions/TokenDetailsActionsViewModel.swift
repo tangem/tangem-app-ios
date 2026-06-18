@@ -31,7 +31,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
     ) {
         self.walletModel = walletModel
         availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
     }

@@ -20,12 +20,14 @@ struct TokenSelectorItemBuyAvailabilityProvider: TokenSelectorItemAvailabilityPr
 
     private func availabilityType(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) -> TokenSelectorItem.AvailabilityType {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
 
         return switch availabilityProvider.buyAvailablity {
-        case .available: .available
+        // A card-linked wallet keeps its tokens selectable so the tap surfaces the backup-support alert
+        // downstream (`ActionButtonsBuyViewModel.didSelect`), instead of greying them as "unavailable to purchase".
+        case .available, .incompleteBackup: .available
         default: .unavailable(reason: .unavailableForOnramp)
         }
     }
