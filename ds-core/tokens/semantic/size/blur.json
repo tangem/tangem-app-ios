@@ -4,8 +4,8 @@
       "card": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.dimens3.blur.card",
-            "iOS": "DesignSystem.Tokens.Blur.Size.card"
+            "Android": "48.dp",
+            "iOS": "48"
           }
         },
         "$type": "dimension",
@@ -14,8 +14,8 @@
       "button": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.dimens3.blur.Button",
-            "iOS": "DesignSystem.Tokens.Blur.Size.button"
+            "Android": "32.dp",
+            "iOS": "32"
           }
         },
         "$type": "dimension",
@@ -24,8 +24,8 @@
       "fade": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.dimens3.blur.Fade",
-            "iOS": "DesignSystem.Tokens.Blur.Size.fade"
+            "Android": "8.dp",
+            "iOS": "8"
           }
         },
         "$type": "dimension",
@@ -34,8 +34,8 @@
       "none": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.dimens3.blur.None",
-            "iOS": "DesignSystem.Tokens.Blur.Size.none"
+            "Android": "0.dp",
+            "iOS": "0"
           }
         },
         "$type": "dimension",
