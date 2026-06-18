@@ -14,6 +14,7 @@ struct TangemPaySmallCardView: View {
         case issued(cardNumberEnd: String)
         case issuing
         case replacing
+        case closing
     }
 
     let state: State
@@ -65,7 +66,7 @@ struct TangemPaySmallCardView: View {
                     endPoint: UnitPoint(x: 0.95, y: 0.0)
                 )
             }
-        case .issuing, .replacing:
+        case .issuing, .replacing, .closing:
             Color.Tangem.Graphic.Neutral.quaternary
         }
     }
@@ -82,7 +83,7 @@ struct TangemPaySmallCardView: View {
                 .padding(.top, 20)
         case .issuing:
             bottomLeftIssuingIcon
-        case .replacing:
+        case .replacing, .closing:
             Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 8, weight: .semibold))
                 .foregroundColor(.white)

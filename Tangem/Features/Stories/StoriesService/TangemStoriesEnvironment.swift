@@ -76,15 +76,9 @@ extension InjectedValues {
     }
 }
 
-// MARK: - Toggle-aware factory
+// MARK: - Story factory
 
 extension TangemStory {
-    static var initialSwapStoryBasedOnToggle: TangemStory {
-        FeatureProvider.isAvailable(.swapStoriesV2)
-            ? .swap(.initialWithoutImages)
-            : .swapLegacy(.initialWithoutImages)
-    }
-
     static var yieldFirstActivationAPYBoostStory: TangemStory {
         .yieldFirstActivationAPYBoost(.initialWithoutImages)
     }

@@ -64,7 +64,7 @@ private extension TangemTabs {
     func itemContent(_ item: Item) -> some View {
         Text(item.text)
             .style(
-                .Tangem.Body16.semibold,
+                Font.Tangem.Body16.semibold,
                 color: fontColor(isSelected: isItemSelected(item))
             )
             .padding(.horizontal, contentHorizontalPadding)

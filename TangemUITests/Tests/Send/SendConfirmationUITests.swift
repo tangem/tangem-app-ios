@@ -166,4 +166,41 @@ final class SendConfirmationUITests: BaseTestCase {
             .validateNetworkFee(currentFeeAmount)
             .waitForSendButtonEnabled()
     }
+
+    func testSendSecondTransactionWhileFirstActive_ForEthereum() {
+        setAllureId(557)
+
+        let tokenName = "Ethereum"
+        let inputAmount = "0.001"
+        let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
+
+        launchApp(tangemApiType: .mock, clearStorage: true)
+
+        let tokenScreen = importHotWallet()
+            .tapToken(tokenName)
+            .waitForActionButtons(requireSwapEnabled: false)
+
+        tokenScreen
+            .tapSendButton()
+            .waitForDisplay()
+            .enterAmount(inputAmount)
+            .tapNextButton()
+            .enterDestination(destination)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+            .tapSendButton()
+            .waitForDisplay()
+            .tapCloseButton()
+
+        tokenScreen
+            .tapSendButton()
+            .waitForDisplay()
+            .enterAmount(inputAmount)
+            .tapNextButton()
+            .enterDestination(destination)
+            .tapNextButtonToSummary()
+            .waitForDisplay(checkValidatorBlock: false)
+            .tapSendButton()
+            .waitForDisplay()
+    }
 }

@@ -14,13 +14,13 @@ public extension NotificationBanner {
         case status(Content)
         case critical(Content, BannerAction)
         case warning(Content, BannerAction)
-        case promo(Content, BannerAction, CloseAction, Effect)
+        case promo(Content, BannerAction, CloseAction, Effect, BannerTextAlignment = .center)
         case survey(TextOnly, BannerAction, CloseAction)
         case informational(TextOnly, BannerAction, CloseAction, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
-            case .status(let c), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _): c
+            case .status(let c), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _, _): c
             case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
             }
         }
@@ -29,21 +29,21 @@ public extension NotificationBanner {
             switch self {
             case .status: .buttons(.none)
             case .critical(_, let a), .warning(_, let a),
-                 .promo(_, let a, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
+                 .promo(_, let a, _, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
             }
         }
 
         var closeAction: CloseAction? {
             switch self {
             case .status, .critical, .warning: nil
-            case .promo(_, _, let a, _), .survey(_, _, let a), .informational(_, _, let a, _): a
+            case .promo(_, _, let a, _, _), .survey(_, _, let a), .informational(_, _, let a, _): a
             }
         }
 
         var textAlignment: BannerTextAlignment {
             switch self {
-            case .status, .critical, .warning, .promo, .survey: .center
-            case .informational(_, _, _, let alignment): alignment
+            case .status, .critical, .warning, .survey: .center
+            case .promo(_, _, _, _, let alignment), .informational(_, _, _, let alignment): alignment
             }
         }
 
@@ -51,7 +51,16 @@ public extension NotificationBanner {
             switch self {
             case .status, .survey, .informational: .none
             case .critical, .warning: .bannerWarning
-            case .promo(_, _, _, let effect): effect
+            case .promo(_, _, _, let effect, _): effect
+            }
+        }
+
+        var borderColor: Color {
+            switch self {
+            case .status, .survey, .informational:
+                return .Tangem.Border.Neutral.banner.opacity(0.15)
+            case .critical, .warning, .promo:
+                return .clear
             }
         }
 
@@ -72,11 +81,13 @@ public extension NotificationBanner {
     enum Content: Equatable, Sendable {
         case text(TextOnly)
         case textWithIcon(TextWithIcon)
+        case textWithLoadableIcon(TextWithLoadableIcon)
 
         public var text: TextOnly {
             switch self {
             case .text(let textOnly): textOnly
             case .textWithIcon(let data): data.text
+            case .textWithLoadableIcon(let data): data.text
             }
         }
 
@@ -87,6 +98,11 @@ public extension NotificationBanner {
                 return CGSize(
                     width: textWithIcon.icon.width.value,
                     height: textWithIcon.icon.height.value
+                )
+            case .textWithLoadableIcon(let data):
+                return CGSize(
+                    width: data.icon.width.value,
+                    height: data.icon.height.value
                 )
             }
         }
@@ -134,6 +150,35 @@ public extension NotificationBanner {
         ) {
             self.imageType = imageType
             self.renderingMode = renderingMode
+            self.alignment = alignment
+            self.width = width
+            self.height = height
+        }
+    }
+
+    struct TextWithLoadableIcon: Equatable, Sendable {
+        public let text: TextOnly
+        public let icon: LoadableIcon
+
+        public init(text: TextOnly, icon: LoadableIcon) {
+            self.text = text
+            self.icon = icon
+        }
+    }
+
+    struct LoadableIcon: Equatable, Sendable {
+        public let url: URL
+        public let alignment: Alignment
+        public let width: SizeUnit
+        public let height: SizeUnit
+
+        public init(
+            url: URL,
+            alignment: Alignment = .topLeading,
+            width: SizeUnit = .x6,
+            height: SizeUnit = .x6
+        ) {
+            self.url = url
             self.alignment = alignment
             self.width = width
             self.height = height
