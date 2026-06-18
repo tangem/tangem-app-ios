@@ -333,6 +333,7 @@
 "common_sell" = "銷售";
 "common_send_colon" = "Send:";
 "common_send_tx_error" = "發送交易失敗";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "發送";
 "common_sending" = "Sending";
 "common_sent" = "Sent";
@@ -1065,6 +1066,7 @@
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
 "quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
