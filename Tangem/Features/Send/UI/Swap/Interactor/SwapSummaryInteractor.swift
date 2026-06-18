@@ -21,8 +21,6 @@ protocol SwapSummaryInteractor: AnyObject {
     var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount()
     func userDidRequestSourceAmount(fraction: SwapAmountFraction)
     func userDidRequestSwap()
 }
@@ -155,11 +153,6 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
 
     func userDidRequestSwap() {
         output?.userDidRequestSwap()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount() {
-        output?.userDidRequestMaxAmount()
     }
 
     func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
