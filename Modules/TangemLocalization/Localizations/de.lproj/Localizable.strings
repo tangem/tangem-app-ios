@@ -333,6 +333,7 @@
 "common_sell" = "Verkaufen";
 "common_send_colon" = "Senden:";
 "common_send_tx_error" = "Absenden der Transaktion fehlgeschlagen";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Senden";
 "common_sending" = "Senden";
 "common_sent" = "Gesendet";
@@ -1065,6 +1066,7 @@
 "quick_action_buy_description" = "Kreditkarte oder Bankkonto";
 "quick_action_receive_description" = "Teilen deine Adresse oder dein QR-Code";
 "quick_action_sell_description" = "Sicherer Verkauf von Kryptowährungen";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "An eine andere Wallet senden";
 "quick_action_swap_description" = "Zwischen deinen Portfolios";
 "quick_top_up_chip_other" = "Andere";
