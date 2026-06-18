@@ -80,6 +80,7 @@ extension TangemPayCardEntry {
         let pendingPIIds = Set(pendingProductInstances.map(\.id))
         let cardPIIds = Set(cards.map(\.productInstance.id))
         for pi in pendingProductInstances.sorted(by: { $0.id < $1.id }) {
+            if cardPIIds.contains(pi.id) { continue }
             entries.append(.issuing(.pendingProductInstance(pi)))
         }
         for order in activeIssueOrders.sorted(by: { $0.id < $1.id }) {
