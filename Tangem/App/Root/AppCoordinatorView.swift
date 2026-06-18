@@ -77,6 +77,10 @@ struct AppCoordinatorView: CoordinatorView {
                     .transition(.asymmetric(insertion: .identity, removal: .opacity.animation(.easeOut(duration: 0.3))))
             case .launch:
                 LaunchScreenView()
+                    .transition(.asymmetric(
+                        insertion: .identity,
+                        removal: .opacity.animation(.easeInOut(duration: AppConstants.launchScreenDismissalDuration))
+                    ))
             case .jailbreakWarning(let viewModel):
                 JailbreakWarningView(viewModel: viewModel)
             case .none:
