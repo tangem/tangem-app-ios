@@ -20,6 +20,9 @@ final class CommonTokenFeeProvider {
     let feeTokenItemBalanceProvider: TokenBalanceProvider
     let supportingOptions: TokenFeeProviderSupportingOptions
 
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
+
     private var tokenFeeProviderInputData: TokenFeeProviderInputData?
 
     private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
@@ -52,7 +55,23 @@ final class CommonTokenFeeProvider {
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { feeTokenItemBalanceProvider.balanceType }
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { feeTokenItemBalanceProvider.balanceTypePublisher }
-    var formattedFeeTokenBalance: FormattedTokenBalanceType { feeTokenItemBalanceProvider.formattedBalanceType }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType {
+        let currencyId = feeTokenItem.currencyId
+        let currencySymbol = feeTokenItem.currencySymbol
+
+        let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceConverter, balanceFormatter] cryptoValue in
+            if let cryptoValue,
+               let currencyId,
+               let fiatValue = balanceConverter.convertToFiat(cryptoValue, currencyId: currencyId) {
+                return balanceFormatter.formatFiatBalance(fiatValue)
+            }
+
+            return balanceFormatter.formatCryptoBalance(cryptoValue, currencyCode: currencySymbol)
+        })
+
+        return builder.mapToFormattedTokenBalanceType(type: feeTokenItemBalanceProvider.balanceType)
+    }
+
     var hasMultipleFeeOptions: Bool {
         if case .available(let fees) = state {
             return fees.count > 1
