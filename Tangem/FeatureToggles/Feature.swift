@@ -138,7 +138,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return .version("5.40")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
-        case .onrampApplePayHistoryFallback: return .unspecified
+        case .onrampApplePayHistoryFallback: return .version("5.40")
         case .mobileWalletMultiCreation: return .unspecified
         case .approveFlowV2: return .version("5.40")
         case .addAndOrganizeRedesign: return .version("5.40")
