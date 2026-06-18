@@ -16,7 +16,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
 
     var body: some View {
         switch coordinator.presentationStyle {
-        case .marketsSheet, .navigationStack:
+        case .marketsSheet, .navigationStack, .addFundsSheet:
             content
 
         case .fullScreenCover:
