@@ -162,6 +162,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
             name: "Test",
             id: UserWalletId(value: Data([0x01])),
             config: UserWalletConfigStub(),
+            backupState: .valid,
             refcode: nil,
             signer: TangemSignerStub(),
             emailDataProvider: EmailDataProviderStub()
