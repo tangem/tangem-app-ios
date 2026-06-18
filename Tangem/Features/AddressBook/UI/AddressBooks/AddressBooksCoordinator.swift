@@ -17,6 +17,10 @@ class AddressBooksCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: AddressBooksViewModel?
 
+    // MARK: - Child coordinators
+
+    @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator?
+
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -42,10 +46,24 @@ extension AddressBooksCoordinator {
 
 extension AddressBooksCoordinator: AddressBooksRoutable {
     func openAddContact() {
-        // [REDACTED_TODO_COMMENT]
+        openContactManagement(options: .add)
     }
 
     func openEditContact(contact: AddressBookContact) {
-        // [REDACTED_TODO_COMMENT]
+        openContactManagement(options: .edit(contact: contact))
+    }
+}
+
+// MARK: - Private
+
+private extension AddressBooksCoordinator {
+    func openContactManagement(options: AddressBookContactManagementCoordinator.Options) {
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.contactManagementCoordinator = nil
+        }
+
+        let coordinator = AddressBookContactManagementCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        coordinator.start(with: options)
+        contactManagementCoordinator = coordinator
     }
 }
