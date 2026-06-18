@@ -89,4 +89,17 @@ final class DetailsFieldsUITests: BaseTestCase {
             .openDetails()
             .verifySections(walletConnect: false)
     }
+
+    func testToSScreenDisplaying() {
+        setAllureId(222)
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .openDetails()
+            .openToSScreen()
+            .verifyTitle()
+            .verifyWebViewLoaded()
+            .verifyToSText()
+    }
 }
