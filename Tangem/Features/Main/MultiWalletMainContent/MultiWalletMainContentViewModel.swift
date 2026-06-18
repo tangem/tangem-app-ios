@@ -628,7 +628,7 @@ extension MultiWalletMainContentViewModel {
 
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        coordinator?.openBuy(userWalletModels: userWalletModels)
+        coordinator?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
     }
 
     private func openBackupErrorSupport() {
@@ -914,7 +914,13 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
 
 private extension MultiWalletMainContentViewModel {
     func makeActionButtonsViewModel() -> ActionButtonsViewModel? {
-        guard let coordinator, canManageTokens else { return nil }
+        guard let coordinator else { return nil }
+
+        // Single-token products (e.g. Nodl) can't manage tokens, so the row is pinned via the role flag instead.
+        let shouldForceActionButtonsRow = userWalletModel.config.makeActionButtonsRole().forcesActionButtonsRow
+            && ActionButtonsVisibility(config: userWalletModel.config).hasVisibleButtons
+
+        guard canManageTokens || shouldForceActionButtonsRow else { return nil }
 
         return .init(
             coordinator: coordinator,
