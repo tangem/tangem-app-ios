@@ -56,7 +56,7 @@ struct TransactionSendAvailabilityProvider {
         do {
             let feeWalletModelFinderResult = try WalletModelFinder.findWalletModel(tokenItem: walletModel.feeTokenItem)
             let availabilityProvider = TokenActionAvailabilityProvider(
-                userWalletConfig: feeWalletModelFinderResult.userWalletModel.config,
+                userWalletInfo: feeWalletModelFinderResult.userWalletModel.userWalletInfo,
                 walletModel: feeWalletModelFinderResult.walletModel
             )
 

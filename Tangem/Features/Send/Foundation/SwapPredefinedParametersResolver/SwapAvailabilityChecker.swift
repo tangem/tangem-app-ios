@@ -21,7 +21,7 @@ struct CommonSwapAvailabilityChecker: SwapAvailabilityChecker {
 
     func isSwapAvailable(walletModel: any WalletModel) -> Bool {
         TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         ).isSwapAvailable
     }
