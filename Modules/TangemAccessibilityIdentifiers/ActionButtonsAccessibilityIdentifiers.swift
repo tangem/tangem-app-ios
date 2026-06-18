@@ -34,4 +34,10 @@ public enum ActionButtonsAccessibilityIdentifiers {
     public static let addFundsBuyRow = "\(prefix)AddFundsBuyRow"
     public static let addFundsSwapRow = "\(prefix)AddFundsSwapRow"
     public static let addFundsReceiveRow = "\(prefix)AddFundsReceiveRow"
+
+    /// Transfer screen
+    public static let transferSellRow = "\(prefix)TransferSellRow"
+    public static let transferSwapRow = "\(prefix)TransferSwapRow"
+    public static let transferSwapAndSendRow = "\(prefix)TransferSwapAndSendRow"
+    public static let transferSendRow = "\(prefix)TransferSendRow"
 }
