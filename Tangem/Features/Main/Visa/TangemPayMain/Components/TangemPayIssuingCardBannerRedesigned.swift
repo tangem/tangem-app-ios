@@ -25,7 +25,7 @@ struct TangemPayIssuingCardBannerRedesigned: View {
                     .font(DesignSystem.Tokens.Font.Body.medium)
                     .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
 
-                Text(Localization.tangempayIssuingYourCardDescription)
+                Text(Localization.tangempayReissueCardInProgressDescription)
                     .font(DesignSystem.Tokens.Font.Caption.medium)
                     .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
             }

@@ -7,7 +7,6 @@
 
 import Combine
 import Foundation
-import UIKit
 import TangemFoundation
 import TangemPay
 import TangemVisa
@@ -53,6 +52,10 @@ final class TangemPayAccount {
         offersSubject.eraseToAnyPublisher()
     }
 
+    var additionalCardIssueOffer: TangemPayCustomerOffer? {
+        offersSubject.value.first { $0.type.isAdditionalCardIssue }
+    }
+
     var statePublisher: AnyPublisher<VisaCustomerInfoResponse.CustomerState, Never> {
         customerInfoSubject
             .map(\.state)
@@ -74,6 +77,10 @@ final class TangemPayAccount {
 
     var cardIssueFailureSignal: AnyPublisher<Void, Never> {
         cardIssueFailureSubject.eraseToAnyPublisher()
+    }
+
+    var cardIssueCompletedSignal: AnyPublisher<Void, Never> {
+        cardIssueCompletedSubject.eraseToAnyPublisher()
     }
 
     var cards: [TangemPayCard] {
@@ -207,6 +214,7 @@ final class TangemPayAccount {
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
     private let isReissuingCardSubject = CurrentValueSubject<Bool, Never>(false)
     private let cardIssueFailureSubject = PassthroughSubject<Void, Never>()
+    private let cardIssueCompletedSubject = PassthroughSubject<Void, Never>()
 
     private var bag = Set<AnyCancellable>()
 
@@ -242,8 +250,6 @@ final class TangemPayAccount {
         if multipleCardsEnabled {
             bindActiveIssueOrderEvents()
             cardsSubject.send(rebuildingCards(from: customerInfo, existing: []))
-            restoreInFlightCardIssueOrder()
-            observeAppLifecycle()
             observeCardRefreshSignals()
         }
     }
@@ -268,10 +274,6 @@ final class TangemPayAccount {
         multipleCardsEnabled
             ? card(cardId: cardId)?.displayName
             : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
-    }
-
-    deinit {
-        orderStatusPollingService.cancel()
     }
 }
 
@@ -525,25 +527,6 @@ private extension TangemPayAccount {
         }
     }
 
-    func restoreInFlightCardIssueOrder() {
-        runTask { [weak self] in
-            await self?.resumeAdditionalCardIssuePolling()
-        }
-    }
-
-    func observeAppLifecycle() {
-        NotificationCenter.default
-            .publisher(for: UIApplication.willEnterForegroundNotification)
-            .sink { [weak self] _ in
-                runTask { [weak self] in
-                    await self?.loadCustomerInfo()
-                    await self?.loadOffers()
-                    await self?.resumeAdditionalCardIssuePolling()
-                }
-            }
-            .store(in: &bag)
-    }
-
     func observeCardRefreshSignals() {
         cardsSubject
             .map { cards in
@@ -600,6 +583,7 @@ private extension TangemPayAccount {
         await loadCustomerInfo()
         activeIssueOrderEventsSubject.send(.remove(id: orderId))
         await loadOffers()
+        cardIssueCompletedSubject.send(())
     }
 
     func startAdditionalCardIssueTracking(orderId: String) {
@@ -670,6 +654,6 @@ private extension TangemPayAccount {
     enum Constants {
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
         static let reissueOrderPollInterval: TimeInterval = 5
-        static let cardIssuePollInterval: TimeInterval = 60
+        static let cardIssuePollInterval: TimeInterval = 5
     }
 }
