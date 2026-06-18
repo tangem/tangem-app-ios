@@ -22,7 +22,7 @@ struct TangemPayIssuingCardBanner: View {
                 Text(Localization.tangempayIssuingNewDigitalCardTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
 
-                Text(Localization.tangempayIssuingYourCardDescription)
+                Text(Localization.tangempayReissueCardInProgressDescription)
                     .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
             }
 

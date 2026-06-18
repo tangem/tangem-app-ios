@@ -268,8 +268,8 @@ struct TangemPayMainView: View {
                     .frame(width: 48, height: 32)
                     .background(Colors.Button.secondary.cornerRadiusContinuous(4))
             }
-            .disabled(viewModel.isStale)
-            .opacity(viewModel.isStale ? 0.6 : 1)
+            .disabled(viewModel.addCardDisabled)
+            .opacity(viewModel.addCardDisabled ? 0.6 : 1)
 
             Spacer()
         }
@@ -418,8 +418,8 @@ struct TangemPayMainView: View {
                 Button(action: viewModel.tapAddCard) {
                     TangemPayAddCardView()
                 }
-                .disabled(viewModel.isStale)
-                .opacity(viewModel.isStale ? 0.6 : 1)
+                .disabled(viewModel.addCardDisabled)
+                .opacity(viewModel.addCardDisabled ? 0.6 : 1)
             } else {
                 Button(action: viewModel.openCardManagement) {
                     TangemPaySmallCardViewRedesigned(
