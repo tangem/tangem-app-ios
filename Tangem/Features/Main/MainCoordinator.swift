@@ -203,7 +203,7 @@ extension MainCoordinator: MainRoutable {
              .tokenDetails,
              .buy,
              .sell,
-             .swapWithDeferredPairResolution,
+             .swap,
              .referral,
              .staking,
              .marketsTokenDetails,
