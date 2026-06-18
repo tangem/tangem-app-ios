@@ -111,6 +111,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             tokenSelectorBuilder: tokenSelectorBuilder,
+            summaryTitleProvider: SwapSummaryTitleProvider(sourceTokenInput: swapModel, receiveTokenInput: swapModel),
             router: router
         )
 
