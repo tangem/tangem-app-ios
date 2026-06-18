@@ -63,17 +63,17 @@ private extension VisaCustomerWalletApproveTask {
         }
 
         let targetCurve = VisaUtilities.mandatoryCurve
-        guard let wallet = card.wallets.first(where: { $0.curve == targetCurve }) else {
+        guard let walletPublicKey = card.wallets.first(where: { $0.curve == targetCurve })?.publicKey else {
             completion(.failure(.walletNotFound))
             return
         }
 
-        let derivationTask = DeriveWalletPublicKeyTask(walletPublicKey: wallet.publicKey, derivationPath: derivationPath)
+        let derivationTask = DeriveWalletPublicKeyTask(walletPublicKey: walletPublicKey, derivationPath: derivationPath)
         derivationTask.run(in: session) { result in
             switch result {
             case .success(let extendedPublicKey):
                 self.processDerivedKey(
-                    wallet: wallet,
+                    seedKey: walletPublicKey,
                     derivationPath: derivationPath,
                     extendedPublicKey: extendedPublicKey,
                     session: session,
@@ -86,7 +86,7 @@ private extension VisaCustomerWalletApproveTask {
     }
 
     func processDerivedKey(
-        wallet: Card.Wallet,
+        seedKey: Data,
         derivationPath: DerivationPath,
         extendedPublicKey: ExtendedPublicKey,
         session: CardSession,
@@ -101,7 +101,7 @@ private extension VisaCustomerWalletApproveTask {
 
             signApproveData(
                 keyInfo: .init(
-                    seedKey: wallet.publicKey,
+                    seedKey: seedKey,
                     keyToSignApprove: extendedPublicKey.publicKey,
                     derivationPath: derivationPath
                 ),

@@ -884,7 +884,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             return
         }
 
-        AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: cardIds)
+        AccessCodeSaveUtility(primaryCardFirmwareVersion: backupService.primaryCard?.firmwareVersion)
+            .trySave(accessCode: accessCode, cardIds: cardIds)
     }
 
     private func processBackupError(_ error: Error) {

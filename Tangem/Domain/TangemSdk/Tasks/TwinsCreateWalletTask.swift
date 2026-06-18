@@ -71,8 +71,12 @@ class TwinsCreateWalletTask: CardSessionRunnable {
     }
 
     private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let walletPublicKey = session.environment.card?.wallets.first?.publicKey
-        let erase = PurgeWalletCommand(publicKey: walletPublicKey!)
+        guard let walletIndex = session.environment.card?.wallets.first?.index else {
+            completion(.failure(TangemSdkError.walletNotFound))
+            return
+        }
+
+        let erase = PurgeWalletCommand(walletIndex: walletIndex)
         erase.run(in: session) { result in
             switch result {
             case .success:

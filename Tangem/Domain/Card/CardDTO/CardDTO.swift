@@ -77,10 +77,15 @@ struct CardDTO: Codable {
     }
 
     private func mapWallets(_ cardWallets: [Card.Wallet]) -> [CardDTO.Wallet] {
-        return cardWallets.map {
-            .init(
-                publicKey: $0.publicKey,
-                chainCode: $0.chainCode,
+        return cardWallets.compactMap {
+            guard let walletPublicKey = $0.publicKey,
+                  let chainCode = $0.chainCode else {
+                return nil
+            }
+
+            return CardDTO.Wallet(
+                publicKey: walletPublicKey,
+                chainCode: chainCode,
                 curve: $0.curve,
                 settings: $0.settings,
                 totalSignedHashes: $0.totalSignedHashes,

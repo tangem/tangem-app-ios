@@ -1,5 +1,5 @@
 {
-  "originHash" : "9ac2acb695fe0482eeafe3c481cd68e438ed5b835b0a1837d8d2073d340f1544",
+  "originHash" : "fcbc7ce556109ce2592c6682677833a6f0b92298edc8500be22305d942ce1976",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -761,8 +761,7 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "e171dc3b7ccd9b721e2ba95b7f082b3376318261",
-        "version" : "4.1.2"
+        "revision" : "f7790f0f0ced138d4826a7ea072f4d4e3c7a7b81"
       }
     },
     {

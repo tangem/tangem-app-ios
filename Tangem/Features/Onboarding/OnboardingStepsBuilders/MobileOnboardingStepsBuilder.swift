@@ -27,7 +27,7 @@ struct MobileOnboardingStepsBuilder: OnboardingStepsBuilder {
 
         steps.append(.mobileUpgradeIntro)
 
-        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupService.addedBackupCardsCount < backupService.maxBackupCardsCount {
             steps.append(.selectBackupCards)
         }
 

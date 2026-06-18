@@ -75,10 +75,10 @@ struct VisaApprovePairSearchUtility {
     }
 
     private func findLegacyPublicKey(for targetAddress: String, in wallet: KeyInfo) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
-        let publicKey = wallet.publicKey
+        let walletPublicKey = wallet.publicKey
 
-        try visaWalletPublicKeyUtility.validatePublicKey(targetAddress: targetAddress, publicKey: publicKey)
+        try visaWalletPublicKeyUtility.validatePublicKey(targetAddress: targetAddress, walletPublicKey: walletPublicKey)
 
-        return publicKey
+        return walletPublicKey
     }
 }

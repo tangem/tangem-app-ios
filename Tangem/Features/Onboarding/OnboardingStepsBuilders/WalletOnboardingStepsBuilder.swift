@@ -53,7 +53,7 @@ struct WalletOnboardingStepsBuilder {
             steps.append(.scanPrimaryCard)
         }
 
-        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupService.addedBackupCardsCount < backupService.maxBackupCardsCount {
             steps.append(.selectBackupCards)
         }
 
