@@ -701,17 +701,13 @@ extension MarketsTokenDetailsViewModel: MarketsTokenDetailsSecurityScoreRoutable
                 .token: tokenInfo.symbol.uppercased(),
             ]
         )
-        if isRedesignEnabled {
-            Task { @MainActor in
-                coordinator?.openSecurityScoreDetails(with: providers, routable: self)
+        securityScoreDetailsViewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
+            with: providers,
+            routable: self,
+            closeAction: { [weak self] in
+                self?.securityScoreDetailsViewModel = nil
             }
-        } else {
-            // [REDACTED_INFO]: legacy security score sheet
-            securityScoreDetailsViewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
-                with: providers,
-                routable: self
-            )
-        }
+        )
     }
 }
 
