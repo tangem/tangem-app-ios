@@ -27,10 +27,25 @@ struct TokenDetailsView: View {
         // Nested lazy stacks are known to cause various issues with scroll offset handling and content rendering.
         RefreshScrollView(stateObject: viewModel.refreshScrollViewStateObject, contentSettings: .simpleContent) {
             VStack(spacing: Constants.sectionSpacing) {
-                TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+                if !viewModel.isRedesign {
+                    TokenDetailsHeaderView(viewModel: viewModel.tokenDetailsHeaderModel)
+                }
 
                 if viewModel.isRedesign {
                     TokenDetailsBalanceView(viewModel: viewModel.balanceViewModel)
+                        .padding(.vertical, max(0, .unit(.x10) - Constants.sectionSpacing))
+
+                    if viewModel.isZeroBalance {
+                        VStack(spacing: .unit(.x2)) {
+                            redesignNotificationBanners
+                            redesignYieldView
+                            redesignStakingView
+                        }
+                    }
+
+                    if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                        QuickTopUpBannerView(viewModel: quickTopUpVM)
+                    }
 
                     if let actionsViewModel = viewModel.actionsViewModel {
                         TokenDetailsActionsView(viewModel: actionsViewModel)
@@ -43,7 +58,7 @@ struct TokenDetailsView: View {
 
                 marketPriceLegacy
 
-                yieldStatusView
+                yieldView
 
                 stakingView
 
@@ -56,7 +71,7 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                if !viewModel.isRedesign, let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
                     QuickTopUpBannerView(viewModel: quickTopUpVM)
                 }
 
@@ -181,8 +196,27 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
+    private var yieldView: some View {
+        if viewModel.isRedesign, !viewModel.isZeroBalance {
+            redesignYieldView
+        } else {
+            yieldStatusView
+        }
+    }
+
+    @ViewBuilder
+    private var redesignYieldView: some View {
+        switch viewModel.yieldState {
+        case .some(let state):
+            TokenDetailsYieldView(state: state)
+        case .none:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
     private var stakingView: some View {
-        if viewModel.isRedesign {
+        if viewModel.isRedesign, !viewModel.isZeroBalance {
             redesignStakingView
         } else {
             legacyStakingView
@@ -215,6 +249,7 @@ struct TokenDetailsView: View {
             Menu("", systemImage: "ellipsis") {
                 ForEach(viewModel.dotsMenuItems) { menuItem in
                     Button(menuItem.type.title, role: menuItem.type.role, action: menuItem.action)
+                        .frame(width: .unit(.x11), height: .unit(.x11))
                         .accessibilityIdentifier(menuItem.type.accessibilityIdentifier)
                 }
             }
@@ -223,19 +258,23 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var notifications: some View {
-        if viewModel.isRedesign {
-            VStack(spacing: .unit(.x2)) {
-                ForEach(viewModel.notifications) { notification in
-                    NotificationBanner(
-                        bannerType: notification.bannerType,
-                        accessibilityIdentifier: notification.accessibilityIdentifier
-                    )
-                }
-            }
+        if viewModel.isRedesign, !viewModel.isZeroBalance {
+            redesignNotificationBanners
         } else {
             ForEach(viewModel.tokenNotificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.isFulfillingAssetRequirements)
+            }
+        }
+    }
+
+    private var redesignNotificationBanners: some View {
+        VStack(spacing: .unit(.x2)) {
+            ForEach(viewModel.notifications) { notification in
+                NotificationBanner(
+                    bannerType: notification.bannerType,
+                    accessibilityIdentifier: notification.accessibilityIdentifier
+                )
             }
         }
     }
@@ -259,7 +298,10 @@ struct TokenDetailsView: View {
             TokenDetailsMarketPriceView(viewModel: viewModel)
                 .padding(.horizontal, .unit(.x4))
                 .padding(.vertical, .unit(.x2))
-                .ignoresSafeArea(.keyboard)
+                .background {
+                    LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                        .ignoresSafeArea()
+                }
         }
     }
 
@@ -319,23 +361,26 @@ private extension TokenDetailsView {
         walletModelsManager: cryptoAccountModel.walletModelsManager,
         tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
-    let apiProviderFactory = ExpressAPIProviderFactory()
-    let expressAPIProviderResolver = ExpressAPIProviderResolver(
-        providerFactory: { userWalletId, refcode in
-            apiProviderFactory.makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-        }
-    )
+    let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+    }
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
         walletModelUpdater: walletModel,
-        expressAPIProviderResolver: expressAPIProviderResolver,
+        cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
+        expressAPIProvider: onrampExpressAPIProvider,
+        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
+            userWalletId: userWalletModel.userWalletId.stringValue,
+            tokenItem: walletModel.tokenItem,
+            expressAPIProvider: onrampExpressAPIProvider
+        )
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,

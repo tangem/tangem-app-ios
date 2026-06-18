@@ -214,12 +214,12 @@ extension MoonPayService: SellService {
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
         )
         .sink(
-            receiveCompletion: { result in
+            receiveCompletion: { [weak self] result in
                 switch result {
                 case .finished: break
                 case .failure(let error):
                     AppLogger.error("Failed both requests", error: error)
-                    self.initializeState = .failed(.networkError)
+                    self?.initializeState = .failed(.networkError)
                 }
             },
             receiveValue: { [weak self] ipOutput, currenciesOutput in

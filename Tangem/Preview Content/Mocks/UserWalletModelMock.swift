@@ -95,8 +95,6 @@ class UserWalletModelMock: UserWalletModel {
         return nil
     }
 
-    func updateWalletPushNotifyStatus(_ status: UserWalletPushNotifyStatus) {}
-
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
     func validate() -> Bool { true }
