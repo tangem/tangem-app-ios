@@ -17,8 +17,15 @@ protocol SendAmountStepBuildable {
 }
 
 extension SendAmountStepBuildable {
-    func makeSendAmountStep() -> SendAmountStepBuilder.ReturnValue {
-        SendAmountStepBuilder.make(io: amountIO, types: amountTypes, dependencies: amountDependencies)
+    func makeSendAmountStep(
+        shouldStartFromTokenList: Bool = false
+    ) -> SendAmountStepBuilder.ReturnValue {
+        SendAmountStepBuilder.make(
+            io: amountIO,
+            types: amountTypes,
+            dependencies: amountDependencies,
+            shouldStartFromTokenList: shouldStartFromTokenList
+        )
     }
 }
 
@@ -74,7 +81,12 @@ enum SendAmountStepBuilder {
 
     typealias ReturnValue = (step: SendAmountStep, amountUpdater: SendAmountExternalUpdater, compact: SendAmountCompactViewModel, finish: SendAmountFinishViewModel)
 
-    static func make(io: IO, types: Types, dependencies: Dependencies) -> ReturnValue {
+    static func make(
+        io: IO,
+        types: Types,
+        dependencies: Dependencies,
+        shouldStartFromTokenList: Bool = false,
+    ) -> ReturnValue {
         let interactorSaver = CommonSendAmountInteractorSaver(
             sourceTokenAmountInput: io.sourceAmountIO.input,
             sourceTokenAmountOutput: io.sourceAmountIO.output,
@@ -100,6 +112,7 @@ enum SendAmountStepBuilder {
             flowActionType: types.flowActionType,
             interactor: interactor,
             analyticsLogger: dependencies.analyticsLogger,
+            shouldStartFromTokensList: shouldStartFromTokenList,
             providerRateTypesPublisher: dependencies.providerRateTypesPublisher
         )
 
