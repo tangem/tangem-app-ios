@@ -52,6 +52,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
+    private let supportChatTokenStorage = SupportChatTokenStorage()
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
@@ -240,6 +241,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
 
         if models.isEmpty {
+            supportChatTokenStorage.clear()
             lockInternal()
         } else {
             let newModel = models[nextSelectionIndex]
