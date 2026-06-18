@@ -13,7 +13,7 @@ import TangemLocalization
 import TangemUIUtils
 import TangemMobileWalletSdk
 import TangemAssets
-import class TangemSdk.BiometricsUtil
+import TangemSdk
 
 final class MobileBackupTypesViewModel: ObservableObject {
     @Published var sections: [Section] = []

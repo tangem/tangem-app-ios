@@ -7492,8 +7492,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
-				kind = exactVersion;
-				version = 4.1.2;
+				kind = revision;
+				revision = f7790f0f0ced138d4826a7ea072f4d4e3c7a7b81;
 			};
 		};
 		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {

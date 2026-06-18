@@ -69,7 +69,6 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .version("6.0")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
@@ -80,17 +79,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .unspecified
-        case .transfers: return .version("6.0")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
-        case .onrampApplePayHistoryFallback: return .version("6.0")
+        case .addressBook: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
+        case .onrampApplePayHistoryFallback: return .version("6.0")
         case .approveFlowV2: return .version("6.0")
         case .addAndOrganizeRedesign: return .version("6.0")
         case .swapChooseBestDEX: return .version("6.0")
-        case .addressBook: return .unspecified
+        case .transfers: return .version("6.0")
+        case .redesign: return .version("6.0")
         case .hideStoriesInMobileWallet: return .version("6.0")
         }
     }

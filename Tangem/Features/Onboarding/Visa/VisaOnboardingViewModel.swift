@@ -390,7 +390,8 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
         }
 
         let accessCode = accessCodeSetupViewModel.accessCode
-        AccessCodeSaveUtility().trySave(accessCode: accessCode, cardIds: [cardIdToSave])
+        AccessCodeSaveUtility(primaryCardFirmwareVersion: input.backupService.primaryCard?.firmwareVersion)
+            .trySave(accessCode: accessCode, cardIds: [cardIdToSave])
     }
 }
 
