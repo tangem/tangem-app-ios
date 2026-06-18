@@ -706,13 +706,50 @@ extension SwapModel {
             _sourceAmount.send(
                 makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId)
             )
-        case (.from, .none), (.to, .none):
-            // Keep the current amount when the quote is unexpectedly nil
-            break
+        case (.from, .none):
+            // No provider quote (e.g. amount below the minimum): show an approximate
+            // receive amount from local market quotes instead of a stale / empty value.
+            updateReceiveAmountFromLocalQuote()
+        case (.to, .none):
+            updateSourceAmountFromLocalQuote()
         case (.none, _):
             _sourceAmount.send(nil)
             _receiveAmount.send(nil)
         }
+    }
+
+    private func updateReceiveAmountFromLocalQuote() {
+        guard let sourceCrypto = _sourceAmount.value?.crypto, sourceCrypto > 0,
+              let sourceCurrencyId = sourceToken.value?.tokenItem.currencyId,
+              let receiveTokenItem = receiveToken.value?.tokenItem,
+              let estimate = localQuoteEstimate(crypto: sourceCrypto, fromCurrencyId: sourceCurrencyId, to: receiveTokenItem) else {
+            _receiveAmount.send(nil)
+            return
+        }
+
+        _receiveAmount.send(makeSendAmount(crypto: estimate, currencyId: receiveTokenItem.currencyId))
+    }
+
+    private func updateSourceAmountFromLocalQuote() {
+        guard let receiveCrypto = _receiveAmount.value?.crypto, receiveCrypto > 0,
+              let receiveCurrencyId = receiveToken.value?.tokenItem.currencyId,
+              let sourceTokenItem = sourceToken.value?.tokenItem,
+              let estimate = localQuoteEstimate(crypto: receiveCrypto, fromCurrencyId: receiveCurrencyId, to: sourceTokenItem) else {
+            _sourceAmount.send(nil)
+            return
+        }
+
+        _sourceAmount.send(makeSendAmount(crypto: estimate, currencyId: sourceTokenItem.currencyId))
+    }
+
+    private func localQuoteEstimate(crypto: Decimal, fromCurrencyId: String, to target: TokenItem) -> Decimal? {
+        guard let targetCurrencyId = target.currencyId,
+              let fiat = balanceConverter.convertToFiat(crypto, currencyId: fromCurrencyId),
+              let estimate = balanceConverter.convertToCryptoFrom(fiatValue: fiat, currencyId: targetCurrencyId) else {
+            return nil
+        }
+
+        return estimate.rounded(scale: target.decimalCount, roundingMode: .down)
     }
 
     func makeSendAmount(crypto: Decimal, currencyId: String?) -> SendAmount {
@@ -1057,16 +1094,17 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .map { state -> ExchangeAmountRestriction? in
+            .withWeakCaptureOf(self)
+            .map { model, state -> ExchangeAmountRestriction? in
                 guard case .loaded(_, let loadedState) = state else {
                     return nil
                 }
 
                 switch loadedState {
-                case .restriction(.tooSmallAmountForSwapping(let amount, _), _):
-                    return .tooSmallAmount(amount)
-                case .restriction(.tooBigAmountForSwapping(let amount, _), _):
-                    return .tooBigAmount(amount)
+                case .restriction(.tooSmallAmountForSwapping(let amount, let currencySymbol), _):
+                    return .tooSmallAmount(amount, currencySymbol: currencySymbol, currencyId: model.currencyId(forRestrictionSymbol: currencySymbol))
+                case .restriction(.tooBigAmountForSwapping(let amount, let currencySymbol), _):
+                    return .tooBigAmount(amount, currencySymbol: currencySymbol, currencyId: model.currencyId(forRestrictionSymbol: currencySymbol))
                 case .restriction(.notEnoughBalanceForSwapping, _):
                     return .balanceExceeded
                 case .requiredRefresh:
@@ -1077,6 +1115,18 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    private func currencyId(forRestrictionSymbol symbol: String) -> String? {
+        if sourceToken.value?.tokenItem.currencySymbol == symbol {
+            return sourceToken.value?.tokenItem.currencyId
+        }
+
+        if receiveToken.value?.tokenItem.currencySymbol == symbol {
+            return receiveToken.value?.tokenItem.currencyId
+        }
+
+        return nil
     }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
@@ -1433,15 +1483,6 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
 
     func userDidRequestSwap() {
         router?.performSwapAction()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount() {
-        guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
-            return
-        }
-
-        externalAmountUpdater.externalUpdate(amount: balance)
     }
 
     func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
