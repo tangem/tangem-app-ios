@@ -87,8 +87,10 @@ enum SendAmountError: LocalizedError {
 }
 
 enum ExchangeAmountRestriction: Equatable {
-    case tooSmallAmount(Decimal)
-    case tooBigAmount(Decimal)
+    /// Denominated in the edited side's currency: formatted by `currencySymbol` (crypto) or
+    /// `currencyId` (fiat), not relabelled with the other token.
+    case tooSmallAmount(Decimal, currencySymbol: String, currencyId: String?)
+    case tooBigAmount(Decimal, currencySymbol: String, currencyId: String?)
     case balanceExceeded
     case exchangeDataLoadingFailed
 }
