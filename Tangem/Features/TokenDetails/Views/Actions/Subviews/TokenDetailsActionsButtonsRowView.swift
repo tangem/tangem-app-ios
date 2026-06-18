@@ -52,4 +52,15 @@ enum TokenDetailsActionsKind: String {
     case addFunds
     case swap
     case transfer
+
+    /// Swap direction for an entry point: Add Funds treats the current token as destination (`to`),
+    /// Transfer as source (`from`). The dedicated Swap button stays `automatic` so it keeps the
+    /// balance-based pair resolution instead of forcing a side.
+    var swapPosition: SwapDirection {
+        switch self {
+        case .addFunds: return .to
+        case .transfer: return .from
+        case .swap: return .automatic
+        }
+    }
 }

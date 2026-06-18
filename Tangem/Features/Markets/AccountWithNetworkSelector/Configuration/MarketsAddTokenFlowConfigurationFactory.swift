@@ -141,7 +141,8 @@ private extension MarketsAddTokenFlowConfigurationFactory {
                 let helper = SwapPredefinedParametersHelper()
                 guard let parameters = helper.makeParameters(
                     walletModel: walletModel,
-                    userWalletInfo: userWalletInfo
+                    userWalletInfo: userWalletInfo,
+                    position: .automatic
                 ) else {
                     break
                 }
