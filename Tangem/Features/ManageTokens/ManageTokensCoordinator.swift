@@ -48,7 +48,8 @@ class ManageTokensCoordinator: CoordinatorObject {
         rootViewModel = .init(
             adapter: adapter,
             context: context,
-            coordinator: self
+            coordinator: self,
+            presentsAlertsViaOverlay: false
         )
     }
 }

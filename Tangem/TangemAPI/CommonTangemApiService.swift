@@ -104,6 +104,19 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String) async throws {
+        // Contract v1.3 dropped `notifyStatus` from the v2 `/tokens` payload; strip it here so a caller-supplied
+        // value (every current call site builds one for v1) can't leak into the request and trip backend validation.
+        let target = TangemApiTarget(type: .saveUserWalletTokensV2(key: key, list: list.omittingNotifyStatus()))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            // An empty response (just zero bytes, not "{}", "[{}]" or similar) can't be mapped
+            // into the `EmptyGenericResponseDTO` DTO, therefore we just check for errors and status codes here
+            let _ = try response.filterResponseThrowingTangemAPIError(allowRedirectCodes: true)
+        }
+    }
+
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> {
         let parameters = BlockchainAccountCreateParameters(networkId: networkId, walletPublicKey: publicKey)
         let target = TangemApiTarget(type: .createAccount(parameters))
@@ -329,6 +342,22 @@ extension CommonTangemApiService: TangemApiService {
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
         try await request(for: .pushNotificationsEligible, decoder: decoder)
+    }
+
+    // MARK: - Notification Preferences
+
+    func getNotificationPreferences(userWalletId: String) async throws -> NotificationPreferencesDTO.Body {
+        try await request(for: .getNotificationPreferences(userWalletId: userWalletId), decoder: decoder)
+    }
+
+    func updateNotificationPreferences(
+        userWalletId: String,
+        preferences: NotificationPreferencesDTO.Body
+    ) async throws {
+        let target: TangemApiTarget.TargetType = .updateNotificationPreferences(userWalletId: userWalletId, body: preferences)
+        // PUT echoes the applied state (contract v1.3, Q1). Decode the body so the request fails loudly
+        // on a malformed echo; reconciliation against it is handled by the provider's follow-up fetch.
+        let _: NotificationPreferencesDTO.Body = try await request(for: target, decoder: decoder)
     }
 
     // MARK: - Applications

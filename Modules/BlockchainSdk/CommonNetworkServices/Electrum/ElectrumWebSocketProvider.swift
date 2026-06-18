@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AnyCodable
 
 class ElectrumWebSocketProvider: HostProvider {
     var host: String { webSocketProvider.host }

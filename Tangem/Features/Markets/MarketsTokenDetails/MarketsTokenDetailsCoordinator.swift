@@ -363,9 +363,79 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 }
 
+// MARK: - AddFundsRoutable
+
+extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
+    func addFundsRequestBuy(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            openOnramp(input: input, parameters: .none)
+        }
+    }
+
+    func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        let helper = SwapPredefinedParametersHelper()
+        guard let parameters = helper.makeParameters(
+            walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
+        ) else {
+            return
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            openSwap(input: parameters, destination: walletModel.tokenItem)
+        }
+    }
+
+    func addFundsRequestReceive(viewModel: ReceiveMainViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func addFundsRequestGoToToken(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            openPortfolioTokenDetails(walletModel: walletModel)
+        }
+    }
+
+    func addFundsClose() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
 // MARK: - MarketsPortfolioContainerRoutable
 
 extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
+    func openAddFunds(input: SendInput) {
+        guard let userWalletModel = userWalletRepository.models.first(
+            where: { $0.userWalletId == input.userWalletInfo.id }
+        ) else {
+            return
+        }
+
+        Task { @MainActor in
+            let viewModel = AddFundsViewModel(
+                input: .init(
+                    mode: .sheet(.full),
+                    primaryAction: .goToToken,
+                    walletModel: input.walletModel,
+                    userWalletModel: userWalletModel
+                ),
+                coordinator: self
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openReceive(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -401,7 +471,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             }
 
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .markets,
                 presentCompletion: openSwapBlock
             )

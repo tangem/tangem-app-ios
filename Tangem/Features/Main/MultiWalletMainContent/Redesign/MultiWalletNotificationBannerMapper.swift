@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 import TangemUI
 import TangemLocalization
 import TangemAccessibilityIdentifiers
@@ -126,6 +127,7 @@ private extension MultiWalletNotificationBannerMapper {
         case .info:
             if input.settings.event.isDismissable {
                 let closeAction = makeCloseAction(from: input)
+                // [REDACTED_TODO_COMMENT]
                 return .informational(textOnly, bannerAction, closeAction)
             }
 
@@ -134,13 +136,16 @@ private extension MultiWalletNotificationBannerMapper {
     }
 
     func makeTextOnly(from input: NotificationViewInput) -> NotificationBanner.TextOnly {
-        let title: AttributedString = switch input.settings.event.title {
+        let event = input.settings.event
+        let override = event.redesignedBannerContent
+
+        let title: AttributedString = switch override?.title ?? event.title {
         case .string(let string): AttributedString(string)
         case .attributed(let attributed): attributed
         case .none: AttributedString("")
         }
 
-        let subtitle = AttributedString(input.settings.event.description ?? "")
+        let subtitle = AttributedString(override?.description ?? event.description ?? "")
 
         return NotificationBanner.TextOnly(title: title, subtitle: subtitle)
     }
@@ -149,20 +154,36 @@ private extension MultiWalletNotificationBannerMapper {
         textOnly: NotificationBanner.TextOnly,
         input: NotificationViewInput
     ) -> NotificationBanner.Content {
-        let messageIcon = input.settings.event.icon
+        let messageIcon = input.settings.event.redesignedBannerContent?.icon ?? input.settings.event.icon
 
-        guard case .image(let imageType) = messageIcon.iconType else {
+        // Status pills center the trailing icon against the text (per design); other kinds keep top alignment.
+        let iconAlignment: NotificationBanner.Icon.Alignment = {
+            if case .status? = input.settings.event.bannerKind { return .center }
+            return .top
+        }()
+
+        switch messageIcon.iconType {
+        case .image(let imageType):
+            let icon = NotificationBanner.Icon(
+                imageType: imageType,
+                alignment: iconAlignment,
+                width: mapSizeUnit(from: messageIcon.size.width),
+                height: mapSizeUnit(from: messageIcon.size.height),
+                renderingMode: messageIcon.renderingMode
+            )
+            return .textWithIcon(.init(text: textOnly, icon: icon))
+        case .loadableIcon(let url):
+            let loadableAlignment: SwiftUI.Alignment = iconAlignment == .center ? .leading : .topLeading
+            let icon = NotificationBanner.LoadableIcon(
+                url: url,
+                alignment: loadableAlignment,
+                width: mapSizeUnit(from: messageIcon.size.width),
+                height: mapSizeUnit(from: messageIcon.size.height)
+            )
+            return .textWithLoadableIcon(.init(text: textOnly, icon: icon))
+        default:
             return .text(textOnly)
         }
-
-        let icon = NotificationBanner.Icon(
-            imageType: imageType,
-            width: mapSizeUnit(from: messageIcon.size.width),
-            height: mapSizeUnit(from: messageIcon.size.height),
-            renderingMode: messageIcon.renderingMode
-        )
-
-        return .textWithIcon(.init(text: textOnly, icon: icon))
     }
 
     func mapSizeUnit(from dimension: CGFloat) -> SizeUnit {

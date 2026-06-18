@@ -154,9 +154,7 @@ final class SingleTokenNotificationManager {
         notificationInputsSubject.send(inputs)
 
         setupRentFeeNotification()
-        if FeatureProvider.isAvailable(.dynamicAddresses) {
-            setupDynamicAddressesNotificationIfNeeded()
-        }
+        setupDynamicAddressesNotificationIfNeeded()
     }
 
     private func setupDynamicAddressesNotificationIfNeeded() {

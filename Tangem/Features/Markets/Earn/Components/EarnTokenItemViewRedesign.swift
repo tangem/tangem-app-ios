@@ -11,23 +11,13 @@ import TangemUI
 import TangemAssets
 
 struct EarnTokenItemViewRedesign: View {
-    private let viewModel: EarnTokenItemViewModel
+    let viewModel: EarnTokenItemViewModel
 
-    @ScaledSize private var tokenImageSize: CGSize
-    @ScaledSize private var earnImageSize: CGSize
-    @ScaledMetric private var textHorizontalSpacing: CGFloat
-    @ScaledMetric private var horizontalPadding: CGFloat
-    @ScaledMetric private var verticalPadding: CGFloat
-
-    init(viewModel: EarnTokenItemViewModel) {
-        self.viewModel = viewModel
-
-        _tokenImageSize = ScaledSize(wrappedValue: CGSize(bothDimensions: .unit(.x10)))
-        _earnImageSize = ScaledSize(wrappedValue: CGSize(bothDimensions: .unit(.x4)))
-        _textHorizontalSpacing = ScaledMetric(wrappedValue: .unit(.x1))
-        _horizontalPadding = ScaledMetric(wrappedValue: .unit(.x3))
-        _verticalPadding = ScaledMetric(wrappedValue: .unit(.x3))
-    }
+    @ScaledMetric private var tokenImageSide = CGFloat.unit(.x10)
+    @ScaledMetric private var earnImageSide = CGFloat.unit(.x4)
+    @ScaledMetric private var textHorizontalSpacing = CGFloat.unit(.x1)
+    @ScaledMetric private var horizontalPadding = CGFloat.unit(.x3)
+    @ScaledMetric private var verticalPadding = CGFloat.unit(.x3)
 
     var body: some View {
         Button(action: viewModel.onTapAction) {
@@ -58,7 +48,7 @@ private extension EarnTokenItemViewRedesign {
                 isCustom: false,
                 customTokenColor: nil
             ),
-            size: tokenImageSize,
+            size: CGSize(width: tokenImageSide, height: tokenImageSide),
             isWithOverlays: true,
             forceKingfisher: true
         )
@@ -67,23 +57,23 @@ private extension EarnTokenItemViewRedesign {
     func primaryLeading() -> some View {
         HStack(alignment: .lastTextBaseline, spacing: textHorizontalSpacing) {
             Text(viewModel.name)
-                .style(.Tangem.Body15.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body15.semibold, color: .Tangem.Text.Neutral.primary)
 
             Text(viewModel.symbol)
-                .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
         }
         .lineLimit(1)
     }
 
     func primaryTrailing() -> some View {
         Text(viewModel.rateText)
-            .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
     func secondaryLeading() -> some View {
         Text(viewModel.networkName)
-            .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.secondary)
             .lineLimit(1)
     }
 
@@ -94,7 +84,7 @@ private extension EarnTokenItemViewRedesign {
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiary)
-                .frame(size: earnImageSize)
+                .frame(width: earnImageSide, height: earnImageSide)
 
             Text(viewModel.earnType.rawValue)
                 .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)

@@ -18,6 +18,7 @@ public enum TangemPayAccessibilityIdentifiers {
 
     // MARK: - Tangem Pay payment account screen
 
+    public static let paymentAccountCardButtonPrefix = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountCardButton = "\(prefix)PaymentAccountCardButton"
     public static let paymentAccountBalance = "\(prefix)PaymentAccountBalance"
     public static let addFundsButton = "\(prefix)AddFundsButton"
@@ -27,6 +28,10 @@ public enum TangemPayAccessibilityIdentifiers {
 
     public static let addFundsSheetSwapOption = "\(prefix)AddFundsSheetSwapOption"
     public static let addFundsSheetReceiveOption = "\(prefix)AddFundsSheetReceiveOption"
+
+    public static func paymentAccountCardButton(cardId: String) -> String {
+        "\(paymentAccountCardButtonPrefix)_\(cardId)"
+    }
 
     // MARK: - Withdraw flow
 
@@ -49,6 +54,7 @@ public enum TangemPayAccessibilityIdentifiers {
     public static let freezeCardRowStateActive = "\(prefix)FreezeCardRowStateActive"
     public static let freezeCardRowStateFrozen = "\(prefix)FreezeCardRowStateFrozen"
     public static let freezeSheetConfirmButton = "\(prefix)FreezeSheetConfirmButton"
+    public static let unfreezeSheetConfirmButton = "\(prefix)UnfreezeSheetConfirmButton"
 
     // MARK: - PIN setup screen
 
