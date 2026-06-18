@@ -9,6 +9,8 @@
 import Foundation
 
 struct CommonSendSourceTokenFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
 
@@ -24,10 +26,7 @@ struct CommonSendSourceTokenFactory {
             fractionDigits: 2
         )
 
-        let transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
-            walletModel: walletModel,
-            signer: userWalletInfo.signer
-        )
+        let transactionDispatcherProvider = makeTransactionDispatcherProvider()
 
         let allowanceService = AllowanceServiceFactory(
             walletModel: walletModel
@@ -70,6 +69,38 @@ struct CommonSendSourceTokenFactory {
             fiatItem: fiatItem,
             address: walletModel.defaultAddressString,
             extraId: nil
+        )
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSendSourceTokenFactory {
+    func makeTransactionDispatcherProvider() -> TransactionDispatcherProvider {
+        let baseProvider = WalletModelTransactionDispatcherProvider(
+            walletModel: walletModel,
+            signer: userWalletInfo.signer
+        )
+
+        return ValidatingTransactionDispatcherProviderDecorator(
+            decoratee: baseProvider,
+            stakingValidator: makeStakingValidator()
+        )
+    }
+
+    func makeStakingValidator() -> StakingTransactionValidator? {
+        guard FeatureProvider.isAvailable(.stakingTransactionValidation) else { return nil }
+
+        let blockchain = walletModel.tokenItem.blockchain
+        let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
+        let isRemoteValidationEnabled = BlockAidSupportedNetwork(blockchain: blockchain) != nil
+        let isValidationEnabled = isLocalValidationEnabled || isRemoteValidationEnabled
+        guard isValidationEnabled else { return nil }
+
+        return StakingValidationComposer.make(
+            blockchain: blockchain,
+            accountAddress: walletModel.defaultAddress.value,
+            verifier: StakingTransactionVerifierFactory.make(apiKey: keysManager.blockaidAPIKey)
         )
     }
 }
