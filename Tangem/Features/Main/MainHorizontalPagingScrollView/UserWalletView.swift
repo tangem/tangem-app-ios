@@ -10,6 +10,7 @@ import SwiftUI
 import func TangemFoundation.clamp
 import enum TangemFoundation.FeedbackGenerator
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct UserWalletView: View {
     let pageBuilder: MainUserWalletPageBuilder
@@ -352,6 +353,7 @@ extension UserWalletView {
             )
             .opacity(contentOffsetY < -refreshIndicatorHeight ? 0 : 1)
             .padding(.top, 20)
+            .accessibilityIdentifier(refreshTask == nil ? MainAccessibilityIdentifiers.refreshStateIdle : MainAccessibilityIdentifiers.refreshStateRefreshing)
         }
     }
 }
