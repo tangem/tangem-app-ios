@@ -178,3 +178,11 @@ extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {
         )
     }
 }
+
+// MARK: - Action buttons
+
+extension VisaConfig {
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
+    }
+}
