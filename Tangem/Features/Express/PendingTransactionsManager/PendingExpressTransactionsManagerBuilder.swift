@@ -13,15 +13,21 @@ struct PendingExpressTransactionsManagerBuilder {
     let tokenItem: TokenItem
 
     func makePendingExpressTransactionsManager(expressAPIProvider: ExpressAPIProvider) -> PendingExpressTransactionsManager {
-        CommonPendingOnrampTransactionsManager(
+        let onrampStatusPoller = OnrampStatusPoller(
             userWalletId: userWalletId,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider,
-            unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-                userWalletId: userWalletId,
-                tokenItem: tokenItem,
-                expressAPIProvider: expressAPIProvider
-            )
+            expressAPIProvider: expressAPIProvider
+        )
+
+        let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+            userWalletId: userWalletId,
+            tokenItem: tokenItem,
+            expressAPIProvider: expressAPIProvider
+        )
+
+        return CommonPendingOnrampTransactionsManager(
+            unknownStatusRecoveryService: unknownStatusRecoveryService,
+            poller: onrampStatusPoller
         )
     }
 }
