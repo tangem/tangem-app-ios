@@ -30,7 +30,7 @@ struct TransactionChipRedesigned: View {
 
             if viewModel.amount.value.isNotEmpty {
                 Text(amountWithCurrency)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
                     .lineLimit(1)
             }
 
@@ -50,7 +50,7 @@ struct TransactionChipRedesigned: View {
 
     private var titleView: some View {
         Text(display.title)
-            .style(.Tangem.Caption12.semibold, color: titleColor)
+            .style(Font.Tangem.Caption12.semibold, color: titleColor)
             .lineLimit(1)
     }
 

@@ -66,7 +66,6 @@ public struct FloatingSheetView: View {
             .animation(.dimmedBackground, value: viewModel == nil)
     }
 
-    @ViewBuilder
     private func sheetContent(_ proxy: GeometryProxy) -> some View {
         ZStack {
             if let viewModel, let sheetContent = registry.view(for: viewModel) {
@@ -102,7 +101,6 @@ public struct FloatingSheetView: View {
                             }
                         }
                         .onDisappear {
-                            sheetContentHeight = .zero
                             sheetContentHasAppeared = false
                         }
                 }
@@ -146,7 +144,10 @@ public struct FloatingSheetView: View {
             sheetContent
                 .fixedSize(horizontal: false, vertical: true)
                 .hidden()
-                .readGeometry(\.size.height, bindTo: $sheetContentHeight)
+                .id(viewModel?.id)
+                .onGeometryChange(for: CGFloat.self, of: \.size.height) { sheetContentHeight in
+                    self.sheetContentHeight = sheetContentHeight
+                }
         }
     }
 

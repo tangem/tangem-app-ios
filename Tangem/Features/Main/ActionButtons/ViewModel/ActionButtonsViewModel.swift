@@ -36,6 +36,10 @@ final class ActionButtonsViewModel: ObservableObject {
     let sellActionButtonViewModel: SellActionButtonViewModel
     let swapActionButtonViewModel: SwapActionButtonViewModel
 
+    var actionButtonsVisibility: ActionButtonsVisibility {
+        ActionButtonsVisibility(config: userWalletModel.config)
+    }
+
     @Published private(set) var shouldShowSwapUnreadNotificationBadge = false
 
     // MARK: Private properties
@@ -83,6 +87,11 @@ final class ActionButtonsViewModel: ObservableObject {
 
     deinit {
         AppLogger.debug(self, "deinit")
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func isRedesignActionDisabled(_ actionViewModel: any ActionButtonViewModel) -> Bool {
+        userWalletModel.isUserWalletLocked || actionViewModel.isDimmed
     }
 
     func refresh() {

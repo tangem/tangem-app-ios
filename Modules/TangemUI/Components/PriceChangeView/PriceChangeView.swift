@@ -43,21 +43,37 @@ public struct PriceChangeView: View {
                 styledDashText
                     .opacity(0.01)
                 if showSkeletonWhenLoading {
-                    SkeletonView()
-                        .frame(width: 40, height: 12)
-                        .cornerRadiusContinuous(3)
+                    skeleton
                 }
             }
         case .loaded(let changeType, let text):
-            HStack(spacing: 4) {
-                if shouldShowIcon(for: changeType) {
-                    changeType.imageType.image
-                        .renderingMode(.template)
-                        .foregroundColor(resolvedIconColor(for: changeType))
-                }
+            changeContent(changeType: changeType, text: text)
+        case .loadingCached(let changeType, let text):
+            changeContent(changeType: changeType, text: text)
+                .shimmer()
+                .environment(\.isShimmerActive, true)
+        }
+    }
 
-                styledText(text, textColor: resolvedTextColor(for: changeType))
+    private func changeContent(changeType: ChangeType, text: String) -> some View {
+        HStack(spacing: 4) {
+            if shouldShowIcon(for: changeType) {
+                changeType.imageType.image
+                    .renderingMode(.template)
+                    .foregroundColor(resolvedIconColor(for: changeType))
             }
+
+            styledText(text, textColor: resolvedTextColor(for: changeType))
+        }
+    }
+
+    @ViewBuilder
+    private var skeleton: some View {
+        let base = SkeletonView().frame(width: 40, height: 12)
+        if useRedesignColors {
+            base.clipShape(.capsule)
+        } else {
+            base.cornerRadiusContinuous(3)
         }
     }
 
@@ -87,10 +103,14 @@ public struct PriceChangeView: View {
     @ViewBuilder
     private func styledText(_ text: String, textColor: Color? = nil) -> some View {
         let color = textColor ?? defaultTextColor
-        let font: Font = useRedesignColors ? .Tangem.Caption12.regular : Fonts.Regular.caption1
-        Text(text)
-            .style(font, color: color)
-            .lineLimit(1)
+        Group {
+            if useRedesignColors {
+                Text(text).style(Font.Tangem.Caption12.regular, color: color)
+            } else {
+                Text(text).style(Fonts.Regular.caption1, color: color)
+            }
+        }
+        .lineLimit(1)
     }
 }
 
@@ -102,13 +122,16 @@ public extension PriceChangeView {
         case noData
         case empty
         case loading
+        case loadingCached(changeType: ChangeType, text: String)
         case loaded(changeType: ChangeType, text: String)
 
         public var changeType: ChangeType? {
-            if case .loaded(let changeType, _) = self {
+            switch self {
+            case .loaded(let changeType, _), .loadingCached(let changeType, _):
                 return changeType
+            default:
+                return nil
             }
-            return nil
         }
     }
 }

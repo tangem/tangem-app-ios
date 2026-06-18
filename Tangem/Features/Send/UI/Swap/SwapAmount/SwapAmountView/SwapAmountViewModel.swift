@@ -87,14 +87,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
         // Buttons updating
         interactor.receivedTokenPublisher
             .map { result in
-                if FeatureProvider.isAvailable(.swapPipelineV2) {
-                    return result.isLoading
-                }
-
-                // below save old logic
-                let hasToken = result.value as? SendSourceToken != nil
-                let isDisabled = result.isLoading || !hasToken
-                return isDisabled
+                result.isLoading
             }
             .removeDuplicates()
             .receiveOnMain()
@@ -122,7 +115,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .sink { $0.updateSource(sourceToken: $1) }
 
         sourceTokenAmountCancellable = sourceDecimalNumberTextFieldViewModel
-            .valuePublisher
+            .valuePublisher(zeroPolicy: .mapToNone)
             .prepend(.none)
             .withWeakCaptureOf(self)
             .map { $0.update(amount: $1) }
@@ -132,13 +125,14 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
         // Receive token / amount updating
 
-        receiveTokenCancellable = Publishers.CombineLatest(
+        receiveTokenCancellable = Publishers.CombineLatest3(
             interactor.receivedTokenAmountPublisher,
-            interactor.receivedTokenPublisher
+            interactor.receivedTokenPublisher,
+            interactor.isReceiveAmountApproximatePublisher.prepend(true)
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
-        .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1) }
+        .sink { $0.updateReceive(amount: $1.0, receiveToken: $1.1, isApproximate: $1.2) }
 
         highPriceImpactCancellable = interactor
             .highPriceImpactPublisher
@@ -153,13 +147,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapChangeSourceTokenButton() {
         let receiveToken = receiveTokenInput?.receiveToken.value?.tokenItem
-
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
-            return
-        }
-
-        guard receiveToken != nil else { return }
         router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
     }
 
@@ -170,13 +157,6 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 
     func userDidTapChangeReceiveTokenButton() {
         let sourceToken = sourceTokenInput?.sourceToken.value?.tokenItem
-
-        if FeatureProvider.isAvailable(.swapPipelineV2) {
-            router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
-            return
-        }
-
-        guard sourceToken != nil else { return }
         router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
     }
 
@@ -194,12 +174,12 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
 private extension SwapAmountViewModel {
     func updateSourceExpressCurrencyState(providersState: SwapModel.ProvidersState) {
         switch providersState {
-        case .loaded(_, _, .restriction(.notEnoughBalanceForSwapping, quote: _)):
+        case .loaded(_, .restriction(.notEnoughBalanceForSwapping, quote: _)):
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
-             .loaded(_, _, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
+        case .loaded(_, .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _)) where isFeeCurrency,
+             .loaded(_, .restriction(.notEnoughAmountForFee(let isFeeCurrency), _)) where isFeeCurrency:
             sourceExpressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .loaded(_, _, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
+        case .loaded(_, .restriction(.validationError(.minimumRestrictAmount(let minimumAmount)), _)):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sourceExpressCurrencyViewModel.update(errorState: .error(errorText))
         default:
@@ -213,7 +193,7 @@ private extension SwapAmountViewModel {
         providersState: SwapModel.ProvidersState
     ) {
         switch (sourceToken, receiveToken, providersState) {
-        case (.success, .success, .loaded(let providers, _, .idle)):
+        case (.success, .success, .loaded(.swap(_, let providers), .idle)):
             isInputDisabled = providers.isEmpty
         case (_, .failure, _), (.failure, _, _):
             isInputDisabled = true
@@ -227,10 +207,7 @@ private extension SwapAmountViewModel {
     }
 
     func updateSource(sourceToken: LoadingResult<SendSourceToken, any Error>) {
-        sourceExpressCurrencyViewModel.update(
-            wallet: sourceToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: .init(tokenItem: initialTokenItem)
-        )
+        sourceExpressCurrencyViewModel.update(wallet: sourceToken.mapValue { $0 as SendGenericToken })
 
         switch sourceToken {
         case .loading:
@@ -268,11 +245,12 @@ private extension SwapAmountViewModel {
         }
     }
 
-    func updateReceive(amount: LoadingResult<SendAmount, any Error>, receiveToken: LoadingResult<SendReceiveToken, any Error>) {
-        receiveExpressCurrencyViewModel.update(
-            wallet: receiveToken.mapValue { $0 as SendGenericToken },
-            initialWalletId: .init(tokenItem: initialTokenItem)
-        )
+    func updateReceive(
+        amount: LoadingResult<SendAmount, any Error>,
+        receiveToken: LoadingResult<SendReceiveToken, any Error>,
+        isApproximate: Bool
+    ) {
+        receiveExpressCurrencyViewModel.update(wallet: receiveToken.mapValue { $0 as SendGenericToken })
 
         switch (receiveToken, amount) {
         case (.loading, _), (_, .loading):
@@ -280,14 +258,14 @@ private extension SwapAmountViewModel {
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loading)
 
         case (_, .failure), (.failure, _):
-            receiveCryptoAmountState = .loaded(text: "0")
+            receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount("0", isApproximate: isApproximate))
 
             let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
 
         case (.success(let token), .success(let amount)):
             guard let crypto = amount.crypto else {
-                receiveCryptoAmountState = .loaded(text: "0")
+                receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount("0", isApproximate: isApproximate))
 
                 let fiatFormatted = balanceFormatter.formatFiatBalance(.zero)
                 receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))
@@ -296,7 +274,7 @@ private extension SwapAmountViewModel {
 
             let formatter = DecimalNumberFormatter(maximumFractionDigits: token.tokenItem.decimalCount)
             let cryptoFormatted: String = formatter.format(value: crypto)
-            receiveCryptoAmountState = .loaded(text: cryptoFormatted)
+            receiveCryptoAmountState = .loaded(text: SwapAmountFormatter.formatAmount(cryptoFormatted, isApproximate: isApproximate))
 
             let fiatFormatted = balanceFormatter.formatFiatBalance(amount.fiat)
             receiveExpressCurrencyViewModel.update(fiatAmountState: .loaded(text: fiatFormatted))

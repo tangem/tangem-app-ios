@@ -41,7 +41,7 @@ class BitcoinCustomFeeService {
 
     private func bind(input: CustomFeeServiceInput) {
         Publishers.CombineLatest3(
-            satoshiPerByteTextField.valuePublisher.map { $0?.intValue() },
+            satoshiPerByteTextField.valuePublisher().map { $0?.intValue() },
             input.cryptoAmountPublisher,
             input.destinationAddressPublisher
         )
