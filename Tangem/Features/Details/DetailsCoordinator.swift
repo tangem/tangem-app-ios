@@ -18,7 +18,6 @@ final class DetailsCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Main view model
 
@@ -37,13 +36,13 @@ final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var tangemPayWalletSelectorViewModel: TangemPayWalletSelectorViewModel?
-    @Published var supportChatViewModel: SupportChatViewModel?
     @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
     @Published var logsViewModel: LogsViewModel?
 
     // MARK: - Helpers
 
+    let supportChatPresenter = SupportChatPresenter()
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -65,6 +64,10 @@ extension DetailsCoordinator {
         case `default`
     }
 }
+
+// MARK: - SupportChatPresenting
+
+extension DetailsCoordinator: SupportChatPresenting {}
 
 // MARK: - DetailsRoutable
 
@@ -147,11 +150,6 @@ extension DetailsCoordinator: DetailsRoutable {
         let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .init(source: .other, availableSelection: availableSelection))
         tangemPayOnboardingCoordinator = coordinator
-    }
-
-    func openSupportChat(input: SupportChatInputModel) {
-        Analytics.log(.chatScreenOpened)
-        supportChatViewModel = SupportChatViewModel(input: input)
     }
 
     func openTOS() {
