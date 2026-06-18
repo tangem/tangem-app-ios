@@ -158,7 +158,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        amountFieldViewModel.valuePublisher
+        amountFieldViewModel.valuePublisher()
             .map { [maxLimit] value in
                 guard let value else { return false }
                 let intValue = NSDecimalNumber(decimal: value).intValue
