@@ -10,3 +10,6 @@ import Foundation
 import TangemFoundation
 
 let PushNotificationsSyncServiceLogger = AppLogger.tag("PushNotificationsSyncService")
+
+/// Logger for the push notifications settings feature (notification preferences).
+let PushSettingsLogger = AppLogger.tag("PushSettings")
