@@ -23,7 +23,7 @@ struct MarketsTokenDetailsHeaderView: View {
     @ScaledMetric private var horizontalMinSpacing: CGFloat = .unit(.x1)
     @ScaledMetric private var nameSpacing: CGFloat = .unit(.x1)
     @ScaledMetric private var priceSpacing: CGFloat = .unit(.x1_5)
-    @ScaledSize private var iconSize: CGSize = .init(bothDimensions: 70)
+    @ScaledMetric private var iconSide: CGFloat = 70
 
     var body: some View {
         HStack(alignment: .top, spacing: .zero) {
@@ -39,7 +39,7 @@ struct MarketsTokenDetailsHeaderView: View {
 
             Spacer(minLength: horizontalMinSpacing)
 
-            IconView(url: iconURL, size: iconSize, forceKingfisher: true)
+            IconView(url: iconURL, size: CGSize(width: iconSide, height: iconSide), forceKingfisher: true)
         }
     }
 }
@@ -50,10 +50,10 @@ private extension MarketsTokenDetailsHeaderView {
     var nameView: some View {
         HStack(alignment: .lastTextBaseline, spacing: nameSpacing) {
             Text(tokenName)
-                .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
 
             Text(tokenSymbol)
-                .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.tertiary)
         }
         .lineLimit(1)
     }
@@ -63,7 +63,7 @@ private extension MarketsTokenDetailsHeaderView {
             // This `Text` view acts as an invisible container, maintaining constant height
             // to prevent UI from jumping when the font of the price label is scaled down
             Text(Constants.priceStubText)
-                .style(.Tangem.Custom.titleRegular44, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Title44.semibold, color: .Tangem.Text.Neutral.primary)
                 .opacity(.zero)
                 .accessibilityHidden(true)
 
@@ -84,7 +84,7 @@ private extension MarketsTokenDetailsHeaderView {
     var priceChangeView: some View {
         HStack(alignment: .firstTextBaseline, spacing: priceSpacing) {
             Text(priceDate)
-                .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
 
             if let priceChangeState {
                 PriceChangeView(
@@ -95,6 +95,8 @@ private extension MarketsTokenDetailsHeaderView {
                 .animation(.none, value: priceDate)
             }
         }
+        // The price → date spacing is 16pt per design; the surrounding VStack already adds 4pt.
+        .padding(.top, .unit(.x3))
     }
 }
 

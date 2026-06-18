@@ -93,6 +93,28 @@ extension CommonOnrampManager: OnrampManager {
         }
     }
 
+    /// `nonisolated` because the recovery service calls this from outside any actor context; the body is a pure
+    /// passthrough to `apiProvider` with no isolated state to protect.
+    public nonisolated func findRecentOnrampTransaction(
+        payoutAddress: String,
+        since: Date,
+        toContractAddress: String,
+        toNetwork: String,
+        providerId: ExpressProvider.Id,
+        limit: Int?
+    ) async throws -> OnrampTransaction? {
+        let page = try await apiProvider.onrampHistory(
+            item: ExpressHistoryRequestItem(walletAddress: payoutAddress, cursor: nil, limit: limit)
+        )
+        return OnrampHistoryMatcher.findMatch(
+            in: page.records,
+            since: since,
+            toContractAddress: toContractAddress,
+            toNetwork: toNetwork,
+            providerId: providerId
+        )
+    }
+
     public func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult {
         do {
             guard let quoteId = provider.quote?.quoteId else {

@@ -99,6 +99,7 @@ public struct TangemSearchFieldShowcase: View {
                 hasSearchIcon: hasSearchIcon,
                 hasClearButton: hasClearButton
             )
+            .frame(height: .unit(.x11))
             .focused($isFocused)
 
             Button("Resign focus") {

@@ -329,14 +329,15 @@ extension Analytics {
         case swapButtonSwipe = "[Swap] Button - Swipe"
         case swapButtonPermissionLearnMore = "[Swap] Button - Permission Learn More"
         case swapSwapInProgressScreenOpened = "[Swap] Swap in Progress Screen Opened"
+        case swapGasEstimationOverrideError = "[Swap] Gas Estimation Override Error"
 
         case swapProviderClicked = "[Swap] Provider Clicked"
         case swapProviderChosen = "[Swap] Provider Chosen"
         case swapButtonStatus = "[Swap] Button - Status"
         case swapButtonExplore = "[Swap] Button - Explore"
-        case swapNoticeNoAvailableTokensToSwap = "[Swap] Notice - No Available Tokens To Swap"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
+        case swapNoticeNotEnoughFunds = "[Swap] Notice - Not Enough Funds"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
         case swapNoticeHighPriceImpact = "[Swap] Notice - High Price Impact"
@@ -356,6 +357,10 @@ extension Analytics {
 
         case swapTypeReselection = "[Swap] Swap type re-selection"
         case swapTypeSimpleDetailed = "[Swap] Swap type simple/detailed"
+
+        case swapTransferModeSwitched = "[Swap] Transfer Mode Switched"
+        case swapButtonTransfer = "[Swap] Button - Transfer"
+        case swapTransferInProgressScreenOpened = "[Swap] Transfer in Progress Screen Opened"
 
         // MARK: - Seed phrase
 
@@ -468,6 +473,12 @@ extension Analytics {
         case pushNotificationOpened = "[Push] Push Notification Opened"
         case pushNotificationScreenOpened = "[Push] Push Notification Screen Opened"
         case pushToggleClicked = "[Push] Push Toggle Clicked"
+        case notificationSettingsScreenOpened = "[Push] Notification Settings Screen Opened"
+        case pushNotificationSettingsToggleClicked = "[Push] Toggle Clicked"
+        case pushBannerOpenSettingsTapped = "[Push] Banner - Open Settings Tapped"
+        case warningScreenShown = "[Warning Screen] Shown"
+        case warningScreenEnableTapped = "[Warning Screen] Enable Tapped"
+        case warningScreenSkipTapped = "[Warning Screen] Skip Tapped"
 
         // MARK: - Staking
 
@@ -694,6 +705,7 @@ extension Analytics {
         // Tangem Pay (Visa 2.0)
 
         case visaOnboardingVisaActivationScreenOpened = "[Visa Onboarding] Visa Activation Screen Opened"
+        case visaOnboardingVisaNewOnboardingPageOpened = "[Visa Onboarding] Visa New Onboarding Page Opened"
         case visaOnboardingButtonVisaViewTerms = "[Visa Onboarding] Button - Visa View Terms"
         case visaOnboardingButtonVisaGetCard = "[Visa Onboarding] Button - Visa Get Card"
         case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
@@ -746,6 +758,8 @@ extension Analytics {
         case visaScreenDailyLimitChangeClicked = "[Visa Card Management] Visa Daily Limit Change Clicked"
         case visaScreenLimitManagementScreenOpened = "[Visa Card Management] Visa Limit Management Screen Opened"
         case visaScreenSetLimitsConfirmed = "[Visa Card Management] Visa Set Limits Confirmed"
+        case visaScreenExtraCardIssuancePopupDisplayed = "[Visa Card Management] Visa Extra Card Issuance Popup Displayed"
+        case visaScreenExtraCardIssuanceConfirmed = "[Visa Card Management] Visa Extra Card Issuance Confirmed"
 
         case visaCardIconClicked = "[Visa Card Management] Visa Card Icon Clicked"
         case visaAddExtraCardClicked = "[Visa Card Management] Visa Add Extra Card Clicked"

@@ -16,6 +16,7 @@ protocol SendReceiveTokenAmountInput: AnyObject {
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> { get }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { get }
+    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { get }
 }
 
 protocol SendReceiveTokenAmountOutput: AnyObject {

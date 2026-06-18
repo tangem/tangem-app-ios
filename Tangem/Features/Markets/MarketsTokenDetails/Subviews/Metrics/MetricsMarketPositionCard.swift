@@ -14,7 +14,7 @@ import TangemUI
 struct MetricsMarketPositionCard: View {
     let viewModel: MarketsTokenDetailsMetricsViewModel
 
-    @ScaledSize private var trendImageSize = CGSize(bothDimensions: .unit(.x3))
+    @ScaledMetric private var trendImageSide = CGFloat.unit(.x3)
 
     private typealias RankType = MarketsTokenDetailsMetricsViewModel.MarketPositionState.RankType
     private typealias RatingChange = MarketsTokenDetailsMetricsViewModel.MarketPositionState.RatingChange
@@ -23,9 +23,7 @@ struct MetricsMarketPositionCard: View {
         let state = viewModel.redesign.marketPosition
         let color = rankColor(for: state.rankType)
 
-        // Latest design review unified card background to Surface.level3 across all rank tiers;
-        // accent color now only paints the value/icons, not the card itself.
-        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3) {
+        MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
                 HStack(spacing: .unit(.x1_5)) {
                     marketPositionValue(state: state, rankColor: color)
@@ -47,7 +45,7 @@ struct MetricsMarketPositionCard: View {
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsMarketRating,
                         color: color,
-                        action: { viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating) }
+                        action: action
                     )
                 }
             }
@@ -65,7 +63,7 @@ struct MetricsMarketPositionCard: View {
                     .foregroundStyle(rankColor)
 
                 Text(ratingText)
-                    .style(.Tangem.Heading22.regular, color: rankColor)
+                    .style(Font.Tangem.Heading20.semibold, color: rankColor)
 
                 Assets.DesignSystem.oliveRight.image
                     .renderingMode(.template)
@@ -86,11 +84,11 @@ struct MetricsMarketPositionCard: View {
                 Assets.DesignSystem.upDynamic.image
                     .resizable()
                     .renderingMode(.template)
-                    .frame(size: trendImageSize)
+                    .frame(width: trendImageSide, height: trendImageSide)
                     .foregroundStyle(Color.Tangem.Graphic.Status.positive)
 
                 Text("\(value)")
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
             }
         case .down(let value):
             HStack(spacing: .unit(.half)) {
@@ -99,16 +97,20 @@ struct MetricsMarketPositionCard: View {
                 Assets.DesignSystem.upDynamic.image
                     .resizable()
                     .renderingMode(.template)
-                    .frame(size: trendImageSize)
+                    .frame(width: trendImageSide, height: trendImageSide)
                     .rotationEffect(.degrees(180))
                     .foregroundStyle(Color.Tangem.Graphic.Status.warning)
 
                 Text("\(value)")
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.warning)
             }
         case .none:
             EmptyView()
         }
+    }
+
+    private func action() {
+        viewModel.showInfoBottomSheet(for: MarketsTokenDetailsMetricsView.RecordType.marketRating)
     }
 
     // MARK: - Rank Colors
@@ -119,15 +121,6 @@ struct MetricsMarketPositionCard: View {
         case .silver: .Tangem.Market.textTop2
         case .bronze: .Tangem.Market.textTop3
         case .other: .Tangem.Text.Neutral.primary
-        }
-    }
-
-    private func rankCardBackground(for rankType: RankType) -> Color {
-        switch rankType {
-        case .gold: .Tangem.Market.backgroundTop1
-        case .silver: .Tangem.Market.backgroundTop2
-        case .bronze: .Tangem.Market.backgroundTop3
-        case .other: .Tangem.Surface.level3
         }
     }
 }

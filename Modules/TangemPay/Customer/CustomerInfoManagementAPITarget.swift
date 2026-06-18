@@ -37,6 +37,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/unfreeze"
         case .getPinLegacy, .setPinLegacy:
             "customer/card/pin"
+        case .closeCard:
+            "customer/card/close"
         case .setPin(let cardId, _, _, _), .getPin(let cardId, _):
             "customer/card/\(cardId)/pin"
         case .getTransactionHistory:
@@ -84,6 +86,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getCardDetails,
              .freeze,
              .unfreeze,
+             .closeCard,
              .getWithdrawSignableData,
              .sendWithdrawTransaction,
              .reissueCard:
@@ -123,6 +126,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .setPinLegacy(let pin, let sessionId, let iv):
             let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
+            return .requestJSONEncodable(requestData)
+
+        case .closeCard(let cardId):
+            let requestData = TangemPayCloseCardRequest(cardId: cardId)
             return .requestJSONEncodable(requestData)
 
         case .setPin(_, let pin, let sessionId, let iv):
@@ -226,6 +233,7 @@ extension CustomerInfoManagementAPITarget {
         case setCardLimitLegacy(amount: Int)
 
         case getCardDetails(cardId: String, sessionId: String)
+        case closeCard(cardId: String)
         case getPin(cardId: String, sessionId: String)
         case setPin(cardId: String, pin: String, sessionId: String, iv: String)
         case placeOrder(TangemPayPlaceOrderRequest, idempotencyKey: String)

@@ -8,9 +8,9 @@
 
 import Foundation
 import Moya
+import AnyCodable
 import TangemFoundation
 import TangemNetworkUtils
-import struct AnyCodable.AnyEncodable
 
 struct SolanaTransactionHistoryTarget {
     let configuration: Configuration

@@ -246,6 +246,7 @@
 "common_copy" = "Копіювати";
 "common_create" = "Створити";
 "common_custom" = "Власна";
+"common_delete" = "Видалити";
 "common_disable" = "Вимкнути";
 "common_disabled" = "Вимкнуто";
 "common_disabling" = "Вимкнення";
@@ -571,7 +572,11 @@
 "feedback_token_description_error" = "Помилка в описі монети";
 "force_update_banner_message" = "Для забезпечення коректної роботи оновіть застосунок до останньої версії.";
 "force_update_banner_title" = "Необхідне оновлення";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Оновити";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Будь ласка, оновіть застосунок до останньої версії, щоб забезпечити його коректну роботу.";
 "force_update_warning_title" = "Потрібне оновлення";
 "gasless_not_enough_funds_to_cover_token_fee" = "Недостатньо коштів";
@@ -1264,6 +1269,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Винагороди автоматично накопичуються на вашому балансі щодня.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Винагороди реінвестуються у ваш баланс стейкінгу. Зароблено: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Середня ставка винагороди";
@@ -1634,7 +1641,7 @@
 "tangempay_maximum_cards_issued_title" = "Випущено максимальну кількість карток";
 "tangempay_newonboard_body" = "Витрачайте крипту будь-де — без банків, посередників і бірж. Сила self-custody для щоденних платежів.";
 "tangempay_newonboard_bottomleft_body" = "Платіть онлайн і через Apple Pay";
-"tangempay_newonboard_bottomleft_title" = "Приймається по всьому світу";
+"tangempay_newonboard_bottomleft_title" = "По всьому світу";
 "tangempay_newonboard_bottomright_body" = "Користуйтеся всюди";
 "tangempay_newonboard_bottomright_title" = "FX-комісія лише 1%%";
 "tangempay_newonboard_Q1_body" = "Так — для користування регульованою карткою Visa обов’язкова верифікація особи. KYC проводить Sumsub, compliance-партнер.";
@@ -1646,8 +1653,8 @@
 "tangempay_newonboard_Q4_body" = "Баланс картки номінований в USDC у мережі Polygon, але поповнювати його можна будь-яким активом (USDT, SOL, ETH, BTC, XRP тощо) через вбудовані свопи Tangem.";
 "tangempay_newonboard_Q4_title" = "Яку крипту можна витрачати?";
 "tangempay_newonboard_title" = "Отримайте картку Tangem Pay";
-"tangempay_newonboard_topleft_body" = "Платіть скільки бачите";
-"tangempay_newonboard_topleft_title" = "Без комісії за покупки, 1 USDC = 1 USD";
+"tangempay_newonboard_topleft_body" = "1 USDC = 1 USD";
+"tangempay_newonboard_topleft_title" = "Без комісії за покупки";
 "tangempay_newonboard_topright_body" = "Без сюрпризів";
 "tangempay_newonboard_topright_title" = "$0 на місяць, \n$0 за поповнення";
 "tangempay_onboarding_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
@@ -1676,7 +1683,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Неможливо покрити комісію";
 "tangempay_reissue_card_insufficient_funds" = "Недостатньо коштів для перевипуску картки";
 "tangempay_reissue_card_title" = "Перевипустити картку?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Ми усуваємо технічну проблему. Будь ласка, спробуйте пізніше.";

@@ -100,17 +100,13 @@ struct SendDecimalNumberTextField: View {
                 }
                 .frame(width: width, alignment: alignment)
                 .scaleEffect(.init(bothDimensions: scale))
-
-                // Expand the tappable area
-                Color.clear
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        isInputActive = true
-                    }
             }
             .lineLimit(1)
             .infinityFrame() // Provides centered alignment within `GeometryReader`
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isInputActive = true
+            }
             .overlay(textSizeMeasurer)
         }
     }

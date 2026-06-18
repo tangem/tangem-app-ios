@@ -39,6 +39,7 @@ class CommonSendDestinationInteractor {
 
     private var saver: SendDestinationInteractorSaver
     private var dependenciesBuilder: SendDestinationInteractorDependenciesProvider
+    private let validateMemoBeforeConfirm: Bool
 
     private let _isValidatingDestination: CurrentValueSubject<Bool, Never> = .init(false)
     private let _canEmbedAdditionalField: CurrentValueSubject<Bool, Never> = .init(true)
@@ -59,13 +60,15 @@ class CommonSendDestinationInteractor {
         input: SendDestinationInput,
         receiveTokenInput: SendReceiveTokenInput?,
         saver: SendDestinationInteractorSaver,
-        dependenciesBuilder: SendDestinationInteractorDependenciesProvider
+        dependenciesBuilder: SendDestinationInteractorDependenciesProvider,
+        validateMemoBeforeConfirm: Bool = FeatureProvider.isAvailable(.memoValidationBeforeConfirm)
     ) {
         self.initialSourceToken = initialSourceToken
         self.input = input
         self.receiveTokenInput = receiveTokenInput
         self.saver = saver
         self.dependenciesBuilder = dependenciesBuilder
+        self.validateMemoBeforeConfirm = validateMemoBeforeConfirm
 
         bind()
     }
@@ -82,6 +85,8 @@ class CommonSendDestinationInteractor {
             .withWeakCaptureOf(self)
             .sink { $0.updateDependencies(receivedToken: $1?.value) }
             .store(in: &bag)
+
+        bindMemoRevalidation()
     }
 
     private func updateDependencies(receivedToken: SendReceiveToken?) {
@@ -135,6 +140,78 @@ class CommonSendDestinationInteractor {
         } catch {
             // the AdditionalField value is wrong
             throw error
+        }
+    }
+}
+
+// MARK: - Memo Requirement Validation
+
+private extension CommonSendDestinationInteractor {
+    func bindMemoRevalidation() {
+        guard validateMemoBeforeConfirm else { return }
+
+        // Re-validate additional field when destination changes (memoRequired flag may change)
+        input?.destinationPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { interactor, _ in interactor.revalidateAdditionalFieldIfNeeded() }
+            .store(in: &bag)
+    }
+
+    func isMemoRequiredForCurrentDestination() -> Bool {
+        guard let destination = input?.destination else {
+            return false
+        }
+
+        switch destination.value {
+        case .resolved(_, _, memoRequired: true):
+            return true
+        case .plain, .resolved:
+            return false
+        }
+    }
+
+    func applyMemoValidationIfEnabled() {
+        if validateMemoBeforeConfirm {
+            applyMemoRequirementValidation()
+        } else {
+            _destinationAdditionalFieldError.send(nil)
+            _additionalFieldValid.send(true)
+        }
+    }
+
+    func applyMemoRequirementValidation() {
+        guard isMemoRequiredForCurrentDestination() else {
+            _destinationAdditionalFieldError.send(nil)
+            _additionalFieldValid.send(true)
+            return
+        }
+        _destinationAdditionalFieldError.send(SendAddressServiceError.additionalFieldRequired)
+        _additionalFieldValid.send(false)
+    }
+
+    func revalidateAdditionalFieldIfNeeded() {
+        guard let additionalField = input?.destinationAdditionalField else {
+            return
+        }
+
+        // Don't override format/params errors on destination changes.
+        // Only revalidate when there is no error yet, or when the current error is the memo-required one.
+        if let error = _destinationAdditionalFieldError.value {
+            if let addressError = error as? SendAddressServiceError, case .additionalFieldRequired = addressError {
+                // Allow revalidation
+            } else {
+                return
+            }
+        }
+
+        // Only re-validate if additional field is empty
+        // Non-empty fields are validated by update(additionalField:)
+        switch additionalField {
+        case .empty:
+            applyMemoRequirementValidation()
+        case .notSupported, .filled:
+            break
         }
     }
 }
@@ -260,8 +337,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
         guard !value.isEmpty else {
             saver.update(additionalField: .empty(type: type))
-            _destinationAdditionalFieldError.send(nil)
-            _additionalFieldValid.send(true)
+            applyMemoValidationIfEnabled()
             return
         }
 
