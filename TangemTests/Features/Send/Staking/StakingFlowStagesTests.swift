@@ -17,7 +17,7 @@ struct StakingFlowStagesTests {
 
     @Test("Finalize returns ready without reducing the amount when the fee is not included")
     func finalizeReady() {
-        guard case .ready(let ready) = makeStages().finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false) else {
+        guard case .ready(let ready) = makeStages().finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false, isEnter: true) else {
             Issue.record("Expected ready")
             return
         }
@@ -30,7 +30,7 @@ struct StakingFlowStagesTests {
     func finalizeFeeIncluded() {
         let stages = makeStages(feeIncludedCalculator: FeeIncludedCalculatorStub(shouldInclude: true))
 
-        guard case .ready(let ready) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false) else {
+        guard case .ready(let ready) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false, isEnter: true) else {
             Issue.record("Expected ready")
             return
         }
@@ -42,7 +42,7 @@ struct StakingFlowStagesTests {
     func finalizeFixedIgnoresFeeInclusion() {
         let stages = makeStages(feeIncludedCalculator: FeeIncludedCalculatorStub(shouldInclude: true))
 
-        guard case .ready(let ready) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: false, includesStakesCount: false) else {
+        guard case .ready(let ready) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: false, includesStakesCount: false, isEnter: true) else {
             Issue.record("Expected ready")
             return
         }
@@ -56,7 +56,7 @@ struct StakingFlowStagesTests {
         validator.amountFeeError = ValidationError.totalExceedsBalance
         let stages = makeStages(transactionValidator: validator)
 
-        guard case .failure(.transaction) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false) else {
+        guard case .failure(.transaction) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false, isEnter: true) else {
             Issue.record("Expected transaction failure")
             return
         }
@@ -64,11 +64,23 @@ struct StakingFlowStagesTests {
 
     @Test("Finalize omits the stakes count when it is not included")
     func finalizeNoStakesCount() {
-        guard case .ready(let ready) = makeStages().finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false) else {
+        guard case .ready(let ready) = makeStages().finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false, isEnter: true) else {
             Issue.record("Expected ready")
             return
         }
         #expect(ready.stakesCount == nil)
+    }
+
+    @Test("A non-enter editable amount (partial unstake) is never reduced by the fee")
+    func finalizeNonEnterKeepsAmount() {
+        let stages = makeStages(feeIncludedCalculator: FeeIncludedCalculatorStub(shouldInclude: true))
+
+        guard case .ready(let ready) = stages.finalize(amount: 10, fee: 1, target: nil, isAmountEditable: true, includesStakesCount: false, isEnter: false) else {
+            Issue.record("Expected ready")
+            return
+        }
+        #expect(ready.amount == 10)
+        #expect(ready.isFeeIncluded == false)
     }
 
     // MARK: - validate

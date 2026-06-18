@@ -59,7 +59,8 @@ extension CommonStakingFlow {
             fee: fee,
             target: target,
             isAmountEditable: stepPlan.amount.isEditable,
-            includesStakesCount: stepPlan.includesStakesCount
+            includesStakesCount: stepPlan.includesStakesCount,
+            isEnter: action.type.isEnter
         )
     }
 
