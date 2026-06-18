@@ -260,7 +260,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>以下に表示される%li個の単語を順番どおりに書き留め、安全で他人に知られていない場所に保管してください。</string>
+        <string>以下の%li語を、表示された順番どおりに書き留め、安全な場所に保管してください。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
