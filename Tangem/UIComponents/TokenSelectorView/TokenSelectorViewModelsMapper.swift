@@ -30,7 +30,7 @@ final class TokenSelectorViewModelsMapper {
     // MARK: - Internal
 
     private let searchText: CurrentValueSubject<String, Never> = .init("")
-    private let selectedItem: CurrentValueSubject<TokenItem?, Never> = .init(.none)
+    private let selectedItem: CurrentValueSubject<WalletTokenItem?, Never> = .init(.none)
     private weak var output: (any TokenSelectorViewModelOutput)?
 
     private let itemViewModelBuilder: TokenSelectorItemViewModelBuilder
@@ -69,11 +69,11 @@ final class TokenSelectorViewModelsMapper {
             .assign(to: \.searchText.value, on: self, ownership: .weak)
     }
 
-    func setInitialSelectedItem(_ item: TokenItem?) {
+    func setInitialSelectedItem(_ item: WalletTokenItem?) {
         selectedItem.value = item
     }
 
-    func setupSelectedItemFilter(selectedItemPublisher: some Publisher<TokenItem?, Never>) {
+    func setupSelectedItemFilter(selectedItemPublisher: some Publisher<WalletTokenItem?, Never>) {
         selectedItemCancellable = selectedItemPublisher
             .assign(to: \.selectedItem.value, on: self, ownership: .weak)
     }
@@ -104,7 +104,7 @@ private extension TokenSelectorViewModelsMapper {
             .combineLatest(selectedItem.removeDuplicates())
             .map { items, selected in
                 if let selected {
-                    return items.filter { $0.tokenItem != selected }
+                    return items.filter { !$0.isMatching(item: selected) }
                 }
 
                 return items
