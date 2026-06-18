@@ -854,7 +854,8 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
                 walletModel: walletModel,
-                userWalletInfo: userWalletModel.userWalletInfo
+                userWalletInfo: userWalletModel.userWalletInfo,
+                position: .automatic
             ) else {
                 return
             }
