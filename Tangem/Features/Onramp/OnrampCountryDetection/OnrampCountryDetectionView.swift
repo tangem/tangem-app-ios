@@ -10,9 +10,12 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct OnrampCountryDetectionView: View {
     @ObservedObject private var viewModel: OnrampCountryDetectionViewModel
+
+    @State private var contentHeight: CGFloat = 0
 
     init(viewModel: OnrampCountryDetectionViewModel) {
         self.viewModel = viewModel
@@ -26,8 +29,11 @@ struct OnrampCountryDetectionView: View {
 
             buttons
         }
-        .padding(.horizontal, 16)
+        .padding([.horizontal, .top], 16)
         .background(Colors.Background.tertiary)
+        .readGeometry(\.size.height) { contentHeight = $0 }
+        .presentationDetents([.height(contentHeight)])
+        .presentationDragIndicator(.visible)
         .onAppear(perform: viewModel.onAppear)
     }
 

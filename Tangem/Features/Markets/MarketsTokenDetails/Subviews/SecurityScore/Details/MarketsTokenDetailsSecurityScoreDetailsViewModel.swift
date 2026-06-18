@@ -15,14 +15,18 @@ final class MarketsTokenDetailsSecurityScoreDetailsViewModel: Identifiable {
     var subtitle: String { Localization.marketsTokenDetailsSecurityScoreDescription }
     let providers: [SecurityScoreProviderData]
 
+    let closeAction: (() -> Void)?
+
     private weak var routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?
 
     init(
         providers: [MarketsTokenDetailsSecurityScoreDetailsViewModel.SecurityScoreProviderData],
-        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?
+        routable: MarketsTokenDetailsSecurityScoreDetailsRoutable?,
+        closeAction: (() -> Void)? = nil
     ) {
         self.providers = providers
         self.routable = routable
+        self.closeAction = closeAction
     }
 
     func onProviderLinkTap(with identifier: SecurityScoreProviderData.ID) {

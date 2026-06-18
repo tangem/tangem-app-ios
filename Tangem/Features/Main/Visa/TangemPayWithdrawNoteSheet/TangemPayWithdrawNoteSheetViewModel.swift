@@ -24,7 +24,7 @@ final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
         )
     }
 
-    var secondaryButton: MainButton.Settings? = nil
+    var secondaryButton: MainButton.Settings?
 
     var primaryButtonAccessibilityIdentifier: String? {
         TangemPayAccessibilityIdentifiers.withdrawNoteSheetPrimaryButton
@@ -39,7 +39,13 @@ final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        Assets.warningIcon.image
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+            ? DesignSystem.Icons.Error.regular28.image
+            : Assets.warningIcon.image
+    }
+
+    var iconStyle: TangemPayPopupIconStyle {
+        .warning
     }
 
     init(

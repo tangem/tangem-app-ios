@@ -17,4 +17,17 @@ enum SendAnalyticsHelper {
             tokenItem.currencySymbol
         }
     }
+
+    static func makeFeeTypeParameter(selectedFee: FeeOption?, supportFeeSelection: Bool) -> Analytics.ParameterValue {
+        if !supportFeeSelection {
+            return .fixed
+        }
+
+        guard let selectedFee else {
+            assertionFailure("selectedFeeTypeAnalyticsParameter not found")
+            return .null
+        }
+
+        return selectedFee.analyticsValue
+    }
 }

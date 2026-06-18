@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUIUtils
 import TangemAssets
 import TangemAccessibilityIdentifiers
@@ -18,6 +19,8 @@ public struct NotificationBanner: View, Setupable {
     @ScaledMetric private var padding: CGFloat
     @ScaledMetric private var iconWidth: CGFloat
     @ScaledMetric private var iconHeight: CGFloat
+
+    private let cornerRadius: CGFloat = .unit(.x6)
 
     public init(bannerType: BannerType, accessibilityIdentifier: String?) {
         self.bannerType = bannerType
@@ -36,7 +39,7 @@ public struct NotificationBanner: View, Setupable {
         case .center:
             switch content {
             case .text: return true
-            case .textWithIcon: return false
+            case .textWithIcon, .textWithLoadableIcon: return false
             }
         }
     }
@@ -53,6 +56,11 @@ public struct NotificationBanner: View, Setupable {
     public var body: some View {
         bannerContent
             .accessibilityIdentifier(accessibilityIdentifier)
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(bannerType.borderColor, lineWidth: .unit(.quarter))
+                    .allowsHitTesting(false)
+            }
             .overlay(alignment: .topTrailing) {
                 if bannerType.isClosable {
                     closeButton
@@ -90,7 +98,7 @@ public struct NotificationBanner: View, Setupable {
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: isCentered ? .center : .leading)
-        .glowBorder(effect: bannerType.effect)
+        .glowBorder(effect: bannerType.effect, cornerRadius: cornerRadius)
     }
 
     private var closeButton: some View {
@@ -133,6 +141,22 @@ public struct NotificationBanner: View, Setupable {
                     iconImage(for: data.icon)
                 }
             }
+
+        case .textWithLoadableIcon(let data):
+            HStack(
+                alignment: data.icon.alignment.vertical,
+                spacing: SizeUnit.x2.value
+            ) {
+                if data.icon.alignment.horizontal == .leading {
+                    IconView(url: data.icon.url, size: content.iconSize)
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
+                    Spacer(minLength: 0)
+                } else {
+                    textStack(title: data.text.title, subtitle: data.text.subtitle)
+                    Spacer(minLength: 0)
+                    IconView(url: data.icon.url, size: content.iconSize)
+                }
+            }
         }
     }
 
@@ -144,28 +168,41 @@ public struct NotificationBanner: View, Setupable {
             .frame(width: iconWidth, height: iconHeight)
     }
 
+    private var closeButtonClearance: CGFloat {
+        bannerType.isClosable ? SizeUnit.x6.value : 0
+    }
+
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {
         let alignment: HorizontalAlignment = isCentered ? .center : .leading
         let textAlignment: TextAlignment = isCentered ? .center : .leading
 
         return VStack(alignment: alignment, spacing: SizeUnit.x1.value) {
-            Text(title)
-                .style(
-                    Fonts.Bold.headline,
-                    color: Color.Tangem.Text.Neutral.primary
-                )
-                .multilineTextAlignment(textAlignment)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            if title.characters.isNotEmpty {
+                Text(title)
+                    .style(
+                        Font.Tangem.Body16.medium,
+                        color: .Tangem.Text.Neutral.primary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
+            }
 
-            Text(subtitle)
-                .style(
-                    Fonts.Bold.subheadline,
-                    color: Color.Tangem.Text.Neutral.tertiary
-                )
-                .multilineTextAlignment(textAlignment)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            if subtitle.characters.isNotEmpty {
+                Text(subtitle)
+                    .style(
+                        Font.Tangem.Caption12.semibold,
+                        color: .Tangem.Text.Neutral.secondary
+                    )
+                    .lineLimit(nil)
+                    .multilineTextAlignment(textAlignment)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationMessage)
+            }
         }
         .padding(.horizontal, SizeUnit.x1.value)
+        .padding(isCentered ? .horizontal : .trailing, closeButtonClearance)
         .padding(.top, SizeUnit.x1.value)
     }
 

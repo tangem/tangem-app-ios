@@ -9,5 +9,6 @@
 @MainActor
 protocol TokenDetailsActionsRoutable: AnyObject {
     func performTokenAction(_ type: TokenActionType)
+    func performSwapAction(position: SwapDirection)
     func copyDefaultAddress()
 }

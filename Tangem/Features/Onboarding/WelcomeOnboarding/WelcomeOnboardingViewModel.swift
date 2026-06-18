@@ -13,12 +13,15 @@ final class WelcomeOnboardingViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var viewState: ViewState? = nil
+    @Published var warningSheetViewModel: PushNotificationsWarningViewModel?
 
     var currentStep: WelcomeOnboardingStep {
         steps[currentStepIndex]
     }
 
     // MARK: - Dependencies
+
+    @Injected(\.experimentService) private var experimentService: ExperimentService
 
     private weak var coordinator: WelcomeOnboardingRoutable?
 
@@ -96,6 +99,42 @@ extension WelcomeOnboardingViewModel {
 extension WelcomeOnboardingViewModel: PushNotificationsPermissionRequestDelegate {
     func didFinishPushNotificationOnboarding() {
         openNextStep()
+    }
+
+    func didPostponePushNotifications() {
+        guard experimentService.isOn(.warningScreenOnboarding) else {
+            openNextStep()
+            return
+        }
+
+        presentWarningSheet()
+    }
+}
+
+// MARK: - Push notifications warning sheet
+
+extension WelcomeOnboardingViewModel {
+    func dismissWarningSheet() {
+        guard warningSheetViewModel != nil else { return }
+
+        warningSheetViewModel = nil
+        openNextStep()
+    }
+
+    private func presentWarningSheet() {
+        let analyticsContext = PushNotificationsWarningAnalyticsContext(
+            zone: .onboarding,
+            variant: experimentService.isOn(.warningScreenOnboarding) ? .treatment : .control,
+            walletId: nil
+        )
+
+        warningSheetViewModel = PushNotificationsWarningViewModel(
+            permissionManager: pushNotificationsPermissionManager,
+            analyticsContext: analyticsContext,
+            dismissAction: { [weak self] in
+                self?.dismissWarningSheet()
+            }
+        )
     }
 }
 

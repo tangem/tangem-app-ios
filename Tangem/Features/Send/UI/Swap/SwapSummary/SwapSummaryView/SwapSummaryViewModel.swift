@@ -82,7 +82,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func logScreenOpened() {
-        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
         analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
     }
 
@@ -117,11 +116,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapFee() {
         router?.summaryStepRequestEditFee()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func userDidTapMaxAmount() {
-        interactor.userDidRequestMaxAmount()
     }
 
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
@@ -188,6 +182,11 @@ private extension SwapSummaryViewModel {
             .assign(to: &$mainButtonIsEnabled)
 
         interactor
+            .mainButtonStatePublisher
+            .receiveOnMain()
+            .assign(to: &$mainButtonState)
+
+        interactor
             .isUpdatingPublisher
             .receiveOnMain()
             .assign(to: &$mainButtonIsUpdating)
@@ -219,28 +218,16 @@ extension SwapSummaryViewModel {
     }
 
     @RawCaseName
-    enum MainButtonState: Identifiable {
+    enum MainButtonState: Identifiable, Equatable {
         case swap
-        case insufficientFunds
-        case permitAndSwap
+        case transfer
 
         var title: String {
             switch self {
             case .swap:
                 return Localization.swappingSwapAction
-            case .insufficientFunds:
-                return Localization.swappingInsufficientFunds
-            case .permitAndSwap:
-                return Localization.swappingPermitAndSwap
-            }
-        }
-
-        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
-            switch self {
-            case .swap, .permitAndSwap:
-                return tangemIconProvider.getMainButtonIcon()
-            case .insufficientFunds:
-                return .none
+            case .transfer:
+                return Localization.commonTransfer
             }
         }
     }

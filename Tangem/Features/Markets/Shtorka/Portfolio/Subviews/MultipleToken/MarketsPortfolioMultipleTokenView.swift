@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MarketsPortfolioMultipleTokenView: View {
@@ -19,9 +20,8 @@ struct MarketsPortfolioMultipleTokenView: View {
     @ScaledMetric private var horizontalSpacing: CGFloat = .unit(.x3)
     @ScaledMetric private var backgroundCornerRadius: CGFloat = .unit(.x5)
     @ScaledMetric private var tokenIconSetWidth: CGFloat = .unit(.x12)
-    @ScaledSize private var tokenIconSize = CGSize(width: .unit(.x10), height: .unit(.x10))
-    @ScaledSize private var fiatBalanceSkeletonSize = CGSize(width: .unit(.x16), height: .unit(.x5))
-    @ScaledSize private var cryptoBalanceSkeletonSize = CGSize(width: .unit(.x13), height: .unit(.x4))
+    @ScaledMetric private var tokenIconSide = CGFloat.unit(.x10)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         content
@@ -61,19 +61,20 @@ private extension MarketsPortfolioMultipleTokenView {
         )
         .setStyleType(.secondary)
         .setCornerStyle(.rounded)
-        .setSize(.x10)
+        .setSize(.x9)
         .allowsHitTesting(false)
     }
 
     func iconSet() -> some View {
         let icon = TokenIcon(
             tokenIconInfo: viewModel.tokenIconInfo,
-            size: tokenIconSize
+            size: CGSize(width: tokenIconSide, height: tokenIconSide),
+            isWithOverlays: false
         )
 
         let offsetStep = viewModel.tokenIconSetOffset(
             totalWidth: tokenIconSetWidth,
-            iconWidth: tokenIconSize.width
+            iconWidth: tokenIconSide
         )
 
         return ZStack {
@@ -92,22 +93,22 @@ private extension MarketsPortfolioMultipleTokenView {
 
     func tokenName() -> some View {
         Text(viewModel.tokenName)
-            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
             .lineLimit(1)
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: fiatBalanceSkeletonSize)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: .unit(.x16), height: .unit(.x5)) * scaleFactor)
     }
 
     func tokensCount() -> some View {
         Text(viewModel.tokensCount)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             .lineLimit(1)
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: cryptoBalanceSkeletonSize)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: .unit(.x13), height: .unit(.x4)) * scaleFactor)
     }
 
     func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {

@@ -15,6 +15,18 @@ struct TangemPayWithdrawInProgressSheetView: View {
     let viewModel: TangemPayWithdrawInProgressSheetViewModel
 
     var body: some View {
+        if FeatureProvider.isAvailable(.tangemPaySpendRedesign) {
+            TangemPayPopupView(
+                viewModel: TangemPayWithdrawInProgressPopupViewModel(onClose: viewModel.close)
+            )
+        } else {
+            legacyBody
+        }
+    }
+}
+
+private extension TangemPayWithdrawInProgressSheetView {
+    var legacyBody: some View {
         BottomSheetErrorContentView(
             icon: .init(icon: Assets.clock32, overlay: Colors.Icon.secondary),
             title: Localization.tangempayCardDetailsWithdrawInProgressTitle,

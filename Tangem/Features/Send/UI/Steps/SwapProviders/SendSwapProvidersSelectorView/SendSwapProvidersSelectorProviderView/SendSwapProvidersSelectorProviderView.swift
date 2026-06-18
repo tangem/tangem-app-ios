@@ -94,14 +94,14 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
                 .padding(.horizontal, 6)
                 .background(Colors.Background.secondary)
                 .cornerRadiusContinuous(8)
-        case .accent(let text):
+        case .accent(let text, let accessibilityIdentifier):
             Text(text)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
                 .background(Colors.Icon.accent.opacity(0.1))
                 .cornerRadiusContinuous(8)
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderBestRateBadge)
+                .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 }

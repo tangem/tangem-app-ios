@@ -207,6 +207,45 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
             return fee
         }
     }
+
+    func transactionFee(
+        data: ExpressTransactionDataType,
+        allowanceOverride: AllowanceOverride,
+        approveData: ApproveTransactionData
+    ) async throws -> ApproveWithSwapFee {
+        let blockchain = initialSelectedProvider.feeTokenItem.blockchain
+
+        guard case .dex(let dexData) = data, blockchain.isEvm,
+              let txData = dexData.txData.map(Data.init(hexString:)) else {
+            throw ExpressProviderError.transactionDataNotFound
+        }
+
+        // The `txValue` is always coin
+        let amount = BSDKAmount(with: blockchain, type: .coin, value: dexData.txValue)
+
+        update(input: .approveWithSwap(
+            amount: amount,
+            destination: dexData.destinationAddress,
+            txData: txData,
+            otherNativeFee: dexData.otherNativeFee,
+            approve: ApproveWithSwapInput(
+                txData: approveData.txData,
+                tokenContractAddress: allowanceOverride.tokenContractAddress,
+                owner: allowanceOverride.owner,
+                spender: allowanceOverride.spender
+            )
+        ))
+
+        await updateFees().value
+        let combinedSwapAndApproveFee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+        guard let combinedFeeParameters = combinedSwapAndApproveFee.parameters as? ApproveWithSwapFeeParameters else {
+            FeeLogger.error(self, error: "Loaded fee for approve+swap has no ApproveWithSwapFeeParameters, input was likely overridden concurrently")
+            throw TokenFeeProviderError.feeNotFound
+        }
+
+        return ApproveWithSwapFee(total: combinedSwapAndApproveFee, approve: combinedFeeParameters.approveFee)
+    }
 }
 
 // MARK: - Private

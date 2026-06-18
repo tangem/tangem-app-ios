@@ -19,7 +19,7 @@ final class QRScanViewModel: ObservableObject, Identifiable {
 
     let code: Binding<String>
     let text: String
-    let router: QRScanViewRoutable
+    private weak var router: QRScanViewRoutable?
 
     init(code: Binding<String>, text: String, router: QRScanViewRoutable) {
         self.code = code
@@ -62,7 +62,7 @@ final class QRScanViewModel: ObservableObject, Identifiable {
     }
 
     func scanFromGallery() {
-        router.openImagePicker()
+        router?.openImagePicker()
     }
 
     func didSelectImage(_ image: UIImage?) {
@@ -78,7 +78,7 @@ final class QRScanViewModel: ObservableObject, Identifiable {
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.router.dismiss()
+            self.router?.dismiss()
         }
     }
 
@@ -95,19 +95,19 @@ final class QRScanViewModel: ObservableObject, Identifiable {
     }
 
     private func presentAccessDeniedAlert() {
-        let selectFromGalleryButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedGalleryButton) { [router] in
-            router.openImagePicker()
+        let selectFromGalleryButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedGalleryButton) { [weak router] in
+            router?.openImagePicker()
         }
 
-        let settingsButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedSettingsButton) { [router] in
-            router.openSettings()
+        let settingsButton = ConfirmationDialogViewModel.Button(title: Localization.qrScannerCameraDeniedSettingsButton) { [weak router] in
+            router?.openSettings()
         }
 
         let cancelButton = ConfirmationDialogViewModel.Button(
             title: Localization.commonCancel,
             role: .cancel,
-            action: { [router] in
-                router.dismiss()
+            action: { [weak router] in
+                router?.dismiss()
             }
         )
 

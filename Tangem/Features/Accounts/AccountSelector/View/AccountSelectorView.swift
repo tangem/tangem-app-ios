@@ -206,7 +206,7 @@ private extension AccountSelectorView {
     func redesignedWalletSectionHeader(name: String, thumbnail: ThumbnailWalletViewType?) -> some View {
         HStack(spacing: Redesigned.walletHeaderSpacing) {
             Text(name)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Graphic.Neutral.tertiary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Graphic.Neutral.tertiary)
 
             thumbnail.map { type in
                 Color.Tangem.Graphic.Neutral.tertiaryConstant

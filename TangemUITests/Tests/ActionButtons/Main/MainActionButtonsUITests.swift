@@ -52,10 +52,10 @@ final class MainActionButtonsUITests: BaseTestCase {
         let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
-        mainScreen.tapMainBuy()
+        mainScreen.tapMainBuyWhenUnavailable()
         waitAndDismissErrorAlert(actionName: "Buy")
 
-        mainScreen.tapMainSwap()
+        mainScreen.tapMainSwapWhenUnavailable()
         waitAndDismissErrorAlert(actionName: "Exchange")
     }
 
@@ -76,10 +76,10 @@ final class MainActionButtonsUITests: BaseTestCase {
         let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
-        mainScreen.tapMainBuy()
+        mainScreen.tapMainBuyWhenUnavailable()
         waitAndDismissErrorAlert(actionName: "Buy")
 
-        mainScreen.tapMainSwap()
+        mainScreen.tapMainSwapWhenUnavailable()
         waitAndDismissErrorAlert(actionName: "Exchange")
     }
 
@@ -122,6 +122,7 @@ final class MainActionButtonsUITests: BaseTestCase {
             .tapMainBuy()
             .waitBuyTokenSelectorDisplayed()
             .tapToken(token)
+            .tapBuy()
             .waitForTitle("Buy \(token)")
     }
 }

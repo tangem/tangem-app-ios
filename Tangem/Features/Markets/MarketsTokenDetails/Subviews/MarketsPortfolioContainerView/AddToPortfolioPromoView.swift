@@ -57,7 +57,7 @@ struct AddToPortfolioPromoView: View {
         .padding(.horizontal, Constants.contentHorizontalPadding)
         .frame(minHeight: Constants.minPlateHeight)
         .background(
-            RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+            Capsule()
                 .fill(Colors.Background.action)
         )
         .onChange(of: locale.identifier) { _ in
@@ -88,7 +88,6 @@ private extension AddToPortfolioPromoView {
         static let contentSpacing: CGFloat = 12
         static let contentVerticalPadding: CGFloat = 12
         static let contentHorizontalPadding: CGFloat = 14
-        static let cornerRadius: CGFloat = 20
         static let actionButtonHorizontalPadding: CGFloat = 14
         static let actionButtonVerticalPadding: CGFloat = 8
         static let minPlateHeight: CGFloat = 60

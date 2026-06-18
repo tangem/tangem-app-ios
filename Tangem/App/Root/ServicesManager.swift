@@ -50,6 +50,7 @@ final class CommonServicesManager {
     @Injected(\.referralService) private var referralService: ReferralService
     @Injected(\.mobileUpgradeBannerStorageManager) private var mobileUpgradeBannerStorageManager: MobileUpgradeBannerStorageManager
     @Injected(\.stakingTargetAmountLimitProvider) private var stakingTargetAmountLimitProvider: CommonStakingTargetAmountLimitProvider
+    @Injected(\.silentPushHandlersStorage) private var silentPushHandlersStorage: SilentPushHandlersStorage
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -188,13 +189,15 @@ extension CommonServicesManager: ServicesManager {
 
         configureBlockchainSdkExceptionHandler()
 
+        silentPushHandlersStorage.initialize()
+
         sellService.initialize()
         apiListProvider.initialize()
         userTokensPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
-        storyDataPrefetchService.prefetchStoryIfNeeded(.initialSwapStoryBasedOnToggle)
+        storyDataPrefetchService.prefetchStoryIfNeeded(.swap(.initialWithoutImages))
         storyDataPrefetchService.prefetchStoryIfNeeded(.yieldFirstActivationAPYBoostStory)
         geoEligibilityService.initialize()
         wcService.initialize()

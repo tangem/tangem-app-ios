@@ -246,6 +246,7 @@
 "common_copy" = "複製";
 "common_create" = "創造";
 "common_custom" = "Custom";
+"common_delete" = "刪除";
 "common_disable" = "Disable";
 "common_disabled" = "禁用";
 "common_disabling" = "Disabling";
@@ -571,7 +572,11 @@
 "feedback_token_description_error" = "Coin description error";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
 "force_update_banner_title" = "Update needed";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Update";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Please update the app to its latest version to ensure proper functionality.";
 "force_update_warning_title" = "Update required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
@@ -1264,6 +1269,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Rewards automatically accumulate in your staking balance daily.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Available";
 "staking_details_average_reward_rate" = "Average Reward Rate";
@@ -1676,7 +1683,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
 "tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
 "tangempay_reissue_card_title" = "要重新發行您的卡片嗎？";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题。请稍后再试。";
