@@ -572,7 +572,11 @@
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
 "force_update_banner_message" = "Aktualisiere die Anwendung auf die neueste Version, um die ordnungsgemäße Funktionalität zu gewährleisten";
 "force_update_banner_title" = "Aktualisierung erforderlich";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Update";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Bitte aktualisiere die Anwendung auf die neueste Version, um eine einwandfreie Funktion zu gewährleisten.";
 "force_update_warning_title" = "Aktualisierung erforderlich";
 "gasless_not_enough_funds_to_cover_token_fee" = "Nicht genügend Mittel";
@@ -1679,7 +1683,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Gebühr kann nicht gedeckt werden";
 "tangempay_reissue_card_insufficient_funds" = "Unzureichendes Guthaben, um die Karte neu auszustellen";
 "tangempay_reissue_card_title" = "Ihre Karte neu ausstellen?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
