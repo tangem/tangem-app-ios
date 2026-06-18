@@ -7,17 +7,18 @@
 //
 
 import SwiftUI
-import TangemUI
-import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct TokenDetailsBalanceView: View {
     @ObservedObject var viewModel: TokenDetailsBalanceViewModel
 
-    @ScaledSize private var tokenIconSize = CGSize(bothDimensions: .unit(.x18))
-    @ScaledSize private var balancePickerSize = CGSize(bothDimensions: .unit(.x5))
-    @ScaledSize private var fiatBalanceSkeletonSize = CGSize(width: 243, height: 48)
-    @ScaledSize private var cryptoBalanceSkeletonSize = CGSize(width: 115, height: 24)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
+
+    @ScaledMetric private var tokenIconSide = CGFloat.unit(.x18)
+    @ScaledMetric private var balancePickerSide = CGFloat.unit(.x5)
     @ScaledMetric private var balancePickerSpacing: CGFloat = .unit(.x1)
     @ScaledMetric private var balancePickerTopPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var fiatBalanceTopPadding: CGFloat = .unit(.x2)
@@ -48,16 +49,14 @@ private extension TokenDetailsBalanceView {
     }
 
     var tokenIcon: some View {
-        TokenIcon(
-            tokenIconInfo: viewModel.tokenIconInfo,
-            size: tokenIconSize
-        )
+        TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(width: tokenIconSide, height: tokenIconSide))
+            .redesigned()
     }
 
     var balancePicker: some View {
         HStack(spacing: balancePickerSpacing) {
             Text(viewModel.balanceMode.title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
 
             if viewModel.canChangeBalanceMode {
                 Assets.DesignSystem.sort.image
@@ -65,7 +64,7 @@ private extension TokenDetailsBalanceView {
                     .resizable()
                     .scaledToFit()
                     .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
-                    .frame(size: balancePickerSize)
+                    .frame(width: balancePickerSide, height: balancePickerSide)
             }
         }
         .contentShape(.rect)
@@ -77,8 +76,11 @@ private extension TokenDetailsBalanceView {
     }
 
     var fiatBalance: some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: fiatBalanceSkeletonSize)
-            .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
+        TokenDetailsBalanceStateView(
+            state: viewModel.fiatBalanceState,
+            skeletonSize: CGSize(width: 243, height: 48) * scaleFactor
+        )
+        .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
     }
 
     var fiatBalanceAccessibilityIdentifier: String {
@@ -91,13 +93,9 @@ private extension TokenDetailsBalanceView {
     }
 
     var cryptoBalance: some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: cryptoBalanceSkeletonSize)
-    }
-
-    func balanceState(_ state: TokenDetailsBalanceState, skeletonSize: CGSize) -> some View {
         TokenDetailsBalanceStateView(
-            state: state,
-            skeletonSize: skeletonSize
+            state: viewModel.cryptoBalanceState,
+            skeletonSize: CGSize(width: 115, height: 24) * scaleFactor
         )
     }
 }

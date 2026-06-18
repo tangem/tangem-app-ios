@@ -16,13 +16,7 @@ struct SwapFormVariantResolver {
         self.appSettings = appSettings
     }
 
-    var isAvailable: Bool {
-        FeatureProvider.isAvailable(.swapSimpleMode)
-    }
-
     func currentVariant() -> SwapFormVariant {
-        guard isAvailable else { return .detailed }
-
         if let raw = appSettings.swapFormVariantOverrideRaw, let override = SwapFormVariant(rawValue: raw) {
             return override
         }
@@ -32,7 +26,6 @@ struct SwapFormVariantResolver {
     }
 
     func setVariant(_ variant: SwapFormVariant) {
-        guard isAvailable else { return }
         appSettings.swapFormVariantOverrideRaw = variant.rawValue
     }
 }

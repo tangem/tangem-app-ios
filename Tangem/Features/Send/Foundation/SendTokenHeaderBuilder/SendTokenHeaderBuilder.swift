@@ -13,7 +13,7 @@ struct SendTokenHeaderBuilder {
     let actionType: SendFlowActionType
 
     func makeSendTokenHeader(isSource: Bool = true, isFinishStep: Bool = false) -> SendTokenHeader {
-        let useSwapInProgressV2Copy = isFinishStep && FeatureProvider.isAvailable(.swapInProgressV2)
+        let useSwapInProgressV2Copy = isFinishStep
 
         switch (tokenHeader, actionType) {
         // For `.unstake` always show `stakingStakedAmount`

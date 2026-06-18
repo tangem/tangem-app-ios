@@ -69,7 +69,7 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var headerModel: MainHeaderViewModel {
+    var headerModel: MainHeaderViewModel {
         switch self {
         case .singleWallet(_, _, let headerModel, _): headerModel
         case .multiWallet(_, _, let headerModel, _): headerModel
@@ -78,7 +78,7 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    private var actionButtonsViewModel: ActionButtonsViewModel? {
+    var actionButtonsViewModel: ActionButtonsViewModel? {
         switch self {
         case .singleWallet(_, _, _, let bodyModel):
             return bodyModel?.actionButtonsViewModel
@@ -146,19 +146,6 @@ enum MainUserWalletPageBuilder: Identifiable {
         }
     }
 
-    func redesignedHeader(totalPages: Int, currentIndex: Int) -> some View {
-        MainUserWalletHeader(model: MainUserWalletHeaderModel(
-            headerViewModel: headerModel,
-            actionButtonsViewModel: actionButtonsViewModel,
-            paginationState: totalPages > 1
-                ? MainUserWalletHeaderModel.PaginationState(
-                    totalPages: totalPages,
-                    currentIndex: currentIndex
-                )
-                : nil
-        ))
-    }
-
     @ViewBuilder
     private func makeSingleWalletContent(id: UserWalletId, bodyModel: SingleWalletMainContentViewModel?) -> some View {
         if FeatureProvider.isAvailable(.redesign) {
@@ -208,21 +195,6 @@ enum MainUserWalletPageBuilder: Identifiable {
             return bodyModel == nil
         case .multiWallet, .lockedWallet, .visaWallet:
             return false
-        }
-    }
-
-    @ViewBuilder
-    func makeRedesignedBottomOverlay(_ overlayParams: FullPagePagerBottomOverlayParams) -> some View {
-        if let viewModel = bottomSheetFooterViewModel {
-            MainBottomSheetFooterView(viewModel: viewModel)
-                .overlay {
-                    MainBottomSheetRedesignedHintView(
-                        offset: -overlayParams.contentHeight,
-                        isActive: overlayParams.isActive
-                    )
-                }
-        } else {
-            EmptyMainFooterView()
         }
     }
 }

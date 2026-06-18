@@ -14,11 +14,13 @@ public struct NewsRatingViewRedesign: View {
     private let rating: String
     private let isHighlighted: Bool
     private let spacing: CGFloat
+    private let font: TangemFontStyle
 
-    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0) {
+    public init(rating: String, isHighlighted: Bool, spacing: CGFloat = 3.0, font: TangemFontStyle = Font.Tangem.Caption12.semibold) {
         self.rating = rating
         self.isHighlighted = isHighlighted
         self.spacing = spacing
+        self.font = font
     }
 
     public var body: some View {
@@ -26,24 +28,22 @@ public struct NewsRatingViewRedesign: View {
             starIcon
             Text(rating)
                 .style(
-                    .Tangem.Caption12.semibold,
+                    font,
                     color: isHighlighted ? .Tangem.Text.Status.attention : .Tangem.Text.Neutral.secondary
                 )
         }
     }
 
     private var starIcon: some View {
-        ZStack {
-            Circle()
-                .fill(isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary)
-                .frame(size: .init(bothDimensions: .unit(.x4)))
+        Assets.newsRankIcon.image
+            .renderingMode(.template)
+            .resizable()
+            .frame(size: .init(bothDimensions: Layout.iconSize))
+            .foregroundStyle(isHighlighted ? Color.Tangem.Graphic.Status.attention : .Tangem.Graphic.Neutral.tertiary)
+    }
 
-            Assets.star.image
-                .resizable()
-                .frame(size: .init(bothDimensions: .unit(.x3)))
-                .blendMode(.destinationOut)
-        }
-        .compositingGroup()
+    private enum Layout {
+        static let iconSize: CGFloat = .unit(.x4)
     }
 }
 

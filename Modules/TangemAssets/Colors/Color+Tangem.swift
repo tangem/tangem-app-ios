@@ -106,6 +106,9 @@ public extension Color.Tangem.Surface {
     static let level2: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark7)
     static let level3: Color = .dynamic(light: Primitives.Base.white, dark: Primitives.Darks.dark6)
     static let level4: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Darks.dark5)
+
+    /// Main screen background. Matches Android: level2 in light, level1 (pure black) in dark for stronger contrast against token cards (level3).
+    static let mainBackground: Color = .dynamic(light: Primitives.Lights.light1, dark: Primitives.Base.black)
 }
 
 // MARK: - Controls
@@ -203,6 +206,7 @@ public extension Color.Tangem.Markers {
     static let borderGray: Color = .dynamic(light: Primitives.Lights.light3, dark: Primitives.lightAlpha.opacity(0.2))
     static let borderTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let borderTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
+    static let borderTintedGreen: Color = Primitives.Green.emerald.opacity(0.1)
     static let backgroundTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
@@ -221,7 +225,7 @@ public extension Color.Tangem.Visa {
     static let cardDetailBackground: Color = Primitives.Visa.background
 }
 
-private extension Color {
+extension Color {
     static func dynamic(light: Color, dark: Color) -> Color {
         let uiColor = UIColor { traitCollection in
             traitCollection.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
@@ -370,19 +374,6 @@ public extension Color.Tangem.Market {
     static let iconTop1: Color = Primitives.Gold.gold
     static let iconTop2: Color = Primitives.Cobalt.cobalt
     static let iconTop3: Color = Primitives.Coral.coral
-
-    static let backgroundTop1: Color = .dynamic(
-        light: Primitives.Gold.gold.opacity(0.5),
-        dark: Primitives.Gold.gold.opacity(0.3)
-    )
-    static let backgroundTop2: Color = .dynamic(
-        light: Primitives.Cobalt.cobalt.opacity(0.5),
-        dark: Primitives.Cobalt.cobalt.opacity(0.3)
-    )
-    static let backgroundTop3: Color = .dynamic(
-        light: Primitives.Coral.coral.opacity(0.5),
-        dark: Primitives.Coral.coral.opacity(0.3)
-    )
 }
 
 // MARK: - Init with hex-value

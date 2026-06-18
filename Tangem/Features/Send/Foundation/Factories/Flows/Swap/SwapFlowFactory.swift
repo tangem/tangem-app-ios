@@ -18,7 +18,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
 
     var tokenItem: TokenItem { initialTokenItem }
 
-    lazy var analyticsLogger: SendAnalyticsLogger = makeSendAnalyticsLogger(sendType: .swap)
+    lazy var analyticsLogger: SendAnalyticsLogger = makeSwapAnalyticsLogger()
     lazy var swapModel = makeSwapModel(
         sourceToken: sourceToken,
         receiveToken: receiveToken,
@@ -26,7 +26,8 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: RegularSwapPairUpdateHandler(
             expressManager: expressDependenciesFactory.expressManager,
-            expressPairsRepository: expressDependenciesFactory.expressPairsRepository
+            swapRepository: expressDependenciesFactory.swapRepository,
+            analyticsLogger: analyticsLogger
         ),
         shouldStartInitialLoading: true,
         swapTokenPairResolver: swapTokenPairResolver
@@ -70,7 +71,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSwapAmountStep()
         let fee = makeSendFeeStep(router: router)
-        let providers = makeSwapProviders()
+        let providers = makeSwapProviders(router: router)
 
         let summary = makeSwapSummaryStep(
             swapAmountViewModel: amount.viewModel,
@@ -195,7 +196,8 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
             sourceTokenInput: swapModel,
             sourceTokenAmountInput: swapModel,
             receiveTokenInput: swapModel,
-            receiveTokenAmountInput: swapModel
+            receiveTokenAmountInput: swapModel,
+            swapModelStateProvider: swapModel
         )
     }
 
@@ -228,6 +230,8 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
         SendSwapProvidersBuilder.IO(
             input: swapModel,
             output: swapModel,
+            approveInput: swapModel,
+            approveOutput: swapModel,
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             receiveTokenAmountInput: swapModel

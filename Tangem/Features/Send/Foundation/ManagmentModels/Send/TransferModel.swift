@@ -228,6 +228,7 @@ private extension TransferModel {
         case .informationRelevanceServiceError,
              .informationRelevanceServiceFeeWasIncreased,
              .transactionNotFound,
+             .feeNotFound,
              .demoAlert,
              .userCancelled,
              .loadTransactionInfo,
@@ -492,6 +493,7 @@ extension TransferModel: NotificationTapDelegate {
              .renewTangemPaySession,
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
+             .yieldBoostPromoLater,
              .addFunds:
             assertionFailure("Notification tap not handled")
         }

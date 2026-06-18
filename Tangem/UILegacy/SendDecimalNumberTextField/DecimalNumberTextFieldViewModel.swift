@@ -38,7 +38,7 @@ extension DecimalNumberTextFieldViewModel {
         decimalValue.value?.value
     }
 
-    var valuePublisher: AnyPublisher<Decimal?, Never> {
+    func valuePublisher(zeroPolicy: ZeroPolicy = .pass) -> AnyPublisher<Decimal?, Never> {
         decimalValue
             .removeDuplicates { $0?.value == $1?.value }
             // We skip the first nil value from the text field
@@ -46,11 +46,12 @@ extension DecimalNumberTextFieldViewModel {
             // If value == nil then continue chain to reset states to idle
             .filter { $0 == nil || $0?.isInternal == true }
             .map { $0?.value }
+            .map { zeroPolicy.handle(value: $0) }
             .eraseToAnyPublisher()
     }
 
-    var debouncedValuePublisher: AnyPublisher<Decimal?, Never> {
-        valuePublisher
+    func debouncedValuePublisher(zeroPolicy: ZeroPolicy = .pass) -> AnyPublisher<Decimal?, Never> {
+        valuePublisher(zeroPolicy: zeroPolicy)
             .flatMapLatest { value in
                 if value == nil {
                     // Nil value will be emitted without debounce
@@ -133,6 +134,22 @@ private extension DecimalNumberTextFieldViewModel {
 
         let decimal = decimalNumberFormatter.mapToDecimal(string: numberString)
         return decimal
+    }
+}
+
+// MARK: - ZeroPolicy
+
+extension DecimalNumberTextFieldViewModel {
+    enum ZeroPolicy: Hashable {
+        case pass
+        case mapToNone
+
+        func handle(value: Decimal?) -> Decimal? {
+            switch (self, value) {
+            case (.mapToNone, .zero): return .none
+            case (_, _): return value
+            }
+        }
     }
 }
 

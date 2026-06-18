@@ -22,7 +22,6 @@ struct MarketsTokenDetailsView: View {
 
     @State private var headerHeight: CGFloat = .zero
     @State private var isListContentObscured = false
-    @State private var addToPortfolioPromoReservedHeight = Constants.addToPortfolioPromoReservedHeight
 
     @StateObject private var scrollOffsetHandler = ScrollViewOffsetHandler.marketTokenDetails(
         initialState: MarketsNavigationBarTitle.State(priceOpacity: nil, titleOffset: 0),
@@ -78,25 +77,6 @@ struct MarketsTokenDetailsView: View {
 
             if viewModel.isMarketsSheetStyle {
                 navigationBar
-            }
-
-            if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
-                MarketsPortfolioBlockView(
-                    state: viewModel.portfolioBlockState,
-                    iconURL: viewModel.iconURL,
-                    onAddTap: viewModel.onTapAddToPortfolioPromo,
-                    onAddFundsTap: viewModel.onAddFundsTap,
-                    onExpandTap: viewModel.onExpandPortfolioBlockTap
-                )
-                .padding(.horizontal, Constants.addToPortfolioPromoHorizontalPadding)
-                .padding(.bottom, Constants.addToPortfolioPromoBottomPadding)
-                .background(
-                    ListFooterOverlayShadowView(color: backgroundColor)
-                        .padding(.top, -Constants.bottomFadeHeight)
-                )
-                .readGeometry(\.size.height, onChange: updateAddToPortfolioPromoReservedHeight(height:))
-                .frame(maxHeight: .infinity, alignment: .bottom)
-                .transition(.portfolioBlock)
             }
         }
         .animation(.curve(.easeInOutRefined, duration: 0.5), value: viewModel.portfolioBlockState.isVisible)
@@ -227,11 +207,6 @@ struct MarketsTokenDetailsView: View {
                 content
                     .hidden(viewModel.allDataLoadFailed)
                     .transition(.opacity)
-
-                if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
-                    Color.clear
-                        .frame(height: addToPortfolioPromoReservedHeight)
-                }
             }
             .padding(.top, Constants.scrollViewContentTopInset)
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
@@ -240,6 +215,9 @@ struct MarketsTokenDetailsView: View {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
                 }
             }
+        }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            portfolioBlock
         }
         .opacity(viewModel.overlayContentHidingProgress)
         .coordinateSpace(name: CoordinateSpaceName.scrollViewFrame)
@@ -256,10 +234,15 @@ struct MarketsTokenDetailsView: View {
                     onGeneratedAITapAction: viewModel.onGenerateAITapAction
                 )
         }
-        .sheet(item: $viewModel.securityScoreDetailsViewModel) { viewModel in
-            MarketsTokenDetailsSecurityScoreDetailsView(viewModel: viewModel)
-                .adaptivePresentationDetents()
-                .background(Colors.Background.tertiary.ignoresSafeArea())
+        .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
+            if viewModel.isRedesignEnabled {
+                MarketsTokenDetailsSecurityScoreDetailsRedesignedView(viewModel: detailsViewModel)
+            } else {
+                // [REDACTED_INFO]: legacy security score sheet
+                MarketsTokenDetailsSecurityScoreDetailsView(viewModel: detailsViewModel)
+                    .adaptivePresentationDetents()
+                    .background(Colors.Background.tertiary.ignoresSafeArea())
+            }
         }
         .animation(.default, value: viewModel.state)
         .animation(.default, value: viewModel.isLoading)
@@ -387,12 +370,24 @@ struct MarketsTokenDetailsView: View {
         return Color(uiColor: uiColor)
     }
 
-    private func updateAddToPortfolioPromoReservedHeight(height: CGFloat) {
-        guard abs(addToPortfolioPromoReservedHeight - height) > 0.5 else {
-            return
+    @ViewBuilder
+    private var portfolioBlock: some View {
+        if viewModel.isRedesignEnabled, viewModel.portfolioBlockState.isVisible {
+            MarketsPortfolioBlockView(
+                state: viewModel.portfolioBlockState,
+                iconURL: viewModel.iconURL,
+                onAddTap: viewModel.onTapAddToPortfolioPromo,
+                onAddFundsTap: viewModel.onAddFundsTap,
+                onExpandTap: viewModel.onExpandPortfolioBlockTap
+            )
+            .padding(.horizontal, .unit(.x4))
+            .padding(.vertical, .unit(.x2))
+            .background {
+                LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                    .ignoresSafeArea()
+            }
+            .transition(.portfolioBlock)
         }
-
-        addToPortfolioPromoReservedHeight = height
     }
 }
 
@@ -402,9 +397,6 @@ private extension MarketsTokenDetailsView {
     enum Constants {
         static let chartHeight = 200.0
         static let scrollViewContentTopInset = 14.0
-        static let addToPortfolioPromoHorizontalPadding = 16.0
-        static let addToPortfolioPromoBottomPadding = 8.0
-        static let addToPortfolioPromoReservedHeight = 96.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
         static let bottomFadeHeight = 100.0

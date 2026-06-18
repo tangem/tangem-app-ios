@@ -60,6 +60,7 @@ struct CommonUserWalletModelDependencies {
         accountModelsManager = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
+            walletInfo: walletInfo,
             walletManagerFactory: walletManagerFactory,
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
@@ -181,6 +182,7 @@ private extension CommonUserWalletModelDependencies {
     static func makeAccountModelsManager(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
+        walletInfo: WalletInfo,
         walletManagerFactory: AnyWalletManagerFactory,
         keysRepository: KeysRepository,
         keysDerivingInteractor: KeysDeriving,
@@ -194,14 +196,26 @@ private extension CommonUserWalletModelDependencies {
     ) -> AccountModelsManager {
         let hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
 
-        let transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry()
+        let transactionHistoryProviderRegistry: CommonTransactionHistoryProviderRegistry?
+        if FeatureProvider.isAvailable(.transactionHistoryV2) {
+            let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+                ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+            }
+            transactionHistoryProviderRegistry = CommonTransactionHistoryProviderRegistry(
+                cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
+                userWalletId: userWalletId,
+                walletInfo: walletInfo
+            )
+        } else {
+            transactionHistoryProviderRegistry = nil
+        }
 
         let walletModelsFactoryProvider = WalletModelsFactoryProvider(
             userWalletId: userWalletId,
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry()
         )
 
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
@@ -229,7 +243,7 @@ private extension CommonUserWalletModelDependencies {
             areHDWalletsSupported: areHDWalletsSupported
         )
 
-        transactionHistoryProviderRegistry.setup(with: accountModelsManager)
+        transactionHistoryProviderRegistry?.setup(with: accountModelsManager)
 
         return accountModelsManager
     }
@@ -239,11 +253,22 @@ private extension CommonUserWalletModelDependencies {
         accountModelsManager: AccountModelsManager,
         remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     ) -> (UserTokensPushNotificationsManager & UserTokenListExternalParametersProvider) {
-        return CommonUserTokensPushNotificationsManager(
-            userWalletId: userWalletId,
-            accountModelsManager: accountModelsManager,
-            remoteStatusSyncing: remoteStatusSyncing
-        )
+        if FeatureProvider.isAvailable(.pushNotificationsSettings) {
+            let notificationPreferencesProvider = CommonNotificationPreferencesProvider(userWalletId: userWalletId.stringValue)
+
+            return CommonUserWalletPushNotificationsManager(
+                userWalletId: userWalletId,
+                accountModelsManager: accountModelsManager,
+                remoteStatusSyncing: remoteStatusSyncing,
+                notificationPreferencesProvider: notificationPreferencesProvider
+            )
+        } else {
+            return CommonUserTokensPushNotificationsManager(
+                userWalletId: userWalletId,
+                accountModelsManager: accountModelsManager,
+                remoteStatusSyncing: remoteStatusSyncing
+            )
+        }
     }
 
     static func makeTotalBalanceProvider(

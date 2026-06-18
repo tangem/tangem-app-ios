@@ -23,7 +23,7 @@ struct OrganizeTokensListInnerSectionViewRedesigned: View {
     var body: some View {
         HStack(spacing: .unit(.x2)) {
             Text(title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
                 .fixedSize(horizontal: false, vertical: true)
 

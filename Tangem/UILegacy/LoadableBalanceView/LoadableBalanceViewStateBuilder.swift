@@ -46,15 +46,15 @@ struct LoadableBalanceViewStateBuilder {
     func buildAttributedTotalBalance(type: FormattedTokenBalanceType) -> LoadableBalanceView.State {
         switch type {
         case .loading(.cache(let cached)):
-            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance)
+            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cached.balance, formattingOptions: .defaultOptions)
             return .loading(cached: .attributed(attributed)) // Shining text
         case .loading(.empty):
             return .loading(cached: .none) // Usual skeleton
         case .failure(let cachedType):
-            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cachedType.value)
+            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: cachedType.value, formattingOptions: .defaultOptions)
             return .failed(cached: .attributed(attributed), icon: .none)
         case .loaded(let string):
-            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: string)
+            let attributed = formatter.formatAttributedTotalBalance(fiatBalance: string, formattingOptions: .defaultOptions)
             return .loaded(text: .attributed(attributed))
         }
     }
@@ -75,7 +75,8 @@ struct LoadableBalanceViewStateBuilder {
             return .failed(cached: .string(Localization.commonUnreachable))
         case .failed(.some(let cached), _):
             let formatted = formatter.formatFiatBalance(cached, currencyCode: currencyCode)
-            return .failed(cached: .string(formatted), icon: .trailing)
+            let icon: LoadableBalanceView.State.Icon = FeatureProvider.isAvailable(.redesign) ? .leading : .trailing
+            return .failed(cached: .string(formatted), icon: icon)
         case .loaded(let balance):
             let formatted = formatter.formatFiatBalance(balance, currencyCode: currencyCode)
             return .loaded(text: .string(formatted))

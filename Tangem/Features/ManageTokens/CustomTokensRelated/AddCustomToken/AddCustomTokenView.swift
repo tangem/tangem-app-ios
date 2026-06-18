@@ -12,7 +12,13 @@ import TangemAssets
 import TangemUI
 
 struct AddCustomTokenView: View {
-    @ObservedObject var viewModel: AddCustomTokenViewModel
+    @ObservedObject private var viewModel: AddCustomTokenViewModel
+
+    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+
+    init(viewModel: AddCustomTokenViewModel) {
+        self.viewModel = viewModel
+    }
 
     @FocusState private var isFocusedAddressField: Bool
     @FocusState private var isFocusedNameField: Bool
@@ -21,6 +27,20 @@ struct AddCustomTokenView: View {
 
     private var addingIcon: MainButton.Icon? {
         viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil
+    }
+
+    // MARK: - Redesign-aware styling
+
+    private var screenBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level2 : Colors.Background.tertiary
+    }
+
+    private var cardBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action
+    }
+
+    private var cardCornerRadius: CGFloat {
+        isRedesign ? .unit(.x5) : Self.defaultCornerRadius
     }
 
     var body: some View {
@@ -41,7 +61,7 @@ struct AddCustomTokenView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
         }
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .background(screenBackgroundColor.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
         .navigationBarTitle(Text(Localization.addCustomTokenTitle), displayMode: .inline)
         .animation(.default, value: viewModel.selectedBlockchainNetworkId)
@@ -62,7 +82,7 @@ struct AddCustomTokenView: View {
             Button(action: viewModel.openNetworkSelector) {
                 ItemSelectorRow(title: Localization.customTokenNetworkInputTitle, selectedItem: viewModel.selectedBlockchainName)
             }
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: cardBackgroundColor, cornerRadius: cardCornerRadius)
 
             if viewModel.selectedBlockchainSupportsTokens {
                 tokenInputFields
@@ -72,7 +92,7 @@ struct AddCustomTokenView: View {
                 Button(action: viewModel.openDerivationSelector) {
                     ItemSelectorRow(title: Localization.customTokenDerivationPath, selectedItem: viewModel.selectedDerivationOption?.name ?? "")
                 }
-                .defaultRoundedBackground(with: Colors.Background.action)
+                .defaultRoundedBackground(with: cardBackgroundColor, cornerRadius: cardCornerRadius)
             }
 
             if let notificationInput = viewModel.notificationInput {
@@ -158,7 +178,7 @@ struct AddCustomTokenView: View {
                 guard !isFocused else { return }
                 viewModel.onChangeFocusable(field: .decimals)
             }
-        }.roundedBackground(with: Colors.Background.action, padding: 0)
+        }.roundedBackground(with: cardBackgroundColor, padding: 0, radius: cardCornerRadius)
     }
 
     private var separator: some View {

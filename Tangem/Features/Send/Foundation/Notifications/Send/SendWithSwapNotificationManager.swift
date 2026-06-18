@@ -37,39 +37,12 @@ final class SendWithSwapNotificationManager {
 // MARK: - SendAmountNotificationService
 
 extension SendWithSwapNotificationManager: SendAmountNotificationService {
+    /// The too-small / too-big swap limit is surfaced under the edited amount field by
+    /// `SendAmountInteractor` (in that field's currency) and in the notification banner.
+    /// Routing it through the amount-field message here as well printed the limit under the
+    /// source field even when the limit belonged to the receive side, in the receive currency.
     var notificationMessagePublisher: AnyPublisher<String?, Never> {
-        guard let receiveTokenInput else {
-            assertionFailure("SendReceiveTokenInput is not found")
-            return Empty().eraseToAnyPublisher()
-        }
-
-        return receiveTokenInput
-            .receiveTokenPublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { manager, receiveToken -> AnyPublisher<String?, Never> in
-                switch receiveToken.value {
-                case .none:
-                    return .just(output: nil)
-                case .some:
-                    return manager
-                        .swapNotificationManager
-                        .notificationPublisher
-                        .map { inputs in
-                            let suitable = inputs.first { input in
-                                switch input.settings.event as? SwapNotificationEvent {
-                                case .tooSmallAmountToSwap, .tooBigAmountToSwap:
-                                    return true
-                                default:
-                                    return false
-                                }
-                            }
-
-                            return suitable?.settings.event.title?.string
-                        }
-                        .eraseToAnyPublisher()
-                }
-            }
-            .eraseToAnyPublisher()
+        .just(output: nil)
     }
 }
 

@@ -12,12 +12,11 @@ import enum TangemLocalization.Localization
 
 public enum TangemStory: Identifiable {
     case swap(SwapStoryData)
-    case swapLegacy(SwapStoryDataLegacy)
     case yieldFirstActivationAPYBoost(YieldFirstActivationAPYBoostStoryData)
 
     public var id: TangemStory.ID {
         switch self {
-        case .swap, .swapLegacy: .swap
+        case .swap: .swap
         case .yieldFirstActivationAPYBoost: .yieldFirstActivationAPYBoost
         }
     }
@@ -29,7 +28,6 @@ public enum TangemStory: Identifiable {
     public var pages: [TangemStory.Page] {
         switch self {
         case .swap(let data): return data.pages
-        case .swapLegacy(let data): return data.pages
         case .yieldFirstActivationAPYBoost(let data): return data.pages
         }
     }
@@ -37,7 +35,7 @@ public enum TangemStory: Identifiable {
     /// When `true`, the story is shown on every entry and is not marked as viewed in persistent storage.
     public var isRepeatable: Bool {
         switch self {
-        case .swap, .swapLegacy: false
+        case .swap: false
         case .yieldFirstActivationAPYBoost: true
         }
     }
@@ -122,53 +120,6 @@ public extension TangemStory.SwapStoryData {
             case .secondPage: \.secondPage
             case .thirdPage: \.thirdPage
             case .fourthPage: \.fourthPage
-            }
-        }
-    }
-}
-
-// MARK: - Swap story (legacy)
-
-public extension TangemStory {
-    /// do not forget to update SwapStoryDataLegacy.Property enum if you add / remove pages
-    struct SwapStoryDataLegacy {
-        public var firstPage: Page
-        public var secondPage: Page
-        public var thirdPage: Page
-        public var fourthPage: Page
-        public var fifthPage: Page
-
-        public static let initialWithoutImages = SwapStoryDataLegacy(
-            firstPage: Page(title: Localization.swapStoryFirstTitle, subtitle: Localization.swapStoryFirstSubtitle),
-            secondPage: Page(title: Localization.swapStorySecondTitle, subtitle: Localization.swapStorySecondSubtitle),
-            thirdPage: Page(title: Localization.swapStoryThirdTitle, subtitle: Localization.swapStoryThirdSubtitle),
-            fourthPage: Page(title: Localization.swapStoryForthTitle, subtitle: Localization.swapStoryForthSubtitle),
-            fifthPage: Page(title: Localization.swapStoryFifthTitle, subtitle: Localization.swapStoryFifthSubtitle)
-        )
-    }
-}
-
-extension TangemStory.SwapStoryDataLegacy: StoryPagesContainer {
-    public var pagesKeyPaths: [WritableKeyPath<TangemStory.SwapStoryDataLegacy, TangemStory.Page>] {
-        Property.allCases.map(\.keyPath)
-    }
-}
-
-public extension TangemStory.SwapStoryDataLegacy {
-    enum Property: CaseIterable {
-        case firstPage
-        case secondPage
-        case thirdPage
-        case fourthPage
-        case fifthPage
-
-        var keyPath: WritableKeyPath<TangemStory.SwapStoryDataLegacy, TangemStory.Page> {
-            switch self {
-            case .firstPage: \.firstPage
-            case .secondPage: \.secondPage
-            case .thirdPage: \.thirdPage
-            case .fourthPage: \.fourthPage
-            case .fifthPage: \.fifthPage
             }
         }
     }
