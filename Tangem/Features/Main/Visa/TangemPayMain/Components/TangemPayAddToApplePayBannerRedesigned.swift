@@ -18,8 +18,8 @@ struct TangemPayAddToApplePayBannerRedesigned: View {
     var body: some View {
         NotificationBanner(bannerType: bannerType, accessibilityIdentifier: nil)
             .overlay {
-                RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._300)
-                    .strokeBorder(DesignSystem.Tokens.Theme.Border.primary, lineWidth: DesignSystem.Tokens.BorderWidth.sm)
+                RoundedRectangle(cornerRadius: 24)
+                    .strokeBorder(DesignSystem.Color.borderPrimary, lineWidth: 1)
                     .allowsHitTesting(false)
             }
     }

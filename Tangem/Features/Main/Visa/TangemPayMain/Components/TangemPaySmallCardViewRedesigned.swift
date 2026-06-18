@@ -33,11 +33,11 @@ struct TangemPaySmallCardViewRedesigned: View {
 
             cardNumber
         }
-        .frame(width: DesignSystem.Tokens.Size.s700, height: DesignSystem.Tokens.Size.s500, alignment: .topLeading)
-        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._075, style: .continuous))
+        .frame(width: 56, height: 40, alignment: .topLeading)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._075, style: .continuous)
-                .stroke(Color.white.opacity(0.05), lineWidth: DesignSystem.Tokens.BorderWidth.sm)
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(Color.white.opacity(0.05), lineWidth: 1)
         }
     }
 
@@ -62,13 +62,13 @@ struct TangemPaySmallCardViewRedesigned: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 6)
                 .foregroundStyle(.white)
-                .frame(width: DesignSystem.Tokens.Size.s150, height: DesignSystem.Tokens.Size.s150)
+                .frame(width: 12, height: 12)
         case .issuing, .replacing:
             DesignSystem.Icons.Clock.regular16.image
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: DesignSystem.Tokens.Size.s150, height: DesignSystem.Tokens.Size.s150)
+                .frame(width: 12, height: 12)
                 .foregroundStyle(.white)
         }
     }
@@ -94,6 +94,6 @@ struct TangemPaySmallCardViewRedesigned: View {
         TangemPaySmallCardViewRedesigned(state: .issuing)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG

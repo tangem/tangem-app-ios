@@ -319,7 +319,7 @@ private struct TangemRowSlotIcon: View {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: iconSize, height: iconSize)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.primary)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .accessibilityHidden(true)
     }
 }

@@ -42,7 +42,7 @@ public struct TangemShimmerShowcase: View {
             }
             .padding(24)
         }
-        .background(DesignSystem.Tokens.Theme.Bg.primary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .dynamicTypeSize(dynamicTypeSize)
         .environment(\.layoutDirection, isRTL ? .rightToLeft : .leftToRight)
         // SPI: the public `accessibilityReduceMotion` is get-only; its writable backing key lets the
@@ -147,7 +147,7 @@ public struct TangemShimmerShowcase: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+            .background(DesignSystem.Color.bgOpaquePrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
@@ -165,7 +165,7 @@ public struct TangemShimmerShowcase: View {
                 }
             }
             .padding(16)
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+            .background(DesignSystem.Color.bgOpaquePrimary)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }

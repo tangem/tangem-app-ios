@@ -19,27 +19,27 @@ struct TangemPayPopupFeeRows: View {
             infoRow(label: feeLabel, value: feeValue)
 
             if let balanceValue {
-                DesignSystem.Tokens.Theme.Border.secondary
-                    .frame(height: DesignSystem.Tokens.BorderWidth.sm)
+                DesignSystem.Color.borderSecondary
+                    .frame(height: 1)
 
                 infoRow(label: Localization.tangempayYourBalance, value: balanceValue)
             }
         }
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-        .padding(.top, DesignSystem.Tokens.Spacing.s200)
+        .padding(.horizontal, 16)
+        .padding(.top, 16)
     }
 
     private func infoRow(label: String, value: String) -> some View {
-        HStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+        HStack(spacing: 12) {
             Text(label)
-                .font(DesignSystem.Tokens.Font.Body.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .font(DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(value)
-                .font(DesignSystem.Tokens.Font.Body.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                .font(DesignSystem.Font.bodyMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
         }
-        .padding(.vertical, DesignSystem.Tokens.Spacing.s150)
+        .padding(.vertical, 12)
     }
 }

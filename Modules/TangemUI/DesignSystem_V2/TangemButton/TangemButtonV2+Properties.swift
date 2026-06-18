@@ -37,60 +37,60 @@ public extension TangemButtonV2 {
 
         var height: CGFloat {
             switch self {
-            case .x14: DesignSystem.Tokens.Size.s700
-            case .x12: DesignSystem.Tokens.Size.s600
-            case .x11: DesignSystem.Tokens.Size.s550
-            case .x10: DesignSystem.Tokens.Size.s500
-            case .x9: DesignSystem.Tokens.Size.s450
-            case .x8: DesignSystem.Tokens.Size.s400
-            case .x7: DesignSystem.Tokens.Size.s350
+            case .x14: 56
+            case .x12: 48
+            case .x11: 44
+            case .x10: 40
+            case .x9: 36
+            case .x8: 32
+            case .x7: 28
             }
         }
 
         var labelMinWidth: CGFloat {
             switch self {
-            case .x14: DesignSystem.Tokens.Size.s1100
-            case .x12: DesignSystem.Tokens.Size.s1000
-            case .x11: DesignSystem.Tokens.Size.s900
-            case .x10: DesignSystem.Tokens.Size.s800
-            case .x9: DesignSystem.Tokens.Size.s700
-            case .x8: DesignSystem.Tokens.Size.s600
-            case .x7: DesignSystem.Tokens.Size.s500
+            case .x14: 88
+            case .x12: 80
+            case .x11: 72
+            case .x10: 64
+            case .x9: 56
+            case .x8: 48
+            case .x7: 40
             }
         }
 
         var horizontalPadding: CGFloat {
             switch self {
-            case .x14: DesignSystem.Tokens.Spacing.s200
-            case .x12: DesignSystem.Tokens.Spacing.s150
-            case .x11: DesignSystem.Tokens.Spacing.s150
-            case .x10: DesignSystem.Tokens.Spacing.s125
-            case .x9: DesignSystem.Tokens.Spacing.s100
-            case .x8: DesignSystem.Tokens.Spacing.s075
-            case .x7: DesignSystem.Tokens.Spacing.s075
+            case .x14: 16
+            case .x12: 12
+            case .x11: 12
+            case .x10: 10
+            case .x9: 8
+            case .x8: 6
+            case .x7: 6
             }
         }
 
         var verticalPadding: CGFloat {
             switch self {
             case .x7:
-                DesignSystem.Tokens.Spacing.s050
+                4
 
             case .x14, .x12, .x11, .x10, .x9, .x8:
-                DesignSystem.Tokens.Spacing.none
+                0
             }
         }
 
         var iconSize: CGFloat {
             switch self {
             case .x14, .x12:
-                DesignSystem.Tokens.Size.s300
+                24
 
             case .x11, .x10, .x9, .x8:
-                DesignSystem.Tokens.Size.s250
+                20
 
             case .x7:
-                DesignSystem.Tokens.Size.s200
+                16
             }
         }
 
@@ -108,7 +108,7 @@ public extension TangemButtonV2 {
         }
 
         var typographyToken: TangemTypographyToken {
-            DesignSystem.Tokens.Font.Body.medium
+            DesignSystem.Font.bodyMediumToken
         }
     }
 }
@@ -137,34 +137,34 @@ public extension TangemButtonV2 {
 
         var backgroundColor: Color {
             switch self {
-            case .brand: DesignSystem.Tokens.Theme.Bg.brand
-            case .default: DesignSystem.Tokens.Theme.Bg.inverse
-            case .secondary: DesignSystem.Tokens.Theme.Bg.Opaque.primary
+            case .brand: DesignSystem.Color.bgBrand
+            case .default: DesignSystem.Color.bgInverse
+            case .secondary: DesignSystem.Color.bgOpaquePrimary
             case .material: .clear
             case .outline: .clear
             case .ghost: .clear
-            case .inverse: DesignSystem.Tokens.Theme.Bg.primary
-            case .positive: DesignSystem.Tokens.Theme.Bg.Status.success
+            case .inverse: DesignSystem.Color.bgPrimary
+            case .positive: DesignSystem.Color.bgStatusSuccess
             }
         }
 
         var foregroundColor: Color {
             switch self {
             case .brand, .positive:
-                DesignSystem.Tokens.Theme.Text.StaticDark.primary
+                DesignSystem.Color.textStaticDarkPrimary
 
             case .default:
-                DesignSystem.Tokens.Theme.Text.Inverse.primary
+                DesignSystem.Color.textInversePrimary
 
             case .secondary, .material, .outline, .ghost, .inverse:
-                DesignSystem.Tokens.Theme.Text.primary
+                DesignSystem.Color.textPrimary
             }
         }
 
         var borderColor: Color {
             switch self {
             case .outline:
-                DesignSystem.Tokens.Theme.Border.secondary
+                DesignSystem.Color.borderSecondary
 
             case .brand, .default, .secondary, .material, .ghost, .inverse, .positive:
                 .clear
@@ -174,20 +174,20 @@ public extension TangemButtonV2 {
         var borderWidth: CGFloat {
             switch self {
             case .outline:
-                DesignSystem.Tokens.BorderWidth.sm
+                1
 
             case .brand, .default, .secondary, .material, .ghost, .inverse, .positive:
-                DesignSystem.Tokens.BorderWidth.none
+                0
             }
         }
 
         var pressOverlay: Color {
             switch self {
             case .brand, .default, .positive:
-                DesignSystem.Tokens.Theme.Interaction.pressStaticLight
+                DesignSystem.Color.interactionPressStaticLight
 
             case .secondary, .material, .outline, .ghost, .inverse:
-                DesignSystem.Tokens.Theme.Interaction.press
+                DesignSystem.Color.interactionPress
             }
         }
     }

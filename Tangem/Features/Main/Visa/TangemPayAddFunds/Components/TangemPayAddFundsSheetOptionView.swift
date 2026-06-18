@@ -30,13 +30,13 @@ struct TangemPayAddFundsSheetOptionView: View {
 private extension TangemPayAddFundsSheetOptionView {
     var redesignedBody: some View {
         Button(action: action) {
-            HStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+            HStack(spacing: 12) {
                 redesignedIcon
 
                 redesignedTitleView
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, DesignSystem.Tokens.Spacing.s150)
+            .padding(.vertical, 12)
         }
         .accessibilityIdentifier(option.accessibilityIdentifier)
     }
@@ -45,21 +45,21 @@ private extension TangemPayAddFundsSheetOptionView {
         option.redesignedIcon.image
             .renderingMode(.template)
             .resizable()
-            .frame(width: DesignSystem.Tokens.Size.s250, height: DesignSystem.Tokens.Size.s250)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.brand)
-            .frame(width: DesignSystem.Tokens.Size.s500, height: DesignSystem.Tokens.Size.s500)
-            .background(DesignSystem.Tokens.Theme.Bg.Status.infoSubtle, in: Circle())
+            .frame(width: 20, height: 20)
+            .foregroundStyle(DesignSystem.Color.iconBrand)
+            .frame(width: 40, height: 40)
+            .background(DesignSystem.Color.bgStatusInfoSubtle, in: Circle())
     }
 
     var redesignedTitleView: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s025) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(option.title)
-                .font(DesignSystem.Tokens.Font.Subheading.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .font(DesignSystem.Font.subheadingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(option.subtitle)
-                .font(DesignSystem.Tokens.Font.Caption.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                .font(DesignSystem.Font.captionMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.leading)
         .frame(maxWidth: .infinity, alignment: .leading)
