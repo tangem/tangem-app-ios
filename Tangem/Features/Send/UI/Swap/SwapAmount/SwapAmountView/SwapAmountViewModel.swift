@@ -115,7 +115,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .sink { $0.updateSource(sourceToken: $1) }
 
         sourceTokenAmountCancellable = sourceDecimalNumberTextFieldViewModel
-            .valuePublisher
+            .valuePublisher(zeroPolicy: .mapToNone)
             .prepend(.none)
             .withWeakCaptureOf(self)
             .map { $0.update(amount: $1) }
