@@ -89,7 +89,7 @@ private extension CommonBlockaidAPIService {
         let response: BlockaidDTO.SolanaScan.Response
         do {
             response = try await scanSolana(
-                address: accountAddress,
+                address: accountAddress.base58DecodedData.base64EncodedString(),
                 method: "signTransaction",
                 transactions: [base64Transaction],
                 domain: StakingBlockaidConstants.stakingDomain
@@ -128,6 +128,7 @@ private extension CommonBlockaidAPIService {
         switch validation.resultType {
         case .benign:
             return
+
         case .warning:
             throw StakingTransactionValidationError.blockaidWarning(
                 description: validation.description ?? "Transaction flagged as potentially dangerous"
@@ -142,6 +143,7 @@ private extension CommonBlockaidAPIService {
             throw StakingTransactionValidationError.blockaidValidationFailed(
                 description: validation.error ?? "Validation error"
             )
+
         case .info:
             return
         }
