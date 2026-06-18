@@ -19,6 +19,7 @@ struct SendFactory {
             return SendWithSwapFlowFactory(
                 sourceToken: sourceToken,
                 predefinedSendParameters: parameters,
+                shouldStartFromTokenList: options.shouldStartFromTokenList,
                 coordinatorSource: options.source
             )
 

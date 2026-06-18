@@ -82,7 +82,8 @@ final class SendCoordinator: CoordinatorObject {
         }
 
         let flowFactory = SendFactory().flowFactory(options: options)
-        rootViewModel = flowFactory.make(router: self, coordinatorStateProvider: stateProvider)
+        rootViewModel = flowFactory
+            .make(router: self, coordinatorStateProvider: stateProvider)
     }
 
     private func isWalletBackupStatusValid(_ options: Options) -> Bool {
@@ -117,6 +118,17 @@ extension SendCoordinator {
     struct Options {
         let type: SendType
         let source: Source
+        let shouldStartFromTokenList: Bool
+
+        init(
+            type: SendType,
+            source: Source,
+            shouldStartFromTokenList: Bool = false
+        ) {
+            self.type = type
+            self.source = source
+            self.shouldStartFromTokenList = shouldStartFromTokenList
+        }
     }
 
     enum Source {

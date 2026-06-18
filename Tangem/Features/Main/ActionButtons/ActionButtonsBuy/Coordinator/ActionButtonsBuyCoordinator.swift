@@ -6,9 +6,9 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import Foundation
 import TangemUI
-import TangemFoundation
 import UIKit
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
@@ -24,6 +24,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
     @Published private(set) var viewState: RootViewState?
 
     @Published var addToPortfolioBottomSheetInfo: HotCryptoAddToPortfolioBottomSheetViewModel?
+    @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Private property
 
@@ -45,6 +46,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
             ActionButtonsBuyViewModel(
                 userWalletModels: options.userWalletModels,
                 tokenSelectorViewModel: tokenSelectorViewModel,
+                pulseMarketWidgetViewModel: makePulseMarketWidgetViewModel(),
                 coordinator: self
             )
         )
@@ -198,6 +200,25 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRo
     }
 }
 
+// MARK: - PulseMarketWidgetRoutable
+
+extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
+    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsTokenDetailsCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init(info: tokenInfo, style: .addFundsSheet))
+        marketsTokenDetailsCoordinator = coordinator
+    }
+
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        assertionFailure("See all is hidden in the Buy pulse widget, so this is never invoked.")
+    }
+}
+
 // MARK: - Options
 
 extension ActionButtonsBuyCoordinator {
@@ -237,8 +258,28 @@ private extension ActionButtonsBuyCoordinator {
     func makeTokenSelectorViewModel(preferredWalletId: UserWalletId?) -> TokenSelectorViewModel {
         .common(
             walletsProvider: .standardAccountsOnly(),
-            availabilityProvider: .buy(),
+            availabilityProvider: FeatureProvider.isAvailable(.redesign)
+                ? .always() : .buy(),
             preferredWalletId: preferredWalletId
+        )
+    }
+
+    func makePulseMarketWidgetViewModel() -> PulseMarketWidgetViewModel? {
+        guard FeatureProvider.isAvailable(.redesign) else {
+            return nil
+        }
+
+        let widgetsUpdateHandler = CommonMarketsMainWidgetDataService()
+        for widgetType in [MarketsWidgetType.market, .news, .earn] {
+            widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: widgetType)
+        }
+
+        return PulseMarketWidgetViewModel(
+            widgetType: .pulse,
+            widgetsUpdateHandler: widgetsUpdateHandler,
+            quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
+            analyticsService: CommonMarketsWidgetAnalyticsService(),
+            coordinator: self
         )
     }
 }

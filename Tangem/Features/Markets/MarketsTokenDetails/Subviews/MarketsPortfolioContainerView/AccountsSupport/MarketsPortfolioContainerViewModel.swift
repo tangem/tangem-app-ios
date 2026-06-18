@@ -78,16 +78,10 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     func onAddFundsTap() {
-        guard
-            let walletModel = matchedWalletModels.first,
-            let userWalletModel = walletDataProvider.userWalletModels[walletModel.userWalletId]
-        else {
-            return
-        }
-
-        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-        Analytics.log(event: .marketsChartButtonBuy, params: makeAnalyticsParams(for: walletModel))
-        coordinator?.openAddFunds(input: sendInput)
+        coordinator?.openAddFundsTokenList(
+            walletModels: matchedWalletModels,
+            walletDataProvider: walletDataProvider
+        )
     }
 
     @MainActor

@@ -23,7 +23,7 @@ enum ActionButtonModel: Hashable {
         case .swap:
             return Localization.commonSwap
         case .sell:
-            return Localization.commonSell
+            return Localization.commonTransfer
         }
     }
 
