@@ -26,4 +26,8 @@ struct TangemPaySendTransactionValidator: SendTransactionValidator {
         // so client-side fee validation collapses to the amount-only check.
         try validate(amount: amount)
     }
+
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        try validate(amount: amount, fee: fee)
+    }
 }
