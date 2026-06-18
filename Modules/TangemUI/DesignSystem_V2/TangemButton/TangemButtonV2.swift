@@ -80,7 +80,7 @@ public struct TangemButtonV2: View, Setupable {
     private var label: some View {
         switch content {
         case .label(let attributedString, let iconStart, let iconEnd):
-            HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+            HStack(spacing: 8) {
                 if let iconStart {
                     iconView(iconStart)
                 }

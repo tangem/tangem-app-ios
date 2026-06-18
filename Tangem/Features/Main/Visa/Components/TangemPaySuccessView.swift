@@ -16,26 +16,26 @@ struct TangemPaySuccessView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s200) {
+            VStack(alignment: .leading, spacing: 16) {
                 model.icon.image
                     .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: DesignSystem.Tokens.Size.s350, height: DesignSystem.Tokens.Size.s350)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Icon.primary)
+                    .frame(width: 28, height: 28)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
 
                 VStack(alignment: .leading, spacing: 0) {
                     Text(model.title)
-                        .style(DesignSystem.Tokens.Font.Heading.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
 
                     Text(model.subtitle)
-                        .style(DesignSystem.Tokens.Font.Heading.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                        .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .multilineTextAlignment(.leading)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(DesignSystem.Tokens.Spacing.s300)
-            .padding(.top, DesignSystem.Tokens.Spacing.s800)
+            .padding(24)
+            .padding(.top, 64)
 
             Spacer()
 
@@ -47,8 +47,8 @@ struct TangemPaySuccessView: View {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.bottom, DesignSystem.Tokens.Spacing.s150)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(TangemPaySuccessGlowBackground())
