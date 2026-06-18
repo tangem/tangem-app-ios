@@ -21,6 +21,10 @@ struct MarketsPortfolioFlowView: View {
             case .addToken(let addTokenViewModel):
                 AddTokenFlowRedesignedView(viewModel: addTokenViewModel)
                     .transition(.content)
+
+            case .addFunds(let addFundsViewModel):
+                AddFundsView(viewModel: addFundsViewModel)
+                    .transition(.content)
             }
         }
         .animation(.contentFrameUpdate, value: viewModel.state.id)

@@ -15,6 +15,13 @@ import TangemLocalization
 struct TokenSelectorItemView: View {
     @ObservedObject var viewModel: TokenSelectorItemViewModel
 
+    private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level3
+        }
+        return Colors.Background.action
+    }
+
     var body: some View {
         Button(action: viewModel.action) {
             TwoLineRowWithIcon(
@@ -36,7 +43,7 @@ struct TokenSelectorItemView: View {
             .padding(.vertical, 14)
         }
         .disabled(viewModel.disabledReason?.disablesTap ?? false)
-        .background(Colors.Background.action)
+        .background(backgroundColor)
         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: viewModel.name))
     }
 
