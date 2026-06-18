@@ -354,6 +354,10 @@ extension SendViewModel: SwapModelRoutable {
     func performSwapAction() {
         performAction()
     }
+
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {
+        coordinator?.openBackupErrorSupport(userWalletInfo: userWalletInfo)
+    }
 }
 
 // MARK: - SendViewAlertPresenter
