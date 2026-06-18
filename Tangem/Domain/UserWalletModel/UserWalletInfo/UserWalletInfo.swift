@@ -12,6 +12,7 @@ struct UserWalletInfo {
     let name: String
     let id: UserWalletId
     let config: UserWalletConfig
+    let backupState: UserWalletBackupState
     let refcode: Refcode?
     let signer: any TangemSigner
     let emailDataProvider: any EmailDataProvider
