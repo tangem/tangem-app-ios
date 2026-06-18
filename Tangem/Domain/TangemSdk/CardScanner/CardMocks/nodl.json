@@ -8,6 +8,7 @@
             "hasBackup" : false,
             "totalSignedHashes" : 5,
             "index" : 0,
+            "status" : 2,
             "publicKey" : "067F634F228754E9BE7C48889FF385739EBDB2E17C968C4D6D2ED0A7F1341932",
             "derivedKeys" : {
 
@@ -59,6 +60,7 @@
         "isHDWalletAllowed" : false,
         "isRemovingUserCodesAllowed" : true,
         "isKeysImportAllowed" : false,
+        "isBackupRequired" : false,
         "isLinkedTerminalEnabled" : true,
         "isSettingAccessCodeAllowed" : true,
         "isSettingPasscodeAllowed" : true,
@@ -68,7 +70,9 @@
         "isSelectBlockchainAllowed": false
     },
     "userSettings" : {
-        "isUserCodeRecoveryAllowed" : false
+        "isUserCodeRecoveryAllowed" : false,
+        "isPINRequired" : false,
+        "isNDEFDisabled" : false
     },
     "cardPublicKey" : "0000"
 }

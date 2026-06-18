@@ -11,6 +11,7 @@
         "maxWalletsCount" : 1,
         "isLinkedTerminalEnabled" : true,
         "isKeysImportAllowed" : false,
+        "isBackupRequired" : false,
         "isRemovingUserCodesAllowed" : true,
         "isFilesAllowed" : false,
         "supportedEncryptionModes" : [
@@ -65,10 +66,13 @@
             "settings" : {
                 "isPermanent" : false
             },
-            "index" : 0
+            "index" : 0,
+            "status" : 2
         }
     ],
     "userSettings" : {
-        "isUserCodeRecoveryAllowed" : true
+        "isUserCodeRecoveryAllowed" : true,
+        "isPINRequired" : false,
+        "isNDEFDisabled" : false
     }
 }

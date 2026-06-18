@@ -34,10 +34,13 @@
         "isSettingPasscodeAllowed" : true,
 
         "isPermanentWallet": false,
-        "isKeysImportAllowed" : false
+        "isKeysImportAllowed" : false,
+        "isBackupRequired" : false
     },
     "userSettings" : {
-        "isUserCodeRecoveryAllowed" : true
+        "isUserCodeRecoveryAllowed" : true,
+        "isPINRequired" : false,
+        "isNDEFDisabled" : false
     },
     "issuer" : {
         "name" : "TANGEM AG",
@@ -68,6 +71,7 @@
         {
             "totalSignedHashes" : 0,
             "index" : 0,
+            "status" : 2,
             "hasBackup" : false,
             "isImported" : false,
             "derivedKeys" : {
@@ -96,6 +100,7 @@
         {
             "totalSignedHashes" : 0,
             "index" : 1,
+            "status" : 2,
             "hasBackup" : false,
             "isImported" : false,
             "derivedKeys" : {
@@ -114,7 +119,6 @@
                 "isPermanent" : false
             }
         }
-    ],
-    
+    ]
 }
 
