@@ -43,6 +43,10 @@ struct TokenDetailsView: View {
                         }
                     }
 
+                    if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                        QuickTopUpBannerView(viewModel: quickTopUpVM)
+                    }
+
                     if let actionsViewModel = viewModel.actionsViewModel {
                         TokenDetailsActionsView(viewModel: actionsViewModel)
                     }
@@ -67,7 +71,7 @@ struct TokenDetailsView: View {
                     exploreTransactionAction: viewModel.openTransactionExplorer
                 )
 
-                if let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
+                if !viewModel.isRedesign, let quickTopUpVM = viewModel.quickTopUpBannerViewModel {
                     QuickTopUpBannerView(viewModel: quickTopUpVM)
                 }
 
