@@ -17,6 +17,8 @@ import TangemUI
 
 /// Copy-pasted and adapted for accounts `MarketsPortfolioContainerViewModel`
 final class MarketsPortfolioContainerViewModel: ObservableObject {
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     // MARK: - Published Properties
 
     @Published private(set) var isAddTokenButtonDisabled: Bool = true
@@ -494,7 +496,7 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProv
             return []
         }
 
-        return TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
+        return TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
             .buildMarketsTokenContextActions()
     }
 }
@@ -525,15 +527,35 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
+        let availabilityProvider = TokenActionAvailabilityProvider(
+            userWalletInfo: userWalletModel.userWalletInfo,
+            walletModel: walletModel
+        )
+        let availabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
+
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
+            if let unavailableAlert = availabilityAlertBuilder.alert(for: availabilityProvider.buyAvailablity) {
+                alertPresenter.present(alert: unavailableAlert)
+                return
+            }
+
             coordinator.openOnramp(input: sendInput, parameters: .none)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
-            coordinator.openReceive(walletModel: walletModel)
+            if let unavailableAlert = availabilityAlertBuilder.alert(
+                for: availabilityProvider.receiveAvailability,
+                blockchain: walletModel.tokenItem.blockchain
+            ) {
+                alertPresenter.present(alert: unavailableAlert)
+                return
+            }
+
+            coordinator.openReceive(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
+
             let helper = SwapPredefinedParametersHelper()
             guard let parameters = helper.makeParameters(
                 walletModel: walletModel,

@@ -22,6 +22,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published private(set) var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
 
@@ -436,7 +437,16 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
-    func openReceive(walletModel: any WalletModel) {
+    func openReceive(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+        if let unavailableAlert = TokenActionAvailabilityAlertBuilder().alert(
+            for: availabilityProvider.receiveAvailability,
+            blockchain: walletModel.tokenItem.blockchain
+        ) {
+            alertPresenter.present(alert: unavailableAlert)
+            return
+        }
+
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
@@ -481,6 +491,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: input.userWalletInfo, walletModel: input.walletModel)
+        guard availabilityProvider.isTopUpAvailable else {
+            if let backupAlert = UserWalletBackupStatusHelper().alert(for: input.userWalletInfo) {
+                alertPresenter.present(alert: backupAlert)
+            }
+            return
+        }
+
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
