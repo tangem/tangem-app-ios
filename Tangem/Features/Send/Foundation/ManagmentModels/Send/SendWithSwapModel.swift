@@ -37,6 +37,7 @@ final class SendWithSwapModel {
     private let sendAlertBuilder: SendAlertBuilder
     private let analyticsLogger: SendAnalyticsLogger
     private var receiveTokenUpdatingTask: Task<Void, Error>?
+    private var bag: Set<AnyCancellable> = []
 
     init(
         transferModel: TransferModel,
@@ -50,6 +51,8 @@ final class SendWithSwapModel {
         self.initialSourceToken = initialSourceToken
         self.sendAlertBuilder = sendAlertBuilder
         self.analyticsLogger = analyticsLogger
+
+        bind()
     }
 
     deinit {
@@ -74,6 +77,21 @@ private extension SendWithSwapModel {
         swapModel.receiveTokenPublisher
             .map { $0.value != nil }
             .eraseToAnyPublisher()
+    }
+
+    func bind() {
+        // The reverse quote updates the source amount in `swapModel` only; mirror it to `transferModel`
+        // so leaving swap keeps the last shown amount, not the pre-swap input.
+        swapModel.sourceAmountPublisher
+            .filter { !$0.isLoading }
+            .map(\.value)
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .filter { model, _ in model.isSwapMode }
+            .sink { model, amount in
+                model.transferModel.sourceAmountDidChanged(amount: amount)
+            }
+            .store(in: &bag)
     }
 }
 
