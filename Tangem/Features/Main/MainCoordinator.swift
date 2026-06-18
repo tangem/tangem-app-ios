@@ -67,7 +67,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Child view models
 
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
@@ -357,14 +356,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
 
         tokenDetailsCoordinator = coordinator
-    }
-
-    func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        organizeTokensViewModel = OrganizeTokensViewModel(
-            userWalletModel: userWalletModel,
-            coordinator: self,
-            analyticsLogger: TokensManagementAnalyticsLogger()
-        )
     }
 
     func openAddAndManageTokens(factory: TokensManagementFlowFactory) {
@@ -742,18 +733,6 @@ extension MainCoordinator: SendFeeCurrencyNavigating {
         // We use our own custom implementation instead of the default because
         // we have to call `mainBottomSheetUIManager.hide()` when performing this navigation action from the main screen
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
-    }
-}
-
-// MARK: - OrganizeTokensRoutable protocol conformance
-
-extension MainCoordinator: OrganizeTokensRoutable {
-    func didTapCancelButton() {
-        organizeTokensViewModel = nil
-    }
-
-    func didTapSaveButton() {
-        organizeTokensViewModel = nil
     }
 }
 
