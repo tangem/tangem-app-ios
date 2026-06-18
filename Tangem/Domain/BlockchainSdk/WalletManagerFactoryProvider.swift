@@ -21,7 +21,8 @@ class WalletManagerFactoryProvider {
             accountCreator: BlockchainAccountCreator(),
             dataStorage: UserDefaultsBlockchainDataStorage(suiteName: AppEnvironment.current.blockchainDataStorageSuiteName),
             isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled),
-            isYieldModuleUpdateEnabled: FeatureProvider.isAvailable(.yieldModuleUpdate)
+            isYieldModuleUpdateEnabled: FeatureProvider.isAvailable(.yieldModuleUpdate),
+            isGaslessYieldEnabled: FeatureProvider.isAvailable(.gaslessYieldFee)
         ),
         apiList: apiList
     )

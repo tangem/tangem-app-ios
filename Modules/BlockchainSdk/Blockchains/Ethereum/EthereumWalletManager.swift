@@ -19,6 +19,7 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
     let addressConverter: EthereumAddressConverter
     let yieldSupplyService: YieldSupplyService?
     let pendingTransactionsManager: EthereumPendingTransactionsManager
+    let isGaslessYieldEnabled: Bool
 
     private var bag = Set<AnyCancellable>()
 
@@ -30,13 +31,15 @@ class EthereumWalletManager: BaseWalletManager, WalletManager, EthereumTransacti
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
-        pendingTransactionsManager: EthereumPendingTransactionsManager
+        pendingTransactionsManager: EthereumPendingTransactionsManager,
+        isGaslessYieldEnabled: Bool
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.yieldSupplyService = yieldSupplyService
         self.pendingTransactionsManager = pendingTransactionsManager
+        self.isGaslessYieldEnabled = isGaslessYieldEnabled
 
         super.init(wallet: wallet)
 
@@ -974,7 +977,10 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
             throw EthereumTransactionBuilderError.missingChainId
         }
 
-        let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+        let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(
+            blockchain: wallet.blockchain,
+            isGaslessYieldEnabled: isGaslessYieldEnabled
+        )
 
         let data = try EthEip7702Util().encodeAuthorizationForSigning(
             chainId: BigUInt(chainId),
@@ -986,7 +992,10 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
     }
 
     func getGaslessExecutorContractAddress() throws -> String {
-        try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+        try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(
+            blockchain: wallet.blockchain,
+            isGaslessYieldEnabled: isGaslessYieldEnabled
+        )
     }
 }
 
