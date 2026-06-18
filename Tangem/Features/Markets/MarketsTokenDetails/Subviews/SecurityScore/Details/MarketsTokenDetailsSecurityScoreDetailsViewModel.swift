@@ -9,9 +9,8 @@
 import Foundation
 import TangemLocalization
 import TangemFoundation
-import TangemUI
 
-final class MarketsTokenDetailsSecurityScoreDetailsViewModel: FloatingSheetContentViewModel {
+final class MarketsTokenDetailsSecurityScoreDetailsViewModel: Identifiable {
     var title: String { Localization.marketsTokenDetailsSecurityScore }
     var subtitle: String { Localization.marketsTokenDetailsSecurityScoreDescription }
     let providers: [SecurityScoreProviderData]
