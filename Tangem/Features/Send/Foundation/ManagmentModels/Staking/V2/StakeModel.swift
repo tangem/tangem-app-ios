@@ -390,7 +390,7 @@ extension StakeModel: SendSummaryInput, SendSummaryOutput {
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
-        guard stepPlan.amount.isEditable, provider.actionType == .stake else {
+        guard stepPlan.amount.isEditable, provider.actionType.isEnter else {
             return .just(output: nil)
         }
 
