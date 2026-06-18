@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemLocalization
 
 class CommonSwapStepsManager {
     private let summaryStep: SwapSummaryStep
@@ -15,6 +14,7 @@ class CommonSwapStepsManager {
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder
+    private let summaryTitleProvider: SendSummaryTitleProvider
     private var stack: [SendStep]
     private weak var router: SendRoutable?
     private weak var output: SendStepsManagerOutput?
@@ -25,6 +25,7 @@ class CommonSwapStepsManager {
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         tokenSelectorBuilder: SwapTokenSelectorViewModelBuilder,
+        summaryTitleProvider: SendSummaryTitleProvider,
         router: SendRoutable
     ) {
         self.summaryStep = summaryStep
@@ -32,6 +33,7 @@ class CommonSwapStepsManager {
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
         self.tokenSelectorBuilder = tokenSelectorBuilder
+        self.summaryTitleProvider = summaryTitleProvider
         self.router = router
 
         stack = [summaryStep]
@@ -63,7 +65,7 @@ extension CommonSwapStepsManager: SendStepsManager {
                 return .dotsMenu(selectedId: menu.selectedId, items: menu.items)
             }()
             return .init(
-                title: Localization.commonSwap,
+                title: summaryTitleProvider.title,
                 leadingViewType: leading,
                 trailingViewType: .closeButton
             )
