@@ -7,9 +7,11 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.display.weight.medium}",
           "lineHeight": "{font.display.lineHeight.medium}",
+          "lineSpacing": "{font.display.lineSpacing.medium}",
           "fontSize": "{font.display.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.display.spacing.medium}",
+          "tracking": "{font.display.tracking.medium}",
           "fontFeature": "ss01,ss11,liga,calt,kern"
         }
       }
@@ -21,9 +23,11 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.heading.weight.medium}",
           "lineHeight": "{font.heading.lineHeight.medium}",
+          "lineSpacing": "{font.heading.lineSpacing.medium}",
           "fontSize": "{font.heading.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.heading.spacing.medium}",
+          "tracking": "{font.heading.tracking.medium}",
           "fontFeature": "ss01,ss11,liga,calt,kern"
         }
       },
@@ -33,9 +37,11 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.heading.weight.small}",
           "lineHeight": "{font.heading.lineHeight.small}",
+          "lineSpacing": "{font.heading.lineSpacing.small}",
           "fontSize": "{font.heading.size.small}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.heading.spacing.small}",
+          "tracking": "{font.heading.tracking.small}",
           "fontFeature": "ss01,ss11,liga,calt,kern"
         }
       }
@@ -47,9 +53,11 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.subheading.weight.medium}",
           "lineHeight": "{font.subheading.lineHeight.medium}",
+          "lineSpacing": "{font.subheading.lineSpacing.medium}",
           "fontSize": "{font.subheading.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.subheading.spacing.medium}",
+          "tracking": "{font.subheading.tracking.medium}",
           "fontFeature": "ss01,ss11,liga,calt,kern"
         }
       }
@@ -61,9 +69,11 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.body.weight.medium}",
           "lineHeight": "{font.body.lineHeight.medium}",
+          "lineSpacing": "{font.body.lineSpacing.medium}",
           "fontSize": "{font.body.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.body.spacing.medium}",
+          "tracking": "{font.body.tracking.medium}",
           "fontFeature": "ss01,ss11,liga,calt,kern"
         }
       }
@@ -75,9 +85,11 @@
           "fontFamily": "{font.family.base}",
           "fontWeight": "{font.caption.weight.medium}",
           "lineHeight": "{font.caption.lineHeight.medium}",
+          "lineSpacing": "{font.caption.lineSpacing.medium}",
           "fontSize": "{font.caption.size.medium}",
           "textCase": "{font.case.default}",
           "letterSpacing": "{font.caption.spacing.medium}",
+          "tracking": "{font.caption.tracking.medium}",
           "fontFeature": "ss01,ss11,liga,calt,kern"
         }
       }
