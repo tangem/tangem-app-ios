@@ -36,11 +36,28 @@ struct TokenDetailsBalanceStateView: View {
 private extension TokenDetailsBalanceStateView {
     func textView(_ text: TokenDetailsBalanceState.Text) -> some View {
         SensitiveText(text)
+            .modifier(CountsDownTransitionModifier(text: text))
     }
 
     func skeletonView(size: CGSize) -> some View {
         SkeletonView()
             .frame(size: size)
             .clipShape(.capsule)
+    }
+}
+
+// MARK: - CountsDownTransitionModifier
+
+private struct CountsDownTransitionModifier: ViewModifier {
+    let text: TokenDetailsBalanceState.Text
+
+    func body(content: Content) -> some View {
+        if #available(iOS 17, *) {
+            content
+                .contentTransition(.numericText(countsDown: false))
+                .animation(.default, value: text)
+        } else {
+            content
+        }
     }
 }
