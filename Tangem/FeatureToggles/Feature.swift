@@ -19,13 +19,14 @@ enum Feature: String, Hashable, CaseIterable {
     case yieldModuleUpdate
     case xrplTransactionHistory
     case pushNotificationsSettings
-    case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
     case tangemPayMultipleCards
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case supportChat
+    case supportChatSwap
     case onrampApplePayHistoryFallback
     case mobileWalletMultiCreation
     case approveFlowV2
@@ -47,13 +48,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
-        case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .supportChat: return "13815_Support_Chat_(Usedesk)"
+        case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
         case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
@@ -77,13 +79,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .unspecified
-        case .yieldApyBoostPromo: return .version("5.39.2")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .unspecified
         case .transfers: return .version("6.0")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
+        case .supportChat: return .unspecified
+        case .supportChatSwap: return .unspecified
         case .onrampApplePayHistoryFallback: return .version("6.0")
         case .mobileWalletMultiCreation: return .unspecified
         case .approveFlowV2: return .version("6.0")

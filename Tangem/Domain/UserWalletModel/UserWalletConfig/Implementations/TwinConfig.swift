@@ -213,3 +213,11 @@ extension TwinConfig: UserWalletConfig {
         TwinTangemSdkFactory(isAccessCodeSet: card.isAccessCodeSet).makeTangemSdk()
     }
 }
+
+// MARK: - Action buttons
+
+extension TwinConfig {
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: true, preselectsUserWalletInBuy: true)
+    }
+}

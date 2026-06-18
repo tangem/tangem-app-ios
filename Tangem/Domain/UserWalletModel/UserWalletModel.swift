@@ -26,9 +26,9 @@ protocol UserWalletModel:
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,
+    UserWalletBackupStatusProvider,
     DisposableEntity,
     AnyObject {
-    var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
     var userWalletId: UserWalletId { get }
     var tangemApiAuthData: TangemApiAuthorizationData? { get }
@@ -43,7 +43,6 @@ protocol UserWalletModel:
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
-    func validate() -> Bool
     func update(type: UpdateRequest)
     func addAssociatedCard(cardId: String)
 }

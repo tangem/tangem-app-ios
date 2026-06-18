@@ -30,7 +30,7 @@ struct AddressBooksView: View {
         }
         .navigationTitle(Text(Localization.addressBookTitle))
         // [REDACTED_TODO_COMMENT]
-        .background(DesignSystem.Tokens.Theme.Bg.base.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Tokens.Theme.Bg.base.ignoresSafeArea())
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: viewModel.openAddContact) {

@@ -245,8 +245,8 @@ private extension SendViewModel {
         analyticsLogger.logRequestSupport()
 
         do {
-            let (emailDataCollector, recipient) = try mailDataBuilder.makeMailData(stakingRequestError: error)
-            coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+            let mailData = try mailDataBuilder.makeSupportData(stakingRequestError: error)
+            coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
         } catch {
             showAlert(error.alertBinder)
         }
@@ -258,24 +258,28 @@ private extension SendViewModel {
         do {
             switch transaction {
             case .transfer(let transaction):
-                let (emailDataCollector, recipient) = try mailDataBuilder
-                    .makeMailData(transaction: transaction, error: error)
-                coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+                let mailData = try mailDataBuilder.makeSupportData(transaction: transaction, error: error)
+                coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
 
             case .staking(let stakingTransactionAction):
-                let (emailDataCollector, recipient) = try mailDataBuilder
-                    .makeMailData(action: stakingTransactionAction, error: error)
-                coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+                let mailData = try mailDataBuilder.makeSupportData(action: stakingTransactionAction, error: error)
+                coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
 
             case .approve(let approveData, _):
-                let (emailDataCollector, recipient) = try mailDataBuilder
-                    .makeMailData(approveTransaction: approveData, error: error)
-                coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+                let mailData = try mailDataBuilder.makeSupportData(approveTransaction: approveData, error: error)
+                coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
 
             case .cex(let expressTransaction, _), .dex(let expressTransaction, _), .approveAndDex(let expressTransaction, _, _):
-                let (emailDataCollector, recipient) = try mailDataBuilder
-                    .makeMailData(expressTransaction: expressTransaction, error: error)
-                coordinator?.openMail(with: emailDataCollector, recipient: recipient)
+                let mailData = try mailDataBuilder.makeSupportData(expressTransaction: expressTransaction, error: error)
+                if FeatureProvider.isAvailable(.supportChatSwap) {
+                    coordinator?.openSwapSupportSelection(
+                        with: mailData.emailDataCollector,
+                        recipient: mailData.recipient,
+                        chatDataCollector: mailData.chatDataCollector
+                    )
+                } else {
+                    coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
+                }
             }
         } catch {
             showAlert(error.alertBinder)
@@ -349,6 +353,10 @@ extension SendViewModel: StakingModelRoutable {
 extension SendViewModel: SwapModelRoutable {
     func performSwapAction() {
         performAction()
+    }
+
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {
+        coordinator?.openBackupErrorSupport(userWalletInfo: userWalletInfo)
     }
 }
 

@@ -140,7 +140,7 @@ private extension DetailsViewModel {
         switch (hasVisaCards, hasTangemCards) {
         case (true, true):
             let contactTangemSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactTangemSupport) { [weak self] in
-                self?.openTangemSupport(models: tangemUserWalletModels)
+                self?.openSupportTypeSelection(userWalletModels: tangemUserWalletModels)
             }
 
             let contactVisaSupportButton = ConfirmationDialogViewModel.Button(title: Localization.commonContactVisaSupport) { [weak self] in
@@ -160,7 +160,7 @@ private extension DetailsViewModel {
             openVisaSupport(models: visaUserWalletModels)
 
         case (false, true), (false, false):
-            openTangemSupport(models: tangemUserWalletModels)
+            openSupportTypeSelection(userWalletModels: tangemUserWalletModels)
         }
     }
 
@@ -215,13 +215,24 @@ private extension DetailsViewModel {
         Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
     }
 
-    func openSupportChat() {
-        guard selectedUserWalletModel != nil else {
+    func openSupportTypeSelection(userWalletModels: [UserWalletModel]) {
+        guard FeatureProvider.isAvailable(.supportChat) else {
+            openTangemSupport(models: userWalletModels)
             return
         }
 
-        Analytics.log(.settingsButtonChat)
+        coordinator?.openSupportTypeSelection(
+            emailAction: { [weak self] in
+                self?.openTangemSupport(models: userWalletModels)
+            },
+            chatInput: makeSupportChatInput(source: .settings)
+        )
+    }
 
+    private func makeSupportChatInput(
+        source: Analytics.SupportChatSource,
+        initialMessage: SupportInitialMessage? = nil
+    ) -> SupportChatInputModel {
         let data = userWalletRepository.models.map {
             DetailsFeedbackData(
                 userWalletEmailData: $0.emailData,
@@ -229,13 +240,17 @@ private extension DetailsViewModel {
             )
         }
 
-        let dataCollector = DetailsFeedbackDataCollector(
-            data: data
-        )
+        let dataCollector = DetailsFeedbackDataCollector(data: data)
 
-        coordinator?.openSupportChat(input: .init(
-            logsComposer: .init(infoProvider: dataCollector)
-        ))
+        let userIdentifier = selectedUserWalletModel
+            .map { $0.userWalletId.stringValue.lowercased() }
+
+        return SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: dataCollector),
+            userIdentifier: userIdentifier,
+            source: source,
+            initialMessage: initialMessage
+        )
     }
 
     func openTOS() {

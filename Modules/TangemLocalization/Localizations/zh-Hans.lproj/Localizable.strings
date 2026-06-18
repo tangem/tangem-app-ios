@@ -333,6 +333,7 @@
 "common_sell" = "出售";
 "common_send_colon" = "发送：";
 "common_send_tx_error" = "交易发送失败";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "发送";
 "common_sending" = "发送中";
 "common_sent" = "发送";
@@ -1065,6 +1066,7 @@
 "quick_action_buy_description" = "信用卡或银行账户";
 "quick_action_receive_description" = "分享您的地址或二维码";
 "quick_action_sell_description" = "安全出售加密货币";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "发送到另一个钱包";
 "quick_action_swap_description" = "在您的投资组合之间";
 "quick_top_up_chip_other" = "其他";

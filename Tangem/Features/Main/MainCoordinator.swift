@@ -203,7 +203,7 @@ extension MainCoordinator: MainRoutable {
              .tokenDetails,
              .buy,
              .sell,
-             .swapWithDeferredPairResolution,
+             .swap,
              .referral,
              .staking,
              .marketsTokenDetails,
@@ -806,7 +806,7 @@ extension MainCoordinator: RateAppRoutable {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
-    func openBuy(userWalletModels: [UserWalletModel]) {
+    func openBuy(userWalletModels: [UserWalletModel], preferredWalletId: UserWalletId?) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] payload in
                 self?.actionButtonsBuyCoordinator = nil
@@ -816,7 +816,8 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
         )
 
         let options = ActionButtonsBuyCoordinator.Options(
-            userWalletModels: userWalletModels
+            userWalletModels: userWalletModels,
+            preferredWalletId: preferredWalletId
         )
 
         coordinator.start(with: options)
