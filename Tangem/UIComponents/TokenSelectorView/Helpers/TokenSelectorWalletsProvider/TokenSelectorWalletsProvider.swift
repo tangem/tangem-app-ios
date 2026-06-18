@@ -47,29 +47,6 @@ struct TokenSelectorAccount {
 // MARK: - Account's items
 
 struct TokenSelectorItem: Hashable, Identifiable {
-    enum Kind {
-        case crypto(any WalletModel, any CryptoAccountModel)
-        case tangemPay(TangemPayAccount, String, any TangemPayAccountModel)
-
-        var walletModel: (any WalletModel)? {
-            switch self {
-            case .crypto(let walletModel, _):
-                walletModel
-            case .tangemPay:
-                nil
-            }
-        }
-
-        var account: any BaseAccountModel {
-            switch self {
-            case .crypto(_, let account):
-                account
-            case .tangemPay(_, _, let account):
-                account
-            }
-        }
-    }
-
     let userWalletInfo: UserWalletInfo
     let kind: Kind
 
@@ -111,6 +88,10 @@ struct TokenSelectorItem: Hashable, Identifiable {
         return matchingName || matchingSymbol
     }
 
+    func isMatching(item: WalletTokenItem) -> Bool {
+        userWalletInfo.id == item.userWalletId && tokenItem == item.tokenItem
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(userWalletInfo.id)
         hasher.combine(kind.account.id)
@@ -128,6 +109,25 @@ extension TokenSelectorItem {
     enum AvailabilityType {
         case available
         case unavailable(reason: TokenSelectorItemViewModel.DisabledReason)
+    }
+
+    enum Kind {
+        case crypto(any WalletModel, any CryptoAccountModel)
+        case tangemPay(TangemPayAccount, String, any TangemPayAccountModel)
+
+        var walletModel: (any WalletModel)? {
+            switch self {
+            case .crypto(let walletModel, _): walletModel
+            case .tangemPay: nil
+            }
+        }
+
+        var account: any BaseAccountModel {
+            switch self {
+            case .crypto(_, let account): account
+            case .tangemPay(_, _, let account): account
+            }
+        }
     }
 }
 
