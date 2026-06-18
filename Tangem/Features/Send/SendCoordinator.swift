@@ -25,6 +25,7 @@ final class SendCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
 
     // MARK: - Root view model
 
@@ -75,8 +76,28 @@ final class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        guard isWalletBackupStatusValid(options) else {
+            assertionFailure("UserWalletBackupState is invalid. Do not allow to continue.")
+            return dismiss(reason: .other)
+        }
+
         let flowFactory = SendFactory().flowFactory(options: options)
         rootViewModel = flowFactory.make(router: self, coordinatorStateProvider: stateProvider)
+    }
+
+    private func isWalletBackupStatusValid(_ options: Options) -> Bool {
+        switch options.type {
+        case .onramp(let sourceToken, _):
+            // Onramp credits the wallet, so block it on a card-linked (non-toppable) wallet.
+            if let alert = UserWalletBackupStatusHelper().alert(for: sourceToken.userWalletInfo) {
+                alertPresenter.present(alert: alert)
+                return false
+            }
+
+            return true
+        default:
+            return true
+        }
     }
 
     private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
@@ -276,6 +297,10 @@ extension SendCoordinator: SendDestinationRoutable {
 // MARK: - SwapRoutable
 
 extension SendCoordinator: SwapRoutable {
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {
+        UserWalletBackupStatusHelper().openBackupErrorSupport(for: userWalletInfo)
+    }
+
     func openSwapTokenSelector(
         swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
         direction: SwapTokenSelectorViewModel.SwapDirection

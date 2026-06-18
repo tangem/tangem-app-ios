@@ -318,6 +318,17 @@ private extension SwapModel {
         return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
     }
 
+    /// A card-linked wallet must not receive funds, so a swap that would credit it is blocked up front
+    /// (no providers shown) — even if it was somehow chosen as the destination.
+    private func incompleteBackupReceiveTokenRestrictionProvidersState() -> ProvidersState? {
+        guard let destination = receiveToken.value as? SendSwapableToken,
+              case .incompleteBackup = destination.receivingRestrictionsProvider.restriction(expectAmount: .zero) else {
+            return nil
+        }
+
+        return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.incompleteBackup, quote: .none))
+    }
+
     private func logErrorIfNeeded(providersState: ProvidersState) {
         // The screen name is derived from the in-flight LoadingType, which only lives on the
         // outgoing `.loading` state. If we're not transitioning from `.loading`, there's nothing to log.
@@ -345,7 +356,7 @@ private extension SwapModel {
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
             case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
-            case .hasPendingTransaction, .hasPendingApproveTransaction:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .incompleteBackup:
                 break
             }
         default:
@@ -358,6 +369,10 @@ private extension SwapModel {
 
 extension SwapModel {
     func mapToLoadedProvidersState(state: ExpressManagerState) async throws -> ProvidersState {
+        if let restrictionProvidersState = incompleteBackupReceiveTokenRestrictionProvidersState() {
+            return restrictionProvidersState
+        }
+
         switch state {
         case .idle:
             return .idle
@@ -731,6 +746,9 @@ extension SwapModel {
             return nil
         case .notEnoughReceivedAmount(let minAmount):
             return .notEnoughReceivedAmount(minAmount: minAmount, tokenSymbol: destination.tokenItem.currencySymbol)
+        case .incompleteBackup:
+            // Defensive: a card-linked destination is normally short-circuited in mapToLoadedProvidersState.
+            return .incompleteBackup
         }
     }
 
@@ -1735,6 +1753,10 @@ extension SwapModel: NotificationTapDelegate {
             reloadRates()
         case .givePermission:
             router?.openApproveSheet()
+        case .backupErrorSupport:
+            if let userWalletInfo = (receiveToken.value as? SendSwapableToken)?.userWalletInfo {
+                router?.openBackupErrorSupport(userWalletInfo: userWalletInfo)
+            }
         case .generateAddresses,
              .backupCard,
              .goToProvider,
@@ -1747,7 +1769,6 @@ extension SwapModel: NotificationTapDelegate {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
              .openCurrency,
              .unlock,
              .addTokenTrustline,
@@ -1937,6 +1958,7 @@ extension SwapModel {
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+        case incompleteBackup
     }
 
     struct PermissionRequiredState {
