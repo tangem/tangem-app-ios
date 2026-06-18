@@ -11,17 +11,17 @@ import TangemExpress
 import TangemStaking
 import TangemFoundation
 
-typealias MailData = (dataCollector: EmailDataCollector, recipient: String)
+typealias SupportData = (emailDataCollector: EmailDataCollector, chatDataCollector: ChatDataCollector, recipient: String)
 
 protocol SendMailDataBuilder {
     // Send transaction methods
-    func makeMailData(transaction: BSDKTransaction, error: SendTxError) throws -> MailData
-    func makeMailData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> MailData
-    func makeMailData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> MailData
+    func makeSupportData(transaction: BSDKTransaction, error: SendTxError) throws -> SupportData
+    func makeSupportData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> SupportData
+    func makeSupportData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> SupportData
 
     // Staking transaction methods
-    func makeMailData(stakingRequestError error: UniversalError) throws -> MailData
-    func makeMailData(action: StakingTransactionAction, error: SendTxError) throws -> MailData
+    func makeSupportData(stakingRequestError error: UniversalError) throws -> SupportData
+    func makeSupportData(action: StakingTransactionAction, error: SendTxError) throws -> SupportData
 }
 
 enum SendMailDataBuilderError: LocalizedError {
