@@ -15,21 +15,31 @@ import TangemUIUtils
 struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
     let viewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel
 
+    @State private var headerHeight: CGFloat = 0
+    @State private var contentHeight: CGFloat = 0
+
+    private var detentHeight: CGFloat {
+        (headerHeight + contentHeight).rounded(.up)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
+                .readGeometry(\.size.height) { headerHeight = $0 }
 
             ScrollView {
                 content
                     .padding(.horizontal, .unit(.x4))
                     .padding(.bottom, .unit(.x4))
+                    .readGeometry(\.size.height) { contentHeight = $0 }
             }
             .scrollBounceBehavior(.basedOnSize)
         }
-        .floatingSheetConfiguration { config in
-            config.sheetBackgroundColor = Color.Tangem.Surface.level3
-            config.backgroundInteractionBehavior = .tapToDismiss
-        }
+        .presentationDetents([.height(detentHeight)])
+        .presentationDragIndicator(.hidden)
+        .presentationBackground(Color.Tangem.Surface.level2)
+        // iOS 26 sheets use a concentric corner radius matching the device; only override below it.
+        .if(!isLiquidGlassSupported) { $0.presentationCornerRadius(24) }
     }
 
     private var header: some View {
@@ -57,7 +67,10 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            MarketsTokenDetailsSecurityScoreProvidersSection(viewModel: viewModel)
+            MarketsTokenDetailsSecurityScoreProvidersSection(
+                viewModel: viewModel,
+                backgroundColor: Color.Tangem.Surface.level3
+            )
         }
     }
 }
