@@ -43,9 +43,7 @@ actor YieldAPYBoostPromoRepository {
 
     /// Full campaign for the main-screen banner. Fetched once per session.
     func campaign(userWalletId: String) async -> YieldAPYBoostCampaign? {
-        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
-              !FeatureProvider.isAvailable(.redesign)
-        else {
+        guard FeatureProvider.isAvailable(.yieldApyBoostPromo) else {
             return nil
         }
 

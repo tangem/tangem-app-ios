@@ -20,6 +20,8 @@ struct MarketsPortfolioTokenListView: View {
     @State private var bottomPromoHeight: CGFloat = 0
 
     @ScaledMetric private var contentPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var topBarVerticalPadding: CGFloat = .unit(.x4)
+    @ScaledMetric private var topBarHorizontalPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var walletsSpacing: CGFloat = .unit(.x6)
     @ScaledMetric private var walletSpacing: CGFloat = .unit(.x4)
     @ScaledMetric private var walletHeaderSpacing: CGFloat = .unit(.x1)
@@ -31,7 +33,7 @@ struct MarketsPortfolioTokenListView: View {
     @ScaledMetric private var accountHeaderLeadingPadding: CGFloat = .unit(.x1)
     @ScaledMetric private var tokenRowsSpacing: CGFloat = .unit(.x6)
     @ScaledMetric private var promoFadeHeight: CGFloat = 60
-    @ScaledSize private var thumbnailSize: CGSize = .init(bothDimensions: .unit(.x5))
+    @ScaledMetric private var thumbnailSide = CGFloat.unit(.x5)
 
     var body: some View {
         ZStack {
@@ -50,8 +52,8 @@ struct MarketsPortfolioTokenListView: View {
                 .allowsHitTesting(false)
 
                 topBar
-                    .padding(.horizontal, contentPadding)
-                    .padding(.vertical, contentPadding / 2)
+                    .padding(.horizontal, topBarHorizontalPadding)
+                    .padding(.vertical, topBarVerticalPadding)
                     .readGeometry(\.size.height, bindTo: $topBarHeight)
                     .frame(maxHeight: .infinity, alignment: .top)
             }
@@ -83,7 +85,7 @@ private extension MarketsPortfolioTokenListView {
     var topBar: some View {
         ZStack {
             Text(viewModel.barTitle)
-                .style(.Tangem.Heading17.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
 
             TangemButton(
                 content: .icon(Assets.DesignSystem.close),
@@ -146,11 +148,11 @@ private extension MarketsPortfolioTokenListView {
     func walletHeader(title: String, thumbnail: ThumbnailWalletViewType?) -> some View {
         HStack(spacing: walletHeaderSpacing) {
             Text(title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
 
             thumbnail.map {
                 MiniatureWalletView(type: $0)
-                    .frame(size: thumbnailSize)
+                    .frame(width: thumbnailSide, height: thumbnailSide)
             }
         }
     }
@@ -191,7 +193,7 @@ private extension MarketsPortfolioTokenListView {
             name: title
         )
         .iconSettings(.smallSized)
-        .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+        .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
     }
 }
 

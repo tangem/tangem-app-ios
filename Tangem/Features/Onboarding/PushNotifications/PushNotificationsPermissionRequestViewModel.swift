@@ -47,7 +47,7 @@ final class PushNotificationsPermissionRequestViewModel: ObservableObject, Ident
     func didTapLater() {
         requestResult = .later
         permissionManager.postponePermissionRequest()
-        delegate?.didFinishPushNotificationOnboarding()
+        delegate?.didPostponePushNotifications()
     }
 
     func didDismissSheet() {

@@ -41,8 +41,9 @@ public struct TangemTokenRowViewData: Identifiable {
 
 public extension TangemTokenRowViewData {
     enum ContentState {
-        /// Full content with balances - normal token display
-        case loading(cached: CachedContent?)
+        /// Balances are loading. Price and change carry their own loading states,
+        /// since they come from the rate and resolve independently of the balance.
+        case loading(cached: CachedContent?, priceInfo: PriceInfo?)
 
         /// Full content loaded
         case loaded(LoadedContent)
@@ -58,16 +59,14 @@ public extension TangemTokenRowViewData {
 // MARK: - CachedContent
 
 public extension TangemTokenRowViewData {
-    /// Cached values shown during loading with shimmer
+    /// Cached balance values shown during loading with shimmer
     struct CachedContent {
         public let fiatBalance: String?
         public let cryptoBalance: String?
-        public let price: String?
 
-        public init(fiatBalance: String?, cryptoBalance: String?, price: String?) {
+        public init(fiatBalance: String?, cryptoBalance: String?) {
             self.fiatBalance = fiatBalance
             self.cryptoBalance = cryptoBalance
-            self.price = price
         }
     }
 }
@@ -110,14 +109,20 @@ public extension TangemTokenRowViewData {
 // MARK: - PriceInfo
 
 public extension TangemTokenRowViewData {
-    /// Price and change - logically coupled
+    /// Price and change - logically coupled. Both carry loadable states so the row
+    /// shows a shimmer while the rate is pending and a cached value once available.
     struct PriceInfo {
-        public let price: String
-        public let change: PriceChange?
+        public let price: LoadableTextView.State
+        public let change: PriceChangeView.State
 
-        public init(price: String, change: PriceChange?) {
+        public init(price: LoadableTextView.State, change: PriceChangeView.State) {
             self.price = price
             self.change = change
+        }
+
+        public init(price: String, change: PriceChange?) {
+            self.price = .loaded(text: price)
+            self.change = change.map { .loaded(changeType: $0.type, text: $0.text) } ?? .empty
         }
     }
 

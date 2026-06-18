@@ -33,8 +33,7 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput? = nil,
         receiveTokenAmountInput: SendReceiveTokenAmountInput? = nil,
-        swapProvidersInput: SendSwapProvidersInput? = nil,
-        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>? = nil
+        swapProvidersInput: SendSwapProvidersInput? = nil
     ) {
         bind(
             flowActionType: flowActionType,
@@ -42,8 +41,7 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
             sourceTokenAmountInput: sourceTokenAmountInput,
             receiveTokenInput: receiveTokenInput,
             receiveTokenAmountInput: receiveTokenAmountInput,
-            swapProvidersInput: swapProvidersInput,
-            isReceiveAmountApproximatePublisher: isReceiveAmountApproximatePublisher
+            swapProvidersInput: swapProvidersInput
         )
     }
 }
@@ -89,8 +87,7 @@ private extension SendAmountFinishViewModel {
         sourceTokenAmountInput: SendSourceTokenAmountInput,
         receiveTokenInput: SendReceiveTokenInput?,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
-        swapProvidersInput: SendSwapProvidersInput?,
-        isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never>?
+        swapProvidersInput: SendSwapProvidersInput?
     ) {
         Publishers.CombineLatest(
             sourceTokenInput.sourceTokenPublisher.compactMap { $0.value },
@@ -109,13 +106,10 @@ private extension SendAmountFinishViewModel {
             return
         }
 
-        let approximateAmountPublisher = isReceiveAmountApproximatePublisher
-            ?? swapProvidersInput.currentRateTypePublisher.map { $0 == .float }.eraseToAnyPublisher()
-
         Publishers.CombineLatest3(
             receiveTokenInput.receiveTokenPublisher,
             receiveTokenAmountInput.receiveAmountPublisher,
-            approximateAmountPublisher
+            receiveTokenAmountInput.isReceiveAmountApproximatePublisher
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
@@ -192,8 +186,8 @@ private extension SendAmountFinishViewModel {
                 ).string(from: $0)
             }
 
-            let showTilde = isApproximateAmount && flowActionType.isSwapFlow && FeatureProvider.isAvailable(.swapInProgressV2)
-            let amountText = formattedAmount.map { formatted in showTilde ? "\(AppConstants.tildeSign) \(formatted)" : formatted } ?? ""
+            let showTilde = isApproximateAmount && flowActionType.isSwapFlow
+            let amountText = formattedAmount.map { SwapAmountFormatter.formatAmount($0, isApproximate: showTilde) } ?? ""
 
             receiveSmallAmountViewModel = .init(
                 tokenHeader: header,

@@ -38,8 +38,17 @@ enum UITestsStorageCleaner {
 
         clearTangemPayState()
         clearSwapTokenSelectorState()
+        clearAppSettingsState()
 
         AppLogger.info("Cached files cleared for UI tests")
+        #endif
+    }
+
+    /// Resets persisted AppSettings keys not covered by simulator locale (e.g. selectedCurrencyCode).
+    private static func clearAppSettingsState() {
+        #if DEBUG
+        AppSettings.shared.selectedCurrencyCode = "USD"
+        AppLogger.info("AppSettings state cleared for UI tests")
         #endif
     }
 

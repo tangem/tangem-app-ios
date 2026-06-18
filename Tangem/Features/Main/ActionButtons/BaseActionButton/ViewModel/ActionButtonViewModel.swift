@@ -13,7 +13,6 @@ protocol ActionButtonViewModel: ObservableObject, Identifiable {
     var viewState: ActionButtonState { get }
     var model: ActionButtonModel { get }
     var alert: AlertBinder? { get set }
-    var isDisabled: Bool { get }
 
     @MainActor
     func tap()
@@ -23,8 +22,33 @@ protocol ActionButtonViewModel: ObservableObject, Identifiable {
 }
 
 extension ActionButtonViewModel {
+    // [REDACTED_INFO]: only the legacy `ActionButtonView` reads this; remove with that view (redesign uses `isDimmed`).
     var isDisabled: Bool {
         viewState == .disabled
+    }
+
+    var isDimmed: Bool {
+        switch viewState {
+        case .restricted, .loading, .disabled:
+            return true
+        case .initial, .idle, .unavailable:
+            return false
+        }
+    }
+
+    var isTappableWhileDisabled: Bool {
+        if case .restricted = viewState {
+            return true
+        }
+        return false
+    }
+
+    @MainActor
+    func showRestrictionReason() {
+        guard case .restricted(let reason) = viewState else { return }
+
+        trackTapEvent()
+        alert = .init(title: "", message: reason)
     }
 
     func trackTapEvent() {
