@@ -8,8 +8,8 @@
 
 import Foundation
 import Moya
-import TangemNetworkUtils
 import AnyCodable
+import TangemNetworkUtils
 
 struct XRPTarget: TargetType {
     private let node: NodeInfo

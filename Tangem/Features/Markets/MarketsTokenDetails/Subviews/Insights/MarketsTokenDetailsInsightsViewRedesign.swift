@@ -15,7 +15,7 @@ import TangemUI
 struct MarketsTokenDetailsInsightsViewRedesign: View {
     @ObservedObject var viewModel: MarketsTokenDetailsInsightsViewModel
 
-    @ScaledSize private var trendImageSize = CGSize(bothDimensions: 12)
+    @ScaledMetric private var trendImageSide: CGFloat = 12
 
     private let gridItems = [
         GridItem(.flexible(), alignment: .topLeading),
@@ -69,7 +69,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
 
     private var headerLabel: some View {
         Text(Localization.marketsTokenDetailsInsights)
-            .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
     }
 
     private var infoIcon: some View {
@@ -91,7 +91,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
             Text(info.recordData)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
 
             trendIcon(for: info.trend)
         }
@@ -104,7 +104,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
 
                 Text(info.title)
                     .lineLimit(1)
-                    .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
             }
         }
     }
@@ -116,7 +116,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
             Assets.DesignSystem.upDynamic.image
                 .resizable()
                 .renderingMode(.template)
-                .frame(size: trendImageSize)
+                .frame(width: trendImageSide, height: trendImageSide)
                 .foregroundStyle(Color.Tangem.Graphic.Status.positive)
 
         case .negative:
@@ -125,7 +125,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
             Assets.DesignSystem.upDynamic.image
                 .resizable()
                 .renderingMode(.template)
-                .frame(size: trendImageSize)
+                .frame(width: trendImageSide, height: trendImageSide)
                 .rotationEffect(.degrees(180))
                 .foregroundStyle(Color.Tangem.Graphic.Status.warning)
 

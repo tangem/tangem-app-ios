@@ -22,23 +22,27 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
     var primaryButton: MainButton.Settings {
-        .init(
-            title: Localization.tangempayGoToSupport,
-            style: .primary,
-            action: openSupport
-        )
+        isRedesigned
+            ? .init(title: Localization.tangempayKycRejectedButtonText, style: .primary, action: hideKYC)
+            : .init(title: Localization.tangempayGoToSupport, style: .primary, action: openSupport)
     }
 
     var secondaryButton: MainButton.Settings? {
-        .init(
-            title: Localization.tangempayCancelKyc,
-            style: .secondary,
-            action: hideKYC
-        )
+        isRedesigned
+            ? .init(title: Localization.commonContactSupport, style: .secondary, action: openSupport)
+            : .init(title: Localization.tangempayCancelKyc, style: .secondary, action: hideKYC)
     }
 
     var title: AttributedString {
         .init(Localization.tangempayKycRejected)
+    }
+
+    var iconStyle: TangemPayPopupIconStyle {
+        .error
+    }
+
+    private var isRedesigned: Bool {
+        FeatureProvider.isAvailable(.tangemPaySpendRedesign)
     }
 
     var description: AttributedString {
@@ -53,7 +57,9 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     var icon: Image {
-        Assets.Visa.kycDeclinedBrokenHeart.image
+        isRedesigned
+            ? DesignSystem.Icons.HeartBroken.regular32.image
+            : Assets.Visa.kycDeclinedBrokenHeart.image
     }
 
     init(

@@ -46,10 +46,24 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func enterFromAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in from field") { _ in
-            XCTAssertTrue(fromAmountTextField.waitForExistence(timeout: .robustUIUpdate), "From amount text field should exist")
-
-            fromAmountTextField.tap()
-            fromAmountTextField.typeText(amount)
+            let field = editableFromAmountField()
+            // The field formats the value with grouping separators, so compare on digits and the decimal separator only.
+            let expectedDigits = amount.filter { $0.isNumber || $0 == "." }
+            // [REDACTED_INFO]: the field resigns focus on swap-state re-renders, so clear, refocus and retype until it sticks.
+            for attempt in 0 ..< 8 {
+                if attempt > 0 || !field.hasFocus {
+                    field.tap()
+                }
+                let length = field.getValue().count
+                if length > 0 {
+                    field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
+                }
+                field.typeText(amount)
+                if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
+                    return
+                }
+            }
+            XCTFail("Failed to enter amount '\(amount)'; last value: '\(field.getValue())'")
         }
         return self
     }
@@ -292,9 +306,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForFromAmountValue(_ value: String) -> Self {
         XCTContext.runActivity(named: "Validate from amount text field has value '\(value)'") { _ in
-            waitAndAssertTrue(fromAmountTextField, "From amount text field should exist")
+            let field = editableFromAmountField()
             let predicate = NSPredicate(format: "value == %@", value)
-            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: fromAmountTextField)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: field)
             let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
             XCTAssertEqual(result, .completed, "From amount text field should have value '\(value)'")
         }
@@ -304,8 +318,15 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func clearFromAmount() -> Self {
         XCTContext.runActivity(named: "Clear from amount text field") { _ in
-            waitAndAssertTrue(fromAmountTextField, "From amount text field should exist")
-            deleteText(element: fromAmountTextField)
+            let field = editableFromAmountField()
+            // Tapping an already focused field can resolve to the pass-through twin and dismiss the keyboard.
+            if !field.hasFocus {
+                field.tap()
+            }
+            let length = field.getValue().count
+            if length > 0 {
+                field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
+            }
         }
         return self
     }
@@ -441,6 +462,19 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             waitAndAssertTrue(feeBlock, "Fee block should exist with fee amount")
         }
         return self
+    }
+
+    private func editableFromAmountField() -> XCUIElement {
+        // The editable field is the hittable match; the overlaid measurement field disables hit testing.
+        let query = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+        let predicate = NSPredicate { _, _ in query.allElementsBoundByIndex.contains { $0.isHittable } }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+            .completed,
+            "Editable from amount field should become hittable"
+        )
+        return query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
     }
 }
 

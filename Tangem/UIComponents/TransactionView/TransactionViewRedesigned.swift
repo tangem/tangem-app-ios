@@ -15,7 +15,7 @@ import TangemUIUtils
 struct TransactionViewRedesigned: View {
     let viewModel: TransactionViewModel
 
-    @ScaledSize private var iconContainerSize = CGSize(bothDimensions: 40)
+    @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
 
@@ -36,8 +36,6 @@ struct TransactionViewRedesigned: View {
         ZStack {
             Circle().fill(iconBackgroundColor)
 
-            Circle().strokeBorder(iconBorderColor, lineWidth: iconBorderWidth)
-
             viewModel.icon.icon
                 .renderingMode(.template)
                 .resizable()
@@ -45,13 +43,13 @@ struct TransactionViewRedesigned: View {
                 .frame(width: glyphSize, height: glyphSize)
                 .foregroundStyle(iconGlyphColor)
         }
-        .frame(width: iconContainerSize.width, height: iconContainerSize.height)
+        .frame(width: iconContainerSide, height: iconContainerSide)
     }
 
     private var nameView: some View {
         HStack(spacing: .unit(.x2)) {
             Text(display.title)
-                .style(.Tangem.Body16.medium, color: nameColor)
+                .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
 
             if viewModel.inProgress {
@@ -62,7 +60,7 @@ struct TransactionViewRedesigned: View {
 
     private var amountView: some View {
         Text(viewModel.amount.value)
-            .style(.Tangem.Body16.medium, color: amountColor)
+            .style(Font.Tangem.Body16.medium, color: amountColor)
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
@@ -76,7 +74,7 @@ struct TransactionViewRedesigned: View {
 
         case .text(let description):
             Text(description)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
 
@@ -89,7 +87,7 @@ struct TransactionViewRedesigned: View {
     private var currencyView: some View {
         if viewModel.amount.currencyCode.isNotEmpty {
             Text(viewModel.amount.currencyCode)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
         }
     }
@@ -123,19 +121,11 @@ private extension TransactionViewRedesigned {
         }
     }
 
-    var iconBorderColor: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: .Tangem.Markers.borderTintedRed
-        case .inProgress: .Tangem.Markers.borderTintedBlue
-        case .confirmed: .Tangem.Markers.borderGray
-        }
-    }
-
     var iconGlyphColor: Color {
         switch viewModel.icon.status {
         case .failed, .undefined: .Tangem.Markers.iconRed
         case .inProgress: .Tangem.Markers.iconBlue
-        case .confirmed: .Tangem.Markers.iconGray
+        case .confirmed: .Tangem.Graphic.Neutral.secondary
         }
     }
 }

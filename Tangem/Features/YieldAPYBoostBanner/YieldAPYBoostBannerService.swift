@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 final class YieldAPYBoostBannerService {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
@@ -47,7 +48,6 @@ final class YieldAPYBoostBannerService {
         }
 
         guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
-              !FeatureProvider.isAvailable(.redesign),
               !isDismissed
         else {
             notificationInputsSubject.send([])
@@ -96,7 +96,7 @@ extension YieldAPYBoostBannerService: NotificationManager {
 
 private extension YieldAPYBoostBannerService {
     func makeNotificationInput() -> NotificationViewInput {
-        let buttonAction: NotificationView.NotificationButtonTapAction = { [tangemStoriesPresenter, incomingActionHandler] _, _ in
+        let exploreAction: NotificationView.NotificationButtonTapAction = { [tangemStoriesPresenter, incomingActionHandler] _, _ in
             Analytics.log(.mainScreenButtonExploreYieldMode)
 
             Task { @MainActor in
@@ -114,10 +114,32 @@ private extension YieldAPYBoostBannerService {
             self?.dismissNotification(with: id)
         }
 
-        return NotificationsFactory().buildNotificationInput(
-            for: YieldAPYBoostBannerNotificationEvent(),
-            buttonAction: buttonAction,
-            dismissAction: dismissAction
+        let event = YieldAPYBoostBannerNotificationEvent()
+
+        guard FeatureProvider.isAvailable(.redesign) else {
+            return NotificationsFactory().buildNotificationInput(
+                for: event,
+                buttonAction: exploreAction,
+                dismissAction: dismissAction
+            )
+        }
+
+        let laterButton = NotificationView.NotificationButton(
+            action: { id, _ in dismissAction(id) },
+            actionType: .yieldBoostPromoLater,
+            isWithLoader: false
+        )
+
+        let exploreButton = NotificationView.NotificationButton(
+            action: exploreAction,
+            actionType: .openYieldBoostPromo(buttonTitle: Localization.commonExplore),
+            isWithLoader: false
+        )
+
+        return NotificationViewInput(
+            style: .withButtons([laterButton, exploreButton]),
+            severity: event.severity,
+            settings: .init(event: event, dismissAction: dismissAction)
         )
     }
 }

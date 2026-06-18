@@ -118,6 +118,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         infoProvider
             .balanceTypePublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupBalance(type)
@@ -126,6 +127,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         infoProvider
             .fiatBalanceTypePublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupFiatBalance(type)
@@ -188,9 +190,10 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         case .loading(.none):
             tokenPrice = .loading
             priceChangeState = .loading
-        // If we have a cached rate we just show it
-        // Exactly the loading animation will show on fiat balance
-        case .loading(.some(let quote)), .failure(.some(let quote)), .loaded(let quote):
+        case .loading(.some(let quote)):
+            tokenPrice = .loadingCached(text: priceFormatter.formatPrice(quote.price))
+            priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h, loading: true)
+        case .failure(.some(let quote)), .loaded(let quote):
             tokenPrice = .loaded(text: priceFormatter.formatPrice(quote.price))
             priceChangeState = priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
         case .custom, .failure(.none):

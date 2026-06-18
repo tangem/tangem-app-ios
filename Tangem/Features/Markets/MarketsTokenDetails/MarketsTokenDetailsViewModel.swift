@@ -703,7 +703,10 @@ extension MarketsTokenDetailsViewModel: MarketsTokenDetailsSecurityScoreRoutable
         )
         securityScoreDetailsViewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
             with: providers,
-            routable: self
+            routable: self,
+            closeAction: { [weak self] in
+                self?.securityScoreDetailsViewModel = nil
+            }
         )
     }
 }

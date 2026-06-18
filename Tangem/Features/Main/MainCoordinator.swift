@@ -60,7 +60,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var actionButtonsBuyCoordinator: ActionButtonsBuyCoordinator? = nil
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
-    @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
@@ -68,8 +67,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Child view models
 
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
-    @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
@@ -86,7 +83,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     private var deeplinkDestination = PassthroughSubject<DeepLinkDestination, Never>()
 
     private var safariHandle: SafariHandle?
-    private var pushNotificationsViewModelSubscription: AnyCancellable?
     private var deeplinkDestinationSubscription: AnyCancellable?
     private var tangemPayMainDeeplinkSubscription: AnyCancellable?
     private var yieldDeeplinkRouter: YieldDeeplinkRouter?
@@ -140,18 +136,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
                     self?.deeplinkPresenter.present(deepLink: deepLink)
                 }
             }
-
-        if pushNotificationsViewModelSubscription == nil {
-            pushNotificationsViewModelSubscription = $pushNotificationsViewModel
-                .pairwise()
-                .filter { previous, current in
-                    // Transition from a non-nil value to a nil value, i.e. dismissing the sheet
-                    previous != nil && current == nil
-                }
-                .sink { previous, _ in
-                    previous?.didDismissSheet()
-                }
-        }
     }
 
     // MARK: - Tooltip Interaction
@@ -219,7 +203,6 @@ extension MainCoordinator: MainRoutable {
              .tokenDetails,
              .buy,
              .sell,
-             .swap,
              .swapWithDeferredPairResolution,
              .referral,
              .staking,
@@ -293,7 +276,16 @@ extension MainCoordinator: MainRoutable {
     func openPushNotificationsAuthorization() {
         let factory = PushNotificationsHelpersFactory()
         let permissionManager = factory.makePermissionManagerForAfterLogin(using: pushNotificationsInteractor)
-        pushNotificationsViewModel = PushNotificationsPermissionRequestViewModel(permissionManager: permissionManager, delegate: self)
+        let walletId = userWalletRepository.selectedModel?.userWalletId.stringValue
+
+        Task { @MainActor in
+            let viewModel = PushNotificationsMainViewModel(
+                permissionManager: permissionManager,
+                walletId: walletId
+            )
+            viewModel.start()
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 }
 
@@ -364,14 +356,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
 
         tokenDetailsCoordinator = coordinator
-    }
-
-    func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        organizeTokensViewModel = OrganizeTokensViewModel(
-            userWalletModel: userWalletModel,
-            coordinator: self,
-            analyticsLogger: TokensManagementAnalyticsLogger()
-        )
     }
 
     func openAddAndManageTokens(factory: TokensManagementFlowFactory) {
@@ -651,11 +635,12 @@ extension MainCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceTokenFactory = SendWithSwapTokenFactory(
+        let sourceTokenFactory = CommonSendSwapableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
         )
-        let sourceToken = sourceTokenFactory.makeWithSwapToken()
+        let sourceToken = sourceTokenFactory.makeSwapableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .main)
@@ -751,18 +736,6 @@ extension MainCoordinator: SendFeeCurrencyNavigating {
     }
 }
 
-// MARK: - OrganizeTokensRoutable protocol conformance
-
-extension MainCoordinator: OrganizeTokensRoutable {
-    func didTapCancelButton() {
-        organizeTokensViewModel = nil
-    }
-
-    func didTapSaveButton() {
-        organizeTokensViewModel = nil
-    }
-}
-
 // MARK: - TokensManagementFlowRoutable protocol conformance
 
 extension MainCoordinator: TokensManagementFlowRoutable {
@@ -830,14 +803,6 @@ extension MainCoordinator: RateAppRoutable {
     }
 }
 
-// MARK: - PushNotificationsPermissionRequestDelegate protocol conformance
-
-extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
-    func didFinishPushNotificationOnboarding() {
-        pushNotificationsViewModel = nil
-    }
-}
-
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
@@ -882,26 +847,6 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
 // MARK: - ActionButtonsSwapFlowRoutable
 
 extension MainCoordinator: ActionButtonsSwapFlowRoutable {
-    func openSwap(
-        userWalletModel: some UserWalletModel,
-        tokenSelectorViewModel: TokenSelectorViewModel
-    ) {
-        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
-            self?.actionButtonsSwapCoordinator = nil
-        }
-
-        Task { @MainActor [tangemStoriesPresenter] in
-            tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
-                analyticsSource: .main,
-                presentCompletion: { [weak self] in
-                    coordinator.start(with: .init(tokenSelectorViewModel: tokenSelectorViewModel))
-                    self?.actionButtonsSwapCoordinator = coordinator
-                }
-            )
-        }
-    }
-
     func openSwap(predefinedParameters: PredefinedSwapParameters) {
         openSwapFlow(parameters: predefinedParameters, source: .actionButtons)
     }
@@ -1050,7 +995,7 @@ private extension MainCoordinator {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)

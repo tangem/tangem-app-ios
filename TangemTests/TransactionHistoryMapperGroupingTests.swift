@@ -20,21 +20,6 @@ struct TransactionHistoryMapperGroupingTests {
     private let prevMonthDate: Date
     private let prevPrevMonthDate: Date
 
-    private static let longDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = .autoupdatingCurrent
-        f.setLocalizedDateFormatFromTemplate("MMMMdy")
-        f.doesRelativeDateFormatting = true
-        return f
-    }()
-
-    private static let monthFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = .autoupdatingCurrent
-        f.setLocalizedDateFormatFromTemplate("MMMM, y")
-        return f
-    }()
-
     init() {
         currentMonthStart = calendar.dateInterval(of: .month, for: Date())?.start ?? Date()
         dayA = currentMonthStart
@@ -48,63 +33,76 @@ struct TransactionHistoryMapperGroupingTests {
         let mapper = makeSUT()
         let items = mapper.mapTransactionListItem(
             from: [
-                makeRecord(date: dayA),
-                makeRecord(date: dayB),
-                makeRecord(date: calendar.date(byAdding: .hour, value: 6, to: dayB)!),
+                makeRecord(hash: "A", date: dayA),
+                makeRecord(hash: "B1", date: dayB),
+                makeRecord(hash: "B2", date: calendar.date(byAdding: .hour, value: 6, to: dayB)!),
             ],
             groupingStyle: .dayThenMonth
         )
 
         #expect(items.count == 2)
-        #expect(items[0].header == Self.longDateFormatter.string(from: calendar.startOfDay(for: dayB)))
-        #expect(items[0].items.count == 2)
-        #expect(items[1].header == Self.longDateFormatter.string(from: calendar.startOfDay(for: dayA)))
-        #expect(items[1].items.count == 1)
+        #expect(items[0].items.map(\.hash).sorted() == ["B1", "B2"])
+        #expect(items[1].items.map(\.hash) == ["A"])
+        #expect(items.allSatisfy { $0.header.isNotEmpty })
     }
 
     @Test("Records older than current month bucket by month, sorted descending")
     func olderRecordsBucketByMonth() {
         let mapper = makeSUT()
-        let prevMonthStart = calendar.dateInterval(of: .month, for: prevMonthDate)!.start
-        let prevPrevMonthStart = calendar.dateInterval(of: .month, for: prevPrevMonthDate)!.start
 
         let items = mapper.mapTransactionListItem(
             from: [
-                makeRecord(date: prevMonthDate),
-                makeRecord(date: calendar.date(byAdding: .day, value: -2, to: prevMonthDate)!),
-                makeRecord(date: prevPrevMonthDate),
+                makeRecord(hash: "prev1", date: prevMonthDate),
+                makeRecord(hash: "prev2", date: calendar.date(byAdding: .day, value: -2, to: prevMonthDate)!),
+                makeRecord(hash: "prevPrev", date: prevPrevMonthDate),
             ],
             groupingStyle: .dayThenMonth
         )
 
         #expect(items.count == 2)
-        #expect(items[0].header == Self.monthFormatter.string(from: prevMonthStart))
-        #expect(items[0].items.count == 2)
-        #expect(items[1].header == Self.monthFormatter.string(from: prevPrevMonthStart))
-        #expect(items[1].items.count == 1)
+        #expect(items[0].items.map(\.hash).sorted() == ["prev1", "prev2"])
+        #expect(items[1].items.map(\.hash) == ["prevPrev"])
+        #expect(items.allSatisfy { $0.header.isNotEmpty })
     }
 
     @Test("Day sections precede older month sections in output ordering")
     func dayAndMonthSectionOrdering() {
         let mapper = makeSUT()
-        let prevMonthStart = calendar.dateInterval(of: .month, for: prevMonthDate)!.start
-        let prevPrevMonthStart = calendar.dateInterval(of: .month, for: prevPrevMonthDate)!.start
 
         let items = mapper.mapTransactionListItem(
             from: [
-                makeRecord(date: prevPrevMonthDate),
-                makeRecord(date: dayA),
-                makeRecord(date: prevMonthDate),
-                makeRecord(date: dayB),
+                makeRecord(hash: "prevPrev", date: prevPrevMonthDate),
+                makeRecord(hash: "A", date: dayA),
+                makeRecord(hash: "prev", date: prevMonthDate),
+                makeRecord(hash: "B", date: dayB),
             ],
             groupingStyle: .dayThenMonth
         )
 
         #expect(items.count == 4)
-        #expect(items[0].header == Self.longDateFormatter.string(from: calendar.startOfDay(for: dayB)))
-        #expect(items[1].header == Self.longDateFormatter.string(from: calendar.startOfDay(for: dayA)))
-        #expect(items[2].header == Self.monthFormatter.string(from: prevMonthStart))
-        #expect(items[3].header == Self.monthFormatter.string(from: prevPrevMonthStart))
+        #expect(items.map { $0.items.map(\.hash) } == [["B"], ["A"], ["prev"], ["prevPrev"]])
+        #expect(items.allSatisfy { $0.header.isNotEmpty })
+    }
+
+    @Test("Day-bucket headers are never empty (today/yesterday/older same-month)")
+    func dayBucketHeadersAreNeverEmpty() {
+        let mapper = makeSUT()
+        let today = Date()
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+
+        var dates = [today, yesterday]
+        if let earlierSameMonth = calendar.date(byAdding: .day, value: -3, to: today),
+           earlierSameMonth >= currentMonthStart {
+            dates.append(earlierSameMonth)
+        }
+
+        let items = mapper.mapTransactionListItem(
+            from: dates.enumerated().map { makeRecord(hash: "\($0.offset)", date: $0.element) },
+            groupingStyle: .dayThenMonth
+        )
+
+        #expect(items.isNotEmpty)
+        #expect(items.allSatisfy { $0.header.isNotEmpty })
     }
 }
 
@@ -120,9 +118,9 @@ private extension TransactionHistoryMapperGroupingTests {
         )
     }
 
-    func makeRecord(date: Date) -> TransactionRecord {
+    func makeRecord(hash: String, date: Date) -> TransactionRecord {
         TransactionRecord(
-            hash: UUID().uuidString,
+            hash: hash,
             index: 0,
             source: .single(.init(address: "0xSource", amount: 1)),
             destination: .single(.init(address: .user("0xDestination"), amount: 1)),

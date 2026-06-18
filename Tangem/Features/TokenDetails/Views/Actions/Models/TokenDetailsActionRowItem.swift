@@ -16,5 +16,6 @@ struct TokenDetailsActionRowItem: Identifiable, Equatable {
     let subtitle: String?
     let icon: ImageType
     let accessibilityIdentifier: String?
+    let isAvailable: Bool
     @IgnoredEquatable var action: () -> Void
 }
