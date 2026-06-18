@@ -10,7 +10,7 @@ import Foundation
 import TangemStaking
 
 protocol MarketsPortfolioContainerRoutable: AnyObject {
-    func openReceive(walletModel: any WalletModel)
+    func openReceive(userWalletInfo: UserWalletInfo, walletModel: any WalletModel)
 
     @MainActor
     func openSwap(input: PredefinedSwapParameters, destination: TokenItem)
