@@ -112,17 +112,15 @@ struct ProviderRowView: View {
         case .bestRate:
             Text(Localization.expressProviderBestRate)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.1))
-                .cornerRadiusContinuous(8)
+                .accentBadgeStyle()
+        case .bestDexRate:
+            Text(Localization.expressProviderBestDexRate)
+                .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
+                .accentBadgeStyle()
         case .recommended:
             Text(Localization.expressProviderRecommended)
                 .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.1))
-                .cornerRadiusContinuous(8)
+                .accentBadgeStyle()
         }
     }
 

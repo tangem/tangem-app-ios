@@ -13,6 +13,8 @@ import BlockchainSdk
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemMacro
+import TangemAccessibilityIdentifiers
 import class TangemSdk.BiometricsUtil
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -27,7 +29,21 @@ final class DetailsViewModel: ObservableObject {
 
     // MARK: - View State
 
-    @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    var topSectionTypes: [TopSectionType] {
+        var types: [TopSectionType] = []
+        if let walletConnectRowViewModel {
+            types.append(.walletConnect(walletConnectRowViewModel))
+        }
+
+        if let addressBookRowViewModel {
+            types.append(.addressBook(addressBookRowViewModel))
+        }
+
+        return types
+    }
+
+    @Published private var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published private var addressBookRowViewModel: AddressBookRowViewModel?
 
     @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
@@ -190,6 +206,10 @@ private extension DetailsViewModel {
         coordinator?.openShop()
     }
 
+    func openAddressBook() {
+        coordinator?.openAddressBook()
+    }
+
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType) {
         coordinator?.openGetTangemPay(availableSelection: availableSelection)
         Analytics.log(.visaOnboardingVisaPermanentButtonClicked)
@@ -244,6 +264,7 @@ private extension DetailsViewModel {
 private extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
+        setupAddressBookRowViewModel()
         setupUserWalletViewModels()
         setupGetSectionViewModels()
         setupAppSettingsViewModel()
@@ -322,6 +343,17 @@ private extension DetailsViewModel {
         )
     }
 
+    func setupAddressBookRowViewModel() {
+        guard FeatureProvider.isAvailable(.addressBook) else {
+            addressBookRowViewModel = nil
+            return
+        }
+
+        addressBookRowViewModel = AddressBookRowViewModel { [weak self] in
+            self?.openAddressBook()
+        }
+    }
+
     func setupUserWalletViewModels() {
         userWalletRows = userWalletRepository.models.map { userWallet in
             let viewModel = SettingsUserWalletRowViewModel(
@@ -364,6 +396,7 @@ private extension DetailsViewModel {
         var models = [
             DefaultRowViewModel(
                 title: Localization.detailsBuyWallet,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.buyWalletButton,
                 action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
             ),
         ]
@@ -386,6 +419,7 @@ private extension DetailsViewModel {
     func setupAppSettingsViewModel() {
         appSettingsViewModel = DefaultRowViewModel(
             title: Localization.appSettingsTitle,
+            accessibilityIdentifier: DetailsAccessibilityIdentifiers.appSettings,
             action: weakify(self, forFunction: DetailsViewModel.openAppSettings)
         )
     }
@@ -394,10 +428,12 @@ private extension DetailsViewModel {
         supportSectionModels = [
             DefaultRowViewModel(
                 title: Localization.commonContactSupport,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.contactSupport,
                 action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
                 title: Localization.disclaimerTitle,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.termsOfService,
                 action: weakify(self, forFunction: DetailsViewModel.openTOS)
             ),
         ]
@@ -416,13 +452,25 @@ private extension DetailsViewModel {
     }
 
     func addOrScanNewUserWallet() {
-        isScanning = true
-
         Analytics.log(
             .buttonAddWallet,
             params: [.source: .settings],
             contextParams: .empty
         )
+
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
+            addNewUserWallet()
+        } else {
+            scanNewUserWallet()
+        }
+    }
+
+    func addNewUserWallet() {
+        coordinator?.openAddWallet()
+    }
+
+    func scanNewUserWallet() {
+        isScanning = true
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -705,6 +753,12 @@ private extension DetailsViewModel {
 }
 
 extension DetailsViewModel {
+    @RawCaseName
+    enum TopSectionType: Identifiable {
+        case walletConnect(WalletConnectRowViewModel)
+        case addressBook(AddressBookRowViewModel)
+    }
+
     struct UserWalletRowModel: Identifiable {
         var id: UserWalletId { userWalletId }
         let userWalletId: UserWalletId

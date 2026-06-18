@@ -5,7 +5,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
+import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
@@ -20,40 +22,71 @@ protocol TangemPayIssueAdditionalCardCostPopupRoutable: AnyObject {
     func issueCostPopupDidCancel()
 }
 
-final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        Image(systemName: "creditcard.fill")
+        isInsufficientFunds
+            ? DesignSystem.Icons.Error.regular28.image
+            : DesignSystem.Icons.CardPlus.regular32.image
+    }
+
+    var iconStyle: TangemPayPopupIconStyle {
+        isInsufficientFunds ? .warning : .info
     }
 
     var title: AttributedString {
-        .init(Localization.tangempayIssueAdditionalCardTitle)
+        isInsufficientFunds
+            ? .init(Localization.tangempayIssueAdditionalCardInsufficientFundsTitle)
+            : .init(Localization.tangempayIssueAdditionalCardTitle)
     }
 
     var description: AttributedString {
-        .init(Localization.tangempayIssueAdditionalCardDescription)
+        isInsufficientFunds
+            ? .init(Localization.tangempayIssueAdditionalCardInsufficientFundsSubtitle)
+            : .init(Localization.tangempayIssueAdditionalCardDescription)
+    }
+
+    var feeLabel: String {
+        Localization.tangempayIssueAdditionalCardFeeLabel
     }
 
     var feeText: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.currencyCode = fee.currency
-        return formatter.string(from: fee.amount as NSDecimalNumber) ?? "\(fee.amount) \(fee.currency)"
+        Self.formatCurrency(fee.amount, currencyCode: fee.currency)
+    }
+
+    var balanceText: String {
+        let balance = tangemPayAccount.balancesProvider.totalTokenBalanceProvider.balanceType.value ?? 0
+        return Self.formatCurrency(balance, currencyCode: fee.currency)
     }
 
     var primaryButton: MainButton.Settings {
-        MainButton.Settings(
-            title: Localization.commonContinue,
+        if isInsufficientFunds {
+            return MainButton.Settings(
+                title: Localization.tangempayCardDetailsAddFunds,
+                style: .primary,
+                size: .default,
+                action: openAddFunds
+            )
+        }
+
+        return MainButton.Settings(
+            title: Localization.tangempayIssueCard,
             style: .primary,
             size: .default,
-            isLoading: isLoading || isIssuing,
-            isDisabled: isInsufficientFunds,
+            isLoading: isIssuing,
             action: { [weak self] in self?.confirm() }
         )
     }
 
+    var secondaryButton: MainButton.Settings? {
+        MainButton.Settings(
+            title: Localization.commonCancel,
+            style: .secondary,
+            size: .default,
+            action: dismiss
+        )
+    }
+
     @Published private(set) var isInsufficientFunds: Bool = false
-    @Published private(set) var isLoading: Bool = true
     @Published private(set) var isIssuing: Bool = false
 
     private let offer: TangemPayCustomerOffer
@@ -62,6 +95,8 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
     private let tangemPayAccount: TangemPayAccount
     private let issueCard: () async throws -> Void
     private weak var coordinator: TangemPayIssueAdditionalCardCostPopupRoutable?
+
+    private let bffInsufficientBalanceSubject = CurrentValueSubject<Bool, Never>(false)
 
     init(
         offer: TangemPayCustomerOffer,
@@ -78,9 +113,20 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
         self.issueCard = issueCard
         self.coordinator = coordinator
 
-        runTask(in: self) { viewModel in
-            await viewModel.loadBalance()
-        }
+        let balanceProvider = tangemPayAccount.balancesProvider.totalTokenBalanceProvider
+        isInsufficientFunds = (balanceProvider.balanceType.value ?? 0) < fee.amount
+
+        Publishers.CombineLatest(
+            balanceProvider.balanceTypePublisher
+                .compactMap(\.value)
+                .map { [fee] balance in balance < fee.amount },
+            bffInsufficientBalanceSubject
+        )
+        .map { localInsufficient, bffInsufficient in localInsufficient || bffInsufficient }
+        .receiveOnMain()
+        .assign(to: &$isInsufficientFunds)
+
+        Analytics.log(.visaScreenExtraCardIssuancePopupDisplayed, contextParams: .userWallet(userWalletId))
     }
 
     func dismiss() {
@@ -94,23 +140,18 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
 }
 
 private extension TangemPayIssueAdditionalCardCostPopupViewModel {
-    func loadBalance() async {
-        do {
-            let balance = try await tangemPayAccount.customerService.getBalance()
-            await MainActor.run {
-                self.isInsufficientFunds = balance.fiat.availableBalance < self.fee.amount
-                self.isLoading = false
-            }
-        } catch {
-            VisaLogger.error("Failed to load balance for additional card issue popup", error: error)
-            await MainActor.run {
-                self.isLoading = false
-            }
-        }
+    static func formatCurrency(_ amount: Decimal, currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currencyCode)"
     }
 
     func confirm() {
         guard !isIssuing, !isInsufficientFunds else { return }
+
+        Analytics.log(.visaScreenExtraCardIssuanceConfirmed, contextParams: .userWallet(userWalletId))
 
         isIssuing = true
 
@@ -119,6 +160,9 @@ private extension TangemPayIssueAdditionalCardCostPopupViewModel {
                 try await viewModel.issueCard()
                 viewModel.isIssuing = false
                 viewModel.coordinator?.issueCostPopupDidConfirm()
+            } catch TangemPayOrderResolverError.insufficientBalance {
+                viewModel.isIssuing = false
+                viewModel.bffInsufficientBalanceSubject.send(true)
             } catch {
                 VisaLogger.error("Failed to issue additional card", error: error)
                 viewModel.isIssuing = false

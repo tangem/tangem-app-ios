@@ -68,6 +68,10 @@
 	</array>
 	<key>SUITE_NAME</key>
 	<string>$(SUITE_NAME)</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

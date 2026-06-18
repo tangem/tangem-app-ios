@@ -86,7 +86,16 @@ struct ExpandedAccountItemHeaderView: View {
 
             Spacer()
 
-            Assets.Accounts.minimize.image
+            if FeatureProvider.isAvailable(.redesign) {
+                Assets.DesignSystem.collapse.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(Color.Tangem.Graphic.Neutral.tertiaryConstant)
+                    .frame(size: .init(bothDimensions: .unit(.x4)))
+            } else {
+                Assets.Accounts.minimize.image
+            }
         }
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.top, 14.0)

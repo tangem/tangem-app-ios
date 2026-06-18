@@ -29,8 +29,8 @@ struct NewsSourcesSectionView: View {
     private var redesignContent: some View {
         VStack(alignment: .leading, spacing: .unit(.x3)) {
             Text(Localization.newsRelatedNews)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
-                .padding(.horizontal, .unit(.x2))
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .padding(.horizontal, .unit(.x4))
                 .padding(.vertical, .unit(.x3))
 
             ScrollView(.horizontal) {

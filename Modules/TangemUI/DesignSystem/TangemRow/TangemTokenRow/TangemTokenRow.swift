@@ -18,11 +18,7 @@ public struct TangemTokenRow: View {
     private let viewData: TangemTokenRowViewData
 
     @ScaledMetric private var priceChangeIconSpacing: CGFloat = TangemTokenRowConstants.Spacings.priceChangeIconSpacing
-
-    @ScaledSize private var fiatLoaderSize: CGSize = TangemTokenRowConstants.Sizes.fiatBalanceLoaderSize
-    @ScaledSize private var cryptoLoaderSize: CGSize = TangemTokenRowConstants.Sizes.cryptoBalanceLoaderSize
-    @ScaledSize private var priceLoaderSize: CGSize = TangemTokenRowConstants.Sizes.tokenPriceLoaderSize
-    @ScaledSize private var iconSize = CGSize(width: Constants.Sizes.iconSize, height: Constants.Sizes.iconSize)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     public init(viewData: TangemTokenRowViewData) {
         self.viewData = viewData
@@ -37,7 +33,7 @@ public struct TangemTokenRow: View {
     private var tokenIconView: some View {
         TokenIcon(
             tokenIconInfo: viewData.tokenIconInfo,
-            size: iconSize
+            size: CGSize(width: SizeUnit.x10.value, height: SizeUnit.x10.value) * scaleFactor
         )
         .saturation(viewData.hasMonochromeIcon ? 0 : 1)
     }
@@ -47,8 +43,8 @@ public struct TangemTokenRow: View {
     @ViewBuilder
     private var contentView: some View {
         switch viewData.content {
-        case .loading(let cached):
-            loadingLayout(cached: cached)
+        case .loading(let cached, let priceInfo):
+            loadingLayout(cached: cached, priceInfo: priceInfo)
         case .loaded(let content):
             loadedLayout(content: content)
         case .error(let message):
@@ -60,12 +56,15 @@ public struct TangemTokenRow: View {
 
     // MARK: - Loading Layout
 
-    private func loadingLayout(cached: TangemTokenRowViewData.CachedContent?) -> some View {
+    private func loadingLayout(
+        cached: TangemTokenRowViewData.CachedContent?,
+        priceInfo: TangemTokenRowViewData.PriceInfo?
+    ) -> some View {
         TangemTwoLineRowLayout(
             icon: { tokenIconView },
             primaryLeading: { tokenNameWithBadge(isDisabled: false) },
             primaryTrailing: { fiatBalanceLoadingView(cached: cached?.fiatBalance) },
-            secondaryLeading: { tokenPriceLoadingView(cached: cached?.price) },
+            secondaryLeading: { priceWithChangeView(priceInfo: priceInfo) },
             secondaryTrailing: { cryptoBalanceLoadingView(cached: cached?.cryptoBalance) }
         )
         .compressionPolicy(.trailingPreserved)
@@ -156,10 +155,11 @@ public struct TangemTokenRow: View {
 
     private func priceWithChangeView(priceInfo: TangemTokenRowViewData.PriceInfo?) -> some View {
         HStack(spacing: Constants.Spacings.badgeSpacing) {
-            tokenPriceView(priceInfo: priceInfo)
+            tokenPriceView(state: priceInfo?.price ?? .noData)
 
-            priceChangeView(priceInfo: priceInfo)
+            priceChangeView(state: priceInfo?.change ?? .empty)
         }
+        .environment(\.isShimmerActive, true)
     }
 
     // MARK: - Token Name
@@ -222,7 +222,7 @@ public struct TangemTokenRow: View {
                 textColor: Constants.Style.FiatBalance.integerColor
             ),
             loader: .init(
-                size: fiatLoaderSize,
+                size: CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value) * scaleFactor,
                 cornerRadiusStyle: .capsule
             ),
             accessibilityIdentifier: viewData.accessibilityIdentifiers?.fiatBalance
@@ -253,7 +253,6 @@ public struct TangemTokenRow: View {
 
     // MARK: - Crypto Balance
 
-    @ViewBuilder
     private func cryptoBalanceLoadingView(cached: String?) -> some View {
         LoadableBalanceView(
             state: .loading(cached: cached.map { .string($0) }),
@@ -274,7 +273,7 @@ public struct TangemTokenRow: View {
         case .value(let text):
             .loaded(text: .string(text))
         case .failed(let cached):
-            .failed(cached: .string(cached), icon: .trailing)
+            .failed(cached: .string(cached))
         }
 
         return LoadableBalanceView(
@@ -293,32 +292,10 @@ public struct TangemTokenRow: View {
 
     // MARK: - Token Price
 
-    private func tokenPriceLoadingView(cached: String?) -> some View {
-        let state: LoadableTextView.State = if let cached {
-            .loaded(text: cached)
-        } else {
-            .loading
-        }
-
-        return LoadableTextView(
+    private func tokenPriceView(state: LoadableTextView.State) -> some View {
+        LoadableTextView(
             state: state,
-            font: Constants.Style.TokenPrice.font,
-            textColor: Constants.Style.TokenPrice.color,
-            loaderSize: priceLoaderSize,
-            loaderCornerRadiusStyle: .capsule
-        )
-    }
-
-    private func tokenPriceView(priceInfo: TangemTokenRowViewData.PriceInfo?) -> some View {
-        let state: LoadableTextView.State = if let priceInfo {
-            .loaded(text: priceInfo.price)
-        } else {
-            .noData
-        }
-
-        return LoadableTextView(
-            state: state,
-            font: Constants.Style.TokenPrice.font,
+            style: Constants.Style.TokenPrice.font,
             textColor: Constants.Style.TokenPrice.color,
             loaderSize: priceLoaderSize,
             loaderCornerRadiusStyle: .capsule
@@ -327,16 +304,21 @@ public struct TangemTokenRow: View {
 
     // MARK: - Price Change
 
-    @ViewBuilder
-    private func priceChangeView(priceInfo: TangemTokenRowViewData.PriceInfo?) -> some View {
-        if let change = priceInfo?.change {
-            PriceChangeView(
-                state: .loaded(changeType: change.type, text: change.text),
-                showSkeletonWhenLoading: false,
-                showIconForNeutral: true,
-                useRedesignColors: true
-            )
-        }
+    private func priceChangeView(state: PriceChangeView.State) -> some View {
+        PriceChangeView(
+            state: state,
+            showSkeletonWhenLoading: true,
+            showIconForNeutral: true,
+            useRedesignColors: true
+        )
+    }
+
+    private var cryptoLoaderSize: CGSize {
+        CGSize(width: SizeUnit.x10.value, height: SizeUnit.x3.value) * scaleFactor
+    }
+
+    private var priceLoaderSize: CGSize {
+        CGSize(width: SizeUnit.x13.value, height: SizeUnit.x3.value) * scaleFactor
     }
 }
 
