@@ -13,7 +13,7 @@ import TangemStaking
 struct UnsupportedStakingFlowProvider: StakingFlowProvider {
     let action: StakingAction
 
-    var actionType: StakingAction.ActionType { action.type }
+    var actionType: StakingAction.ActionType { action.displayType }
 
     var stepPlan: StakeStepPlan {
         StakeStepPlan(

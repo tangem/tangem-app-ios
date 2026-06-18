@@ -88,7 +88,7 @@ struct StakingFlowStages {
         }
 
         let amountToReduce: Decimal? = ready.isFeeIncluded
-            ? fee * 3 + (minimalBalanceProvider?.minimalBalance() ?? .zero)
+            ? fee * Constants.reduceAmountMultiplier + (minimalBalanceProvider?.minimalBalance() ?? .zero)
             : nil
 
         return StakeFlowState.Ready(
@@ -142,6 +142,10 @@ struct StakingFlowStages {
 
     private func makeFee(_ value: Decimal) -> Fee {
         Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: value))
+    }
+
+    private enum Constants {
+        static let reduceAmountMultiplier: Decimal = 3
     }
 }
 

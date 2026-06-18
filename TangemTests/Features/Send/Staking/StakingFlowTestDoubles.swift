@@ -83,6 +83,10 @@ final class SendTransactionValidatorMock: SendTransactionValidator {
     func validate(amount: Amount, fee: Fee) throws {
         if let amountFeeError { throw amountFeeError }
     }
+
+    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+        if let amountFeeError { throw amountFeeError }
+    }
 }
 
 // MARK: - FeeIncludedCalculator
