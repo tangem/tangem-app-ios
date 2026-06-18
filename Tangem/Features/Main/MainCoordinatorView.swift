@@ -111,14 +111,6 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
-                    OrganizeTokensView(viewModel: viewModel)
-                        .navigationTitle(Localization.organizeTokensTitle)
-                        .navigationBarTitleDisplayMode(.inline)
-                }
-                .environment(\.isAddAndOrganizeRedesignEnabled, TokensManagementFlowCoordinator.isAddAndOrganizeRedesignAvailable)
-            }
             .sheet(item: $coordinator.visaTransactionDetailsViewModel) {
                 VisaTransactionDetailsView(viewModel: $0)
             }
