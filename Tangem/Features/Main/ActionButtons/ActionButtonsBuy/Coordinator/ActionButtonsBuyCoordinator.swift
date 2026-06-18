@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemUI
+import TangemFoundation
 import UIKit
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
@@ -39,7 +40,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         userWalletModels = options.userWalletModels
-        let tokenSelectorViewModel = makeTokenSelectorViewModel()
+        let tokenSelectorViewModel = makeTokenSelectorViewModel(preferredWalletId: options.preferredWalletId)
         viewState = .newTokenList(
             ActionButtonsBuyViewModel(
                 userWalletModels: options.userWalletModels,
@@ -202,6 +203,7 @@ extension ActionButtonsBuyCoordinator: HotCryptoAddTokenRoutable, AddTokenFlowRo
 extension ActionButtonsBuyCoordinator {
     struct Options {
         let userWalletModels: [UserWalletModel]
+        let preferredWalletId: UserWalletId?
     }
 
     enum RootViewState: Equatable {
@@ -232,8 +234,12 @@ struct ActionButtonsBuyDismissPayload {
 // MARK: - Factory method
 
 private extension ActionButtonsBuyCoordinator {
-    func makeTokenSelectorViewModel() -> TokenSelectorViewModel {
-        .common(walletsProvider: .standardAccountsOnly(), availabilityProvider: .buy())
+    func makeTokenSelectorViewModel(preferredWalletId: UserWalletId?) -> TokenSelectorViewModel {
+        .common(
+            walletsProvider: .standardAccountsOnly(),
+            availabilityProvider: .buy(),
+            preferredWalletId: preferredWalletId
+        )
     }
 }
 
