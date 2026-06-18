@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 /// Temporary provider that exposes the real wallets (names) from the repository with mocked, static
 /// contacts. Will be replaced once the address book Foundation layer lands ([REDACTED_INFO]).
@@ -23,7 +24,7 @@ extension MockAddressBooksProvider: AddressBooksProvider {
         userWalletRepository.models
             .filter { !$0.isUserWalletLocked }
             .map { userWalletModel in
-                let contacts = Self.mockContacts(for: userWalletModel.userWalletId.stringValue)
+                let contacts = Self.mockContacts(for: userWalletModel.userWalletId)
                 let addressBook = AddressBook(userWalletId: userWalletModel.userWalletId, contacts: contacts)
 
                 return AddressBookWallet(
@@ -39,73 +40,55 @@ extension MockAddressBooksProvider: AddressBooksProvider {
 private extension MockAddressBooksProvider {
     /// Picks one of the predefined books deterministically, so the same wallet always shows the same
     /// contacts while different wallets get visibly different books.
-    static func mockContacts(for storageIdentifier: String) -> [AddressBookContact] {
-        guard !mockBooks.isEmpty else { return [] }
+    static func mockContacts(for userWalletId: UserWalletId) -> [AddressBookContact] {
+        let books = mockBooks(userWalletId: userWalletId)
+        guard !books.isEmpty else { return [] }
 
-        let stableHash = storageIdentifier.utf8.reduce(0) { $0 &+ Int($1) }
-        return mockBooks[stableHash % mockBooks.count]
+        let stableHash = userWalletId.stringValue.utf8.reduce(0) { $0 &+ Int($1) }
+        return books[stableHash % books.count]
+    }
+
+    static func contact(
+        _ name: String,
+        color: AccountModel.CompositeIcon.Color,
+        userWalletId: UserWalletId,
+        addresses: [AddressBookAddress]
+    ) -> AddressBookContact {
+        AddressBookContact(id: UUID(), name: name, icon: "", color: color, userWalletId: userWalletId, addresses: addresses)
     }
 
     static func address(_ networkId: String, _ address: String, memo: String? = nil) -> AddressBookAddress {
         AddressBookAddress(id: UUID(), networkId: networkId, address: address, memo: memo, signature: "")
     }
 
-    static let mockBooks: [[AddressBookContact]] = [
+    static func mockBooks(userWalletId: UserWalletId) -> [[AddressBookContact]] {
         [
-            AddressBookContact(
-                id: UUID(),
-                name: "Satoshi Nakamoto",
-                icon: "",
-                color: .azure,
-                addresses: [address("bitcoin", "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa")]
-            ),
-            AddressBookContact(
-                id: UUID(),
-                name: "Vitalik Buterin",
-                icon: "",
-                color: .vitalGreen,
-                addresses: [address("ethereum", "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")]
-            ),
-            AddressBookContact(
-                id: UUID(),
-                name: "Exchange Wallet",
-                icon: "",
-                color: .mexicanPink,
-                addresses: [address("tron", "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE", memo: "User memo 12345")]
-            ),
-            AddressBookContact(
-                id: UUID(),
-                name: "Alice",
-                icon: "",
-                color: .caribbeanBlue,
-                addresses: [
+            [
+                contact("Satoshi Nakamoto", color: .azure, userWalletId: userWalletId, addresses: [
+                    address("bitcoin", "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"),
+                ]),
+                contact("Vitalik Buterin", color: .vitalGreen, userWalletId: userWalletId, addresses: [
+                    address("ethereum", "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"),
+                ]),
+                contact("Exchange Wallet", color: .mexicanPink, userWalletId: userWalletId, addresses: [
+                    address("tron", "TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE", memo: "User memo 12345"),
+                ]),
+                contact("Alice", color: .caribbeanBlue, userWalletId: userWalletId, addresses: [
                     address("bitcoin", "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"),
                     address("ethereum", "0x2bDfDd3e3e3F4F33dD3df3f3F3f3F3F3F3f3F3f3"),
-                ]
-            ),
-        ],
-        [
-            AddressBookContact(
-                id: UUID(),
-                name: "Bob",
-                icon: "",
-                color: .palatinateBlue,
-                addresses: [address("litecoin", "LcHK4ahcfYpYbabsXAY3F2vGz9LkN5MYg5")]
-            ),
-            AddressBookContact(
-                id: UUID(),
-                name: "Charlie",
-                icon: "",
-                color: .ufoGreen,
-                addresses: [address("solana", "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM")]
-            ),
-            AddressBookContact(
-                id: UUID(),
-                name: "Cold Storage",
-                icon: "",
-                color: .fuchsiaNebula,
-                addresses: [address("bitcoin", "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh")]
-            ),
-        ],
-    ]
+                ]),
+            ],
+            [
+                contact("Bob", color: .palatinateBlue, userWalletId: userWalletId, addresses: [
+                    address("litecoin", "LcHK4ahcfYpYbabsXAY3F2vGz9LkN5MYg5"),
+                ]),
+                contact("Charlie", color: .ufoGreen, userWalletId: userWalletId, addresses: [
+                    address("solana", "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"),
+                ]),
+                contact("Cold Storage", color: .fuchsiaNebula, userWalletId: userWalletId, addresses: [
+                    address("bitcoin", "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"),
+                ]),
+            ],
+        ]
+    }
 }
