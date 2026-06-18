@@ -135,6 +135,10 @@ private extension StakeModel {
         }
     }
 
+    var amountToResolve: Decimal? {
+        _amount.value?.crypto.map { $0 - (accountInitializationFee?.amount.value ?? .zero) }
+    }
+
     func updateState() {
         if stepPlan.amount.isEditable, _amount.value?.crypto == nil { return }
         if stepPlan.hasValidatorSelection, _selectedTarget.value.value == nil { return }
@@ -144,9 +148,7 @@ private extension StakeModel {
             return
         }
 
-        // After account initialization the init fee is already spent, so shrink a "max" amount by it to
-        // keep the stake spendable (mirrors the legacy StakingModel).
-        let enteredAmount = _amount.value?.crypto.map { $0 - (accountInitializationFee?.amount.value ?? .zero) }
+        let enteredAmount = amountToResolve
         let target = _selectedTarget.value.value
 
         estimatedFeeTask?.cancel()
@@ -217,7 +219,7 @@ private extension StakeModel {
             proceed(error: error)
             throw error
         } catch P2PStakingError.feeIncreased(let newFee) {
-            update(state: provider.finalize(amount: ready.amount, fee: newFee, target: _selectedTarget.value.value))
+            update(state: provider.finalize(amount: amountToResolve ?? ready.amount, fee: newFee, target: _selectedTarget.value.value))
             throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
