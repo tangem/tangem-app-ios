@@ -44,7 +44,7 @@ extension CommonCryptoAddressProcessor: CryptoAddressProcessor {
     @MainActor
     func update(destination address: String, source: Analytics.DestinationAddressSource) async throws -> CryptoAddressParameters {
         guard !address.isEmpty else {
-            apply(addressType: .none)
+            apply { $0.addressType = nil }
             return CryptoAddressParameters(resolvedAddress: nil, memoIsRequired: false, canEmbedAdditionalField: false)
         }
 
@@ -60,7 +60,7 @@ extension CommonCryptoAddressProcessor: CryptoAddressProcessor {
             return .resolved(address: address, resolved: resolution.resolved)
         }()
 
-        apply(addressType: addressType)
+        apply { $0.addressType = addressType }
         let isAdditionalFieldFilled = state { $0.additionalField }?.isFilled == true
 
         return CryptoAddressParameters(
@@ -71,7 +71,7 @@ extension CommonCryptoAddressProcessor: CryptoAddressProcessor {
     }
 
     func update(additionalField: SendDestinationAdditionalField) throws {
-        apply(additionalField: additionalField)
+        apply { $0.additionalField = additionalField }
     }
 }
 
@@ -99,19 +99,10 @@ private extension CommonCryptoAddressProcessor {
         }
     }
 
-    func apply(addressType: CryptoAddressProcessorDestinationType?) {
-        state { $0.addressType = addressType }
-        notifyOutput()
-    }
-
-    func apply(additionalField: SendDestinationAdditionalField?) {
-        state { $0.additionalField = additionalField }
-        notifyOutput()
-    }
-
-    func notifyOutput() {
-        let destination = state { state in
-            state.addressType.map { addressType in
+    func apply(_ mutate: (inout State) -> Void) {
+        let destination = state { state -> CryptoAddressProcessorDestination? in
+            mutate(&state)
+            return state.addressType.map { addressType in
                 CryptoAddressProcessorDestination(address: addressType, additionalField: state.additionalField)
             }
         }
