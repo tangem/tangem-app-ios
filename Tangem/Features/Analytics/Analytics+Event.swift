@@ -300,6 +300,14 @@ extension Analytics {
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
+
+        // MARK: - Support chat
+
+        case settingsButtonOpenChat = "[Settings] Button - Open Chat"
+        case supportChatScreenOpened = "[Support] Chat Screen Opened"
+        case supportChatScreenError = "[Support] Chat Screen Error"
+        case supportChatScreenClosed = "[Support] Chat Screen Closed"
+
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
         case settingsLongtapWalletsOrder = "[Settings] Longtap - Wallets Order"
 
