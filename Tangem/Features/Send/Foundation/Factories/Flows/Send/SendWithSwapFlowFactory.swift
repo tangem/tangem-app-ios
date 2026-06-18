@@ -371,6 +371,7 @@ extension SendWithSwapFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
+            headerTitleProvider: SendWithSwapFinishHeaderTitleProvider()
         )
     }
 }
