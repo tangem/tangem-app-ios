@@ -477,7 +477,7 @@ extension TransferModel: NotificationTapDelegate {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .unlock,
              .addTokenTrustline,

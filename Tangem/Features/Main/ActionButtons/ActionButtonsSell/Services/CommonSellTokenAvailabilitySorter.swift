@@ -10,7 +10,7 @@ struct CommonSellTokenAvailabilitySorter {
     // MARK: - Dependencies
 
     @Injected(\.sellService) private var sellService: SellService
-    let userWalletConfig: UserWalletConfig
+    let userWalletInfo: UserWalletInfo
 }
 
 // MARK: - TokenAvailabilitySorter
@@ -20,7 +20,7 @@ extension CommonSellTokenAvailabilitySorter: TokenAvailabilitySorter {
         walletModels.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
-            let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletConfig, walletModel: walletModel)
+            let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
 
             guard
                 sellService.canSell(
