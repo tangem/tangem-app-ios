@@ -25,6 +25,7 @@
         "maxWalletsCount": 20,
         "isFilesAllowed": true,
         "isKeysImportAllowed": true,
+        "isBackupRequired": false,
         "securityDelay": 15000,
         "isLinkedTerminalEnabled": true,
         "isPermanentWallet": false,
@@ -59,7 +60,9 @@
         "publicKey": "0000"
     },
     "userSettings": {
-        "isUserCodeRecoveryAllowed": true
+        "isUserCodeRecoveryAllowed": true,
+        "isPINRequired": false,
+        "isNDEFDisabled": false
     },
     "backupStatus" : {
       "status" : "noBackup"
