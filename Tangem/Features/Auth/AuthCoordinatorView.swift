@@ -22,6 +22,7 @@ struct AuthCoordinatorView: CoordinatorView {
     var body: some View {
         NavigationStack {
             content
+                .navigationLinks(links)
         }
     }
 
@@ -31,6 +32,13 @@ struct AuthCoordinatorView: CoordinatorView {
                 AuthView(viewModel: rootViewModel)
             }
         }
+    }
+
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
+                AddWalletSelectorCoordinatorView(coordinator: $0)
+            }
     }
 }
 

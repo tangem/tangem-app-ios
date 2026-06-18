@@ -80,8 +80,8 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
         isLoading = true
         Task { @MainActor in
             do {
-                let transaction = accountInitializationService.initializationTransaction(fee: fee)
-                _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
+                let bsdkTransaction = accountInitializationService.initializationTransaction(fee: fee)
+                _ = try await transactionDispatcher.send(transaction: .transfer(bsdkTransaction))
                 onStartInitialization()
                 try await Task.sleep(for: .seconds(Constants.startPollingInterval)) // activation takes some time, doesn't make sense to start tracking earlier
                 try await trackInitializationStatus()

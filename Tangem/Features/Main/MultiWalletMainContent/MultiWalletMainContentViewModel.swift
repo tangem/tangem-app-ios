@@ -70,9 +70,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     var organizeTokensButtonTitle: String {
-        FeatureProvider.isAvailable(.manageTokensImprovements)
-            ? Localization.mainAddAndManageTokens
-            : Localization.organizeTokensTitle
+        Localization.mainAddAndManageTokens
     }
 
     // MARK: - Dependencies
@@ -235,11 +233,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     func onOpenOrganizeTokensButtonTap() {
-        guard FeatureProvider.isAvailable(.manageTokensImprovements) else {
-            openOrganizeTokens()
-            return
-        }
-
         let analyticsLogger = TokensManagementAnalyticsLogger()
         analyticsLogger.logButtonAddAndOrganize()
 
@@ -617,10 +610,6 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openInSafari(url: url)
     }
 
-    private func openOrganizeTokens() {
-        coordinator?.openOrganizeTokens(for: userWalletModel)
-    }
-
     private func openCloreMigration() {
         guard let walletModel = findCloreWalletModelForMigration() else {
             return
@@ -864,8 +853,9 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             delegate?.displayAddressCopiedToast()
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(walletModel: walletModel),
-                userWalletInfo: userWalletModel.userWalletInfo
+                walletModel: walletModel,
+                userWalletInfo: userWalletModel.userWalletInfo,
+                position: .automatic
             ) else {
                 return
             }

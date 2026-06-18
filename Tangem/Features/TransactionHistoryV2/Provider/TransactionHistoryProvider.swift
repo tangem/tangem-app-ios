@@ -7,74 +7,71 @@
 //
 
 import Foundation
+import CryptoSwift
 import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
 final actor TransactionHistoryProvider {
-    private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
+    private let repository: TransactionHistoryRepository
+    private let syncMetadataStorage: () async -> SyncMetadataStorage
 
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
-    /// - Note: Entries are `.cancelled` tombstones when `unsubscribe(id:)` lands before `subscribe(id:continuation:)`,
-    /// guarding against the race due to unordered `subscribe`/`unsubscribe` calls.
-    private var subscribers: [UUID: SubscriberState] = [:]
+    private var stateValue: TransactionHistorySyncState = .idle(.waitingForInitial)
+    private var subscribers = AsyncStream<TransactionHistorySyncState>.MulticastSubscribers<UUID>()
 
     private var inFlightInitialSyncTask: Task<Void, Never>?
     private var inFlightIncrementalSyncTask: Task<Void, Never>?
 
-    private var hasCompletedInitialSync: Bool = false
     private var lastSuccessfulPullToRefreshAt: Date?
 
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
-    private func subscribe(id: UUID, continuation: AsyncStream<TransactionHistorySyncState>.Continuation) {
-        if case .cancelled = subscribers[id] {
-            subscribers.removeValue(forKey: id)
-            return
-        }
-        subscribers[id] = .active(continuation)
-        continuation.yield(stateValue)
-    }
-
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
-    private func unsubscribe(id: UUID) {
-        switch subscribers[id] {
-        case .active:
-            subscribers.removeValue(forKey: id)
-        case .none:
-            subscribers[id] = .cancelled
-        case .cancelled:
-            break
+    init(
+        repository: TransactionHistoryRepository,
+        userWalletId: UserWalletId,
+        address: String
+    ) {
+        self.repository = repository
+        syncMetadataStorage = { @MainActor in
+            SyncMetadataStorage(userWalletId: userWalletId, address: address)
         }
     }
 
-    /// - Note: Multiple subscribers support for `AsyncStream`-baked observable properties. Required until
-    /// https://github.com/apple/swift-async-algorithms/blob/main/Evolution/0016-share.md is implemented.
     private func emit(_ newState: TransactionHistorySyncState) {
         stateValue = newState
-        for case .active(let continuation) in subscribers.values {
-            continuation.yield(newState)
-        }
+        subscribers.yield(newState)
     }
 
     private func performInitialSync() async {
-        // [REDACTED_TODO_COMMENT]
         emit(.syncing(.initial))
-        hasCompletedInitialSync = true
-        emit(.idle(.ready))
+        do {
+            try await repository.syncInitial()
+            let storage = await syncMetadataStorage() // Can't be fetched inside the synchronous `MainActor.run` call
+            await MainActor.run { storage.hasCompletedInitialSync = true }
+            emit(.idle(.ready))
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .initial)))
+        }
     }
 
     private func performDeltaSync() async {
-        // [REDACTED_TODO_COMMENT]
         emit(.syncing(.delta))
-        emit(.idle(.ready))
+        do {
+            try await repository.syncDelta()
+            emit(.idle(.ready))
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .delta)))
+        }
     }
 
     private func performUserInitiatedSync(kind: UserInitiatedSyncKind) async {
-        // [REDACTED_TODO_COMMENT]
         emit(.syncing(.userInitiated(kind)))
-        emit(.idle(.ready))
+        do {
+            try await repository.syncDelta()
+            emit(.idle(.ready))
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .userInitiated(kind))))
+        }
     }
 }
 
@@ -86,31 +83,22 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     nonisolated var stateUpdates: AsyncStream<TransactionHistorySyncState> {
-        AsyncStream { continuation in
-            let subscriberId = UUID()
-
-            continuation.onTermination = { @Sendable [weak self] _ in
-                guard let self else {
-                    return
-                }
-
-                Task {
-                    await self.unsubscribe(id: subscriberId)
-                }
+        .multicast(
+            with: self,
+            onSubscribe: { provider, id, continuation in
+                provider.subscribers.subscribe(id: id, continuation: continuation, currentValue: provider.stateValue)
+            },
+            onUnsubscribe: { provider, id in
+                provider.subscribers.unsubscribe(id: id)
             }
-
-            Task { [weak self] in
-                guard let self else {
-                    continuation.finish()
-                    return
-                }
-
-                await subscribe(id: subscriberId, continuation: continuation)
-            }
-        }
+        )
     }
 
     func syncInitial() async {
+        guard await !syncMetadataStorage().hasCompletedInitialSync else {
+            return
+        }
+
         if let inFlightSyncTask = inFlightInitialSyncTask {
             return await inFlightSyncTask.value
         }
@@ -125,7 +113,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncDelta() async {
-        guard hasCompletedInitialSync else {
+        guard await syncMetadataStorage().hasCompletedInitialSync else {
             return
         }
 
@@ -143,7 +131,7 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 
     func syncUserInitiated(_ kind: UserInitiatedSyncKind) async {
-        guard hasCompletedInitialSync else {
+        guard await syncMetadataStorage().hasCompletedInitialSync else {
             return
         }
 
@@ -175,21 +163,44 @@ extension TransactionHistoryProvider: TransactionHistorySyncing {
     }
 }
 
-// MARK: - Auxiliary types
-
-private extension TransactionHistoryProvider {
-    /// Tombstone pattern for preventing races between unordered subscribe/unsubscribe calls.
-    enum SubscriberState {
-        case active(AsyncStream<TransactionHistorySyncState>.Continuation)
-        case cancelled
-    }
-}
-
 // MARK: - Constants
 
 private extension TransactionHistoryProvider {
     enum Constants {
         static let pullToRefreshThrottle: TimeInterval = 10
         static let postBroadcastDelay: Duration = .seconds(5)
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension TransactionHistoryProvider {
+    // [REDACTED_TODO_COMMENT]
+    /// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instance inside
+    /// the synchronous and implicitly isolated init of the `TransactionHistoryProvider` actor.
+    /// Without it, we either would have to make that init async or silence the compiler warning
+    /// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
+    final class SyncMetadataStorage {
+        @AppStorageCompat<SyncMetadataStorageKey, Bool>
+        var hasCompletedInitialSync: Bool
+
+        init(
+            userWalletId: UserWalletId,
+            address: String
+        ) {
+            _hasCompletedInitialSync = .init(wrappedValue: false, .makeKey(userWalletId: userWalletId, address: address))
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    struct SyncMetadataStorageKey: RawRepresentable {
+        let rawValue: String
+
+        static func makeKey(
+            userWalletId: UserWalletId,
+            address: String
+        ) -> Self {
+            Self(rawValue: "TransactionHistoryV2InitialSyncCompleted_\(userWalletId.stringValue)_\(address.sha256())")
+        }
     }
 }
