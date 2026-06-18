@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 struct ValidatingStakingTransactionDecorator: TransactionDispatcher {
     private let decoratee: TransactionDispatcher
@@ -28,8 +29,12 @@ struct ValidatingStakingTransactionDecorator: TransactionDispatcher {
                 return data
             }
 
-            if !rawTransactions.isEmpty {
-                try await validator?.validate(rawTransactions)
+            if let validator {
+                guard !rawTransactions.isEmpty else {
+                    throw StakingTransactionValidationError.emptyOrMalformedData
+                }
+
+                try await validator.validate(rawTransactions)
             }
         }
 
