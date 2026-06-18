@@ -11,6 +11,7 @@ import Foundation
 import TangemAccounts
 import TangemFoundation
 import TangemMacro
+import TangemUI
 
 final class TokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
@@ -121,7 +122,9 @@ final class TokenSelectorViewModel: ObservableObject {
             return
         }
 
-        walletChips = wallets.map { WalletChipData(id: $0.walletId.stringValue, name: $0.walletName) }
+        walletChips = wallets.map {
+            WalletChipData(id: $0.walletId.stringValue, name: $0.walletName, thumbnail: $0.walletThumbnail)
+        }
 
         let chipIds = walletChips.map(\.id)
 
@@ -186,6 +189,7 @@ extension TokenSelectorViewModel {
     struct WalletChipData: Identifiable {
         let id: String
         let name: String
+        let thumbnail: ThumbnailWalletViewType?
     }
 
     struct InitiallyExpandedAccount {
