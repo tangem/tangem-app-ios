@@ -13,5 +13,6 @@ protocol ActionButtonsSellRoutable: AnyObject {
         at url: URL,
         makeSellToSendToModel: @escaping (String) -> ActionButtonsSendToSellModel?
     )
+    func openTransfer(walletModel: any WalletModel, userWalletInfo: UserWalletInfo)
     func dismiss()
 }
