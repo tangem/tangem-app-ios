@@ -213,7 +213,10 @@ private extension CommonDeeplinkPresenter {
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in UIApplication.dismissTop() })
 
         coordinator.start(
-            with: .init(userWalletModels: [userWalletModel])
+            with: .init(
+                userWalletModels: [userWalletModel],
+                preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
+            )
         )
 
         return makeDeeplinkViewController(
