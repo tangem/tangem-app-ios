@@ -116,6 +116,7 @@ struct AccountFormView: View {
         VStack(spacing: 12) {
             AccountFormHeaderView(
                 accountName: $viewModel.accountName,
+                title: Localization.accountFormName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
                 accountIconViewData: viewModel.iconViewData,
