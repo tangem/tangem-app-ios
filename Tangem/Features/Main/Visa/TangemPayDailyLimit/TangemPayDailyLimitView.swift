@@ -181,7 +181,7 @@ private extension TangemPayDailyLimitView {
                 ToolbarItem(placement: .principal) {
                     if viewModel.isEditingLimit {
                         Text(Localization.tangempayCardPageDailyLimitTitle)
-                            .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     }
                 }
 
@@ -203,9 +203,9 @@ private extension TangemPayDailyLimitView {
 
             Spacer()
 
-            VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+            VStack(spacing: 12) {
                 redesignedPresetsRow
-                    .padding(.horizontal, DesignSystem.Tokens.Spacing.s150)
+                    .padding(.horizontal, 12)
 
                 TangemButtonV2(
                     label: AttributedString(Localization.tangempayDailyLimitSetButton),
@@ -217,46 +217,46 @@ private extension TangemPayDailyLimitView {
                 .horizontalLayout(.infinity)
                 .isLoading(viewModel.isLoading)
                 .disabled(!viewModel.isSubmitEnabled)
-                .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+                .padding(.horizontal, 16)
             }
-            .padding(.bottom, DesignSystem.Tokens.Spacing.s100)
+            .padding(.bottom, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.secondary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgSecondary.ignoresSafeArea())
     }
 
     var redesignedAmountSection: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+        VStack(spacing: 12) {
             Text(viewModel.hintText)
-                .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.tertiary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textTertiary)
 
             SendDecimalNumberTextField(viewModel: viewModel.amountFieldViewModel)
                 .prefixSuffixOptions(.prefix(text: AppConstants.usdSign, hasSpace: false))
                 .appearance(.init(
-                    font: DesignSystem.Tokens.Font.Display.medium.font,
-                    textColor: DesignSystem.Tokens.Theme.Text.primary,
-                    placeholderColor: DesignSystem.Tokens.Theme.Text.tertiary
+                    font: DesignSystem.Font.displayMediumToken.font,
+                    textColor: DesignSystem.Color.textPrimary,
+                    placeholderColor: DesignSystem.Color.textTertiary
                 ))
                 .alignment(.center)
         }
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-        .padding(.vertical, DesignSystem.Tokens.Spacing.s400)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 32)
         .frame(maxWidth: .infinity)
     }
 
     var redesignedPresetsRow: some View {
-        HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+        HStack(spacing: 8) {
             ForEach(viewModel.presets, id: \.self) { preset in
                 Button {
                     viewModel.selectPreset(preset)
                 } label: {
                     Text(preset)
-                        .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal, DesignSystem.Tokens.Spacing.s125)
-                        .padding(.vertical, DesignSystem.Tokens.Spacing.s050)
-                        .background(DesignSystem.Tokens.Theme.Bg.tertiary)
-                        .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._200)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(DesignSystem.Color.bgTertiary)
+                        .cornerRadiusContinuous(16)
                 }
             }
         }

@@ -3,8 +3,8 @@
     "100": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s100",
-          "iOS": "DesignSystem.Tokens.Size.s100"
+          "Android": "8.dp",
+          "iOS": "8"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -16,8 +16,8 @@
     "125": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s125",
-          "iOS": "DesignSystem.Tokens.Size.s125"
+          "Android": "10.dp",
+          "iOS": "10"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -29,8 +29,8 @@
     "150": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s150",
-          "iOS": "DesignSystem.Tokens.Size.s150"
+          "Android": "12.dp",
+          "iOS": "12"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -42,8 +42,8 @@
     "200": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s200",
-          "iOS": "DesignSystem.Tokens.Size.s200"
+          "Android": "16.dp",
+          "iOS": "16"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -55,8 +55,8 @@
     "250": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s250",
-          "iOS": "DesignSystem.Tokens.Size.s250"
+          "Android": "20.dp",
+          "iOS": "20"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -68,8 +68,8 @@
     "300": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s300",
-          "iOS": "DesignSystem.Tokens.Size.s300"
+          "Android": "24.dp",
+          "iOS": "24"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -81,8 +81,8 @@
     "350": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s350",
-          "iOS": "DesignSystem.Tokens.Size.s350"
+          "Android": "28.dp",
+          "iOS": "28"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -94,8 +94,8 @@
     "400": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s400",
-          "iOS": "DesignSystem.Tokens.Size.s400"
+          "Android": "32.dp",
+          "iOS": "32"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -107,8 +107,8 @@
     "450": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s450",
-          "iOS": "DesignSystem.Tokens.Size.s450"
+          "Android": "36.dp",
+          "iOS": "36"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -120,8 +120,8 @@
     "500": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s500",
-          "iOS": "DesignSystem.Tokens.Size.s500"
+          "Android": "40.dp",
+          "iOS": "40"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -133,8 +133,8 @@
     "550": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s550",
-          "iOS": "DesignSystem.Tokens.Size.s550"
+          "Android": "44.dp",
+          "iOS": "44"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -146,8 +146,8 @@
     "600": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s600",
-          "iOS": "DesignSystem.Tokens.Size.s600"
+          "Android": "48.dp",
+          "iOS": "48"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -159,8 +159,8 @@
     "700": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s700",
-          "iOS": "DesignSystem.Tokens.Size.s700"
+          "Android": "56.dp",
+          "iOS": "56"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -172,8 +172,8 @@
     "800": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s800",
-          "iOS": "DesignSystem.Tokens.Size.s800"
+          "Android": "64.dp",
+          "iOS": "64"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -185,8 +185,8 @@
     "900": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s900",
-          "iOS": "DesignSystem.Tokens.Size.s900"
+          "Android": "72.dp",
+          "iOS": "72"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -198,8 +198,8 @@
     "1000": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s1000",
-          "iOS": "DesignSystem.Tokens.Size.s1000"
+          "Android": "80.dp",
+          "iOS": "80"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -211,8 +211,8 @@
     "1100": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s1100",
-          "iOS": "DesignSystem.Tokens.Size.s1100"
+          "Android": "88.dp",
+          "iOS": "88"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -224,8 +224,8 @@
     "1200": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s1200",
-          "iOS": "DesignSystem.Tokens.Size.s1200"
+          "Android": "96.dp",
+          "iOS": "96"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -237,8 +237,8 @@
     "025": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s025",
-          "iOS": "DesignSystem.Tokens.Size.s025"
+          "Android": "2.dp",
+          "iOS": "2"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -250,8 +250,8 @@
     "050": {
       "$extensions": {
         "com.figma.codeSyntax": {
-          "Android": "TangemTheme.dimens3.size.s050",
-          "iOS": "DesignSystem.Tokens.Size.s050"
+          "Android": "4.dp",
+          "iOS": "4"
         },
         "com.figma.scopes": [
           "WIDTH_HEIGHT"
@@ -264,8 +264,8 @@
       "sm": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.dimens3.size.Card.sm",
-            "iOS": "DesignSystem.Tokens.Size.Card.sm"
+            "Android": "128.dp",
+            "iOS": "128"
           },
           "com.figma.scopes": [
             "WIDTH_HEIGHT"

@@ -12,24 +12,24 @@ import TangemLocalization
 
 struct TangemPayCardIssuingMessageView: View {
     var body: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s150) {
+        VStack(spacing: 12) {
             DesignSystem.Icons.Clock.regular20.image
                 .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Icon.secondary)
-                .frame(width: DesignSystem.Tokens.Size.s500, height: DesignSystem.Tokens.Size.s500)
-                .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                .frame(width: 40, height: 40)
+                .background(DesignSystem.Color.bgOpaquePrimary)
                 .clipShape(Circle())
 
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+            VStack(spacing: 4) {
                 Text(Localization.tangempayIssuingNewDigitalCardTitle)
                 Text(Localization.tangempayReissueCardInProgressDescription)
             }
-            .font(DesignSystem.Tokens.Font.Caption.medium)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+            .font(DesignSystem.Font.captionMediumToken)
+            .foregroundStyle(DesignSystem.Color.textSecondary)
             .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s600)
+        .padding(.horizontal, 48)
     }
 }
 
@@ -39,6 +39,6 @@ struct TangemPayCardIssuingMessageView: View {
 #Preview {
     TangemPayCardIssuingMessageView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.primary)
+        .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG
