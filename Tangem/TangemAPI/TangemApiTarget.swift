@@ -22,11 +22,19 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
-        case .promotion, .yieldBoostPromotionStatus, .saveUserWalletTokensV2:
-            // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
-            // `apiBaseUrlv2` already carries the `/v2` segment; the leading `/api` is pending backend
-            // confirmation (gateway-internal vs. a real path) — same caveat as notification-preferences.
+        case .promotion, .yieldBoostPromotionStatus:
             AppEnvironment.current.apiBaseUrlv2
+        case .saveUserWalletTokensV2:
+            // Contract v1.3 documents the full path as `/api/v2/wallets/{walletId}/tokens`.
+            // NOTE: the leading `/api` segment is applied here but still needs backend confirmation
+            // (gateway-internal vs. a real path). If BE serves `/v2/...` without `/api`, revert this
+            // case back to `apiBaseUrlv2` — same caveat as notification-preferences below.
+            AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
+        case .getNotificationPreferences, .updateNotificationPreferences:
+            // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
+            // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
+            // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -113,10 +121,8 @@ struct TangemApiTarget: TargetType {
             return "/user-wallets/wallets/\(userWalletId)"
         case .getNotificationPreferences(let userWalletId),
              .updateNotificationPreferences(let userWalletId, _):
-            // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
-            // `apiBaseUrl` already carries the `/v1` segment, so only the relative part is set here.
-            // The leading `/api` segment from the doc is pending backend confirmation (gateway-internal
-            // vs. a real path) — if it turns out real, route this case to a dedicated base URL instead.
+            // Contract v1.3: `/api/v1/notification-preferences/{walletId}`. The `/api/v1` part comes
+            // from `apiBaseUrlWithGatewaySegment` (see `baseURL`); only the relative part is set here.
             return "/notification-preferences/\(userWalletId)"
 
         // MARK: - Promo Code
