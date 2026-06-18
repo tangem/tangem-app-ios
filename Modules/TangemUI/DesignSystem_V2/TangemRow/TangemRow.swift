@@ -191,7 +191,7 @@ public struct TangemRow<
     private var dividerView: some View {
         if config.showsDivider {
             Rectangle()
-                .fill(DesignSystem.Tokens.Theme.Border.secondary)
+                .fill(DesignSystem.Color.borderSecondary)
                 .frame(height: TangemRowMetrics.dividerHeight)
                 .padding(.horizontal, TangemRowMetrics.dividerInset)
         }
@@ -202,7 +202,7 @@ public struct TangemRow<
         if config.focusRingEnabled {
             RoundedRectangle(cornerRadius: TangemRowMetrics.focusRingCornerRadius, style: .continuous)
                 .inset(by: -TangemRowMetrics.focusRingWidth / 2)
-                .stroke(DesignSystem.Tokens.Theme.Interaction.FocusRing.brand, lineWidth: TangemRowMetrics.focusRingWidth)
+                .stroke(DesignSystem.Color.interactionFocusRingBrand, lineWidth: TangemRowMetrics.focusRingWidth)
         }
     }
 }
@@ -215,7 +215,7 @@ private extension TangemRow {
 
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .background(configuration.isPressed && isEnabled ? DesignSystem.Tokens.Theme.Interaction.press : Color.clear)
+                .background(configuration.isPressed && isEnabled ? DesignSystem.Color.interactionPress : Color.clear)
                 .contentShape(Rectangle())
         }
     }
@@ -232,15 +232,15 @@ extension TangemRow {
 
         var font: TangemTypographyToken {
             switch self {
-            case .title, .value: DesignSystem.Tokens.Font.Body.medium
-            case .subtitle, .subvalue: DesignSystem.Tokens.Font.Caption.medium
+            case .title, .value: DesignSystem.Font.bodyMediumToken
+            case .subtitle, .subvalue: DesignSystem.Font.captionMediumToken
             }
         }
 
         var color: Color {
             switch self {
-            case .title, .value: DesignSystem.Tokens.Theme.Text.primary
-            case .subtitle, .subvalue: DesignSystem.Tokens.Theme.Text.secondary
+            case .title, .value: DesignSystem.Color.textPrimary
+            case .subtitle, .subvalue: DesignSystem.Color.textSecondary
             }
         }
     }
@@ -278,16 +278,16 @@ private extension View {
 // MARK: - Constants
 
 enum TangemRowMetrics {
-    static let rootSpacing = DesignSystem.Tokens.Spacing.s100
-    static let innerPadding = DesignSystem.Tokens.Spacing.s200
-    static let slotSpacing = DesignSystem.Tokens.Spacing.s150
-    static let columnSpacing = DesignSystem.Tokens.Spacing.s150
-    static let lineSpacing = DesignSystem.Tokens.Spacing.s025
-    static let inlineAccessorySpacing = DesignSystem.Tokens.Spacing.s050
-    static let dividerInset = DesignSystem.Tokens.Spacing.s200
-    static let dividerHeight = DesignSystem.Tokens.BorderWidth.sm
-    static let disabledOpacity = DesignSystem.Tokens.Opacity.disabled
-    static let focusRingWidth = DesignSystem.Tokens.BorderWidth.md
-    static let focusRingCornerRadius = DesignSystem.Tokens.CornerRadius._200
-    static let iconSize = DesignSystem.Tokens.Size.s300
+    static let rootSpacing: CGFloat = 8
+    static let innerPadding: CGFloat = 16
+    static let slotSpacing: CGFloat = 12
+    static let columnSpacing: CGFloat = 12
+    static let lineSpacing: CGFloat = 2
+    static let inlineAccessorySpacing: CGFloat = 4
+    static let dividerInset: CGFloat = 16
+    static let dividerHeight: CGFloat = 1
+    static let disabledOpacity: CGFloat = 0.4
+    static let focusRingWidth: CGFloat = 2
+    static let focusRingCornerRadius: CGFloat = 16
+    static let iconSize: CGFloat = 24
 }

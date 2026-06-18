@@ -114,36 +114,36 @@ private extension TangemPayPinCheckView {
                 .size(.x11)
                 .styleType(.material(.glass))
             }
-            .padding(.top, DesignSystem.Tokens.Spacing.s200)
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+            .padding(.top, 16)
+            .padding(.horizontal, 16)
 
-            VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
-                VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+            VStack(spacing: 32) {
+                VStack(spacing: 8) {
                     Text(Localization.tangempayYourPinCode)
-                        .style(DesignSystem.Tokens.Font.Heading.small, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 
                     Text(Localization.tangempayComeBackIfForgetPin)
-                        .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                        .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .multilineTextAlignment(.center)
 
                 redesignedPinContent
             }
-            .padding(.top, DesignSystem.Tokens.Spacing.s400)
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+            .padding(.top, 32)
+            .padding(.horizontal, 16)
 
             redesignedChangePinButton
         }
         .frame(maxWidth: .infinity)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
     var redesignedPinContent: some View {
         Color.clear
-            .frame(height: DesignSystem.Tokens.Size.s800)
+            .frame(height: 64)
             .overlay {
                 switch viewModel.state {
                 case .loading:
@@ -170,8 +170,8 @@ private extension TangemPayPinCheckView {
         .styleType(.default)
         .horizontalLayout(.infinity)
         .disabled(!viewModel.isPinLoaded)
-        .padding(.top, DesignSystem.Tokens.Spacing.s400)
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-        .padding(.bottom, DesignSystem.Tokens.Spacing.s200)
+        .padding(.top, 32)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
     }
 }
