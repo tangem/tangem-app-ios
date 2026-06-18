@@ -168,6 +168,10 @@ public struct NotificationBanner: View, Setupable {
             .frame(width: iconWidth, height: iconHeight)
     }
 
+    private var closeButtonClearance: CGFloat {
+        bannerType.isClosable ? SizeUnit.x6.value : 0
+    }
+
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {
         let alignment: HorizontalAlignment = isCentered ? .center : .leading
         let textAlignment: TextAlignment = isCentered ? .center : .leading
@@ -198,6 +202,7 @@ public struct NotificationBanner: View, Setupable {
             }
         }
         .padding(.horizontal, SizeUnit.x1.value)
+        .padding(isCentered ? .horizontal : .trailing, closeButtonClearance)
         .padding(.top, SizeUnit.x1.value)
     }
 
