@@ -39,15 +39,20 @@ struct ExpressPendingTransactionsFactory {
         )
 
         let expressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
-        let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
+        let onrampStatusPoller = OnrampStatusPoller(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider,
-            unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-                userWalletId: userWalletInfo.id.stringValue,
-                tokenItem: tokenItem,
-                expressAPIProvider: expressAPIProvider
-            )
+            expressAPIProvider: expressAPIProvider
+        )
+        let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+            userWalletId: userWalletInfo.id.stringValue,
+            tokenItem: tokenItem,
+            expressAPIProvider: expressAPIProvider
+        )
+
+        let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
+            unknownStatusRecoveryService: unknownStatusRecoveryService,
+            poller: onrampStatusPoller
         )
 
         return CompoundPendingTransactionsManager(

@@ -375,15 +375,19 @@ private extension TokenDetailsView {
         poller: exchangeStatusPoller
     )
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
-    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
+    let onrampStatusPoller = OnrampStatusPoller(
         userWalletId: userWalletModel.userWalletId.stringValue,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: onrampExpressAPIProvider,
-        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            tokenItem: walletModel.tokenItem,
-            expressAPIProvider: onrampExpressAPIProvider
-        )
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+        userWalletId: userWalletModel.userWalletId.stringValue,
+        tokenItem: walletModel.tokenItem,
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
+        unknownStatusRecoveryService: unknownStatusRecoveryService,
+        poller: onrampStatusPoller
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
