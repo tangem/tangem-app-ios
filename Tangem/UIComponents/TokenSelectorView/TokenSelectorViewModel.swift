@@ -35,7 +35,7 @@ final class TokenSelectorViewModel: ObservableObject {
         collapsibleAccounts: Bool = false,
         tokenSelectorStateStorage: (any TokenSelectorStateStorage)? = nil,
         currentWalletId: UserWalletId? = nil,
-        initialSelectedItem: TokenItem? = nil,
+        initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil
     ) {
@@ -200,7 +200,7 @@ extension TokenSelectorViewModel {
     static func common(
         walletsProvider: any TokenSelectorWalletsProvider = .common(),
         availabilityProvider: any TokenSelectorItemAvailabilityProvider,
-        initialSelectedItem: TokenItem? = nil,
+        initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil
     ) -> TokenSelectorViewModel {
@@ -224,7 +224,7 @@ extension TokenSelectorViewModel {
 
     static func swap(
         walletsProvider: any TokenSelectorWalletsProvider = .common(),
-        initialSelectedItem: TokenItem? = nil,
+        initialSelectedItem: WalletTokenItem? = nil,
         initiallyExpandedAccount: InitiallyExpandedAccount? = nil,
         preferredWalletId: UserWalletId? = nil
     ) -> TokenSelectorViewModel {
