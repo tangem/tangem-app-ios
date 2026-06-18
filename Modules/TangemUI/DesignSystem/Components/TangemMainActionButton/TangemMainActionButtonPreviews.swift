@@ -12,9 +12,9 @@ import TangemAssets
 // MARK: - Showcase
 
 public struct TangemMainActionButtonShowcase: View {
-    @State private var buyState: TangemMainActionButton.ButtonState = .normal
-    @State private var swapState: TangemMainActionButton.ButtonState = .disabled
-    @State private var sellState: TangemMainActionButton.ButtonState = .normal
+    @State private var buyEnabled = true
+    @State private var swapEnabled = false
+    @State private var sellEnabled = true
 
     public init() {}
 
@@ -32,42 +32,36 @@ public struct TangemMainActionButtonShowcase: View {
             TangemMainActionButton(
                 title: "Buy",
                 icon: Assets.DesignSystem.plus,
-                buttonState: buyState,
-                action: { print("Buy tapped") }
+                action: { print("Buy tapped") },
+                reasonTapWhenDisabled: { print("reason tapped") }
             )
+            .disabled(!buyEnabled)
 
             TangemMainActionButton(
                 title: "Swap",
                 icon: Assets.DesignSystem.exchangeMini,
-                buttonState: swapState,
-                action: { print("Swap tapped") }
+                action: { print("Swap tapped") },
+                reasonTapWhenDisabled: { print("reason tapped") }
             )
+            .disabled(!swapEnabled)
 
             TangemMainActionButton(
                 title: "Sell",
                 icon: Assets.DesignSystem.dollar,
-                buttonState: sellState,
-                action: { print("Sell tapped") }
+                action: { print("Sell tapped") },
+                reasonTapWhenDisabled: { print("reason tapped") }
             )
+            .disabled(!sellEnabled)
         }
     }
 
     private var togglesSection: some View {
         VStack(spacing: 8) {
-            Toggle("Buy enabled", isOn: .init(
-                get: { buyState.isNormal },
-                set: { buyState = $0 ? .normal : .disabled }
-            ))
+            Toggle("Buy enabled", isOn: $buyEnabled)
 
-            Toggle("Swap enabled", isOn: .init(
-                get: { swapState.isNormal },
-                set: { swapState = $0 ? .normal : .disabled }
-            ))
+            Toggle("Swap enabled", isOn: $swapEnabled)
 
-            Toggle("Sell enabled", isOn: .init(
-                get: { sellState.isNormal },
-                set: { sellState = $0 ? .normal : .disabled }
-            ))
+            Toggle("Sell enabled", isOn: $sellEnabled)
         }
     }
 }

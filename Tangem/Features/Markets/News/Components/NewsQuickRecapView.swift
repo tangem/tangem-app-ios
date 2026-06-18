@@ -45,11 +45,11 @@ struct NewsQuickRecapView: View {
                 .foregroundStyle(NewsHeaderGradient.linearGradient)
 
             Text(Localization.newsQuickRecap)
-                .style(.Tangem.Subheadline.medium, color: .clear)
+                .style(Font.Tangem.Subheadline.medium, color: .clear)
                 .overlay(
                     NewsHeaderGradient.linearGradient.mask(
                         Text(Localization.newsQuickRecap)
-                            .style(.Tangem.Subheadline.medium, color: .black)
+                            .style(Font.Tangem.Subheadline.medium, color: .black)
                     )
                 )
         }
@@ -59,7 +59,7 @@ struct NewsQuickRecapView: View {
         // Text has 8pt vertical padding around it; the leading 1pt line is overlaid such that it
         // matches only the text's natural height (no vertical padding zone), per latest design review.
         Text(content)
-            .style(.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Body16.regular, color: .Tangem.Text.Neutral.primary)
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, .unit(.x2))

@@ -91,6 +91,15 @@ struct TangemPayTransactionRecordMapper {
         }
     }
 
+    func cardId() -> String? {
+        switch transaction.record {
+        case .spend(let spend):
+            return spend.cardId
+        case .collateral, .payment, .fee:
+            return nil
+        }
+    }
+
     func name() -> String {
         switch transaction.record {
         case .spend(let spend):

@@ -7,27 +7,23 @@
 //
 
 import SwiftUI
-import Combine
 
 // MARK: - GlowBorderModifier
 
 /// Adds a glowing animated border around the content.
 ///
-/// Performance strategy:
+/// Performance & correctness strategy:
 /// - Blur layers are rasterized once via `drawingGroup()` and never re-rendered.
-/// - Rotation is driven by a single `withAnimation(.linear)` — Core Animation rotates the
-///   cached Metal texture on the GPU with zero per-frame CPU work.
-/// - Opacity is sampled at 5 fps via `Timer` and smoothly interpolated by CA between ticks.
+/// - Both rotation and opacity are derived from wall-clock time inside a single
+///   `TimelineView(.animation)`. Driving the cycle from absolute time — rather than a
+///   `repeatForever` animation started in `onAppear` — means it can never stack or
+///   accelerate across appear/disappear (e.g. push-pop navigation), and the timeline
+///   pauses itself when the view is off-screen or the app is backgrounded.
 /// - The gradient is rendered in an oversized square (side = diagonal of the banner) so that
 ///   rotating it never exposes empty corners — it's then clipped back to the banner shape.
 struct GlowBorderModifier: ViewModifier {
     let effect: GlowBorderEffect
     let cornerRadius: CGFloat
-
-    @State private var isActive = false
-    @State private var rotation: CGFloat = 0
-    @State private var glowOpacity: CGFloat = 1.0
-    @State private var timerSubscription: AnyCancellable?
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius)
@@ -37,10 +33,6 @@ struct GlowBorderModifier: ViewModifier {
             .overlay { staticBorderOverlay(shape: shape) }
             .overlay { animatedGlowOverlay(shape: shape) }
             .compositingGroup()
-            .onAppear { activate() }
-            .onDisappear { deactivate() }
-            .onReceive(backgroundNotification) { _ in deactivate() }
-            .onReceive(foregroundNotification) { _ in activate() }
     }
 }
 
@@ -56,76 +48,43 @@ private extension GlowBorderModifier {
             .allowsHitTesting(false)
     }
 
+    @ViewBuilder
     func animatedGlowOverlay(shape: RoundedRectangle) -> some View {
-        GeometryReader { geometry in
-            // Oversized square ensures no empty corners appear during rotation
-            let diagonal = hypot(geometry.size.width, geometry.size.height)
+        if effect == .none {
+            EmptyView()
+        } else {
+            GeometryReader { geometry in
+                // Oversized square ensures no empty corners appear during rotation
+                let diagonal = hypot(geometry.size.width, geometry.size.height)
 
-            GlowGradientOverlay(colors: effect.glowColors, cornerRadius: cornerRadius)
-                .equatable()
-                .frame(width: diagonal, height: diagonal)
-                .drawingGroup()
-                .rotationEffect(.degrees(rotation))
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .clipped()
-        }
-        .clipShape(shape)
-        .opacity(effect == .none ? 0 : glowOpacity)
-        .allowsHitTesting(false)
-    }
-}
+                TimelineView(.animation) { context in
+                    let elapsed = context.date.timeIntervalSinceReferenceDate
 
-// MARK: - Lifecycle & Animation
-
-private extension GlowBorderModifier {
-    var backgroundNotification: NotificationCenter.Publisher {
-        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
-    }
-
-    var foregroundNotification: NotificationCenter.Publisher {
-        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-    }
-
-    func activate() {
-        guard effect != .none else { return }
-
-        isActive = true
-        startRotation()
-        startOpacityTimer()
-    }
-
-    func deactivate() {
-        isActive = false
-        timerSubscription = nil
-    }
-
-    func startRotation() {
-        rotation = 0
-        withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
-            rotation = 360
-        }
-    }
-
-    /// Fires at 5 fps — just enough to sample the opacity keyframe curve.
-    /// CA smoothly interpolates between samples via `withAnimation(.linear(duration: 0.2))`.
-    /// The subscription is held in `timerSubscription` and cancelled on deactivate,
-    /// so the timer never wakes the run loop when the glow is inactive.
-    func startOpacityTimer() {
-        timerSubscription = Timer.publish(every: 0.2, on: .main, in: .common)
-            .autoconnect()
-            .sink { date in
-                let newOpacity = interpolatedOpacity(from: date.timeIntervalSinceReferenceDate)
-                withAnimation(.linear(duration: 0.2)) {
-                    glowOpacity = newOpacity
+                    GlowGradientOverlay(colors: effect.glowColors, cornerRadius: cornerRadius)
+                        .equatable()
+                        .frame(width: diagonal, height: diagonal)
+                        .drawingGroup()
+                        .rotationEffect(.degrees(rotation(at: elapsed)))
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                        .opacity(interpolatedOpacity(from: elapsed))
                 }
             }
+            .clipShape(shape)
+            .allowsHitTesting(false)
+        }
     }
 }
 
-// MARK: - Opacity Keyframes
+// MARK: - Animation Curve
 
 private extension GlowBorderModifier {
-    var duration: CGFloat { 6.4 }
+    var duration: Double { 6.4 }
+
+    func rotation(at elapsed: TimeInterval) -> Double {
+        let cycleProgress = elapsed.truncatingRemainder(dividingBy: duration) / duration
+        return cycleProgress * 360
+    }
 
     var opacityKeyframes: [(time: Double, opacity: Double)] {
         [
@@ -138,8 +97,6 @@ private extension GlowBorderModifier {
     }
 
     func interpolatedOpacity(from elapsed: TimeInterval) -> Double {
-        guard effect != .none else { return 0 }
-
         let cycleTime = elapsed.truncatingRemainder(dividingBy: duration)
 
         for index in 0 ..< opacityKeyframes.count - 1 {

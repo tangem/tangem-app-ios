@@ -19,7 +19,7 @@ public struct Transaction {
     public internal(set) var contractAddress: String?
     public var params: TransactionParams?
 
-    init(
+    public init(
         amount: Amount,
         fee: Fee,
         sourceAddress: String,

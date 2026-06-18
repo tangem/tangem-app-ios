@@ -6,6 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
+
 public protocol OnrampManager: Actor {
     /// Initial loading country by IP
     /// If the country has already been setup then return nil
@@ -22,6 +24,15 @@ public protocol OnrampManager: Actor {
 
     /// Load the data to perform the native payment (Apple Pay)
     func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult
+
+    func findRecentOnrampTransaction(
+        payoutAddress: String,
+        since: Date,
+        toContractAddress: String,
+        toNetwork: String,
+        providerId: ExpressProvider.Id,
+        limit: Int?
+    ) async throws -> OnrampTransaction?
 }
 
 // MARK: - OnrampUpdatingAmount

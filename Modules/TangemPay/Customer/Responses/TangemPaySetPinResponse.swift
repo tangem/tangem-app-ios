@@ -14,5 +14,11 @@ public struct TangemPaySetPinResponse: Decodable {
         case pinTooWeak = "PIN_TOO_WEAK"
         case decryptionError = "DECRYPTION_ERROR"
         case unknownError = "UNKNOWN_ERROR"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 }

@@ -79,6 +79,17 @@ struct ReceiveMainView: View {
     }
 }
 
+private extension ReceiveMainViewModel.ViewState {
+    var backgroundColor: Color {
+        switch self {
+        case .selector, .tokenAlert:
+            return Colors.Background.tertiary
+        case .qrCode:
+            return Colors.Background.primary
+        }
+    }
+}
+
 private extension Animation {
     static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
