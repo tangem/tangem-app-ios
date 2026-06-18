@@ -40,7 +40,7 @@ struct AddressBookContactAddressRowView: View {
             .end {
                 Button(action: viewModel.onDelete) {
                     Image(systemName: "trash")
-                        .foregroundStyle(DesignSystem.Tokens.Theme.Text.Accent.red)
+                        .foregroundStyle(DesignSystem.Color.textAccentRed)
                 }
                 .buttonStyle(.plain)
             }
