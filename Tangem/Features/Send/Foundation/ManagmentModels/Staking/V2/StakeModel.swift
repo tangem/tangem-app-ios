@@ -58,7 +58,6 @@ final class StakeModel {
 
     private var estimatedFeeTask: Task<Void, Never>?
     private var timerTask: Task<Void, Error>?
-    private var accountInitializationFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
@@ -135,10 +134,6 @@ private extension StakeModel {
         }
     }
 
-    var amountToResolve: Decimal? {
-        _amount.value?.crypto.map { $0 - (accountInitializationFee?.amount.value ?? .zero) }
-    }
-
     func updateState() {
         if stepPlan.amount.isEditable, _amount.value?.crypto == nil { return }
         if stepPlan.hasValidatorSelection, _selectedTarget.value.value == nil { return }
@@ -148,7 +143,7 @@ private extension StakeModel {
             return
         }
 
-        let enteredAmount = amountToResolve
+        let enteredAmount = _amount.value?.crypto
         let target = _selectedTarget.value.value
 
         estimatedFeeTask?.cancel()
@@ -219,7 +214,7 @@ private extension StakeModel {
             proceed(error: error)
             throw error
         } catch P2PStakingError.feeIncreased(let newFee) {
-            update(state: provider.finalize(amount: amountToResolve ?? ready.amount, fee: newFee, target: _selectedTarget.value.value))
+            update(state: provider.finalize(amount: _amount.value?.crypto ?? ready.amount, fee: newFee, target: _selectedTarget.value.value))
             throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
@@ -478,8 +473,11 @@ extension StakeModel: NotificationTapDelegate {
                 self?.update(state: .prerequisite(.accountInitialization(.inProgress)))
             },
             onInitialized: { [weak self] in
-                self?.accountInitializationFee = initializationFee
-                self?.updateState()
+                guard let self else { return }
+                if let oldAmount = sourceAmount.value?.main {
+                    amountExternalUpdater?.externalUpdate(amount: oldAmount - initializationFee.amount.value)
+                }
+                updateState()
             }
         )
 
