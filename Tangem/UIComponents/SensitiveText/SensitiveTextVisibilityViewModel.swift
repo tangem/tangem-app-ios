@@ -47,9 +47,6 @@ final class SensitiveTextVisibilityViewModel: ObservableObject {
         isHidden = AppSettings.shared.isHidingSensitiveInformation
         // Sync initial value with TangemUI's SensitiveTextVisibilityState
         SensitiveTextVisibilityState.shared.isHidden = isHidden
-        SensitiveTextVisibilityState.shared.maskedBalanceString = FeatureProvider.isAvailable(.redesign)
-            ? SensitiveTextVisibilityState.MaskedBalance.redesigned
-            : SensitiveTextVisibilityState.MaskedBalance.legacy
         bind()
     }
 

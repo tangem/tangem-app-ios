@@ -22,7 +22,7 @@ struct MultiWalletMainContentRedesignedView: View {
         VStack(spacing: .unit(.x4)) {
             notificationBanners
 
-            VStack(spacing: .unit(.x3)) {
+            VStack(spacing: .unit(.x2)) {
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountViewRedesigned(viewModel: tangemPayAccountViewModel)
                 }
