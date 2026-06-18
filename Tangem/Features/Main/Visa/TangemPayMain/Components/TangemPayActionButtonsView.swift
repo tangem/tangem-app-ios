@@ -19,7 +19,7 @@ struct TangemPayActionButtonsView: View {
     let withdrawAction: () -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: DesignSystem.Tokens.Spacing.s500) {
+        HStack(alignment: .top, spacing: 40) {
             TangemMainActionButton(
                 title: Localization.tangempayCardDetailsAddFunds,
                 icon: DesignSystem.Icons.ArrowDown.regular16,
@@ -50,6 +50,6 @@ struct TangemPayActionButtonsView: View {
         withdrawAction: {}
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG

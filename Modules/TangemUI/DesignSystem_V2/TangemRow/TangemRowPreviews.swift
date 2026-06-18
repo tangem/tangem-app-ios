@@ -74,7 +74,7 @@ public struct TangemRowShowcase: View {
                     .environment(\.layoutDirection, rightToLeft ? .rightToLeft : .leftToRight)
                     .padding(.vertical, 24)
                     .frame(maxWidth: .infinity)
-                    .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+                    .background(DesignSystem.Color.bgOpaquePrimary)
             }
             .padding()
         }
@@ -188,7 +188,7 @@ public struct TangemRowShowcase: View {
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DesignSystem.Tokens.Theme.Bg.Opaque.secondary, in: RoundedRectangle(cornerRadius: 8))
+        .background(DesignSystem.Color.bgOpaqueSecondary, in: RoundedRectangle(cornerRadius: 8))
     }
 
     // MARK: - Predicted VoiceOver output
@@ -281,7 +281,7 @@ public struct TangemRowShowcase: View {
         .extraBottom {
             if showExtraBottom {
                 Text("Extra bottom content")
-                    .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -321,7 +321,7 @@ public struct TangemRowShowcase: View {
             Text(title)
                 .font(.headline)
                 .textCase(.uppercase)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.Accent.violet)
+                .foregroundStyle(DesignSystem.Color.textAccentViolet)
         }
     }
 
@@ -357,6 +357,24 @@ public struct TangemRowShowcase: View {
 // MARK: - Previews
 
 #if DEBUG
+private func tangemRowVAlignSample(_ alignment: TangemRowVerticalAlignment, extra: Bool) -> some View {
+    TangemRow(title: "Title", subtitle: "Subtitle", value: "Value", subvalue: "Subvalue")
+        .titleAccessory { TangemBadgeV2(label: "New", accessibilityLabel: nil) }
+        .valueAccessory { TangemBadgeV2(label: "+2.3%", accessibilityLabel: nil).appearance(.success) }
+        .start(icon: Assets.chevronRight)
+        .end(icon: Assets.chevronRight)
+        .extraBottom {
+            if extra {
+                Text("Extra bottom content")
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .contentLead(.end)
+        .verticalAlignment(alignment)
+        .showDivider()
+}
+
 #Preview("Showcase") {
     TangemRowShowcase()
 }
@@ -374,35 +392,17 @@ public struct TangemRowShowcase: View {
             .showDivider()
     }
     .padding()
-    .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+    .background(DesignSystem.Color.bgOpaquePrimary)
     .environment(\.layoutDirection, .rightToLeft)
 }
 
 #Preview("VAlign debug") {
-    func sample(_ alignment: TangemRowVerticalAlignment, extra: Bool) -> some View {
-        TangemRow(title: "Title", subtitle: "Subtitle", value: "Value", subvalue: "Subvalue")
-            .titleAccessory { TangemBadgeV2(label: "New", accessibilityLabel: nil) }
-            .valueAccessory { TangemBadgeV2(label: "+2.3%", accessibilityLabel: nil).appearance(.success) }
-            .start(icon: Assets.chevronRight)
-            .end(icon: Assets.chevronRight)
-            .extraBottom {
-                if extra {
-                    Text("Extra bottom content")
-                        .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .contentLead(.end)
-            .verticalAlignment(alignment)
-            .showDivider()
-    }
-
-    return VStack(spacing: 24) {
-        sample(.center, extra: false)
-        sample(.center, extra: true)
-        sample(.top, extra: true)
+    VStack(spacing: 24) {
+        tangemRowVAlignSample(.center, extra: false)
+        tangemRowVAlignSample(.center, extra: true)
+        tangemRowVAlignSample(.top, extra: true)
     }
     .padding()
-    .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
+    .background(DesignSystem.Color.bgOpaquePrimary)
 }
 #endif // DEBUG

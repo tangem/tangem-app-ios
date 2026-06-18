@@ -69,7 +69,7 @@ private extension TangemPayCardActionButtonsView {
 
 #if DEBUG
 #Preview {
-    VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
+    VStack(spacing: 32) {
         TangemPayCardActionButtonsView(
             isFrozen: false,
             actionsDisabled: false,
@@ -94,8 +94,8 @@ private extension TangemPayCardActionButtonsView {
             pinAction: {}
         )
     }
-    .padding(.horizontal, DesignSystem.Tokens.Spacing.s500)
+    .padding(.horizontal, 40)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG

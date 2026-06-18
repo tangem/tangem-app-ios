@@ -61,35 +61,35 @@ public extension TangemShimmer {
         var lineHeight: CGFloat {
             switch self {
             case .display:
-                Font.Display.medium.lineHeight
+                DesignSystem.Font.displayMediumToken.lineHeight
 
             case .headingMedium:
-                Font.Heading.medium.lineHeight
+                DesignSystem.Font.headingMediumToken.lineHeight
 
             case .headingSmall:
-                Font.Heading.small.lineHeight
+                DesignSystem.Font.headingSmallToken.lineHeight
 
             case .body:
-                Font.Body.medium.lineHeight
+                DesignSystem.Font.bodyMediumToken.lineHeight
 
             case .subheading:
-                Font.Subheading.medium.lineHeight
+                DesignSystem.Font.subheadingMediumToken.lineHeight
 
             case .caption:
-                Font.Caption.medium.lineHeight
+                DesignSystem.Font.captionMediumToken.lineHeight
             }
         }
 
         var cornerRadius: CGFloat {
             switch self {
             case .display:
-                CornerRadius._150
+                12
 
             case .headingMedium:
-                CornerRadius._100
+                8
 
             case .headingSmall, .body, .subheading, .caption:
-                CornerRadius._200
+                16
             }
         }
 
@@ -115,9 +115,6 @@ public extension TangemShimmer {
                 0.3
             }
         }
-
-        private typealias Font = DesignSystem.Tokens.Font
-        private typealias CornerRadius = DesignSystem.Tokens.CornerRadius
     }
 }
 
@@ -138,7 +135,7 @@ private struct TangemShimmerTextBlock: View {
     var body: some View {
         LeadingRatioWidth(ratio: style.widthRatio) {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(DesignSystem.Tokens.Theme.Bg.Opaque.secondary)
+                .fill(DesignSystem.Color.bgOpaqueSecondary)
                 .mask { TangemShimmerShine() }
                 .frame(height: height)
         }
@@ -178,7 +175,7 @@ private struct TangemShimmerCustomBlock: View {
         let scaledHeight = height.map { $0 * scale }
         let resolvedCornerRadius: CGFloat = cornerRadius ?? (scaledHeight.map { $0 / 2 } ?? 0)
         return RoundedRectangle(cornerRadius: resolvedCornerRadius, style: .continuous)
-            .fill(DesignSystem.Tokens.Theme.Bg.Opaque.secondary)
+            .fill(DesignSystem.Color.bgOpaqueSecondary)
             .mask { TangemShimmerShine() }
             .frame(width: scaledWidth, height: scaledHeight)
     }

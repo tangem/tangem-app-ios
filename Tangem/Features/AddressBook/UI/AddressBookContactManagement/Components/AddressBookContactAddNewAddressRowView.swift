@@ -26,9 +26,9 @@ struct AddressBookContactAddNewAddressRowView: View {
         .verticalAlignment(.center)
         .start {
             DesignSystem.Icons.SignPlus.regular20.image
-                .padding(.all, DesignSystem.Tokens.Spacing.s100)
-                .background(DesignSystem.Tokens.Theme.Bg.Status.infoSubtle)
-                .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._150)
+                .padding(.all, 8)
+                .background(DesignSystem.Color.bgStatusInfoSubtle)
+                .cornerRadiusContinuous(12)
         }
         .onTap(viewModel.action)
     }
