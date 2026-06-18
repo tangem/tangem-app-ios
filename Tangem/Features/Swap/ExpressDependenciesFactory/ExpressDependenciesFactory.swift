@@ -11,11 +11,9 @@ import TangemExpress
 protocol ExpressDependenciesFactory {
     var userWalletInfo: UserWalletInfo { get }
     var expressManager: ExpressManager { get }
-    var expressPairsRepository: ExpressPairsRepository { get }
+    var swapRepository: SwapRepository { get }
     var expressPendingTransactionRepository: ExpressPendingTransactionRepository { get }
-    var expressDestinationService: ExpressDestinationService { get }
     var expressAPIProvider: ExpressAPIProvider { get }
-    var expressRepository: ExpressRepository { get }
 
     var onrampRepository: OnrampRepository { get }
 }

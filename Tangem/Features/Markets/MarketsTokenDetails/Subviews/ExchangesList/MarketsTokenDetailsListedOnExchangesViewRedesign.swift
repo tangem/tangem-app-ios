@@ -25,6 +25,7 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
             Button(action: buttonAction) {
                 rowContent
             }
+            .buttonStyle(.plain)
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchanges)
         } else {
             rowContent
@@ -32,14 +33,13 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
     }
 
     private var rowContent: some View {
-        TangemTwoLineRowLayout(
-            primaryLeading: {
+        HStack(spacing: .unit(.x4)) {
+            VStack(alignment: .leading, spacing: .unit(.x1)) {
                 Text(Localization.marketsTokenDetailsListedOn)
-                    .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                     .lineLimit(1)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesTitle)
-            },
-            secondaryLeading: {
+
                 Group {
                     if isListedOnExchanges {
                         Text(Localization.marketsTokenDetailsAmountExchanges(exchangesCount))
@@ -48,18 +48,20 @@ struct MarketsTokenDetailsListedOnExchangesViewRedesign: View {
                             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.listedOnExchangesEmptyText)
                     }
                 }
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .lineLimit(1)
-            },
-            centeredTrailing: {
-                if isListedOnExchanges {
-                    Assets.Glyphs.chevronRightNew.image
-                        .renderingMode(.template)
-                        .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
-                }
             }
-        )
+
+            Spacer(minLength: .zero)
+
+            if isListedOnExchanges {
+                Assets.Glyphs.chevronRightNew.image
+                    .renderingMode(.template)
+                    .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+            }
+        }
         .roundedBackground(with: .Tangem.Surface.level3, padding: .unit(.x4), radius: .unit(.x6))
+        .contentShape(.rect)
     }
 }
 

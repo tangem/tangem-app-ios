@@ -569,7 +569,7 @@ extension SingleTokenBaseViewModel {
         case .buy: return openBuyCryptoAction
         case .send: return openSendAction
         case .receive: return openReceiveAction
-        case .exchange: return openExchangeAction
+        case .exchange: return { [weak self] in self?.openExchangeAction() }
         case .sell: return openSellAction
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
@@ -621,7 +621,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSend(walletModel: walletModel)
     }
 
-    final func openExchange() {
+    final func openExchange(position: SwapDirection = .automatic) {
         if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
             alert = swapUnavailableAlert
             return
@@ -630,8 +630,9 @@ extension SingleTokenBaseViewModel {
         let helper = SwapPredefinedParametersHelper()
 
         guard let parameters = helper.makeParameters(
-            origin: .tokenDetails(walletModel: walletModel),
-            userWalletInfo: userWalletInfo
+            walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
+            position: position
         ) else {
             return
         }
@@ -697,7 +698,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
-    private func openExchangeAction() {
+    private func openExchangeAction(position: SwapDirection = .automatic) {
         Analytics.log(event: .buttonExchange, params: [
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
@@ -705,7 +706,7 @@ extension SingleTokenBaseViewModel {
             .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapAvailability).rawValue,
         ])
 
-        openExchange()
+        openExchange(position: position)
     }
 
     private func openBuyCryptoAction() {
@@ -761,6 +762,10 @@ extension SingleTokenBaseViewModel {
         case .sell: openSellAction()
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
         }
+    }
+
+    func performSwapAction(position: SwapDirection) {
+        openExchangeAction(position: position)
     }
 }
 

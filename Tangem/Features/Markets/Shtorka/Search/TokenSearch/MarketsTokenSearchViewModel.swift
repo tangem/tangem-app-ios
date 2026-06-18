@@ -90,9 +90,9 @@ final class MarketsTokenSearchViewModel: ObservableObject {
 private extension MarketsTokenSearchViewModel {
     func bind() {
         headerViewModel.$inputShouldBecomeFocused
-            .combineLatest(headerViewModel.$enteredSearchText)
-            .compactMap { [weak self] isFocused, searchText in
-                self?.makeState(isFocused: isFocused, searchText: searchText)
+            .combineLatest(headerViewModel.$enteredSearchText, storage.recentItemsPublisher)
+            .compactMap { [weak self] isFocused, searchText, recentItems in
+                self?.makeState(isFocused: isFocused, searchText: searchText, hasRecents: recentItems.isNotEmpty)
             }
             .removeDuplicates()
             .receiveOnMain()
@@ -143,14 +143,14 @@ private extension MarketsTokenSearchViewModel {
 // MARK: - State
 
 private extension MarketsTokenSearchViewModel {
-    func makeState(isFocused: Bool, searchText: String) -> State {
+    func makeState(isFocused: Bool, searchText: String, hasRecents: Bool) -> State {
         let search = searchText.trimmed()
 
-        guard isFocused || search.isNotEmpty else {
-            return .idle
+        if search.isNotEmpty {
+            return .search
         }
 
-        return search.isEmpty ? .recent : .search
+        return isFocused && hasRecents ? .recent : .idle
     }
 }
 

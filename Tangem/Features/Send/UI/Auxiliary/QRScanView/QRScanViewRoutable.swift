@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol QRScanViewRoutable {
+protocol QRScanViewRoutable: AnyObject {
     func openImagePicker()
     func openSettings()
     func dismiss()

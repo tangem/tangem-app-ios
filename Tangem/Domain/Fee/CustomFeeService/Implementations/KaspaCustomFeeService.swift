@@ -52,7 +52,7 @@ class KaspaCustomFeeService {
             }
             .store(in: &bag)
 
-        customFeeTextField.valuePublisher
+        customFeeTextField.valuePublisher()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { $0.onFieldChange(decimalValue: $1) }

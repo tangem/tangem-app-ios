@@ -38,7 +38,7 @@ public struct AllowanceChecker {
         return allowance
     }
 
-    private func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> ApproveTransactionData {
+    public func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) throws -> ApproveTransactionData {
         let (data, contract) = try buildApproveCalldata(spender: spender, amount: amount, policy: policy)
         return .init(txData: data, spender: spender, toContractAddress: contract)
     }

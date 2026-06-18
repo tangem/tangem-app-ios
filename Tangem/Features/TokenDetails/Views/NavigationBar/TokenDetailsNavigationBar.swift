@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAccounts
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct TokenDetailsNavigationBar: View {
     let viewModel: TokenDetailsNavigationBarViewModel
@@ -27,11 +28,12 @@ struct TokenDetailsNavigationBar: View {
         HStack(spacing: .unit(.x1)) {
             Text(viewModel.title.tokenName)
                 .layoutPriority(1)
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.tokenNameLabel)
 
             storage
         }
         .foregroundStyle(Color.Tangem.Text.Neutral.primary)
-        .font(.Tangem.Body16.semibold)
+        .font(Font.Tangem.Body16.semibold)
     }
 
     @ViewBuilder
@@ -109,6 +111,6 @@ struct TokenDetailsNavigationBar: View {
 
     private var subtitle: some View {
         Text(viewModel.subtitle)
-            .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
     }
 }

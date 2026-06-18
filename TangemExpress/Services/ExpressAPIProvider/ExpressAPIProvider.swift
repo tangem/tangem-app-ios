@@ -17,7 +17,7 @@ public protocol ExpressAPIProvider {
     func providers(branch: ExpressBranch) async throws -> [ExpressProvider]
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction
     func exchangeSent(result: ExpressTransactionSentResult) async throws
 
     func onrampCurrencies() async throws -> [OnrampFiatCurrency]
@@ -30,45 +30,9 @@ public protocol ExpressAPIProvider {
     func onrampNativePaymentData(item: OnrampNativePaymentRequestItem) async throws -> OnrampDataResult
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction
 
-    func exchangeHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> ExchangeHistoryPage
+    func exchangeHistory(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage
+    func exchangeHistoryDelta(item: ExpressHistoryRequestItem) async throws -> ExchangeHistoryPage
 
-    func onrampHistory(
-        walletAddress: String,
-        cursor: Any?,
-        limit: Int?,
-        network: String?,
-        tokenId: String?
-    ) async throws -> OnrampHistoryPage
-}
-
-// MARK: - Convenience extensions
-
-public extension ExpressAPIProvider {
-    /// History w/o network and tokenId filters.
-    func exchangeHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> ExchangeHistoryPage {
-        try await exchangeHistory(
-            walletAddress: walletAddress,
-            cursor: cursor,
-            limit: limit,
-            network: nil,
-            tokenId: nil
-        )
-    }
-
-    /// History w/o network and tokenId filters.
-    func onrampHistory(walletAddress: String, cursor: Any?, limit: Int?) async throws -> OnrampHistoryPage {
-        try await onrampHistory(
-            walletAddress: walletAddress,
-            cursor: cursor,
-            limit: limit,
-            network: nil,
-            tokenId: nil
-        )
-    }
+    func onrampHistory(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage
+    func onrampHistoryDelta(item: ExpressHistoryRequestItem) async throws -> OnrampHistoryPage
 }

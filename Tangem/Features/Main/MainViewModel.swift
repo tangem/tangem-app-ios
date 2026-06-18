@@ -25,9 +25,9 @@ final class MainViewModel: ObservableObject {
 
     // MARK: - ViewState
 
-    @Published var pages: [MainUserWalletPageBuilder] = []
+    @Published private(set) var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
-    @Published var isHorizontalScrollDisabled = false
+    @Published private(set) var isPullToRefreshRunning = false
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -156,7 +156,7 @@ final class MainViewModel: ObservableObject {
         let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
-        // being placed over the authorization screen.
+        // being placed over the authorization or the launch (splash) screen, which is still fading out at this point.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
@@ -194,6 +194,20 @@ final class MainViewModel: ObservableObject {
            ) {
             AppPresenter.shared.show(alert)
         }
+    }
+
+    @MainActor
+    func pullToRefresh() async {
+        let timeout = 120
+        try? await Task.run(
+            withTimeout: .seconds(timeout),
+            code: {
+                await self.onPullToRefresh()
+            },
+            onTimeout: {
+                AppLogger.error(error: "MainViewModel.pullToRefresh timeout after \(timeout) seconds.")
+            }
+        ).value
     }
 
     // MARK: - User wallets pages management
@@ -490,10 +504,10 @@ final class MainViewModel: ObservableObject {
     @MainActor
     private func onPullToRefresh() async {
         defer {
-            isHorizontalScrollDisabled = false
+            isPullToRefreshRunning = false
         }
 
-        isHorizontalScrollDisabled = true
+        isPullToRefreshRunning = true
 
         guard
             let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId,
@@ -612,7 +626,9 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
-        static let pushNotificationAuthorizationRequestDelay = 0.5
-        static let bottomSheetVisibilityColdStartDelay = 0.5
+        static let pushNotificationAuthorizationRequestDelay = 1.0
+        /// Keeps the Markets bottom sheet hidden until the launch (splash) screen has fully faded out,
+        /// plus a small buffer to absorb rendering jitter, so the two never overlap on a cold start.
+        static let bottomSheetVisibilityColdStartDelay = AppConstants.launchScreenDismissalDuration + 0.2
     }
 }

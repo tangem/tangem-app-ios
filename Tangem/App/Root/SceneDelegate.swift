@@ -25,6 +25,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private lazy var appOverlaysManager = AppOverlaysManager(sheetRegistry: sheetRegistry)
 
     private var appCoordinator: AppCoordinator?
+    private var debugMenuPresenter: DebugMenuPresenter?
     private var isSceneStarted = false
 
     // MARK: - Lifecycle
@@ -107,6 +108,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerMarketsSearchFloatingSheets()
         sheetRegistry.registerTokensManagementFloatingSheets()
         sheetRegistry.registerRatingFloatingSheets()
+        sheetRegistry.registerAddFundsFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
@@ -124,6 +126,18 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appOverlaysManager.setMainWindow(window)
         window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.makeKeyAndVisible()
+
+        setupDebugMenuIfNeeded(window: window)
+    }
+
+    private func setupDebugMenuIfNeeded(window: MainWindow) {
+        guard !AppEnvironment.current.isProduction else { return }
+
+        let presenter = DebugMenuPresenter()
+        window.onShake = { [weak presenter] in
+            presenter?.presentIfNeeded()
+        }
+        debugMenuPresenter = presenter
     }
 
     private func hideLockView() {

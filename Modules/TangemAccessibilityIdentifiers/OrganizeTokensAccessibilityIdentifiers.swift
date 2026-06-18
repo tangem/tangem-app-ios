@@ -13,6 +13,7 @@ public enum OrganizeTokensAccessibilityIdentifiers {
     public static let sortByBalanceButton = "byBalanceSortButton"
     public static let groupButton = "groupButton"
     public static let applyButton = "applyButton"
+    public static let cancelButton = "cancelButton"
     public static let sortMenuTrigger = "sortMenuTrigger"
 
     /// Accessibility identifier prefix for an account header (outer section) in accounts-aware organize tokens list.
