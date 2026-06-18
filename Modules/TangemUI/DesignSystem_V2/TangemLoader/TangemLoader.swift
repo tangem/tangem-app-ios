@@ -14,18 +14,18 @@ import TangemUIUtils
 ///
 /// Use ``loaderSize(_:)`` to choose one of the six discrete icon sizes (12 / 16 / 20 / 24 / 28 / 32 pt)
 /// and ``loaderColor(_:)`` to tint the spinner for its placement context.
-/// The default size is 24 pt and the default color is `DesignSystem.Tokens.Theme.Icon.primary`.
+/// The default size is 24 pt and the default color is `DesignSystem.Color.iconPrimary`.
 ///
 /// ```swift
 /// TangemLoader()
 ///     .loaderSize(.size16)
-///     .loaderColor(DesignSystem.Tokens.Theme.Icon.inverse)
+///     .loaderColor(DesignSystem.Color.iconInverse)
 /// ```
 ///
 /// - Note: Dynamic Type scaling is not yet implemented — pending product testing (backlog).
 public struct TangemLoader: View {
     private var size: Size = .size24
-    private var color: Color = DesignSystem.Tokens.Theme.Icon.primary
+    private var color: Color = DesignSystem.Color.iconPrimary
 
     private let rotationDuration: TimeInterval = 0.8
 

@@ -26,7 +26,7 @@ struct TangemPaySuccessGlowBackground: View {
                 .offset(y: Constants.glowOffsetY)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(DesignSystem.Tokens.Theme.Bg.primary)
+        .background(DesignSystem.Color.bgPrimary)
         .ignoresSafeArea()
     }
 }

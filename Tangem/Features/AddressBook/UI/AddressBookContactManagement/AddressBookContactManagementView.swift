@@ -21,7 +21,7 @@ struct AddressBookContactManagementView: View {
     var body: some View {
         scrollContent
             .scrollDismissesKeyboard(.interactively)
-            .background(DesignSystem.Tokens.Theme.Bg.base.ignoresSafeArea())
+            .background(DesignSystem.Color.bgBase.ignoresSafeArea())
             .navigationTitle(Text(viewModel.title))
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
@@ -41,7 +41,7 @@ struct AddressBookContactManagementView: View {
                 title: Localization.addressBookContactName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: Localization.addressBookNewContact,
-                backgroundColor: DesignSystem.Tokens.Theme.Bg.secondary,
+                backgroundColor: DesignSystem.Color.bgSecondary,
                 accountIconViewData: viewModel.iconViewData,
                 isFocused: $isNameFocused
             )
@@ -49,7 +49,7 @@ struct AddressBookContactManagementView: View {
             AccountFormGridView(
                 selectedItem: $viewModel.selectedColor,
                 items: viewModel.colors,
-                backgroundColor: DesignSystem.Tokens.Theme.Bg.secondary,
+                backgroundColor: DesignSystem.Color.bgSecondary,
                 content: { colorItem, isSelected in
                     makeColorItem(color: colorItem.color, isSelected: isSelected)
                 }
@@ -63,7 +63,7 @@ struct AddressBookContactManagementView: View {
                     AddressBookContactAddNewAddressRowView(viewModel: rowViewModel)
                 }
             }
-            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
             .horizontalPadding(0)
 
             GroupedSection(viewModel.selectedWallet) { wallet in
@@ -74,9 +74,9 @@ struct AddressBookContactManagementView: View {
 
             } footer: {
                 DefaultFooterView(Localization.addressBookSaveWalletToDescription)
-                    .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+                    .padding(.horizontal, 16)
             }
-            .backgroundColor(DesignSystem.Tokens.Theme.Bg.secondary)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
             .horizontalPadding(0)
 
             if viewModel.canDeleteContact {
@@ -84,11 +84,11 @@ struct AddressBookContactManagementView: View {
                     .verticalAlignment(.center)
                     .start {
                         Text(Localization.commonDelete)
-                            .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.Accent.red)
+                            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textAccentRed)
                             .lineLimit(1)
                     }
                     .onTap(viewModel.userDidRequestDelete)
-                    .defaultRoundedBackground(with: DesignSystem.Tokens.Theme.Bg.secondary, verticalPadding: 0, horizontalPadding: 0)
+                    .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0, horizontalPadding: 0)
                     .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             }
         }
@@ -102,7 +102,7 @@ struct AddressBookContactManagementView: View {
 
     private func makeItemOverlayView(isSelected: Bool, strokeColor: Color) -> some View {
         Circle()
-            .strokeBorder(DesignSystem.Tokens.Theme.Bg.secondary, lineWidth: isSelected ? 4 : 0)
+            .strokeBorder(DesignSystem.Color.bgSecondary, lineWidth: isSelected ? 4 : 0)
             .overlay(
                 Circle()
                     .strokeBorder(strokeColor, lineWidth: isSelected ? 2 : 0)
@@ -112,13 +112,13 @@ struct AddressBookContactManagementView: View {
     private func makeWalletValue(wallet: AddressBookContactManagementViewModel.WalletRowType) -> some View {
         HStack(spacing: 4) {
             Text(wallet.wallet)
-                .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
             if wallet.isEditable {
                 Assets.Glyphs.selectIcon.image
                     .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Icon.secondary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 20, height: 20)
             }
         }
