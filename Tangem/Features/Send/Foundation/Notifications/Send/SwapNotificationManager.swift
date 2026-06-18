@@ -287,6 +287,21 @@ private extension CommonSwapNotificationManager {
         case .readyToTransfer(let transferState):
             var events: [SwapNotificationEvent] = []
 
+            if transferState.subtractFee.subtractFee > 0 {
+                let feeTokenItem = transferState.subtractFee.feeTokenItem
+                let feeFiatValue = BalanceConverter().convertToFiat(transferState.subtractFee.subtractFee, currencyId: feeTokenItem.currencyId ?? "")
+
+                let cryptoAmountFormatted = balanceFormatter.formatCryptoBalance(transferState.subtractFee.subtractFee, currencyCode: feeTokenItem.currencySymbol)
+                let fiatAmountFormatted = balanceFormatter.formatFiatBalance(feeFiatValue)
+
+                let event = SwapNotificationEvent.feeWillBeSubtractFromSendingAmount(
+                    cryptoAmountFormatted: cryptoAmountFormatted,
+                    fiatAmountFormatted: fiatAmountFormatted
+                )
+
+                events.append(event)
+            }
+
             if let notification = transferState.notification {
                 let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
                 let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(notification)

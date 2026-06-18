@@ -9,15 +9,11 @@
 import Foundation
 import SwiftUI
 import Combine
-import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        guard settings.isSwapFlow else {
-            return settings.title
-        }
-        return Localization.swapInProgress
+        headerTitleProvider.title
     }
 
     @Published private(set) var showHeader = false
@@ -38,6 +34,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published private(set) var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
 
     private let settings: Settings
+    private let headerTitleProvider: any SendFinishHeaderTitleProvider
     private let analyticsLogger: SendFinishAnalyticsLogger
 
     private weak var coordinator: SendRoutable?
@@ -52,6 +49,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
         settings: Settings,
+        headerTitleProvider: any SendFinishHeaderTitleProvider,
         analyticsLogger: SendFinishAnalyticsLogger,
         coordinator: SendRoutable
     ) {
@@ -63,6 +61,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
         self.settings = settings
+        self.headerTitleProvider = headerTitleProvider
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
@@ -112,8 +111,6 @@ class SendFinishViewModel: ObservableObject, Identifiable {
 
 extension SendFinishViewModel {
     struct Settings {
-        let title: String
         let possibleToShowExploreButtons: Bool
-        let isSwapFlow: Bool
     }
 }
