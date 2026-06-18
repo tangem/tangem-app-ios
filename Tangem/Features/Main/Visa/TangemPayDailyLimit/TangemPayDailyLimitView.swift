@@ -231,7 +231,7 @@ private extension TangemPayDailyLimitView {
                 .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.tertiary)
 
             SendDecimalNumberTextField(viewModel: viewModel.amountFieldViewModel)
-                .prefixSuffixOptions(.suffix(text: viewModel.currency, hasSpace: true))
+                .prefixSuffixOptions(.prefix(text: AppConstants.usdSign, hasSpace: false))
                 .appearance(.init(
                     font: DesignSystem.Tokens.Font.Display.medium.font,
                     textColor: DesignSystem.Tokens.Theme.Text.primary,
@@ -246,11 +246,11 @@ private extension TangemPayDailyLimitView {
 
     var redesignedPresetsRow: some View {
         HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
-            ForEach(viewModel.presetValues, id: \.self) { value in
+            ForEach(viewModel.presets, id: \.self) { preset in
                 Button {
-                    viewModel.selectPreset(value)
+                    viewModel.selectPreset(preset)
                 } label: {
-                    Text("\(value)$")
+                    Text(preset)
                         .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.primary)
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, DesignSystem.Tokens.Spacing.s125)
