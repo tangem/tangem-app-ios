@@ -44,7 +44,7 @@ struct NewProviderSelectorView: View {
             mainContent: { mainContentView }
         )
         .onDisappear {
-            viewModel.selectedProviderTypeFilter = .all
+            viewModel.resetState()
             allModeSectionHeight = .zero
         }
     }
