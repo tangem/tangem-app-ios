@@ -190,7 +190,7 @@ Key lanes defined in `fastlane/Fastfile`:
 
 ## Code Style
 
-**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira fields and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation. When that language isn't English, write the way a native speaker of it would: express each technical idea in the target language's own words rather than transliterating the English term, so the text reads as natural prose and not a calque. Only genuine code identifiers and proper nouns stay in English.
+**English only in committed content.** Code, comments, identifiers, commit messages, and PR titles (which mirror commit subjects) are English. Foreign-language product strings used as test data or fixtures are an exception, but commentary about them stays English. Non-versioned surfaces — PR descriptions, Jira issue bodies (description, QA Notes) and comments, Slack, Confluence — aren't constrained and typically follow the language of the current conversation; the sole exception is the Jira issue summary (title), which is always English like commit and PR titles. When that language isn't English, write the way a native speaker of it would: express each technical idea in the target language's own words rather than transliterating the English term, so the text reads as natural prose and not a calque. Only genuine code identifiers and proper nouns stay in English.
 
 **Style Guide:** Follow [Google's Swift Style Guide](https://google.github.io/swift/)
 
