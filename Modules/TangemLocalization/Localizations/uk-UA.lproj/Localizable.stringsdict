@@ -508,13 +508,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>картка</string>
+        <string>%li картка</string>
         <key>few</key>
-        <string>картки</string>
+        <string>%li картки</string>
         <key>many</key>
-        <string>карток</string>
+        <string>%li карток</string>
         <key>other</key>
-        <string>картки</string>
+        <string>%li картки</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
