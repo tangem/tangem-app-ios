@@ -74,6 +74,16 @@ extension XCUIElement {
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
+
+    @discardableResult
+    func waitForValue(timeout: TimeInterval = .conditional, where matches: @escaping (String) -> Bool) -> Bool {
+        let predicate = NSPredicate { object, _ in
+            guard let value = (object as? XCUIElement)?.value as? String else { return false }
+            return matches(value)
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
 }
 
 // MARK: UI actions
@@ -104,6 +114,23 @@ extension XCUIElement {
             return ""
         }
         return value
+    }
+
+    /// Redesigned rows register the gesture on the container, so the inner title is never hittable; fall back to a center-coordinate hit.
+    func tapEvenIfNotHittable() {
+        if isHittable {
+            tap()
+        } else {
+            coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+    }
+
+    func pressEvenIfNotHittable(forDuration duration: TimeInterval) {
+        if isHittable {
+            press(forDuration: duration)
+        } else {
+            coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: duration)
+        }
     }
 }
 

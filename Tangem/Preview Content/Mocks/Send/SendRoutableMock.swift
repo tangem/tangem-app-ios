@@ -17,6 +17,7 @@ class SendRoutableMock: SendRoutable {
     func dismiss(reason: SendDismissReason) {}
     func openFeeExplanation(url: URL) {}
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {}
+    func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {}
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
@@ -46,4 +47,5 @@ class SendRoutableMock: SendRoutable {
     func closeFeeSelector() {}
     func openFeeSelectorLearnMoreURL(_ url: URL) {}
     func openSwapTokenSelector(swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder, direction: SwapTokenSelectorViewModel.SwapDirection) {}
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {}
 }

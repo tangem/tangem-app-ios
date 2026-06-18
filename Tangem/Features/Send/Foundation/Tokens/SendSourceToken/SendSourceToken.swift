@@ -34,5 +34,6 @@ protocol SendSourceToken: SendReceiveToken {
 }
 
 extension SendSourceToken {
+    var walletTokenItem: WalletTokenItem { WalletTokenItem(userWalletId: userWalletInfo.id, tokenItem: tokenItem) }
     var possibleToConvertToFiat: Bool { fiatAvailableBalanceProvider.balanceType.value != .none }
 }

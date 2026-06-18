@@ -333,6 +333,7 @@
 "common_sell" = "Vendre";
 "common_send_colon" = "Vous envoyez :";
 "common_send_tx_error" = "Échec d'envoi de la transaction";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Envoyer";
 "common_sending" = "Sending";
 "common_sent" = "Sent";
@@ -572,7 +573,11 @@
 "feedback_token_description_error" = "Erreur de description de la pièce";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
 "force_update_banner_title" = "Mise à jour nécessaire";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Mettre à jour";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Veuillez mettre à jour l'application pour assurer son bon fonctionnement";
 "force_update_warning_title" = "Mise à jour requise";
 "gasless_not_enough_funds_to_cover_token_fee" = "Fonds insuffisants";
@@ -1061,6 +1066,7 @@
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
 "quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
@@ -1679,7 +1685,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Impossible de couvrir les frais";
 "tangempay_reissue_card_insufficient_funds" = "Fonds insuffisants pour réémettre la carte";
 "tangempay_reissue_card_title" = "Réémettre votre carte ?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Nous réparons un problème technique. Veuillez réessayer plus tard.";

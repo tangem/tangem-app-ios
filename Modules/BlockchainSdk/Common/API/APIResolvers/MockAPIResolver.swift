@@ -27,6 +27,8 @@ struct MockAPIResolver {
             return "\(baseURL)/dogecoin"
         case .solana:
             return "\(baseURL)/solana"
+        case .stellar:
+            return "\(baseURL)/stellar"
         default:
             return nil
         }

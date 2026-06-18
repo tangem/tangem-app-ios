@@ -318,6 +318,17 @@ private extension SwapModel {
         return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.notEnoughBalanceForSwapping, quote: .none))
     }
 
+    /// A card-linked wallet must not receive funds, so a swap that would credit it is blocked up front
+    /// (no providers shown) — even if it was somehow chosen as the destination.
+    private func incompleteBackupReceiveTokenRestrictionProvidersState() -> ProvidersState? {
+        guard let destination = receiveToken.value as? SendSwapableToken,
+              case .incompleteBackup = destination.receivingRestrictionsProvider.restriction(expectAmount: .zero) else {
+            return nil
+        }
+
+        return .loaded(.swap(selected: .none, providers: .empty), state: .restriction(.incompleteBackup, quote: .none))
+    }
+
     private func logErrorIfNeeded(providersState: ProvidersState) {
         // The screen name is derived from the in-flight LoadingType, which only lives on the
         // outgoing `.loading` state. If we're not transitioning from `.loading`, there's nothing to log.
@@ -345,7 +356,7 @@ private extension SwapModel {
                 analyticsLogger.logSwapErrorMaxAmount(screen: screen)
             case .notEnoughBalanceForSwapping, .notEnoughAmountForFee, .notEnoughAmountForTxValue, .validationError:
                 analyticsLogger.logSwapErrorInsufficientBalance(screen: screen)
-            case .hasPendingTransaction, .hasPendingApproveTransaction:
+            case .hasPendingTransaction, .hasPendingApproveTransaction, .incompleteBackup:
                 break
             }
         default:
@@ -358,6 +369,10 @@ private extension SwapModel {
 
 extension SwapModel {
     func mapToLoadedProvidersState(state: ExpressManagerState) async throws -> ProvidersState {
+        if let restrictionProvidersState = incompleteBackupReceiveTokenRestrictionProvidersState() {
+            return restrictionProvidersState
+        }
+
         switch state {
         case .idle:
             return .idle
@@ -446,13 +461,13 @@ extension SwapModel {
 
     func mapToReadyToTransferState() async throws -> LoadedState {
         let source = try _sourceToken.value.get()
-        let destination = try _receiveToken.value.get()
+        let receive = try _receiveToken.value.get()
 
         guard let amountValue = _sourceAmount.value?.crypto else {
             return .idle
         }
 
-        guard let address = destination.address else {
+        guard let address = receive.address else {
             throw SwapModelError.destinationNotFound
         }
 
@@ -469,13 +484,29 @@ extension SwapModel {
             await source.tokenFeeProvidersManager.updateFees().value
             let fee = try source.tokenFeeProvidersManager.selectedTokenFee.value.get()
 
-            // 2. Validate amount and fee
-            if let restriction = try validate(amount: amount, fee: fee) {
+            // When the whole balance is being sent in the fee currency, subtract the fee from the amount
+            let isFeeIncluded = CommonFeeIncludedCalculator(validator: source.transactionValidator).shouldIncludeFee(fee, into: amount)
+            let subtractFeeValue = isFeeIncluded ? fee.amount.value : .zero
+            let feeTokenItem = source.tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem
+            let subtractFee = SubtractFee(feeTokenItem: feeTokenItem, subtractFee: subtractFeeValue)
+            let amount = makeAmount(value: amountValue - subtractFeeValue, tokenItem: source.tokenItem)
+
+            // 2. Validate amount, fee and destination
+            // We don't have `extraId` on Tangem addresses
+            let destination = DestinationType.address(address, params: nil)
+            if let restriction = try await validate(amount: amount, fee: fee, quote: quote, destination: destination) {
                 return .restriction(restriction, quote: quote)
             }
 
             let notification = source.withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
-            let state = ReadyToTransferState(quote: quote, fee: fee, notification: notification)
+            let state = ReadyToTransferState(
+                quote: quote,
+                amount: amount,
+                fee: fee,
+                subtractFee: subtractFee,
+                destination: address,
+                notification: notification
+            )
             return .readyToTransfer(state)
 
         } catch {
@@ -542,7 +573,7 @@ extension SwapModel {
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: try sourceToken.get().tokenItem)
         let quote = try await map(provider: provider.provider, quote: permissionRequired.quote)
 
-        if let restriction = try validate(amount: amount, fee: permissionRequired.fee) {
+        if let restriction = try validate(amount: amount, fee: permissionRequired.fee, quote: quote) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -563,7 +594,7 @@ extension SwapModel {
         let amount = makeAmount(value: dexPreview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: dexPreview.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee) {
+        if let restriction = try validate(amount: amount, fee: fee, quote: quote) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -581,7 +612,7 @@ extension SwapModel {
         let amount = makeAmount(value: preview.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: preview.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee) {
+        if let restriction = try validate(amount: amount, fee: fee, quote: quote) {
             return .restriction(restriction, quote: quote)
         }
 
@@ -601,32 +632,12 @@ extension SwapModel {
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: source.tokenItem)
         let quote = try await map(provider: provider.provider, quote: previewCEX.quote)
 
-        if let restriction = try validate(amount: amount, fee: fee) {
+        if let restriction = try validate(amount: amount, fee: fee, quote: quote) {
             return .restriction(restriction, quote: quote)
-        }
-
-        if let memoRequiredRestriction = try validateMemoRequired() {
-            return .restriction(memoRequiredRestriction, quote: quote)
         }
 
         let withdrawalNotificationProvider = source.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
-
-        // Check on the minimum received amount
-        // Almost impossible case because the providers check it on their side
-        if let destination = receiveToken.value as? SendSwapableToken {
-            let restriction = destination.receivingRestrictionsProvider.restriction(expectAmount: previewCEX.quote.expectAmount)
-            switch restriction {
-            case .none:
-                // All good
-                break
-            case .notEnoughReceivedAmount(let minAmount):
-                return .restriction(
-                    .notEnoughReceivedAmount(minAmount: minAmount, tokenSymbol: destination.tokenItem.currencySymbol),
-                    quote: quote
-                )
-            }
-        }
 
         let feeTokenItem = try provider.getTokenFeeProvidersManager().selectedFeeProvider.feeTokenItem
         let subtractFee = SubtractFee(feeTokenItem: feeTokenItem, subtractFee: previewCEX.subtractFee)
@@ -653,7 +664,11 @@ extension SwapModel {
         }
     }
 
-    func validate(amount: Amount, fee: Fee) throws -> RestrictionType? {
+    func validate(amount: Amount, fee: Fee, quote: Quote) throws -> RestrictionType? {
+        if let restriction = try validateExpectations(quote: quote) {
+            return restriction
+        }
+
         do {
             let source = try _sourceToken.value.get()
             try source.transactionValidator.validate(amount: amount, fee: fee)
@@ -662,6 +677,33 @@ extension SwapModel {
         } catch {
             return try proceedValidationError(error)
         }
+    }
+
+    func validate(amount: Amount, fee: Fee, quote: Quote, destination: DestinationType) async throws -> RestrictionType? {
+        if let restriction = try validateExpectations(quote: quote) {
+            return restriction
+        }
+
+        do {
+            let source = try _sourceToken.value.get()
+            try await source.transactionValidator.validate(amount: amount, fee: fee, destination: destination)
+            // All good
+            return nil
+        } catch {
+            return try proceedValidationError(error)
+        }
+    }
+
+    func validateExpectations(quote: Quote) throws -> RestrictionType? {
+        if let memoRequiredRestriction = try validateMemoRequired() {
+            return memoRequiredRestriction
+        }
+
+        if let receivingRestriction = try validateReceivingRestrictions(receiveAmount: quote.expectAmount) {
+            return receivingRestriction
+        }
+
+        return nil
     }
 
     func proceedValidationError(_ error: Error) throws -> RestrictionType? {
@@ -690,6 +732,26 @@ extension SwapModel {
         }
     }
 
+    func validateReceivingRestrictions(receiveAmount: Decimal) throws -> RestrictionType? {
+        // Check on the minimum received amount
+        // Almost impossible case because the providers check it on their side
+        guard let destination = receiveToken.value as? SendSwapableToken else {
+            return nil
+        }
+
+        let restriction = destination.receivingRestrictionsProvider.restriction(expectAmount: receiveAmount)
+        switch restriction {
+        case .none:
+            // All good
+            return nil
+        case .notEnoughReceivedAmount(let minAmount):
+            return .notEnoughReceivedAmount(minAmount: minAmount, tokenSymbol: destination.tokenItem.currencySymbol)
+        case .incompleteBackup:
+            // Defensive: a card-linked destination is normally short-circuited in mapToLoadedProvidersState.
+            return .incompleteBackup
+        }
+    }
+
     func updateComplementaryAmount(state: ProvidersState) async {
         guard case .loaded(_, let loadedState) = state else {
             return
@@ -706,13 +768,50 @@ extension SwapModel {
             _sourceAmount.send(
                 makeSendAmount(crypto: quote.fromAmount, currencyId: sourceToken.value?.tokenItem.currencyId)
             )
-        case (.from, .none), (.to, .none):
-            // Keep the current amount when the quote is unexpectedly nil
-            break
+        case (.from, .none):
+            // No provider quote (e.g. amount below the minimum): show an approximate
+            // receive amount from local market quotes instead of a stale / empty value.
+            updateReceiveAmountFromLocalQuote()
+        case (.to, .none):
+            updateSourceAmountFromLocalQuote()
         case (.none, _):
             _sourceAmount.send(nil)
             _receiveAmount.send(nil)
         }
+    }
+
+    private func updateReceiveAmountFromLocalQuote() {
+        guard let sourceCrypto = _sourceAmount.value?.crypto, sourceCrypto > 0,
+              let sourceCurrencyId = sourceToken.value?.tokenItem.currencyId,
+              let receiveTokenItem = receiveToken.value?.tokenItem,
+              let estimate = localQuoteEstimate(crypto: sourceCrypto, fromCurrencyId: sourceCurrencyId, to: receiveTokenItem) else {
+            _receiveAmount.send(nil)
+            return
+        }
+
+        _receiveAmount.send(makeSendAmount(crypto: estimate, currencyId: receiveTokenItem.currencyId))
+    }
+
+    private func updateSourceAmountFromLocalQuote() {
+        guard let receiveCrypto = _receiveAmount.value?.crypto, receiveCrypto > 0,
+              let receiveCurrencyId = receiveToken.value?.tokenItem.currencyId,
+              let sourceTokenItem = sourceToken.value?.tokenItem,
+              let estimate = localQuoteEstimate(crypto: receiveCrypto, fromCurrencyId: receiveCurrencyId, to: sourceTokenItem) else {
+            _sourceAmount.send(nil)
+            return
+        }
+
+        _sourceAmount.send(makeSendAmount(crypto: estimate, currencyId: sourceTokenItem.currencyId))
+    }
+
+    private func localQuoteEstimate(crypto: Decimal, fromCurrencyId: String, to target: TokenItem) -> Decimal? {
+        guard let targetCurrencyId = target.currencyId,
+              let fiat = balanceConverter.convertToFiat(crypto, currencyId: fromCurrencyId),
+              let estimate = balanceConverter.convertToCryptoFrom(fiatValue: fiat, currencyId: targetCurrencyId) else {
+            return nil
+        }
+
+        return estimate.rounded(scale: target.decimalCount, roundingMode: .down)
     }
 
     func makeSendAmount(crypto: Decimal, currencyId: String?) -> SendAmount {
@@ -741,15 +840,10 @@ extension SwapModel {
             case .loaded(_, .readyToTransfer(let transferState)):
                 analyticsLogger.logSwapButtonTransfer()
 
-                guard let destinationAddress = receive.address else {
-                    throw SwapModel.SwapModelError.destinationNotFound
-                }
-
-                let amount = makeAmount(value: transferState.quote.fromAmount, tokenItem: source.tokenItem)
                 let transaction = try await source.transactionCreator.createTransaction(
-                    amount: amount,
+                    amount: transferState.amount,
                     fee: transferState.fee,
-                    destinationAddress: destinationAddress,
+                    destinationAddress: transferState.destination,
                     params: nil
                 )
 
@@ -1062,16 +1156,17 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
 
     var exchangeRestrictionPublisher: AnyPublisher<ExchangeAmountRestriction?, Never> {
         _providersState
-            .map { state -> ExchangeAmountRestriction? in
+            .withWeakCaptureOf(self)
+            .map { model, state -> ExchangeAmountRestriction? in
                 guard case .loaded(_, let loadedState) = state else {
                     return nil
                 }
 
                 switch loadedState {
-                case .restriction(.tooSmallAmountForSwapping(let amount, _), _):
-                    return .tooSmallAmount(amount)
-                case .restriction(.tooBigAmountForSwapping(let amount, _), _):
-                    return .tooBigAmount(amount)
+                case .restriction(.tooSmallAmountForSwapping(let amount, let currencySymbol), _):
+                    return .tooSmallAmount(amount, currencySymbol: currencySymbol, currencyId: model.currencyId(forRestrictionSymbol: currencySymbol))
+                case .restriction(.tooBigAmountForSwapping(let amount, let currencySymbol), _):
+                    return .tooBigAmount(amount, currencySymbol: currencySymbol, currencyId: model.currencyId(forRestrictionSymbol: currencySymbol))
                 case .restriction(.notEnoughBalanceForSwapping, _):
                     return .balanceExceeded
                 case .requiredRefresh:
@@ -1082,6 +1177,18 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    private func currencyId(forRestrictionSymbol symbol: String) -> String? {
+        if sourceToken.value?.tokenItem.currencySymbol == symbol {
+            return sourceToken.value?.tokenItem.currencyId
+        }
+
+        if receiveToken.value?.tokenItem.currencySymbol == symbol {
+            return receiveToken.value?.tokenItem.currencyId
+        }
+
+        return nil
     }
 
     var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> {
@@ -1440,15 +1547,6 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         router?.performSwapAction()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount() {
-        guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
-            return
-        }
-
-        externalAmountUpdater.externalUpdate(amount: balance)
-    }
-
     func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
         guard let token = sourceToken.value,
               let balance = token.availableBalanceProvider.balanceType.loaded else {
@@ -1660,6 +1758,10 @@ extension SwapModel: NotificationTapDelegate {
             reloadRates()
         case .givePermission:
             router?.openApproveSheet()
+        case .backupErrorSupport:
+            if let userWalletInfo = (receiveToken.value as? SendSwapableToken)?.userWalletInfo {
+                router?.openBackupErrorSupport(userWalletInfo: userWalletInfo)
+            }
         case .generateAddresses,
              .backupCard,
              .goToProvider,
@@ -1672,7 +1774,6 @@ extension SwapModel: NotificationTapDelegate {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
              .openCurrency,
              .unlock,
              .addTokenTrustline,
@@ -1862,6 +1963,7 @@ extension SwapModel {
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
+        case incompleteBackup
     }
 
     struct PermissionRequiredState {
@@ -1873,7 +1975,10 @@ extension SwapModel {
 
     struct ReadyToTransferState {
         let quote: Quote
+        let amount: BSDKAmount
         let fee: BSDKFee
+        let subtractFee: SubtractFee
+        let destination: String
         let notification: WithdrawalNotification?
     }
 

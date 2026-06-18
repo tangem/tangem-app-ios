@@ -333,6 +333,7 @@
 "common_sell" = "出售";
 "common_send_colon" = "发送：";
 "common_send_tx_error" = "交易发送失败";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "发送";
 "common_sending" = "发送中";
 "common_sent" = "发送";
@@ -572,7 +573,11 @@
 "feedback_token_description_error" = "代币描述错误";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
 "force_update_banner_title" = "需要更新";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "更新";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "请将应用更新至最新版本，以确保正常运行。";
 "force_update_warning_title" = "需要更新";
 "gasless_not_enough_funds_to_cover_token_fee" = "资金不足";
@@ -1061,6 +1066,7 @@
 "quick_action_buy_description" = "信用卡或银行账户";
 "quick_action_receive_description" = "分享您的地址或二维码";
 "quick_action_sell_description" = "安全出售加密货币";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "发送到另一个钱包";
 "quick_action_swap_description" = "在您的投资组合之间";
 "quick_top_up_chip_other" = "其他";
@@ -1679,7 +1685,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "无法支付费用";
 "tangempay_reissue_card_insufficient_funds" = "资金不足，无法更换卡片";
 "tangempay_reissue_card_title" = "要重新发行您的卡片吗？";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题，请稍后再试。";
