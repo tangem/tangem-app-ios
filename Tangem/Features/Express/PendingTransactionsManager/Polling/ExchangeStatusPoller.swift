@@ -14,7 +14,7 @@ import TangemFoundation
 
 protocol ExchangeStatusPolling: AnyObject {
     @discardableResult
-    func subscribe(_ handler: @escaping (ExchangeStatusPollIteration) -> Void) -> PollingSubscription
+    func subscribe(_ handler: @escaping (ExchangeStatusPollIteration) -> Void) -> Cancellable
 }
 
 struct ExchangeStatusPollIteration {
@@ -275,7 +275,7 @@ final class ExchangeStatusPoller {
 
 extension ExchangeStatusPoller: ExchangeStatusPolling {
     @discardableResult
-    func subscribe(_ handler: @escaping (ExchangeStatusPollIteration) -> Void) -> PollingSubscription {
+    func subscribe(_ handler: @escaping (ExchangeStatusPollIteration) -> Void) -> Cancellable {
         subscribers.subscribe(handler)
     }
 }
