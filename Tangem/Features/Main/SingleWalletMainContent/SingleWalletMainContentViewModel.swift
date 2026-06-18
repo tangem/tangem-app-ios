@@ -285,7 +285,8 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
                 walletModel: walletModel,
-                userWalletInfo: userWalletInfo
+                userWalletInfo: userWalletInfo,
+                position: .automatic
             ) else {
                 return
             }
