@@ -88,10 +88,8 @@ final class StakeStepsManager {
     }
 
     private func back() {
-        guard !stack.isEmpty else {
-            // Ignore double click
-            return
-        }
+        // Keep the initial step: navigation-derived state (dismiss alert, bottom bar) reads the stack.
+        guard stack.count > 1 else { return }
 
         stack.removeLast()
         output?.update(step: currentStep())

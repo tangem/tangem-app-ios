@@ -22,8 +22,10 @@ enum StakingFlowProviderFactory {
         switch network {
         case .solana:
             return SolanaStakingFlowProvider(action: action, stages: stages)
-        case .cosmos, .kava, .near, .polkadot:
+        case .cosmos:
             return CosmosStakingFlowProvider(action: action, stages: stages)
+        case .kava, .near, .polkadot:
+            preconditionFailure("Staking is not supported for \(network)")
         case .bsc:
             return BSCStakingFlowProvider(action: action, stages: stages)
         case .tron:
