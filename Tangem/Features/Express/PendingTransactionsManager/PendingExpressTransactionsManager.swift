@@ -25,7 +25,7 @@ class CommonPendingExpressTransactionsManager {
     private let poller: ExchangeStatusPolling
 
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
-    private var pollingSubscription: PollingSubscription?
+    private var pollingSubscription: Cancellable?
 
     init(
         walletModelUpdater: WalletModelUpdater?,
