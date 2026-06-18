@@ -14,7 +14,6 @@ import TangemFoundation
 
 class SolanaWalletManager: BaseWalletManager, WalletManager {
     var networkService: SolanaNetworkService!
-    var isSolanaScaledUIEnabled: Bool = true
 
     var currentHost: String { networkService.host }
 
@@ -200,7 +199,7 @@ extension SolanaWalletManager: TransactionSender {
         amount: Decimal,
         token: Token
     ) -> AnyPublisher<UInt64, Error> {
-        if tokenProgramId != .token2022ProgramId || !isSolanaScaledUIEnabled {
+        if tokenProgramId != .token2022ProgramId {
             return makeRawTokenAmount(amount: amount, token: token, multiplier: nil)
         }
 

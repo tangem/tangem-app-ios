@@ -15,14 +15,9 @@ struct ExpressProviderFormatter {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     let balanceFormatter: BalanceFormatter
-    let isStablecoinOrderingEnabled: Bool
 
-    init(
-        balanceFormatter: BalanceFormatter = .init(),
-        isStablecoinOrderingEnabled: Bool = FeatureProvider.isAvailable(.swapExchangeRateDisplay)
-    ) {
+    init(balanceFormatter: BalanceFormatter = .init()) {
         self.balanceFormatter = balanceFormatter
-        self.isStablecoinOrderingEnabled = isStablecoinOrderingEnabled
     }
 
     func mapToBadge(availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool = false) -> ProviderBadge? {
@@ -95,9 +90,7 @@ struct ExpressProviderFormatter {
                 return .text(AppConstants.emDashSign)
             }
 
-            let displaySide: SwapRateDisplaySide = isStablecoinOrderingEnabled
-                ? SwapRateDisplaySideResolver.resolve(from: senderTokenItem, to: destinationTokenItem)
-                : .fromIsBase
+            let displaySide = SwapRateDisplaySideResolver.resolve(from: senderTokenItem, to: destinationTokenItem)
             let baseSymbol: String
             let quoteSymbol: String
             let rate: Decimal

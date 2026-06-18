@@ -10,7 +10,7 @@ import BlockchainSdk
 
 struct TransactionHistoryServiceProvider {
     func makeTransactionHistoryService(tokenItem: TokenItem, walletManager: any WalletManager) -> TransactionHistoryService? {
-        if FeatureProvider.isAvailable(.dynamicAddresses), tokenItem.blockchain.isDynamicAddressesSupported {
+        if tokenItem.blockchain.isDynamicAddressesSupported {
             return WalletTransactionHistoryService(
                 tokenItem: tokenItem,
                 walletProvider: walletManager,
