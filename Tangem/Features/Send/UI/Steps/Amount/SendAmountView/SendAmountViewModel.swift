@@ -69,22 +69,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
 
     private var isFixedRateSupportedByProvider: Bool { providerRateTypes.contains(.fixed) }
 
-    @Published private(set) var currentRateType: ExpressProviderRateType?
-
-    private var isReceiveAmountApproximate: Bool {
-        currentRateType == .float && lastUpdateSource != .receive
-    }
-
-    var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> {
-        // Use emitted values directly — @Published emits on willSet,
-        // so reading stored properties in the map would return stale values.
-        Publishers.CombineLatest($lastUpdateSource, $currentRateType)
-            .map { lastUpdateSource, currentRateType in
-                currentRateType == .float && lastUpdateSource != .receive
-            }
-            .eraseToAnyPublisher()
-    }
-
     var compactSourceTokenViewData: SendAmountTokenViewData? {
         sourceAmountTokenViewData.map {
             SendAmountTokenViewData(
@@ -111,7 +95,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private let interactor: SendAmountInteractor
     private let analyticsLogger: SendAmountAnalyticsLogger
     private let providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>?
-    private let currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>?
 
     @Published private var lastUpdateSource: ActiveAmountField?
     private var currentDestinationToken: SendReceiveToken?
@@ -136,8 +119,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
-        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil,
-        currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never>? = nil
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
             tokenItem: sourceToken.tokenItem,
@@ -149,7 +131,6 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
         self.providerRateTypesPublisher = providerRateTypesPublisher
-        self.currentRateTypePublisher = currentRateTypePublisher
         sourceCurrencySymbol = sourceToken.tokenItem.currencySymbol
 
         sourceFieldBag = sourceAmountField.objectWillChange
@@ -377,16 +358,21 @@ private extension SendAmountViewModel {
             }
             .store(in: &bag)
 
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             interactor.receivedTokenPublisher,
             interactor.receivedTokenAmountPublisher,
+            interactor.isReceiveAmountApproximatePublisher,
             $providerRateTypes
         )
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { viewModel, args in
-            let (token, amount, _) = args
-            viewModel.updateDestinationToken(destinationToken: token.value, amount: amount)
+            let (token, amount, isApproximate, _) = args
+            viewModel.updateDestinationToken(
+                destinationToken: token.value,
+                amount: amount,
+                isApproximate: isApproximate
+            )
         }
         .store(in: &bag)
 
@@ -406,10 +392,6 @@ private extension SendAmountViewModel {
                 viewModel.handleProviderRateTypesChange(rateTypes)
             }
             .store(in: &bag)
-
-        currentRateTypePublisher?
-            .receiveOnMain()
-            .assign(to: &$currentRateType)
     }
 
     func handleProviderRateTypesChange(_ rateTypes: Set<ExpressProviderRateType>) {
@@ -509,7 +491,11 @@ extension SendAmountViewModel {
         )
     }
 
-    func updateDestinationToken(destinationToken: SendReceiveToken?, amount: LoadingResult<SendAmount, Error>) {
+    func updateDestinationToken(
+        destinationToken: SendReceiveToken?,
+        amount: LoadingResult<SendAmount, Error>,
+        isApproximate: Bool
+    ) {
         guard interactor.isReceiveTokenSelectionAvailable else {
             destinationTokenViewType = .none
             return
@@ -525,9 +511,9 @@ extension SendAmountViewModel {
         let iconInfo = tokenIconInfoBuilder.build(from: destinationToken.tokenItem, isCustom: destinationToken.isCustom)
 
         if isFixedRateSupportedByProvider {
-            updateEditableDestination(token: destinationToken, iconInfo: iconInfo, amount: amount)
+            updateEditableDestination(token: destinationToken, iconInfo: iconInfo, amount: amount, isApproximate: isApproximate)
         } else {
-            updateStaticDestination(token: destinationToken, iconInfo: iconInfo, amount: amount)
+            updateStaticDestination(token: destinationToken, iconInfo: iconInfo, amount: amount, isApproximate: isApproximate)
         }
     }
 
@@ -543,12 +529,13 @@ extension SendAmountViewModel {
     private func updateStaticDestination(
         token: SendReceiveToken,
         iconInfo: TokenIconInfo,
-        amount: LoadingResult<SendAmount, Error>
+        amount: LoadingResult<SendAmount, Error>,
+        isApproximate: Bool
     ) {
         let tokenViewData = SendAmountTokenViewData(
             tokenIconInfo: iconInfo,
             title: token.tokenItem.name,
-            subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: token.tokenItem, amount: amount),
+            subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: token.tokenItem, amount: amount, isApproximate: isApproximate),
             detailsType: .select(individualAction: nil),
             action: { [weak self] in
                 self?.openReceiveTokensList()
@@ -560,7 +547,8 @@ extension SendAmountViewModel {
     private func updateEditableDestination(
         token: SendReceiveToken,
         iconInfo: TokenIconInfo,
-        amount: LoadingResult<SendAmount, Error>
+        amount: LoadingResult<SendAmount, Error>,
+        isApproximate: Bool
     ) {
         let isFirstSelection = currentDestinationToken == nil
         let tokenDidChange = currentDestinationToken?.tokenItem.id != token.tokenItem.id
@@ -577,11 +565,12 @@ extension SendAmountViewModel {
                 iconInfo: iconInfo,
                 field: field,
                 isFirstSelection: isFirstSelection,
-                amount: amount
+                amount: amount,
+                isApproximate: isApproximate
             )
         }
 
-        updateEditableDestinationAmount(field: field, token: token, amount: amount)
+        updateEditableDestinationAmount(field: field, token: token, amount: amount, isApproximate: isApproximate)
     }
 
     private func rebuildEditableDestinationViews(
@@ -589,7 +578,8 @@ extension SendAmountViewModel {
         iconInfo: TokenIconInfo,
         field: AmountInputFieldModel,
         isFirstSelection: Bool,
-        amount: LoadingResult<SendAmount, Error>
+        amount: LoadingResult<SendAmount, Error>,
+        isApproximate: Bool
     ) {
         if !isFirstSelection {
             field.reconfigure(
@@ -613,7 +603,7 @@ extension SendAmountViewModel {
         let compactDestinationData = SendAmountTokenViewData(
             tokenIconInfo: iconInfo,
             title: token.tokenItem.name,
-            subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: token.tokenItem, amount: amount),
+            subtitle: mapToSendAmountTokenViewDataSubtitleType(tokenItem: token.tokenItem, amount: amount, isApproximate: isApproximate),
             detailsType: .none,
             action: { [weak self] in
                 FeedbackGenerator.heavy()
@@ -647,12 +637,14 @@ extension SendAmountViewModel {
     private func updateEditableDestinationAmount(
         field: AmountInputFieldModel,
         token: SendReceiveToken,
-        amount: LoadingResult<SendAmount, Error>
+        amount: LoadingResult<SendAmount, Error>,
+        isApproximate: Bool
     ) {
         // Always update the compact subtitle separately (drives compactDestinationTokenViewData)
         compactDestinationSubtitle = mapToSendAmountTokenViewDataSubtitleType(
             tokenItem: token.tokenItem,
-            amount: amount
+            amount: amount,
+            isApproximate: isApproximate
         )
 
         // Update destination fields from external amount
@@ -717,7 +709,7 @@ extension SendAmountViewModel {
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+                if let balance = sourceCryptoBalance {
                     compactSourceSubtitle = .balanceAndSend(
                         balance: .loaded(text: .builder(
                             builder: { Localization.commonBalance($0) },
@@ -751,7 +743,7 @@ extension SendAmountViewModel {
     }
 
     private func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
-        if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+        if let balance = sourceCryptoBalance {
             return .balanceAndSend(
                 balance: .loaded(text: .builder(
                     builder: { Localization.commonBalance($0) },
@@ -766,12 +758,13 @@ extension SendAmountViewModel {
 
     func mapToSendAmountTokenViewDataSubtitleType(
         tokenItem: TokenItem,
-        amount: LoadingResult<SendAmount, Error>
+        amount: LoadingResult<SendAmount, Error>,
+        isApproximate: Bool
     ) -> SendAmountTokenViewData.SubtitleType {
         switch amount {
         case .success(let success):
             let formatted = balanceFormatter.formatCryptoBalance(success.crypto, currencyCode: tokenItem.currencySymbol)
-            let displayFormatted = isReceiveAmountApproximate ? "\(AppConstants.tildeSign) \(formatted)" : formatted
+            let displayFormatted = SwapAmountFormatter.formatAmount(formatted, isApproximate: isApproximate)
             return .receive(state: .loaded(text: Localization.sendWithSwapRecipientGetAmount(displayFormatted)))
         case .failure:
             return .receive(state: .loaded(text: Localization.sendAmountReceiveTokenSubtitle))

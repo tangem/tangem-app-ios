@@ -24,10 +24,6 @@ final class CommonAddFundsBannerVisibilityProvider {
 
 extension CommonAddFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider {
     func shouldShowPublisher(for totalBalanceProvider: TotalBalanceProvider) -> AnyPublisher<Bool, Never> {
-        guard FeatureProvider.isAvailable(.addFundsStage1) else {
-            return Just(false).eraseToAnyPublisher()
-        }
-
         return totalBalanceProvider.totalBalancePublisher
             .compactMap { state -> Bool? in
                 switch state {

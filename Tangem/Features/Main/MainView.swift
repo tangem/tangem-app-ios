@@ -15,9 +15,6 @@ import TangemUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
-    @Environment(\.overlayCollapsedHeight) private var overlayCollapsedHeight
-
-    @State private var headerHeightRatio: CGFloat = 1
 
     var body: some View {
         content
@@ -32,66 +29,19 @@ struct MainView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isRedesignEnabled {
-            fullPagePagerContent
-                .northernLightsBackground(
-                    backgroundColor: .Tangem.Surface.level2,
-                    opacity: clamp(2 * headerHeightRatio - 1, min: 0, max: 1)
-                )
-                .animation(.default, value: headerHeightRatio)
+            MainHorizontalPagingScrollView(
+                userWalletPageBuilders: viewModel.pages,
+                selectedCardIndex: $viewModel.selectedCardIndex,
+                onSelectedCardChanged: viewModel.onPageChange,
+                pullToRefreshAction: viewModel.pullToRefresh,
+                isPullToRefreshRunning: viewModel.isPullToRefreshRunning,
+                scanQRCodeAction: viewModel.openQRScan,
+                detailsAction: viewModel.openDetails
+            )
         } else {
             cardsInfoPagerContent
                 .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         }
-    }
-
-    private var fullPagePagerContent: some View {
-        FullPagePagerView(
-            data: viewModel.pages,
-            refreshScrollViewStateObject: viewModel.refreshScrollViewStateObject,
-            selectedIndex: $viewModel.selectedCardIndex,
-            headerHeightRatio: $headerHeightRatio,
-            navigationFactory: redesignToolbar,
-            headerFactory: makeRedesignedHeader,
-            bodyFactory: makeRedesignedBody,
-            bottomOverlayFactory: makeRedesignedBottomOverlay
-        )
-        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
-        .onPageChange(viewModel.onPageChange(dueTo:))
-    }
-
-    private func redesignToolbar(pageBuilder: MainUserWalletPageBuilder) -> some ViewModifier {
-        MainViewRedesignToolbar(
-            principalContent: redesignPrincipalContent(pageBuilder),
-            scanQRCodeAction: viewModel.openQRScan,
-            detailsAction: viewModel.openDetails
-        )
-    }
-
-    private func redesignPrincipalContent(_ pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.navigation
-            .opacity(clamp(3 - 5 * headerHeightRatio, min: 0, max: 1))
-            .animation(.default, value: headerHeightRatio)
-    }
-
-    private func makeRedesignedHeader(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.redesignedHeader(
-            totalPages: viewModel.pages.count,
-            currentIndex: viewModel.selectedCardIndex
-        )
-    }
-
-    private func makeRedesignedBody(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        pageBuilder.content
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                Color.clear.frame(height: overlayCollapsedHeight)
-            }
-    }
-
-    private func makeRedesignedBottomOverlay(pageBuilder: MainUserWalletPageBuilder) -> some View {
-        RedesignedBottomOverlay(
-            refreshScrollViewInteractor: viewModel.refreshScrollViewStateObject.scrollViewInteractor,
-            pageBuilder: pageBuilder
-        )
     }
 
     private var cardsInfoPagerContent: some View {
@@ -122,7 +72,7 @@ struct MainView: View {
         )
         .pageSwitchThreshold(0.4)
         .contentViewVerticalOffset(64.0)
-        .horizontalScrollDisabled(viewModel.isHorizontalScrollDisabled)
+        .horizontalScrollDisabled(viewModel.isPullToRefreshRunning)
         .onPageChange(viewModel.onPageChange(dueTo:))
         .modifier(MainViewNavigationModifier(openDetailsAction: viewModel.openDetails, openQRScanAction: viewModel.openQRScan))
     }

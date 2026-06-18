@@ -18,14 +18,18 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
     private let hidesHeader: Bool
     private let headerContent: HeaderContent
     private let mainContent: MainContent
+    private let topPadding: CGFloat
     private let bottomPadding: CGFloat
+    private let isRedesign: Bool
 
     // MARK: - Init
 
     init(
         state: AnyHashable,
         hidesHeader: Bool = false,
+        topPadding: CGFloat = 16,
         bottomPadding: CGFloat = 16,
+        isRedesign: Bool = false,
         @ViewBuilder headerContent: () -> HeaderContent,
         @ViewBuilder mainContent: () -> MainContent
     ) {
@@ -33,7 +37,15 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
         self.hidesHeader = hidesHeader
         self.headerContent = headerContent()
         self.mainContent = mainContent()
+        self.topPadding = topPadding
         self.bottomPadding = bottomPadding
+        self.isRedesign = isRedesign
+    }
+
+    // MARK: - Redesign-aware styling
+
+    private var sheetBackgroundColor: Color {
+        isRedesign ? Color.Tangem.Surface.level2 : Colors.Background.tertiary
     }
 
     // MARK: - View Body
@@ -48,9 +60,9 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
         }
         .animation(.contentFrameUpdate, value: state)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
+            configuration.sheetBackgroundColor = sheetBackgroundColor
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
             configuration.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
         }
     }
@@ -61,7 +73,7 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
         headerContent
             .padding(.top, Constants.headerVerticalSpacing)
             .padding(.horizontal, Constants.standardSpacing)
-            .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+            .background(sheetBackgroundColor.edgesIgnoringSafeArea(.all))
             .transition(.opacity)
             .id(state)
             .animation(.headerOpacity.delay(0.2), value: state)
@@ -69,7 +81,7 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
 
     private var content: some View {
         mainContent
-            .padding(.top, hidesHeader ? 0 : Constants.standardSpacing)
+            .padding(.top, hidesHeader ? 0 : topPadding)
             .padding(.bottom, bottomPadding)
             .transition(.content)
     }
