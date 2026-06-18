@@ -123,9 +123,9 @@ final class LockedUserWalletModel: UserWalletModel {
         walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
     }
 
-    func validate() -> Bool {
+    var backupState: UserWalletBackupState {
         // Nothing to validate for locked wallets
-        return true
+        .valid
     }
 
     func update(type: UpdateRequest) {
