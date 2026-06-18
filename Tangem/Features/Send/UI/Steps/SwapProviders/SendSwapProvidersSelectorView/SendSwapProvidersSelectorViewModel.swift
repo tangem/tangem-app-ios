@@ -88,7 +88,13 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     @MainActor
     func dismiss() {
         floatingSheetPresenter.removeActiveSheet()
+        resetState()
+    }
+
+    @MainActor
+    func resetState() {
         viewState = .providerList
+        selectedProviderTypeFilter = .all
     }
 }
 
