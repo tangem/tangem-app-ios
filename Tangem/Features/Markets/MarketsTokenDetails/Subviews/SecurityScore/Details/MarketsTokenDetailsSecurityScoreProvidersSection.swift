@@ -13,6 +13,7 @@ import TangemUI
 
 struct MarketsTokenDetailsSecurityScoreProvidersSection: View {
     let viewModel: MarketsTokenDetailsSecurityScoreDetailsViewModel
+    var backgroundColor: Color = Colors.Background.action
 
     var body: some View {
         GroupedSection(viewModel.providers) { provider in
@@ -25,7 +26,7 @@ struct MarketsTokenDetailsSecurityScoreProvidersSection: View {
             }
             .padding(.vertical, Constants.defaultVerticalPadding)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(backgroundColor)
     }
 
     private func makeLeadingComponent(
