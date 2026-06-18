@@ -74,6 +74,7 @@ struct TangemPayOfferViewV2: View {
                 .font(DesignSystem.Tokens.Font.Subheading.medium)
                 .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
         }
+        .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 
     private var featureGrid: some View {
@@ -103,24 +104,24 @@ struct TangemPayOfferViewV2: View {
     }
 
     private func featureTile(icon: ImageType, primary: String, secondary: String) -> some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s350) {
+        let label = (
+            Text(primary)
+                .foregroundColor(DesignSystem.Tokens.Theme.Text.primary)
+                + Text("\n" + secondary)
+                .foregroundColor(DesignSystem.Tokens.Theme.Text.secondary)
+        )
+        .font(DesignSystem.Tokens.Font.Caption.medium)
+
+        return VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s350) {
             icon.image
                 .renderingMode(.template)
                 .resizable()
                 .frame(size: .init(bothDimensions: DesignSystem.Tokens.Size.s300))
                 .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
 
-            VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.none) {
-                Text(primary)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
-
-                Text(secondary)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
-            }
+            label
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(DesignSystem.Tokens.Spacing.s200)
         .background(DesignSystem.Tokens.Theme.Bg.secondary)
         .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._300)
