@@ -107,6 +107,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     private var balanceFormatter: BalanceFormatter = .init()
     private let balanceConverter = BalanceConverter()
     private let tokenIconInfoBuilder = TokenIconInfoBuilder()
+    private let shouldStartFromTokensList: Bool
 
     private var sourceCurrencySymbol: String = ""
     private var sourceCryptoBalance: String?
@@ -119,6 +120,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         flowActionType: SendFlowActionType,
         interactor: SendAmountInteractor,
         analyticsLogger: SendAmountAnalyticsLogger,
+        shouldStartFromTokensList: Bool,
         providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>? = nil
     ) {
         sourceAmountField = AmountInputFieldModel(
@@ -127,6 +129,7 @@ class SendAmountViewModel: ObservableObject, Identifiable {
             possibleToConvertToFiat: sourceToken.possibleToConvertToFiat
         )
 
+        self.shouldStartFromTokensList = shouldStartFromTokensList
         self.flowActionType = flowActionType
         self.interactor = interactor
         self.analyticsLogger = analyticsLogger
@@ -139,7 +142,11 @@ class SendAmountViewModel: ObservableObject, Identifiable {
         bind()
     }
 
-    func onAppear() {}
+    func onAppear() {
+        if shouldStartFromTokensList {
+            openReceiveTokensList()
+        }
+    }
 
     func userDidTapMaxAmount() {
         analyticsLogger.logTapMaxAmount()
