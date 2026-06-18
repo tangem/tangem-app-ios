@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AnyCodable
 import BlockchainSdk
 import ReownWalletKit
 import TangemFoundation
