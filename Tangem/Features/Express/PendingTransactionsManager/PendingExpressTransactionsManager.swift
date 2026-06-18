@@ -22,14 +22,14 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
 
     private let walletModelUpdater: WalletModelUpdater?
-    private let poller: ExchangeStatusPolling
+    private let poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
 
     private let transactionsInProgressSubject = CurrentValueSubject<[PendingExpressTransaction], Never>([])
     private var pollingSubscription: Cancellable?
 
     init(
         walletModelUpdater: WalletModelUpdater?,
-        poller: ExchangeStatusPolling
+        poller: any ExpressStatusPolling<ExchangeStatusPollIteration>
     ) {
         self.walletModelUpdater = walletModelUpdater
         self.poller = poller

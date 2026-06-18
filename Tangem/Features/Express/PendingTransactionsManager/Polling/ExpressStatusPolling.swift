@@ -1,0 +1,17 @@
+//
+//  ExpressStatusPolling.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+
+protocol ExpressStatusPolling<Iteration>: AnyObject {
+    associatedtype Iteration
+
+    @discardableResult
+    func subscribe(_ handler: @escaping (Iteration) -> Void) -> Cancellable
+}

@@ -12,11 +12,6 @@ import CombineExt
 import TangemExpress
 import TangemFoundation
 
-protocol ExchangeStatusPolling: AnyObject {
-    @discardableResult
-    func subscribe(_ handler: @escaping (ExchangeStatusPollIteration) -> Void) -> Cancellable
-}
-
 struct ExchangeStatusPollIteration {
     let displayed: [PendingExpressTransaction]
     let changed: [ExpressPendingTransactionRecord]
@@ -271,9 +266,9 @@ final class ExchangeStatusPoller {
     }
 }
 
-// MARK: - ExchangeStatusPolling protocol conformance
+// MARK: - ExpressStatusPolling protocol conformance
 
-extension ExchangeStatusPoller: ExchangeStatusPolling {
+extension ExchangeStatusPoller: ExpressStatusPolling {
     @discardableResult
     func subscribe(_ handler: @escaping (ExchangeStatusPollIteration) -> Void) -> Cancellable {
         subscribers.subscribe(handler)
