@@ -64,22 +64,19 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     }
 
     private var alreadyTrackedTokenNoticeLongTimeTransactionEvent: Bool = false
-    private let isRatingFeatureAvailable: Bool
 
     init(
         pendingTransaction: PendingTransaction,
         currentTokenItem: TokenItem,
         userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager,
-        router: PendingExpressTxStatusRoutable,
-        isRatingFeatureAvailable: Bool = FeatureProvider.isAvailable(.swapRateExperience)
+        router: PendingExpressTxStatusRoutable
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
         self.userWalletInfo = userWalletInfo
         self.pendingTransactionsManager = pendingTransactionsManager
         self.router = router
-        self.isRatingFeatureAvailable = isRatingFeatureAvailable
 
         let provider = pendingTransaction.provider
         let iconBuilder = TokenIconInfoBuilder()
@@ -515,7 +512,7 @@ private extension PendingExpressTxStatusBottomSheetViewModel {
         let isConfigured = InjectedValues[\.keysManager].surveySparrow.isSwapRatingConfigured
         let transaction = RatingModel.Transaction(from: pendingTransaction)
 
-        guard isRatingFeatureAvailable, isConfigured, let transaction else { return }
+        guard isConfigured, let transaction else { return }
 
         ratingViewModel = RatingViewModel(
             model: RatingModel(
