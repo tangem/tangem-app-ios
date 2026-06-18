@@ -61,8 +61,8 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         accountBadge = badge
         tokenInfoViewData = AddFundsTokenInfoView.ViewData(
             tokenIconInfo: tokenIconInfo,
-            fiatBalance: input.walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType.value,
-            cryptoBalance: input.walletModel.totalTokenBalanceProvider.formattedBalanceType.value,
+            fiatBalance: input.walletModel.fiatTotalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
+            cryptoBalance: input.walletModel.totalTokenBalanceProvider.formattedBalanceType.loadableTextViewState,
             accountBadge: badge
         )
 
@@ -155,8 +155,8 @@ private extension AddFundsViewModel {
             guard let self else { return }
             tokenInfoViewData = AddFundsTokenInfoView.ViewData(
                 tokenIconInfo: tokenInfoViewData.tokenIconInfo,
-                fiatBalance: fiat.value,
-                cryptoBalance: crypto.value,
+                fiatBalance: fiat.loadableTextViewState,
+                cryptoBalance: crypto.loadableTextViewState,
                 accountBadge: tokenInfoViewData.accountBadge
             )
         }
