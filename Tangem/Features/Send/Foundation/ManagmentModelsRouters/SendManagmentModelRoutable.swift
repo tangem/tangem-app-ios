@@ -21,6 +21,7 @@ protocol SendWithSwapModelRoutable: TransferModelRoutable {
 /// Uses for connect `SwapModel` -> `SendViewModel(Base)`
 protocol SwapModelRoutable: TransferModelRoutable {
     func performSwapAction()
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo)
 }
 
 /// Uses for connect `StakingModel` -> `SendViewModel(Base)`
