@@ -237,7 +237,10 @@ private extension CommonDeeplinkPresenterV2 {
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in Task { @MainActor in presenter.dismiss() } })
 
         coordinator.start(
-            with: .init(userWalletModels: [userWalletModel])
+            with: .init(
+                userWalletModels: [userWalletModel],
+                preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel)
+            )
         )
 
         return AnyView(
