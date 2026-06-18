@@ -14,8 +14,7 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        guard settings.isSwapFlow,
-              FeatureProvider.isAvailable(.swapInProgressV2) else {
+        guard settings.isSwapFlow else {
             return settings.title
         }
         return Localization.swapInProgress
