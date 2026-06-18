@@ -10,7 +10,7 @@ import TangemUI
 import SwiftUI
 
 @MainActor
-protocol TangemPayPopupViewModel: AnyObject, FloatingSheetContentViewModel {
+protocol TangemPayPopupViewModel: ObservableObject, FloatingSheetContentViewModel {
     var title: AttributedString { get }
     var description: AttributedString { get }
     var icon: Image { get }

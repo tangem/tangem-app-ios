@@ -64,7 +64,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     // Multi-card
     @Published private(set) var cardEntries: [TangemPayCardEntry] = []
-    @Published private(set) var additionalCardIssueOffer: TangemPayCustomerOffer?
+    @Published private(set) var isAddCardLoading: Bool = false
 
     let cardDeactivatedNotificationInput: NotificationViewInput?
     @Published var alert: AlertBinder?
@@ -87,6 +87,10 @@ final class TangemPayMainViewModel: ObservableObject {
 
     var hasIssuingEntry: Bool {
         cardEntries.contains { $0.isIssuing }
+    }
+
+    var addCardDisabled: Bool {
+        isStale || hasIssuingEntry || isAddCardLoading
     }
 
     var notificationBannerItems: [NotificationBannerItem] {
@@ -234,14 +238,36 @@ final class TangemPayMainViewModel: ObservableObject {
             return
         }
 
-        guard let offer = additionalCardIssueOffer, let fee = offer.fee else {
-            showCardIssueFailureAlert()
-            runTask { [tangemPayAccount] in
-                await tangemPayAccount.loadOffers()
-            }
+        if let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee {
+            openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
             return
         }
 
+        nextViewOpeningTask?.cancel()
+        nextViewOpeningTask = runWithDelayedLoading(
+            onLongRunning: { @MainActor [weak self] in
+                self?.isAddCardLoading = true
+            },
+            onCancel: { [weak self] in
+                self?.isAddCardLoading = false
+            },
+            operation: { @MainActor [weak self] in
+                guard let self else { return }
+
+                await tangemPayAccount.loadOffers()
+                isAddCardLoading = false
+
+                guard let offer = tangemPayAccount.additionalCardIssueOffer, let fee = offer.fee else {
+                    showCardIssueFailureAlert()
+                    return
+                }
+
+                openIssueAdditionalCardCostPopup(offer: offer, fee: fee)
+            }
+        )
+    }
+
+    private func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee) {
         coordinator?.openIssueAdditionalCardCostPopup(
             offer: offer,
             fee: fee,
@@ -445,11 +471,6 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: &$cardEntries)
 
-        tangemPayAccount.offersPublisher
-            .receiveOnMain()
-            .map { offers in offers.first { $0.type.isAdditionalCardIssue } }
-            .assign(to: &$additionalCardIssueOffer)
-
         Publishers.CombineLatest3(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
             tangemPayAccount.statePublisher,
@@ -469,6 +490,14 @@ private extension TangemPayMainViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.showCardIssueFailureAlert()
+            }
+            .store(in: &bag)
+
+        tangemPayAccount.cardIssueCompletedSignal
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.reloadHistory()
             }
             .store(in: &bag)
     }

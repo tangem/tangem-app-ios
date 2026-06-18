@@ -11,12 +11,12 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct TangemPayPopupView<AdditionalContent: View>: View {
-    let viewModel: any TangemPayPopupViewModel
+struct TangemPayPopupView<ViewModel: TangemPayPopupViewModel, AdditionalContent: View>: View {
+    @ObservedObject var viewModel: ViewModel
     private let additionalContent: AdditionalContent
 
     init(
-        viewModel: any TangemPayPopupViewModel,
+        viewModel: ViewModel,
         @ViewBuilder additionalContent: () -> AdditionalContent
     ) {
         self.viewModel = viewModel
@@ -33,7 +33,7 @@ struct TangemPayPopupView<AdditionalContent: View>: View {
 }
 
 extension TangemPayPopupView where AdditionalContent == EmptyView {
-    init(viewModel: any TangemPayPopupViewModel) {
+    init(viewModel: ViewModel) {
         self.init(viewModel: viewModel, additionalContent: { EmptyView() })
     }
 }
