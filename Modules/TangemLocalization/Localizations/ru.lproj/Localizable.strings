@@ -333,6 +333,7 @@
 "common_sell" = "Продать";
 "common_send_colon" = "Отправка:";
 "common_send_tx_error" = "Не удалось отправить транзакцию";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Отправить";
 "common_sending" = "Отправка";
 "common_sent" = "Отправлено";
@@ -1065,6 +1066,7 @@
 "quick_action_buy_description" = "Банковская карта или банковский счет";
 "quick_action_receive_description" = "Поделитесь своим адресом или QR-кодом";
 "quick_action_sell_description" = "Продавайте криптовалюту безопасно";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Отправить на другой кошелек";
 "quick_action_swap_description" = "Между вашими портфелями";
 "quick_top_up_chip_other" = "Другие";
@@ -1640,7 +1642,7 @@
 "tangempay_maximum_cards_issued_description" = "Вы можете иметь до 3 карт. Удалите одну, чтобы добавить новую.";
 "tangempay_maximum_cards_issued_title" = "Выпущено максимальное количество карт";
 "tangempay_newonboard_body" = "Тратьте крипту где угодно — без банков, бирж и посредников. Сила self-custody для повседневных платежей.";
-"tangempay_newonboard_bottomleft_body" = "Платите онлайн и c Apple Pay";
+"tangempay_newonboard_bottomleft_body" = "Онлайн и c Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Принимается везде";
 "tangempay_newonboard_bottomright_body" = "За покупки не в USD";
 "tangempay_newonboard_bottomright_title" = "FX-комиссия 1%%";
@@ -1652,7 +1654,7 @@
 "tangempay_newonboard_Q3_title" = "Кто хранит мои персональные данные и как они защищены?";
 "tangempay_newonboard_Q4_body" = "Баланс карты работает на USDC в сети Polygon, но пополнить его можно любым активом (USDT, SOL, ETH, BTC, XRP и др.) через удобные встроенные свопы Tangem.";
 "tangempay_newonboard_Q4_title" = "Какую крипту можно тратить?";
-"tangempay_newonboard_title" = "Откройте карту Tangem Pay";
+"tangempay_newonboard_title" = "Откройте Tangem Pay";
 "tangempay_newonboard_topleft_body" = "1 USDC = 1 USD";
 "tangempay_newonboard_topleft_title" = "Без комиссии за покупки";
 "tangempay_newonboard_topright_body" = "Без сюрпризов";
