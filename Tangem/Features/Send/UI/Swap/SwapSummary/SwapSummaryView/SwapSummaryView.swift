@@ -175,20 +175,7 @@ struct SwapSummaryView: View {
 
     @ViewBuilder
     private var toolbarContent: some View {
-        if FeatureProvider.isAvailable(.swapMaxAmountFractions) {
-            chipsToolbarContent
-        } else {
-            keyboardToolbarContent
-        }
-    }
-
-    @ViewBuilder
-    private var keyboardToolbarContent: some View {
-        if #available(iOS 26.0, *) {
-            glassToolbarContent
-        } else {
-            regularToolbarContent
-        }
+        chipsToolbarContent
     }
 
     @ViewBuilder
@@ -271,57 +258,6 @@ struct SwapSummaryView: View {
         }
         .padding(.horizontal, 12)
         .frame(height: 52)
-    }
-
-    @available(iOS 26.0, *)
-    private var glassToolbarContent: some View {
-        HStack(spacing: .zero) {
-            if !viewModel.isMaxAmountButtonHidden {
-                Button(action: viewModel.userDidTapMaxAmount) {
-                    Text(Localization.sendMaxAmountLabel)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                        .padding(.horizontal, 16)
-                        .frame(height: 50)
-                        .contentShape(.rect)
-                }
-                .glassEffect(.regular.interactive())
-                .glassEffectTransition(.materialize)
-            }
-
-            Spacer()
-
-            Button(action: { keyboardActive = false }) {
-                keyboardSFSymbol
-                    .frame(width: 50, height: 50)
-                    .contentShape(Circle())
-            }
-            .glassEffect(.regular.interactive(), in: Circle())
-            .glassEffectTransition(.materialize)
-        }
-        .padding(.horizontal, 20)
-    }
-
-    private var regularToolbarContent: some View {
-        HStack(spacing: .zero) {
-            if !viewModel.isMaxAmountButtonHidden {
-                Button(action: viewModel.userDidTapMaxAmount) {
-                    Text(Localization.sendMaxAmountLabel)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                        .padding(.horizontal, 20)
-                        .frame(height: 40)
-                        .contentShape(.rect)
-                }
-            }
-
-            Spacer()
-
-            Button(action: { keyboardActive = false }) {
-                keyboardSFSymbol
-                    .padding(.horizontal, 20)
-                    .frame(height: 40)
-                    .contentShape(.rect)
-            }
-        }
     }
 
     private var keyboardSFSymbol: some View {
