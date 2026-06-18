@@ -18,8 +18,6 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
                 DesignSystemDemoView(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
-
-            sheets
         }
     }
 
@@ -36,6 +34,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.tangemBadgeV2DemoViewModel) {
                 TangemBadgeV2DemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemRowDemoViewModel) {
+                TangemRowDemoView(viewModel: $0)
             }
             .navigation(item: $coordinator.tangemCalloutDemoViewModel) {
                 TangemCalloutDemoView(viewModel: $0)
@@ -67,10 +68,12 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemTokenRowDemoViewModel) {
                 TangemTokenRowDemoView(viewModel: $0)
             }
-    }
-
-    private var sheets: some View {
-        EmptyView()
+            .navigation(item: $coordinator.tangemSnackbarDemoViewModel) {
+                TangemSnackbarDemoView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.tangemShimmerDemoViewModel) {
+                TangemShimmerDemoView(viewModel: $0)
+            }
     }
 }
 
@@ -79,65 +82,94 @@ struct DesignSystemDemoView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 8) {
-                MainButton(title: "TangemButton") {
-                    viewModel.openTangemButtonDemo()
+            VStack(spacing: 24) {
+                section(title: "Design System V2") {
+                    MainButton(title: "TangemButtonV2") {
+                        viewModel.openTangemButtonV2Demo()
+                    }
+
+                    MainButton(title: "TangemBadgeV2") {
+                        viewModel.openTangemBadgeV2Demo()
+                    }
+
+                    MainButton(title: "TangemRow") {
+                        viewModel.openTangemRowDemo()
+                    }
+
+                    MainButton(title: "TangemLoader") {
+                        viewModel.openTangemLoaderDemo()
+                    }
+
+                    MainButton(title: "TangemShimmer") {
+                        viewModel.openTangemShimmerDemo()
+                    }
                 }
 
-                MainButton(title: "TangemButtonV2") {
-                    viewModel.openTangemButtonV2Demo()
-                }
+                section(title: "Legacy") {
+                    MainButton(title: "TangemButton") {
+                        viewModel.openTangemButtonDemo()
+                    }
 
-                MainButton(title: "TangemBadge") {
-                    viewModel.openTangemBadgeDemo()
-                }
+                    MainButton(title: "TangemBadge") {
+                        viewModel.openTangemBadgeDemo()
+                    }
 
-                MainButton(title: "TangemBadgeV2") {
-                    viewModel.openTangemBadgeV2Demo()
-                }
+                    MainButton(title: "TangemCallout") {
+                        viewModel.openTangemCalloutDemo()
+                    }
 
-                MainButton(title: "TangemCallout") {
-                    viewModel.openTangemCalloutDemo()
-                }
+                    MainButton(title: "TangemSegmentedPicker") {
+                        viewModel.openTangemSegmentedPickerDemo()
+                    }
 
-                MainButton(title: "TangemSegmentedPicker") {
-                    viewModel.openTangemSegmentedPickerDemo()
-                }
+                    MainButton(title: "TangemTabs") {
+                        viewModel.openTangemTabsDemo()
+                    }
 
-                MainButton(title: "TangemTabs") {
-                    viewModel.openTangemTabsDemo()
-                }
+                    MainButton(title: "TangemSearchField") {
+                        viewModel.openTangemSearchFieldDemo()
+                    }
 
-                MainButton(title: "TangemSearchField") {
-                    viewModel.openTangemSearchFieldDemo()
-                }
+                    MainButton(title: "MainActionButton") {
+                        viewModel.openTangemMainActionButtonDemo()
+                    }
 
-                MainButton(title: "MainActionButton") {
-                    viewModel.openTangemMainActionButtonDemo()
-                }
+                    MainButton(title: "NotificationBanner") {
+                        viewModel.openNotificationBannerDemo()
+                    }
 
-                MainButton(title: "NotificationBanner") {
-                    viewModel.openNotificationBannerDemo()
-                }
+                    MainButton(title: "TangemDropDown") {
+                        viewModel.openTangemDropDownDemo()
+                    }
 
-                MainButton(title: "TangemDropDown") {
-                    viewModel.openTangemDropDownDemo()
-                }
+                    MainButton(title: "TangemTokenRow") {
+                        viewModel.openTangemTokenRowDemo()
+                    }
 
-                MainButton(title: "TangemLoader") {
-                    viewModel.openTangemLoaderDemo()
-                }
+                    MainButton(title: "TangemSnackbar") {
+                        viewModel.openTangemSnackbarDemo()
+                    }
 
-                MainButton(title: "TangemTokenRow") {
-                    viewModel.openTangemTokenRowDemo()
-                }
-
-                MainButton(title: "Typography") {
-                    viewModel.openTypographyDemo()
+                    MainButton(title: "Typography") {
+                        viewModel.openTypographyDemo()
+                    }
                 }
             }
             .padding()
         }
         .navigationBarTitle(Text("Design System Demo"))
+    }
+
+    @ViewBuilder
+    private func section<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .padding(.horizontal, 4)
+            content()
+        }
     }
 }

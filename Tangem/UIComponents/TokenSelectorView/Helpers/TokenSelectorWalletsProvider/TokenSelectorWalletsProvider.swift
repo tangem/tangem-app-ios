@@ -150,8 +150,8 @@ extension TokenSelectorItem {
                 defaultAddressString: depositAddress,
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
                 fiatAvailableBalanceProvider: tangemPayAccount.balancesProvider.fiatAvailableBalanceProvider,
-                cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
-                transactionValidator: TangemPayExpressTransactionValidator(
+                transactionDispatcher: tangemPayAccount.transactionDispatcher,
+                transactionValidator: TangemPaySendTransactionValidator(
                     availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
                 ),
                 operationType: expressOperationType

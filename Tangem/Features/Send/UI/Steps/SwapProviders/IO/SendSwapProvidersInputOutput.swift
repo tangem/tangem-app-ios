@@ -23,17 +23,18 @@ protocol SendSwapProvidersInput: AnyObject {
     var currentRateTypePublisher: AnyPublisher<ExpressProviderRateType?, Never> { get }
 }
 
-extension SendSwapProvidersInput {
-    var providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never> {
-        expressProvidersPublisher
-            .map { providers in
-                providers.reduce(into: Set<ExpressProviderRateType>()) { $0.formUnion($1.supportedRateTypes) }
-            }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-}
-
 protocol SendSwapProvidersOutput: AnyObject {
     func userDidSelect(provider: ExpressAvailableProvider)
+}
+
+protocol SendSwapProvidersRoutable: AnyObject {
+    func openLearnMoreAboutApprove()
+}
+
+protocol SwapApproveInput: AnyObject {
+    var approvePolicy: BSDKApprovePolicy { get }
+}
+
+protocol SwapApproveOutput: AnyObject {
+    func userDidSelectApprovePolicy(_ policy: BSDKApprovePolicy)
 }

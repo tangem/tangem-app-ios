@@ -41,10 +41,6 @@ final class TangemPayOfferViewModel: ObservableObject {
         self.closeOfferScreen = closeOfferScreen
     }
 
-    func onAppear() {
-        Analytics.log(.visaOnboardingVisaActivationScreenOpened, analyticsSystems: .all)
-    }
-
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard, analyticsSystems: .all)
 

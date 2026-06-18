@@ -19,8 +19,6 @@ public final class EnrichStoryUseCase {
         switch story {
         case .swap(let data):
             return await enrichStoryData(data, storyId: .swap, wrap: TangemStory.swap)
-        case .swapLegacy(let data):
-            return await enrichStoryData(data, storyId: .swap, wrap: TangemStory.swapLegacy)
         case .yieldFirstActivationAPYBoost(let data):
             return await enrichStoryData(data, storyId: .yieldFirstActivationAPYBoost, wrap: TangemStory.yieldFirstActivationAPYBoost)
         }
