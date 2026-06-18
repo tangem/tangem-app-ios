@@ -284,7 +284,7 @@ extension MainCoordinator {
             )
 
             coordinator?.openDeepLink(
-                .swapWithDeferredPairResolution(
+                .swap(
                     parameters: .deferredPairResolution(source: sourceToken, resolver: resolver)
                 )
             )
@@ -349,7 +349,7 @@ extension MainCoordinator {
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isStakeFeatureAvailable,
+                TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isStakeFeatureAvailable,
                 let stakingManager = walletModel.stakingManager
             else {
                 incomingActionManager.discardIncomingAction()
@@ -369,7 +369,7 @@ extension MainCoordinator {
                 let tokenId = params.tokenId,
                 let networkId = params.networkId,
                 let walletModel = findWalletModel(in: userWalletModel, tokenId: tokenId, networkId: networkId, derivation: params.derivationPath),
-                TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel).isTokenInteractionAvailable(),
+                TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isTokenInteractionAvailable(),
                 walletModel.yieldModuleManager != nil,
                 walletModel.multipleTransactionsSender != nil
             else {
