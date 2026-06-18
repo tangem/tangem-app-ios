@@ -237,7 +237,7 @@ extension TangemPayTransactionRecord {
     }
 }
 
-private extension TangemPayTransactionHistoryResponse.Spend {
+extension TangemPayTransactionHistoryResponse.Spend {
     var displayInput: TangemPaySpendDisplayInput {
         .init(
             transactionDate: transactionDate,
@@ -258,19 +258,19 @@ private extension TangemPayTransactionHistoryResponse.Spend {
     }
 }
 
-private extension TangemPayTransactionHistoryResponse.Collateral {
+extension TangemPayTransactionHistoryResponse.Collateral {
     var displayInput: TangemPayCollateralDisplayInput {
         .init(postedAt: postedAt, amount: amount, isOutgoing: amount < 0)
     }
 }
 
-private extension TangemPayTransactionHistoryResponse.Payment {
+extension TangemPayTransactionHistoryResponse.Payment {
     var displayInput: TangemPayPaymentDisplayInput {
         .init(postedAt: postedAt, amount: amount, currency: currency)
     }
 }
 
-private extension TangemPayTransactionHistoryResponse.Fee {
+extension TangemPayTransactionHistoryResponse.Fee {
     var displayInput: TangemPayFeeDisplayInput {
         .init(postedAt: postedAt, amount: amount, currency: currency, description: description)
     }
@@ -304,7 +304,7 @@ extension TangemPayPushPayload {
     }
 }
 
-private extension TangemPayPushPayload.Spend {
+extension TangemPayPushPayload.Spend {
     var displayInput: TangemPaySpendDisplayInput {
         .init(
             transactionDate: authorizedAt,
@@ -325,7 +325,7 @@ private extension TangemPayPushPayload.Spend {
     }
 }
 
-private extension TangemPayPushPayload.Collateral {
+extension TangemPayPushPayload.Collateral {
     func displayInput(isOutgoing: Bool) -> TangemPayCollateralDisplayInput {
         .init(postedAt: postedAt, amount: isOutgoing ? -amount : amount, isOutgoing: isOutgoing)
     }

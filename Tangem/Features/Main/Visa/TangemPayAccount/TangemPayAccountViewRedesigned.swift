@@ -31,7 +31,7 @@ private struct TangemPayAccountTile: View {
     @ScaledMetric private var iconSize: CGFloat = 40
     @ScaledMetric private var cachedIconSize: CGFloat = 16
     @ScaledMetric private var cachedIndicatorSpacing: CGFloat = 6
-    @ScaledSize private var loaderSize = CGSize(width: 40, height: 12)
+    @ScaledMetric private var scaleFactor: CGFloat = 1
 
     var body: some View {
         Button(action: onTap) {
@@ -51,7 +51,7 @@ private struct TangemPayAccountTile: View {
         case .skeleton:
             TangemTwoLineRowSkeletonView()
 
-        case .normal(_, let balance), .cardDeactivated(let balance), .replacingCard(let balance):
+        case .normal(_, let balance, _), .cardDeactivated(let balance), .replacingCard(let balance):
             balanceRow(subtitle: state.subtitle, balance: balance, showsCachedIndicator: false)
 
         case .failedToIssueCard:
@@ -144,7 +144,7 @@ private struct TangemPayAccountTile: View {
                     textColor: TangemPayAccountTile.balanceIntegerColor
                 ),
                 loader: LoadableBalanceView.LoaderStyle(
-                    size: loaderSize,
+                    size: CGSize(width: 40, height: 12) * scaleFactor,
                     cornerRadiusStyle: .capsule
                 )
             )
@@ -190,7 +190,7 @@ private extension TangemPayAccountTile {
         static let dimmedOpacity: Double = 0.6
     }
 
-    static let balanceFont: Font = TangemRowConstants.Style.Title.font
+    static let balanceFont = TangemRowConstants.Style.Title.font
     static let balanceIntegerColor: Color = .Tangem.Text.Neutral.primary
     static let balanceDecimalColor: Color = .Tangem.Text.Neutral.secondary
 

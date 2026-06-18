@@ -131,18 +131,37 @@ struct NewsPagerView: View {
             title: "",
             settings: .init(backgroundColor: Color.Tangem.Surface.level2),
             leftButtons: {
-                MarketsNavigationBackButton(
-                    presentSource: viewModel.isDeeplinkMode ? .deeplink : .navigation,
-                    action: { viewModel.handleViewAction(.back) }
-                )
+                if viewModel.isRedesign {
+                    Group {
+                        if viewModel.isDeeplinkMode {
+                            NavigationBarButton.close(action: { viewModel.handleViewAction(.back) })
+                        } else {
+                            NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
+                        }
+                    }
+                    .redesigned()
+                    .padding(.leading, 16)
+                } else {
+                    MarketsNavigationBackButton(
+                        presentSource: viewModel.isDeeplinkMode ? .deeplink : .navigation,
+                        action: { viewModel.handleViewAction(.back) }
+                    )
+                }
             },
             rightButtons: {
-                Button(action: { viewModel.handleViewAction(.share) }) {
-                    Assets.Glyphs.moreVertical.image
-                        .foregroundColor(shareButtonColor)
+                if viewModel.isRedesign {
+                    NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
+                        .redesigned()
+                        .disabled(viewModel.isCurrentArticleLoading)
                         .padding(.trailing, 16)
+                } else {
+                    Button(action: { viewModel.handleViewAction(.share) }) {
+                        Assets.Glyphs.moreVertical.image
+                            .foregroundColor(shareButtonColor)
+                            .padding(.trailing, 16)
+                    }
+                    .disabled(viewModel.isCurrentArticleLoading)
                 }
-                .disabled(viewModel.isCurrentArticleLoading)
             }
         )
         .padding(.top, 12)
@@ -293,7 +312,7 @@ private struct NewsPageContentView: View {
                 }
 
                 Text(Localization.newsLike)
-                    .style(.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.semibold, color: .Tangem.Text.Neutral.primary)
             }
             .padding(.horizontal, .unit(.x3))
             .frame(height: 36)

@@ -192,10 +192,10 @@ public extension InfoChipView {
             }
         }
 
-        var titleFont: Font {
+        var titleFont: TangemFontStyle {
             switch self {
-            case .legacy: return Fonts.Bold.caption1
-            case .redesign: return .Tangem.Caption12.semibold
+            case .legacy: return TangemFontStyle(font: Fonts.Bold.caption1)
+            case .redesign: return Font.Tangem.Caption12.semibold
             }
         }
 

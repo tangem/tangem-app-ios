@@ -18,8 +18,8 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
     let defaultAddressString: String
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let cexTransactionDispatcher: any TransactionDispatcher
-    let transactionValidator: any ExpressTransactionValidator
+    let transactionDispatcher: any TransactionDispatcher
+    let transactionValidator: any SendTransactionValidator
     let operationType: ExpressOperationType
 
     func makeSwapableToken() -> SendSwapableToken {
@@ -31,7 +31,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             defaultAddressString: defaultAddressString,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
-            cexTransactionDispatcher: cexTransactionDispatcher
+            transactionDispatcher: transactionDispatcher
         )
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
@@ -42,8 +42,12 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             feeTokenItem: feeTokenItem,
             feeTokenItemBalanceProvider: availableBalanceProvider
         )
+        let tokenFeeProvidersManager = tokenFeeProvidersManagerProvider.makeTokenFeeProvidersManager()
 
-        let expressTransactionValidator = transactionValidator
+        let transactionCreator = TangemPayTransactionCreator(
+            sourceAddress: defaultAddressString,
+            transactionValidator: transactionValidator
+        )
 
         let balanceProvider = TangemPayExpressBalanceProvider(
             availableBalanceProvider: availableBalanceProvider
@@ -52,13 +56,6 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
 
         let providerTransactionValidator = TangemPayExpressProviderTransactionValidator()
-
-        let supportedProvidersFilter: SupportedProvidersFilter = switch operationType {
-        case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress): .byDifferentAddressExchangeSupport
-        case .swapAndSend: .cex
-        case .swap: .cex
-        case .onramp: .cex
-        }
 
         let swapAvailabilityProvider = TangemPaySwapAvailabilityProvider()
 
@@ -69,14 +66,17 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
             sendingRestrictionsProvider: sendingRestrictionsProvider,
             receivingRestrictionsProvider: receivingRestrictionsProvider,
             tokenFeeProvidersManagerProvider: tokenFeeProvidersManagerProvider,
-            expressTransactionValidator: expressTransactionValidator,
-            // TangemPay is limited only by CEX providers
+            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            transactionValidator: transactionValidator,
+            transactionCreator: transactionCreator,
             sendYieldModuleHelper: nil,
             balanceProvider: balanceProvider,
             analyticsLogger: analyticsLogger,
             providerTransactionValidator: providerTransactionValidator,
             operationType: operationType,
-            supportedProvidersFilter: supportedProvidersFilter
+
+            // TangemPay is limited to CEX providers — every operation type collapses to a CEX-style filter.
+            supportedProvidersFilter: .cex
         )
     }
 }
