@@ -180,10 +180,11 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
+        case .backupErrors:
+            return .critical
         case .rateApp,
              .missingDerivation,
              .missingBackup,
-             .backupErrors,
              .mobileFinishActivation,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest,
@@ -343,7 +344,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             }
 
             return .withButtons([
-                .init(action: buttonAction, actionType: .support, isWithLoader: false),
+                .init(action: buttonAction, actionType: .backupErrorSupport, isWithLoader: false),
             ])
         case .mobileFinishActivation(let hasPositiveBalance, _):
             guard let buttonAction else {

@@ -98,6 +98,7 @@ extension ActionButtonsBuyViewModel: TokenSelectorViewModelOutput {
             return
         }
 
+        // Card-linked gating happens in AddFundsViewModel, so no extra gate is needed here.
         coordinator?.openAddFunds(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
     }
 }
