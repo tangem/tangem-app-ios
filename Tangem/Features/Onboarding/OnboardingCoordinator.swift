@@ -26,7 +26,6 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
-    @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // MARK: - Child coordinators
 
@@ -118,10 +117,6 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
         }
-    }
-
-    func openSupportChat(input: SupportChatInputModel) {
-        supportChatViewModel = SupportChatViewModel(input: input)
     }
 
     func openWebView(with url: URL) {
