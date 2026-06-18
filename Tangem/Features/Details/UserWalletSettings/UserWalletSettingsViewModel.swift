@@ -34,7 +34,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
-        [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
+        [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel, notificationSettingsViewModel].compactMap { $0 }
     }
 
     var isMobileUpgradeAvailable: Bool {
@@ -43,7 +43,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
     @Published var pushNotificationsViewModel: TransactionNotificationsRowToggleViewModel?
-    @Published var notificationSettingsViewModel: DefaultRowViewModel?
 
     @Published var forgetViewModel: DefaultRowViewModel?
 
@@ -56,6 +55,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var manageTokensViewModel: DefaultRowViewModel?
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
+    @Published private var notificationSettingsViewModel: DefaultRowViewModel?
 
     private let mobileSettingsUtil: MobileSettingsUtil
 
