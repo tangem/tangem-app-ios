@@ -13,33 +13,15 @@ enum Feature: String, Hashable, CaseIterable {
     case visa // [REDACTED_TODO_COMMENT]
     case redesign
     case exchangeOnlyWithinSingleAddress
-    case experimentService
     case walletConnectBitcoin
     case surveySparrow
-    case solanaTxHistoryEnabled
-    case solanaScaledUIEnabled
-    case dynamicAddresses
     case usdtRevokeGaslessFee
     case yieldModuleUpdate
-    case tangemPayMobileOnboarding
-    case onrampNativePayment
     case xrplTransactionHistory
-    case sendBalanceSendSplitRows
-    case addFundsStage1
-    case swapProviderTypeFilter
-    case swapPendingTxStateDate
-    case swapInProgressV2
-    case dexApproveNotificationV2
-    case manageTokensImprovements
-    case swapSimpleMode
-    case swapMaxAmountFractions
     case pushNotificationsSettings
-    case swapExchangeRateDisplay
-    case swapRateExperience
     case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
-    case adiMainScreenDefault
     case tangemPayMultipleCards
     case transfers
     case memoValidationBeforeConfirm
@@ -59,32 +41,14 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return "Visa"
         case .redesign: return "Redesign"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
-        case .experimentService: return "Experiment service"
         case .walletConnectBitcoin: return "WalletConnect Bitcoin"
         case .surveySparrow: return "SurveySparrow service integration"
-        case .solanaTxHistoryEnabled: return "Solana Transaction History"
-        case .solanaScaledUIEnabled: return "Solana Scaled UI"
-        case .dynamicAddresses: return "XPUB Dynamic-addresses support"
         case .usdtRevokeGaslessFee: return "USDT Revoke Gasless Fee"
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
-        case .sendBalanceSendSplitRows: return "Send Balance/Send split rows"
-        case .tangemPayMobileOnboarding: return "1489_TangemPayNewMobileOnboarding"
-        case .onrampNativePayment: return "Onramp Native Payment (Apple Pay)"
         case .xrplTransactionHistory: return "XRPL Transaction History"
-        case .swapProviderTypeFilter: return "13675_Swap_Provider_Type_Filter"
-        case .swapInProgressV2: return "Swap In Progress V2"
-        case .swapPendingTxStateDate: return "Swap Pending Tx State Date"
-        case .dexApproveNotificationV2: return "DEX Approve Notification V2"
-        case .manageTokensImprovements: return "Manage Tokens Improvements"
-        case .swapSimpleMode: return "13763_Swap_Simple_Mode"
-        case .swapMaxAmountFractions: return "13789_Swap_Max_Amount_Fractions"
-        case .adiMainScreenDefault: return "14071_show_ADI_on_main_screen"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
-        case .swapExchangeRateDisplay: return "13768_Swap_Exchange_Rate_Display"
-        case .swapRateExperience: return "13956_Swap_Rate_Experience"
         case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
-        case .addFundsStage1: return "[REDACTED_INFO]_ADDFUNDS_STAGE_1"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
         case .transfers: return "14042_Transfers"
@@ -107,33 +71,15 @@ enum Feature: String, Hashable, CaseIterable {
         case .visa: return .unspecified
         case .redesign: return .version("5.40")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
-        case .experimentService: return .version("5.39")
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
-        case .solanaTxHistoryEnabled: return .version("5.39")
-        case .solanaScaledUIEnabled: return .version("5.39")
-        case .dynamicAddresses: return .version("5.39")
         case .usdtRevokeGaslessFee: return .unspecified
         case .yieldModuleUpdate: return .unspecified
-        case .tangemPayMobileOnboarding: return .version("5.39")
-        case .onrampNativePayment: return .version("5.39")
         case .xrplTransactionHistory: return .unspecified
-        case .sendBalanceSendSplitRows: return .version("5.39")
-        case .swapProviderTypeFilter: return .version("5.39")
-        case .swapInProgressV2: return .version("5.39")
-        case .swapPendingTxStateDate: return .version("5.39")
-        case .dexApproveNotificationV2: return .version("5.39")
-        case .manageTokensImprovements: return .version("5.39")
-        case .swapSimpleMode: return .version("5.39")
-        case .swapMaxAmountFractions: return .version("5.39")
         case .pushNotificationsSettings: return .unspecified
-        case .adiMainScreenDefault: return .version("5.39")
-        case .swapExchangeRateDisplay: return .version("5.39")
-        case .swapRateExperience: return .version("5.39")
         case .yieldApyBoostPromo: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .addFundsStage1: return .version("5.39")
         case .tangemPayMultipleCards: return .unspecified
         case .transfers: return .version("5.40")
         case .memoValidationBeforeConfirm: return .unspecified
