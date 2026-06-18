@@ -98,11 +98,6 @@ extension ActionButtonsBuyViewModel: TokenSelectorViewModelOutput {
             return
         }
 
-        if FeatureProvider.isAvailable(.addFundsStage1) {
-            coordinator?.openAddFunds(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
-        } else {
-            let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
-            coordinator?.openOnramp(input: sendInput, parameters: .none)
-        }
+        coordinator?.openAddFunds(userWalletInfo: item.userWalletInfo, walletModel: walletModel)
     }
 }
