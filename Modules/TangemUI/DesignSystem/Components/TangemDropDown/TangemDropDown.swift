@@ -74,7 +74,7 @@ public struct TangemDropDownDefaultLabel: View {
                 .frame(width: iconSize, height: iconSize)
         }
         .style(
-            .Tangem.Body16.semibold,
+            Font.Tangem.Body16.semibold,
             color: .Tangem.Text.Neutral.primary
         )
         .padding(.horizontal, contentHorizontalPadding)

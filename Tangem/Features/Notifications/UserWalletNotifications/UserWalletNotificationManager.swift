@@ -20,7 +20,7 @@ protocol NotificationTapDelegate: AnyObject {
 final class UserWalletNotificationManager {
     @Injected(\.deprecationService) private var deprecationService: DeprecationServicing
     @Injected(\.userWalletDismissedNotifications) private var dismissedNotifications: UserWalletDismissedNotifications
-    @Injected(\.walletTokenSyncProgressProvider) private var walletTokenSyncProgressProvider: WalletTokenAutoSyncProgressProvider
+    @Injected(\.walletAssetsDiscoveryProgressProvider) private var walletAssetsDiscoveryProgressProvider: WalletAssetsDiscoveryProgressProvider
     @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
 
     private let analyticsService: NotificationsAnalyticsService
@@ -336,7 +336,7 @@ final class UserWalletNotificationManager {
         shownTokenSyncNotificationId = nil
 
         let userWalletId = userWalletModel.userWalletId
-        let progressProvider = walletTokenSyncProgressProvider
+        let progressProvider = walletAssetsDiscoveryProgressProvider
 
         Task {
             await progressProvider.removeProgress(for: userWalletId)
@@ -461,7 +461,7 @@ final class UserWalletNotificationManager {
         tokenSyncProgressTask = Task { @MainActor in
             let userWalletId = userWalletModel.userWalletId
 
-            await walletTokenSyncProgressProvider
+            await walletAssetsDiscoveryProgressProvider
                 .eventPublisher(for: userWalletId)
                 .removeDuplicates()
                 .filter { $0 == .completed }

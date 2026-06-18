@@ -12,7 +12,7 @@ import enum TangemStories.TangemStory
 enum StoryMapper {
     static func mapStoryIdToRequestId(_ storyId: TangemStory.ID) -> String {
         switch storyId {
-        case .swap: FeatureProvider.isAvailable(.swapStoriesV2) ? "first-time-swap-v2" : "first-time-swap"
+        case .swap: "first-time-swap-v2"
         case .yieldFirstActivationAPYBoost: "first-time-yield-promo"
         }
     }

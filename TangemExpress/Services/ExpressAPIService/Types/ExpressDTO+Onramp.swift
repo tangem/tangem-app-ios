@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import AnyCodable
 
 extension ExpressDTO {
@@ -216,6 +217,37 @@ extension ExpressDTO {
             }
         }
 
+        // MARK: - Transaction
+
+        /// A single onramp transaction; both `onramp-status` and `history/onramp[/delta]` return this payload shape.
+        struct Transaction: Decodable {
+            let txId: String
+            let providerId: String
+            let payoutAddress: String
+            let status: String
+            let failReason: String?
+            let externalTxId: String?
+            let externalTxUrl: String?
+            let payoutHash: String?
+            let createdAt: Date
+            let updatedAt: Date?
+
+            // fromCurrency info
+            let fromCurrencyCode: String
+            let fromAmount: String
+            let fromPrecision: Int
+
+            // toAsset info
+            let toContractAddress: String
+            let toNetwork: String
+            let toDecimals: Int
+            let toAmount: String?
+            let toActualAmount: String?
+
+            let paymentMethod: String
+            let countryCode: String
+        }
+
         // MARK: - Status
 
         enum Status {
@@ -223,87 +255,54 @@ extension ExpressDTO {
                 let txId: String
             }
 
+            typealias Response = Transaction
+        }
+
+        // MARK: - History (initial)
+
+        enum History {
+            struct Request: Encodable {
+                let payoutAddress: String
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let afterCursor: AnyEncodable?
+                let limit: Int?
+            }
+
             struct Response: Decodable {
-                let txId: String
-                let providerId: String // Provider's alphanumeric ID
-                let payoutAddress: String // Address to which the coins are sent
-                let status: OnrampTransactionStatus // Status of the transaction
-                let failReason: String? // Optional field for failure reason
-                let externalTxId: String? // External transaction ID
-                let externalTxUrl: String? // Optional URL to track the external transaction
-                let payoutHash: String? // Optional payout hash
-                let createdAt: String // ISO date for when the transaction was created
+                let items: [Transaction]
+                let pagination: Pagination
+            }
 
-                let fromCurrencyCode: String // Source currency
-                let fromAmount: String // Amount of the source currency
-                let fromPrecision: Int
-
-                // ToAsset information:
-                let toContractAddress: String
-                let toNetwork: String
-                let toDecimals: Int
-                let toAmount: String?
-                let toActualAmount: String?
-
-                let paymentMethod: String // Payment method used
-                let countryCode: String // Country code
+            struct Pagination: Decodable {
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let endCursor: AnyDecodable?
+                /// Opaque cursor (hence `AnyDecodable`) to seed the delta sync.
+                let startDeltaCursor: AnyDecodable?
+                let hasMore: Bool? // [REDACTED_TODO_COMMENT]
+                @available(iOS, deprecated: 100000.0, message: "Temporary fallback, do not use")
+                let hasNextPage: Bool? // [REDACTED_TODO_COMMENT]
             }
         }
 
-        // MARK: - History
+        // MARK: - History (delta)
 
-        enum History {
+        enum HistoryDelta {
+            struct Request: Encodable {
+                let payoutAddress: String
+                /// Opaque cursor (hence `AnyEncodable`) for the next page.
+                let beforeCursor: AnyEncodable?
+                let limit: Int?
+            }
+
             struct Response: Decodable {
-                let data: [Record]
-                let nextCursor: AnyDecodable
+                let items: [Transaction]
+                let pagination: Pagination
+            }
+
+            struct Pagination: Decodable {
+                /// Opaque cursor (hence `AnyDecodable`) for the next page.
+                let startCursor: AnyDecodable?
                 let hasMore: Bool
-            }
-
-            struct Record: Decodable {
-                let txId: String
-                let status: OnrampTransactionStatus
-                let provider: ExpressDTO.HistoryProvider
-                let from: FiatAsset
-                let to: AssetRef
-                let payoutHash: String?
-                let externalTxId: String?
-                let externalTxUrl: String?
-                let refund: Refund?
-                let rate: Rate?
-                let failReason: String?
-                // [REDACTED_TODO_COMMENT]
-                /*
-                 let createdAt: Int
-                 let updatedAt: Int
-                 */
-                let createdAt: Date
-                let updatedAt: Date
-            }
-
-            struct FiatAsset: Decodable {
-                let currencyCode: String
-                let amount: String
-            }
-
-            struct AssetRef: Decodable {
-                let network: String
-                let tokenId: String?
-                let expectedRawAmount: String
-                let actualRawAmount: String?
-                let decimals: Int
-            }
-
-            struct Refund: Decodable {
-                let network: String
-                let tokenId: String?
-                let rawAmount: String
-                let decimals: Int
-                let hash: String?
-            }
-
-            struct Rate: Decodable {
-                let atCreate: String?
-                let atFinish: String?
             }
         }
     }

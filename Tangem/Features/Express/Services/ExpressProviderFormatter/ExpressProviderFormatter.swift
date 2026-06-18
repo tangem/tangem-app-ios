@@ -15,14 +15,9 @@ struct ExpressProviderFormatter {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     let balanceFormatter: BalanceFormatter
-    let isStablecoinOrderingEnabled: Bool
 
-    init(
-        balanceFormatter: BalanceFormatter = .init(),
-        isStablecoinOrderingEnabled: Bool = FeatureProvider.isAvailable(.swapExchangeRateDisplay)
-    ) {
+    init(balanceFormatter: BalanceFormatter = .init()) {
         self.balanceFormatter = balanceFormatter
-        self.isStablecoinOrderingEnabled = isStablecoinOrderingEnabled
     }
 
     func mapToBadge(availableProvider: ExpressAvailableProvider, hasHighPriceImpactWarning: Bool = false) -> ProviderBadge? {
@@ -37,9 +32,15 @@ struct ExpressProviderFormatter {
         }
 
         let canShowBest = !geoEligibilityService.isUK && !hasHighPriceImpactWarning
-        let isBest = availableProvider.isBest
+        guard canShowBest else {
+            return .none
+        }
 
-        return canShowBest && isBest ? .bestRate : .none
+        if availableProvider.isBestDEX {
+            return .bestDexRate
+        }
+
+        return availableProvider.isBest ? .bestRate : .none
     }
 
     func mapToRateSubtitle(
@@ -89,9 +90,7 @@ struct ExpressProviderFormatter {
                 return .text(AppConstants.emDashSign)
             }
 
-            let displaySide: SwapRateDisplaySide = isStablecoinOrderingEnabled
-                ? SwapRateDisplaySideResolver.resolve(from: senderTokenItem, to: destinationTokenItem)
-                : .fromIsBase
+            let displaySide = SwapRateDisplaySideResolver.resolve(from: senderTokenItem, to: destinationTokenItem)
             let baseSymbol: String
             let quoteSymbol: String
             let rate: Decimal
@@ -177,5 +176,13 @@ extension ExpressProviderFormatter {
         case permissionNeeded
         case fcaWarning
         case bestRate
+        case bestDexRate
+
+        var isBest: Bool {
+            switch self {
+            case .bestRate, .bestDexRate: true
+            case .permissionNeeded, .fcaWarning: false
+            }
+        }
     }
 }

@@ -70,7 +70,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func enterAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount field") { _ in
             waitAndAssertTrue(amountTextField, "Amount text field should exist")
-            amountTextField.typeText(amount)
+            typeAmountReliably(amount, into: amountTextField) { _ = clearAmount() }
         }
         return self
     }
@@ -94,7 +94,7 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     func enterReceiveAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter receive amount '\(amount)' in receive amount field") { _ in
             waitAndAssertTrue(receiveAmountTextField, "Receive amount text field should exist")
-            receiveAmountTextField.typeText(amount)
+            typeAmountReliably(amount, into: receiveAmountTextField) { _ = clearReceiveAmount() }
         }
         return self
     }
@@ -1262,6 +1262,22 @@ final class SendScreen: ScreenBase<SendScreenElement> {
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
         let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
         XCTAssertEqual(result, .completed, message)
+    }
+
+    /// The redesigned field has no auto-focus and typeText() drops characters against the auto-formatter; refocus and retry until digits match.
+    private func typeAmountReliably(_ amount: String, into field: XCUIElement, clear: () -> Void, maxAttempts: Int = 3) {
+        let digits = amount.replacingOccurrences(of: ",", with: "")
+        for _ in 0 ..< maxAttempts {
+            if !field.hasFocus {
+                field.tap()
+            }
+            field.typeText(digits)
+            if field.getValue().replacingOccurrences(of: ",", with: "") == digits {
+                return
+            }
+            clear()
+        }
+        XCTFail("Amount field was '\(field.getValue())', expected digits '\(digits)' after \(maxAttempts) attempts")
     }
 }
 

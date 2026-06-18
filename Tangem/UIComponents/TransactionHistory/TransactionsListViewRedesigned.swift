@@ -71,9 +71,13 @@ struct TransactionsListViewRedesigned: View {
         } else {
             LazyVStack(spacing: .zero) {
                 ForEach(transactionItems.indexed(), id: \.1.id) { _, sectionItem in
-                    sectionHeader(title: sectionItem.header)
+                    let sectionItemHeader = sectionItem.header
 
-                    ForEach(sectionItem.items.indexed(), id: \.1.id) { _, cellItem in
+                    if sectionItemHeader.isNotEmpty {
+                        sectionHeader(title: sectionItemHeader)
+                    }
+
+                    ForEach(sectionItem.items) { cellItem in
                         rowOrChip(for: cellItem)
                     }
                 }
@@ -109,7 +113,7 @@ struct TransactionsListViewRedesigned: View {
     private func sectionHeader(title: String) -> some View {
         HStack {
             Text(title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
 
             Spacer()
         }
@@ -177,7 +181,7 @@ private struct StatusStateView: View {
 
             Text(message)
                 .multilineTextAlignment(.center)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.primary)
                 .padding(.horizontal, .unit(.x9))
 
             if primaryButton != nil || secondaryButton != nil {
@@ -204,7 +208,7 @@ private struct StatusStateView: View {
             action: button.action
         )
         .setStyleType(.secondary)
-        .setSize(.x12)
+        .setSize(.x10)
         .setCornerStyle(.rounded)
         .setHorizontalLayout(.intrinsic)
         .setButtonState(isLoading: button.isLoading)
