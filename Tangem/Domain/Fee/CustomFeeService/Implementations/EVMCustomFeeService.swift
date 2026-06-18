@@ -81,17 +81,17 @@ class EVMCustomFeeService {
             }
             .store(in: &bag)
 
-        customFeeTextField.valuePublisher
+        customFeeTextField.valuePublisher()
             .withWeakCaptureOf(self)
             .sink(receiveValue: { $0.customFeeSubject.send($0.calculateFee(for: $1)) })
             .store(in: &bag)
 
         Publishers.MergeMany(
-            gasLimitTextField.valuePublisher.removeDuplicates(),
-            gasPriceTextField.valuePublisher.removeDuplicates(),
-            maxFeePerGasTextField.valuePublisher.removeDuplicates(),
-            priorityFeeTextField.valuePublisher.removeDuplicates(),
-            nonceTextField.valuePublisher.removeDuplicates(),
+            gasLimitTextField.valuePublisher().removeDuplicates(),
+            gasPriceTextField.valuePublisher().removeDuplicates(),
+            maxFeePerGasTextField.valuePublisher().removeDuplicates(),
+            priorityFeeTextField.valuePublisher().removeDuplicates(),
+            nonceTextField.valuePublisher().removeDuplicates(),
         )
         .withWeakCaptureOf(self)
         .sink(receiveValue: { $0.0.customFeeSubject.send($0.0.recalculateFee()) })
