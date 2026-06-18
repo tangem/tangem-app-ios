@@ -46,6 +46,22 @@ struct SendWithSwapSummaryTitleProvider: SendSummaryTitleProvider {
     }
 }
 
+// MARK: - Swap
+
+struct SwapSummaryTitleProvider: SendSummaryTitleProvider {
+    weak var sourceTokenInput: SendSourceTokenInput?
+    weak var receiveTokenInput: SendReceiveTokenInput?
+
+    var title: String {
+        switch (sourceTokenInput?.sourceToken, receiveTokenInput?.receiveToken) {
+        case (.success(let source), .success(let receive)) where source.tokenItem.expressCurrency == receive.tokenItem.expressCurrency:
+            return Localization.commonTransfer
+        default:
+            return Localization.commonSwap
+        }
+    }
+}
+
 // MARK: - Staking
 
 struct StakingSendSummaryTitleProvider: SendSummaryTitleProvider {
