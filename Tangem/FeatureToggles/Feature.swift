@@ -75,7 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .unspecified
-        case .yieldApyBoostPromo: return .unspecified
+        case .yieldApyBoostPromo: return .version("5.39.2")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .unspecified
