@@ -96,9 +96,7 @@ private extension TokenDetailsActionsViewModel {
             buttons.append(swap)
         }
 
-        if let transfer = makeTransferButton() {
-            buttons.append(transfer)
-        }
+        buttons.append(makeTransferButton())
 
         return buttons
     }
@@ -146,17 +144,18 @@ private extension TokenDetailsActionsViewModel {
         )
     }
 
-    func makeTransferButton() -> TokenDetailsActionsButton? {
-        let options = groupOptions(from: outgoingOptions())
-        guard options.isNotEmpty else {
-            return makeTransferButton(isAvailable: false, action: {})
-        }
-
-        return makeTransferButton(
+    func makeTransferButton() -> TokenDetailsActionsButton {
+        let options = outgoingOptions()
+        return TokenDetailsActionsButton(
+            id: .transfer,
+            title: Localization.commonTransfer,
+            icon: Assets.arrowUpMini,
+            accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.transferButton,
             isAvailable: true,
             action: { [weak self] in
                 self?.handleGroupTap(kind: .transfer, options: options)
-            }
+            },
+            longPressAction: nil
         )
     }
 
@@ -186,7 +185,7 @@ private extension TokenDetailsActionsViewModel {
         let items = options.map { type in
             makeRowItem(
                 for: type,
-                isAvailable: true,
+                isAvailable: isRowItemAvailable(for: type),
                 onTap: { [weak self] in
                     self?.dismissSheet()
                     Task { @MainActor in
@@ -205,6 +204,15 @@ private extension TokenDetailsActionsViewModel {
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: sheetViewModel)
+        }
+    }
+
+    func isRowItemAvailable(for actionType: TokenActionType) -> Bool {
+        switch actionType {
+        case .send: true
+        case .exchange: availabilityProvider.isSwapAvailable
+        case .sell: availabilityProvider.isSellAvailable
+        default: false
         }
     }
 
@@ -247,11 +255,7 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func outgoingOptions() -> [TokenActionType] {
-        var options: [TokenActionType] = []
-        if availabilityProvider.isSendAvailable { options.append(.send) }
-        if isSwapButtonVisible { options.append(.exchange) }
-        if availabilityProvider.isSellAvailable { options.append(.sell) }
-        return options
+        [.send, .exchange, .sell]
     }
 
     func isActionAvailable(_ type: TokenActionType) -> Bool {
