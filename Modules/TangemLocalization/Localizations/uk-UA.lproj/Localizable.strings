@@ -333,6 +333,7 @@
 "common_sell" = "Продати";
 "common_send_colon" = "Відправка:";
 "common_send_tx_error" = "Не вдалося надіслати транзакцію";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Надіслати";
 "common_sending" = "Надсилання";
 "common_sent" = "Надіслано";
@@ -1065,6 +1066,7 @@
 "quick_action_buy_description" = "Банківська картка або банківський рахунок";
 "quick_action_receive_description" = "Поділіться своєю адресою або QR-кодом";
 "quick_action_sell_description" = "Безпечно продавайте криптовалюту";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Надіслати на інший гаманець";
 "quick_action_swap_description" = "Між вашими портфелями";
 "quick_top_up_chip_other" = "Інші";
