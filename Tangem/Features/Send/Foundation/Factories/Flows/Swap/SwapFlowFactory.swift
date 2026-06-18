@@ -111,6 +111,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             tokenSelectorBuilder: tokenSelectorBuilder,
+            summaryTitleProvider: SwapSummaryTitleProvider(sourceTokenInput: swapModel, receiveTokenInput: swapModel),
             router: router
         )
 
@@ -259,12 +260,16 @@ extension SwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: initialTokenItem, isSwapFlow: true)
+        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
+            headerTitleProvider: SwapFinishHeaderTitleProvider(
+                sourceTokenInput: swapModel,
+                receiveTokenInput: swapModel
+            )
         )
     }
 }

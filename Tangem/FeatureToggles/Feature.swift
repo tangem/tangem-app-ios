@@ -69,7 +69,7 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
-        case .redesign: return .version("5.40")
+        case .redesign: return .version("6.0")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .surveySparrow: return .unspecified
@@ -77,21 +77,21 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .unspecified
-        case .yieldApyBoostPromo: return .unspecified
+        case .yieldApyBoostPromo: return .version("5.39.2")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .unspecified
-        case .transfers: return .version("5.40")
+        case .transfers: return .version("6.0")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
-        case .onrampApplePayHistoryFallback: return .version("5.40")
+        case .onrampApplePayHistoryFallback: return .version("6.0")
         case .mobileWalletMultiCreation: return .unspecified
-        case .approveFlowV2: return .version("5.40")
-        case .addAndOrganizeRedesign: return .version("5.40")
-        case .swapChooseBestDEX: return .version("5.40")
+        case .approveFlowV2: return .version("6.0")
+        case .addAndOrganizeRedesign: return .version("6.0")
+        case .swapChooseBestDEX: return .version("6.0")
         case .addressBook: return .unspecified
         case .stakingFlowV2: return .unspecified
-        case .hideStoriesInMobileWallet: return .version("5.40")
+        case .hideStoriesInMobileWallet: return .version("6.0")
         }
     }
 }
