@@ -27,10 +27,6 @@ final class YieldAPYBoostBannerService {
     }
 
     func refreshFromCache() {
-        guard FeatureProvider.isAvailable(.yieldApyBoostPromo) else {
-            return
-        }
-
         _ = runTask(in: self) { service in
             guard let cachedStatus = await service.promoRepository.cachedEnrollmentStatus(userWalletId: service.userWalletId.stringValue),
                   cachedStatus.promoEnrollmentStatus != .notStarted
@@ -47,9 +43,7 @@ final class YieldAPYBoostBannerService {
             AppSettings.shared.yieldApyBoostHiddenPromos.contains(YieldAPYBoostPromoRepository.campaignName)
         }
 
-        guard FeatureProvider.isAvailable(.yieldApyBoostPromo),
-              !isDismissed
-        else {
+        guard !isDismissed else {
             notificationInputsSubject.send([])
             return
         }

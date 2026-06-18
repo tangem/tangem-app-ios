@@ -19,7 +19,6 @@ enum Feature: String, Hashable, CaseIterable {
     case yieldModuleUpdate
     case xrplTransactionHistory
     case pushNotificationsSettings
-    case yieldApyBoostPromo
     case deeplinkPresentationWay
     case transactionHistoryV2
     case tangemPayMultipleCards
@@ -46,7 +45,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return "1326_Yield_mode_DEX_support"
         case .xrplTransactionHistory: return "XRPL Transaction History"
         case .pushNotificationsSettings: return "13906_Push_Notifications_Settings"
-        case .yieldApyBoostPromo: return "13839_Referral_programm._Yield_promotion_V2"
         case .deeplinkPresentationWay: return "13880_Deeplink_Presentation_Way"
         case .transactionHistoryV2: return "139_Transaction_History_V2"
         case .tangemPayMultipleCards: return "1156_TangemPay_Multiple_Cards"
@@ -75,7 +73,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModuleUpdate: return .unspecified
         case .xrplTransactionHistory: return .unspecified
         case .pushNotificationsSettings: return .unspecified
-        case .yieldApyBoostPromo: return .version("5.39.2")
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .unspecified
