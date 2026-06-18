@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 final class MulticastPollingRegistry<Iteration> {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     @discardableResult
-    func subscribe(_ handler: @escaping (Iteration) -> Void) -> PollingSubscription {
+    func subscribe(_ handler: @escaping (Iteration) -> Void) -> Cancellable {
         let id = UUID()
 
         let latest = state { state in
@@ -27,7 +28,7 @@ final class MulticastPollingRegistry<Iteration> {
             handler(latest)
         }
 
-        return PollingSubscription { [weak self] in
+        return ThreadSafeCancellableWrapper { [weak self] in
             self?.unsubscribe(id: id)
         }
     }
