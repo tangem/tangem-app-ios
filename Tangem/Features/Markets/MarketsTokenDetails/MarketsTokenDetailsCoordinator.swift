@@ -378,7 +378,8 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
             walletModel: walletModel,
-            userWalletInfo: userWalletModel.userWalletInfo
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
         ) else {
             return
         }
