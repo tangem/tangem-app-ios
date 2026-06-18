@@ -60,6 +60,9 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .pushNotificationsPermissionRequest:
             return .informational()
 
+        case .addFunds:
+            return .promo(.magic)
+
         case .initialWalletTokenSyncCompleted:
             return .informational(.leading)
 

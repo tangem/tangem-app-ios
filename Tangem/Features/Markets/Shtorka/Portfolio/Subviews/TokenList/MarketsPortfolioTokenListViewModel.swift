@@ -29,15 +29,18 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
     }
 
     private let onSelect: (any WalletModel) -> Void
+    private let dismissesOnSelect: Bool
     private weak var coordinator: MarketsPortfolioTokenListRoutable?
 
     init(
         walletModels: [any WalletModel],
         addTokenPromo: AddTokenPromo? = nil,
+        dismissesOnSelect: Bool = true,
         onSelect: @escaping (any WalletModel) -> Void,
         coordinator: MarketsPortfolioTokenListRoutable
     ) {
         self.onSelect = onSelect
+        self.dismissesOnSelect = dismissesOnSelect
         self.coordinator = coordinator
         self.addTokenPromo = addTokenPromo
         sections = makeWalletSections(walletModels: walletModels)
@@ -159,8 +162,13 @@ private extension MarketsPortfolioTokenListViewModel {
         )
 
         let onTap: () -> Void = { [weak self] in
-            self?.close()
-            self?.onSelect(walletModel)
+            guard let self else { return }
+
+            if dismissesOnSelect {
+                close()
+            }
+
+            onSelect(walletModel)
         }
 
         return TokenRow(model: model, onTap: onTap)

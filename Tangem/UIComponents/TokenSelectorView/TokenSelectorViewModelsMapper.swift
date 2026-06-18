@@ -123,6 +123,7 @@ private extension TokenSelectorViewModelsMapper {
         return TokenSelectorWalletItemViewModel(
             walletId: walletId,
             walletName: walletName,
+            walletThumbnail: wallet.wallet.config.walletThumbnailType,
             viewType: mapToViewType(accountType: wallet.accounts, walletName: walletName, walletId: walletId)
         )
     }

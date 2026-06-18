@@ -23,6 +23,7 @@ final class ActionButtonsBuyViewModel: ObservableObject {
     @Published private(set) var hotCryptoItems: [HotCryptoToken] = []
 
     let tokenSelectorViewModel: TokenSelectorViewModel
+    let pulseMarketWidgetViewModel: PulseMarketWidgetViewModel?
 
     // MARK: - Private
 
@@ -32,10 +33,12 @@ final class ActionButtonsBuyViewModel: ObservableObject {
     init(
         userWalletModels: [UserWalletModel],
         tokenSelectorViewModel: TokenSelectorViewModel,
+        pulseMarketWidgetViewModel: PulseMarketWidgetViewModel?,
         coordinator: some ActionButtonsBuyRoutable
     ) {
         self.userWalletModels = userWalletModels
         self.tokenSelectorViewModel = tokenSelectorViewModel
+        self.pulseMarketWidgetViewModel = pulseMarketWidgetViewModel
         self.coordinator = coordinator
 
         tokenSelectorViewModel.setup(with: self)

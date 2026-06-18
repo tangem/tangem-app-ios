@@ -14,6 +14,13 @@ import TangemAccounts
 struct TokenSelectorAccountView: View {
     @ObservedObject var viewModel: TokenSelectorAccountViewModel
 
+    private var backgroundColor: Color {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Color.Tangem.Surface.level3
+        }
+        return Colors.Background.action
+    }
+
     @ViewBuilder
     var body: some View {
         if let expandableViewModel = viewModel.expandableViewModel {
@@ -34,6 +41,6 @@ struct TokenSelectorAccountView: View {
         } header: {
             TokenSelectorAccountHeaderView(header: viewModel.header)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(backgroundColor)
     }
 }

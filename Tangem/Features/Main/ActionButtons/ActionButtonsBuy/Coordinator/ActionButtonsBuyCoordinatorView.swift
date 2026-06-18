@@ -21,6 +21,10 @@ struct ActionButtonsBuyCoordinatorView: View {
             case .newTokenList(let actionButtonsBuyViewModel):
                 NavigationStack {
                     ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
+                        .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
+                            MarketsTokenDetailsCoordinatorView(coordinator: $0)
+                                .ignoresSafeArea(.container, edges: .top)
+                        }
                 }
                 .transition(SendTransitions.transition)
             case .addFunds(let addFundsViewModel):

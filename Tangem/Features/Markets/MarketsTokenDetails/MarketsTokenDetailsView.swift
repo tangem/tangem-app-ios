@@ -60,6 +60,9 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var rootViewWithTitle: some View {
         switch viewModel.presentationStyle {
+        case .addFundsSheet:
+            rootViewWithHiddenBackBarButton
+
         case .marketsSheet:
             rootView
 
@@ -71,11 +74,16 @@ struct MarketsTokenDetailsView: View {
         }
     }
 
+    private var rootViewWithHiddenBackBarButton: some View {
+        rootView
+            .navigationBarBackButtonHidden()
+    }
+
     private var rootView: some View {
         ZStack {
             scrollView
 
-            if viewModel.isMarketsSheetStyle {
+            if viewModel.shouldShowPortfolioBlock {
                 navigationBar
             }
         }
@@ -211,7 +219,7 @@ struct MarketsTokenDetailsView: View {
             .padding(.top, Constants.scrollViewContentTopInset)
             .readContentOffset(inCoordinateSpace: .named(CoordinateSpaceName.scrollViewFrame)) { contentOffset in
                 scrollOffsetHandler.contentOffsetSubject.send(contentOffset)
-                if viewModel.isMarketsSheetStyle {
+                if viewModel.shouldShowPortfolioBlock {
                     isListContentObscured = contentOffset.y > Constants.scrollViewContentTopInset
                 }
             }
