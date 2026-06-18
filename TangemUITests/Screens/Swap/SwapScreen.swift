@@ -47,10 +47,23 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     func enterFromAmount(_ amount: String) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in from field") { _ in
             let field = editableFromAmountField()
-            if !field.hasFocus {
-                field.tap()
+            // The field formats the value with grouping separators, so compare on digits and the decimal separator only.
+            let expectedDigits = amount.filter { $0.isNumber || $0 == "." }
+            // [REDACTED_INFO]: the field resigns focus on swap-state re-renders, so clear, refocus and retype until it sticks.
+            for attempt in 0 ..< 8 {
+                if attempt > 0 || !field.hasFocus {
+                    field.tap()
+                }
+                let length = field.getValue().count
+                if length > 0 {
+                    field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
+                }
+                field.typeText(amount)
+                if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
+                    return
+                }
             }
-            field.typeText(amount)
+            XCTFail("Failed to enter amount '\(amount)'; last value: '\(field.getValue())'")
         }
         return self
     }
