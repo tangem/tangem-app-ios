@@ -26,7 +26,10 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let sendingRestrictionsProvider = WalletModelSendingRestrictionsProvider(walletModel: walletModel)
-        let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(walletModel: walletModel)
+        let receivingRestrictionsProvider = WalletModelReceivingRestrictionsProvider(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel
+        )
 
         let swapTokenFeeProvidersManagerProvider = CommonTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
