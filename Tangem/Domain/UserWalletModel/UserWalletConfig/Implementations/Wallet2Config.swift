@@ -881,7 +881,7 @@ private extension Wallet2Config {
     /// Return extra default blockchains for certain cards/promo campaigns
     func extraDefaultBlockchains(isTestnet: Bool, card: CardDTO) -> [Blockchain] {
         switch card.batchId {
-        case "BB000053" where FeatureProvider.isAvailable(.adiMainScreenDefault):
+        case "BB000053":
             return [.adi(testnet: isTestnet)]
         default:
             return []

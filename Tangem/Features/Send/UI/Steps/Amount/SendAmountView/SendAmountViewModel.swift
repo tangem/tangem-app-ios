@@ -709,7 +709,7 @@ extension SendAmountViewModel {
         case .success(let amount):
             if let crypto = amount.crypto {
                 let formatted = balanceFormatter.formatCryptoBalance(crypto, currencyCode: sourceCurrencySymbol)
-                if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+                if let balance = sourceCryptoBalance {
                     compactSourceSubtitle = .balanceAndSend(
                         balance: .loaded(text: .builder(
                             builder: { Localization.commonBalance($0) },
@@ -743,7 +743,7 @@ extension SendAmountViewModel {
     }
 
     private func makeLoadingCompactSourceSubtitle() -> SendAmountTokenViewData.SubtitleType {
-        if FeatureProvider.isAvailable(.sendBalanceSendSplitRows), let balance = sourceCryptoBalance {
+        if let balance = sourceCryptoBalance {
             return .balanceAndSend(
                 balance: .loaded(text: .builder(
                     builder: { Localization.commonBalance($0) },
