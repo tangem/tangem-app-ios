@@ -35,7 +35,7 @@ protocol CommonStakingFlow: StakingFlowProvider {
 }
 
 extension CommonStakingFlow {
-    var actionType: StakingAction.ActionType { action.type }
+    var actionType: StakingAction.ActionType { action.displayType }
 
     var stepPlan: StakeStepPlan {
         CommonStakingProfile.stepPlan(
@@ -114,7 +114,7 @@ enum CommonStakingProfile {
         isStakeAmountEditable: Bool,
         isPartialUnstakeAllowed: Bool
     ) -> StakeStepPlan {
-        switch action.type {
+        switch action.displayType {
         case .stake, .pending(.stake):
             isStakeAmountEditable
                 ? StakeStepPlan(
