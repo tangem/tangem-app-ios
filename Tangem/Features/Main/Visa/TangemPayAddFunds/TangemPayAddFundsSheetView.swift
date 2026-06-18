@@ -32,10 +32,10 @@ private extension TangemPayAddFundsSheetView {
 
             options
         }
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-        .padding(.bottom, DesignSystem.Tokens.Spacing.s200)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
@@ -44,8 +44,8 @@ private extension TangemPayAddFundsSheetView {
         BottomSheetHeaderView(title: Localization.tangempayCardDetailsAddFunds, trailing: {
             closeButton
         })
-        .titleFont(DesignSystem.Tokens.Font.Body.medium.font)
-        .titleColor(DesignSystem.Tokens.Theme.Text.primary)
+        .titleFont(DesignSystem.Font.bodyMediumToken.font)
+        .titleColor(DesignSystem.Color.textPrimary)
     }
 
     var options: some View {
