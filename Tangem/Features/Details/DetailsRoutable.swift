@@ -18,7 +18,7 @@ protocol DetailsRoutable: AnyObject {
 
     func openAppSettings()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
-    func openSupportChat(input: SupportChatInputModel)
+    func openSupportTypeSelection(emailAction: @escaping () -> Void, chatInput: SupportChatInputModel)
     func openTOS()
     func openScanCardManual()
     func openShop()

@@ -59,6 +59,8 @@ final class SendCoordinator: CoordinatorObject {
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
 
+    let supportChatPresenter = SupportChatPresenter()
+
     private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
 
@@ -126,6 +128,10 @@ extension SendCoordinator {
     }
 }
 
+// MARK: - SupportChatPresenting
+
+extension SendCoordinator: SupportChatPresenting {}
+
 // MARK: - SendRoutable
 
 extension SendCoordinator: SendRoutable {
@@ -141,6 +147,20 @@ extension SendCoordinator: SendRoutable {
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
         }
+    }
+
+    func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {
+        let chatInput = SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: dataCollector),
+            userIdentifier: chatDataCollector.userIdentifier,
+            source: .swap,
+            initialMessage: .swap(message: chatDataCollector.message)
+        )
+
+        openSupportTypeSelection(
+            emailAction: { [weak self] in self?.openMail(with: dataCollector, recipient: recipient) },
+            chatInput: chatInput
+        )
     }
 
     func openExplorer(url: URL) {
