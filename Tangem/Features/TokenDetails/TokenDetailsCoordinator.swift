@@ -307,10 +307,11 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             return
         }
 
-        let sourceToken = SendWithSwapTokenFactory(
+        let sourceToken = CommonSendSwapableTokenFactory(
             userWalletInfo: input.userWalletInfo,
-            walletModel: input.walletModel
-        ).makeWithSwapToken()
+            walletModel: input.walletModel,
+            operationType: .swapAndSend
+        ).makeSwapableToken()
 
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(type: .send(sourceToken), source: .tokenDetails)
@@ -324,7 +325,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .token,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)

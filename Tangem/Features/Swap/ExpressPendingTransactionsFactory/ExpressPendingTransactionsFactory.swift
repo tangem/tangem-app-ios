@@ -22,31 +22,33 @@ struct ExpressPendingTransactionsFactory {
             tokenEnricher: tokenEnricher
         )
 
-        let expressAPIProviderResolver = ExpressAPIProviderResolver(
-            providerFactory: makeExpressAPIProvider(userWalletId:refcode:)
-        )
+        let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
             walletModelUpdater: walletModelUpdater,
-            expressAPIProviderResolver: expressAPIProviderResolver,
+            cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
+        let expressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProviderResolver.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+            expressAPIProvider: expressAPIProvider,
+            unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
+                userWalletId: userWalletInfo.id.stringValue,
+                tokenItem: tokenItem,
+                expressAPIProvider: expressAPIProvider
+            )
         )
 
         return CompoundPendingTransactionsManager(
             first: pendingExpressTransactionsManager,
             second: pendingOnrampTransactionsManager
         )
-    }
-
-    private func makeExpressAPIProvider(userWalletId: String, refcode: Refcode?) -> ExpressAPIProvider {
-        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
 }

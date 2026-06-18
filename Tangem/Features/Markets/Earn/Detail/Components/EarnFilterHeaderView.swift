@@ -27,7 +27,6 @@ struct EarnFilterHeaderView: View {
     @ScaledMetric private var buttonHorizontalPadding: CGFloat = .unit(.x3)
     @ScaledMetric private var buttonVerticalPadding: CGFloat = .unit(.x2)
     @ScaledMetric private var buttonCornerRadius: CGFloat = .unit(.x2)
-    @ScaledSize private var buttonIconSize: CGSize = .init(bothDimensions: .unit(.x5))
 
     var body: some View {
         HStack(spacing: .zero) {
@@ -48,7 +47,7 @@ struct EarnFilterHeaderView: View {
             )
         }
         .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, verticalPadding)
+        .padding(.vertical, FeatureProvider.isAvailable(.redesign) ? .zero : verticalPadding)
     }
 
     @ViewBuilder
