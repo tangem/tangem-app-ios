@@ -75,6 +75,8 @@ protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, 
     func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory
+
+    func makeActionButtonsRole() -> ActionButtonsWalletRole
 }
 
 extension UserWalletConfig {
@@ -126,6 +128,10 @@ extension UserWalletConfig {
         productType == .mobileWallet
             ? !hasFeature(.mnemonicBackup)
             : !hasFeature(.backup)
+    }
+
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: true, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
     }
 }
 
