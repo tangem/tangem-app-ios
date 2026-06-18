@@ -60,4 +60,5 @@ Stop the chase at anything still referenced by live code. If both branches of a 
    ```
 
    Deduplicate the logins and exclude yourself. For authors no longer on the team, fall back to the usual reviewer selection (see the create-pr skill).
-8. The standard workflow from AGENTS.md applies: Jira ticket fields, branch naming, self-review before the PR.
+8. Add a line to the PR description asking each removed toggle's author (the reviewers resolved in step 7) to validate the QA Notes generated for this removal — they own the feature and are best placed to confirm the auto-generated scenarios actually cover it now that the disabled path is gone. Mention them by GitHub login, e.g. `@<login> — please validate the generated QA Notes for the <toggle> removal.`
+9. The standard workflow from AGENTS.md applies: Jira ticket fields, branch naming, self-review before the PR.
