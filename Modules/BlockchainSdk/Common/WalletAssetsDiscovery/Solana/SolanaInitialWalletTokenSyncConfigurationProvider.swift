@@ -10,14 +10,11 @@ import TangemFoundation
 
 struct SolanaInitialWalletTokenSyncConfigurationProvider {
     private let networkServiceFactory: WalletNetworkServiceFactory
-    private let isSolanaScaledUIEnabled: Bool
 
     init(
-        networkServiceFactory: WalletNetworkServiceFactory,
-        isSolanaScaledUIEnabled: Bool
+        networkServiceFactory: WalletNetworkServiceFactory
     ) {
         self.networkServiceFactory = networkServiceFactory
-        self.isSolanaScaledUIEnabled = isSolanaScaledUIEnabled
     }
 
     // MARK: - InitialWalletTokenSyncConfigurationProvider
@@ -31,7 +28,6 @@ struct SolanaInitialWalletTokenSyncConfigurationProvider {
         }
 
         let solanaNetworkService: SolanaNetworkService = try networkServiceFactory.makeServiceWithType(for: blockchain)
-        solanaNetworkService.isSolanaScaledUIEnabled = isSolanaScaledUIEnabled
         let balances = try await solanaNetworkService.getInitialWalletInfo(accountId: address).async()
         let tokenBalances = balances.tokenBalancesByMint.map { contractAddress, info in
             WalletAssetsDiscoveryTokenBalance(contractAddress: contractAddress, balance: info.balance)

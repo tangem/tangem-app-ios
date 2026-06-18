@@ -13,8 +13,7 @@ enum ActionButtonsAnalyticsService {
 
     static func trackActionButtonTap(button: ActionButtonModel, state: ActionButtonState) {
         let event: Analytics.Event = switch button {
-        case .buy:
-            FeatureProvider.isAvailable(.addFundsStage1) ? .mainScreenButtonAddFunds : .actionButtonsBuyButton
+        case .buy: .mainScreenButtonAddFunds
         case .swap: .actionButtonsSwapButton
         case .sell: .actionButtonsSellButton
         }

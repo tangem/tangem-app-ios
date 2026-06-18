@@ -156,8 +156,7 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
             currentTokenItem: makeTokenItem(),
             userWalletInfo: makeUserWalletInfo(),
             pendingTransactionsManager: manager,
-            router: PendingExpressTxStatusRouterStub(),
-            isRatingFeatureAvailable: true
+            router: PendingExpressTxStatusRouterStub()
         )
 
         trackForMemoryLeaks(sut)

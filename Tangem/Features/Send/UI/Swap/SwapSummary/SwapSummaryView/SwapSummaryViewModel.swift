@@ -82,7 +82,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func logScreenOpened() {
-        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
         analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
     }
 
@@ -117,11 +116,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapFee() {
         router?.summaryStepRequestEditFee()
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    func userDidTapMaxAmount() {
-        interactor.userDidRequestMaxAmount()
     }
 
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
