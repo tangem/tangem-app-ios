@@ -115,6 +115,15 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
+    @discardableResult
+    func openToSScreen() -> TermsOfServiceScreen {
+        XCTContext.runActivity(named: "Open 'ToS' screen") { _ in
+            waitAndAssertTrue(termsOfServiceButton, "'ToS' button should exist")
+            termsOfServiceButton.waitAndTap()
+            return TermsOfServiceScreen(app)
+        }
+    }
+
     private func anyElement(_ element: DetailsScreenElement) -> XCUIElement {
         app.descendants(matching: .any)
             .matching(identifier: element.accessibilityIdentifier)
