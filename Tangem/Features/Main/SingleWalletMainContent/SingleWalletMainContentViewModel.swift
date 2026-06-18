@@ -37,6 +37,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let rateAppController: RateAppInteractionController
@@ -62,6 +63,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?,
         accountModel: (any CryptoAccountModel)?
     ) {
+        self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
         self.rateAppController = rateAppController
@@ -247,7 +249,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        addFundsRoutable?.openBuy(userWalletModels: userWalletModels)
+        addFundsRoutable?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
     }
 }
 
