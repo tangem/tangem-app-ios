@@ -63,10 +63,10 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
         ScrollViewReader { reader in
             GroupedScrollView(contentType: .lazy(spacing: 8)) {
-                Color.clear.frame(height: 0)
-                    .id(Constants.scrollToTopAnchorID)
-
                 content()
+                    .overlay(alignment: .top) {
+                        Color.clear.frame(height: 0).id(Constants.scrollToTopAnchorID)
+                    }
                     .animation(.contentFrameUpdate, value: viewModel.contentVisibility)
             }
             .onChange(of: viewModel.scrollToTopTrigger) { _ in
@@ -116,7 +116,6 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
             VStack(spacing: 0) {
                 ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
             }
-            .padding(.top, Constants.chipsToListExtraSpacing)
         } else {
             ForEach(viewModel.wallets) { TokenSelectorWalletItemView(viewModel: $0) }
         }
@@ -126,7 +125,8 @@ struct TokenSelectorView<EmptyContentView: View, AdditionalContentView: View, He
         HorizontalChipsView(
             chips: viewModel.walletChips.map { Chip(id: $0.id, title: $0.name) },
             selectedId: $viewModel.selectedChipId,
-            horizontalInset: 8
+            horizontalInset: 8,
+            verticalInset: 8
         )
     }
 
@@ -172,7 +172,6 @@ extension TokenSelectorView {
 
     private enum Constants {
         static var scrollToTopAnchorID: String { "TokenSelectorView.scrollToTopAnchor" }
-        static var chipsToListExtraSpacing: CGFloat { 8 }
     }
 }
 

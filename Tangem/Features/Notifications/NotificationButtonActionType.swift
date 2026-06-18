@@ -62,6 +62,7 @@ enum NotificationButtonActionType: Identifiable {
     case givePermission
     case openManageTokensAfterWalletSuccessImport
     case openYieldBoostPromo(buttonTitle: String)
+    case yieldBoostPromoLater
     case addFunds
 
     var id: Int {
@@ -101,6 +102,7 @@ enum NotificationButtonActionType: Identifiable {
         case .givePermission: "givePermission".hashValue
         case .openManageTokensAfterWalletSuccessImport: "openManageTokensAfterWalletSuccessImport".hashValue
         case .openYieldBoostPromo(let buttonTitle): "openYieldBoostPromo\(buttonTitle)".hashValue
+        case .yieldBoostPromoLater: "yieldBoostPromoLater".hashValue
         case .addFunds: "addFunds".hashValue
         }
     }
@@ -173,6 +175,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.mainManageTokens
         case .openYieldBoostPromo(let buttonTitle):
             return buttonTitle
+        case .yieldBoostPromoLater:
+            return Localization.commonLater
         case .addFunds:
             return Localization.commonAddFunds
         }
@@ -217,6 +221,7 @@ enum NotificationButtonActionType: Identifiable {
              .openDynamicAddressesEnter,
              .openManageTokensAfterWalletSuccessImport,
              .openYieldBoostPromo,
+             .yieldBoostPromoLater,
              .addFunds:
             return nil
         }
@@ -258,6 +263,7 @@ enum NotificationButtonActionType: Identifiable {
              .openCloreMigration,
              .openDynamicAddressesEnter,
              .closeMobileUpgrade,
+             .yieldBoostPromoLater,
              .openManageTokensAfterWalletSuccessImport:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):

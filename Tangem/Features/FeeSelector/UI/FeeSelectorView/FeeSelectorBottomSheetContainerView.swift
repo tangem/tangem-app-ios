@@ -50,7 +50,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
             .floatingSheetConfiguration { configuration in
                 configuration.sheetBackgroundColor = Colors.Background.tertiary
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-                configuration.backgroundInteractionBehavior = .consumeTouches
+                configuration.backgroundInteractionBehavior = .tapToDismiss
                 configuration.verticalSwipeBehavior = verticalSwipeBehavior
             }
     }

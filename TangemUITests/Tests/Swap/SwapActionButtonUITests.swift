@@ -17,7 +17,7 @@ final class SwapActionButtonUITests: BaseTestCase {
     func testSwapFromTokenDetails_NavigatesToSwapScreen() {
         setAllureId(2828)
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let swapScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -40,7 +40,7 @@ final class SwapActionButtonUITests: BaseTestCase {
     func testSwapFromMainScreen_OpensTokenSelectorAndSwapScreen() {
         setAllureId(2829)
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
