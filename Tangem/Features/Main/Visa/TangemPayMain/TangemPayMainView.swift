@@ -308,8 +308,8 @@ struct TangemPayMainView: View {
                 redesignedTransactionList
                     .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
             }
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.top, DesignSystem.Tokens.Spacing.s150)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
         }
         .background {
             TangemPayBackgroundView(textureOpacity: redesignedHeaderOpacity)
@@ -337,7 +337,7 @@ struct TangemPayMainView: View {
     }
 
     private var redesignedCollapsingHeader: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s350) {
+        VStack(spacing: 28) {
             redesignedHeader
 
             if !viewModel.notificationBannerItems.isEmpty {
@@ -363,7 +363,7 @@ struct TangemPayMainView: View {
                 PendingExpressTransactionView(info: transactionInfo)
             }
         }
-        .padding(.bottom, DesignSystem.Tokens.Spacing.s350)
+        .padding(.bottom, 28)
     }
 
     @ViewBuilder
@@ -383,14 +383,14 @@ struct TangemPayMainView: View {
     }
 
     private var redesignedHeader: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+        VStack(spacing: 24) {
+            VStack(spacing: 4) {
                 TangemPayBalanceView(state: viewModel.balance)
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 Text(Localization.tokenDetailsBalanceTotal)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.tertiary)
+                    .font(DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textTertiary)
             }
 
             redesignedCardsRow
@@ -401,15 +401,15 @@ struct TangemPayMainView: View {
                 addFundsAction: viewModel.addFunds,
                 withdrawAction: viewModel.withdraw
             )
-            .padding(.top, DesignSystem.Tokens.Spacing.s100)
+            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, DesignSystem.Tokens.Spacing.s400)
+        .padding(.top, 32)
     }
 
     @ViewBuilder
     private var redesignedCardsRow: some View {
-        HStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+        HStack(spacing: 8) {
             if viewModel.multipleCardsEnabled {
                 ForEach(viewModel.cardEntries) { entry in
                     redesignedCardEntryButton(for: entry)
@@ -476,14 +476,14 @@ struct TangemPayMainView: View {
     @ToolbarContentBuilder
     private var redesignedToolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+            VStack(spacing: 4) {
                 Text(Localization.tangempayPaymentAccount)
-                    .font(DesignSystem.Tokens.Font.Subheading.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayUsdcOnPolygonNetwork)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.tertiary)
+                    .font(DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textTertiary)
             }
         }
 
