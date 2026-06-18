@@ -17,6 +17,8 @@ final class CommonDeeplinkPresenterV2 {
 
     @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
     @Injected(\.overlayViewPresenter) private var overlayViewPresenter: OverlayViewPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     private let coordinatorFactory: MainCoordinatorChildFactory
 
     // MARK: - Init
@@ -95,8 +97,8 @@ private extension CommonDeeplinkPresenterV2 {
         case .sell(let userWalletModel):
             return constructSellView(userWalletModel: userWalletModel)
 
-        case .swapWithDeferredPairResolution(let parameters):
-            return constructSwapWithDeferredPairResolutionView(parameters: parameters)
+        case .swap(let parameters):
+            return constructSwapView(parameters: parameters)
 
         case .referral(let input):
             return constructReferralView(input: input)
@@ -139,7 +141,7 @@ private extension CommonDeeplinkPresenterV2 {
             return .fullScreenCover
 
         case .expressTransactionStatus, .tokenDetails, .buy, .sell,
-             .swapWithDeferredPairResolution, .referral,
+             .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .tangemPayMain, .tangemPayTransactionDetails, .newsDetails,
              .newsList, .earn:
@@ -155,7 +157,7 @@ private extension CommonDeeplinkPresenterV2 {
             return false
 
         case .expressTransactionStatus, .tokenDetails, .buy, .sell,
-             .swapWithDeferredPairResolution, .referral,
+             .swap, .referral,
              .staking, .yield, .marketsTokenDetails, .tokenExchanges, .externalLink,
              .markets, .onboardVisa, .tangemPayMain, .tangemPayTransactionDetails,
              .newsDetails, .newsList, .earn:
@@ -225,7 +227,12 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView {
+    private func constructBuyView(userWalletModel: UserWalletModel) -> AnyView? {
+        if let backupAlert = UserWalletBackupStatusHelper().alert(for: userWalletModel.userWalletInfo) {
+            alertPresenter.present(alert: backupAlert)
+            return nil
+        }
+
         let presenter = overlayViewPresenter
         let coordinator = coordinatorFactory.makeBuyCoordinator(dismissAction: { _ in Task { @MainActor in presenter.dismiss() } })
 
@@ -258,7 +265,7 @@ private extension CommonDeeplinkPresenterV2 {
         )
     }
 
-    private func constructSwapWithDeferredPairResolutionView(parameters: PredefinedSwapParameters) -> AnyView {
+    private func constructSwapView(parameters: PredefinedSwapParameters) -> AnyView? {
         let presenter = overlayViewPresenter
         let coordinator = SendCoordinator(
             dismissAction: { _ in Task { @MainActor in presenter.dismiss() } },

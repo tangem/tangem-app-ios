@@ -36,7 +36,7 @@ struct TangemPaySwapableTokenFactory: SendSwapableTokenFactory {
         let sourceToken = sourceTokenFactory.makeSourceToken()
 
         let sendingRestrictionsProvider = TangemPaySendingRestrictionsProvider()
-        let receivingRestrictionsProvider = TangemPayReceivingRestrictionsProvider()
+        let receivingRestrictionsProvider = TangemPayReceivingRestrictionsProvider(userWalletInfo: userWalletInfo)
 
         let tokenFeeProvidersManagerProvider = TangemPayTokenFeeProvidersManagerProvider(
             feeTokenItem: feeTokenItem,

@@ -66,7 +66,7 @@ private extension TokenSelectorItemSwapAvailabilityProvider {
         availableCurrencies: [ExpressCurrency]?
     ) -> TokenSelectorItem.AvailabilityType {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
 
