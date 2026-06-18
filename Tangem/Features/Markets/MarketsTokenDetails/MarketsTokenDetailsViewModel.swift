@@ -82,6 +82,15 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }
 
+    var shouldShowPortfolioBlock: Bool {
+        switch presentationStyle {
+        case .marketsSheet, .addFundsSheet:
+            return true
+        case .fullScreenCover, .navigationStack:
+            return false
+        }
+    }
+
     var descriptionCanBeShowed: Bool { !geoEligibilityService.isUK }
 
     let presentationStyle: MarketsTokenDetailsPresentationStyle
@@ -612,7 +621,7 @@ private extension MarketsTokenDetailsViewModel {
     }
 
     func makePortfolioViewModel() {
-        guard isMarketsSheetStyle else {
+        guard shouldShowPortfolioBlock else {
             return
         }
 
@@ -701,17 +710,13 @@ extension MarketsTokenDetailsViewModel: MarketsTokenDetailsSecurityScoreRoutable
                 .token: tokenInfo.symbol.uppercased(),
             ]
         )
-        if isRedesignEnabled {
-            Task { @MainActor in
-                coordinator?.openSecurityScoreDetails(with: providers, routable: self)
+        securityScoreDetailsViewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
+            with: providers,
+            routable: self,
+            closeAction: { [weak self] in
+                self?.securityScoreDetailsViewModel = nil
             }
-        } else {
-            // [REDACTED_INFO]: legacy security score sheet
-            securityScoreDetailsViewModel = MarketsTokenDetailsSecurityScoreDetailsFactory().makeViewModel(
-                with: providers,
-                routable: self
-            )
-        }
+        )
     }
 }
 
@@ -749,4 +754,5 @@ enum MarketsTokenDetailsPresentationStyle {
     case marketsSheet
     case navigationStack
     case fullScreenCover
+    case addFundsSheet
 }

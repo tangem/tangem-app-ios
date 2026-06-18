@@ -512,23 +512,6 @@ extension OnboardingViewModel {
         coordinator?.closeOnboarding()
     }
 
-    func openSupportChat() {
-        let walletModels = userWalletModel.map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
-
-        let dataCollector = DetailsFeedbackDataCollector(
-            data: [
-                .init(
-                    userWalletEmailData: input.cardInput.emailData,
-                    walletModels: walletModels
-                ),
-            ]
-        )
-
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
-        coordinator?.openSupportChat(input: .init(logsComposer: logsComposer))
-        logAnalytics(.chatScreenOpened)
-    }
-
     func openSupport() {
         logAnalytics(.requestSupport, params: [.source: .onboarding])
 

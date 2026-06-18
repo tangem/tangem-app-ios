@@ -156,8 +156,7 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
             currentTokenItem: makeTokenItem(),
             userWalletInfo: makeUserWalletInfo(),
             pendingTransactionsManager: manager,
-            router: PendingExpressTxStatusRouterStub(),
-            isRatingFeatureAvailable: true
+            router: PendingExpressTxStatusRouterStub()
         )
 
         trackForMemoryLeaks(sut)
@@ -211,6 +210,7 @@ private extension PendingExpressTxStatusBottomSheetViewModelRatingTests {
             name: "Test",
             id: UserWalletId(value: Data([0x01, 0x02, 0x03])),
             config: UserWalletConfigStub(),
+            backupState: .valid,
             refcode: nil,
             signer: TangemSignerStub(),
             emailDataProvider: EmailDataProviderStub()

@@ -43,13 +43,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     final let userWalletInfo: UserWalletInfo
     final let walletModel: any WalletModel
     final let notificationManager: NotificationManager
-    private var availableActions: [TokenActionType] = []
+    final let tokenActionAvailabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
+    final let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
 
+    private var availableActions: [TokenActionType] = []
     private let tokenRouter: SingleTokenRoutable
     private let priceFormatter = MarketsTokenPriceFormatter()
-    private let tokenActionAvailabilityAlertBuilder = TokenActionAvailabilityAlertBuilder()
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
-    private let tokenActionAvailabilityProvider: TokenActionAvailabilityProvider
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let priceChangeUtility = PriceChangeUtility()
 
@@ -114,7 +114,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         self.walletModel = walletModel
         self.notificationManager = notificationManager
         tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
@@ -198,6 +198,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     func copyDefaultAddress() {
+        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = unavailableAlert
+            return
+        }
+
         UIPasteboard.general.string = walletModel.defaultAddressString
         let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpactGenerator.impactOccurred()
@@ -569,7 +576,7 @@ extension SingleTokenBaseViewModel {
         case .buy: return openBuyCryptoAction
         case .send: return openSendAction
         case .receive: return openReceiveAction
-        case .exchange: return openExchangeAction
+        case .exchange: return { [weak self] in self?.openExchangeAction() }
         case .sell: return openSellAction
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
@@ -600,7 +607,9 @@ extension SingleTokenBaseViewModel {
     }
 
     private func openBuyCrypto() {
-        if let buyUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.buyAvailablity) {
+        if let buyUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.buyAvailablity
+        ) {
             alert = buyUnavailableAlert
             return
         }
@@ -609,6 +618,13 @@ extension SingleTokenBaseViewModel {
     }
 
     final func openOnramp(parameters: PredefinedOnrampParameters) {
+        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.buyAvailablity
+        ) {
+            alert = unavailableAlert
+            return
+        }
+
         tokenRouter.openOnramp(walletModel: walletModel, parameters: parameters)
     }
 
@@ -621,7 +637,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSend(walletModel: walletModel)
     }
 
-    final func openExchange() {
+    final func openExchange(position: SwapDirection = .automatic) {
         if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
             alert = swapUnavailableAlert
             return
@@ -631,7 +647,8 @@ extension SingleTokenBaseViewModel {
 
         guard let parameters = helper.makeParameters(
             walletModel: walletModel,
-            userWalletInfo: userWalletInfo
+            userWalletInfo: userWalletInfo,
+            position: position
         ) else {
             return
         }
@@ -697,7 +714,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
-    private func openExchangeAction() {
+    private func openExchangeAction(position: SwapDirection = .automatic) {
         Analytics.log(event: .buttonExchange, params: [
             .token: walletModel.tokenItem.currencySymbol,
             .blockchain: walletModel.tokenItem.blockchain.displayName,
@@ -705,7 +722,7 @@ extension SingleTokenBaseViewModel {
             .status: tokenActionAvailabilityAnalyticsMapper.mapToParameterValue(tokenActionAvailabilityProvider.swapAvailability).rawValue,
         ])
 
-        openExchange()
+        openExchange(position: position)
     }
 
     private func openBuyCryptoAction() {
@@ -761,6 +778,10 @@ extension SingleTokenBaseViewModel {
         case .sell: openSellAction()
         case .copyAddress, .hide, .stake, .marketsDetails, .yield: break
         }
+    }
+
+    func performSwapAction(position: SwapDirection) {
+        openExchangeAction(position: position)
     }
 }
 

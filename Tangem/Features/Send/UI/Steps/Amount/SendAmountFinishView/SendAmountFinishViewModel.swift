@@ -50,35 +50,34 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
 
 private extension SendAmountFinishViewModel {
     func getViewType() -> ViewType? {
-        guard
-            let tokenHeader,
-            let tokenIconInfo,
-            let amountText
-        else {
+        guard let tokenHeader, let tokenIconInfo, let amountText else {
             return nil
         }
 
-        guard let receiveSmallAmountViewModel, let sendSwapProviderFinishViewModel else {
-            return .one(
-                .init(
-                    tokenHeader: tokenHeader,
-                    tokenIconInfo: tokenIconInfo,
-                    amountText: amountText,
-                    alternativeAmount: alternativeAmount
-                )
-            )
-        }
-
-        return .double(
-            source: .init(
-                tokenHeader: tokenHeader,
-                tokenIconInfo: tokenIconInfo,
-                amountText: amountText,
-                alternativeAmount: alternativeAmount
-            ),
-            destination: receiveSmallAmountViewModel,
-            provider: sendSwapProviderFinishViewModel
+        let sourceLargeAmount = SendAmountFinishLargeAmountViewModel(
+            tokenHeader: tokenHeader,
+            tokenIconInfo: tokenIconInfo,
+            amountText: amountText,
+            alternativeAmount: alternativeAmount
         )
+
+        let sourceSmallAmount = SendAmountFinishSmallAmountViewModel(
+            tokenHeader: tokenHeader,
+            tokenIconInfo: tokenIconInfo,
+            amountText: amountText,
+            alternativeAmount: alternativeAmount
+        )
+
+        switch (receiveSmallAmountViewModel, sendSwapProviderFinishViewModel) {
+        case (.none, _):
+            return .one(source: sourceLargeAmount)
+
+        case (.some(let receiveSmallAmountViewModel), .none):
+            return .double(source: sourceSmallAmount, destination: receiveSmallAmountViewModel)
+
+        case (.some(let receiveSmallAmountViewModel), .some(let sendSwapProviderFinishViewModel)):
+            return .triple(source: sourceSmallAmount, destination: receiveSmallAmountViewModel, provider: sendSwapProviderFinishViewModel)
+        }
     }
 
     func bind(
@@ -186,7 +185,7 @@ private extension SendAmountFinishViewModel {
                 ).string(from: $0)
             }
 
-            let showTilde = isApproximateAmount && flowActionType.isSwapFlow && FeatureProvider.isAvailable(.swapInProgressV2)
+            let showTilde = isApproximateAmount && flowActionType.isSwapFlow
             let amountText = formattedAmount.map { SwapAmountFormatter.formatAmount($0, isApproximate: showTilde) } ?? ""
 
             receiveSmallAmountViewModel = .init(
@@ -220,8 +219,12 @@ private extension SendAmountFinishViewModel {
 
 extension SendAmountFinishViewModel {
     enum ViewType {
-        case one(SendAmountFinishLargeAmountViewModel)
+        case one(source: SendAmountFinishLargeAmountViewModel)
         case double(
+            source: SendAmountFinishSmallAmountViewModel,
+            destination: SendAmountFinishSmallAmountViewModel
+        )
+        case triple(
             source: SendAmountFinishSmallAmountViewModel,
             destination: SendAmountFinishSmallAmountViewModel,
             provider: SendSwapProviderFinishViewModel

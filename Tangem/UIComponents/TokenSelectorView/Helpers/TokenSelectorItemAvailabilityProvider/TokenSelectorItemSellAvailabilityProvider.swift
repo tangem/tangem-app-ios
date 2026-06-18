@@ -19,7 +19,7 @@ struct TokenSelectorItemSellAvailabilityProvider: TokenSelectorItemAvailabilityP
 
     private func availabilityType(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) -> TokenSelectorItem.AvailabilityType {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
 

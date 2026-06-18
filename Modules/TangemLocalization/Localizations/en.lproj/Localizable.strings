@@ -333,6 +333,7 @@
 "common_sell" = "Sell";
 "common_send_colon" = "Send:";
 "common_send_tx_error" = "Failed to send transaction";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Send";
 "common_sending" = "Sending";
 "common_sent" = "Sent";
@@ -572,7 +573,11 @@
 "feedback_token_description_error" = "Coin description error";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
 "force_update_banner_title" = "Update needed";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Update";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Please update the app to its latest version to ensure proper functionality.";
 "force_update_warning_title" = "Update required";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
@@ -1061,6 +1066,7 @@
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
 "quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
@@ -1666,7 +1672,7 @@
 "tangempay_onboarding_setup_wallet_title" = "We'll set up a wallet";
 "tangempay_onboarding_title" = "Get your Tangem Pay Card in minutes";
 "tangempay_pay_support" = "Pay Support";
-"tangempay_payment_account_sync_needed" = "Payment account session expired";
+"tangempay_payment_account_sync_needed" = "Session expired";
 "tangempay_payment_account" = "Payment account";
 "tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
 "tangempay_reissue_card_confirm" = "Replace card";
@@ -1679,7 +1685,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Unable to cover fee";
 "tangempay_reissue_card_insufficient_funds" = "Insufficient funds to replace the card";
 "tangempay_reissue_card_title" = "Replace your card?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
@@ -1696,7 +1702,7 @@
 "tangempay_sync_needed_title" = "Payment account session expired";
 "tangempay_sync_needed" = "Use your card or ring to renew session";
 "tangempay_tangem_visa_card" = "Use USDC for everyday payments";
-"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
+"tangempay_temporarily_unavailable" = "Connection issues";
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "Send USDC Polygon to your account’s address ";
 "tangempay_topup_receive_title" = "From another wallet or exchange";

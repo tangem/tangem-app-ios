@@ -12,38 +12,38 @@ import TangemLocalization
 
 struct TangemPayIssuingCardBannerRedesigned: View {
     var body: some View {
-        HStack(alignment: .top, spacing: DesignSystem.Tokens.Spacing.s150) {
+        HStack(alignment: .top, spacing: 12) {
             Assets.clock32.image
                 .resizable()
                 .renderingMode(.template)
                 .aspectRatio(contentMode: .fit)
-                .frame(width: DesignSystem.Tokens.Size.s250, height: DesignSystem.Tokens.Size.s250)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .frame(width: 20, height: 20)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localization.tangempayIssuingNewDigitalCardTitle)
-                    .font(DesignSystem.Tokens.Font.Body.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                    .font(DesignSystem.Font.bodyMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textPrimary)
 
-                Text(Localization.tangempayIssuingYourCardDescription)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                Text(Localization.tangempayReissueCardInProgressDescription)
+                    .font(DesignSystem.Font.captionMediumToken)
+                    .foregroundStyle(DesignSystem.Color.textSecondary)
             }
 
             Spacer(minLength: 0)
         }
-        .padding(DesignSystem.Tokens.Spacing.s200)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
-            RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(
-                    DesignSystem.Tokens.Theme.Bg.Opaque.secondary
+                    DesignSystem.Color.bgOpaqueSecondary
                         .shadow(.inner(color: .white.opacity(0.6), radius: 10))
                 )
         }
         .overlay {
-            RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._250, style: .continuous)
-                .stroke(DesignSystem.Tokens.Theme.Border.secondary, lineWidth: DesignSystem.Tokens.BorderWidth.sm)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
         }
     }
 }
@@ -55,6 +55,6 @@ struct TangemPayIssuingCardBannerRedesigned: View {
     TangemPayIssuingCardBannerRedesigned()
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.primary)
+        .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG

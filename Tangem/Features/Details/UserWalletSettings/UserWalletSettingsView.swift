@@ -34,8 +34,6 @@ struct UserWalletSettingsView: View {
 
             nftSection
 
-            notificationSettingsSection
-
             pushNotifySection
 
             forgetSection
@@ -144,12 +142,6 @@ struct UserWalletSettingsView: View {
     private var pushNotifySection: some View {
         if let pushNotificationsViewModel = viewModel.pushNotificationsViewModel {
             TransactionNotificationsRowToggleView(viewModel: pushNotificationsViewModel)
-        }
-    }
-
-    private var notificationSettingsSection: some View {
-        GroupedSection(viewModel.notificationSettingsViewModel) {
-            DefaultRowView(viewModel: $0)
         }
     }
 

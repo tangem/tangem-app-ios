@@ -20,6 +20,13 @@ struct EmailConfig {
         )
     }
 
+    static var backupError: EmailConfig {
+        .init(
+            recipient: "support@tangem.com",
+            subject: Localization.commonBackupError
+        )
+    }
+
     static func visaDefault(subject: VisaEmailSubject = .default) -> EmailConfig {
         let recipient = "pay@tangem.com"
         return .init(recipient: recipient, subject: subject.prefix)
