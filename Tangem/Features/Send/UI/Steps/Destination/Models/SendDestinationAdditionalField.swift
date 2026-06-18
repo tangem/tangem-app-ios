@@ -9,7 +9,9 @@
 import Foundation
 import TangemLocalization
 import BlockchainSdk
+import TangemMacro
 
+@CaseFlagable
 enum SendDestinationAdditionalField {
     case notSupported
     case empty(type: SendDestinationAdditionalFieldType)
