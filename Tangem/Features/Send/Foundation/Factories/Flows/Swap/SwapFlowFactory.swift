@@ -140,7 +140,9 @@ extension SwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSwapAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: swapModel,
-                sourceTokenInput: swapModel
+                sourceTokenInput: swapModel,
+                receiveTokenInput: swapModel,
+                providersInput: swapModel
             ),
             approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
                 dataProvider: swapModel,
