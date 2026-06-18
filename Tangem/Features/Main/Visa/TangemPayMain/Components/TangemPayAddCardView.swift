@@ -13,13 +13,13 @@ struct TangemPayAddCardView: View {
     var body: some View {
         DesignSystem.Icons.SignPlus.regular16.image
             .renderingMode(.template)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.tertiary)
+            .foregroundStyle(DesignSystem.Color.iconTertiary)
             .frame(
-                width: DesignSystem.Tokens.Size.s700,
-                height: DesignSystem.Tokens.Size.s500
+                width: 56,
+                height: 40
             )
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary)
-            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Tokens.CornerRadius._075, style: .continuous))
+            .background(DesignSystem.Color.bgOpaquePrimary)
+            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 }
 
@@ -29,6 +29,6 @@ struct TangemPayAddCardView: View {
 #Preview {
     TangemPayAddCardView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DesignSystem.Tokens.Theme.Bg.primary)
+        .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG
