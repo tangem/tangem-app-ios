@@ -10,14 +10,11 @@ import Foundation
 
 public struct CommonInitialWalletTokenSyncConfigurationProvider: WalletAssetsDiscoveryBalanceProvider {
     private let networkServiceFactory: () -> WalletNetworkServiceFactory
-    private let isSolanaScaledUIEnabled: Bool
 
     public init(
-        networkServiceFactory: @escaping @autoclosure () -> WalletNetworkServiceFactory,
-        isSolanaScaledUIEnabled: Bool = true
+        networkServiceFactory: @escaping @autoclosure () -> WalletNetworkServiceFactory
     ) {
         self.networkServiceFactory = networkServiceFactory
-        self.isSolanaScaledUIEnabled = isSolanaScaledUIEnabled
     }
 
     // MARK: - InitialWalletTokenSyncConfigurationProvider
@@ -152,8 +149,7 @@ public struct CommonInitialWalletTokenSyncConfigurationProvider: WalletAssetsDis
             ).configuration(for: blockchain, address: address)
         case .solana:
             return try await SolanaInitialWalletTokenSyncConfigurationProvider(
-                networkServiceFactory: factory,
-                isSolanaScaledUIEnabled: isSolanaScaledUIEnabled
+                networkServiceFactory: factory
             ).configuration(for: blockchain, address: address)
         default:
             if blockchain.isEvm {

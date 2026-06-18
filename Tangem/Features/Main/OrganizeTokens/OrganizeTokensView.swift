@@ -86,20 +86,14 @@ struct OrganizeTokensView: View {
         if isRedesign {
             return Color.Tangem.Surface.level2
         }
-        if FeatureProvider.isAvailable(.manageTokensImprovements) {
-            return .clear
-        }
-        return Colors.Background.secondary
+        return .clear
     }
 
     private var cellBackgroundColor: Color {
         if isRedesign {
             return Color.Tangem.Surface.level3
         }
-        if FeatureProvider.isAvailable(.manageTokensImprovements) {
-            return Colors.Background.action
-        }
-        return Colors.Background.primary
+        return Colors.Background.action
     }
 
     // MARK: - Layout (redesign-aware)
@@ -112,19 +106,11 @@ struct OrganizeTokensView: View {
         isRedesign ? Constants.redesignContentHorizontalInset : Constants.contentHorizontalInset
     }
 
-    private var isModernOrganizeTokensLayout: Bool {
-        isRedesign || FeatureProvider.isAvailable(.manageTokensImprovements)
-    }
-
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            if isModernOrganizeTokensLayout {
-                tokenList
-            } else {
-                legacyTokenList
-            }
+            tokenList
 
             topContent
 
@@ -176,90 +162,6 @@ struct OrganizeTokensView: View {
             if newValue {
                 scrollState.onDragStart()
             } else {
-                scrollState.onDragEnd()
-                dragAndDropController.stopAutoScrolling()
-                dragAndDropDestinationIndexPath = nil
-                dragAndDropSourceItemFrame = nil
-            }
-        }
-        .onChange(of: dragGestureTranslation) { newValue in
-            updateDragAndDropDestinationIndexPath(using: newValue)
-        }
-    }
-
-    private var legacyTokenList: some View {
-        GeometryReader { geometryProxy in
-            ScrollViewReader { scrollProxy in
-                ScrollView(showsIndicators: false) {
-                    // ScrollView inserts default spacing between its content views.
-                    // Wrapping content into `VStack` prevents it.
-                    VStack(spacing: 0.0) {
-                        LazyVStack(spacing: 0.0) {
-                            Spacer(minLength: scrollViewTopContentInset)
-                                .fixedSize()
-                                .id(Identifiers.ScrollView.topContentInsetSpacer)
-
-                            tokenListContent
-                        }
-                        .animation(.spring(), value: viewModel.sections)
-                        .padding(.horizontal, contentHorizontalInset)
-                        .coordinateSpace(name: CoordinateSpaceName.ScrollView.content)
-                        .readGeometry(
-                            \.frame.maxY,
-                            inCoordinateSpace: .global,
-                            bindTo: scrollState.tokenListContentFrameMaxYSubject.asWriteOnlyBinding(.zero)
-                        )
-                        .readContentOffset(
-                            inCoordinateSpace: .named(CoordinateSpaceName.ScrollView.frame),
-                            bindTo: scrollState.contentOffsetSubject.asWriteOnlyBinding(.zero)
-                        )
-                        .overlay(makeDragAndDropGestureOverlayView())
-
-                        Spacer(minLength: scrollViewBottomContentInset)
-                            .fixedSize()
-                            .id(Identifiers.ScrollView.bottomContentInsetSpacer)
-                    }
-                }
-                .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokensList)
-                .readGeometry(\.frame, inCoordinateSpace: .global) { newValue in
-                    dragAndDropController.viewportSizeSubject.send(newValue.size)
-                    visibleViewportFrame = newValue
-                        .divided(atDistance: scrollViewTopContentInset, from: .minYEdge)
-                        .remainder
-                        .divided(atDistance: scrollViewBottomContentInset, from: .maxYEdge)
-                        .remainder
-                }
-                .onChange(of: draggedItemFrame) { newValue in
-                    changeAutoScrollStatusIfNeeded(draggedItemFrame: newValue)
-                }
-                .onReceive(dragAndDropController.autoScrollTargetPublisher) { newValue in
-                    withAnimation(.linear(duration: Constants.autoScrollFrequency)) {
-                        scrollProxy.scrollTo(newValue, anchor: scrollAnchor())
-                    }
-                }
-            }
-            .overlay(
-                makeDraggableComponent(width: geometryProxy.size.width - contentHorizontalInset * 2.0)
-                    .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag),
-                alignment: .top
-            )
-        }
-        .coordinateSpace(name: CoordinateSpaceName.ScrollView.frame)
-        .onReceive(scrollState.contentOffsetSubject) { newValue in
-            dragAndDropController.contentOffsetSubject.send(newValue)
-            updateDragAndDropDestinationIndexPath(using: dragGestureTranslation)
-        }
-        .onChange(of: dragAndDropDestinationIndexPath) { [oldValue = dragAndDropDestinationIndexPath] newValue in
-            guard let oldValue = oldValue, let newValue = newValue else { return }
-
-            dragAndDropController.onItemsMove()
-            viewModel.move(from: oldValue, to: newValue)
-        }
-        .onChange(of: hasActiveDrag) { newValue in
-            if newValue {
-                scrollState.onDragStart()
-            } else {
-                // Perform required clean-up when the user lifts the finger
                 scrollState.onDragEnd()
                 dragAndDropController.stopAutoScrolling()
                 dragAndDropDestinationIndexPath = nil

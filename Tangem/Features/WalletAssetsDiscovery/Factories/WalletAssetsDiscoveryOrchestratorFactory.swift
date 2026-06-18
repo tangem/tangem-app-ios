@@ -23,8 +23,7 @@ final class WalletAssetsDiscoveryOrchestratorFactory {
         let provider = networkServiceFactoryProvider
 
         return CommonInitialWalletTokenSyncConfigurationProvider(
-            networkServiceFactory: provider.factory,
-            isSolanaScaledUIEnabled: FeatureProvider.isAvailable(.solanaScaledUIEnabled)
+            networkServiceFactory: provider.factory
         )
     }()
 
