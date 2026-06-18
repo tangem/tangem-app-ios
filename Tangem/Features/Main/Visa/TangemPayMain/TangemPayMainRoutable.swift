@@ -12,6 +12,7 @@ import TangemPay
 
 protocol TangemPayMainRoutable: AnyObject {
     func openCardManagement()
+    func openCardManagement(entry: TangemPayCardEntry)
     func openFakedoorSheet()
     func openMaximumCardsIssuedSheet()
     func openIssueAdditionalCardCostPopup(offer: TangemPayCustomerOffer, fee: TangemPayCustomerOffer.Fee, issueCard: @escaping () async throws -> Void)
@@ -27,7 +28,8 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
-        customerId: String
+        customerId: String,
+        cardName: String?
     )
 
     func openPendingExpressTransactionDetails(

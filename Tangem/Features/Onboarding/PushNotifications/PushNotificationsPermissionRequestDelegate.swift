@@ -10,4 +10,11 @@ import Foundation
 
 protocol PushNotificationsPermissionRequestDelegate: AnyObject {
     func didFinishPushNotificationOnboarding()
+    func didPostponePushNotifications()
+}
+
+extension PushNotificationsPermissionRequestDelegate {
+    func didPostponePushNotifications() {
+        didFinishPushNotificationOnboarding()
+    }
 }
