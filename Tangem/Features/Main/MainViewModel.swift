@@ -156,7 +156,7 @@ final class MainViewModel: ObservableObject {
         let uiManager = mainBottomSheetUIManager
         // On a `cold start` (e.g., after launching the app or after coming back from the background in a `locked` state:
         // in both cases a new VM is created), the bottom sheet should become visible with some delay to prevent it from
-        // being placed over the authorization screen.
+        // being placed over the authorization or the launch (splash) screen, which is still fading out at this point.
         if shouldDelayBottomSheetVisibility {
             shouldDelayBottomSheetVisibility = false
             DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetVisibilityColdStartDelay) {
@@ -627,6 +627,8 @@ private extension MainViewModel {
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
         static let pushNotificationAuthorizationRequestDelay = 1.0
-        static let bottomSheetVisibilityColdStartDelay = 0.5
+        /// Keeps the Markets bottom sheet hidden until the launch (splash) screen has fully faded out,
+        /// plus a small buffer to absorb rendering jitter, so the two never overlap on a cold start.
+        static let bottomSheetVisibilityColdStartDelay = AppConstants.launchScreenDismissalDuration + 0.2
     }
 }
