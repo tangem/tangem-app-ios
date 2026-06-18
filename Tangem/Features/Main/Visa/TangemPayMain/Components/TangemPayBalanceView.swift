@@ -18,12 +18,12 @@ struct TangemPayBalanceView: View {
         LoadableBalanceView(
             state: Self.applyFractionStyling(state),
             style: .init(
-                font: DesignSystem.Tokens.Font.Display.medium.font,
-                textColor: DesignSystem.Tokens.Theme.Text.primary
+                font: DesignSystem.Font.displayMediumToken.font,
+                textColor: DesignSystem.Color.textPrimary
             ),
             loader: .init(
                 size: CGSize(width: 140, height: 44),
-                cornerRadius: DesignSystem.Tokens.CornerRadius._100
+                cornerRadius: 8
             ),
             accessibilityIdentifier: TangemPayAccessibilityIdentifiers.paymentAccountBalance
         )
@@ -58,15 +58,15 @@ private extension TangemPayBalanceView {
             fiatBalance: raw,
             formattingOptions: .init(
                 integerPartFont: TangemFontStyle(
-                    font: DesignSystem.Tokens.Font.Display.medium.font,
-                    tracking: DesignSystem.Tokens.Font.Display.medium.letterSpacing
+                    font: DesignSystem.Font.displayMediumToken.font,
+                    tracking: DesignSystem.Font.displayMediumToken.letterSpacing
                 ),
                 fractionalPartFont: TangemFontStyle(
-                    font: DesignSystem.Tokens.Font.Heading.medium.font,
-                    tracking: DesignSystem.Tokens.Font.Heading.medium.letterSpacing
+                    font: DesignSystem.Font.headingMediumToken.font,
+                    tracking: DesignSystem.Font.headingMediumToken.letterSpacing
                 ),
-                integerPartColor: DesignSystem.Tokens.Theme.Text.primary,
-                fractionalPartColor: DesignSystem.Tokens.Theme.Text.primary,
+                integerPartColor: DesignSystem.Color.textPrimary,
+                fractionalPartColor: DesignSystem.Color.textPrimary,
                 fractionalPartIncludesDecimalSeparator: true
             )
         )
@@ -83,6 +83,6 @@ private extension TangemPayBalanceView {
         TangemPayBalanceView(state: .loading())
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG
