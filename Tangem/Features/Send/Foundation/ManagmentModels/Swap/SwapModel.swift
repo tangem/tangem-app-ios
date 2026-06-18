@@ -1485,15 +1485,6 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         router?.performSwapAction()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount() {
-        guard let balance = sourceToken.value?.availableBalanceProvider.balanceType.loaded else {
-            return
-        }
-
-        externalAmountUpdater.externalUpdate(amount: balance)
-    }
-
     func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
         guard let token = sourceToken.value,
               let balance = token.availableBalanceProvider.balanceType.loaded else {

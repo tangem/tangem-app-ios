@@ -183,8 +183,6 @@ private extension SendSwapProvidersSelectorViewModel {
     }
 
     static func computeFilterOptions(showableProviders: [ExpressAvailableProvider]) -> [ProviderTypeFilter] {
-        guard FeatureProvider.isAvailable(.swapProviderTypeFilter) else { return [] }
-
         let hasCex = showableProviders.contains(where: \.provider.type.isCEX)
         let hasDex = showableProviders.contains(where: \.provider.type.isDEX)
 
