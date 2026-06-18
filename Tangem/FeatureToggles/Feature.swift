@@ -48,6 +48,7 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileWalletMultiCreation
     case approveFlowV2
     case addAndOrganizeRedesign
+    case stakingTransactionValidation
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
@@ -93,8 +94,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
-        case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
+        case .stakingTransactionValidation: return "14414_Staking_Transaction_Validation"
         case .addressBook: return "10801-Address-Book"
+        case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
@@ -140,8 +142,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return .unspecified
         case .approveFlowV2: return .version("5.40")
         case .addAndOrganizeRedesign: return .version("5.40")
-        case .swapChooseBestDEX: return .version("5.40")
+        case .stakingTransactionValidation: return .unspecified
         case .addressBook: return .unspecified
+        case .swapChooseBestDEX: return .version("5.40")
         case .hideStoriesInMobileWallet: return .version("5.40")
         }
     }
