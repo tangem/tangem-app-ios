@@ -26,12 +26,16 @@ struct ExpressPendingTransactionsFactory {
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         }
 
-        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
+        let exchangeStatusPoller = ExchangeStatusPoller(
             userWalletId: userWalletInfo.id.stringValue,
             tokenItem: tokenItem,
-            walletModelUpdater: walletModelUpdater,
             cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
             expressRefundedTokenHandler: expressRefundedTokenHandler
+        )
+
+        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
+            walletModelUpdater: walletModelUpdater,
+            poller: exchangeStatusPoller
         )
 
         let expressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
