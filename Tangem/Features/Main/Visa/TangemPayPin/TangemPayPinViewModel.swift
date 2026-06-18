@@ -31,7 +31,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var isPinCodeValid: Bool = false
     @Published private(set) var errorMessage: String? = nil
-    @Published private(set) var isRepeatStep: Bool = false
 
     var pinCodeLength: Int {
         pinValidator.pinCodeLength
@@ -42,7 +41,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     var enterPinHeader: String {
-        isRepeatStep ? Localization.commonConfirm : Localization.tangempaySetPinHeader
+        Localization.tangempaySetPinHeader
     }
 
     /// `nil` in the legacy single-card flow; set in the multi-card flow.
@@ -53,7 +52,6 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
 
     private let pinValidator = VisaPinValidator()
     private let isRedesigned = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
-    private var firstPin: String?
     private var bag = Set<AnyCancellable>()
 
     init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayPinRoutable) {
@@ -95,13 +93,17 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     func submit() {
+        submit(pin: pin)
+    }
+
+    private func submit(pin: String) {
         Analytics.log(.visaScreenChangePinSubmitClicked, contextParams: .userWallet(userWalletId))
 
         UIApplication.shared.endEditing()
 
         isLoading = true
 
-        runTask(in: self) { [pin] viewModel in
+        runTask(in: self) { viewModel in
             do {
                 let publicKey = try await RainCryptoUtilities.getRainRSAPublicKey(for: FeatureStorage.instance.visaAPIType)
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
@@ -134,17 +136,17 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                         viewModel.state = .created
                     case .pinTooWeak:
                         viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage
-                        viewModel.resetToFirstStep()
+                        viewModel.clearEnteredPin()
                     case .decryptionError, .unknownError, .undefined:
                         viewModel.errorMessage = Localization.tangempayServiceUnavailableTitle
-                        viewModel.resetToFirstStep()
+                        viewModel.clearEnteredPin()
                     }
                 }
             } catch {
                 await MainActor.run {
                     viewModel.errorMessage = Localization.tangempayCardDetailsErrorText
                     viewModel.isLoading = false
-                    viewModel.resetToFirstStep()
+                    viewModel.clearEnteredPin()
                 }
             }
         }
@@ -183,35 +185,18 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
             return
         }
 
-        if isRepeatStep {
-            if pin == firstPin {
-                errorMessage = nil
-                submit()
-            } else {
-                errorMessage = Localization.visaOnboardingPinNotAccepted
-                resetToFirstStep()
-            }
-            return
-        }
-
         do throws(VisaPinValidator.PinValidationError) {
             try pinValidator.validatePinCode(pin)
-            firstPin = pin
             errorMessage = nil
-            isRepeatStep = true
-            DispatchQueue.main.async { [weak self] in
-                self?.pin = ""
-            }
+            submit(pin: pin)
         } catch {
             errorMessage = error.errorMessage ?? Localization.visaOnboardingPinValidationErrorMessage
         }
     }
 
-    private func resetToFirstStep() {
+    private func clearEnteredPin() {
         guard isRedesigned else { return }
 
-        isRepeatStep = false
-        firstPin = nil
         DispatchQueue.main.async { [weak self] in
             self?.pin = ""
         }
