@@ -720,12 +720,17 @@ private extension EthereumWalletManager {
         let tokenTransferData = TransferERC20TokenMethod(destination: convertedFeeRecipientAddress, amount: baseTokenAmount).encodedData
 
         // 2) Estimate gas limit for fee token transfer
-        let feeTransferGasLimit = try await getGasLimit(
-            to: feeToken.contractAddress,
-            from: convertedOurAddress,
-            value: nil,
-            data: tokenTransferData
-        ).async()
+        let feeTransferGasLimit: BigUInt
+        do {
+            feeTransferGasLimit = try await getGasLimit(
+                to: feeToken.contractAddress,
+                from: convertedOurAddress,
+                value: nil,
+                data: tokenTransferData
+            ).async()
+        } catch let error where yieldFeeOptions != nil && error.isEVMExecutionReverted {
+            feeTransferGasLimit = EthereumFeeParametersConstants.gaslessYieldFallbackFeeTransferGasLimit
+        }
 
         // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
         let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)

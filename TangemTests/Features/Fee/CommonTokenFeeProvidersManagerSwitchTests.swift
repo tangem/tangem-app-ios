@@ -373,7 +373,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
     }
 }
 
-@Suite("Gasless Yield Fee")
+@Suite("Gasless Yield Fee", .serialized)
 struct GaslessYieldFeeTests {
     @Test("WithdrawMethod encodes withdraw(address,uint256) selector and params")
     func withdrawMethodEncoding() {
@@ -441,4 +441,201 @@ struct GaslessYieldFeeTests {
         #expect(typedData.types["GaslessBatchTransaction"]?.contains { $0.name == "transactions" && $0.type == "Transaction[]" } == true)
         #expect(typedData.message.objectValue?["transactions"]?.arrayValue?.first?.objectValue?["gasLimit"]?.stringValue == "21000")
     }
+
+    @Test("Yield fee remains reachable when the plain gasless quote reverts")
+    func yieldFeeReachableAfterPlainGaslessQuoteRevert() async throws {
+        let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+        InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
+            feeRecipientAddress: "0x0000000000000000000000000000000000000001"
+        )
+        defer {
+            InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+        }
+
+        let blockchain = BSDKBlockchain.polygon(testnet: false)
+        let token = Token(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: "0x0000000000000000000000000000000000000002",
+            decimalCount: 6,
+            id: blockchain.coinId
+        )
+        let feeToken = BSDKToken(
+            name: token.name,
+            symbol: token.symbol,
+            contractAddress: token.contractAddress,
+            decimalCount: token.decimalCount,
+            id: token.id
+        )
+        let yieldFee = BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 2))
+        let feeProvider = GaslessTransactionFeeProviderStub(
+            plainError: JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance"),
+            yieldFee: yieldFee
+        )
+
+        let sut = CommonGaslessTokenFeeLoader(
+            tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
+            feeToken: feeToken,
+            gaslessTransactionFeeProvider: feeProvider,
+            yieldFeeContext: GaslessYieldFeeContext(
+                yieldContractAddress: "0x0000000000000000000000000000000000000003",
+                yieldModuleBalance: 100,
+                feeTokenBalanceProvider: TokenBalanceProviderTestsMock(balance: 120),
+                versionChecker: nil
+            )
+        )
+
+        let fees = try await sut.getFee(
+            amount: 1,
+            destination: "0x0000000000000000000000000000000000000004"
+        )
+
+        #expect(fees.count == 1)
+        #expect(fees.first?.amount.value == yieldFee.amount.value)
+        #expect(feeProvider.getGaslessFeeCallCount == 1)
+        #expect(feeProvider.getGaslessYieldFeeCallCount == 1)
+    }
+}
+
+private final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
+    private let plainError: Error?
+    private let plainFee: BSDKFee
+    private let yieldFee: BSDKFee
+
+    private(set) var getGaslessFeeCallCount = 0
+    private(set) var getGaslessYieldFeeCallCount = 0
+
+    init(plainError: Error?, plainFee: BSDKFee? = nil, yieldFee: BSDKFee) {
+        self.plainError = plainError
+        self.plainFee = plainFee ?? yieldFee
+        self.yieldFee = yieldFee
+    }
+
+    func getGaslessFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        destination: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        getGaslessFeeCallCount += 1
+
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getEstimatedGaslessFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getEstimatedGaslessYieldFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        yieldFee
+    }
+
+    func getGaslessTransactionFee(
+        feeToken: BSDKToken,
+        destination: String,
+        value: String?,
+        data: Data?,
+        stateOverride: EthereumStateOverride?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getEstimatedGaslessTransactionFee(
+        feeToken: BSDKToken,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        if let plainError {
+            throw plainError
+        }
+
+        return plainFee
+    }
+
+    func getGaslessYieldFee(
+        feeToken: BSDKToken,
+        amount: BSDKAmount,
+        destination: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        getGaslessYieldFeeCallCount += 1
+        return yieldFee
+    }
+
+    func getGaslessYieldTransactionFee(
+        feeToken: BSDKToken,
+        destination: String,
+        value: String?,
+        data: Data?,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        yieldFee
+    }
+
+    func getEstimatedGaslessYieldTransactionFee(
+        feeToken: BSDKToken,
+        estimatedGasLimit: Int,
+        otherNativeFee: Decimal?,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal,
+        yieldFeeOptions: YieldFeeOptions
+    ) async throws -> BSDKFee {
+        yieldFee
+    }
+}
+
+private final class GaslessTransactionsNetworkManagerStub: GaslessTransactionsNetworkManager {
+    let cachedFeeRecipientAddress: String?
+
+    var availableFeeTokens: [FeeToken] { [] }
+    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
+        Just([]).eraseToAnyPublisher()
+    }
+
+    var currentHost: String { "test" }
+    var feeRecipientAddress: String? { cachedFeeRecipientAddress }
+
+    init(feeRecipientAddress: String?) {
+        cachedFeeRecipientAddress = feeRecipientAddress
+    }
+
+    func updateAvailableTokens() {}
+    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String { "" }
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
+    func initialize() {}
+    func preloadFeeRecipientAddress() {}
 }
