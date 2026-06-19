@@ -1369,6 +1369,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "Unstake %@";
 "staking_transaction_in_progress_text" = "The transaction is being processed! Validation is currently underway in the blockchain. This may take a few minutes.";
+"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
+"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
 "staking_unbonding_in" = "Unbonding in";
 "staking_unbonding" = "Unbonding";
 "staking_unlocked_locked" = "Unlock";
@@ -1452,7 +1454,7 @@
 "swapping_permission_header" = "Give Permission";
 "swapping_permit_and_swap" = "Permit and Swap";
 "swapping_rate_experience_title" = "Rate your experience with provider";
-"swapping_rate_feedback_placeholder" = "Type your feedback";
+"swapping_rate_feedback_placeholder" = "Type your feedback(optional)";
 "swapping_rate_feedback_submit" = "Send feedback";
 "swapping_rate_feedback_title" = "What affected your \nexperience?";
 "swapping_swap_action_in_progress" = "Swapping...";
@@ -1581,6 +1583,7 @@
 "tangempay_card_page_settings_title" = "Impostazioni della carta";
 "tangempay_change_pin_code" = "Cambia codice PIN";
 "tangempay_come_back_if_forget_pin" = "Torna all'app se lo dimentichi.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Imposta un limite da %@ a %@";
 "tangempay_daily_limit_set_button" = "Imposta limiti";
 "tangempay_declined_reason_1" = "fondi insufficienti";
