@@ -452,6 +452,22 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    // MARK: - Address Book
+
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
+        // The Address Book wire contract is camelCase, so it uses the default decoder rather than the
+        // snake-case `decoder` the rest of this service shares.
+        try await self.request(for: .syncAddressBooks(request))
+    }
+
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> String {
+        // The new etag is delivered in the (camelCase) response body, so this uses the default decoder.
+        let response: AddressBookDTO.UpdateResponse = try await request(
+            for: .updateAddressBook(walletId: walletId, knownETag: knownETag, body: body)
+        )
+        return response.etag
+    }
+
     // MARK: - News Implementation
 
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {

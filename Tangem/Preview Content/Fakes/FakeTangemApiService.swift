@@ -197,6 +197,14 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
+        throw "Not implemented"
+    }
+
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> String {
+        throw "Not implemented"
+    }
+
     func getYieldMarkets() async throws -> YieldModuleDTO.Response.MarketsInfo {
         throw "Not implemented"
     }
