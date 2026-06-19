@@ -13,9 +13,9 @@ import TangemLocalization
 import TangemFoundation
 
 protocol SwapAmountCompactRoutable: AnyObject {
-    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem?)
+    func userDidTapChangeSourceTokenButton(receiveToken: SendSourceToken?)
     func userDidTapSwapSourceAndReceiveTokensButton()
-    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem?)
+    func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?)
 }
 
 final class SwapAmountViewModel: ObservableObject, Identifiable {
@@ -115,7 +115,7 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
             .sink { $0.updateSource(sourceToken: $1) }
 
         sourceTokenAmountCancellable = sourceDecimalNumberTextFieldViewModel
-            .valuePublisher
+            .valuePublisher(zeroPolicy: .mapToNone)
             .prepend(.none)
             .withWeakCaptureOf(self)
             .map { $0.update(amount: $1) }
@@ -146,8 +146,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapChangeSourceTokenButton() {
-        let receiveToken = receiveTokenInput?.receiveToken.value?.tokenItem
-        router?.userDidTapChangeSourceTokenButton(tokenItem: receiveToken)
+        let receiveToken = receiveTokenInput?.receiveToken.value as? SendSourceToken
+        router?.userDidTapChangeSourceTokenButton(receiveToken: receiveToken)
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
@@ -156,8 +156,8 @@ final class SwapAmountViewModel: ObservableObject, Identifiable {
     }
 
     func userDidTapChangeReceiveTokenButton() {
-        let sourceToken = sourceTokenInput?.sourceToken.value?.tokenItem
-        router?.userDidTapChangeReceiveTokenButton(tokenItem: sourceToken)
+        let sourceToken = sourceTokenInput?.sourceToken.value
+        router?.userDidTapChangeReceiveTokenButton(sourceToken: sourceToken)
     }
 
     func userDidTapNetworkFeeInfoButton(_ message: String) {

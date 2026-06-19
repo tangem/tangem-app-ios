@@ -17,24 +17,24 @@ struct TangemPayOfferViewV2: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: DesignSystem.Tokens.Spacing.none) {
+            VStack(spacing: 0) {
                 heroBackground
 
-                VStack(spacing: DesignSystem.Tokens.Spacing.s300) {
+                VStack(spacing: 24) {
                     textSection
                     featureGrid
-                        .padding(.bottom, DesignSystem.Tokens.Spacing.s300)
+                        .padding(.bottom, 24)
                     faqSection
                 }
-                .padding(.horizontal, DesignSystem.Tokens.Spacing.s300)
+                .padding(.horizontal, 24)
                 .padding(.top, -112)
-                .background(DesignSystem.Tokens.Theme.Bg.primary)
+                .background(DesignSystem.Color.bgPrimary)
             }
         }
         .ignoresSafeArea(edges: .top)
         .safeAreaInset(edge: .bottom) { footer }
         .background {
-            DesignSystem.Tokens.Theme.Bg.primary
+            DesignSystem.Color.bgPrimary
                 .ignoresSafeArea()
         }
         .environment(\.colorScheme, .dark)
@@ -51,7 +51,7 @@ struct TangemPayOfferViewV2: View {
                 LinearGradient(
                     stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: DesignSystem.Tokens.Theme.Bg.primary, location: 0.75),
+                        .init(color: DesignSystem.Color.bgPrimary, location: 0.75),
                     ],
                     startPoint: .center,
                     endPoint: .bottom
@@ -65,20 +65,21 @@ struct TangemPayOfferViewV2: View {
     }
 
     private var textSection: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s100) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(Localization.tangempayNewonboardTitle)
-                .font(DesignSystem.Tokens.Font.Heading.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .font(DesignSystem.Font.headingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(Localization.tangempayNewonboardBody)
-                .font(DesignSystem.Tokens.Font.Subheading.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                .font(DesignSystem.Font.subheadingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
         }
+        .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 
     private var featureGrid: some View {
-        let columns = [GridItem(.flexible(), spacing: DesignSystem.Tokens.Spacing.s100), GridItem(.flexible())]
-        return LazyVGrid(columns: columns, spacing: DesignSystem.Tokens.Spacing.s100) {
+        let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible())]
+        return LazyVGrid(columns: columns, spacing: 8) {
             featureTile(
                 icon: Assets.Visa.tangemPayOnboardingNewLightning,
                 primary: Localization.tangempayNewonboardTopleftTitle,
@@ -103,31 +104,31 @@ struct TangemPayOfferViewV2: View {
     }
 
     private func featureTile(icon: ImageType, primary: String, secondary: String) -> some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s350) {
+        let label = (
+            Text(primary)
+                .foregroundColor(DesignSystem.Color.textPrimary)
+                + Text("\n" + secondary)
+                .foregroundColor(DesignSystem.Color.textSecondary)
+        )
+        .font(DesignSystem.Font.captionMediumToken)
+
+        return VStack(alignment: .leading, spacing: 28) {
             icon.image
                 .renderingMode(.template)
                 .resizable()
-                .frame(size: .init(bothDimensions: DesignSystem.Tokens.Size.s300))
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .frame(size: .init(bothDimensions: 24))
+                .foregroundStyle(DesignSystem.Color.textPrimary)
 
-            VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.none) {
-                Text(primary)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
-
-                Text(secondary)
-                    .font(DesignSystem.Tokens.Font.Caption.medium)
-                    .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
-            }
+            label
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(DesignSystem.Tokens.Spacing.s200)
-        .background(DesignSystem.Tokens.Theme.Bg.secondary)
-        .cornerRadiusContinuous(DesignSystem.Tokens.CornerRadius._300)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(16)
+        .background(DesignSystem.Color.bgSecondary)
+        .cornerRadiusContinuous(24)
     }
 
     private var faqSection: some View {
-        VStack(spacing: DesignSystem.Tokens.Spacing.none) {
+        VStack(spacing: 0) {
             faqItem(
                 question: Localization.tangempayNewonboardQ1Title,
                 answer: Localization.tangempayNewonboardQ1Body,
@@ -152,26 +153,26 @@ struct TangemPayOfferViewV2: View {
     }
 
     private func faqItem(question: String, answer: String, showDivider: Bool) -> some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Tokens.Spacing.s150) {
+        VStack(alignment: .leading, spacing: 12) {
             if showDivider {
                 Color.white.opacity(0.1)
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
-                    .padding(.bottom, DesignSystem.Tokens.Spacing.s150)
+                    .padding(.bottom, 12)
             }
 
             Text(question)
-                .font(DesignSystem.Tokens.Font.Heading.small)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.primary)
+                .font(DesignSystem.Font.headingSmallToken)
+                .foregroundStyle(DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(answer)
-                .font(DesignSystem.Tokens.Font.Subheading.medium)
-                .foregroundStyle(DesignSystem.Tokens.Theme.Text.secondary)
+                .font(DesignSystem.Font.subheadingMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.top, showDivider ? DesignSystem.Tokens.Spacing.s300 : DesignSystem.Tokens.Spacing.s150)
-        .padding(.bottom, DesignSystem.Tokens.Spacing.s150)
+        .padding(.top, showDivider ? 24 : 12)
+        .padding(.bottom, 12)
     }
 
     private var footer: some View {
@@ -186,8 +187,8 @@ struct TangemPayOfferViewV2: View {
         .horizontalLayout(.infinity)
         .isLoading(viewModel.isLoading)
         .size(.x12)
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-        .padding(.bottom, DesignSystem.Tokens.Spacing.s150)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
     }
 }
 

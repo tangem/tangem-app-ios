@@ -97,6 +97,10 @@ public struct LoadableTextView: View {
                 skeletonView
                     .frame(width: loaderSize.width, height: loaderSize.height)
             }
+        case .loadingCached(let text):
+            styledText(text, isSensitive: isSensitiveText)
+                .shimmer()
+                .environment(\.isShimmerActive, true)
         case .loaded(let text):
             styledText(text, isSensitive: isSensitiveText)
         }
@@ -139,6 +143,7 @@ public extension LoadableTextView {
         case initialized
         case noData
         case loading
+        case loadingCached(text: String)
         case loaded(text: String)
     }
 }

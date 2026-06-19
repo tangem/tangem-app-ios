@@ -333,6 +333,7 @@
 "common_sell" = "Продать";
 "common_send_colon" = "Отправка:";
 "common_send_tx_error" = "Не удалось отправить транзакцию";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Отправить";
 "common_sending" = "Отправка";
 "common_sent" = "Отправлено";
@@ -572,7 +573,11 @@
 "feedback_token_description_error" = "Ошибка в описании монеты";
 "force_update_banner_message" = "Для обеспечения корректной работы обновите приложение до последней версии.";
 "force_update_banner_title" = "Необходимо обновление";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Обновить";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Пожалуйста, обновите приложение до последней версии, чтобы обеспечить его корректную работу.";
 "force_update_warning_title" = "Требуется обновление";
 "gasless_not_enough_funds_to_cover_token_fee" = "Недостаточно средств";
@@ -1061,6 +1066,7 @@
 "quick_action_buy_description" = "Банковская карта или банковский счет";
 "quick_action_receive_description" = "Поделитесь своим адресом или QR-кодом";
 "quick_action_sell_description" = "Продавайте криптовалюту безопасно";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Отправить на другой кошелек";
 "quick_action_swap_description" = "Между вашими портфелями";
 "quick_top_up_chip_other" = "Другие";
@@ -1363,6 +1369,8 @@
 "staking_title_stake" = "Застейкать %@";
 "staking_title_unstake" = "Вывести %@";
 "staking_transaction_in_progress_text" = "Транзакция обрабатывается! В настоящее время идет проверка в блокчейне. Это может занять несколько минут.";
+"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
+"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
 "staking_unbonding_in" = "Отзыв через";
 "staking_unbonding" = "Отзыв";
 "staking_unlocked_locked" = "Разблокировать";
@@ -1575,6 +1583,7 @@
 "tangempay_card_page_settings_title" = "Настройки карты";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можно посмотреть здесь, если забудете его.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Установить лимит от %@ до %@";
 "tangempay_daily_limit_set_button" = "Установить";
 "tangempay_declined_reason_1" = "недостаточно средств";
@@ -1585,7 +1594,7 @@
 "tangempay_declined_reason_14" = "транзакция запрещена";
 "tangempay_declined_reason_15" = "более 25 онлайн-транзакций за 2 дня";
 "tangempay_declined_reason_16" = "подозрение на BIN-атаку со стороны продавца";
-"tangempay_declined_reason_17" = "техническая ошибка, попрбуйте снова";
+"tangempay_declined_reason_17" = "техническая ошибка, попробуйте снова";
 "tangempay_declined_reason_2" = "более 2 транзакций за 3 дня на автоматических АЗС";
 "tangempay_declined_reason_3" = "высокорисковая категория";
 "tangempay_declined_reason_4" = "покупка в запрещенной стране";
@@ -1635,8 +1644,8 @@
 "tangempay_kyc_rejected" = "Отклонено";
 "tangempay_maximum_cards_issued_description" = "Вы можете иметь до 3 карт. Удалите одну, чтобы добавить новую.";
 "tangempay_maximum_cards_issued_title" = "Выпущено максимальное количество карт";
-"tangempay_newonboard_body" = "Тратьте крипту где угодно — без банков, посредников и бирж. Сила self-custody для повседневных платежей.";
-"tangempay_newonboard_bottomleft_body" = "Платите онлайн и c Apple Pay";
+"tangempay_newonboard_body" = "Тратьте крипту где угодно — без банков, бирж и посредников. Сила self-custody для повседневных платежей.";
+"tangempay_newonboard_bottomleft_body" = "Онлайн и c Apple Pay";
 "tangempay_newonboard_bottomleft_title" = "Принимается везде";
 "tangempay_newonboard_bottomright_body" = "За покупки не в USD";
 "tangempay_newonboard_bottomright_title" = "FX-комиссия 1%%";
@@ -1648,9 +1657,9 @@
 "tangempay_newonboard_Q3_title" = "Кто хранит мои персональные данные и как они защищены?";
 "tangempay_newonboard_Q4_body" = "Баланс карты работает на USDC в сети Polygon, но пополнить его можно любым активом (USDT, SOL, ETH, BTC, XRP и др.) через удобные встроенные свопы Tangem.";
 "tangempay_newonboard_Q4_title" = "Какую крипту можно тратить?";
-"tangempay_newonboard_title" = "Откройте карту Tangem Pay";
-"tangempay_newonboard_topleft_body" = "Платите сколько видите";
-"tangempay_newonboard_topleft_title" = "Без комиссии за покупки, 1 USDC = 1 USD";
+"tangempay_newonboard_title" = "Откройте Tangem Pay";
+"tangempay_newonboard_topleft_body" = "1 USDC = 1 USD";
+"tangempay_newonboard_topleft_title" = "Без комиссии за покупки";
 "tangempay_newonboard_topright_body" = "Без сюрпризов";
 "tangempay_newonboard_topright_title" = "$0 в месяц, \n$0 за пополнение";
 "tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
@@ -1679,7 +1688,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Невозможно покрыть комиссию";
 "tangempay_reissue_card_insufficient_funds" = "Недостаточно средств для перевыпуска";
 "tangempay_reissue_card_title" = "Перевыпустить карту?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Мы устраняем техническую проблему. Пожалуйста, попробуйте позже.";
@@ -1696,7 +1705,7 @@
 "tangempay_sync_needed_title" = "Tangem Pay · Cессия истекла";
 "tangempay_sync_needed" = "Используйте карту или кольцо для обновления сессии";
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
-"tangempay_temporarily_unavailable" = "Tangem Pay временно недоступен";
+"tangempay_temporarily_unavailable" = "Проблема с соединением";
 "tangempay_title" = "Tangem Pay";
 "tangempay_topup_receive_body" = "Отправьте USDC Polygon на адрес вашего аккаунта";
 "tangempay_topup_receive_title" = "С другого кошелька или биржи";

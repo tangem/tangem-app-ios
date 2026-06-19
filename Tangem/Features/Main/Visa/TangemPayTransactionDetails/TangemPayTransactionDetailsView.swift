@@ -117,17 +117,17 @@ private extension TangemPayTransactionDetailsView {
         VStack(spacing: 0) {
             redesignedHeader(title: model.headerTitle, subtitle: model.headerSubtitle)
 
-            VStack(spacing: DesignSystem.Tokens.Spacing.s400) {
+            VStack(spacing: 32) {
                 redesignedIcon(model.icon)
 
-                VStack(spacing: DesignSystem.Tokens.Spacing.s100) {
+                VStack(spacing: 8) {
                     Text(model.amount)
-                        .style(DesignSystem.Tokens.Font.Display.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                        .style(DesignSystem.Font.displayMediumToken, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     if let amountSubtitle = model.amountSubtitle {
                         Text(amountSubtitle)
-                            .style(DesignSystem.Tokens.Font.Subheading.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -139,9 +139,9 @@ private extension TangemPayTransactionDetailsView {
 
                 redesignedRows(model.rows)
             }
-            .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
-            .padding(.top, DesignSystem.Tokens.Spacing.s400)
-            .padding(.bottom, DesignSystem.Tokens.Spacing.s100)
+            .padding(.horizontal, 16)
+            .padding(.top, 32)
+            .padding(.bottom, 8)
 
             TangemButtonV2(
                 label: AttributedString(model.mainButtonAction.title),
@@ -151,22 +151,22 @@ private extension TangemPayTransactionDetailsView {
             .size(.x12)
             .styleType(.default)
             .horizontalLayout(.infinity)
-            .padding(DesignSystem.Tokens.Spacing.s200)
+            .padding(16)
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = DesignSystem.Tokens.Theme.Bg.secondary
+            configuration.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
     func redesignedHeader(title: String, subtitle: String) -> some View {
         ZStack {
-            VStack(spacing: DesignSystem.Tokens.Spacing.s050) {
+            VStack(spacing: 4) {
                 Text(title)
-                    .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text(subtitle)
-                    .style(DesignSystem.Tokens.Font.Caption.medium, color: DesignSystem.Tokens.Theme.Text.secondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
             .multilineTextAlignment(.center)
 
@@ -182,8 +182,8 @@ private extension TangemPayTransactionDetailsView {
                 .styleType(.material(.glass))
             }
         }
-        .padding(.top, DesignSystem.Tokens.Spacing.s200)
-        .padding(.horizontal, DesignSystem.Tokens.Spacing.s200)
+        .padding(.top, 16)
+        .padding(.horizontal, 16)
     }
 
     @ViewBuilder
@@ -192,8 +192,8 @@ private extension TangemPayTransactionDetailsView {
         case .merchantLogo(let url):
             IconView(
                 url: url,
-                size: CGSize(bothDimensions: DesignSystem.Tokens.Size.s1000),
-                cornerRadius: DesignSystem.Tokens.Size.s1000 / 2
+                size: CGSize(bothDimensions: 80),
+                cornerRadius: 80 / 2
             )
         case .withdrawal:
             redesignedGenericIcon(DesignSystem.Icons.ArrowUp.regular24)
@@ -209,10 +209,10 @@ private extension TangemPayTransactionDetailsView {
             .renderingMode(.template)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: DesignSystem.Tokens.Size.s350, height: DesignSystem.Tokens.Size.s350)
-            .foregroundStyle(DesignSystem.Tokens.Theme.Icon.primary)
-            .frame(width: DesignSystem.Tokens.Size.s1000, height: DesignSystem.Tokens.Size.s1000)
-            .background(DesignSystem.Tokens.Theme.Bg.Opaque.primary, in: Circle())
+            .frame(width: 28, height: 28)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
+            .frame(width: 80, height: 80)
+            .background(DesignSystem.Color.bgOpaquePrimary, in: Circle())
     }
 
     func redesignedRows(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
