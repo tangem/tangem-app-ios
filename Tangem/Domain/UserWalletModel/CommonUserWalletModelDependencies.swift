@@ -20,6 +20,7 @@ struct CommonUserWalletModelDependencies {
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let addressBookManager: AddressBookManager
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
 
@@ -91,6 +92,8 @@ struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager
         )
+
+        addressBookManager = Self.makeAddressBookManager(userWalletId: userWalletId, config: config)
 
         userWalletModelConfigurableDependencies = UserWalletModelConfigurableDependencies(
             derivationManager: derivationManager,
