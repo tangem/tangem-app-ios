@@ -24,9 +24,7 @@ struct AddressBookContactManagementView: View {
             .background(DesignSystem.Color.bgBase.ignoresSafeArea())
             .navigationTitle(Text(viewModel.title))
             .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge: .bottom) {
-                bottomButton
-            }
+            .safeAreaInset(edge: .bottom) { bottomButton }
             .toolbar {
                 NavigationToolbarButton
                     .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
@@ -111,7 +109,7 @@ struct AddressBookContactManagementView: View {
 
     private func makeWalletValue(wallet: AddressBookContactManagementViewModel.WalletRowType) -> some View {
         HStack(spacing: 4) {
-            Text(wallet.wallet)
+            Text(wallet.name)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
