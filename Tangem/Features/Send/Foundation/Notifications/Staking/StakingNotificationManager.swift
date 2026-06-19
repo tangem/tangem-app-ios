@@ -69,6 +69,15 @@ private extension CommonStakingNotificationManager {
         case .readyToStake(let readyToStake):
             var events: [StakingNotificationEvent] = []
 
+            if let validationStatus = readyToStake.validationStatus {
+                switch validationStatus {
+                case .warning:
+                    events.append(.validationWarning)
+                case .blocked:
+                    events.append(.validationBlocked)
+                }
+            }
+
             if readyToStake.isFeeIncluded {
                 let feeFiatValue = feeTokenItem.currencyId.flatMap {
                     BalanceConverter().convertToFiat(readyToStake.fee, currencyId: $0)

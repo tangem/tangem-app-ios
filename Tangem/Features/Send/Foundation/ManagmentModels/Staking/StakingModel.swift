@@ -454,7 +454,9 @@ extension StakingModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         _state.map { state in
             switch state {
-            case .readyToStake, .readyToApprove:
+            case .readyToStake(let readyToStake):
+                return readyToStake.validationStatus != .blocked
+            case .readyToApprove:
                 return true
             case .none, .loading, .approveTransactionInProgress,
                  .validationError, .networkError,
@@ -643,7 +645,33 @@ extension StakingModel {
             let isFeeIncluded: Bool
             let stakeOnDifferentValidator: Bool
             let amountToReduce: Decimal?
+            let validationStatus: ValidationStatus?
         }
+    }
+}
+
+// MARK: - ReadyToStake.ValidationStatus
+
+extension StakingModel.State.ReadyToStake {
+    enum ValidationStatus {
+        case warning
+        case blocked
+    }
+
+    init(
+        amount: Decimal,
+        fee: Decimal,
+        isFeeIncluded: Bool,
+        stakeOnDifferentValidator: Bool,
+        amountToReduce: Decimal?,
+        validationStatus: ValidationStatus? = nil
+    ) {
+        self.amount = amount
+        self.fee = fee
+        self.isFeeIncluded = isFeeIncluded
+        self.stakeOnDifferentValidator = stakeOnDifferentValidator
+        self.amountToReduce = amountToReduce
+        self.validationStatus = validationStatus
     }
 }
 

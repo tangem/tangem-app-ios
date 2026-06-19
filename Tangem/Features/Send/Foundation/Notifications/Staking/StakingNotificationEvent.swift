@@ -39,6 +39,8 @@ enum StakingNotificationEvent {
     case tonExtraReserveInfo
     case tonUnstaking
     case tonAccountInitialization
+    case validationWarning
+    case validationBlocked
 }
 
 extension StakingNotificationEvent: NotificationEvent {
@@ -66,6 +68,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .tonExtraReserveInfo: "tonAdditionalFee".hashValue
         case .tonUnstaking: "tonUnstaking".hashValue
         case .tonAccountInitialization: "tonAccountInitialization".hashValue
+        case .validationWarning: "validationWarning".hashValue
+        case .validationBlocked: "validationBlocked".hashValue
         }
     }
 
@@ -95,6 +99,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .tonExtraReserveInfo: .string(Localization.stakingNotificationTonExtraReserveTitle)
         case .tonUnstaking: .string(Localization.stakingNotificationTonHaveToUnstakeAllTitle)
         case .tonAccountInitialization: .string(Localization.stakingNotificationTonAccountInitializationTitle)
+        case .validationWarning: .string("Security Warning") // [REDACTED_TODO_COMMENT]
+        case .validationBlocked: .string("Transaction Blocked") // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -153,6 +159,10 @@ extension StakingNotificationEvent: NotificationEvent {
             Localization.stakingNotificationTonHaveToUnstakeAllText
         case .tonAccountInitialization:
             Localization.stakingNotificationTonAccountInitializationMessage
+        case .validationWarning:
+            "This transaction may be risky. Proceed with caution." // [REDACTED_TODO_COMMENT]
+        case .validationBlocked:
+            "This transaction has been blocked for your safety." // [REDACTED_TODO_COMMENT]
         }
     }
 
@@ -160,11 +170,13 @@ extension StakingNotificationEvent: NotificationEvent {
         switch self {
         case .approveTransactionInProgress, .feeWillBeSubtractFromSendingAmount,
              .stakesWillMoveToNewValidator, .lowStakedBalance, .amountRequirementError,
-             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount:
+             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount,
+             .validationWarning:
             .secondary
         case .unstake, .networkUnreachable, .withdraw, .claimRewards,
              .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking,
-             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization:
+             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization,
+             .validationBlocked:
             .action
         case .validationErrorEvent(let event): event.colorScheme
         }
@@ -173,7 +185,8 @@ extension StakingNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkUnreachable, .feeWillBeSubtractFromSendingAmount, .lowStakedBalance,
-             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount:
+             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount,
+             .validationWarning:
             .init(iconType: .image(Assets.attention))
         case .approveTransactionInProgress:
             .init(iconType: .progressView)
@@ -182,7 +195,7 @@ extension StakingNotificationEvent: NotificationEvent {
              .maxAmountStaking, .cardanoAdditionalDeposit, .tonUnstaking,
              .tonExtraReserveInfo, .tonAccountInitialization:
             .init(iconType: .image(Assets.blueCircleWarning))
-        case .amountRequirementError:
+        case .amountRequirementError, .validationBlocked:
             .init(iconType: .image(Assets.redCircleWarning))
         case .validationErrorEvent(let event):
             event.icon
@@ -192,7 +205,8 @@ extension StakingNotificationEvent: NotificationEvent {
     var severity: NotificationView.Severity {
         switch self {
         case .networkUnreachable, .amountRequirementError,
-             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount:
+             .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount,
+             .validationBlocked:
             return .critical
         case .approveTransactionInProgress,
              .unstake,
@@ -211,6 +225,8 @@ extension StakingNotificationEvent: NotificationEvent {
              .tonAccountInitialization,
              .stakesWillMoveToNewValidator:
             return .info
+        case .validationWarning:
+            return .warning
         case .validationErrorEvent(let event):
             return event.severity
         }
@@ -238,7 +254,9 @@ extension StakingNotificationEvent: NotificationEvent {
              .tonUnstaking,
              .stakesWillMoveToNewValidator,
              .insufficientFundsForFee,
-             .insufficientFundsForFeeReduceAmount:
+             .insufficientFundsForFeeReduceAmount,
+             .validationWarning,
+             .validationBlocked:
             return nil
         case .tonAccountInitialization:
             return .init(.activate)
