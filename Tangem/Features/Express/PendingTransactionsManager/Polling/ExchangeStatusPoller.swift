@@ -12,12 +12,6 @@ import CombineExt
 import TangemExpress
 import TangemFoundation
 
-struct ExchangeStatusPollIteration {
-    let displayed: [PendingExpressTransaction]
-    let changed: [ExpressPendingTransactionRecord]
-    let polled: [ExchangeTransaction]
-}
-
 final class ExchangeStatusPoller {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
