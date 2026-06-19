@@ -20,7 +20,7 @@ final class OnrampStatusPoller {
     private let expressAPIProvider: ExpressAPIProvider
 
     private let pendingOnrampTransactionFactory = PendingOnrampTransactionFactory()
-    private let subscribers = MulticastPollingRegistry<OnrampStatusPollIteration>()
+    private let subscribers = MulticastObserversHelper<OnrampStatusPollIteration>()
 
     /// Initialized in `init` rather than declared `lazy`: the lazy-var path raced when `pollingInitiatingTask` and
     /// `pollingResultTask` touched it concurrently on first access, producing two `PollingService` actor instances

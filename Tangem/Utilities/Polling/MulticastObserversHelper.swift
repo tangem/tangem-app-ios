@@ -1,5 +1,5 @@
 //
-//  MulticastPollingRegistry.swift
+//  MulticastObserversHelper.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,8 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class MulticastPollingRegistry<Iteration> {
+/// Simple helper to implement multicast observers pattern. Useful for pollers, etc.
+final class MulticastObserversHelper<Iteration> {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     @discardableResult
@@ -50,7 +51,7 @@ final class MulticastPollingRegistry<Iteration> {
 
 // MARK: - Auxiliary types
 
-extension MulticastPollingRegistry {
+extension MulticastObserversHelper {
     typealias Handler = (Iteration) -> Void
 
     private struct State {

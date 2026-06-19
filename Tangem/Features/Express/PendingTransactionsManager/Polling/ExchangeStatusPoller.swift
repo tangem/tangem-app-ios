@@ -23,7 +23,7 @@ final class ExchangeStatusPoller {
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
     private let pendingTransactionFactory = PendingExpressTransactionFactory()
-    private let subscribers = MulticastPollingRegistry<ExchangeStatusPollIteration>()
+    private let subscribers = MulticastObserversHelper<ExchangeStatusPollIteration>()
 
     private var latestDisplayed: [PendingExpressTransaction] = []
     private var expressPendingTransactionsRepositorySubscription: AnyCancellable?
