@@ -11,12 +11,6 @@ import Combine
 import TangemExpress
 import TangemFoundation
 
-struct OnrampStatusPollIteration {
-    let displayed: [PendingOnrampTransaction]
-    let changed: [OnrampPendingTransactionRecord]
-    let polled: [OnrampTransaction]
-}
-
 final class OnrampStatusPoller {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
