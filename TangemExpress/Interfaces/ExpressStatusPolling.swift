@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol ExpressStatusPolling<Iteration>: AnyObject {
+public protocol ExpressStatusPolling<Iteration>: AnyObject {
     associatedtype Iteration
 
     @discardableResult
