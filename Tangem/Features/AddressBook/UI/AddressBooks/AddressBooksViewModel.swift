@@ -18,6 +18,13 @@ final class AddressBooksViewModel: ObservableObject {
     @Published private(set) var walletChips: [Chip] = []
     @Published private(set) var contactsViewModels: LoadingResult<[AddressBookContactViewModel], Never> = .loading
 
+    var showsToolbarAddButton: Bool {
+        if case .success(let contacts) = contactsViewModels {
+            return !contacts.isEmpty
+        }
+        return false
+    }
+
     // MARK: - Dependencies
 
     @Injected(\.userWalletRepository)
