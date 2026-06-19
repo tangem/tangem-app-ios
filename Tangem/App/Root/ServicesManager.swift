@@ -43,6 +43,7 @@ final class CommonServicesManager {
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
+    @Injected(\.addressBookETagStorage) private var addressBookETagStorage: AddressBookETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
     @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
     @Injected(\.tokenSelectorStateStorage) private var tokenSelectorStateStorage: TokenSelectorStateStorage
@@ -202,6 +203,7 @@ extension CommonServicesManager: ServicesManager {
         geoEligibilityService.initialize()
         wcService.initialize()
         eTagStorage.initialize()
+        addressBookETagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
         stateStorageProvider.initialize()
         tokenSelectorStateStorage.initialize()
