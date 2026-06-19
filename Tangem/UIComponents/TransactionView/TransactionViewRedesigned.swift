@@ -59,7 +59,7 @@ struct TransactionViewRedesigned: View {
     }
 
     private var amountView: some View {
-        Text(viewModel.amount.value)
+        SensitiveText(viewModel.amount.value)
             .style(Font.Tangem.Body16.medium, color: amountColor)
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
