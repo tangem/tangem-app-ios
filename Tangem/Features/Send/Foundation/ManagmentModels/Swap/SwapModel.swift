@@ -1039,7 +1039,7 @@ extension SwapModel: SwapTokenSelectorOutput {
             .makeSwapableToken()
 
         if _sourceToken.value.value?.tokenItem != token.tokenItem {
-            externalAmountUpdater.externalUpdate(amount: nil)
+            externalAmountUpdater.externalUpdate(cryptoAmount: nil)
         }
 
         preselectedTokenChangeAnalyticsLogger.logIfNeeded(direction: .source, selected: token.tokenItem)
@@ -1051,7 +1051,7 @@ extension SwapModel: SwapTokenSelectorOutput {
             .makeSwapableToken()
 
         if _receiveToken.value.value?.tokenItem != token.tokenItem {
-            externalAmountUpdater.externalUpdate(amount: nil)
+            externalAmountUpdater.externalUpdate(cryptoAmount: nil)
         }
 
         preselectedTokenChangeAnalyticsLogger.logIfNeeded(direction: .receive, selected: token.tokenItem)
@@ -1557,7 +1557,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
                 return raw.rounded(scale: token.tokenItem.decimalCount, roundingMode: .down)
             }
         }()
-        externalAmountUpdater.externalUpdate(amount: amount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: amount)
     }
 
     func userDidRequestSwapSourceAndReceiveToken() {
@@ -1568,7 +1568,7 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         let sourceResult = _sourceToken.value
         let receiveResult = _receiveToken.value
 
-        externalAmountUpdater.externalUpdate(amount: nil)
+        externalAmountUpdater.externalUpdate(cryptoAmount: nil)
 
         switch (sourceResult, receiveResult) {
         case (.success(let source), .success(let destination as SendSwapableToken)):
@@ -1799,7 +1799,7 @@ extension SwapModel: NotificationTapDelegate {
         }
 
         // Amount will be changed automatically via SendAmountOutput
-        externalAmountUpdater.externalUpdate(amount: newAmount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: newAmount)
     }
 
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
@@ -1813,12 +1813,12 @@ extension SwapModel: NotificationTapDelegate {
         }
 
         // Amount will be changed automatically via SendAmountOutput
-        externalAmountUpdater.externalUpdate(amount: newAmount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: newAmount)
     }
 
     private func reduceAmountTo(_ amount: Decimal) {
         // Amount will be changed automatically via SendAmountOutput
-        externalAmountUpdater.externalUpdate(amount: amount)
+        externalAmountUpdater.externalUpdate(cryptoAmount: amount)
     }
 }
 
