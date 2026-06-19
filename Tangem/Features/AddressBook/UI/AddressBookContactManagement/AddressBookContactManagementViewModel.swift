@@ -192,11 +192,12 @@ private extension AddressBookContactManagementViewModel {
         return types
     }
 
-    /// Mock: appends a synthetic EVM address. The full "enter address → detect networks → memo" flow
-    /// is a follow-up; this exercises the create/add CRUD path end to end.
     func addNewAddress() {
-        let address = "0x" + String((0 ..< 40).map { _ in "0123456789abcdef".randomElement()! })
-        try? interactor.add(address: DraftRow(id: UUID().uuidString, address: address))
+        guard let wallet = selectedWallet else {
+            return
+        }
+
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self)
     }
 
     func deleteRow(id: String) {
@@ -214,9 +215,7 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.save()
             coordinator?.dismissContactManagement()
         } catch {
-            guard !error.isCancellationError else { return }
-
-            presentGenericError()
+            presentGenericError(message: error.localizedDescription)
         }
     }
 
@@ -231,14 +230,24 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.delete()
             coordinator?.dismissContactManagement()
         } catch {
-            guard !error.isCancellationError else { return }
-
-            presentGenericError()
+            presentGenericError(message: error.localizedDescription)
         }
     }
 
-    func presentGenericError() {
-        errorAlert = AlertBinder(title: Localization.commonError, message: Localization.commonUnknownError)
+    func presentGenericError(message: String) {
+        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+    }
+}
+
+// MARK: - AddressBookAddAddressOutput
+
+extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
+    func userDidAddAddress(address: DraftRow) {
+        do {
+            try interactor.add(address: address)
+        } catch {
+            presentGenericError(message: error.localizedDescription)
+        }
     }
 }
 
@@ -263,10 +272,11 @@ extension AddressBookContactManagementViewModel {
     }
 
     struct WalletRowType: Identifiable {
-        let userWalletId: UserWalletId
-        let wallet: String
+        let userWalletInfo: UserWalletInfo
         let isEditable: Bool
 
-        var id: String { userWalletId.stringValue }
+        var id: String { userWalletInfo.id.stringValue }
+        var name: String { userWalletInfo.name }
+        var supportedBlockchains: Set<BSDKBlockchain> { userWalletInfo.config.supportedBlockchains }
     }
 }
