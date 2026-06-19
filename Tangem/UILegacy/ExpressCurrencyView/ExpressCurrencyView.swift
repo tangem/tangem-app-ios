@@ -109,8 +109,8 @@ struct ExpressCurrencyView<Content: View>: View {
     @ViewBuilder
     private var bottomContent: some View {
         HStack(spacing: 0) {
-            if !viewModel.state.isFiatAmountHidden {
-                HStack(spacing: 4) {
+            HStack(spacing: 4) {
+                if !viewModel.state.isFiatAmountHidden {
                     LoadableTextView(
                         state: viewModel.state.fiatAmountState,
                         font: Fonts.Regular.footnote,
@@ -119,9 +119,9 @@ struct ExpressCurrencyView<Content: View>: View {
                         lineLimit: 1,
                         isSensitiveText: false
                     )
-
-                    infoButton
                 }
+
+                infoButton
             }
 
             Spacer()
