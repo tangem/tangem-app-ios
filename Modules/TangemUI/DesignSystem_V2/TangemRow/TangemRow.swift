@@ -148,36 +148,36 @@ public struct TangemRow<
     @ViewBuilder
     private var titleLine: some View {
         if title != nil || TitleAccessory.self != EmptyView.self {
-            labelLine(text: title, accessory: titleAccessoryContent, role: .title, lineLimit: config.titleLineLimit)
+            labelLine(text: title, accessory: titleAccessoryContent, role: .title, lineLimit: config.titleLineLimit, colorOverride: config.overrideTextColors.title)
         }
     }
 
     @ViewBuilder
     private var subtitleLine: some View {
         if subtitle != nil || SubtitleAccessory.self != EmptyView.self {
-            labelLine(text: subtitle, accessory: subtitleAccessoryContent, role: .subtitle, lineLimit: config.subtitleLineLimit)
+            labelLine(text: subtitle, accessory: subtitleAccessoryContent, role: .subtitle, lineLimit: config.subtitleLineLimit, colorOverride: config.overrideTextColors.subtitle)
         }
     }
 
     @ViewBuilder
     private var valueLine: some View {
         if value != nil || ValueAccessory.self != EmptyView.self {
-            labelLine(text: value, accessory: valueAccessoryContent, role: .value, lineLimit: config.valueLineLimit)
+            labelLine(text: value, accessory: valueAccessoryContent, role: .value, lineLimit: config.valueLineLimit, colorOverride: config.overrideTextColors.value)
         }
     }
 
     @ViewBuilder
     private var subvalueLine: some View {
         if subvalue != nil || SubvalueAccessory.self != EmptyView.self {
-            labelLine(text: subvalue, accessory: subvalueAccessoryContent, role: .subvalue, lineLimit: config.subvalueLineLimit)
+            labelLine(text: subvalue, accessory: subvalueAccessoryContent, role: .subvalue, lineLimit: config.subvalueLineLimit, colorOverride: config.overrideTextColors.subvalue)
         }
     }
 
-    private func labelLine(text: String?, accessory: some View, role: Role, lineLimit: Int) -> some View {
+    private func labelLine(text: String?, accessory: some View, role: Role, lineLimit: Int, colorOverride: Color? = nil) -> some View {
         HStack(alignment: .center, spacing: TangemRowMetrics.inlineAccessorySpacing) {
             if let text {
                 Text(text)
-                    .style(role.font, color: role.color)
+                    .style(role.font, color: colorOverride ?? role.color)
                     .lineLimit(lineLimit)
                     .truncationMode(.tail)
             }

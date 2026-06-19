@@ -390,12 +390,17 @@ final class TangemPayMainViewModel: ObservableObject {
             guard case .spend(let spend) = transaction.record else { return nil }
             return tangemPayAccount.cardDisplayName(forCardId: spend.cardId)
         }()
+        let cardNumberEnd: String? = {
+            guard case .spend(let spend) = transaction.record else { return nil }
+            return tangemPayAccount.cardNumberEnd(forCardId: spend.cardId)
+        }()
 
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
             userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId,
-            cardName: cardName
+            cardName: cardName,
+            cardNumberEnd: cardNumberEnd
         )
     }
 }
