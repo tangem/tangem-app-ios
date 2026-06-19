@@ -13,7 +13,7 @@ protocol CryptoAddressProcessor {
 
     @MainActor
     func update(destination: String, source: Analytics.DestinationAddressSource) async throws -> CryptoAddressParameters
-    func update(additionalField: SendDestinationAdditionalField) throws
+    func update(additionalField: SendDestinationAdditionalField?)
 }
 
 struct CryptoAddressParameters {

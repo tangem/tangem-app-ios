@@ -62,23 +62,21 @@ private extension CryptoAddressViewModel {
 
     @discardableResult
     private func addressDidChanged(destination: SendDestinationAddressViewModel.Address) -> Task<Void, Error> {
+        destinationAddressViewModel.update(error: .none)
+
         let hasValue = !destination.string.isEmpty
         let shouldResolve = addressProcessor.willResolving(address: destination.string)
         let shouldDebounce = hasValue && shouldResolve
 
         let newUpdatingTask = runWithDelayedLoading(onLongRunning: { [weak self] in
-            await MainActor.run { [weak self] in
-                self?.destinationAddressViewModel.update(isValidating: true)
-            }
+            self?.destinationAddressViewModel.update(isValidating: true)
         }, operation: { [weak self] in
             if shouldDebounce {
                 try await Task.sleep(for: .seconds(1))
             }
 
             await self?.update(destination: destination)
-            await MainActor.run { [weak self] in
-                self?.destinationAddressViewModel.update(isValidating: false)
-            }
+            await runOnMain { self?.destinationAddressViewModel.update(isValidating: false) }
         })
 
         resolvingTask?.cancel()
@@ -87,11 +85,14 @@ private extension CryptoAddressViewModel {
         return newUpdatingTask
     }
 
-    private func additionalFieldDidChanged(additionalField: String) {
+    private func additionalFieldDidChanged(value: String) {
+        additionalFieldViewModel?.update(error: .none)
+
         do {
-            let additionalField = try additionalFieldProcessor.makeAdditionalField(value: additionalField)
-            try addressProcessor.update(additionalField: additionalField)
+            let additionalField = try additionalFieldProcessor.makeAdditionalField(value: value)
+            addressProcessor.update(additionalField: additionalField)
         } catch {
+            addressProcessor.update(additionalField: .none)
             additionalFieldViewModel?.update(error: error.localizedDescription)
         }
     }
@@ -100,8 +101,14 @@ private extension CryptoAddressViewModel {
         do {
             let parameters = try await addressProcessor.update(destination: destination.string, source: destination.source)
             await setupView(addressParameters: parameters)
+        } catch is CancellationError {
+            // Superseded by a newer address change — keep the current state.
         } catch {
-            destinationAddressViewModel.update(error: error.localizedDescription)
+            await runOnMain {
+                destinationAddressViewModel.update(error: error.localizedDescription)
+                // Drop a stale resolved-address row left from a previously valid address.
+                destinationAddressSection = [.destinationAddress(destinationAddressViewModel)]
+            }
         }
     }
 
@@ -136,7 +143,7 @@ private extension CryptoAddressViewModel {
             .dropFirst()
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { $0.additionalFieldDidChanged(additionalField: $1) }
+            .sink { $0.additionalFieldDidChanged(value: $1) }
             .store(in: &bag)
 
         return viewModel
