@@ -15,6 +15,9 @@ import TangemAccessibilityIdentifiers
 
 struct SwapAmountView: View {
     @ObservedObject var viewModel: SwapAmountViewModel
+
+    @FocusState.Binding var isSourceFocused: Bool
+
     @State private var isShaking: Bool = false
 
     var body: some View {
@@ -31,6 +34,7 @@ struct SwapAmountView: View {
             SendDecimalNumberTextField(viewModel: viewModel.sourceDecimalNumberTextFieldViewModel)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
                 .alignment(.leading)
+                .focused($isSourceFocused)
                 .disabled(viewModel.isInputDisabled)
                 .offset(x: isShaking ? 10 : 0)
                 .simultaneousGesture(TapGesture().onEnded {

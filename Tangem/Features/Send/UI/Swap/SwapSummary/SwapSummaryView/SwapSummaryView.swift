@@ -37,7 +37,7 @@ struct SwapSummaryView: View {
 
             GroupedScrollView(contentType: .lazy()) {
                 VStack(spacing: 14) {
-                    SwapAmountView(viewModel: viewModel.swapAmountViewModel)
+                    SwapAmountView(viewModel: viewModel.swapAmountViewModel, isSourceFocused: $keyboardActive)
 
                     providerSectionView
 
