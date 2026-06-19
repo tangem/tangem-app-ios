@@ -12,12 +12,6 @@ import CombineExt
 import TangemExpress
 import TangemFoundation
 
-struct ExchangeStatusPollIteration {
-    let displayed: [PendingExpressTransaction]
-    let changed: [ExpressPendingTransactionRecord]
-    let polled: [ExchangeTransaction]
-}
-
 final class ExchangeStatusPoller {
     @Injected(\.expressPendingTransactionsRepository) private var expressPendingTransactionsRepository: ExpressPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
@@ -29,7 +23,7 @@ final class ExchangeStatusPoller {
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
     private let pendingTransactionFactory = PendingExpressTransactionFactory()
-    private let subscribers = MulticastPollingRegistry<ExchangeStatusPollIteration>()
+    private let subscribers = MulticastObserversHelper<ExchangeStatusPollIteration>()
 
     private var latestDisplayed: [PendingExpressTransaction] = []
     private var expressPendingTransactionsRepositorySubscription: AnyCancellable?
