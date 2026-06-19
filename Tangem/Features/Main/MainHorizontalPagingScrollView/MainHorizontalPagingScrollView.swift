@@ -23,6 +23,7 @@ struct MainHorizontalPagingScrollView: View {
     let detailsAction: () -> Void
 
     @State private var userWalletIDToScrollAdjustedValues = [UserWalletId: ScrollAdjustedValues]()
+    @State private var pagingIndicatorAnimationIsBlocked = true
 
     @State private var bottomOverlayHeight = CGFloat.zero
     @State private var contentFooterHeight = CGFloat.zero
@@ -106,9 +107,17 @@ struct MainHorizontalPagingScrollView: View {
                 TangemPagination(totalPages: userWalletPageBuilders.count, currentIndex: selectedUserWalletIndex)
                     .frame(height: .unit(.x8))
                     .offset(y: selectedUserWalletScrollAdjustedValues.pagingIndicatorOffsetY)
+                    .transaction { transaction in
+                        guard pagingIndicatorAnimationIsBlocked else { return }
+                        transaction.animation = nil
+                    }
                     .opacity(selectedUserWalletScrollAdjustedValues.pagingIndicatorOpacity)
 
                 Spacer()
+            }
+            .task {
+                await Task.yield()
+                pagingIndicatorAnimationIsBlocked = false
             }
         }
     }
