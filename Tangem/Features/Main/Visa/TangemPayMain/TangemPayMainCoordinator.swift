@@ -240,13 +240,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
         customerId: String,
-        cardName: String?
+        cardName: String?,
+        cardNumberEnd: String?
     ) {
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
             customerId: customerId,
             cardName: cardName,
+            cardNumberEnd: cardNumberEnd,
             coordinator: self
         )
 
