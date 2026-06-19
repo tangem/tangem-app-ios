@@ -82,7 +82,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     }
 
     func logScreenOpened() {
-        guard FeatureProvider.isAvailable(.swapSimpleMode) else { return }
         analyticsLogger.logSwapTypeScreenOpened(variant: formVariant)
     }
 
@@ -119,11 +118,6 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
         router?.summaryStepRequestEditFee()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidTapMaxAmount() {
-        interactor.userDidRequestMaxAmount()
-    }
-
     func userDidTapAmountFraction(_ fraction: SwapAmountFraction) {
         analyticsLogger.logTapAmountFraction(fraction)
         interactor.userDidRequestSourceAmount(fraction: fraction)
@@ -137,16 +131,16 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 // MARK: - SwapAmountCompactRoutable
 
 extension SwapSummaryViewModel: SwapAmountCompactRoutable {
-    func userDidTapChangeSourceTokenButton(tokenItem: TokenItem?) {
-        router?.summaryStepRequestEditSourceToken(tokenItem: tokenItem)
+    func userDidTapChangeSourceTokenButton(receiveToken: SendSourceToken?) {
+        router?.summaryStepRequestEditSourceToken(receiveToken: receiveToken?.walletTokenItem)
     }
 
     func userDidTapSwapSourceAndReceiveTokensButton() {
         interactor.userDidRequestSwapSourceAndReceiveToken()
     }
 
-    func userDidTapChangeReceiveTokenButton(tokenItem: TokenItem?) {
-        router?.summaryStepRequestEditReceiveToken(tokenItem: tokenItem)
+    func userDidTapChangeReceiveTokenButton(sourceToken: SendSourceToken?) {
+        router?.summaryStepRequestEditReceiveToken(sourceToken: sourceToken?.walletTokenItem)
     }
 }
 

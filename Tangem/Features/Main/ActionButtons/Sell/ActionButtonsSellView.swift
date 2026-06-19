@@ -14,6 +14,13 @@ import TangemLocalization
 struct ActionButtonsSellView: View {
     @ObservedObject var viewModel: ActionButtonsSellViewModel
 
+    private var navigationTitle: String {
+        if FeatureProvider.isAvailable(.redesign) {
+            return Localization.swappingTokenListTitle
+        }
+        return Localization.commonSell
+    }
+
     var body: some View {
         TokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
             TokenSelectorEmptyContentView(message: Localization.actionButtonsSellEmptySearchMessage)
@@ -22,7 +29,7 @@ struct ActionButtonsSellView: View {
         }
         .searchType(.native)
         .background(Colors.Background.tertiary.ignoresSafeArea())
-        .navigationTitle(Localization.commonSell)
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .animation(.easeInOut, value: viewModel.notificationInput)
         .toolbar {

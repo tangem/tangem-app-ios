@@ -23,6 +23,7 @@ struct SendCoordinatorView: CoordinatorView {
                         interactiveDismissDisabled: $interactiveDismissDisabled
                     )
                     .navigationLinks(links)
+                    .supportChatPresentation(coordinator.supportChatPresenter)
                 }
 
                 sheets

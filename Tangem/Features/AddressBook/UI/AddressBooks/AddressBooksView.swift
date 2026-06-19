@@ -30,13 +30,13 @@ struct AddressBooksView: View {
         }
         .navigationTitle(Text(Localization.addressBookTitle))
         // [REDACTED_TODO_COMMENT]
-        .background(DesignSystem.Tokens.Theme.Bg.base.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: viewModel.openAddContact) {
                     DesignSystem.Icons.SignPlus.regular20.image
                         .renderingMode(.template)
-                        .foregroundColor(DesignSystem.Tokens.Theme.Icon.primary)
+                        .foregroundColor(DesignSystem.Color.iconPrimary)
                 }
                 .buttonStyle(.plain)
             }
