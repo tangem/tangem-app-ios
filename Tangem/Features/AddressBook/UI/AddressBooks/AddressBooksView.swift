@@ -28,6 +28,7 @@ struct AddressBooksView: View {
 
             content
         }
+        .interContentPadding(12)
         .navigationTitle(Text(Localization.addressBookTitle))
         // [REDACTED_TODO_COMMENT]
         .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
@@ -47,8 +48,7 @@ struct AddressBooksView: View {
     private var content: some View {
         switch viewModel.contactsViewModels {
         case .loading:
-            // [REDACTED_TODO_COMMENT]
-            EmptyView()
+            AddressBooksLoadingView()
 
         case .success(let contactsViewModels) where contactsViewModels.isEmpty:
             // [REDACTED_TODO_COMMENT]
@@ -58,6 +58,8 @@ struct AddressBooksView: View {
             GroupedSection(contactsViewModels, isLazy: true) {
                 AddressBookContactView(viewModel: $0)
             }
+            .separatorStyle(.none)
+            .cornerRadius(24)
             .horizontalPadding(0)
         }
     }
