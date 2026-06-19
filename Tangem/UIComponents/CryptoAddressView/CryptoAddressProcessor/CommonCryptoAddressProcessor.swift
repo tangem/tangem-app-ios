@@ -45,7 +45,7 @@ extension CommonCryptoAddressProcessor: CryptoAddressProcessor {
     func update(destination address: String, source: Analytics.DestinationAddressSource) async throws -> CryptoAddressParameters {
         guard !address.isEmpty else {
             apply { $0.addressType = nil }
-            return CryptoAddressParameters(resolvedAddress: nil, memoIsRequired: false, canEmbedAdditionalField: false)
+            return CryptoAddressParameters(resolvedAddress: nil, memoIsRequired: false, canEmbedAdditionalField: true)
         }
 
         let canEmbedAdditionalField = validator.canEmbedAdditionalField(into: address)
@@ -70,7 +70,7 @@ extension CommonCryptoAddressProcessor: CryptoAddressProcessor {
         )
     }
 
-    func update(additionalField: SendDestinationAdditionalField) throws {
+    func update(additionalField: SendDestinationAdditionalField?) {
         apply { $0.additionalField = additionalField }
     }
 }
