@@ -236,8 +236,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         let mapper = MultiWalletNotificationBannerMapper()
 
         $notificationInputs
-            .combineLatest($tokenNotificationInputs)
-            .map { mapper.mapItems($0, $1) }
+            .map { mapper.mapItems($0) }
             .removeDuplicates()
             .assign(to: &$notificationBannerItems)
 
