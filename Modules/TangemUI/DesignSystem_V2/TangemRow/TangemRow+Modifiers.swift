@@ -35,6 +35,20 @@ public enum TangemRowLineOrder: Sendable, Hashable, CaseIterable {
     case secondaryFirst
 }
 
+public struct TangemRowOverrideTextColors {
+    public var title: Color?
+    public var subtitle: Color?
+    public var value: Color?
+    public var subvalue: Color?
+
+    public init(title: Color? = nil, subtitle: Color? = nil, value: Color? = nil, subvalue: Color? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+        self.value = value
+        self.subvalue = subvalue
+    }
+}
+
 struct TangemRowConfiguration {
     var contentLead: TangemRowContentLead = .equal
     var verticalAlignment: TangemRowVerticalAlignment = .top
@@ -46,6 +60,7 @@ struct TangemRowConfiguration {
     var showsDivider: Bool = false
     var includesInnerPadding: Bool = true
     var focusRingEnabled: Bool = false
+    var overrideTextColors: TangemRowOverrideTextColors = .init()
     var onTap: (() -> Void)?
     var accessibilityLabel: String?
     var accessibilityHint: String?
@@ -142,6 +157,10 @@ public extension TangemRow {
 
     func accessibilityHint(_ hint: String?) -> Self {
         map { $0.config.accessibilityHint = hint }
+    }
+
+    func overrideTextColors(_ colors: TangemRowOverrideTextColors) -> Self {
+        map { $0.config.overrideTextColors = colors }
     }
 }
 
