@@ -53,7 +53,7 @@ extension GaslessTransactionsDTO.Request {
         typealias Fee = GaslessTransaction.TransactionData.Fee
         typealias EIP7702Auth = GaslessTransaction.EIP7702Auth
 
-        let gaslessBatchTransaction: TransactionData
+        let gaslessTransaction: TransactionData
         let signature: String
         let userAddress: String
         let chainId: Int

@@ -104,7 +104,7 @@ struct GaslessTransactionBuilder {
         )
 
         let batchTransaction = GaslessBatchTransaction(
-            gaslessBatchTransaction: transactionData,
+            gaslessTransaction: transactionData,
             signature: signedData.eip712Signature,
             userAddress: walletModel.defaultAddressString,
             chainId: chainId,

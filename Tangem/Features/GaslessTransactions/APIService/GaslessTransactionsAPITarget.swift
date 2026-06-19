@@ -46,7 +46,15 @@ struct GaslessTransactionsAPITarget: TargetType {
             baseUrl = GaslessApiTargetConstants.stageBaseURL
         }
 
-        return baseUrl.appendingPathComponent("api").appendingPathComponent("v1")
+        let versionPath: String
+        switch target {
+        case .sendGaslessBatchTransaction:
+            versionPath = "v2"
+        case .availableTokens, .sendGaslessTransaction, .feeRecipient:
+            versionPath = "v1"
+        }
+
+        return baseUrl.appendingPathComponent("api").appendingPathComponent(versionPath)
     }
 
     var path: String {

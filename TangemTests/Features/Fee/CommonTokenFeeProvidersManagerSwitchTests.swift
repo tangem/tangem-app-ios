@@ -442,6 +442,45 @@ struct GaslessYieldFeeTests {
         #expect(typedData.message.objectValue?["transactions"]?.arrayValue?.first?.objectValue?["gasLimit"]?.stringValue == "21000")
     }
 
+    @Test("Batch request uses v2 route and documented payload key")
+    func batchRequestUsesV2Contract() throws {
+        let transaction = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction(
+            to: "0x0000000000000000000000000000000000000001",
+            value: "0",
+            gasLimit: "21000",
+            data: "0x"
+        )
+        let fee = GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee(
+            feeToken: "0x0000000000000000000000000000000000000002",
+            maxTokenFee: "10000",
+            coinPriceInToken: "1",
+            feeTransferGasLimit: "50000",
+            baseGas: "60000",
+            feeReceiver: "0x0000000000000000000000000000000000000003"
+        )
+        let batchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction(
+            gaslessBatchTransaction: .init(transactions: [transaction], fee: fee, nonce: "0"),
+            signature: "0xsignature",
+            userAddress: "0x0000000000000000000000000000000000000004",
+            chainId: 137,
+            eip7702auth: .init(
+                chainId: 137,
+                address: "0x0000000000000000000000000000000000000005",
+                nonce: "1",
+                yParity: 0,
+                r: "0xr",
+                s: "0xs"
+            )
+        )
+
+        let target = GaslessTransactionsAPITarget(apiType: .prod, target: .sendGaslessBatchTransaction(transaction: batchTransaction))
+        let encoded = try JSONSerialization.jsonObject(with: JSONEncoder().encode(batchTransaction)) as? [String: Any]
+
+        #expect(target.baseURL.absoluteString == "https://gasless.tangem.org/api/v2")
+        #expect(encoded?["gaslessTransaction"] != nil)
+        #expect(encoded?["gaslessBatchTransaction"] == nil)
+    }
+
     @Test("Yield fee remains reachable when the plain gasless quote reverts")
     func yieldFeeReachableAfterPlainGaslessQuoteRevert() async throws {
         let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
