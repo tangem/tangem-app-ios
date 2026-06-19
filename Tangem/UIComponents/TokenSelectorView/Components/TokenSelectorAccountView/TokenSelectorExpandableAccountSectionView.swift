@@ -21,10 +21,12 @@ struct TokenSelectorExpandableAccountSectionView: View {
     var body: some View {
         let effects = AccountGeometryEffects(namespace: namespace)
 
+        let isRedesign = FeatureProvider.isAvailable(.redesign)
+
         return ExpandableItemView(
             isExpanded: expandableViewModel.isExpanded,
-            backgroundColor: Colors.Background.action,
-            cornerRadius: Constants.cornerRadius,
+            backgroundColor: isRedesign ? Color.Tangem.Surface.level3 : Colors.Background.action,
+            cornerRadius: isRedesign ? .unit(.x6) : Constants.cornerRadius,
             backgroundGeometryEffect: effects.background,
             expandedViewTransition: Constants.expandedContentTransition,
             collapsedView: {

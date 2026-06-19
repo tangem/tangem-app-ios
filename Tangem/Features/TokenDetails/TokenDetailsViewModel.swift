@@ -186,7 +186,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .stake,
              .openFeedbackMail,
              .openAppStoreReview,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .addTokenTrustline,
              .openMobileFinishActivation,
@@ -210,6 +210,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     override func copyDefaultAddress() {
+        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = unavailableAlert
+            return
+        }
+
         super.copyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
@@ -312,7 +319,7 @@ extension TokenDetailsViewModel {
 
     func openDynamicAddressesManagementView(walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider) {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
 
@@ -423,8 +430,6 @@ private extension TokenDetailsViewModel {
     }
 
     private func setupQuickTopUpBanner() {
-        guard FeatureProvider.isAvailable(.onrampNativePayment) else { return }
-
         expressAvailabilityProvider.availabilityDidChangePublisher
             .receiveOnMain()
             .map { [weak self] in self?.mapToQuickTopUpBannerViewModel() }
@@ -433,7 +438,7 @@ private extension TokenDetailsViewModel {
 
     private func mapToQuickTopUpBannerViewModel() -> QuickTopUpBannerViewModel? {
         let availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
         guard availabilityProvider.isBuyAvailable else { return nil }
@@ -461,11 +466,10 @@ private extension TokenDetailsViewModel {
             })
         }
 
-        let hasFeature = FeatureProvider.isAvailable(.dynamicAddresses)
         let isDynamicAddressesSupported = walletModel.tokenItem.blockchain.isDynamicAddressesSupported
         let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider
 
-        if let walletModelDynamicAddressesProvider, hasFeature, isDynamicAddressesSupported {
+        if let walletModelDynamicAddressesProvider, isDynamicAddressesSupported {
             items.append(DotsMenuItem(type: .dynamicAddresses) { [weak self] in
                 self?.openDynamicAddressesManagementView(
                     walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider

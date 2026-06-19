@@ -249,7 +249,8 @@ private extension StakingModel {
                 fee: fee,
                 isFeeIncluded: includeFee,
                 stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator,
-                amountToReduce: includeFee ? amountToReduce : nil
+                amountToReduce: includeFee ? amountToReduce : nil,
+                validationStatus: nil
             )
         )
     }
@@ -656,22 +657,6 @@ extension StakingModel.State.ReadyToStake {
     enum ValidationStatus {
         case warning
         case blocked
-    }
-
-    init(
-        amount: Decimal,
-        fee: Decimal,
-        isFeeIncluded: Bool,
-        stakeOnDifferentValidator: Bool,
-        amountToReduce: Decimal?,
-        validationStatus: ValidationStatus? = nil
-    ) {
-        self.amount = amount
-        self.fee = fee
-        self.isFeeIncluded = isFeeIncluded
-        self.stakeOnDifferentValidator = stakeOnDifferentValidator
-        self.amountToReduce = amountToReduce
-        self.validationStatus = validationStatus
     }
 }
 

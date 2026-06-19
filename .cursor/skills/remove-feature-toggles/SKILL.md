@@ -5,9 +5,9 @@ argument: threshold - release version; toggles with releaseVersion strictly belo
 
 # Remove released feature toggles
 
-Mechanical cleanup only: each qualifying toggle is treated as permanently `true`. No refactoring, no renames, no behavior changes beyond deleting the dead disabled path.
+Mechanical cleanup only: each qualifying toggle is treated as permanently `true`. No refactoring, no renames, no behavior changes beyond deleting the dead disabled path. The one allowed reshaping is folding away a parameter or property the inline has turned into a compile-time constant — see the constant-fold bullet under Dead-code chase.
 
-The bar for deleting anything is that it is provably dead — no remaining references anywhere (`rg` by name), or unreachable after the inline. Code that still compiles and still has a live caller stays exactly as written, even when the removal leaves it looking redundant — a lone `V2` suffix, a one-case `switch`, an indirection with a single implementation. Renaming, collapsing, and re-shaping such code are judgment calls; leave them to the toggle's author, who is added as a PR reviewer (see Finishing) and can clean up as a follow-up. When unsure whether something is dead or merely ugly, leave it.
+The bar for deleting anything is that it is provably dead — no remaining references anywhere (`rg` by name), or unreachable after the inline. Code that still compiles and still has a live caller stays exactly as written, even when the removal leaves it looking redundant — a lone `V2` suffix, a one-case `switch`, an indirection with a single implementation. Renaming, collapsing, and re-shaping such code are judgment calls; leave them to the toggle's author, who is added as a PR reviewer (see Finishing) and can clean up as a follow-up. When unsure whether something is dead or merely ugly, leave it. The exception is a value the inline pins to a constant — `someFlag: Bool = true` — which is provably dead state rather than a matter of taste, and may be folded away as described below.
 
 ## Scope
 
@@ -31,6 +31,7 @@ After inlining, repeatedly delete what the inline left unreferenced. Before dele
 - whole types and files — delete the file from disk; the Xcode project uses file-system-synchronized groups, so `project.pbxproj` normally needs no edits (verify with `rg <FileName> TangemApp.xcodeproj/project.pbxproj`);
 - now-unused stored properties, init parameters, and the arguments factories passed for them;
 - a parameter the inline leaves entirely unused — drop it from the signature and update every call site; but if it is still passed a meaningful value anywhere, it is not dead, leave the signature alone;
+- a parameter, defaulted argument, or stored property the inline pins to a compile-time constant (e.g. `isRatingFeatureAvailable: Bool = true` once `FeatureProvider.isAvailable(.x)` folded to `true`) — drop it, keep only the branch the constant selects, and update every call site and test. Do this only when `rg` by name confirms no caller passes a different value (everyone relies on the constant default, or every explicit argument is that same literal). It reshapes signatures rather than just deleting a dead branch, so keep it in a separate commit layered on top of the per-toggle removals — never fold a parameter that still receives a meaningful, non-constant value from any caller;
 - enum cases nobody constructs anymore (deeplink destinations, story variants) — remove the case and every pattern-match on it (`id` switches, presenter switches, analytics mappings). When sweeping for leftovers, grep the bare member name (`rg '\.caseName\b'`), not just call-shaped patterns like `.caseName(` — bare rows in multi-case lists (`case .a, .caseName, .b:`) are pattern-matches too and won't show up otherwise. Mind that the same member name may exist on unrelated enums: check what each hit switches over before touching it;
 - error cases nothing throws anymore — remove their pattern-matches (notification managers, `UniversalError` extensions); in numbered subsystem comment lists, mark the entry `removed. Previously - <TypeName>` (keep the old name so a code seen in an old release build can still be traced) rather than deleting the line, so error codes are not reused;
 - unit tests: delete tests of removed legacy paths, drop removed init parameters and mocks. Affected SPM modules count too, not only the app target.
@@ -59,4 +60,5 @@ Stop the chase at anything still referenced by live code. If both branches of a 
    ```
 
    Deduplicate the logins and exclude yourself. For authors no longer on the team, fall back to the usual reviewer selection (see the create-pr skill).
-8. The standard workflow from AGENTS.md applies: Jira ticket fields, branch naming, self-review before the PR.
+8. Add a line to the PR description asking each removed toggle's author (the reviewers resolved in step 7) to validate the QA Notes generated for this removal — they own the feature and are best placed to confirm the auto-generated scenarios actually cover it now that the disabled path is gone. Mention them by GitHub login, e.g. `@<login> — please validate the generated QA Notes for the <toggle> removal.`
+9. The standard workflow from AGENTS.md applies: Jira ticket fields, branch naming, self-review before the PR.

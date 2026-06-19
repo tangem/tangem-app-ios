@@ -163,8 +163,10 @@ final class UserWalletPushNotificationsUpdateTrigger {
             .subscribe(eventsSubject)
             .store(in: &bag)
 
-        // Backend transactional-push address sync when the settled remote toggle changes,
-        // gated on the token list being ready.
+        // Re-sync transactional-push addresses on every transactionAlerts change, gated on the token
+        // list being ready. `preferencesPublisher` carries the optimistic value, so this fires on the
+        // optimistic toggle (before the PUT confirms); on a failed PUT the rollback re-emits the
+        // previous value and the address sync self-corrects.
         notificationPreferencesProvider
             .preferencesPublisher
             .map { $0.remoteValueState(for: .transactionAlerts) }

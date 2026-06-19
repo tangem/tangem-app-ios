@@ -72,9 +72,9 @@ private extension CommonStakingNotificationManager {
             if let validationStatus = readyToStake.validationStatus {
                 switch validationStatus {
                 case .warning:
-                    events.append(.validationWarning)
+                    events.append(.validationWarning(tokenName: tokenItem.currencySymbol))
                 case .blocked:
-                    events.append(.validationBlocked)
+                    events.append(.validationBlocked(tokenName: tokenItem.currencySymbol))
                 }
             }
 

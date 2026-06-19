@@ -39,8 +39,8 @@ enum StakingNotificationEvent {
     case tonExtraReserveInfo
     case tonUnstaking
     case tonAccountInitialization
-    case validationWarning
-    case validationBlocked
+    case validationWarning(tokenName: String)
+    case validationBlocked(tokenName: String)
 }
 
 extension StakingNotificationEvent: NotificationEvent {
@@ -99,8 +99,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .tonExtraReserveInfo: .string(Localization.stakingNotificationTonExtraReserveTitle)
         case .tonUnstaking: .string(Localization.stakingNotificationTonHaveToUnstakeAllTitle)
         case .tonAccountInitialization: .string(Localization.stakingNotificationTonAccountInitializationTitle)
-        case .validationWarning: .string("Security Warning") // [REDACTED_TODO_COMMENT]
-        case .validationBlocked: .string("Transaction Blocked") // [REDACTED_TODO_COMMENT]
+        case .validationWarning: .string(Localization.commonWarning)
+        case .validationBlocked: .string(Localization.commonError)
         }
     }
 
@@ -159,10 +159,10 @@ extension StakingNotificationEvent: NotificationEvent {
             Localization.stakingNotificationTonHaveToUnstakeAllText
         case .tonAccountInitialization:
             Localization.stakingNotificationTonAccountInitializationMessage
-        case .validationWarning:
-            "This transaction may be risky. Proceed with caution." // [REDACTED_TODO_COMMENT]
-        case .validationBlocked:
-            "This transaction has been blocked for your safety." // [REDACTED_TODO_COMMENT]
+        case .validationWarning(let tokenName):
+            Localization.stakingTransactionValidationWarning(tokenName)
+        case .validationBlocked(let tokenName):
+            Localization.stakingTransactionValidationUnsafe(tokenName)
         }
     }
 

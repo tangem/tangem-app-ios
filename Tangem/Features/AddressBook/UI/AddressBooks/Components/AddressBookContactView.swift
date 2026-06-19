@@ -31,7 +31,7 @@ struct AddressBookContactNameIconView: View {
             .frame(width: 40, height: 40)
             .overlay {
                 Text(letter)
-                    .style(DesignSystem.Tokens.Font.Body.medium, color: DesignSystem.Tokens.Theme.Text.StaticDark.primary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textStaticDarkPrimary)
             }
             .clipShape(Circle())
     }

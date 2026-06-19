@@ -172,3 +172,11 @@ extension Start2CoinConfig: UserWalletConfig {
         return SimpleWalletManagerFactory()
     }
 }
+
+// MARK: - Action buttons
+
+extension Start2CoinConfig {
+    func makeActionButtonsRole() -> ActionButtonsWalletRole {
+        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: true, preselectsUserWalletInBuy: true)
+    }
+}

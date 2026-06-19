@@ -67,7 +67,6 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Child view models
 
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
@@ -204,7 +203,7 @@ extension MainCoordinator: MainRoutable {
              .tokenDetails,
              .buy,
              .sell,
-             .swapWithDeferredPairResolution,
+             .swap,
              .referral,
              .staking,
              .marketsTokenDetails,
@@ -357,14 +356,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
 
         tokenDetailsCoordinator = coordinator
-    }
-
-    func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        organizeTokensViewModel = OrganizeTokensViewModel(
-            userWalletModel: userWalletModel,
-            coordinator: self,
-            analyticsLogger: TokensManagementAnalyticsLogger()
-        )
     }
 
     func openAddAndManageTokens(factory: TokensManagementFlowFactory) {
@@ -745,18 +736,6 @@ extension MainCoordinator: SendFeeCurrencyNavigating {
     }
 }
 
-// MARK: - OrganizeTokensRoutable protocol conformance
-
-extension MainCoordinator: OrganizeTokensRoutable {
-    func didTapCancelButton() {
-        organizeTokensViewModel = nil
-    }
-
-    func didTapSaveButton() {
-        organizeTokensViewModel = nil
-    }
-}
-
 // MARK: - TokensManagementFlowRoutable protocol conformance
 
 extension MainCoordinator: TokensManagementFlowRoutable {
@@ -827,7 +806,7 @@ extension MainCoordinator: RateAppRoutable {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
-    func openBuy(userWalletModels: [UserWalletModel]) {
+    func openBuy(userWalletModels: [UserWalletModel], preferredWalletId: UserWalletId?) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] payload in
                 self?.actionButtonsBuyCoordinator = nil
@@ -837,7 +816,8 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
         )
 
         let options = ActionButtonsBuyCoordinator.Options(
-            userWalletModels: userWalletModels
+            userWalletModels: userWalletModels,
+            preferredWalletId: preferredWalletId
         )
 
         coordinator.start(with: options)

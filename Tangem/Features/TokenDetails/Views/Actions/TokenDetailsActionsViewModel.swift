@@ -31,7 +31,7 @@ final class TokenDetailsActionsViewModel: ObservableObject {
     ) {
         self.walletModel = walletModel
         availabilityProvider = TokenActionAvailabilityProvider(
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel
         )
     }
@@ -69,11 +69,9 @@ private extension TokenDetailsActionsViewModel {
             let items = incomingOptions().map { type in
                 makeRowItem(
                     for: type,
-                    isAvailable: isActionAvailable(type),
+                    isAvailable: isRowItemAvailable(for: type),
                     onTap: { [weak self] in
-                        Task { @MainActor in
-                            self?.actionsRoutable?.performTokenAction(type)
-                        }
+                        self?.perform(type, kind: .addFunds)
                     }
                 )
             }
@@ -96,15 +94,13 @@ private extension TokenDetailsActionsViewModel {
             buttons.append(swap)
         }
 
-        if let transfer = makeTransferButton() {
-            buttons.append(transfer)
-        }
+        buttons.append(makeTransferButton())
 
         return buttons
     }
 
     func makeAddFundsButton() -> TokenDetailsActionsButton? {
-        let options = groupOptions(from: incomingOptions())
+        let options = incomingOptions()
         guard options.isNotEmpty else { return nil }
 
         let longPressAction: (() -> Void)? = availabilityProvider.isReceiveAvailable
@@ -138,47 +134,42 @@ private extension TokenDetailsActionsViewModel {
             accessibilityIdentifier: TokenActionType.exchange.accessibilityIdentifier,
             isAvailable: availabilityProvider.isSwapAvailable,
             action: { [weak self] in
-                Task { @MainActor in
-                    self?.actionsRoutable?.performTokenAction(.exchange)
-                }
+                self?.perform(.exchange, kind: .swap)
             },
             longPressAction: nil
         )
     }
 
-    func makeTransferButton() -> TokenDetailsActionsButton? {
-        let options = groupOptions(from: outgoingOptions())
-        guard options.isNotEmpty else {
-            return makeTransferButton(isAvailable: false, action: {})
-        }
-
-        return makeTransferButton(
-            isAvailable: true,
-            action: { [weak self] in
-                self?.handleGroupTap(kind: .transfer, options: options)
-            }
-        )
-    }
-
-    func makeTransferButton(isAvailable: Bool, action: @escaping () -> Void) -> TokenDetailsActionsButton {
-        TokenDetailsActionsButton(
+    func makeTransferButton() -> TokenDetailsActionsButton {
+        let options = outgoingOptions()
+        return TokenDetailsActionsButton(
             id: .transfer,
             title: Localization.commonTransfer,
             icon: Assets.arrowUpMini,
             accessibilityIdentifier: ActionButtonsAccessibilityIdentifiers.transferButton,
-            isAvailable: isAvailable,
-            action: action,
+            isAvailable: true,
+            action: { [weak self] in
+                self?.handleGroupTap(kind: .transfer, options: options)
+            },
             longPressAction: nil
         )
     }
 
     func handleGroupTap(kind: TokenDetailsActionsKind, options: [TokenActionType]) {
         if let single = options.singleElement {
-            Task { @MainActor in
-                actionsRoutable?.performTokenAction(single)
-            }
+            perform(single, kind: kind)
         } else {
             presentSheet(kind: kind, options: options)
+        }
+    }
+
+    func perform(_ type: TokenActionType, kind: TokenDetailsActionsKind) {
+        Task { @MainActor in
+            if type == .exchange {
+                actionsRoutable?.performSwapAction(position: kind.swapPosition)
+            } else {
+                actionsRoutable?.performTokenAction(type)
+            }
         }
     }
 
@@ -186,12 +177,10 @@ private extension TokenDetailsActionsViewModel {
         let items = options.map { type in
             makeRowItem(
                 for: type,
-                isAvailable: true,
+                isAvailable: isRowItemAvailable(for: type),
                 onTap: { [weak self] in
                     self?.dismissSheet()
-                    Task { @MainActor in
-                        self?.actionsRoutable?.performTokenAction(type)
-                    }
+                    self?.perform(type, kind: kind)
                 }
             )
         }
@@ -205,6 +194,17 @@ private extension TokenDetailsActionsViewModel {
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: sheetViewModel)
+        }
+    }
+
+    func isRowItemAvailable(for actionType: TokenActionType) -> Bool {
+        switch actionType {
+        case .buy: availabilityProvider.isBuyAvailable
+        case .send: true
+        case .exchange: availabilityProvider.isSwapAvailable
+        case .sell: availabilityProvider.isSellAvailable
+        case .receive: availabilityProvider.isReceiveAvailable
+        default: false
         }
     }
 
@@ -247,25 +247,7 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func outgoingOptions() -> [TokenActionType] {
-        var options: [TokenActionType] = []
-        if availabilityProvider.isSendAvailable { options.append(.send) }
-        if isSwapButtonVisible { options.append(.exchange) }
-        if availabilityProvider.isSellAvailable { options.append(.sell) }
-        return options
-    }
-
-    func isActionAvailable(_ type: TokenActionType) -> Bool {
-        switch type {
-        case .exchange:
-            return availabilityProvider.isSwapAvailable
-        case .buy, .send, .receive, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
-            return true
-        }
-    }
-
-    /// `.exchange` is reachable via the dedicated Swap button, so it never appears in Add Funds / Transfer groups.
-    func groupOptions(from options: [TokenActionType]) -> [TokenActionType] {
-        options.filter { $0 != .exchange }
+        [.send, .exchange, .sell]
     }
 }
 

@@ -14,7 +14,7 @@ struct TangemPayBackgroundView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            DesignSystem.Tokens.Theme.Bg.primary
+            DesignSystem.Color.bgPrimary
                 .ignoresSafeArea()
 
             Assets.Visa.paymentAccountBackground.image
