@@ -21,6 +21,8 @@ final class RatingFeedbackBottomSheetViewModel: ObservableObject, FloatingSheetC
     private let onSubmit: OnSubmit
     private let onDismiss: () -> Void
 
+    private var isDismissed = false
+
     var isSubmitEnabled: Bool { !isSubmitting }
 
     // MARK: - Publishers
@@ -50,7 +52,7 @@ final class RatingFeedbackBottomSheetViewModel: ObservableObject, FloatingSheetC
             try await onSubmit(rating, feedback)
             isSubmitting = false
             showSuccessToast()
-            onDismiss()
+            dismiss()
         } catch {
             isSubmitting = false
             showErrorToast()
@@ -58,6 +60,8 @@ final class RatingFeedbackBottomSheetViewModel: ObservableObject, FloatingSheetC
     }
 
     func dismiss() {
+        guard !isDismissed else { return }
+        isDismissed = true
         onDismiss()
     }
 }
