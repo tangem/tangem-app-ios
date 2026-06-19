@@ -55,7 +55,7 @@ struct SwapSummaryView: View {
         .keyboardToolbar(toolbarContent)
         .keyboardAutoHide(
             isActive: $keyboardActive,
-            onInput: viewModel.swapAmountViewModel.sourceDecimalNumberTextFieldViewModel.valuePublisher()
+            onInput: viewModel.swapAmountViewModel.sourceAmountInputPublisher
         )
         .readGeometry(bindTo: $viewGeometryInfo)
         .ignoresSafeArea(.keyboard)
