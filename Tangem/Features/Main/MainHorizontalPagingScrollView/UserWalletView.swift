@@ -311,9 +311,6 @@ extension UserWalletView {
                 }
                 .coordinateSpace(name: RefreshableConstants.coordinateSpaceName)
             }
-            .task {
-                onNormalizedOffsetYChanged(0, nil)
-            }
         }
 
         private func startRefreshingIfNeeded() {
