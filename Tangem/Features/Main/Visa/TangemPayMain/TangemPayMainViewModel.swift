@@ -109,6 +109,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
+    private let exchangeStatusPollingHelper: ExchangeStatusPollingHelper
     private let cardDetailsRepository: TangemPayCardDetailsRepository
 
     private var nextViewOpeningTask: Task<Void, Error>?
@@ -142,13 +143,17 @@ final class TangemPayMainViewModel: ObservableObject {
                 .eraseToAnyPublisher() ?? Empty<Bool, Never>().eraseToAnyPublisher()
         )
 
-        pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(
+        let expressStatusTracking = ExpressStatusTrackingFactory(
             userWalletInfo: userWalletInfo,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             // We don't handle update after transaction is done here yet.
-            walletModelUpdater: nil
+            walletModelUpdater: nil,
+            transactionHistoryEnricherFactory: { nil } // [REDACTED_TODO_COMMENT]
         )
-        .makePendingExpressTransactionsManager()
+        .makeExpressStatusTracking()
+
+        pendingExpressTransactionsManager = expressStatusTracking.manager
+        exchangeStatusPollingHelper = expressStatusTracking.pollingHelper
 
         bind()
         if !isDeactivated {
