@@ -56,6 +56,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userWalletNotificationManager: NotificationManager,
         promotionNotificationsManager: PromotionNotificationsManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        exchangeStatusPollingHelper: ExchangeStatusPollingHelper,
         tokenNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenRouter: SingleTokenRoutable,
@@ -87,6 +88,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             walletModel: walletModel,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
+            exchangeStatusPollingHelper: exchangeStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 

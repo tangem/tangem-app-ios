@@ -394,6 +394,10 @@ private extension TokenDetailsView {
         second: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
+    let exchangeStatusPollingHelper = ExchangeStatusPollingHelper(
+        poller: exchangeStatusPoller,
+        enricherFactory: { nil }
+    )
 
     TokenDetailsView(
         viewModel: .init(
@@ -402,6 +406,7 @@ private extension TokenDetailsView {
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
+            exchangeStatusPollingHelper: exchangeStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(

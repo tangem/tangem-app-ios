@@ -76,6 +76,11 @@ private extension SingleWalletMainContentRedesignedView {
         .walletModelsManager
         .walletModels[0]
 
+    let exchangeStatusPollingHelper = ExchangeStatusPollingHelper(
+        poller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
+        enricherFactory: { nil }
+    )
+
     SingleWalletMainContentRedesignedView(
         viewModel: SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
@@ -83,6 +88,7 @@ private extension SingleWalletMainContentRedesignedView {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
+            exchangeStatusPollingHelper: exchangeStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
