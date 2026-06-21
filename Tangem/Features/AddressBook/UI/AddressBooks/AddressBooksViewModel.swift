@@ -36,7 +36,7 @@ final class AddressBooksViewModel: ObservableObject {
 
     init(
         coordinator: AddressBooksRoutable,
-        addressBooksProvider: any AddressBooksProvider = .mock()
+        addressBooksProvider: any AddressBooksProvider = .common()
     ) {
         self.coordinator = coordinator
         self.addressBooksProvider = addressBooksProvider
@@ -47,13 +47,24 @@ final class AddressBooksViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        coordinator?.openAddContact()
+        guard let selectedAddressBook else {
+            return
+        }
+
+        coordinator?.openAddContact(
+            walletId: selectedAddressBook.wallet.id,
+            addressBookManager: selectedAddressBook.addressBookManager
+        )
     }
 }
 
 // MARK: - Private
 
 private extension AddressBooksViewModel {
+    var selectedAddressBook: AddressBookWallet? {
+        addressBooks.first { $0.wallet.id.stringValue == selectedChipId }
+    }
+
     func setupChips() {
         guard addressBooks.count >= 2 else {
             walletChips = []
@@ -87,17 +98,31 @@ private extension AddressBooksViewModel {
 
                 return addressBook.addressBookPublisher
                     .withWeakCaptureOf(viewModel)
-                    .map { .success($0.mapToAddressBookContactViewModels(contacts: $1.contacts)) }
+                    .map { viewModel, contacts in
+                        .success(viewModel.mapToAddressBookContactViewModels(
+                            walletId: addressBook.wallet.id,
+                            addressBookManager: addressBook.addressBookManager,
+                            contacts: contacts
+                        ))
+                    }
                     .eraseToAnyPublisher()
             }
             .receive(on: DispatchQueue.main)
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(contacts: [AddressBookUIContact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(
+        walletId: UserWalletId,
+        addressBookManager: AddressBookManager,
+        contacts: [AddressBookContact]
+    ) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
-                self?.coordinator?.openEditContact(contact: contact)
+                self?.coordinator?.openEditContact(
+                    contact: contact,
+                    walletId: walletId,
+                    addressBookManager: addressBookManager
+                )
             }
         }
     }

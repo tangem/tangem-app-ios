@@ -7,8 +7,9 @@
 //
 
 import Foundation
+import TangemFoundation
 
 protocol AddressBooksRoutable: AnyObject {
-    func openAddContact()
-    func openEditContact(contact: AddressBookUIContact)
+    func openAddContact(walletId: UserWalletId, addressBookManager: AddressBookManager)
+    func openEditContact(contact: AddressBookContact, walletId: UserWalletId, addressBookManager: AddressBookManager)
 }
