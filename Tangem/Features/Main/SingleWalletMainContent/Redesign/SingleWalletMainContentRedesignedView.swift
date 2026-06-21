@@ -98,4 +98,4 @@ private extension SingleWalletMainContentRedesignedView {
         )
     )
 }
-#endif
+#endif // DEBUG
