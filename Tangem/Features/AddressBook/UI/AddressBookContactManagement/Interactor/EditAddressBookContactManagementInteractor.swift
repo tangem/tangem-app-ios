@@ -20,14 +20,14 @@ final class EditAddressBookContactManagementInteractor {
     @Injected(\.userWalletRepository)
     private static var userWalletRepository: UserWalletRepository
 
-    private let contact: AddressBookContact
+    private let contact: AddressBookUIContact
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
     private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
 
-    init(contact: AddressBookContact) {
+    init(contact: AddressBookUIContact) {
         self.contact = contact
 
         nameSubject = .init(contact.name)
@@ -61,8 +61,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
             .map { walletInfo in
                 walletInfo.map {
                     WalletRowType(
-                        userWalletId: $0.id,
-                        wallet: $0.name,
+                        userWalletInfo: $0,
                         isEditable: Self.userWalletRepository.models.count > 1
                     )
                 }
