@@ -17,31 +17,84 @@ import TangemExpress
 import TangemSdk
 
 // [REDACTED_TODO_COMMENT]
-actor _TransactionHistoryUpdatingHelper {
-    private struct UpdateTaskKey: Hashable {
-        let updateToken: AnyHashable
-        let providerId: AnyHashable
-    }
+final class _TransactionHistoryUpdatingHelper: Sendable {
+    static let shared = _TransactionHistoryUpdatingHelper() // [REDACTED_TODO_COMMENT]
 
-    static let shared: _TransactionHistoryUpdatingHelper = .init() // [REDACTED_TODO_COMMENT]
-
-    private var scheduledUpdateTasks: Set<UpdateTaskKey> = []
+    private let scheduledUpdatesStorage = ScheduledUpdatesStorage()
 
     private init() {}
 
     func updateHistoryIfNeeded(
-        using provider: any TransactionHistoryProviding,
-        updateToken: AnyHashable,
-        action: (_ provider: any TransactionHistoryProviding) -> Void
+        featuresPublisher: AnyPublisher<[WalletModelFeature], Never>,
+        updateToken: AnyHashable
     ) async {
-        let updateTaskKey = UpdateTaskKey(updateToken: updateToken, providerId: provider.id.toAnyHashable())
+        // Some networks may support different, non-BSDK-driven tx history sources,
+        // so we need to trigger update for them even if the `_transactionHistoryService` is absent
+        do {
+            let transactionHistoryProviders = try await featuresPublisher
+                .first() // [REDACTED_TODO_COMMENT]
+                .map { features in
+                    return features.compactMap { feature in
+                        switch feature {
+                        case .transactionHistory(let transactionHistoryProvider):
+                            return transactionHistoryProvider
+                        case .dynamicAddresses,
+                             .nft:
+                            return nil
+                        }
+                    }
+                }
+                .async()
 
-        guard scheduledUpdateTasks.insert(updateTaskKey).inserted else {
-            // Update with this provider for this update iteration (determined by the `updateToken`) is already scheduled, skip it
-            return
+            // 1. `syncInitial` calls are re-entrant and synchronized, so they can be safely called multiple times
+            // 2. In almost all cases there is a single provider, so `TaskGroup` is an overkill here, simple `for` loop is enough
+            for provider in transactionHistoryProviders {
+                let shouldScheduleUpdate = await scheduledUpdatesStorage.shouldScheduleUpdate(
+                    updateToken: updateToken,
+                    providerId: provider.id.toAnyHashable()
+                )
+
+                guard shouldScheduleUpdate else {
+                    // Update with this provider for this update iteration (determined by the `updateToken`) is already scheduled, skip it
+                    continue
+                }
+
+                Task {
+                    // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
+                    // so we can safely trigger both types of syncs here without any additional checks/synchronization
+                    await provider.syncInitial()
+                    await provider.syncDelta()
+                }
+            }
+        } catch {
+            // [REDACTED_TODO_COMMENT]
+            AppLogger.error(self, "Failed to update V2 transaction history", error: error)
+        }
+    }
+}
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension _TransactionHistoryUpdatingHelper: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension _TransactionHistoryUpdatingHelper {
+    actor ScheduledUpdatesStorage {
+        private var scheduledUpdateTasks: Set<UpdateTaskKey> = []
+
+        func shouldScheduleUpdate(updateToken: AnyHashable, providerId: AnyHashable) -> Bool {
+            scheduledUpdateTasks.insert(UpdateTaskKey(updateToken: updateToken, providerId: providerId)).inserted
         }
 
-        action(provider)
+        private struct UpdateTaskKey: Hashable {
+            let updateToken: AnyHashable
+            let providerId: AnyHashable
+        }
     }
 }
 
@@ -448,41 +501,10 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     private func updateV2TransactionHistory(updateToken: some Hashable) async {
-        // Some networks may support different, non-BSDK-driven tx history sources,
-        // so we need to trigger update for them even if the `_transactionHistoryService` is absent
-        do {
-            let transactionHistoryProviders = try await featureManager
-                .featuresPublisher
-                .first() // [REDACTED_TODO_COMMENT]
-                .map { features in
-                    return features.compactMap { feature in
-                        switch feature {
-                        case .transactionHistory(let transactionHistoryProvider):
-                            return transactionHistoryProvider
-                        case .dynamicAddresses,
-                             .nft:
-                            return nil
-                        }
-                    }
-                }
-                .async()
-
-            // 1. `syncInitial` calls are re-entrant and synchronized, so they can be safely called multiple times
-            // 2. In almost all cases there is a single provider, so `TaskGroup` is an overkill here, simple `for` loop is enough
-            for provider in transactionHistoryProviders {
-                await _TransactionHistoryUpdatingHelper.shared.updateHistoryIfNeeded(using: provider, updateToken: updateToken) { provider in
-                    Task {
-                        // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
-                        // so we can safely trigger both types of syncs here without any additional checks/synchronization
-                        await provider.syncInitial()
-                        await provider.syncDelta()
-                    }
-                }
-            }
-        } catch {
-            // [REDACTED_TODO_COMMENT]
-            AppLogger.error(self, "Failed to update V2 transaction history", error: error)
-        }
+        await _TransactionHistoryUpdatingHelper.shared.updateHistoryIfNeeded(
+            featuresPublisher: featureManager.featuresPublisher,
+            updateToken: updateToken
+        )
     }
 
     private func updateBSDKTransactionHistory() async {
