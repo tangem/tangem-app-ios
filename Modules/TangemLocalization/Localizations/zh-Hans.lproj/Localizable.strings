@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "添加地址并选择网络";
 "address_book_add_address" = "添加地址";
 "address_book_add_contact" = "添加联系人";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
 "address_book_copy_address" = "复制地址";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "不要再次显示";
 "balance_hidden_got_it_button" = "明白";
 "balance_hidden_title" = "余额已隐藏";
+"beta_mode_warning_title" = "测试模式";
 "biometry_touch_id_reason" = "Touch ID 用于在应用程序中保存您的卡片和指环";
 "bitcoin_promo_activation_error_title" = "激活错误";
 "bitcoin_promo_activation_error" = "处理您的优惠码时出错，请稍后再试。";
@@ -246,6 +248,7 @@
 "common_copy" = "复制";
 "common_create" = "创建";
 "common_custom" = "定制";
+"common_delete" = "删除";
 "common_disable" = "禁用";
 "common_disabled" = "已禁用";
 "common_disabling" = "禁用";
@@ -332,6 +335,7 @@
 "common_sell" = "出售";
 "common_send_colon" = "发送：";
 "common_send_tx_error" = "交易发送失败";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "发送";
 "common_sending" = "发送中";
 "common_sent" = "发送";
@@ -569,9 +573,14 @@
 "feedback_subject_tx_failed" = "无法发送交易";
 "feedback_subject_tx_push_failed" = "无法推送交易";
 "feedback_token_description_error" = "代币描述错误";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
 "force_update_banner_title" = "需要更新";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "更新";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "请将应用更新至最新版本，以确保正常运行。";
 "force_update_warning_title" = "需要更新";
 "gasless_not_enough_funds_to_cover_token_fee" = "资金不足";
@@ -1060,6 +1069,7 @@
 "quick_action_buy_description" = "信用卡或银行账户";
 "quick_action_receive_description" = "分享您的地址或二维码";
 "quick_action_sell_description" = "安全出售加密货币";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "发送到另一个钱包";
 "quick_action_swap_description" = "在您的投资组合之间";
 "quick_top_up_chip_other" = "其他";
@@ -1264,6 +1274,8 @@
 "staking_details_apr" = "年利率";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "奖励每日自动累积到您的质押余额中。";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "奖励将累积到您的质押余额中。已赚取资金： %@";
 "staking_details_available" = "可用";
 "staking_details_average_reward_rate" = "平均奖励率";
@@ -1360,6 +1372,8 @@
 "staking_title_stake" = "质押%@";
 "staking_title_unstake" = "取消抵押 %@";
 "staking_transaction_in_progress_text" = "交易正在处理中！区块链正在进行验证，这可能需要几分钟时间。";
+"staking_transaction_validation_unsafe" = "因安全检查问题，禁止质押%@ ";
+"staking_transaction_validation_warning" = "%@ 质押行为可疑。请自行承担风险进行质押";
 "staking_unbonding_in" = "解绑在";
 "staking_unbonding" = "解除绑定";
 "staking_unlocked_locked" = "解锁";
@@ -1443,7 +1457,7 @@
 "swapping_permission_header" = "给予许可";
 "swapping_permit_and_swap" = "许可和兑换";
 "swapping_rate_experience_title" = "请评价您与服务提供商的互动体验";
-"swapping_rate_feedback_placeholder" = "请输入您的反馈";
+"swapping_rate_feedback_placeholder" = "请输入您的反馈（可选）";
 "swapping_rate_feedback_submit" = "发送反馈";
 "swapping_rate_feedback_title" = "是什么影响了您的\n体验？";
 "swapping_swap_action_in_progress" = "互换...";
@@ -1572,6 +1586,7 @@
 "tangempay_card_page_settings_title" = "卡片设置";
 "tangempay_change_pin_code" = "更改PIN码";
 "tangempay_come_back_if_forget_pin" = "如果忘记了，请返回应用程序。";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "设置限额从 %@ 到 %@";
 "tangempay_daily_limit_set_button" = "设置限额";
 "tangempay_declined_reason_1" = "余额不足";
@@ -1676,7 +1691,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "无法支付费用";
 "tangempay_reissue_card_insufficient_funds" = "资金不足，无法更换卡片";
 "tangempay_reissue_card_title" = "要重新发行您的卡片吗？";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题，请稍后再试。";
