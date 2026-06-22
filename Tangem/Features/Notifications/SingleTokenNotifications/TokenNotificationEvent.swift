@@ -23,7 +23,7 @@ enum TokenNotificationEvent: Hashable {
     case notEnoughFeeForTransaction(configuration: NotEnoughFeeConfiguration)
     case bnbBeaconChainRetirement
     case hasUnfulfilledRequirements(configuration: UnfulfilledRequirementsConfiguration, icon: MainButton.Icon?)
-    case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
+    case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String, isBeta: Bool)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
     case cloreMigration
@@ -172,7 +172,7 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.redCircleWarning))
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let trustlineInfo), _):
             return .init(iconType: .image(trustlineInfo.icon))
-        case .staking(let tokenIconInfo, _):
+        case .staking(let tokenIconInfo, _, _):
             return .init(iconType: .icon(tokenIconInfo))
         }
     }
@@ -249,8 +249,8 @@ extension TokenNotificationEvent: NotificationEvent {
                 return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
             }
             return nil
-        case .staking:
-            return .init(.stake)
+        case .staking(_, _, let isBeta):
+            return .init(.stake(isBeta: isBeta))
         case .cloreMigration:
             return .init(.openCloreMigration)
         case .dynamicAddressesFundsFound:
