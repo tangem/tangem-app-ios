@@ -19,12 +19,15 @@ struct AddressBookContactViewModel: Identifiable {
 
     let action: () -> Void
 
-    init(contact: AddressBookUIContact, action: @escaping () -> Void) {
-        id = contact.id.uuidString
-        title = contact.name
-        subtitle = Localization.addressBookAddresses(contact.addresses.count)
-        letter = contact.firstLetter
-        iconColor = AccountModelUtils.UI.iconColor(from: contact.color)
+    init(contact: AddressBookContact, action: @escaping () -> Void) {
+        let name = contact.name.value
+        let color = AccountModel.CompositeIcon.Color(rawValue: contact.iconColor) ?? .azure
+
+        id = contact.id.stringValue
+        title = name
+        subtitle = Localization.addressBookAddresses(contact.entries.addressCount)
+        letter = "\(name.prefix(1).uppercased())"
+        iconColor = AccountModelUtils.UI.iconColor(from: color)
 
         self.action = action
     }
