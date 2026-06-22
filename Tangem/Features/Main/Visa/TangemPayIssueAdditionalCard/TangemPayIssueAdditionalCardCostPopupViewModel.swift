@@ -24,25 +24,19 @@ protocol TangemPayIssueAdditionalCardCostPopupRoutable: AnyObject {
 
 final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        isInsufficientFunds
-            ? DesignSystem.Icons.Error.regular28.image
-            : DesignSystem.Icons.CardPlus.regular32.image
+        DesignSystem.Icons.CardPlus.regular32.image
     }
 
     var iconStyle: TangemPayPopupIconStyle {
-        isInsufficientFunds ? .warning : .info
+        .info
     }
 
     var title: AttributedString {
-        isInsufficientFunds
-            ? .init(Localization.tangempayIssueAdditionalCardInsufficientFundsTitle)
-            : .init(Localization.tangempayIssueAdditionalCardTitle)
+        .init(Localization.tangempayIssueAdditionalCardTitle)
     }
 
     var description: AttributedString {
-        isInsufficientFunds
-            ? .init(Localization.tangempayIssueAdditionalCardInsufficientFundsSubtitle)
-            : .init(Localization.tangempayIssueAdditionalCardDescription)
+        .init(Localization.tangempayIssueAdditionalCardDescription)
     }
 
     var feeLabel: String {
@@ -53,36 +47,25 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
         Self.formatCurrency(fee.amount, currencyCode: fee.currency)
     }
 
-    var balanceText: String {
-        let balance = tangemPayAccount.balancesProvider.totalTokenBalanceProvider.balanceType.value ?? 0
-        return Self.formatCurrency(balance, currencyCode: fee.currency)
+    var insufficientFundsBannerTitle: String {
+        Localization.tangempayIssueAdditionalCardInsufficientFundsTitle
+    }
+
+    var insufficientFundsBannerMessage: String {
+        Localization.tangempayIssueAdditionalCardInsufficientFundsSubtitle
+    }
+
+    var addFundsButtonTitle: String {
+        Localization.tangempayCardDetailsAddFunds
     }
 
     var primaryButton: MainButton.Settings {
-        if isInsufficientFunds {
-            return MainButton.Settings(
-                title: Localization.tangempayCardDetailsAddFunds,
-                style: .primary,
-                size: .default,
-                action: openAddFunds
-            )
-        }
-
-        return MainButton.Settings(
+        MainButton.Settings(
             title: Localization.tangempayIssueCard,
             style: .primary,
             size: .default,
             isLoading: isIssuing,
             action: { [weak self] in self?.confirm() }
-        )
-    }
-
-    var secondaryButton: MainButton.Settings? {
-        MainButton.Settings(
-            title: Localization.commonCancel,
-            style: .secondary,
-            size: .default,
-            action: dismiss
         )
     }
 
@@ -149,7 +132,7 @@ private extension TangemPayIssueAdditionalCardCostPopupViewModel {
     }
 
     func confirm() {
-        guard !isIssuing, !isInsufficientFunds else { return }
+        guard !isIssuing else { return }
 
         Analytics.log(.visaScreenExtraCardIssuanceConfirmed, contextParams: .userWallet(userWalletId))
 
