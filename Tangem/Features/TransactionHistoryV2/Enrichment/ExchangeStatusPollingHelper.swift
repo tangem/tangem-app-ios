@@ -41,7 +41,7 @@ final class ExchangeStatusPollingHelper {
         // [REDACTED_TODO_COMMENT]
         let transactions = iteration.polled
 
-        guard !transactions.isEmpty else {
+        guard transactions.isNotEmpty else {
             return
         }
 
