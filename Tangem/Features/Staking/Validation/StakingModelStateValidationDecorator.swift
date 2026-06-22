@@ -18,6 +18,7 @@ final class StakingModelStateValidationDecorator {
     private let targetProvider: StakingTargetsInput
     private let stakingManager: StakingManager
     private let validator: StakingTransactionValidator?
+    private let analyticsLogger: StakingValidationAnalyticsLogger
 
     private let _validationState = CurrentValueSubject<StakingValidationState, Never>(.idle)
     private var validationTask: Task<Void, Never>?
@@ -27,12 +28,14 @@ final class StakingModelStateValidationDecorator {
         decoratee: StakingModelStateProvider,
         targetProvider: StakingTargetsInput,
         stakingManager: StakingManager,
-        validator: StakingTransactionValidator?
+        validator: StakingTransactionValidator?,
+        analyticsLogger: StakingValidationAnalyticsLogger
     ) {
         self.decoratee = decoratee
         self.targetProvider = targetProvider
         self.stakingManager = stakingManager
         self.validator = validator
+        self.analyticsLogger = analyticsLogger
 
         bind()
     }
@@ -94,17 +97,18 @@ private extension StakingModelStateValidationDecorator {
         validationTask?.cancel()
         _validationState.send(.validating)
 
-        validationTask = Task { [weak self, stakingManager] in
+        validationTask = Task { [weak self, stakingManager, analyticsLogger] in
             let result = await Self.performValidation(
                 readyToStake: readyToStake,
                 target: target,
                 stakingManager: stakingManager,
-                validator: validator
+                validator: validator,
+                analyticsLogger: analyticsLogger
             )
 
             guard !Task.isCancelled else { return }
 
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 self?._validationState.send(result)
             }
         }
@@ -114,7 +118,8 @@ private extension StakingModelStateValidationDecorator {
         readyToStake: StakingModel.State.ReadyToStake,
         target: StakingTargetInfo,
         stakingManager: StakingManager,
-        validator: StakingTransactionValidator
+        validator: StakingTransactionValidator,
+        analyticsLogger: StakingValidationAnalyticsLogger
     ) async -> StakingValidationState {
         do {
             let action = StakingAction(
@@ -135,8 +140,11 @@ private extension StakingModelStateValidationDecorator {
             }
 
             try await validator.validate(rawTransactions)
+
+            analyticsLogger.logScamVerification(error: nil)
             return .validated
         } catch let error as StakingTransactionValidationError {
+            analyticsLogger.logScamVerification(error: error)
             return mapToValidationState(error: error)
         } catch {
             return .validated
