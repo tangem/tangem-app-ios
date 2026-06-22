@@ -46,7 +46,7 @@ class CommonWalletModel {
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
-    private let transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper
+    private let transactionHistoryUpdater: TransactionHistoryUpdater
 
     private var dynamicAddressesManager: DynamicAddressesManager? {
         featureManager.features.dynamicAddressesManager
@@ -79,7 +79,7 @@ class CommonWalletModel {
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
-        transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper,
+        transactionHistoryUpdater: TransactionHistoryUpdater,
         transactionHistoryService: TransactionHistoryService?,
         receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
@@ -89,7 +89,7 @@ class CommonWalletModel {
         self.userWalletId = userWalletId
         self.walletManager = walletManager
         self.featureManager = featureManager
-        self.transactionHistoryUpdatingHelper = transactionHistoryUpdatingHelper
+        self.transactionHistoryUpdater = transactionHistoryUpdater
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
@@ -421,7 +421,7 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     private func updateV2TransactionHistory(updateToken: some Hashable) async {
-        await transactionHistoryUpdatingHelper.updateHistoryIfNeeded(
+        await transactionHistoryUpdater.updateHistoryIfNeeded(
             featuresPublisher: featureManager.featuresPublisher,
             updateToken: updateToken
         )

@@ -118,7 +118,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     address: walletManager.wallet.address
                 ),
                 featureManager: featureManager,
-                transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper(
+                transactionHistoryUpdater: TransactionHistoryUpdater(
                     scheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
                 ),
                 transactionHistoryService: transactionHistoryService,
@@ -159,7 +159,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                         address: walletManager.wallet.address
                     ),
                     featureManager: featureManager,
-                    transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper(
+                    transactionHistoryUpdater: TransactionHistoryUpdater(
                         scheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
                     ),
                     transactionHistoryService: transactionHistoryService,
