@@ -22,7 +22,7 @@ final class CommonAddressBookRepository {
     private let mapper = AddressBookNetworkMapper()
 
     private let contactsSubject = CurrentValueSubject<[AddressBookDecodedContact], Never>([])
-    private let syncStateSubject = CurrentValueSubject<AddressBookSyncState, Never>(.synced)
+    private let syncStateSubject = CurrentValueSubject<AddressBookSyncState, Never>(.syncing)
 
     init(
         walletId: UserWalletId,
@@ -72,7 +72,12 @@ extension CommonAddressBookRepository: AddressBookRepository {
         syncStateSubject.eraseToAnyPublisher()
     }
 
+    var syncState: AddressBookSyncState {
+        syncStateSubject.value
+    }
+
     func load() async {
+        syncStateSubject.send(.syncing)
         let didLoad = loadFromCache()
         syncStateSubject.send(didLoad ? .synced : .failed)
     }
