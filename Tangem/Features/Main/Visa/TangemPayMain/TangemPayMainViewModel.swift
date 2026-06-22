@@ -110,6 +110,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let exchangeStatusPollingHelper: ExchangeStatusPollingHelper
+    private let onrampStatusPollingHelper: OnrampStatusPollingHelper
     private let cardDetailsRepository: TangemPayCardDetailsRepository
 
     private var nextViewOpeningTask: Task<Void, Error>?
@@ -153,7 +154,8 @@ final class TangemPayMainViewModel: ObservableObject {
         .makeExpressStatusTracking()
 
         pendingExpressTransactionsManager = expressStatusTracking.manager
-        exchangeStatusPollingHelper = expressStatusTracking.pollingHelper
+        exchangeStatusPollingHelper = expressStatusTracking.exchangePollingHelper
+        onrampStatusPollingHelper = expressStatusTracking.onrampPollingHelper
 
         bind()
         if !isDeactivated {

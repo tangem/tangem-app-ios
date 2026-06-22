@@ -16,4 +16,5 @@ protocol TransactionHistoryExpressDataEnriching: Sendable {
     func enrich(with transaction: SentOnrampTransactionData) async
 
     func enrich(with transaction: ExchangeTransaction) async
+    func enrich(with transaction: OnrampTransaction) async
 }

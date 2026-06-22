@@ -81,6 +81,11 @@ private extension SingleWalletMainContentRedesignedView {
         enricherFactory: { nil }
     )
 
+    let onrampStatusPollingHelper = OnrampStatusPollingHelper(
+        poller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+        enricherFactory: { nil }
+    )
+
     SingleWalletMainContentRedesignedView(
         viewModel: SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
@@ -89,6 +94,7 @@ private extension SingleWalletMainContentRedesignedView {
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             exchangeStatusPollingHelper: exchangeStatusPollingHelper,
+            onrampStatusPollingHelper: onrampStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),

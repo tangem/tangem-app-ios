@@ -52,6 +52,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let tokenActionAvailabilityAnalyticsMapper = TokenActionAvailabilityAnalyticsMapper()
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let exchangeStatusPollingHelper: ExchangeStatusPollingHelper
+    private let onrampStatusPollingHelper: OnrampStatusPollingHelper
     private let priceChangeUtility = PriceChangeUtility()
 
     private var updateTask: Task<Void, Never>?
@@ -110,6 +111,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         notificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         exchangeStatusPollingHelper: ExchangeStatusPollingHelper,
+        onrampStatusPollingHelper: OnrampStatusPollingHelper,
         tokenRouter: SingleTokenRoutable
     ) {
         self.userWalletInfo = userWalletInfo
@@ -121,6 +123,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         )
         self.pendingExpressTransactionsManager = pendingExpressTransactionsManager
         self.exchangeStatusPollingHelper = exchangeStatusPollingHelper
+        self.onrampStatusPollingHelper = onrampStatusPollingHelper
         self.tokenRouter = tokenRouter
 
         prepareSelf()
