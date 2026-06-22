@@ -110,8 +110,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         notificationManager: NotificationManager,
         userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
-        exchangeStatusPollingHelper: ExchangeStatusPollingHelper,
-        onrampStatusPollingHelper: OnrampStatusPollingHelper,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         xpubGenerator: XPUBGenerator?,
         coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
@@ -131,8 +130,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             walletModel: walletModel,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
-            exchangeStatusPollingHelper: exchangeStatusPollingHelper,
-            onrampStatusPollingHelper: onrampStatusPollingHelper,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 

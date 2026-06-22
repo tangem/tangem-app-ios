@@ -93,7 +93,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
                 input: onrampModel,
                 pendingTransactionsManager: onrampStatusTracking.manager,
-                onrampStatusPollingHelper: onrampStatusTracking.pollingHelper
+                expressStatusPollingHelper: onrampStatusTracking.pollingHelper
             ),
             router: router
         )

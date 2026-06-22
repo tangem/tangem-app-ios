@@ -85,13 +85,9 @@ struct SingleWalletContentView_Preview: PreviewProvider {
 
         InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [userWalletModel])
 
-        let exchangeStatusPollingHelper = ExchangeStatusPollingHelper(
-            poller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
-            enricherFactory: { nil }
-        )
-
-        let onrampStatusPollingHelper = OnrampStatusPollingHelper(
-            poller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+        let expressStatusPollingHelper = ExpressStatusPollingHelper(
+            exchangePoller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
+            onrampPoller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
             enricherFactory: { nil }
         )
 
@@ -101,8 +97,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
-            exchangeStatusPollingHelper: exchangeStatusPollingHelper,
-            onrampStatusPollingHelper: onrampStatusPollingHelper,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),

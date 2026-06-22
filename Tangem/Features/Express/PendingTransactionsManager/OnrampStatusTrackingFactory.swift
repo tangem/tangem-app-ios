@@ -51,9 +51,9 @@ struct OnrampStatusTrackingFactory {
         )
     }
 
-    private func makeOnrampStatusPollingHelper(poller: OnrampStatusPoller) -> OnrampStatusPollingHelper {
-        OnrampStatusPollingHelper(
-            poller: poller,
+    private func makeOnrampStatusPollingHelper(poller: OnrampStatusPoller) -> ExpressStatusPollingHelper {
+        ExpressStatusPollingHelper(
+            onrampPoller: poller,
             enricherFactory: transactionHistoryEnricherFactory
         )
     }
@@ -64,11 +64,11 @@ struct OnrampStatusTrackingFactory {
 extension OnrampStatusTrackingFactory {
     struct OnrampStatusTracking {
         let manager: PendingExpressTransactionsManager
-        let pollingHelper: OnrampStatusPollingHelper
+        let pollingHelper: ExpressStatusPollingHelper
 
         fileprivate init(
             manager: PendingExpressTransactionsManager,
-            pollingHelper: OnrampStatusPollingHelper
+            pollingHelper: ExpressStatusPollingHelper
         ) {
             self.manager = manager
             self.pollingHelper = pollingHelper

@@ -28,8 +28,10 @@ struct ExpressStatusTrackingFactory {
                 onrampStatusPoller: onrampStatusPoller,
                 cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory
             ),
-            exchangePollingHelper: makeExchangeStatusPollingHelper(poller: exchangeStatusPoller),
-            onrampPollingHelper: makeOnrampStatusPollingHelper(poller: onrampStatusPoller)
+            pollingHelper: makeStatusPollingHelper(
+                exchangeStatusPoller: exchangeStatusPoller,
+                onrampStatusPoller: onrampStatusPoller
+            )
         )
     }
 
@@ -82,16 +84,13 @@ struct ExpressStatusTrackingFactory {
         )
     }
 
-    private func makeExchangeStatusPollingHelper(poller: ExchangeStatusPoller) -> ExchangeStatusPollingHelper {
-        ExchangeStatusPollingHelper(
-            poller: poller,
-            enricherFactory: transactionHistoryEnricherFactory
-        )
-    }
-
-    private func makeOnrampStatusPollingHelper(poller: OnrampStatusPoller) -> OnrampStatusPollingHelper {
-        OnrampStatusPollingHelper(
-            poller: poller,
+    private func makeStatusPollingHelper(
+        exchangeStatusPoller: ExchangeStatusPoller,
+        onrampStatusPoller: OnrampStatusPoller
+    ) -> ExpressStatusPollingHelper {
+        ExpressStatusPollingHelper(
+            exchangePoller: exchangeStatusPoller,
+            onrampPoller: onrampStatusPoller,
             enricherFactory: transactionHistoryEnricherFactory
         )
     }
@@ -123,17 +122,14 @@ struct ExpressStatusTrackingFactory {
 extension ExpressStatusTrackingFactory {
     struct ExpressStatusTracking {
         let manager: PendingExpressTransactionsManager
-        let exchangePollingHelper: ExchangeStatusPollingHelper
-        let onrampPollingHelper: OnrampStatusPollingHelper
+        let pollingHelper: ExpressStatusPollingHelper
 
         fileprivate init(
             manager: PendingExpressTransactionsManager,
-            exchangePollingHelper: ExchangeStatusPollingHelper,
-            onrampPollingHelper: OnrampStatusPollingHelper
+            pollingHelper: ExpressStatusPollingHelper
         ) {
             self.manager = manager
-            self.exchangePollingHelper = exchangePollingHelper
-            self.onrampPollingHelper = onrampPollingHelper
+            self.pollingHelper = pollingHelper
         }
     }
 }

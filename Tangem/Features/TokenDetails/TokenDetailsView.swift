@@ -397,12 +397,9 @@ private extension TokenDetailsView {
         second: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
-    let exchangeStatusPollingHelper = ExchangeStatusPollingHelper(
-        poller: exchangeStatusPoller,
-        enricherFactory: { nil }
-    )
-    let onrampStatusPollingHelper = OnrampStatusPollingHelper(
-        poller: onrampStatusPoller,
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: exchangeStatusPoller,
+        onrampPoller: onrampStatusPoller,
         enricherFactory: { nil }
     )
 
@@ -413,8 +410,7 @@ private extension TokenDetailsView {
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
-            exchangeStatusPollingHelper: exchangeStatusPollingHelper,
-            onrampStatusPollingHelper: onrampStatusPollingHelper,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(
