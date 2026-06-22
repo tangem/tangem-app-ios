@@ -16,7 +16,7 @@ final class AddressBooksViewModel: ObservableObject {
 
     @Published var selectedChipId: String?
     @Published private(set) var walletChips: [Chip] = []
-    @Published private(set) var contactsViewModels: LoadingResult<[AddressBookContactViewModel], Never> = .loading
+    @Published private(set) var contactsViewModels: LoadingResult<[AddressBookContactViewModel], Error> = .loading
 
     var showsToolbarAddButton: Bool {
         if case .success(let contacts) = contactsViewModels {
@@ -36,7 +36,7 @@ final class AddressBooksViewModel: ObservableObject {
 
     init(
         coordinator: AddressBooksRoutable,
-        addressBooksProvider: any AddressBooksProvider = .mock()
+        addressBooksProvider: any AddressBooksProvider = .common()
     ) {
         self.coordinator = coordinator
         self.addressBooksProvider = addressBooksProvider
@@ -47,13 +47,29 @@ final class AddressBooksViewModel: ObservableObject {
     }
 
     func openAddContact() {
-        coordinator?.openAddContact()
+        guard let selectedAddressBook else {
+            return
+        }
+
+        coordinator?.openAddContact(addressBookWallet: selectedAddressBook)
+    }
+
+    func retry() {
+        guard let selectedAddressBook else {
+            return
+        }
+
+        Task { await selectedAddressBook.addressBookManager.load() }
     }
 }
 
 // MARK: - Private
 
 private extension AddressBooksViewModel {
+    var selectedAddressBook: AddressBookWallet? {
+        addressBooks.first { $0.wallet.id.stringValue == selectedChipId }
+    }
+
     func setupChips() {
         guard addressBooks.count >= 2 else {
             walletChips = []
@@ -80,25 +96,48 @@ private extension AddressBooksViewModel {
                     .first(where: { $0.wallet.id.stringValue == selectedChipId })
             }
             .withWeakCaptureOf(self)
-            .flatMapLatest { viewModel, addressBook -> AnyPublisher<LoadingResult<[AddressBookContactViewModel], Never>, Never> in
+            .flatMapLatest { viewModel, addressBook -> AnyPublisher<LoadingResult<[AddressBookContactViewModel], Error>, Never> in
                 guard let addressBook else {
                     return Just(.success([])).eraseToAnyPublisher()
                 }
 
-                return addressBook.addressBookPublisher
+                return Publishers.CombineLatest(addressBook.addressBookPublisher, addressBook.syncStatePublisher)
                     .withWeakCaptureOf(viewModel)
-                    .map { .success($0.mapToAddressBookContactViewModels(contacts: $1.contacts)) }
+                    .map { viewModel, output -> LoadingResult<[AddressBookContactViewModel], Error> in
+                        let (contacts, syncState) = output
+
+                        switch syncState {
+                        case .failed:
+                            return .failure(AddressBooksLoadError.syncFailed)
+                        case .syncing:
+                            return .loading
+                        case .synced, .offline:
+                            return .success(viewModel.mapToAddressBookContactViewModels(
+                                addressBookWallet: addressBook,
+                                contacts: contacts
+                            ))
+                        }
+                    }
                     .eraseToAnyPublisher()
             }
             .receive(on: DispatchQueue.main)
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(
+        addressBookWallet: AddressBookWallet,
+        contacts: [AddressBookContact]
+    ) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
-                self?.coordinator?.openEditContact(contact: contact)
+                self?.coordinator?.openEditContact(contact: contact, addressBookWallet: addressBookWallet)
             }
         }
     }
+}
+
+// MARK: - Error
+
+private enum AddressBooksLoadError: Error {
+    case syncFailed
 }

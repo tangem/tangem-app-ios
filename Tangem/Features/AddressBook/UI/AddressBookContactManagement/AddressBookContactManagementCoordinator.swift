@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class AddressBookContactManagementCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -35,8 +36,10 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let interactor: AddressBookContactManagementInteractor = switch options {
-        case .add: CreateAddressBookContactManagementInteractor()
-        case .edit(let contact): EditAddressBookContactManagementInteractor(contact: contact)
+        case .add(let addressBookWallet):
+            CreateAddressBookContactManagementInteractor(addressBookWallet: addressBookWallet)
+        case .edit(let contact, let addressBookWallet):
+            EditAddressBookContactManagementInteractor(contact: contact, addressBookWallet: addressBookWallet)
         }
 
         rootViewModel = AddressBookContactManagementViewModel(interactor: interactor, coordinator: self)
@@ -47,8 +50,8 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 
 extension AddressBookContactManagementCoordinator {
     enum Options {
-        case add
-        case edit(contact: AddressBookContact)
+        case add(addressBookWallet: AddressBookWallet)
+        case edit(contact: AddressBookContact, addressBookWallet: AddressBookWallet)
     }
 }
 
@@ -72,12 +75,12 @@ extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable
         addAddressViewModel = nil
     }
 
-    func openQRScanner() {
+    func openQRScanner(completion: @escaping (String) -> Void) {
         let dismissAction: Action<String?> = { [weak self] scannedCode in
             self?.qrScanCoordinator = nil
 
             if let scannedCode {
-                self?.addAddressViewModel?.applyScannedAddress(scannedCode)
+                completion(scannedCode)
             }
         }
 
