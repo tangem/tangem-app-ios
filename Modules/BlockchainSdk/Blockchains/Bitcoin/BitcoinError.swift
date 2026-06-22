@@ -16,6 +16,7 @@ public enum BitcoinError: LocalizedError, Equatable {
     case inputIndexOutOfRange(Int)
     case missingUtxo(Int)
     case wrongSignaturesCount
+    case noSignableInputs
 
     public var errorDescription: String? {
         switch self {
@@ -31,6 +32,8 @@ public enum BitcoinError: LocalizedError, Equatable {
             return "Unsupported PSBT scriptPubKey: \(reason)"
         case .invalidBase64:
             return "Invalid base64 PSBT"
+        case .noSignableInputs:
+            return "PSBT has no inputs that belong to the wallet"
         }
     }
 }
