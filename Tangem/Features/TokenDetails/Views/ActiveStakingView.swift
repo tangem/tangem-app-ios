@@ -13,6 +13,7 @@ import TangemAccessibilityIdentifiers
 import TangemUI
 
 struct ActiveStakingViewData {
+    let isBeta: Bool
     let balance: BalanceState
     let rewards: RewardsState?
 
@@ -42,10 +43,16 @@ struct ActiveStakingView: View {
         }
     }
 
+    private var title: String {
+        data.isBeta
+            ? "\(Localization.stakingNative) (\(Localization.betaModeWarningTitle))"
+            : Localization.stakingNative
+    }
+
     private var content: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text(Localization.stakingNative)
+                Text(title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
@@ -119,18 +126,21 @@ struct ActiveStakingView: View {
     VStack {
         ActiveStakingView(
             data: ActiveStakingViewData(
+                isBeta: true,
                 balance: .balance(.init(crypto: "5 SOL", fiat: "456.34$"), action: {}),
                 rewards: .rewardsToClaim("0,43$")
             )
         )
         ActiveStakingView(
             data: ActiveStakingViewData(
+                isBeta: false,
                 balance: .balance(.init(crypto: "5 SOL", fiat: "456.34$"), action: {}),
                 rewards: .noRewards
             )
         )
         ActiveStakingView(
             data: ActiveStakingViewData(
+                isBeta: false,
                 balance: .loadingError,
                 rewards: .rewardsToClaim("0,43$")
             )
