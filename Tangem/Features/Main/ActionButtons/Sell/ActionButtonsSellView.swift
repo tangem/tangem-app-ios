@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct ActionButtonsSellView: View {
     @ObservedObject var viewModel: ActionButtonsSellViewModel
@@ -36,6 +37,7 @@ struct ActionButtonsSellView: View {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
         }
         .onAppear(perform: viewModel.onAppear)
+        .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.sellTokenSelectorScreen)
     }
 
     @ViewBuilder
