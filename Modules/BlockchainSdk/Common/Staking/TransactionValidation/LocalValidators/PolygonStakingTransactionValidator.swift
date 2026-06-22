@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// Validates Polygon staking transactions by checking for StakeKit contract or POL token approve.
 public enum PolygonStakingTransactionValidator {
@@ -28,15 +29,13 @@ public enum PolygonStakingTransactionValidator {
             throw StakingTransactionValidationError.emptyOrMalformedData
         }
 
-        let toAddress = transaction.to.lowercased()
-
         // Case 1: Direct staking transaction to StakeKit contract
-        if toAddress == Self.stakeKitContract.lowercased() {
+        if transaction.to.caseInsensitiveEquals(to: Self.stakeKitContract) {
             return // Valid staking transaction
         }
 
         // Case 2: Approve transaction on POL token
-        if toAddress == Self.polToken.lowercased() {
+        if transaction.to.caseInsensitiveEquals(to: Self.polToken) {
             try validateApproveTransaction(transaction)
             return // Valid approve transaction
         }
@@ -49,10 +48,8 @@ public enum PolygonStakingTransactionValidator {
 
     /// Validates that the transaction is an ERC20 approve call with the expected spender.
     private static func validateApproveTransaction(_ transaction: EthereumCompiledTransactionData) throws {
-        let txData = transaction.data.lowercased()
-
         // Check method ID (first 4 bytes = 8 hex chars + "0x" prefix)
-        guard txData.hasPrefix(Self.approveMethodId.lowercased()) else {
+        guard transaction.data.caseInsensitiveHasPrefix(approveMethodId) else {
             throw StakingTransactionValidationError.notAStakingTransaction(
                 network: "Polygon",
                 details: "Transaction data does not contain approve method ID"
@@ -61,8 +58,7 @@ public enum PolygonStakingTransactionValidator {
 
         // Extract spender from data (first 32 bytes after method ID, but address is last 20 bytes)
         // Format: 0x095ea7b3 + 32 bytes spender (padded) + 32 bytes amount
-        // Data always has "0x" prefix (verified by hasPrefix check above)
-        let dataWithoutPrefix = String(txData.dropFirst(2))
+        let dataWithoutPrefix = transaction.data.removeHexPrefix()
 
         // methodID (8 chars) + spender (64 chars) = 72 chars minimum
         guard dataWithoutPrefix.count >= 72 else {
@@ -74,9 +70,9 @@ public enum PolygonStakingTransactionValidator {
 
         // Spender is bytes 4-36 (indices 8-72 in hex string), but only last 20 bytes are the address
         let spenderPadded = String(dataWithoutPrefix.dropFirst(8).prefix(64))
-        let spenderAddress = "0x" + String(spenderPadded.suffix(40))
+        let spenderAddress = String(spenderPadded.suffix(40)).addHexPrefix()
 
-        guard spenderAddress.lowercased() == Self.stakeKitContract.lowercased() else {
+        guard spenderAddress.caseInsensitiveEquals(to: Self.stakeKitContract) else {
             throw StakingTransactionValidationError.notAStakingTransaction(
                 network: "Polygon",
                 details: "Approve spender '\(spenderAddress)' does not match StakeKit contract"

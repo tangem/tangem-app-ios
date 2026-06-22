@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 /// Validates BNB staking transactions by checking for StakeHub contract address.
 public enum BNBStakingTransactionValidator {
@@ -26,9 +27,7 @@ public enum BNBStakingTransactionValidator {
             throw StakingTransactionValidationError.emptyOrMalformedData
         }
 
-        let toAddress = transaction.to.lowercased()
-
-        guard toAddress == Self.stakeHub.lowercased() else {
+        guard transaction.to.caseInsensitiveEquals(to: Self.stakeHub) else {
             throw StakingTransactionValidationError.notAStakingTransaction(
                 network: "BNB",
                 details: "Transaction 'to' address '\(transaction.to)' is not the StakeHub contract"

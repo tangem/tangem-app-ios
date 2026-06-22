@@ -1,5 +1,5 @@
 //
-//  AddressBookContact.swift
+//  AddressBookUIContact.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemFoundation
 
-struct AddressBookContact: Hashable, Identifiable {
+struct AddressBookUIContact: Hashable, Identifiable {
     var firstLetter: String { "\(name.prefix(1).uppercased())" }
 
     let id: UUID

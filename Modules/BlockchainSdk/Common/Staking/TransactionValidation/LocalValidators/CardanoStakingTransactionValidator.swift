@@ -16,6 +16,7 @@ public enum CardanoStakingTransactionValidator {
     static let withdrawalsKey: UInt64 = 5
 
     public static func validate(_ unsignedData: String) throws {
+        // Hex string must have even length (2 chars per byte)
         guard !unsignedData.isEmpty, unsignedData.count.isMultiple(of: 2) else {
             throw StakingTransactionValidationError.emptyOrMalformedData
         }
