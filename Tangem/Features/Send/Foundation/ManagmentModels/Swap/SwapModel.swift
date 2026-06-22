@@ -471,12 +471,11 @@ extension SwapModel {
             throw SwapModelError.destinationNotFound
         }
 
-        let amount = makeAmount(value: amountValue, tokenItem: source.tokenItem)
-        let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
-
         do {
             // 1. Validate just amount before fee calculation
+            let amount = makeAmount(value: amountValue, tokenItem: source.tokenItem)
             if let restriction = try validate(amount: amount) {
+                let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
                 return .restriction(restriction, quote: quote)
             }
 
@@ -489,19 +488,20 @@ extension SwapModel {
             let subtractFeeValue = isFeeIncluded ? fee.amount.value : .zero
             let feeTokenItem = source.tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem
             let subtractFee = SubtractFee(feeTokenItem: feeTokenItem, subtractFee: subtractFeeValue)
-            let amount = makeAmount(value: amountValue - subtractFeeValue, tokenItem: source.tokenItem)
+
+            let adjustedAmount = makeAmount(value: amountValue - subtractFeeValue, tokenItem: source.tokenItem)
+            let quote = Quote(fromAmount: adjustedAmount.value, expectAmount: adjustedAmount.value, highPriceImpact: nil)
 
             // 2. Validate amount, fee and destination
             // We don't have `extraId` on Tangem addresses
             let destination = DestinationType.address(address, params: nil)
-            if let restriction = try await validate(amount: amount, fee: fee, quote: quote, destination: destination) {
+            if let restriction = try await validate(amount: adjustedAmount, fee: fee, quote: quote, destination: destination) {
                 return .restriction(restriction, quote: quote)
             }
 
-            let notification = source.withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
+            let notification = source.withdrawalNotificationProvider?.withdrawalNotification(amount: adjustedAmount, fee: fee)
             let state = ReadyToTransferState(
                 quote: quote,
-                amount: amount,
                 fee: fee,
                 subtractFee: subtractFee,
                 destination: address,
@@ -510,6 +510,7 @@ extension SwapModel {
             return .readyToTransfer(state)
 
         } catch {
+            let quote = Quote(fromAmount: amountValue, expectAmount: amountValue, highPriceImpact: nil)
             return .requiredRefresh(occurredError: error, quote: quote)
         }
     }
@@ -840,8 +841,9 @@ extension SwapModel {
             case .loaded(_, .readyToTransfer(let transferState)):
                 analyticsLogger.logSwapButtonTransfer()
 
+                let amount = makeAmount(value: transferState.quote.fromAmount, tokenItem: source.tokenItem)
                 let transaction = try await source.transactionCreator.createTransaction(
-                    amount: transferState.amount,
+                    amount: amount,
                     fee: transferState.fee,
                     destinationAddress: transferState.destination,
                     params: nil
@@ -1502,8 +1504,9 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
             let isMainToken = sourceToken.tokenItem.isBlockchain
             let isSameNetwork = sourceToken.tokenItem.blockchainNetwork == receiveToken.tokenItem.blockchainNetwork
             let isFeeCurrency = feeTokenItem == sourceToken.tokenItem
+            let isTransfer = sourceToken.tokenItem.expressCurrency == receiveToken.tokenItem.expressCurrency
 
-            return isMainToken && isSameNetwork && isFeeCurrency
+            return isMainToken && isSameNetwork && isFeeCurrency && !isTransfer
         }
         .eraseToAnyPublisher()
     }
@@ -1970,7 +1973,6 @@ extension SwapModel {
 
     struct ReadyToTransferState {
         let quote: Quote
-        let amount: BSDKAmount
         let fee: BSDKFee
         let subtractFee: SubtractFee
         let destination: String
