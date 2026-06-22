@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Ajouter une adresse et sélectionner un réseau";
 "address_book_add_address" = "Ajouter une adresse";
 "address_book_add_contact" = "Ajouter le contact";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nom du contact";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copier l'adresse";
@@ -246,6 +247,7 @@
 "common_copy" = "Copier";
 "common_create" = "Créer";
 "common_custom" = "Personnalisé";
+"common_delete" = "Supprimer";
 "common_disable" = "Désactiver";
 "common_disabled" = "Désactivé";
 "common_disabling" = "Disabling";
@@ -332,6 +334,7 @@
 "common_sell" = "Vendre";
 "common_send_colon" = "Vous envoyez :";
 "common_send_tx_error" = "Échec d'envoi de la transaction";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Envoyer";
 "common_sending" = "Sending";
 "common_sent" = "Sent";
@@ -571,7 +574,11 @@
 "feedback_token_description_error" = "Erreur de description de la pièce";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
 "force_update_banner_title" = "Mise à jour nécessaire";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Mettre à jour";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Veuillez mettre à jour l'application pour assurer son bon fonctionnement";
 "force_update_warning_title" = "Mise à jour requise";
 "gasless_not_enough_funds_to_cover_token_fee" = "Fonds insuffisants";
@@ -1060,6 +1067,7 @@
 "quick_action_buy_description" = "Credit card or bank account";
 "quick_action_receive_description" = "Share your address or QR-code";
 "quick_action_sell_description" = "Sell crypto securely";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Send to another wallet";
 "quick_action_swap_description" = "Between your portfolios";
 "quick_top_up_chip_other" = "Other";
@@ -1264,6 +1272,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Les récompenses s'accumulent automatiquement sur votre solde de staking quotidiennement.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Les récompenses sont ajoutées à votre solde de staking. Fonds gagnés : %@";
 "staking_details_available" = "Disponible";
 "staking_details_average_reward_rate" = "Taux de récompense moyen";
@@ -1360,6 +1370,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "déstaker %@";
 "staking_transaction_in_progress_text" = "La transaction est en cours de traitement ! La validation est actuellement en cours dans la blockchain. Cela peut prendre quelques minutes.";
+"staking_transaction_validation_unsafe" = "%@ staking interdit en raison de contrôles de sécurité";
+"staking_transaction_validation_warning" = "%@ staking suspicieux. Continuez à vos propres risques.";
 "staking_unbonding_in" = "Dissociation en";
 "staking_unbonding" = "Dissociation";
 "staking_unlocked_locked" = "Débloquer";
@@ -1572,6 +1584,7 @@
 "tangempay_card_page_settings_title" = "Paramètres de la carte";
 "tangempay_change_pin_code" = "Modifier le code PIN";
 "tangempay_come_back_if_forget_pin" = "Revenez dans l'application si vous l'oubliez.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Définir une limite de %@ à %@";
 "tangempay_daily_limit_set_button" = "Définir des limites";
 "tangempay_declined_reason_1" = "fonds insuffisants";
@@ -1676,7 +1689,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Impossible de couvrir les frais";
 "tangempay_reissue_card_insufficient_funds" = "Fonds insuffisants pour réémettre la carte";
 "tangempay_reissue_card_title" = "Réémettre votre carte ?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Nous réparons un problème technique. Veuillez réessayer plus tard.";
