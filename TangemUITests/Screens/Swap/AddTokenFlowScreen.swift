@@ -40,6 +40,14 @@ final class AddTokenFlowScreen: Screen {
         }
     }
 
+    @discardableResult
+    func waitForTokenAddedToastOnMarketsTokenDetails() -> MarketsTokenDetailsScreen {
+        XCTContext.runActivity(named: "Wait for 'Token Added' toast on Markets token details screen") { _ in
+            waitAndAssertTrue(tokenAddedToast, timeout: .conditional, "Wait for 'Token Added' toast is displayed")
+            return MarketsTokenDetailsScreen(app)
+        }
+    }
+
     /// Waits for the "Token added" toast notification and returns to the swap screen
     @discardableResult
     func waitForTokenAddedToast() -> SwapScreen {
