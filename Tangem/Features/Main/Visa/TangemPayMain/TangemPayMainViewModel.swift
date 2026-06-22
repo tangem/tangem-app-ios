@@ -54,6 +54,7 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published private(set) var isWithdrawButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
@@ -430,6 +431,13 @@ private extension TangemPayMainViewModel {
             }
             .receiveOnMain()
             .assign(to: &$pendingExpressTransactions)
+
+        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
+            .map { balance in
+                balance.value?.isZero == true
+            }
+            .receiveOnMain()
+            .assign(to: &$isWithdrawButtonDisabled)
 
         bindInlineNotifications()
 
