@@ -615,6 +615,8 @@ private extension TokenDetailsViewModel {
     }
 
     private func updateLegacyStaking(state: StakingManagerState) {
+        let isBeta = state.yieldInfo?.item.network == .ethereum
+
         switch state {
         case .loading:
             // Do nothing
@@ -622,12 +624,13 @@ private extension TokenDetailsViewModel {
         case .availableToStake, .notEnabled:
             activeStakingViewData = nil
         case .loadingError, .temporaryUnavailable:
-            activeStakingViewData = .init(balance: .loadingError, rewards: .none)
+            activeStakingViewData = .init(isBeta: isBeta, balance: .loadingError, rewards: .none)
         case .staked(let staked):
             let rewards = mapToRewardsState(staked: staked)
             let balance = mapToStakedBalance(staked: staked)
 
             activeStakingViewData = ActiveStakingViewData(
+                isBeta: isBeta,
                 balance: .balance(balance) { [weak self] in self?.openStaking() },
                 rewards: rewards
             )
