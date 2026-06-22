@@ -51,6 +51,24 @@ extension StakingFlowDependenciesFactory {
     func makeStakingSummaryTitleProvider() -> SendSummaryTitleProvider {
         StakingSendSummaryTitleProvider(actionType: actionType.sendFlowActionType, tokenItem: tokenItem, walletName: userWalletInfo.name)
     }
+
+    func makeStakingTransactionValidator() -> StakingTransactionValidator? {
+        guard FeatureProvider.isAvailable(.stakingTransactionValidation) else { return nil }
+
+        let blockchain = tokenItem.blockchain
+        let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
+        let isRemoteValidationEnabled = BlockAidSupportedNetwork(blockchain: blockchain) != nil
+        let isValidationEnabled = isLocalValidationEnabled || isRemoteValidationEnabled
+        guard isValidationEnabled else { return nil }
+
+        @Injected(\.keysManager) var keysManager: KeysManager
+
+        return StakingValidationComposer.make(
+            blockchain: blockchain,
+            accountAddress: stakingableToken.defaultAddressString,
+            verifier: StakingTransactionVerifierFactory.make(apiKey: keysManager.blockaidAPIKey)
+        )
+    }
 }
 
 extension StakingAction.ActionType {
