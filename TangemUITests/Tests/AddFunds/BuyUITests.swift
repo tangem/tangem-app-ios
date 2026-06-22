@@ -26,7 +26,7 @@ final class BuyUITests: BaseTestCase {
 
     func testBuy_AddingTrendingTokenToMainScreen() {
         setAllureId(590)
-        let token = "Solana"
+        let token = "Tether"
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
@@ -35,12 +35,10 @@ final class BuyUITests: BaseTestCase {
             .tapMainBuy()
             .waitBuyTokenSelectorDisplayed()
             .tapTrendingToken(token)
+            .tapAddToPortfolio()
             .tapAddTokenButton()
-            .waitForTokenAddedToastOnAddFundsScreen()
-            .tapCloseButton()
-            .verifyTokenExists(token)
-            .tapMainBuy()
-            .waitBuyTokenSelectorDisplayed()
+            .waitForTokenAddedToastOnMarketsTokenDetails()
+            .tapBackButton()
             .waitTokenInWalletSection(token)
     }
 }
