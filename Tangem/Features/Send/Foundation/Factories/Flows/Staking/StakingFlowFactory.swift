@@ -57,7 +57,8 @@ extension StakingFlowFactory {
             decoratee: stakingModel,
             targetProvider: stakingModel,
             stakingManager: manager,
-            validator: makeStakingTransactionValidator()
+            validator: makeStakingTransactionValidator(),
+            analyticsLogger: analyticsLogger
         )
     }
 

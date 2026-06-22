@@ -78,6 +78,48 @@ extension CommonStakingSendAnalyticsLogger: StakingAnalyticsLogger {
     }
 }
 
+// MARK: - StakingValidationAnalyticsLogger
+
+extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
+    func logScamVerification(error: StakingTransactionValidationError?) {
+        let isBlockaidSupported = BlockAidSupportedNetwork(blockchain: tokenItem.blockchain) != nil
+
+        let blockaidValue: String
+        let mobileCheckValue: String
+
+        if let error {
+            switch error {
+            case .emptyOrMalformedData, .notAStakingTransaction:
+                blockaidValue = "Not performed"
+                mobileCheckValue = "false"
+            case .blockaidWarning:
+                blockaidValue = "Warning"
+                mobileCheckValue = "true"
+            case .blockaidMalicious:
+                blockaidValue = "Unsafe"
+                mobileCheckValue = "true"
+            case .blockaidValidationFailed:
+                blockaidValue = "Failed to validate"
+                mobileCheckValue = "true"
+            case .blockaidUnsupportedBlockchain:
+                blockaidValue = "Not performed"
+                mobileCheckValue = "true"
+            }
+        } else {
+            blockaidValue = isBlockaidSupported ? "Safe" : "Not performed"
+            mobileCheckValue = "true"
+        }
+
+        Analytics.log(event: .stakingScamVerification, params: [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .provider: "StakeKit",
+            .blockaid: blockaidValue,
+            .mobileCheck: mobileCheckValue,
+        ])
+    }
+}
+
 // MARK: - SendAmountAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: SendAmountAnalyticsLogger {
