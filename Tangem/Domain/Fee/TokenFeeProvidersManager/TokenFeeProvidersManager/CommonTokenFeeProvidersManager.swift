@@ -187,6 +187,17 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
 
             return fee
 
+        case (.dex(let data), .bitcoin):
+            guard let psbtBase64 = data.txData else {
+                throw ExpressProviderError.transactionDataNotFound
+            }
+
+            update(input: .dex(.bitcoinPsbt(psbtBase64: psbtBase64)))
+            await updateFees().value
+            let fee = try selectedFeeProvider.selectedTokenFee.value.get()
+
+            return fee
+
         case (.dex(let data), _):
             guard let txData = data.txData.map(Data.init(hexString:)) else {
                 throw ExpressProviderError.transactionDataNotFound
