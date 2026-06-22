@@ -18,6 +18,13 @@ final class AddressBooksViewModel: ObservableObject {
     @Published private(set) var walletChips: [Chip] = []
     @Published private(set) var contactsViewModels: LoadingResult<[AddressBookContactViewModel], Never> = .loading
 
+    var showsToolbarAddButton: Bool {
+        if case .success(let contacts) = contactsViewModels {
+            return !contacts.isEmpty
+        }
+        return false
+    }
+
     // MARK: - Dependencies
 
     @Injected(\.userWalletRepository)
@@ -87,7 +94,7 @@ private extension AddressBooksViewModel {
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(contacts: [AddressBookUIContact]) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
                 self?.coordinator?.openEditContact(contact: contact)
