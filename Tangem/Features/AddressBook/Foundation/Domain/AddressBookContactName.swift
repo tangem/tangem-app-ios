@@ -32,7 +32,8 @@ extension AddressBookContactName: Codable {
 }
 
 /// Builds a validated `AddressBookContactName` from raw user input, enforcing the product rules —
-/// 1...50 characters after trimming and no emoji, line breaks, tabs, invisible characters or HTML.
+/// 1...50 characters after trimming and no line breaks, tabs, invisible characters or HTML. Emoji are
+/// allowed (per spec 1.3.1); ZWJ-composed sequences still trip the invisible-character rule.
 ///
 /// Declared in the same file as the model so it can reach the model's `fileprivate` initializer: this
 /// makes the validator the only path from raw input to a name, while the model itself carries no
@@ -72,11 +73,6 @@ struct AddressBookContactNameValidator {
 
             // Invisible / formatting characters (zero-width joiners, BOM, directional marks, ...)
             if scalar.properties.generalCategory == .format {
-                return true
-            }
-
-            // Emoji. Digits and ASCII punctuation that merely *can* form emoji are allowed.
-            if scalar.properties.isEmojiPresentation || (scalar.properties.isEmoji && scalar.value > 0x2100) {
                 return true
             }
         }
