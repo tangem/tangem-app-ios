@@ -34,7 +34,7 @@ extension CommonWalletModel {
             walletManager: EthereumWalletManagerMock(),
             stakingManager: StakingManagerMock(),
             featureManager: WalletModelFeaturesManagerMock(),
-            transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper(
+            transactionHistoryUpdater: TransactionHistoryUpdater(
                 scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
             ),
             transactionHistoryService: nil,

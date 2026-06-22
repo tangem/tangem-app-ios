@@ -1,5 +1,5 @@
 //
-//  TransactionHistoryUpdatingHelper.swift
+//  TransactionHistoryUpdater.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class TransactionHistoryUpdatingHelper {
+final class TransactionHistoryUpdater {
     private let scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
 
     init(scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage) {
@@ -66,7 +66,7 @@ final class TransactionHistoryUpdatingHelper {
 
 // MARK: - CustomStringConvertible protocol conformance
 
-extension TransactionHistoryUpdatingHelper: CustomStringConvertible {
+extension TransactionHistoryUpdater: CustomStringConvertible {
     var description: String {
         objectDescription(self)
     }
