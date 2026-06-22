@@ -20,7 +20,7 @@ struct AddressBookContactManagementView: View {
 
     var body: some View {
         scrollContent
-            .scrollDismissesKeyboard(.interactively)
+            .scrollDismissesKeyboard(.immediately)
             .background(DesignSystem.Color.bgBase.ignoresSafeArea())
             .navigationTitle(Text(viewModel.title))
             .navigationBarTitleDisplayMode(.inline)
