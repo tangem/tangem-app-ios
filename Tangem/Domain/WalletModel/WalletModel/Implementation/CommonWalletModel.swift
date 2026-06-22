@@ -471,7 +471,12 @@ extension CommonWalletModel: WalletModelUpdater {
             // 2. In almost all cases there is a single provider, so `TaskGroup` is an overkill here, simple `for` loop is enough
             for provider in transactionHistoryProviders {
                 await _TransactionHistoryUpdatingHelper.shared.updateHistoryIfNeeded(using: provider, updateToken: updateToken) { provider in
-                    Task { await provider.syncInitial() }
+                    Task {
+                        // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
+                        // so we can safely trigger both types of syncs here without any additional checks/synchronization
+                        await provider.syncInitial()
+                        await provider.syncDelta()
+                    }
                 }
             }
         } catch {
