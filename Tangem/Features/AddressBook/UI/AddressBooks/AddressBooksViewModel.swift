@@ -94,7 +94,7 @@ private extension AddressBooksViewModel {
             .assign(to: &$contactsViewModels)
     }
 
-    func mapToAddressBookContactViewModels(contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+    func mapToAddressBookContactViewModels(contacts: [AddressBookUIContact]) -> [AddressBookContactViewModel] {
         contacts.map { contact in
             AddressBookContactViewModel(contact: contact) { [weak self] in
                 self?.coordinator?.openEditContact(contact: contact)
