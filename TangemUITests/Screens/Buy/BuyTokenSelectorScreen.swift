@@ -33,11 +33,13 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
         }
     }
 
-    func tapToken(_ name: String) -> AddFundsScreen {
-        XCTContext.runActivity(named: "Tap token with name: \(name)") { _ in
-            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: name)].firstMatch
-            waitAndAssertTrue(tokenButton, "Token \(name) should exist on Buy Token Selector screen")
-            tokenButton.waitAndTap()
+    func tapToken(_ label: String) -> AddFundsScreen {
+        XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
+            waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
+            // Label appears in both portfolio and Market Pulse, so target the portfolio item by id.
+            let tokenItem = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: label)].firstMatch
+            waitAndAssertTrue(tokenItem, "Token \(label) should exist in portfolio section")
+            tokenItem.waitAndTap()
             return AddFundsScreen(app)
         }
     }
