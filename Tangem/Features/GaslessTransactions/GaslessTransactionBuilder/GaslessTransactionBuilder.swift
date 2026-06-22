@@ -83,16 +83,21 @@ struct GaslessTransactionBuilder {
             from: bsdkTransaction,
             gasLimit: yieldWithdraw.originalGasLimit.description
         )
+        let (yieldTransaction, yieldTransactionHandlesUpgrade) = try makeUpgradeWrappedYieldTransactionIfNeeded(
+            transaction,
+            yieldWithdraw: yieldWithdraw
+        )
         let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
 
         let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
         let withdrawTransaction = try makeYieldWithdrawTransaction(
             bsdkFee: bsdkTransaction.fee,
             fee: feeData,
-            yieldWithdraw: yieldWithdraw
+            yieldWithdraw: yieldWithdraw,
+            shouldWrapUpgrade: !yieldTransactionHandlesUpgrade
         )
 
-        let transactions = [transaction, withdrawTransaction]
+        let transactions = [yieldTransaction, withdrawTransaction]
         let transactionData = BatchTransactionData(transactions: transactions, fee: feeData, nonce: smartContractNonce)
 
         let signedData = try await makeSignedGaslessBatchData(
@@ -300,7 +305,8 @@ struct GaslessTransactionBuilder {
     private func makeYieldWithdrawTransaction(
         bsdkFee: BSDKFee,
         fee: GaslessTransactionFee,
-        yieldWithdraw: EthereumGaslessTransactionFeeParameters.YieldWithdraw
+        yieldWithdraw: EthereumGaslessTransactionFeeParameters.YieldWithdraw,
+        shouldWrapUpgrade: Bool
     ) throws -> TransactionData.Transaction {
         let (_, token) = try gaslessFeeParameters(from: bsdkFee)
 
@@ -311,7 +317,7 @@ struct GaslessTransactionBuilder {
         let withdrawMethod = WithdrawMethod(tokenContractAddress: token.contractAddress, amount: maxTokenFee)
         let withdrawData: Data
 
-        if yieldWithdraw.requiresUpgrade {
+        if yieldWithdraw.requiresUpgrade, shouldWrapUpgrade {
             guard let upgradeImplementation = yieldWithdraw.upgradeImplementation else {
                 throw GaslessTransactionBuilderError.invalidFeeParameters
             }
@@ -329,6 +335,42 @@ struct GaslessTransactionBuilder {
             value: "0",
             gasLimit: yieldWithdraw.withdrawGasLimit.description,
             data: withdrawData.hexString.addHexPrefix()
+        )
+    }
+
+    private func makeUpgradeWrappedYieldTransactionIfNeeded(
+        _ transaction: TransactionData.Transaction,
+        yieldWithdraw: EthereumGaslessTransactionFeeParameters.YieldWithdraw
+    ) throws -> (transaction: TransactionData.Transaction, handlesUpgrade: Bool) {
+        guard yieldWithdraw.requiresUpgrade else {
+            return (transaction, false)
+        }
+
+        guard transaction.to.caseInsensitiveEquals(to: yieldWithdraw.yieldContractAddress) else {
+            return (transaction, false)
+        }
+
+        guard !UpgradeToAndCallMethod.isEncodedCall(transaction.data) else {
+            return (transaction, true)
+        }
+
+        guard let upgradeImplementation = yieldWithdraw.upgradeImplementation else {
+            throw GaslessTransactionBuilderError.invalidFeeParameters
+        }
+
+        let method = UpgradeToAndCallMethod(
+            newImplementation: upgradeImplementation,
+            callData: Data(hexString: transaction.data)
+        )
+
+        return (
+            TransactionData.Transaction(
+                to: transaction.to,
+                value: transaction.value,
+                gasLimit: transaction.gasLimit,
+                data: method.encodedData
+            ),
+            true
         )
     }
 
