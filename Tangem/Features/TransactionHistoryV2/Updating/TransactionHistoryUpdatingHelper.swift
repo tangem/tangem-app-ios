@@ -10,12 +10,12 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class TransactionHistoryUpdatingHelper: Sendable {
-    static let shared = TransactionHistoryUpdatingHelper() // [REDACTED_TODO_COMMENT]
+final class TransactionHistoryUpdatingHelper {
+    private let scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
 
-    private let scheduledUpdatesStorage = ScheduledUpdatesStorage()
-
-    private init() {}
+    init(scheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage) {
+        self.scheduledUpdatesStorage = scheduledUpdatesStorage
+    }
 
     func updateHistoryIfNeeded(
         featuresPublisher: AnyPublisher<[WalletModelFeature], Never>,
@@ -71,24 +71,5 @@ final class TransactionHistoryUpdatingHelper: Sendable {
 extension TransactionHistoryUpdatingHelper: CustomStringConvertible {
     var description: String {
         objectDescription(self)
-    }
-}
-
-// MARK: - Auxiliary types
-
-private extension TransactionHistoryUpdatingHelper {
-    actor ScheduledUpdatesStorage {
-        private var scheduledUpdateTasks: Set<ScheduledUpdateTaskKey> = []
-
-        func shouldScheduleUpdate(updateToken: AnyHashable, providerId: AnyHashable) -> Bool {
-            return scheduledUpdateTasks
-                .insert(ScheduledUpdateTaskKey(updateToken: updateToken, providerId: providerId))
-                .inserted
-        }
-    }
-
-    private struct ScheduledUpdateTaskKey: Hashable {
-        let updateToken: AnyHashable
-        let providerId: AnyHashable
     }
 }

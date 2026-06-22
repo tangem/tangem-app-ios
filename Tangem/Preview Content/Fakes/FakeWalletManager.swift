@@ -60,7 +60,8 @@ class FakeWalletManager: WalletManager {
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: KeysDerivingMock(),
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry,
+            transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
