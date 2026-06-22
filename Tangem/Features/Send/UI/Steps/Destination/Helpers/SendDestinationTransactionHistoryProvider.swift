@@ -22,13 +22,13 @@ class EmptySendDestinationTransactionHistoryProvider: SendDestinationTransaction
 }
 
 class CommonSendDestinationTransactionHistoryProvider {
-    private let transactionHistoryUpdater: any WalletModelHistoryUpdater
+    private let transactionHistoryUpdater: any WalletModelUpdater & WalletModelTransactionHistoryProvider
     private let transactionHistoryMapper: TransactionHistoryMapper
 
     private var transactionHistorySubscription: AnyCancellable?
 
     init(
-        transactionHistoryUpdater: any WalletModelHistoryUpdater,
+        transactionHistoryUpdater: any WalletModelUpdater & WalletModelTransactionHistoryProvider,
         transactionHistoryMapper: TransactionHistoryMapper
     ) {
         self.transactionHistoryUpdater = transactionHistoryUpdater
