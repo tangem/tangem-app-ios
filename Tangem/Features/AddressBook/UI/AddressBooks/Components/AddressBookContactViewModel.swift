@@ -19,7 +19,7 @@ struct AddressBookContactViewModel: Identifiable {
 
     let action: () -> Void
 
-    init(contact: AddressBookContact, action: @escaping () -> Void) {
+    init(contact: AddressBookUIContact, action: @escaping () -> Void) {
         id = contact.id.uuidString
         title = contact.name
         subtitle = Localization.addressBookAddresses(contact.addresses.count)

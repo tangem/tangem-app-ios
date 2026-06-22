@@ -48,7 +48,7 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
 extension AddressBookContactManagementCoordinator {
     enum Options {
         case add
-        case edit(contact: AddressBookContact)
+        case edit(contact: AddressBookUIContact)
     }
 }
 
