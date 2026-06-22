@@ -17,7 +17,8 @@ protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeesProvider, WalletModelDependenciesProvider,
-    WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
+    WalletModelRentProvider, WalletModelUpdater, WalletModelTransactionHistoryProvider,
+    WalletModelTransactionHistoryAddressesProvider, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
     ReceiveAddressTypesProvider, WalletModelResolvable {
     var id: WalletModelId { get }
@@ -212,8 +213,6 @@ protocol WalletModelDependenciesProvider {
 }
 
 // MARK: - Tx history
-
-protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater & WalletModelTransactionHistoryAddressesProvider {}
 
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
