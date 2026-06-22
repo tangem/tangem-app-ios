@@ -45,7 +45,7 @@ struct ActiveStakingView: View {
 
     private var title: String {
         data.isBeta
-            ? "\(Localization.stakingNative) (\(Localization.betaModeWarningTitle))"
+            ? "\(Localization.stakingNative) \(AppConstants.dotSign) \(Localization.betaModeWarningTitle)"
             : Localization.stakingNative
     }
 
