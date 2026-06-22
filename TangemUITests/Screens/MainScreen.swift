@@ -154,6 +154,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
             let token = tokenElement(named: label)
             XCTAssertTrue(scrollTokensListToVisible(token), "Token \(label) should be visible after scrolling")
+            token.waitForStableFrame()
+
+            // Scroll the row clear of the Markets sheet so the tap lands on it, not the sheet.
+            for _ in 0 ..< 5 where !token.isHittable {
+                scrollTokensList(byOffset: -200)
+                token.waitForStableFrame()
+            }
 
             token.tapEvenIfNotHittable()
             return TokenScreen(app)
@@ -249,8 +256,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyAccountVisible(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
-            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
-            waitAndAssertTrue(account, "Account '\(accountName)' should be visible on main screen")
+            waitAndAssertTrue(accountElement(named: accountName), "Account '\(accountName)' should be visible on main screen")
             return self
         }
     }
@@ -258,9 +264,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func expandAccount(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
-            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            let account = accountElement(named: accountName)
             waitAndAssertTrue(account, "Account '\(accountName)' should exist on main screen")
-            account.tap()
+            account.tapEvenIfNotHittable()
             return self
         }
     }
@@ -699,8 +705,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate total balance contains currency symbol: \(currencySymbol)") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
-            let balanceText = totalBalance.label
-            XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
+            // Balance shows a dash briefly after a currency change, so wait for the symbol.
+            let predicate = NSPredicate(format: "label CONTAINS %@", currencySymbol)
+            let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: totalBalance)], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Total balance should contain '\(currencySymbol)' but was '\(totalBalance.label)'")
             return self
         }
     }
@@ -816,6 +824,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             .firstMatch
     }
 
+    /// Redesigned main account headers share `mainTokensList`; locate by the account-name label at app scope.
+    private func accountElement(named accountName: String) -> XCUIElement {
+        app.staticTextByLabel(label: accountName)
+    }
+
     /// Waits for main screen elements before coordinate-based wallet swipe.
     private func waitForMainScreenReadyForSwipe() {
         waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
@@ -859,7 +872,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func scrollTokensList(byOffset dy: CGFloat) {
-        let start = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        // firstMatch can be an off-screen paged list with an infinite frame; scroll the on-screen one, fall back to the app.
+        let list = visibleTokensList()
+        let anchor: XCUIElement = hasVisibleFrame(list) ? list : app
+        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
         let end = start.withOffset(CGVector(dx: 0, dy: dy))
         start.press(forDuration: 0.1, thenDragTo: end)
     }
