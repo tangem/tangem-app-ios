@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemFoundation
 import TangemUI
@@ -36,14 +37,32 @@ struct TransactionViewRedesigned: View {
         ZStack {
             Circle().fill(iconBackgroundColor)
 
-            viewModel.icon.icon
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: glyphSize, height: glyphSize)
-                .foregroundStyle(iconGlyphColor)
+            iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
+    }
+
+    @ViewBuilder
+    private var iconContent: some View {
+        if case .tangemPay(.spend(_, let iconURL?, _, _)) = viewModel.transactionType {
+            KFImage(iconURL)
+                .resizable()
+                .placeholder { glyphImage }
+                .aspectRatio(contentMode: .fit)
+                .frame(width: iconContainerSide, height: iconContainerSide)
+                .clipShape(Circle())
+        } else {
+            glyphImage
+        }
+    }
+
+    private var glyphImage: some View {
+        viewModel.icon.icon
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: glyphSize, height: glyphSize)
+            .foregroundStyle(iconGlyphColor)
     }
 
     private var nameView: some View {
@@ -107,9 +126,28 @@ private extension TransactionViewRedesigned {
     }
 
     var amountColor: Color {
+        if let tangemPayAmountColor {
+            return tangemPayAmountColor
+        }
+
         switch viewModel.icon.status {
-        case .failed, .undefined, .inProgress: .Tangem.Text.Neutral.tertiary
-        case .confirmed: .Tangem.Text.Neutral.primary
+        case .failed, .undefined, .inProgress: return .Tangem.Text.Neutral.tertiary
+        case .confirmed: return .Tangem.Text.Neutral.primary
+        }
+    }
+
+    var tangemPayAmountColor: Color? {
+        guard case .tangemPay(let payType) = viewModel.transactionType else { return nil }
+
+        switch payType {
+        case .spend(_, _, let isDeclined, _) where isDeclined:
+            return .Tangem.Text.Status.warning
+        case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
+            return .Tangem.Text.Status.accent
+        case .transfer where !viewModel.isOutgoing:
+            return .Tangem.Text.Status.accent
+        case .spend, .transfer, .fee:
+            return nil
         }
     }
 
