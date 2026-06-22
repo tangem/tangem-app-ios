@@ -38,7 +38,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
         app.activate()
 
         WelcomeBackScreen(app)
-            .selectWalletByName("Wallet")
+            .selectWalletByName("Wallet 2")
         CreateWalletSelectorScreen(app)
             .selectWalletFromList(name: .wallet2)
 
