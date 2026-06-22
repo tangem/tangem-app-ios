@@ -249,8 +249,7 @@ private extension StakingModel {
                 fee: fee,
                 isFeeIncluded: includeFee,
                 stakeOnDifferentValidator: hasPreviousStakeOnDifferentValidator,
-                amountToReduce: includeFee ? amountToReduce : nil,
-                validationStatus: nil
+                amountToReduce: includeFee ? amountToReduce : nil
             )
         )
     }
@@ -455,9 +454,7 @@ extension StakingModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         _state.map { state in
             switch state {
-            case .readyToStake(let readyToStake):
-                return readyToStake.validationStatus != .blocked
-            case .readyToApprove:
+            case .readyToStake, .readyToApprove:
                 return true
             case .none, .loading, .approveTransactionInProgress,
                  .validationError, .networkError,
@@ -646,17 +643,7 @@ extension StakingModel {
             let isFeeIncluded: Bool
             let stakeOnDifferentValidator: Bool
             let amountToReduce: Decimal?
-            let validationStatus: ValidationStatus?
         }
-    }
-}
-
-// MARK: - ReadyToStake.ValidationStatus
-
-extension StakingModel.State.ReadyToStake {
-    enum ValidationStatus {
-        case warning
-        case blocked
     }
 }
 

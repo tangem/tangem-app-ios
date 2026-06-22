@@ -20,6 +20,9 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
+    lazy var validationDecorator = makeValidationDecorator()
+    lazy var stateProvider: StakingModelStateProvider = validationDecorator
+    lazy var summaryInputWithValidation: SendSummaryInput = makeSummaryInputWithValidation()
 
     init(
         stakingableToken: SendStakingableToken,
@@ -46,6 +49,22 @@ extension StakingFlowFactory {
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
             minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
+        )
+    }
+
+    func makeValidationDecorator() -> StakingModelStateValidationDecorator {
+        StakingModelStateValidationDecorator(
+            decoratee: stakingModel,
+            targetProvider: stakingModel,
+            stakingManager: manager,
+            validator: makeStakingTransactionValidator()
+        )
+    }
+
+    func makeSummaryInputWithValidation() -> SendSummaryInput {
+        StakingSendReadyBlockingCombiner(
+            decoratee: stakingModel,
+            validationProvider: validationDecorator
         )
     }
 }
@@ -78,14 +97,15 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         sendFeeFinishViewModel.bind(input: stakingModel)
 
         // Notifications setup
-        notificationManager.setup(provider: stakingModel, input: stakingModel)
+        notificationManager.setup(provider: stateProvider, input: stakingModel)
+        notificationManager.setup(validationStatePublisher: validationDecorator.validationState, tokenName: tokenItem.currencySymbol)
         notificationManager.setupManager(with: stakingModel)
 
         // Analytics
         analyticsLogger.setup(stakingTargetsInput: stakingModel)
 
         let stepsManager = CommonStakingStepsManager(
-            provider: stakingModel,
+            provider: stateProvider,
             amountStep: amount.step,
             targetsStep: targets.step,
             summaryStep: summary,
@@ -188,7 +208,7 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
 
 extension StakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: stakingModel, output: stakingModel)
+        SendSummaryStepBuilder.IO(input: summaryInputWithValidation, output: stakingModel)
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
