@@ -90,6 +90,11 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             enricherFactory: { nil }
         )
 
+        let onrampStatusPollingHelper = OnrampStatusPollingHelper(
+            poller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+            enricherFactory: { nil }
+        )
+
         return SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             walletModel: walletModel,
@@ -97,6 +102,7 @@ struct SingleWalletContentView_Preview: PreviewProvider {
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             exchangeStatusPollingHelper: exchangeStatusPollingHelper,
+            onrampStatusPollingHelper: onrampStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),

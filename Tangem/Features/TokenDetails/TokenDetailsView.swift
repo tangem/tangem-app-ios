@@ -401,6 +401,10 @@ private extension TokenDetailsView {
         poller: exchangeStatusPoller,
         enricherFactory: { nil }
     )
+    let onrampStatusPollingHelper = OnrampStatusPollingHelper(
+        poller: onrampStatusPoller,
+        enricherFactory: { nil }
+    )
 
     TokenDetailsView(
         viewModel: .init(
@@ -410,6 +414,7 @@ private extension TokenDetailsView {
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
             exchangeStatusPollingHelper: exchangeStatusPollingHelper,
+            onrampStatusPollingHelper: onrampStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(

@@ -14,10 +14,16 @@ class OnrampStatusCompactViewModel: ObservableObject {
     @Published var externalTxId: String?
 
     private let pendingTransactionsManager: PendingExpressTransactionsManager
+    private let onrampStatusPollingHelper: OnrampStatusPollingHelper
     private var bag: Set<AnyCancellable> = []
 
-    init(input: OnrampStatusInput, pendingTransactionsManager: PendingExpressTransactionsManager) {
+    init(
+        input: OnrampStatusInput,
+        pendingTransactionsManager: PendingExpressTransactionsManager,
+        onrampStatusPollingHelper: OnrampStatusPollingHelper
+    ) {
         self.pendingTransactionsManager = pendingTransactionsManager
+        self.onrampStatusPollingHelper = onrampStatusPollingHelper
 
         // Fill the placeholder because the transaction may hasn't loaded yet
         initialSetupView()

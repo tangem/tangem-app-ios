@@ -19,20 +19,21 @@ struct ExpressStatusTrackingFactory {
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         }
 
-        let statusPoller = makeStatusPoller(cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory)
+        let exchangeStatusPoller = makeExchangeStatusPoller(cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory)
+        let onrampStatusPoller = makeOnrampStatusPoller(cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory)
 
         return ExpressStatusTracking(
             manager: makePendingTransactionsManager(
-                poller: statusPoller,
+                exchangeStatusPoller: exchangeStatusPoller,
+                onrampStatusPoller: onrampStatusPoller,
                 cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory
             ),
-            pollingHelper: makeStatusPollingHelper(
-                poller: statusPoller
-            )
+            exchangePollingHelper: makeExchangeStatusPollingHelper(poller: exchangeStatusPoller),
+            onrampPollingHelper: makeOnrampStatusPollingHelper(poller: onrampStatusPoller)
         )
     }
 
-    private func makeStatusPoller(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) -> ExchangeStatusPoller {
+    private func makeExchangeStatusPoller(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) -> ExchangeStatusPoller {
         let tokenEnricher = CommonTokenEnricher(
             supportedBlockchains: userWalletInfo.config.supportedBlockchains
         )
@@ -49,16 +50,29 @@ struct ExpressStatusTrackingFactory {
         )
     }
 
+    private func makeOnrampStatusPoller(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) -> OnrampStatusPoller {
+        OnrampStatusPoller(
+            userWalletId: userWalletInfo.id.stringValue,
+            tokenItem: tokenItem,
+            expressAPIProvider: cachingExpressAPIProviderFactory.provider(
+                for: userWalletInfo.id.stringValue,
+                refcode: userWalletInfo.refcode
+            )
+        )
+    }
+
     private func makePendingTransactionsManager(
-        poller: ExchangeStatusPoller,
+        exchangeStatusPoller: ExchangeStatusPoller,
+        onrampStatusPoller: OnrampStatusPoller,
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     ) -> PendingExpressTransactionsManager {
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             walletModelUpdater: walletModelUpdater,
-            poller: poller
+            poller: exchangeStatusPoller
         )
 
         let pendingOnrampTransactionsManager = makePendingOnrampTransactionsManager(
+            poller: onrampStatusPoller,
             cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory
         )
 
@@ -68,25 +82,27 @@ struct ExpressStatusTrackingFactory {
         )
     }
 
-    private func makeStatusPollingHelper(poller: ExchangeStatusPoller) -> ExchangeStatusPollingHelper {
+    private func makeExchangeStatusPollingHelper(poller: ExchangeStatusPoller) -> ExchangeStatusPollingHelper {
         ExchangeStatusPollingHelper(
             poller: poller,
             enricherFactory: transactionHistoryEnricherFactory
         )
     }
 
+    private func makeOnrampStatusPollingHelper(poller: OnrampStatusPoller) -> OnrampStatusPollingHelper {
+        OnrampStatusPollingHelper(
+            poller: poller,
+            enricherFactory: transactionHistoryEnricherFactory
+        )
+    }
+
     private func makePendingOnrampTransactionsManager(
+        poller: OnrampStatusPoller,
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     ) -> PendingExpressTransactionsManager {
         let expressAPIProvider = cachingExpressAPIProviderFactory.provider(
             for: userWalletInfo.id.stringValue,
             refcode: userWalletInfo.refcode
-        )
-
-        let onrampStatusPoller = OnrampStatusPoller(
-            userWalletId: userWalletInfo.id.stringValue,
-            tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider
         )
 
         let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
@@ -97,7 +113,7 @@ struct ExpressStatusTrackingFactory {
 
         return CommonPendingOnrampTransactionsManager(
             unknownStatusRecoveryService: unknownStatusRecoveryService,
-            poller: onrampStatusPoller
+            poller: poller
         )
     }
 }
@@ -107,14 +123,17 @@ struct ExpressStatusTrackingFactory {
 extension ExpressStatusTrackingFactory {
     struct ExpressStatusTracking {
         let manager: PendingExpressTransactionsManager
-        let pollingHelper: ExchangeStatusPollingHelper
+        let exchangePollingHelper: ExchangeStatusPollingHelper
+        let onrampPollingHelper: OnrampStatusPollingHelper
 
         fileprivate init(
             manager: PendingExpressTransactionsManager,
-            pollingHelper: ExchangeStatusPollingHelper
+            exchangePollingHelper: ExchangeStatusPollingHelper,
+            onrampPollingHelper: OnrampStatusPollingHelper
         ) {
             self.manager = manager
-            self.pollingHelper = pollingHelper
+            self.exchangePollingHelper = exchangePollingHelper
+            self.onrampPollingHelper = onrampPollingHelper
         }
     }
 }

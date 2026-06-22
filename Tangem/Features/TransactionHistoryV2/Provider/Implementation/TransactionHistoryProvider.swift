@@ -249,13 +249,8 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
     }
 
     func enrich(with transaction: SentOnrampTransactionData) async {
-        do {
-            let onrampTransaction = SentExpressTransactionHistoryMapper.mapToOnrampTransaction(transaction)
-            try await repository.add(onrampTransaction)
-            TransactionHistoryLogger.debug(self, "Enriched with sent onramp transaction: \(onrampTransaction.txId)")
-        } catch {
-            TransactionHistoryLogger.error(self, "Failed to enrich with sent onramp transaction", error: error)
-        }
+        let onrampTransaction = SentExpressTransactionHistoryMapper.mapToOnrampTransaction(transaction)
+        await enrich(with: onrampTransaction)
     }
 
     func enrich(with transaction: ExchangeTransaction) async {
@@ -264,6 +259,15 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
             TransactionHistoryLogger.debug(self, "Enriched with swap transaction: \(transaction.txId)")
         } catch {
             TransactionHistoryLogger.error(self, "Failed to enrich with swap transaction", error: error)
+        }
+    }
+
+    func enrich(with transaction: OnrampTransaction) async {
+        do {
+            try await repository.add(transaction)
+            TransactionHistoryLogger.debug(self, "Enriched with onramp transaction: \(transaction.txId)")
+        } catch {
+            TransactionHistoryLogger.error(self, "Failed to enrich with onramp transaction", error: error)
         }
     }
 }
