@@ -39,7 +39,7 @@ enum NotificationButtonActionType: Identifiable {
     case addHederaTokenAssociation
     case addTokenTrustline
     case retryKaspaTokenTransaction(icon: MainButton.Icon?)
-    case stake
+    case stake(isBeta: Bool)
     case openCloreMigration
     case openDynamicAddressesEnter
     /// Rate the app
@@ -81,7 +81,7 @@ enum NotificationButtonActionType: Identifiable {
         case .addHederaTokenAssociation: "addHederaTokenAssociation".hashValue
         case .addTokenTrustline: "addTokenTrustline".hashValue
         case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
-        case .stake: "stake".hashValue
+        case .stake(let isBeta): isBeta ? "stake_beta".hashValue : "stake".hashValue
         case .openCloreMigration: "openCloreMigration".hashValue
         case .openDynamicAddressesEnter: "openDynamicAddressesEnter".hashValue
         case .openFeedbackMail: "openFeedbackMail".hashValue
@@ -129,8 +129,10 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.warningHederaMissingTokenAssociationButtonTitle
         case .retryKaspaTokenTransaction:
             return Localization.alertButtonTryAgain
-        case .stake:
-            return Localization.commonStake
+        case .stake(let isBeta):
+            return isBeta
+                ? "\(Localization.commonStake) (\(Localization.betaModeWarningTitle))"
+                : Localization.commonStake
         case .openFeedbackMail:
             return Localization.warningButtonCouldBeBetter
         case .openAppStoreReview:
