@@ -15,6 +15,7 @@ import Combine
 protocol AddressBookRepository: AnyObject {
     var contactsPublisher: AnyPublisher<[AddressBookDecodedContact], Never> { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
+    var syncState: AddressBookSyncState { get }
 
     func load() async
     func save(contacts: [AddressBookDecodedContact]) async throws

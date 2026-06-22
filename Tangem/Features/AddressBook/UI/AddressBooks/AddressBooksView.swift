@@ -42,16 +42,19 @@ struct AddressBooksView: View {
 
     @ViewBuilder
     private var content: some View {
+        chipsView
+
         switch viewModel.contactsViewModels {
         case .loading:
             AddressBooksLoadingView()
+
+        case .failure:
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
 
         case .success(let contactsViewModels) where contactsViewModels.isEmpty:
             AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
 
         case .success(let contactsViewModels):
-            chipsView
-
             GroupedSection(contactsViewModels, isLazy: true) {
                 AddressBookContactView(viewModel: $0)
             }

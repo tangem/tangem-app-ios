@@ -13,7 +13,7 @@ import TangemLocalization
 import BlockchainSdk
 
 protocol AddressBookAddAddressOutput: AnyObject {
-    func userDidAddAddress(address: AddressBookContactManagementViewModel.DraftRow)
+    func userDidAddAddress(entries: [AddressBookEntryDraft])
 }
 
 protocol AddressBookAddAddressInteractor {
@@ -129,10 +129,22 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     func userDidRequestSave() {
-        let draft = AddressBookContactManagementViewModel
-            .DraftRow(id: UUID().uuidString, address: _address.value)
+        // One AddressEntry per resolved network — the same address can be saved across several chains
+        // (e.g. an EVM address on Ethereum + Polygon). Until the network selector lands ([REDACTED_INFO]),
+        // every resolved network is treated as selected.
+        let memo = _additionalField.value.extraId
 
-        output?.userDidAddAddress(address: draft)
+        let entries = _resolvedNetworks.value
+            .sorted { $0.networkId < $1.networkId }
+            .map { blockchain in
+                AddressBookEntryDraft(
+                    address: _address.value,
+                    networkId: AddressBookNetworkID(blockchain.networkId),
+                    memo: memo
+                )
+            }
+
+        output?.userDidAddAddress(entries: entries)
     }
 }
 
