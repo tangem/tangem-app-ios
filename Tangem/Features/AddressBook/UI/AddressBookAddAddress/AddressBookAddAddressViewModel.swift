@@ -132,7 +132,9 @@ private extension AddressBookAddAddressViewModel {
 
 extension AddressBookAddAddressViewModel: SendDestinationAddressViewRoutable {
     func didTapScanQRButton() {
-        coordinator?.openQRScanner()
+        coordinator?.openQRScanner { [weak self] code in
+            self?.applyScannedAddress(code)
+        }
     }
 }
 
