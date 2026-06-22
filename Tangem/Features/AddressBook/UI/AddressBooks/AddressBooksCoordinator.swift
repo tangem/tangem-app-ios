@@ -49,7 +49,7 @@ extension AddressBooksCoordinator: AddressBooksRoutable {
         openContactManagement(options: .add)
     }
 
-    func openEditContact(contact: AddressBookContact) {
+    func openEditContact(contact: AddressBookUIContact) {
         openContactManagement(options: .edit(contact: contact))
     }
 }

@@ -40,7 +40,7 @@ extension MockAddressBooksProvider: AddressBooksProvider {
 private extension MockAddressBooksProvider {
     /// Picks one of the predefined books deterministically, so the same wallet always shows the same
     /// contacts while different wallets get visibly different books.
-    static func mockContacts(for userWalletId: UserWalletId) -> [AddressBookContact] {
+    static func mockContacts(for userWalletId: UserWalletId) -> [AddressBookUIContact] {
         let books = mockBooks(userWalletId: userWalletId)
         guard !books.isEmpty else { return [] }
 
@@ -53,15 +53,15 @@ private extension MockAddressBooksProvider {
         color: AccountModel.CompositeIcon.Color,
         userWalletId: UserWalletId,
         addresses: [AddressBookAddress]
-    ) -> AddressBookContact {
-        AddressBookContact(id: UUID(), name: name, icon: "", color: color, userWalletId: userWalletId, addresses: addresses)
+    ) -> AddressBookUIContact {
+        AddressBookUIContact(id: UUID(), name: name, icon: "", color: color, userWalletId: userWalletId, addresses: addresses)
     }
 
     static func address(_ networkId: String, _ address: String, memo: String? = nil) -> AddressBookAddress {
         AddressBookAddress(id: UUID(), networkId: networkId, address: address, memo: memo, signature: "")
     }
 
-    static func mockBooks(userWalletId: UserWalletId) -> [[AddressBookContact]] {
+    static func mockBooks(userWalletId: UserWalletId) -> [[AddressBookUIContact]] {
         [
             [
                 contact("Satoshi Nakamoto", color: .azure, userWalletId: userWalletId, addresses: [
