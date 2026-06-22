@@ -37,8 +37,8 @@ final class TransactionHistoryUpdater {
                 }
                 .async()
 
-            // 1. `syncInitial` calls are re-entrant and synchronized, so they can be safely called multiple times
-            // 2. In almost all cases there is a single provider, so `TaskGroup` is an overkill here, simple `for` loop is enough
+            // 1. `syncInitial`/`syncDelta` calls are re-entrant and synchronized, so they can be safely called multiple times within the loop
+            // 2. In almost all cases there is only one, single provider, so `TaskGroup` is an overkill here - simple `for` loop is enough
             for provider in transactionHistoryProviders {
                 let shouldScheduleUpdate = await scheduledUpdatesStorage.shouldScheduleUpdate(
                     updateToken: updateToken,
