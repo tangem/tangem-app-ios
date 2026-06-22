@@ -21,8 +21,6 @@ final class TransactionHistoryUpdatingHelper {
         featuresPublisher: AnyPublisher<[WalletModelFeature], Never>,
         updateToken: AnyHashable
     ) async {
-        // Some networks may support different, non-BSDK-driven tx history sources,
-        // so we need to trigger update for them even if the `_transactionHistoryService` is absent
         do {
             let transactionHistoryProviders = try await featuresPublisher
                 .first() // [REDACTED_TODO_COMMENT]

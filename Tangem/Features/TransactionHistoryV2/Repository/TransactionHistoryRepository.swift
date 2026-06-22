@@ -16,7 +16,6 @@ protocol TransactionHistoryRepository: Sendable {
     func syncInitial() async throws
     func syncDelta() async throws
 
-    /// For local enrichment of transactions.
     func add(_ transaction: ExchangeTransaction) async throws
     func add(_ transaction: OnrampTransaction) async throws
 }
