@@ -408,9 +408,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Karte</string>
+        <string>%li Karte</string>
         <key>other</key>
-        <string>Karten</string>
+        <string>%li Karten</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
