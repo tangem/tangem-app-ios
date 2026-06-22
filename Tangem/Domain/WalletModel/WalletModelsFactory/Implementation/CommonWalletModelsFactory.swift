@@ -17,17 +17,20 @@ struct CommonWalletModelsFactory {
     private let userWalletId: UserWalletId
     private let walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory
     private let transactionHistoryServiceProvider: TransactionHistoryServiceProvider
+    private let transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
 
     init(
         config: UserWalletConfig,
         userWalletId: UserWalletId,
         walletModelFeaturesManagerFactory: WalletModelFeaturesManagerFactory,
-        transactionHistoryServiceProvider: TransactionHistoryServiceProvider
+        transactionHistoryServiceProvider: TransactionHistoryServiceProvider,
+        transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage
     ) {
         self.config = config
         self.userWalletId = userWalletId
         self.walletModelFeaturesManagerFactory = walletModelFeaturesManagerFactory
         self.transactionHistoryServiceProvider = transactionHistoryServiceProvider
+        self.transactionHistoryScheduledUpdatesStorage = transactionHistoryScheduledUpdatesStorage
     }
 
     private func isMainCoinCustom(
@@ -115,6 +118,9 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     address: walletManager.wallet.address
                 ),
                 featureManager: featureManager,
+                transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper(
+                    scheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
+                ),
                 transactionHistoryService: transactionHistoryService,
                 receiveAddressService: receiveAddressService,
                 sendAvailabilityProvider: sendAvailabilityProvider,
@@ -153,6 +159,9 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                         address: walletManager.wallet.address
                     ),
                     featureManager: featureManager,
+                    transactionHistoryUpdatingHelper: TransactionHistoryUpdatingHelper(
+                        scheduledUpdatesStorage: transactionHistoryScheduledUpdatesStorage
+                    ),
                     transactionHistoryService: transactionHistoryService,
                     receiveAddressService: receiveAddressService,
                     sendAvailabilityProvider: sendAvailabilityProvider,
