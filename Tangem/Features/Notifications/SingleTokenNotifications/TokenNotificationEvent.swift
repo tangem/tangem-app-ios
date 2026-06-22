@@ -62,8 +62,12 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.warningKaspaUnfinishedTokenTransactionTitle)
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline, _):
             return .string(Localization.warningTokenTrustlineTitle)
-        case .staking:
-            return .string(Localization.tokenDetailsStakingBlockTitle)
+        case .staking(_, _, let isBeta):
+            return .string(
+                isBeta
+                    ? "\(Localization.tokenDetailsStakingBlockTitle) \(AppConstants.dotSign) \(Localization.betaModeWarningTitle)"
+                    : Localization.tokenDetailsStakingBlockTitle
+            )
         case .manaLevel:
             return .string(Localization.koinosManaLevelTitle)
         case .maticMigration:
@@ -249,8 +253,8 @@ extension TokenNotificationEvent: NotificationEvent {
                 return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
             }
             return nil
-        case .staking(_, _, let isBeta):
-            return .init(.stake(isBeta: isBeta))
+        case .staking:
+            return .init(.stake)
         case .cloreMigration:
             return .init(.openCloreMigration)
         case .dynamicAddressesFundsFound:
