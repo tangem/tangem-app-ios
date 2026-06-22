@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Додати адресу та вибрати мережу";
 "address_book_add_address" = "Додати адресу";
 "address_book_add_contact" = "Додати контакт";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Ім'я контакту";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Скопіювати адресу";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Більше не показувати";
 "balance_hidden_got_it_button" = "Зрозуміло";
 "balance_hidden_title" = "Баланси приховані";
+"beta_mode_warning_title" = "Бета режим";
 "biometry_touch_id_reason" = "Touch ID використовується для збереження ваших карток та кілець у додатку";
 "bitcoin_promo_activation_error_title" = "Помилка активації";
 "bitcoin_promo_activation_error" = "Під час обробки промокоду сталася помилка. Будь ласка, спробуйте пізніше.";
@@ -246,6 +248,7 @@
 "common_copy" = "Копіювати";
 "common_create" = "Створити";
 "common_custom" = "Власна";
+"common_delete" = "Видалити";
 "common_disable" = "Вимкнути";
 "common_disabled" = "Вимкнуто";
 "common_disabling" = "Вимкнення";
@@ -332,6 +335,7 @@
 "common_sell" = "Продати";
 "common_send_colon" = "Відправка:";
 "common_send_tx_error" = "Не вдалося надіслати транзакцію";
+"common_send_with_swap" = "Send&Swap";
 "common_send" = "Надіслати";
 "common_sending" = "Надсилання";
 "common_sent" = "Надіслано";
@@ -569,9 +573,14 @@
 "feedback_subject_tx_failed" = "Не вдається відправити транзакцію";
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Для забезпечення коректної роботи оновіть застосунок до останньої версії.";
 "force_update_banner_title" = "Необхідне оновлення";
+"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
+"force_update_brick_title" = "Update Unavailable";
 "force_update_button" = "Оновити";
+"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
+"force_update_os_title" = "Update Your OS";
 "force_update_warning_message" = "Будь ласка, оновіть застосунок до останньої версії, щоб забезпечити його коректну роботу.";
 "force_update_warning_title" = "Потрібне оновлення";
 "gasless_not_enough_funds_to_cover_token_fee" = "Недостатньо коштів";
@@ -1060,6 +1069,7 @@
 "quick_action_buy_description" = "Банківська картка або банківський рахунок";
 "quick_action_receive_description" = "Поділіться своєю адресою або QR-кодом";
 "quick_action_sell_description" = "Безпечно продавайте криптовалюту";
+"quick_action_send_and_swap_description" = "Send with swap to another token";
 "quick_action_send_description" = "Надіслати на інший гаманець";
 "quick_action_swap_description" = "Між вашими портфелями";
 "quick_top_up_chip_other" = "Інші";
@@ -1264,6 +1274,8 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Винагороди автоматично накопичуються на вашому балансі щодня.";
+"staking_details_autocompound_funds_earned" = "Funds earned: %@";
+"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
 "staking_details_autocompound_rewards_earned" = "Винагороди реінвестуються у ваш баланс стейкінгу. Зароблено: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Середня ставка винагороди";
@@ -1360,6 +1372,8 @@
 "staking_title_stake" = "Застейкати %@";
 "staking_title_unstake" = "Зняти зі стейкінгу %@";
 "staking_transaction_in_progress_text" = "Транзакція обробляється! Наразі триває перевірка в блокчейні. Це може зайняти кілька хвилин.";
+"staking_transaction_validation_unsafe" = "%@ стейкінг заборонено за результатами перевірок безпеки";
+"staking_transaction_validation_warning" = "%@ стейкінг викликає сумніви. Будь ласка, стейкайте на свій страх і ризик";
 "staking_unbonding_in" = "Розблокування через";
 "staking_unbonding" = "Розблокування";
 "staking_unlocked_locked" = "Розблокувати";
@@ -1443,7 +1457,7 @@
 "swapping_permission_header" = "Надати дозвіл";
 "swapping_permit_and_swap" = "Дозволити та обміняти";
 "swapping_rate_experience_title" = "Оцініть ваш досвід взаємодії з провайдером";
-"swapping_rate_feedback_placeholder" = "Напишіть ваш відгук";
+"swapping_rate_feedback_placeholder" = "Залиште відгук (необов'язково)";
 "swapping_rate_feedback_submit" = "Надіслати відгук";
 "swapping_rate_feedback_title" = "Що вплинуло на вашу оцінку?";
 "swapping_swap_action_in_progress" = "Обмін...";
@@ -1572,6 +1586,7 @@
 "tangempay_card_page_settings_title" = "Налаштування картки";
 "tangempay_change_pin_code" = "Змінити PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можна подивитися тут, якщо забудете його.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Встановити ліміт від %@ до %@";
 "tangempay_daily_limit_set_button" = "Встановити";
 "tangempay_declined_reason_1" = "недостатньо коштів";
@@ -1634,7 +1649,7 @@
 "tangempay_maximum_cards_issued_title" = "Випущено максимальну кількість карток";
 "tangempay_newonboard_body" = "Витрачайте крипту будь-де — без банків, посередників і бірж. Сила self-custody для щоденних платежів.";
 "tangempay_newonboard_bottomleft_body" = "Платіть онлайн і через Apple Pay";
-"tangempay_newonboard_bottomleft_title" = "Приймається по всьому світу";
+"tangempay_newonboard_bottomleft_title" = "По всьому світу";
 "tangempay_newonboard_bottomright_body" = "Користуйтеся всюди";
 "tangempay_newonboard_bottomright_title" = "FX-комісія лише 1%%";
 "tangempay_newonboard_Q1_body" = "Так — для користування регульованою карткою Visa обов’язкова верифікація особи. KYC проводить Sumsub, compliance-партнер.";
@@ -1646,8 +1661,8 @@
 "tangempay_newonboard_Q4_body" = "Баланс картки номінований в USDC у мережі Polygon, але поповнювати його можна будь-яким активом (USDT, SOL, ETH, BTC, XRP тощо) через вбудовані свопи Tangem.";
 "tangempay_newonboard_Q4_title" = "Яку крипту можна витрачати?";
 "tangempay_newonboard_title" = "Отримайте картку Tangem Pay";
-"tangempay_newonboard_topleft_body" = "Платіть скільки бачите";
-"tangempay_newonboard_topleft_title" = "Без комісії за покупки, 1 USDC = 1 USD";
+"tangempay_newonboard_topleft_body" = "1 USDC = 1 USD";
+"tangempay_newonboard_topleft_title" = "Без комісії за покупки";
 "tangempay_newonboard_topright_body" = "Без сюрпризів";
 "tangempay_newonboard_topright_title" = "$0 на місяць, \n$0 за поповнення";
 "tangempay_onboarding_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
@@ -1676,7 +1691,7 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Неможливо покрити комісію";
 "tangempay_reissue_card_insufficient_funds" = "Недостатньо коштів для перевипуску картки";
 "tangempay_reissue_card_title" = "Перевипустити картку?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won\'t appear again, even after reinstalling the app.";
+"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
 "tangempay_service_unavailable_description" = "Ми усуваємо технічну проблему. Будь ласка, спробуйте пізніше.";
