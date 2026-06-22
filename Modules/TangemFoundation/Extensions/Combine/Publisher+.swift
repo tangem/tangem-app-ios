@@ -65,9 +65,3 @@ public extension Publisher {
         map { Optional($0) }
     }
 }
-
-public extension Publisher where Output: Collection {
-    func compactMapMany<Result>(_ transform: @escaping (Output.Element) -> Result?) -> Publishers.CompactMap<Self, [Result]> {
-        compactMap { $0.compactMap(transform).nilIfEmpty }
-    }
-}
