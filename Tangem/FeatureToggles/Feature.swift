@@ -34,6 +34,7 @@ enum Feature: String, Hashable, CaseIterable {
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
+    case bitcoinDexSwap
 
     var name: String {
         switch self {
@@ -61,6 +62,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
         case .addressBook: return "10801-Address-Book"
+        case .bitcoinDexSwap: return "14413_Bitcoin_support_for_DEX_(LiFi_/_SwapKit)"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
@@ -91,6 +93,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addAndOrganizeRedesign: return .version("6.0")
         case .swapChooseBestDEX: return .version("6.0")
         case .addressBook: return .unspecified
+        case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
         }
     }
