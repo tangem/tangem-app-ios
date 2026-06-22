@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public struct TransactionRecord: Hashable {
     public let hash: String
@@ -22,6 +23,10 @@ public struct TransactionRecord: Hashable {
     public let date: Date?
     public let tokenTransfers: [TokenTransfer]?
     public let isFromYieldContract: Bool
+
+    // [REDACTED_TODO_COMMENT]
+    @IgnoredEquatable
+    public private(set) var _extraInfo: Any /* TransactionRecordExtraInfo */
 
     public func hasDestination(address: String) -> Bool {
         switch destination {
@@ -42,8 +47,9 @@ public struct TransactionRecord: Hashable {
         isOutgoing: Bool,
         type: TransactionType,
         date: Date?,
-        tokenTransfers: [TokenTransfer]? = nil,
-        isFromYieldContract: Bool = false
+        tokenTransfers: [TokenTransfer]?,
+        isFromYieldContract: Bool = false,
+        extraInfo: Any? = nil
     ) {
         self.index = index
         self.hash = hash
@@ -56,6 +62,7 @@ public struct TransactionRecord: Hashable {
         self.date = date
         self.tokenTransfers = tokenTransfers
         self.isFromYieldContract = isFromYieldContract
+        _extraInfo = extraInfo
     }
 }
 
