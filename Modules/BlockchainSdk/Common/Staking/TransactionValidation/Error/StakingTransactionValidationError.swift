@@ -6,8 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
 /// Error thrown when a transaction fails staking validation.
 public enum StakingTransactionValidationError: Error, Equatable {
     /// The unsigned data is empty or cannot be parsed.
@@ -16,17 +14,17 @@ public enum StakingTransactionValidationError: Error, Equatable {
     /// The transaction is not a staking operation for the specified network.
     case notAStakingTransaction(network: String, details: String)
 
-    // MARK: - BlockAid Validation Errors
+    // MARK: - Blockaid Validation Errors
 
-    /// BlockAid flagged the transaction as potentially dangerous (warning level).
+    /// Blockaid flagged the transaction as potentially dangerous (warning level).
     case blockaidWarning(description: String)
 
-    /// BlockAid flagged the transaction as malicious.
+    /// Blockaid flagged the transaction as malicious.
     case blockaidMalicious(description: String)
 
-    /// BlockAid validation failed (network error, API error, etc.).
+    /// Blockaid validation failed (network error, API error, etc.).
     case blockaidValidationFailed(description: String)
 
-    /// The blockchain is not supported by BlockAid API.
+    /// The blockchain is not supported by Blockaid API.
     case blockaidUnsupportedBlockchain(name: String)
 }

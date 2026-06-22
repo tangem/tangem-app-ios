@@ -13,6 +13,7 @@ public enum CosmosStakingTransactionValidator {
     static let stakingModulePrefix = "/cosmos.staking."
 
     public static func validate(_ unsignedData: String) throws {
+        // Hex string must have even length (2 chars per byte)
         guard !unsignedData.isEmpty, unsignedData.count.isMultiple(of: 2) else {
             throw StakingTransactionValidationError.emptyOrMalformedData
         }
@@ -32,10 +33,10 @@ public enum CosmosStakingTransactionValidator {
 
         let messageType = protoMessage.delegateContainer.delegate.messageType
 
-        guard messageType.contains(Self.stakingModulePrefix) else {
+        guard messageType.hasPrefix(Self.stakingModulePrefix) else {
             throw StakingTransactionValidationError.notAStakingTransaction(
                 network: "Cosmos",
-                details: "Message type '\(messageType)' does not contain '\(Self.stakingModulePrefix)'"
+                details: "Message type '\(messageType)' does not start with '\(Self.stakingModulePrefix)'"
             )
         }
     }
