@@ -33,20 +33,22 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
         }
     }
 
-    func tapToken(_ label: String) -> AddFundsScreen {
-        XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
-            waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
-            tokensList.staticTextByLabel(label: label).waitAndTap()
+    func tapToken(_ name: String) -> AddFundsScreen {
+        XCTContext.runActivity(named: "Tap token with name: \(name)") { _ in
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: name)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token \(name) should exist on Buy Token Selector screen")
+            tokenButton.waitAndTap()
             return AddFundsScreen(app)
         }
     }
 
     @discardableResult
-    func tapTrendingToken(_ label: String) -> AddTokenFlowScreen {
-        XCTContext.runActivity(named: "Tap Trending token with label: \(label)") { _ in
-            waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
-            tokensList.staticTextByLabel(label: label).waitAndTap()
-            return AddTokenFlowScreen(app)
+    func tapTrendingToken(_ name: String) -> MarketsTokenDetailsScreen {
+        XCTContext.runActivity(named: "Tap Trending token with name: \(name)") { _ in
+            let tokenButton = app.buttons[MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: name)].firstMatch
+            waitAndAssertTrue(tokenButton, "Trending token \(name) should exist on Buy Token Selector screen")
+            tokenButton.waitAndTap()
+            return MarketsTokenDetailsScreen(app)
         }
     }
 
