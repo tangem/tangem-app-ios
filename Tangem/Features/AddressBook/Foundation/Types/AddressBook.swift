@@ -11,5 +11,5 @@ import TangemFoundation
 
 struct AddressBook: Equatable {
     let userWalletId: UserWalletId
-    let contacts: [AddressBookContact]
+    let contacts: [AddressBookUIContact]
 }
