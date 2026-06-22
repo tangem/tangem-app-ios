@@ -14,11 +14,13 @@ protocol AddressBooksProvider {
 
 struct AddressBookWallet {
     let wallet: UserWalletInfo
-    let addressBookPublisher: AnyPublisher<AddressBook, Never>
-}
+    let addressBookManager: AddressBookManager
 
-// MARK: - Implementations
+    var addressBookPublisher: AnyPublisher<[AddressBookContact], Never> {
+        addressBookManager.contactsPublisher
+    }
 
-extension AddressBooksProvider where Self == MockAddressBooksProvider {
-    static func mock() -> Self { .init() }
+    var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
+        addressBookManager.syncStatePublisher
+    }
 }
