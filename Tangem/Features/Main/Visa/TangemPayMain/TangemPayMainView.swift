@@ -397,7 +397,7 @@ struct TangemPayMainView: View {
 
             TangemPayActionButtonsView(
                 actionButtonsDisabled: viewModel.actionButtonsDisabled,
-                isWithdrawLoading: viewModel.isWithdrawButtonLoading,
+                isWithdrawDisabled: viewModel.isWithdrawButtonDisabled,
                 addFundsAction: viewModel.addFunds,
                 withdrawAction: viewModel.withdraw
             )
