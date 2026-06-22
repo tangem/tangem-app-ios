@@ -14,28 +14,27 @@ import TangemLocalization
 import TangemUI
 
 final class EditAddressBookContactManagementInteractor {
-    typealias DraftRow = AddressBookContactManagementViewModel.DraftRow
     typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
 
     @Injected(\.userWalletRepository)
-    private static var userWalletRepository: UserWalletRepository
+    private var userWalletRepository: UserWalletRepository
 
-    private let contact: AddressBookUIContact
+    private let contact: AddressBookContact
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
-    private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
-    private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
+    private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
+    private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
 
-    init(contact: AddressBookUIContact) {
+    init(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
         self.contact = contact
 
-        nameSubject = .init(contact.name)
-        colorSubject = .init(contact.color)
-        addressesSubject = .init(contact.addresses.map { DraftRow(id: $0.id.uuidString, address: $0.address) })
-
-        let ownerModel = Self.userWalletRepository.models.first { $0.userWalletId == contact.userWalletId }
-        walletSubject = .init(ownerModel?.userWalletInfo)
+        nameSubject = .init(contact.name.value)
+        colorSubject = .init(AccountModel.CompositeIcon.Color(rawValue: contact.iconColor) ?? AccountModelUtils.UI.newAccountIcon().color)
+        addressesSubject = .init(contact.entries.raw.map {
+            AddressBookEntryDraft(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo)
+        })
+        walletSubject = .init(addressBookWallet)
     }
 }
 
@@ -52,25 +51,26 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         colorSubject.eraseToAnyPublisher()
     }
 
-    var addressesPublisher: AnyPublisher<[DraftRow], Never> {
-        addressesSubject.eraseToAnyPublisher()
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> {
+        addressesSubject.map { AddressBookContactDraftEntries($0) }.removeDuplicates().eraseToAnyPublisher()
     }
 
     var walletPublisher: AnyPublisher<WalletRowType?, Never> {
         walletSubject
-            .map { walletInfo in
-                walletInfo.map {
-                    WalletRowType(
-                        userWalletInfo: $0,
-                        isEditable: Self.userWalletRepository.models.count > 1
-                    )
-                }
+            .map { addressBookWallet -> WalletRowType? in
+                WalletRowType(
+                    userWalletInfo: addressBookWallet.wallet,
+                    isEditable: self.userWalletRepository.models.count > 1
+                )
             }
             .eraseToAnyPublisher()
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
-        addressesSubject.map { $0.count < 20 }.eraseToAnyPublisher()
+        addressesSubject
+            .map { $0.uniqueProperties(\.address).count < AddressBookContactDraftEntries.maxAddressCount }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> {
@@ -87,8 +87,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
 
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> {
         walletSubject
-            .map { walletInfo in
-                walletInfo.flatMap { CommonTangemIconProvider(config: $0.config).getMainButtonIcon() }
+            .map { addressBookWallet in
+                CommonTangemIconProvider(config: addressBookWallet.wallet.config).getMainButtonIcon()
             }
             .eraseToAnyPublisher()
     }
@@ -101,19 +101,36 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         colorSubject.send(color)
     }
 
-    func add(address: DraftRow) throws {
-        addressesSubject.value.append(address)
+    func update(addressBookWallet: AddressBookWallet) {
+        // [REDACTED_TODO_COMMENT]
+        walletSubject.send(addressBookWallet)
     }
 
-    func deleteAddress(id: String) {
+    func add(entries: [AddressBookEntryDraft]) throws {
+        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+
+        addressesSubject.value.append(contentsOf: entries)
+    }
+
+    func deleteAddress(id: AddressBookAddressEntryID) {
         addressesSubject.value.removeAll { $0.id == id }
     }
 
     func save() async throws {
-        // [REDACTED_TODO_COMMENT]
+        let name = try AddressBookContactNameValidator().validate(nameSubject.value)
+        let addressBookManager = walletSubject.value.addressBookManager
+
+        // Deleting the last address deletes the contact; otherwise the whole edit is applied atomically.
+        guard let entries = AddressBookContactDraftEntries(addressesSubject.value) else {
+            try await addressBookManager.deleteContact(id: contact.id)
+            return
+        }
+
+        try await addressBookManager.updateContact(id: contact.id, name: name, iconColor: colorSubject.value.rawValue, entries: entries)
     }
 
     func delete() async throws {
-        // [REDACTED_TODO_COMMENT]
+        let addressBookManager = walletSubject.value.addressBookManager
+        try await addressBookManager.deleteContact(id: contact.id)
     }
 }
