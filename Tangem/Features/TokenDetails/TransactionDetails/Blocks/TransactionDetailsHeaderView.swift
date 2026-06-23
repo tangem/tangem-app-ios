@@ -77,7 +77,10 @@ struct TransactionDetailsHeaderView: View {
             ForEach(data.menuActions) { action in
                 Button(action: action.handler) {
                     if let icon = action.icon {
-                        Label(title: { Text(action.title) }, icon: { icon.image })
+                        Label(
+                            title: { Text(action.title) },
+                            icon: { icon.image }
+                        )
                     } else {
                         Text(action.title)
                     }
