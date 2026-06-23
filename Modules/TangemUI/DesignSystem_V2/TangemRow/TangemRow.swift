@@ -215,7 +215,7 @@ private extension TangemRow {
 
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .background(configuration.isPressed && isEnabled ? DesignSystem.Color.interactionPress : Color.clear)
+                .background(configuration.isPressed && isEnabled ? DesignSystem.Color.interactionPressDefault : Color.clear)
                 .contentShape(Rectangle())
         }
     }
