@@ -1300,6 +1300,7 @@
 "staking_enabled" = "Staking habilitado";
 "staking_error_no_validators_message" = "No hay validadores disponibles en este momento. Por favor, inténtelo de nuevo más tarde.";
 "staking_error_no_validators_title" = "Staking no disponible";
+"staking_error_unavailable_region" = "Staking no está disponible en tu región.";
 "staking_give_permission_fee_footer" = "La red cobrará una tarifa de aprobación de token para verificar que usted está autorizando el uso de su token para el staking.";
 "staking_legal" = "Al utilizar la función de staking, usted acepta %1$@ y %2$@ del proveedor";
 "staking_locked" = "Bloqueado";
@@ -1406,6 +1407,8 @@
 "story_web3_title" = "Compatible con Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Se requiere una transacción entrante de al menos %1$@ para proceder";
 "sui_not_enough_coin_for_fee_title" = "Fondos insuficientes";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "Datos de la operación SWAP:\nDe: %1$@ %2$@\nPara: %3$@ %4$@\nPor %5$@ - %6$@";
 "support_selector_view_chat_button" = "Abrir chat";
 "support_selector_view_email_button" = "Abrir correo";
@@ -1808,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Esta acción es irreversible. No tendrá acceso la billetera antigua.";
 "twins_scan_twin_with_number" = "Toque la tarjeta gemela con el número %@ y no la retira hasta el final de la operación";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Por favor, inténtelo de nuevo más tarde. Si el problema persiste, póngase en contacto con el servicio de soporte.";
 "unexpected_error_title" = "¡Algo salió mal!";
 "universal_error" = "Hemos encontrado un error. Código de error: %@. Póngase en contacto con nuestro servicio de soporte.";
@@ -1836,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Nombre de la billetera";
 "user_wallet_list_rename_popup_title" = "Renombrar la billetera";
 "user_wallet_list_unlock_all_with" = "Desbloquear todo con %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verificado";
 "visa_balance_limits_details_available" = "Disponible";
 "visa_balance_limits_details_blocked" = "Bloqueado";
