@@ -44,7 +44,7 @@ private struct MarketsPortfolioBlockContentView: View {
     var body: some View {
         HStack(spacing: Constants.contentSpacing) {
             VStack(alignment: .leading, spacing: Constants.textSpacing) {
-                Text(attributedBalance)
+                SensitiveText(attributedBalance)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
 
