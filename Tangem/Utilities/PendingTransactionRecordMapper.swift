@@ -33,7 +33,7 @@ struct PendingTransactionRecordMapper {
             isOutgoing: !pending.isIncoming,
             type: .transfer,
             date: pending.date,
-            tokenTransfers: nil
+            tokenTransfers: []
         )
     }
 

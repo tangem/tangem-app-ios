@@ -41,7 +41,7 @@ extension KaspaTransactionRecordMapper: TransactionRecordMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: date,
-            tokenTransfers: nil
+            tokenTransfers: []
         )
     }
 }

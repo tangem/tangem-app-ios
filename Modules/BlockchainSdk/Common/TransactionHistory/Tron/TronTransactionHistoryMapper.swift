@@ -260,10 +260,8 @@ final class TronTransactionHistoryMapper {
         }
     }
 
-    private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer]? {
-        guard let tokenTransfers = transaction.tokenTransfers else {
-            return nil
-        }
+    private func tokenTransfers(_ transaction: BlockBookAddressResponse.Transaction) -> [TransactionRecord.TokenTransfer] {
+        let tokenTransfers = transaction.tokenTransfers ?? []
 
         return tokenTransfers.map { transfer -> TransactionRecord.TokenTransfer in
             let amount = Decimal(stringValue: transfer.value) ?? 0
