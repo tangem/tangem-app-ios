@@ -1300,7 +1300,7 @@
 "staking_enabled" = "Стейкінг увімкнено";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
-"staking_error_unavailable_region" = "Staking is unavailable in your region";
+"staking_error_unavailable_region" = "Стейкінг недоступний у вашому регіоні";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
 "staking_legal" = "Використовуючи функцію стейкінгу, ви погоджуєтесь з %1$@ та %2$@";
 "staking_locked" = "Заблоковано";
@@ -1408,7 +1408,7 @@
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
 "support_chat_screen_title" = "Чат підтримки";
-"support_chat_share_logs_button" = "Прикріпити логи застосунку";
+"support_chat_share_logs_button" = "Прикріпити логи";
 "support_chat_swap_prefilled_message" = "Дані про операцію обміну:\nЗвідки: %1$@ %2$@\nКуди: %3$@ %4$@\nЧерез: %5$@ - %6$@";
 "support_selector_view_chat_button" = "Відкрити чат";
 "support_selector_view_email_button" = "Відкрити пошту";
