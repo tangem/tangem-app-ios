@@ -47,69 +47,45 @@ public struct TangemTypographyToken: Hashable, Sendable {
     public let fontFamily: String
     public let fontWeight: Font.Weight
     public let fontSize: CGFloat
+    public let relativeTo: Font.TextStyle
     public let lineHeight: CGFloat
-    public let letterSpacing: CGFloat
+    public let lineSpacing: CGFloat
+    public let tracking: CGFloat
 
     public init(
         fontFamily: String,
         fontWeight: Font.Weight,
         fontSize: CGFloat,
+        relativeTo: Font.TextStyle,
         lineHeight: CGFloat,
-        letterSpacing: CGFloat
+        lineSpacing: CGFloat,
+        tracking: CGFloat
     ) {
         self.fontFamily = fontFamily
         self.fontWeight = fontWeight
         self.fontSize = fontSize
+        self.relativeTo = relativeTo
         self.lineHeight = lineHeight
-        self.letterSpacing = letterSpacing
+        self.lineSpacing = lineSpacing
+        self.tracking = tracking
     }
 
     public var font: Font {
-        // Route SF Pro through `.system(...)` — the canonical primitive for the
-        // platform font. `.custom("SF Pro", ...)` would not resolve (PostScript
-        // names are "SFPro-Regular" etc.) and would silently fall back to system,
-        // hiding misconfiguration. Non-system families go through `.custom`,
-        // which assumes registration via Info.plist (UIAppFonts).
-        if fontFamily == "SF Pro" {
-            return .system(size: fontSize, weight: fontWeight)
-        }
-        return .custom(fontFamily, size: fontSize).weight(fontWeight)
+        // `relativeTo:` opts the font into Dynamic Type scaling — the size grows
+        // with the user's preferred content size relative to the given text style.
+        // `.custom` is the only builder with a `relativeTo:` overload (`.system`
+        // has none), so all tiers route through it. The "SF Pro" family is not a
+        // registered PostScript name, so it silently resolves to the system SF
+        // face — exactly what design wants on iOS — now with Dynamic Type.
+        .custom(fontFamily, size: fontSize, relativeTo: relativeTo).weight(fontWeight)
     }
 }
 
 public extension View {
     func font(_ token: TangemTypographyToken) -> some View {
-        modifier(TangemTypographyTokenModifier(token: token))
-    }
-}
-
-private struct TangemTypographyTokenModifier: ViewModifier {
-    let token: TangemTypographyToken
-    @ScaledMetric private var scaledSize: CGFloat
-
-    init(token: TangemTypographyToken) {
-        self.token = token
-        _scaledSize = ScaledMetric(wrappedValue: token.fontSize, relativeTo: .body)
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .font(scaledFont)
-            .lineSpacing(max(0, scaledLineHeight - scaledSize))
-            .tracking(token.letterSpacing)
-    }
-
-    private var scaledFont: Font {
-        if token.fontFamily == "SF Pro" {
-            return .system(size: scaledSize, weight: token.fontWeight)
-        }
-        return .custom(token.fontFamily, size: scaledSize).weight(token.fontWeight)
-    }
-
-    private var scaledLineHeight: CGFloat {
-        guard token.fontSize > 0 else { return token.lineHeight }
-
-        return token.lineHeight * (scaledSize / token.fontSize)
+        font(token.font)
+            .lineSpacing(token.lineSpacing)
+            .tracking(token.tracking)
     }
 }
 

@@ -19,8 +19,20 @@ final class CommonP2PAPIProvider: P2PAPIProvider {
     }
 
     func yield(targetAmountLimitProvider: StakingTargetAmountLimitProvider?) async throws -> StakingYieldInfo {
-        let response = try await service.getVaultsList()
         let targetAmountInfos = await targetAmountLimitProvider?.snapshot() ?? [:]
+
+        let response: P2PDTO.Vaults.VaultsInfo
+        do {
+            response = try await service.getVaultsList()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            if targetAmountInfos.isEmpty {
+                throw StakingAvailabilityError.dataUnavailable(underlying: error)
+            }
+            throw error
+        }
+
         return try mapper.mapToYieldInfo(from: response, targetAmountInfos: targetAmountInfos)
     }
 

@@ -462,6 +462,26 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
         Analytics.log(event: .sendNoticeCantSwapThisToken, params: analyticsParameters)
     }
+
+    func logSendSwapAvailable(token: String) {
+        logSwapAvailableEvent(.sendNoticeSwapAvailable, receiveToken: token)
+    }
+
+    func logSendSwapAvailableClicked(token: String) {
+        logSwapAvailableEvent(.sendNoticeSwapAvailableClicked, receiveToken: token)
+    }
+
+    private func logSwapAvailableEvent(_ event: Analytics.Event, receiveToken: String) {
+        guard let sourceTokenItem else {
+            return
+        }
+
+        Analytics.log(event: event, params: [
+            .sendToken: sourceTokenItem.currencySymbol,
+            .sendBlockchain: sourceTokenItem.blockchain.displayName,
+            .receiveToken: receiveToken,
+        ])
+    }
 }
 
 // MARK: - SendSummaryAnalyticsLogger
