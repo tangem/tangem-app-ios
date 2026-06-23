@@ -48,8 +48,10 @@ class CommonMobileWalletPromoService: MobileWalletPromoService {
         userWalletRepository.eventProvider
             .sink { event in
                 switch event {
-                // reset promo flag when user adds wallet or removes last wallet
-                case .unlocked, .locked:
+                // Drop the promo only once the user actually creates/adds a wallet.
+                // `.locked`/`.unlocked` also fire on ordinary lock/unlock (app background, relaunch),
+                // which previously wiped the promo for a referral user before they created a wallet.
+                case .inserted:
                     AppSettings.shared.shouldShowMobilePromoWalletSelector = false
                 default:
                     break

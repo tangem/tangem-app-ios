@@ -37,6 +37,10 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// Application UID
     @Published var applicationUid: String = ""
 
+    /// Referral (test) — deterministic simulation of the AppsFlyer referral deep link
+    @Published var referralRefcodeInput: String = "ARABBTC"
+    @Published private(set) var currentReferralRefcode: String = ""
+
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage.instance
@@ -218,6 +222,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
         fcmToken = Messaging.messaging().fcmToken ?? "none"
 
         updateApplicationUid()
+        updateReferralState()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
@@ -231,6 +236,24 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateApplicationUid()
     }
 
+    /// Mirrors `AppsFlyerDeepReferralHandler`: persists the referral attribute and marks the mobile promo,
+    /// so the Welcome flow can be tested without relying on real AppsFlyer attribution.
+    func simulateReferralDeepLink() {
+        guard let refcode = referralRefcodeInput.nilIfEmpty else { return }
+
+        AppSettings.shared.referralRefcode = refcode
+        AppSettings.shared.referralCampaign = "debug_simulation"
+        AppSettings.shared.shouldShowMobilePromoWalletSelector = true
+        updateReferralState()
+    }
+
+    func clearReferral() {
+        AppSettings.shared.referralRefcode = nil
+        AppSettings.shared.referralCampaign = nil
+        AppSettings.shared.shouldShowMobilePromoWalletSelector = false
+        updateReferralState()
+    }
+
     func showExitAlert() {
         let alert = Alert(
             title: Text("Are you sure you want to exit the app?"),
@@ -242,6 +265,10 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     private func updateApplicationUid() {
         applicationUid = AppSettings.shared.applicationUid
+    }
+
+    private func updateReferralState() {
+        currentReferralRefcode = AppSettings.shared.referralRefcode ?? "—"
     }
 
     // [REDACTED_TODO_COMMENT]
