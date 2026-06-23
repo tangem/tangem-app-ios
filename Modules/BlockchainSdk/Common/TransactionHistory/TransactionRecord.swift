@@ -25,8 +25,9 @@ public struct TransactionRecord: Hashable {
     public let isFromYieldContract: Bool
 
     // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "Implementation details, do not use this property.")
     @IgnoredEquatable
-    public private(set) var _extraInfo: Any /* TransactionRecordExtraInfo */
+    public private(set) var _extraInfo: Any? /* TransactionRecordExtraInfo */
 
     public func hasDestination(address: String) -> Bool {
         switch destination {
