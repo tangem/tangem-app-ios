@@ -20,6 +20,7 @@ final class TransactionHistoryFactoryProvider {
         keysConfig: keysManager.blockchainSdkKeysConfig,
         tangemProviderConfig: .ephemeralConfiguration,
         apiList: apiListProvider.apiList,
-        isXrpTransactionHistoryEnabled: FeatureProvider.isAvailable(.xrplTransactionHistory)
+        isXrpTransactionHistoryEnabled: FeatureProvider.isAvailable(.xrplTransactionHistory),
+        isMockedAPI: FeatureStorage.instance.tangemAPIType == .mock
     )
 }

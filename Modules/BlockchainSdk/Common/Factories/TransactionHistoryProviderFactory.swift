@@ -14,6 +14,7 @@ public struct TransactionHistoryProviderFactory {
     private let apiList: APIList
     private let tangemProviderConfig: TangemProviderConfiguration
     private let isXrpTransactionHistoryEnabled: Bool
+    private let isMockedAPI: Bool
 
     // MARK: - Init
 
@@ -21,12 +22,14 @@ public struct TransactionHistoryProviderFactory {
         keysConfig: BlockchainSdkKeysConfig,
         tangemProviderConfig: TangemProviderConfiguration,
         apiList: APIList,
-        isXrpTransactionHistoryEnabled: Bool
+        isXrpTransactionHistoryEnabled: Bool,
+        isMockedAPI: Bool
     ) {
         self.keysConfig = keysConfig
         self.tangemProviderConfig = tangemProviderConfig
         self.apiList = apiList
         self.isXrpTransactionHistoryEnabled = isXrpTransactionHistoryEnabled
+        self.isMockedAPI = isMockedAPI
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -105,7 +108,7 @@ public struct TransactionHistoryProviderFactory {
             return EtherscanTransactionHistoryProvider(
                 mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
-                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey)
+                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey, isMock: isMockedAPI)
             )
         case .zkSync:
             return EtherscanTransactionHistoryProvider(

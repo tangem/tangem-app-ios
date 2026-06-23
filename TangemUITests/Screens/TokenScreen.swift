@@ -317,6 +317,56 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     }
 }
 
+// MARK: - Transaction History
+
+extension TokenScreen {
+    @discardableResult
+    func waitForTransaction(key: String) -> Self {
+        XCTContext.runActivity(named: "Wait for transaction '\(key)' in history") { _ in
+            let item = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionItem(key: key)].firstMatch
+            scrollToElement(item)
+            waitAndAssertTrue(item, "Transaction '\(key)' should be displayed in history")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionAmount(key: String, contains amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' amount contains '\(amount)'") { _ in
+            let element = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionAmount(key: key)].firstMatch
+            waitAndAssertTrue(element, "Transaction amount for '\(key)' should exist")
+            XCTAssertTrue(
+                element.label.contains(amount),
+                "Transaction '\(key)' amount should contain '\(amount)' but was '\(element.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionCurrency(key: String, equals currency: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' currency equals '\(currency)'") { _ in
+            let element = app.staticTexts[TxHistoryAccessibilityIdentifiers.transactionCurrency(key: key)].firstMatch
+            waitAndAssertTrue(element, "Transaction currency for '\(key)' should exist")
+            XCTAssertEqual(
+                element.label,
+                currency,
+                "Transaction '\(key)' currency should equal '\(currency)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertTransactionConfirmed(key: String) -> Self {
+        XCTContext.runActivity(named: "Assert transaction '\(key)' is confirmed") { _ in
+            let status = app.descendants(matching: .any)[TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: key)].firstMatch
+            waitAndAssertTrue(status, "Transaction '\(key)' should have a confirmed status")
+            return self
+        }
+    }
+}
+
 enum TokenScreenElement: String, UIElement {
     case moreButton
     case hideTokenButton

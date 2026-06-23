@@ -42,6 +42,8 @@ struct GaslessTransactionsAPITarget: TargetType {
             baseUrl = GaslessApiTargetConstants.devBaseURL
         case .stage:
             baseUrl = GaslessApiTargetConstants.stageBaseURL
+        case .mock:
+            baseUrl = URL(string: "\(WireMockEnvironment.baseURL)/gasless")!
         }
 
         return baseUrl.appendingPathComponent("api").appendingPathComponent("v1")

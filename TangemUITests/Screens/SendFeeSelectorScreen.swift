@@ -254,6 +254,112 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     }
 }
 
+// MARK: - Gasless (fee token selection)
+
+extension SendFeeSelectorScreen {
+    private func feeTokenRow(symbol: String) -> XCUIElement {
+        app.buttons[FeeAccessibilityIdentifiers.feeCurrencyOption(symbol: symbol)].firstMatch
+    }
+
+    private var applyButton: XCUIElement {
+        app.buttons[FeeAccessibilityIdentifiers.feeSelectorApplyButton].firstMatch
+    }
+
+    @discardableResult
+    func waitForNetworkFeeSheet() -> Self {
+        XCTContext.runActivity(named: "Validate 'Network fee' sheet is displayed") { _ in
+            let title = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorNetworkFeeTitle].firstMatch
+            waitAndAssertTrue(title, "'Network fee' sheet title should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func openTokenSelector(fromCoinSymbol coinSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Open fee token selector via '\(coinSymbol)' row") { _ in
+            feeTokenRow(symbol: coinSymbol).waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForChooseTokenSheet() -> Self {
+        XCTContext.runActivity(named: "Validate 'Choose token' sheet is displayed") { _ in
+            let title = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseTokenTitle].firstMatch
+            waitAndAssertTrue(title, "'Choose token' sheet title should be displayed")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFeeTokenAvailable(symbol: String) -> Self {
+        XCTContext.runActivity(named: "Assert fee token '\(symbol)' is available") { _ in
+            waitAndAssertTrue(feeTokenRow(symbol: symbol), "Fee token '\(symbol)' should be available for the fee payment")
+        }
+        return self
+    }
+
+    @discardableResult
+    func selectFeeToken(symbol: String) -> Self {
+        XCTContext.runActivity(named: "Select fee token '\(symbol)'") { _ in
+            feeTokenRow(symbol: symbol).waitAndTap()
+        }
+        return self
+    }
+
+    @discardableResult
+    func selectStablecoinAsFeeToken(coinSymbol: String, tokenSymbol: String) -> Self {
+        openTokenSelector(fromCoinSymbol: coinSymbol)
+        waitForChooseTokenSheet()
+        selectFeeToken(symbol: tokenSymbol)
+        return self
+    }
+
+    @discardableResult
+    func tapApply() -> SendSummaryScreen {
+        XCTContext.runActivity(named: "Tap 'Apply' button on fee selector") { _ in
+            applyButton.waitAndTap()
+        }
+        return SendSummaryScreen(app)
+    }
+
+    @discardableResult
+    func assertApplyDisabled() -> Self {
+        XCTContext.runActivity(named: "Assert 'Apply' button is disabled") { _ in
+            waitAndAssertTrue(applyButton, "'Apply' button should exist")
+            XCTAssertFalse(applyButton.isEnabled, "'Apply' button should be disabled with insufficient balance")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertNotEnoughFundsError() -> Self {
+        XCTContext.runActivity(named: "Assert 'Not enough funds' error is displayed") { _ in
+            let error = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorInsufficientFundsError].firstMatch
+            waitAndAssertTrue(error, "'Not enough funds' error should be displayed in the fee selector")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertOnlyMarketSpeedForStablecoin() -> Self {
+        XCTContext.runActivity(named: "Assert only Market speed is available for the stablecoin fee") { _ in
+            let feeRow = app.buttons[FeeAccessibilityIdentifiers.feeSelectorSummaryFee].firstMatch
+            waitAndAssertTrue(feeRow, "Summary fee row should exist")
+
+            feeRow.tap()
+            let chooseSpeedTitle = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle].firstMatch
+            XCTAssertTrue(
+                chooseSpeedTitle.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Choose speed' sheet should not open for a stablecoin fee"
+            )
+            XCTAssertFalse(fastOption.waitForExistence(timeout: .quick), "Fast speed should not be available for a stablecoin fee")
+            XCTAssertFalse(slowOption.waitForExistence(timeout: .quick), "Slow speed should not be available for a stablecoin fee")
+        }
+        return self
+    }
+}
+
 enum SendFeeSelectorElement: String, UIElement {
     case slowOption
     case marketOption
