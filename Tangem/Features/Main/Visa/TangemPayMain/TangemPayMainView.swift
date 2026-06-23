@@ -378,7 +378,6 @@ struct TangemPayMainView: View {
                 isReloadButtonBusy: false,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()
             )
-            .opacity(viewModel.isStale ? 0.6 : 1)
         }
     }
 
