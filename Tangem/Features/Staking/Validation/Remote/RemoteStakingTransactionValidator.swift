@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-/// Validates staking transactions via BlockAid API (Polygon, BNB, Solana).
+/// Validates staking transactions via BlockAid API (Ethereum, BNB, Solana).
 struct RemoteStakingTransactionValidator: StakingTransactionValidator {
     private let network: BlockAidSupportedNetwork
     private let accountAddress: String
