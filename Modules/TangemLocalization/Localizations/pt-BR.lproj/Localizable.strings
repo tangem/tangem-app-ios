@@ -1300,6 +1300,7 @@
 "staking_enabled" = "Staking ativado";
 "staking_error_no_validators_message" = "Não há validadores disponíveis no momento. Tente novamente mais tarde.";
 "staking_error_no_validators_title" = "Staking indisponível";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para staking.";
 "staking_legal" = "Ao utilizar a funcionalidade de staking, você concorda com os termos do provedor. %1$@ e %2$@";
 "staking_locked" = "Trancado";
@@ -1406,6 +1407,8 @@
 "story_web3_title" = "Compatível com Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Uma transação de entrada de pelo menos %1$@ é necessário prosseguir";
 "sui_not_enough_coin_for_fee_title" = "Fundos insuficientes";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "Dados da operação SWAP:\nDe: %1$@ %2$@\nPara: %3$@ %4$@\nPor %5$@ - %6$@";
 "support_selector_view_chat_button" = "Abra o e-mail";
 "support_selector_view_email_button" = "Abra o e-mail";
@@ -1808,6 +1811,8 @@
 "twins_recreate_toolbar" = "Gêmeo Tangem";
 "twins_recreate_warning" = "Essa ação é irreversível. Você não terá mais acesso à sua carteira antiga.";
 "twins_scan_twin_with_number" = "Toque no cartão gêmeo com o número %@ e não remova até o final da operação.";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Por favor, tente novamente mais tarde. Se o problema persistir, entre em contato com o suporte.";
 "unexpected_error_title" = "Algo deu errado!";
 "universal_error" = "Ocorreu um erro. Código do erro: %@Por favor, entre em contato com nosso suporte.";
@@ -1836,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Nome da carteira";
 "user_wallet_list_rename_popup_title" = "Renomear carteira";
 "user_wallet_list_unlock_all_with" = "Desbloqueie tudo com %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "Verificado AML";
 "visa_balance_limits_details_available" = "Disponível";
 "visa_balance_limits_details_blocked" = "Bloqueado";
