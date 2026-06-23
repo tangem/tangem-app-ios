@@ -38,6 +38,7 @@ struct SwapAmountView: View {
                 .disabled(viewModel.isInputDisabled)
                 .offset(x: isShaking ? 10 : 0)
                 .simultaneousGesture(TapGesture().onEnded {
+                    isSourceFocused = true
                     viewModel.textFieldDidTap()
                 })
                 .onChange(of: viewModel.sourceExpressCurrencyViewModel.state.errorState) { errorState in
