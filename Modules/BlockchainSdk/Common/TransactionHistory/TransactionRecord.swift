@@ -21,7 +21,7 @@ public struct TransactionRecord: Hashable {
     public let isOutgoing: Bool
     public let type: TransactionType
     public let date: Date?
-    public let tokenTransfers: [TokenTransfer]?
+    public let tokenTransfers: [TokenTransfer]
     public let isFromYieldContract: Bool
 
     // [REDACTED_TODO_COMMENT]
@@ -47,7 +47,7 @@ public struct TransactionRecord: Hashable {
         isOutgoing: Bool,
         type: TransactionType,
         date: Date?,
-        tokenTransfers: [TokenTransfer]?,
+        tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
         extraInfo: Any? = nil
     ) {
