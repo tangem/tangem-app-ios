@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "アドレスを追加し、ネットワークを選択してください。";
 "address_book_add_address" = "アドレスを追加";
 "address_book_add_contact" = "連絡先を追加";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "連絡先名";
 "address_book_contact" = "連絡先";
 "address_book_copy_address" = "アドレスをコピー";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "今後表示しない";
 "balance_hidden_got_it_button" = "わかりました";
 "balance_hidden_title" = "残高は非表示";
+"beta_mode_warning_title" = "ベータモード";
 "biometry_touch_id_reason" = "タッチIDは、アプリにカードまたはリングを保存するために使用されます";
 "bitcoin_promo_activation_error_title" = "アクティベーションエラー";
 "bitcoin_promo_activation_error" = "プロモーションコードの処理中にエラーが発生しました。しばらくしてからもう一度お試しください。";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "取引を送信できません";
 "feedback_subject_tx_push_failed" = "取引をプッシュできません";
 "feedback_token_description_error" = "コインの説明エラー";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "正常に動作するよう、アプリを最新バージョンに更新してください。";
 "force_update_banner_title" = "アップデートが必要です";
 "force_update_brick_description" = "このバージョンのアプリはサポート対象外となっており、このデバイスでは更新できません。";
@@ -1369,6 +1372,8 @@
 "staking_title_stake" = "%@をステーキングする";
 "staking_title_unstake" = "%@のステーキング解除";
 "staking_transaction_in_progress_text" = "取引を処理中です。現在、ブロックチェーンで検証が行われています。これには数分かかる場合があります。";
+"staking_transaction_validation_unsafe" = "セキュリティチェックにより、%@のステーキングは禁止されています";
+"staking_transaction_validation_warning" = "%@のステーキングにはリスクが伴う可能性があります。ご自身の判断と責任でご利用ください";
 "staking_unbonding_in" = "解約完了まで";
 "staking_unbonding" = "ステーキング解約中";
 "staking_unlocked_locked" = "ロック解除";
@@ -1452,7 +1457,7 @@
 "swapping_permission_header" = "許可を与える";
 "swapping_permit_and_swap" = "許可してスワップ";
 "swapping_rate_experience_title" = "プロバイダーの利用体験を評価してください";
-"swapping_rate_feedback_placeholder" = "フィードバックを入力してください";
+"swapping_rate_feedback_placeholder" = "フィードバックを入力（任意）";
 "swapping_rate_feedback_submit" = "フィードバックを送信";
 "swapping_rate_feedback_title" = "ご利用中に気になった点を\n教えてください";
 "swapping_swap_action_in_progress" = "スワップ中…";
@@ -1581,6 +1586,7 @@
 "tangempay_card_page_settings_title" = "カード設定";
 "tangempay_change_pin_code" = "PINコードを変更";
 "tangempay_come_back_if_forget_pin" = "忘れた場合はアプリに戻って確認できます。";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "%@ 〜 %@の範囲で上限を設定";
 "tangempay_daily_limit_set_button" = "上限を設定";
 "tangempay_declined_reason_1" = "残高不足";

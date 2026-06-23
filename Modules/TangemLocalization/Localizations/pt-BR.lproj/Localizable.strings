@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Adicione o endereço e selecione a rede.";
 "address_book_add_address" = "Adicionar endereço";
 "address_book_add_contact" = "Adicionar contato";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nome do contato";
 "address_book_contact" = "Contato";
 "address_book_copy_address" = "Copiar endereço";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Não mostrar novamente";
 "balance_hidden_got_it_button" = "Entendi";
 "balance_hidden_title" = "Os saldos estão ocultos.";
+"beta_mode_warning_title" = "Modo Beta";
 "biometry_touch_id_reason" = "O Touch ID é usado para salvar seus cartões e anéis no aplicativo.";
 "bitcoin_promo_activation_error_title" = "Erro de ativação";
 "bitcoin_promo_activation_error" = "Ocorreu um erro ao processar seu código promocional. Tente novamente mais tarde.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "Não foi possível enviar uma transação.";
 "feedback_subject_tx_push_failed" = "Não é possível enviar uma transação.";
 "feedback_token_description_error" = "Erro na descrição da moeda";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Atualize o aplicativo para a versão mais recente para garantir o funcionamento correto.";
 "force_update_banner_title" = "Atualização necessária";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1369,6 +1372,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "Desvincule %@";
 "staking_transaction_in_progress_text" = "A transação está sendo processada! A validação está em andamento na blockchain. Isso pode levar alguns minutos.";
+"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
+"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
 "staking_unbonding_in" = "Desvinculação em";
 "staking_unbonding" = "Desvinculação";
 "staking_unlocked_locked" = "Desbloquear";
@@ -1581,6 +1586,7 @@
 "tangempay_card_page_settings_title" = "Configurações do cartão";
 "tangempay_change_pin_code" = "Alterar código PIN";
 "tangempay_come_back_if_forget_pin" = "Volte ao aplicativo se você se esquecer.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Defina um limite a partir de %@ para %@";
 "tangempay_daily_limit_set_button" = "Definir limites";
 "tangempay_declined_reason_1" = "saldo insuficiente";

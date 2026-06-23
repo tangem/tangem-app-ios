@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Agregue la dirección y seleccione la red";
 "address_book_add_address" = "Agregar dirección";
 "address_book_add_contact" = "Añadir contacto";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nombre de contacto";
 "address_book_contact" = "Contacto";
 "address_book_copy_address" = "Copiar dirección";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "No mostrar de nuevo";
 "balance_hidden_got_it_button" = "Entendido";
 "balance_hidden_title" = "Los saldos están ocultos";
+"beta_mode_warning_title" = "Modo Beta";
 "biometry_touch_id_reason" = "Touch ID se utiliza para guardar sus tarjetas y anillos en la aplicación";
 "bitcoin_promo_activation_error_title" = "Error de activación";
 "bitcoin_promo_activation_error" = "Se produjo un error al procesar tu código promocional. Inténtalo de nuevo más tarde.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "No se puede completar una transacción";
 "feedback_subject_tx_push_failed" = "No se puede enviar una transacción";
 "feedback_token_description_error" = "Error de descripción de moneda";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Actualice la aplicación a la última versión para garantizar su correcto funcionamiento";
 "force_update_banner_title" = "Se necesita actualizar";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1369,6 +1372,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "Unstaking de %@";
 "staking_transaction_in_progress_text" = "¡La transacción se está procesando! La validación está en curso en la cadena de bloques. Esto puede tardar unos minutos.";
+"staking_transaction_validation_unsafe" = "%@ Prohibido el staking debido a controles de seguridad";
+"staking_transaction_validation_warning" = "%@ staking sospechoso. Por favor, realice el staking bajo su propia responsabilidad.";
 "staking_unbonding_in" = "Desunión en";
 "staking_unbonding" = "Desunión";
 "staking_unlocked_locked" = "Desbloquear";
@@ -1452,7 +1457,7 @@
 "swapping_permission_header" = "Dar autorización";
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
 "swapping_rate_experience_title" = "Valore su experiencia con el proveedor";
-"swapping_rate_feedback_placeholder" = "Escriba sus comentarios";
+"swapping_rate_feedback_placeholder" = "Escriba sus comentarios (opcional)";
 "swapping_rate_feedback_submit" = "Enviar comentarios";
 "swapping_rate_feedback_title" = "¿Qué influyó en su \nexperiencia?";
 "swapping_swap_action_in_progress" = "Intercambiando...";
@@ -1581,6 +1586,7 @@
 "tangempay_card_page_settings_title" = "Configuración de la tarjeta";
 "tangempay_change_pin_code" = "Cambiar código PIN";
 "tangempay_come_back_if_forget_pin" = "Vuelve a la app si lo olvidas.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Establecer un límite de %@ a %@";
 "tangempay_daily_limit_set_button" = "Establecer límites";
 "tangempay_declined_reason_1" = "fondos insuficientes";
