@@ -11,8 +11,7 @@ import XCTest
 final class MainScreenUITests: BaseTestCase {
     private let token = "Polygon"
 
-    // [REDACTED_TODO_COMMENT]
-    func TokenListChanges_WhenSwitchingBetweenCards() {
+    func testTokenListChanges_WhenSwitchingBetweenCards() {
         setAllureId(177)
         launchApp(tangemApiType: .mock)
 
