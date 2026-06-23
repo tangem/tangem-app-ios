@@ -40,7 +40,6 @@ extension XCUIElement {
         }
 
         let app = XCUIApplication()
-        let shortTimeout: TimeInterval = 1.0
 
         for _ in 0 ..< scrollAttempts {
             app.swipeUp()
