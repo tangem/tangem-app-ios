@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "アドレスを追加し、ネットワークを選択してください。";
 "address_book_add_address" = "アドレスを追加";
 "address_book_add_contact" = "連絡先を追加";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "連絡先名";
 "address_book_contact" = "連絡先";
 "address_book_copy_address" = "アドレスをコピー";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "今後表示しない";
 "balance_hidden_got_it_button" = "わかりました";
 "balance_hidden_title" = "残高は非表示";
+"beta_mode_warning_title" = "ベータモード";
 "biometry_touch_id_reason" = "タッチIDは、アプリにカードまたはリングを保存するために使用されます";
 "bitcoin_promo_activation_error_title" = "アクティベーションエラー";
 "bitcoin_promo_activation_error" = "プロモーションコードの処理中にエラーが発生しました。しばらくしてからもう一度お試しください。";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "取引を送信できません";
 "feedback_subject_tx_push_failed" = "取引をプッシュできません";
 "feedback_token_description_error" = "コインの説明エラー";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "正常に動作するよう、アプリを最新バージョンに更新してください。";
 "force_update_banner_title" = "アップデートが必要です";
 "force_update_brick_description" = "このバージョンのアプリはサポート対象外となっており、このデバイスでは更新できません。";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "ステーキングが有効です";
 "staking_error_no_validators_message" = "現在、利用可能なバリデーターは見つかりません。しばらくしてからもう一度お試しください。";
 "staking_error_no_validators_title" = "ステーキングは利用できません";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "ネットワークは、ステーキングのためにトークンの使用を承認していることを確認するために、トークン承認手数料を請求します。";
 "staking_legal" = "ステーキング機能を使用すると、プロバイダーの%1$@と%2$@に同意したことになります";
 "staking_locked" = "ロック中";
@@ -1369,8 +1373,8 @@
 "staking_title_stake" = "%@をステーキングする";
 "staking_title_unstake" = "%@のステーキング解除";
 "staking_transaction_in_progress_text" = "取引を処理中です。現在、ブロックチェーンで検証が行われています。これには数分かかる場合があります。";
-"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
-"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
+"staking_transaction_validation_unsafe" = "セキュリティチェックにより、%@のステーキングは禁止されています";
+"staking_transaction_validation_warning" = "%@のステーキングにはリスクが伴う可能性があります。ご自身の判断と責任でご利用ください";
 "staking_unbonding_in" = "解約完了まで";
 "staking_unbonding" = "ステーキング解約中";
 "staking_unlocked_locked" = "ロック解除";
@@ -1403,6 +1407,8 @@
 "story_web3_title" = "Web3.0対応";
 "sui_not_enough_coin_for_fee_description" = "続行するには少なくとも%1$@の受信取引が必要です";
 "sui_not_enough_coin_for_fee_title" = "残高不足";
+"support_chat_screen_title" = "サポートチャット";
+"support_chat_share_logs_button" = "アプリログを添付";
 "support_chat_swap_prefilled_message" = "SWAP操作データ：\n交換元：%1$@%2$@\n交換先：%3$@%4$@\n提供元：%5$@ - %6$@";
 "support_selector_view_chat_button" = "チャットを開く";
 "support_selector_view_email_button" = "メールを開く";
@@ -1454,7 +1460,7 @@
 "swapping_permission_header" = "許可を与える";
 "swapping_permit_and_swap" = "許可してスワップ";
 "swapping_rate_experience_title" = "プロバイダーの利用体験を評価してください";
-"swapping_rate_feedback_placeholder" = "フィードバックを入力してください";
+"swapping_rate_feedback_placeholder" = "フィードバックを入力（任意）";
 "swapping_rate_feedback_submit" = "フィードバックを送信";
 "swapping_rate_feedback_title" = "ご利用中に気になった点を\n教えてください";
 "swapping_swap_action_in_progress" = "スワップ中…";
@@ -1805,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangemツイン";
 "twins_recreate_warning" = "この操作は元に戻せません。古いウォレットにはアクセスできなくなります。";
 "twins_scan_twin_with_number" = "番号%@のツインカードをタップし、操作が終了するまで取り外さないでください。";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "しばらくしてからもう一度お試しください。問題が解決しない場合は、サポートにお問い合わせください。";
 "unexpected_error_title" = "問題が発生しました。";
 "universal_error" = "エラーが発生しました。エラー コード：%@。サポートにお問い合わせください。";
@@ -1833,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "ウォレット名";
 "user_wallet_list_rename_popup_title" = "ウォレット名の変更";
 "user_wallet_list_unlock_all_with" = "%@ですべてをロック解除";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML認証済み";
 "visa_balance_limits_details_available" = "利用可能";
 "visa_balance_limits_details_blocked" = "ブロック中";
