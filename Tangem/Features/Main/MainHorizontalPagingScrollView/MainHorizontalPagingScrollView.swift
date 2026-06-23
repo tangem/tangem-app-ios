@@ -57,6 +57,7 @@ struct MainHorizontalPagingScrollView: View {
             self.safeAreaInsetsTop = safeAreaInsetsTop
         }
         .onChange(of: userWalletPageBuilders.map(\.id)) { userWalletIDs in
+            pagingIndicatorAnimationIsBlocked = true
             userWalletIDToScrollAdjustedValues = userWalletIDToScrollAdjustedValues.filter { userWalletIDs.contains($0.key) }
         }
         .onAppear(perform: scrollDetector.startDetectingScroll)
@@ -115,7 +116,7 @@ struct MainHorizontalPagingScrollView: View {
 
                 Spacer()
             }
-            .task {
+            .task(id: userWalletPageBuilders.map(\.id)) {
                 await Task.yield()
                 pagingIndicatorAnimationIsBlocked = false
             }
@@ -259,9 +260,6 @@ extension MainHorizontalPagingScrollView {
             self.userWalletPageBuilders = userWalletPageBuilders
 
             self.selectedCardIndex = selectedCardIndex
-            _scrollPositionID = State(
-                initialValue: Self.userWalletID(at: selectedCardIndex.wrappedValue, in: userWalletPageBuilders)
-            )
             self.onSelectedCardChanged = onSelectedCardChanged
 
             self.containerGeometryProperties = containerGeometryProperties
@@ -304,6 +302,11 @@ extension MainHorizontalPagingScrollView {
             }
             .onChange(of: selectedCardIndex.wrappedValue) { _, newSelectedCardIndex in
                 updateScrollPositionIDIfNeeded(from: newSelectedCardIndex)
+            }
+            .task {
+                withTransaction(Transaction(animation: nil)) {
+                    scrollPositionID = Self.userWalletID(at: selectedCardIndex.wrappedValue, in: userWalletPageBuilders)
+                }
             }
         }
 
