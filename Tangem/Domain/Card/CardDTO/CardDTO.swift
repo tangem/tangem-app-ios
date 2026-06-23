@@ -25,6 +25,8 @@ struct CardDTO: Codable {
     public internal(set) var backupStatus: Card.BackupStatus?
     public internal(set) var wallets: [Wallet] = []
     public internal(set) var attestation: Attestation = .empty
+    public internal(set) var masterSecret: Card.MasterSecret?
+    public internal(set) var isBackupVerified: Bool?
 
     init(card: Card) {
         cardId = card.cardId
@@ -42,6 +44,8 @@ struct CardDTO: Codable {
         backupStatus = card.backupStatus
         wallets = mapWallets(card.wallets)
         attestation = card.attestation
+        masterSecret = card.masterSecret
+        isBackupVerified = card.isBackupVerified
     }
 
     init(cardDTOv4: CardDTOv4) {

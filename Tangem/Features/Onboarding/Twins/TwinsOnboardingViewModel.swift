@@ -321,8 +321,11 @@ class TwinsOnboardingViewModel: OnboardingViewModel<TwinsOnboardingStep, Onboard
                 case (.second, .third), (.third, .done):
                     if case .done(let cardInfo) = newStep {
                         if !viewModel.retwinMode {
+                            var params = WalletOnboardingViewModel.WalletCreationType.privateKey.params
+                            params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+                            viewModel.logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
                             // userwallet remains deleted after retwin
-                            viewModel.initializeUserWallet(from: cardInfo, walletCreationType: .privateKey)
+                            viewModel.initializeUserWallet(from: cardInfo)
                         }
                         if viewModel.input.isStandalone {
                             viewModel.fireConfetti()

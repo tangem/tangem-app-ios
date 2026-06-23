@@ -7470,7 +7470,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = revision;
-				revision = f7790f0f0ced138d4826a7ea072f4d4e3c7a7b81;
+				revision = 3c8b3c346233cedc77eaf557c2195f48779179fd;
 			};
 		};
 		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {

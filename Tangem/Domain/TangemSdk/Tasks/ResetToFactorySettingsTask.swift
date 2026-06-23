@@ -67,11 +67,6 @@ class ResetToFactorySettingsTask: CardSessionRunnable {
         ResetBackupCommand().run(in: session) { result in
             switch result {
             case .success:
-                guard let card = session.environment.card else {
-                    completion(.failure(.missingPreflightRead))
-                    return
-                }
-
                 completion(.success(true))
             case .failure(let error):
                 completion(.failure(error))
@@ -99,11 +94,6 @@ class ResetToFactorySettingsTask: CardSessionRunnable {
         ResetAccessTokensTask().run(in: session) { result in
             switch result {
             case .success:
-                guard let card = session.environment.card else {
-                    completion(.failure(.missingPreflightRead))
-                    return
-                }
-
                 completion(.success(true))
             case .failure(let error):
                 completion(.failure(error))

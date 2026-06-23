@@ -69,8 +69,51 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         command.run(in: session) { result in
             switch result {
             case .success:
-                // save the card with derived wallets
+                guard let card = session.environment.card else {
+                    completion(.failure(.missingPreflightRead))
+                    return
+                }
+                
+                if card.firmwareVersion >= .v8 {
+                    self.createMasterSecret(in: session, completion: completion)
+                } else {
+                    // save the card with derived wallets
+                    self.initializedCard = session.environment.card
+                    self.checkIfAllWalletsCreated(in: session, completion: completion)
+                }
+                
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func createMasterSecret(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        let command = CreateMasterSecretCommand()
+        commandBag = command
+        command.run(in: session) { result in
+            switch result {
+            case .success:
+                // save the card with derived wallets and a master secret
                 self.initializedCard = session.environment.card
+                self.checkMasterSecret(in: session, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func checkMasterSecret(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
+        let command = ReadMasterSecretCommand()
+        commandBag = command
+        command.run(in: session) { result in
+            switch result {
+            case .success(let response):
+                guard response.masterSecret != nil else {
+                    completion(.failure(.walletAlreadyCreated))
+                    return
+                }
+                
                 self.checkIfAllWalletsCreated(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
