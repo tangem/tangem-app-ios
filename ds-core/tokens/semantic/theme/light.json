@@ -308,6 +308,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.50}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accent.neutral",
+              "iOS": "DesignSystem.Color.textAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.50}"
         }
       }
     },
@@ -615,6 +628,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.50}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.neutral",
+              "iOS": "DesignSystem.Color.bgAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.50}"
         }
       }
     },
@@ -842,6 +868,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.50}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accent.neutral",
+              "iOS": "DesignSystem.Color.iconAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.50}"
         }
       }
     },
@@ -1123,6 +1162,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.50}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.neutral",
+              "iOS": "DesignSystem.Color.borderAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.50}"
         }
       }
     },
@@ -1146,8 +1198,8 @@
         "default": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.interaction.press",
-              "iOS": "DesignSystem.Color.interactionPress"
+              "Android": "TangemTheme.colors3.interaction.press.default",
+              "iOS": "DesignSystem.Color.interactionPressDefault"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -1159,7 +1211,7 @@
         "static-light": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.interaction.pressStaticLight",
+              "Android": "TangemTheme.colors3.interaction.press.staticLight",
               "iOS": "DesignSystem.Color.interactionPressStaticLight"
             },
             "com.figma.scopes": [
@@ -1172,7 +1224,7 @@
         "static-dark": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.interaction.pressStaticDark",
+              "Android": "TangemTheme.colors3.interaction.press.staticDark",
               "iOS": "DesignSystem.Color.interactionPressStaticDark"
             },
             "com.figma.scopes": [
@@ -1222,6 +1274,620 @@
           },
           "$type": "color",
           "$value": "{palette.blue.50}"
+        }
+      }
+    },
+    "glow": {
+      "magic": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.yellow.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step1",
+              "iOS": "DesignSystem.Color.glowMagicStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.10}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step2",
+              "iOS": "DesignSystem.Color.glowMagicStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.40}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step3",
+              "iOS": "DesignSystem.Color.glowMagicStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.blue.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step4",
+              "iOS": "DesignSystem.Color.glowMagicStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.10}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step5",
+              "iOS": "DesignSystem.Color.glowMagicStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.30}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step6",
+              "iOS": "DesignSystem.Color.glowMagicStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.violet.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step7",
+              "iOS": "DesignSystem.Color.glowMagicStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.red.30}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step8",
+              "iOS": "DesignSystem.Color.glowMagicStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.30}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step9",
+              "iOS": "DesignSystem.Color.glowMagicStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.10}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step10",
+              "iOS": "DesignSystem.Color.glowMagicStep10"
+            }
+          }
+        }
+      },
+      "magic-blend": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.violet.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step1",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step2",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba( {palette.orange.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step3",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.yellow.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step4",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step5",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.40}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step6",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.green.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step7",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.40}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step8",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.30}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step9",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.red.30}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step10",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep10"
+            }
+          }
+        }
+      },
+      "success": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.green.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step1",
+              "iOS": "DesignSystem.Color.glowSuccessStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step2",
+              "iOS": "DesignSystem.Color.glowSuccessStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step3",
+              "iOS": "DesignSystem.Color.glowSuccessStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.green.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step4",
+              "iOS": "DesignSystem.Color.glowSuccessStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step5",
+              "iOS": "DesignSystem.Color.glowSuccessStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step6",
+              "iOS": "DesignSystem.Color.glowSuccessStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.green.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step7",
+              "iOS": "DesignSystem.Color.glowSuccessStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step8",
+              "iOS": "DesignSystem.Color.glowSuccessStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step9",
+              "iOS": "DesignSystem.Color.glowSuccessStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.green.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step10",
+              "iOS": "DesignSystem.Color.glowSuccessStep10"
+            }
+          }
+        }
+      },
+      "error": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.red.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step1",
+              "iOS": "DesignSystem.Color.glowErrorStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step2",
+              "iOS": "DesignSystem.Color.glowErrorStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step3",
+              "iOS": "DesignSystem.Color.glowErrorStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.red.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step4",
+              "iOS": "DesignSystem.Color.glowErrorStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step5",
+              "iOS": "DesignSystem.Color.glowErrorStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step6",
+              "iOS": "DesignSystem.Color.glowErrorStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.red.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step7",
+              "iOS": "DesignSystem.Color.glowErrorStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step8",
+              "iOS": "DesignSystem.Color.glowErrorStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step9",
+              "iOS": "DesignSystem.Color.glowErrorStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.red.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step10",
+              "iOS": "DesignSystem.Color.glowErrorStep10"
+            }
+          }
+        }
+      },
+      "warning": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.yellow.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step1",
+              "iOS": "DesignSystem.Color.glowWarningStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step2",
+              "iOS": "DesignSystem.Color.glowWarningStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step3",
+              "iOS": "DesignSystem.Color.glowWarningStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.yellow.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step4",
+              "iOS": "DesignSystem.Color.glowWarningStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step5",
+              "iOS": "DesignSystem.Color.glowWarningStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step6",
+              "iOS": "DesignSystem.Color.glowWarningStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.yellow.20}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step7",
+              "iOS": "DesignSystem.Color.glowWarningStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step8",
+              "iOS": "DesignSystem.Color.glowWarningStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step9",
+              "iOS": "DesignSystem.Color.glowWarningStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step10",
+              "iOS": "DesignSystem.Color.glowWarningStep10"
+            }
+          }
+        }
+      },
+      "info": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.blue.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step1",
+              "iOS": "DesignSystem.Color.glowInfoStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step2",
+              "iOS": "DesignSystem.Color.glowInfoStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step3",
+              "iOS": "DesignSystem.Color.glowInfoStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.blue.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step4",
+              "iOS": "DesignSystem.Color.glowInfoStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step5",
+              "iOS": "DesignSystem.Color.glowInfoStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step6",
+              "iOS": "DesignSystem.Color.glowInfoStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.blue.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step7",
+              "iOS": "DesignSystem.Color.glowInfoStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step8",
+              "iOS": "DesignSystem.Color.glowInfoStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step9",
+              "iOS": "DesignSystem.Color.glowInfoStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step10",
+              "iOS": "DesignSystem.Color.glowInfoStep10"
+            }
+          }
         }
       }
     }
