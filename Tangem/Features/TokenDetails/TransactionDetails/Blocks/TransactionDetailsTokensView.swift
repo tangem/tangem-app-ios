@@ -8,9 +8,10 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
-struct TransactionDetailsTokensViewData {
-    enum Content {
+struct TransactionDetailsTokensViewData: Equatable {
+    enum Content: Equatable {
         /// Transfer, stake, onramp single-icon.
         case single(Single)
         /// Swap, onramp.
@@ -37,15 +38,14 @@ struct TransactionDetailsTokensViewData {
         content = .pair(from: from, to: to)
     }
 
-    struct Single {
+    struct Single: Equatable {
         let tokenIconInfo: TokenIconInfo
         let amountText: String
         let fiatText: String?
     }
 
-    struct Leg {
+    struct Leg: Equatable {
         let direction: String
-        let accountName: String?
         let tokenIconInfo: TokenIconInfo
         let amountText: String
         let fiatText: String?
@@ -71,7 +71,7 @@ struct TransactionDetailsTokensView: View {
 
     private func singleView(_ single: TransactionDetailsTokensViewData.Single) -> some View {
         VStack(spacing: 24) {
-            TokenIcon(tokenIconInfo: single.tokenIconInfo, size: CGSize(width: tokenSide, height: tokenSide))
+            TokenIcon(tokenIconInfo: single.tokenIconInfo, size: CGSize(bothDimensions: tokenSide))
 
             VStack(spacing: 2) {
                 Text(single.amountText)
@@ -110,18 +110,11 @@ struct TransactionDetailsTokensView: View {
 
     private func legRow(_ leg: TransactionDetailsTokensViewData.Leg) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
-            HStack(spacing: 4) {
-                Text(leg.direction)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-
-                if let accountName = leg.accountName {
-                    Text(accountName)
-                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                        .lineLimit(1)
-                }
-            }
-            .padding(.top, 12)
-            .padding(.bottom, 4)
+            Text(leg.direction)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .lineLimit(1)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
 
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -139,7 +132,7 @@ struct TransactionDetailsTokensView: View {
 
                 Spacer(minLength: 8)
 
-                TokenIcon(tokenIconInfo: leg.tokenIconInfo, size: CGSize(width: legTokenSide, height: legTokenSide))
+                TokenIcon(tokenIconInfo: leg.tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
             }
             .padding(.vertical, 12)
         }
@@ -152,7 +145,7 @@ struct TransactionDetailsTokensView: View {
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
-            .frame(width: 16, height: 16)
+            .frame(size: CGSize(bothDimensions: 16))
             .foregroundStyle(DesignSystem.Color.iconSecondary)
             .padding(4)
             .background(DesignSystem.Color.bgTertiary)
@@ -173,7 +166,7 @@ private struct DashedDivider: View {
     private struct Line: Shape {
         func path(in rect: CGRect) -> Path {
             var path = Path()
-            path.move(to: CGPoint(x: 0, y: rect.midY))
+            path.move(to: CGPoint(x: rect.minX, y: rect.midY))
             path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
             return path
         }
@@ -200,8 +193,8 @@ private extension TokenIconInfo {
 
         // Pair (swap / onramp)
         TransactionDetailsTokensView(data: .init(
-            from: .init(direction: "From", accountName: "Main account", tokenIconInfo: .preview("Tether", color: .green), amountText: "− 390 USDT", fiatText: "$391.12"),
-            to: .init(direction: "To", accountName: "Family", tokenIconInfo: .preview("Polygon", color: .purple), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
+            from: .init(direction: "From", tokenIconInfo: .preview("Tether", color: .green), amountText: "− 390 USDT", fiatText: "$391.12"),
+            to: .init(direction: "To", tokenIconInfo: .preview("Polygon", color: .purple), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
         ))
     }
     .padding(16)

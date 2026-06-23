@@ -8,26 +8,28 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemFoundation
 
-struct TransactionDetailsInfoSectionViewData {
+struct TransactionDetailsInfoSectionViewData: Equatable {
     let rows: [Row]
 
-    struct Row: Identifiable {
+    struct Row: Identifiable, Equatable {
         let id: String
         let title: String
         let content: Content
 
-        enum Content {
+        enum Content: Equatable {
             /// Rate / Network fee
             case text(String)
             /// Provider / Validator
             case link(Link)
         }
 
-        struct Link {
+        struct Link: Equatable {
             let text: String
             let iconURL: URL?
-            let handler: () -> Void
+            @IgnoredEquatable var handler: () -> Void
         }
     }
 }
@@ -64,18 +66,19 @@ struct TransactionDetailsInfoSectionView: View {
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {
         HStack(spacing: 4) {
             if let iconURL = link.iconURL {
-                IconView(url: iconURL, size: CGSize(width: 20, height: 20))
+                IconView(url: iconURL, size: CGSize(bothDimensions: 20))
             }
 
             Text(link.text)
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
+            // [REDACTED_TODO_COMMENT]
             Assets.arrowRightUpMini.image
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 16, height: 16)
+                .frame(size: CGSize(bothDimensions: 16))
                 .foregroundStyle(DesignSystem.Color.iconSecondary)
         }
     }

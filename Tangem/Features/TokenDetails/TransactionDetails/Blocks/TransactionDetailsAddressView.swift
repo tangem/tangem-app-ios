@@ -6,18 +6,30 @@
 //
 
 import SwiftUI
+import UIKit
+import TangemAccounts
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemFoundation
+import TangemLocalization
 
-struct TransactionDetailsAddressViewData {
+struct TransactionDetailsAddressViewData: Equatable {
     /// Row label (subtitle), e.g. "From address" / "Recipient" / "From" / "To".
     let label: String
     let actor: Actor
+    @IgnoredEquatable var onCopy: (() -> Void)? = nil
 
-    enum Actor {
-        case address(full: String, truncated: String, onCopy: () -> Void)
-        case contact(name: String, onCopy: (() -> Void)?)
-        case account(name: String)
+    enum Actor: Equatable {
+        case address(short: String, blockiesImage: UIImage?)
+        /// Saved address-book contact.
+        case contact(name: String, color: Color)
+        /// One of the users accounts (same wallet).
+        case account(name: String, icon: AccountIconView.ViewData)
+        /// An account in another of the users wallets.
+        case accountInWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
+        /// One of the users wallets (accounts not shown).
+        case wallet(name: String)
     }
 }
 
@@ -40,72 +52,55 @@ struct TransactionDetailsAddressView: View {
 
     private var title: String {
         switch data.actor {
-        case .address(_, let truncated, _): truncated
+        case .address(let short, _): short
         case .contact(let name, _): name
-        case .account(let name): name
-        }
-    }
-
-    private var copyAction: (() -> Void)? {
-        switch data.actor {
-        case .address(_, _, let onCopy): onCopy
-        case .contact(_, let onCopy): onCopy
-        case .account: nil
+        case .account(let name, _): name
+        case .accountInWallet(let accountName, _, let walletName): "\(accountName) \(Localization.commonIn) \(walletName)"
+        case .wallet(let name): name
         }
     }
 
     @ViewBuilder
     private var startIcon: some View {
         switch data.actor {
-        case .address(let full, _, _):
-            AddressIconView(viewModel: AddressIconViewModel(address: full))
-                .frame(width: iconSide, height: iconSide)
-        case .contact(let name, _):
-            initialsAvatar(name: name, shape: .circle)
-        case .account(let name):
-            initialsAvatar(name: name, shape: .roundedRect)
+        case .address(_, let blockiesImage):
+            blockies(blockiesImage)
+        case .contact(let name, let color):
+            AddressBookContactNameIconView(letter: String(name.prefix(1)).uppercased(), color: color)
+        case .account(_, let icon), .accountInWallet(_, let icon, _):
+            AccountIconView(data: icon, settings: .defaultSized)
+        case .wallet:
+            EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func blockies(_ image: UIImage?) -> some View {
+        if let image {
+            Image(uiImage: image)
+                .resizable()
+                .interpolation(.none)
+                .frame(size: CGSize(bothDimensions: iconSide))
+                .clipShape(Circle())
+        } else {
+            Circle()
+                .fill(DesignSystem.Color.bgOpaquePrimary)
+                .frame(size: CGSize(bothDimensions: iconSide))
         }
     }
 
     @ViewBuilder
     private var endAccessory: some View {
-        if let onCopy = copyAction {
+        if let onCopy = data.onCopy {
             Button(action: onCopy) {
                 DesignSystem.Icons.Copy.regular20.image
                     .renderingMode(.template)
-                    .frame(width: 20, height: 20)
+                    .frame(size: CGSize(bothDimensions: 20))
                     .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .padding(8)
                     .background(Circle().fill(DesignSystem.Color.bgOpaquePrimary))
             }
             .buttonStyle(.plain)
-        }
-    }
-
-    private enum AvatarShape { case circle, roundedRect }
-
-    private func initialsAvatar(name: String, shape: AvatarShape) -> some View {
-        let initial = name.first.map { String($0).uppercased() } ?? "?"
-        return Group {
-            switch shape {
-            case .circle:
-                Circle().fill(DesignSystem.Color.bgOpaquePrimary)
-            case .roundedRect:
-                RoundedRectangle(cornerRadius: iconSide * 0.3, style: .continuous)
-                    .fill(DesignSystem.Color.bgStatusInfoSubtle)
-            }
-        }
-        .frame(width: iconSide, height: iconSide)
-        .overlay {
-            Text(initial)
-                .style(DesignSystem.Font.bodyMediumToken, color: avatarTextColor(shape))
-        }
-    }
-
-    private func avatarTextColor(_ shape: AvatarShape) -> Color {
-        switch shape {
-        case .circle: DesignSystem.Color.textSecondary
-        case .roundedRect: DesignSystem.Color.iconStatusInfo
         }
     }
 }
@@ -117,17 +112,29 @@ struct TransactionDetailsAddressView: View {
     VStack(spacing: 16) {
         TransactionDetailsAddressView(data: .init(
             label: "From address",
-            actor: .address(full: "0x33Bd321fS5f9aF12c0Bd987654321ABCDEFga21412B", truncated: "33Bd321fS...ga21412B", onCopy: {})
+            actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: nil),
+            onCopy: {}
         ))
 
         TransactionDetailsAddressView(data: .init(
             label: "Recipient",
-            actor: .contact(name: "Alice", onCopy: {})
+            actor: .contact(name: "Alice", color: .blue),
+            onCopy: {}
         ))
 
         TransactionDetailsAddressView(data: .init(
             label: "To",
-            actor: .account(name: "Family")
+            actor: .account(name: "Family", icon: .composite(backgroundColor: .purple, nameMode: .letter("F")))
+        ))
+
+        TransactionDetailsAddressView(data: .init(
+            label: "To",
+            actor: .accountInWallet(accountName: "Main", accountIcon: .composite(backgroundColor: .green, nameMode: .letter("M")), walletName: "My Wallet")
+        ))
+
+        TransactionDetailsAddressView(data: .init(
+            label: "To",
+            actor: .wallet(name: "My Wallet")
         ))
     }
     .padding(16)

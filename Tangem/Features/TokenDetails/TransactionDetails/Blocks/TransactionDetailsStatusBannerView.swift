@@ -8,6 +8,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct TransactionDetailsStatusBannerViewData: Equatable {
     enum Kind: Equatable {
@@ -40,7 +41,7 @@ struct TransactionDetailsStatusBannerView: View {
     var body: some View {
         HStack(spacing: 8) {
             indicator
-                .frame(width: indicatorSide, height: indicatorSide)
+                .frame(size: CGSize(bothDimensions: indicatorSide))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(data.title)
@@ -64,12 +65,15 @@ struct TransactionDetailsStatusBannerView: View {
     private var indicator: some View {
         switch data.kind {
         case .inProgress:
-            StatusBannerSpinner(color: DesignSystem.Color.iconStatusInfo)
+            TangemLoader()
+                .loaderSize(.size20)
+                .loaderColor(DesignSystem.Color.iconStatusInfo)
         case .success:
             badge(color: DesignSystem.Color.iconStatusSuccess, glyph: DesignSystem.Icons.Checkmark.regular20)
         case .warning:
             badge(color: DesignSystem.Color.iconStatusError, glyph: DesignSystem.Icons.Cross.regular20)
         case .attention:
+            // [REDACTED_TODO_COMMENT]
             badge(color: DesignSystem.Color.iconStatusWarning, glyph: Assets.attention)
         }
     }
@@ -82,8 +86,8 @@ struct TransactionDetailsStatusBannerView: View {
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: indicatorSide * 0.6, height: indicatorSide * 0.6)
-                    .foregroundStyle(Color.white)
+                    .frame(size: CGSize(bothDimensions: indicatorSide * 0.6))
+                    .foregroundStyle(DesignSystem.Color.iconStaticLight)
             }
     }
 
@@ -107,23 +111,6 @@ struct TransactionDetailsStatusBannerView: View {
         case .warning: DesignSystem.Color.bgStatusErrorSubtle
         case .attention: DesignSystem.Color.bgStatusWarningSubtle
         }
-    }
-}
-
-// MARK: - Spinner
-
-private struct StatusBannerSpinner: View {
-    let color: Color
-
-    @State private var isSpinning = false
-
-    var body: some View {
-        Circle()
-            .trim(from: 0, to: 0.7)
-            .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .round))
-            .rotationEffect(.degrees(isSpinning ? 360 : 0))
-            .animation(.linear(duration: 0.9).repeatForever(autoreverses: false), value: isSpinning)
-            .onAppear { isSpinning = true }
     }
 }
 

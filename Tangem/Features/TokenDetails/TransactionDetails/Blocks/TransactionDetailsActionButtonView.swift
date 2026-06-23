@@ -8,15 +8,16 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemFoundation
 
-struct TransactionDetailsActionViewData {
+struct TransactionDetailsActionButtonViewData: Equatable {
     let title: String
     let icon: ImageType?
-    let handler: () -> Void
+    @IgnoredEquatable var handler: () -> Void
 }
 
 struct TransactionDetailsActionButtonView: View {
-    let data: TransactionDetailsActionViewData
+    let data: TransactionDetailsActionButtonViewData
 
     var body: some View {
         TangemButtonV2(

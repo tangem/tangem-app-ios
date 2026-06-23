@@ -8,24 +8,26 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
+import TangemFoundation
 
-struct TransactionDetailsMenuAction: Identifiable {
-    let id: String
-    let title: String
-    let icon: ImageType?
-    let handler: () -> Void
-}
-
-struct TransactionDetailsHeaderViewData {
+struct TransactionDetailsHeaderViewData: Equatable {
     let title: String
     let date: String
     let operationIcon: TransactionViewIconViewData
-    let menuActions: [TransactionDetailsMenuAction]
+    let menuActions: [MenuAction]
+    @IgnoredEquatable var onClose: () -> Void
+
+    struct MenuAction: Identifiable, Equatable {
+        let id: String
+        let title: String
+        let icon: ImageType?
+        @IgnoredEquatable var handler: () -> Void
+    }
 }
 
 struct TransactionDetailsHeaderView: View {
     let data: TransactionDetailsHeaderViewData
-    let onClose: () -> Void
 
     @ScaledMetric private var iconSide: CGFloat = 36
 
@@ -53,7 +55,9 @@ struct TransactionDetailsHeaderView: View {
                 if !data.menuActions.isEmpty {
                     menuButton
                 }
-                circleButton(icon: DesignSystem.Icons.Cross.regular20, action: onClose)
+
+                CircleButton(image: DesignSystem.Icons.Cross.regular20, action: data.onClose)
+                    .size(.medium)
             }
         }
         .padding(.horizontal, 16)
@@ -73,34 +77,23 @@ struct TransactionDetailsHeaderView: View {
             ForEach(data.menuActions) { action in
                 Button(action: action.handler) {
                     if let icon = action.icon {
-                        Label { Text(action.title) } icon: { icon.image }
+                        Label(title: { Text(action.title) }, icon: { icon.image })
                     } else {
                         Text(action.title)
                     }
                 }
             }
         } label: {
-            circleIcon(DesignSystem.Icons.DotsHorizontal.regular20)
+            DesignSystem.Icons.DotsHorizontal.regular20.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(size: CGSize(bothDimensions: 20))
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                .padding(8)
+                .background(Circle().fill(DesignSystem.Color.bgTertiary))
+                .contentShape(.circle)
         }
-    }
-
-    private func circleButton(icon: ImageType, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            circleIcon(icon)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func circleIcon(_ icon: ImageType) -> some View {
-        icon.image
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 20, height: 20)
-            .foregroundStyle(DesignSystem.Color.iconSecondary)
-            .padding(8)
-            .background(Circle().fill(DesignSystem.Color.bgTertiary))
-            .contentShape(.circle)
     }
 }
 
@@ -108,25 +101,23 @@ struct TransactionDetailsHeaderView: View {
 
 #if DEBUG
 #Preview("Header states") {
-    let menu: [TransactionDetailsMenuAction] = [
+    let menu: [TransactionDetailsHeaderViewData.MenuAction] = [
+        // [REDACTED_TODO_COMMENT]
         .init(id: "explore", title: "Explore", icon: Assets.Glyphs.explore, handler: {}),
     ]
 
     return VStack(spacing: 32) {
         // In progress — brand (blue) title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Receiving", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), menuActions: menu),
-            onClose: {}
+            data: .init(title: "Receiving", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .inProgress, isOutgoing: false), menuActions: menu, onClose: {})
         )
         // Confirmed — primary title, with menu.
         TransactionDetailsHeaderView(
-            data: .init(title: "Received", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), menuActions: menu),
-            onClose: {}
+            data: .init(title: "Received", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false), menuActions: menu, onClose: {})
         )
         // Failed — primary title, no menu (close only).
         TransactionDetailsHeaderView(
-            data: .init(title: "Sending failed", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), menuActions: []),
-            onClose: {}
+            data: .init(title: "Sending failed", date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: .failed, isOutgoing: true), menuActions: [], onClose: {})
         )
     }
     .background(DesignSystem.Color.bgSecondary)

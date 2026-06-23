@@ -8,6 +8,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct TransactionDetailsOperationIconView: View {
     let data: TransactionViewIconViewData
@@ -22,10 +23,10 @@ struct TransactionDetailsOperationIconView: View {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .frame(width: glyphSize, height: glyphSize)
+                .frame(size: CGSize(bothDimensions: glyphSize))
                 .foregroundStyle(glyphColor)
         }
-        .frame(width: containerSize, height: containerSize)
+        .frame(size: CGSize(bothDimensions: containerSize))
     }
 
     private var backgroundColor: Color {
