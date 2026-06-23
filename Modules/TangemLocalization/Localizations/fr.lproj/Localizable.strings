@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Ajouter une adresse et sélectionner un réseau";
 "address_book_add_address" = "Ajouter une adresse";
 "address_book_add_contact" = "Ajouter le contact";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nom du contact";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copier l'adresse";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Ne plus afficher";
 "balance_hidden_got_it_button" = "Compris";
 "balance_hidden_title" = "Les soldes sont masqués";
+"beta_mode_warning_title" = "Mode bêta";
 "biometry_touch_id_reason" = "Touch ID est utilisé pour enregistrer vos cartes dans l'application";
 "bitcoin_promo_activation_error_title" = "Erreur d'activation";
 "bitcoin_promo_activation_error" = "Une erreur s'est produite lors du traitement de votre code promo. Veuillez réessayer plus tard.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "Impossible d'effectuer une transaction";
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
 "force_update_banner_title" = "Mise à jour nécessaire";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "Staking activé";
 "staking_error_no_validators_message" = "Aucun validateur disponible pour le moment. Veuillez réessayer plus tard.";
 "staking_error_no_validators_title" = "Staking indisponible";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "Le réseau facturera des frais d’approbation de jeton pour vérifier que vous autorisez l’utilisation de votre jeton pour le jalonnement.";
 "staking_legal" = "En utilisant la fonctionnalité de staking, vous acceptez les %1$@ et %2$@ du fournisseur";
 "staking_locked" = "Bloqué";
@@ -1369,8 +1373,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "déstaker %@";
 "staking_transaction_in_progress_text" = "La transaction est en cours de traitement ! La validation est actuellement en cours dans la blockchain. Cela peut prendre quelques minutes.";
-"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
-"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
+"staking_transaction_validation_unsafe" = "%@ staking interdit en raison de contrôles de sécurité";
+"staking_transaction_validation_warning" = "%@ staking suspicieux. Continuez à vos propres risques.";
 "staking_unbonding_in" = "Dissociation en";
 "staking_unbonding" = "Dissociation";
 "staking_unlocked_locked" = "Débloquer";
@@ -1403,6 +1407,8 @@
 "story_web3_title" = "Compatible avec Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Une transaction entrante d'au moins de %1$@ est requise pour continuer";
 "sui_not_enough_coin_for_fee_title" = "Fonds insuffisants";
+"support_chat_screen_title" = "Discussion avec le support";
+"support_chat_share_logs_button" = "Joindre les logs de l'application";
 "support_chat_swap_prefilled_message" = "Données du SWAP :\nDepuis :%1$@%2$@\nVers :%3$@%4$@\nPar :%5$@-%6$@";
 "support_selector_view_chat_button" = "Accéder au chat";
 "support_selector_view_email_button" = "Ouvrir un email";
@@ -1805,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Cette action est irréversible. Vous n'aurez plus accès à l'ancien portefeuille.";
 "twins_scan_twin_with_number" = "Appuyez sur la carte jumelle avec le numéro %@ et ne la retirez pas jusqu'à la fin de l'opération";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Veuillez réessayer ultérieurement. Si le problème persiste, veuillez contacter le support.";
 "unexpected_error_title" = "Une erreur s'est produite !";
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
@@ -1833,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Nom du portefeuille";
 "user_wallet_list_rename_popup_title" = "Renommer le portefeuille";
 "user_wallet_list_unlock_all_with" = "Tout déverrouiller avec %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML vérifié";
 "visa_balance_limits_details_available" = "Disponible";
 "visa_balance_limits_details_blocked" = "Bloqué";
