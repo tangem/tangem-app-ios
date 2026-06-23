@@ -90,6 +90,8 @@ public enum SendAccessibilityIdentifiers {
     public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
     public static let networkSelectorErrorSubtitle = "sendNetworkSelectorErrorSubtitle"
     public static let networkSelectorGotItButton = "sendNetworkSelectorGotItButton"
+    public static let networkSelectorSwapRequiredTitle = "sendNetworkSelectorSwapRequiredTitle"
+    public static let networkSelectorSwapTokenButton = "sendNetworkSelectorSwapTokenButton"
 
     public static func receiveTokenListItem(name: String) -> String {
         "sendReceiveTokenListItem_\(name)"
