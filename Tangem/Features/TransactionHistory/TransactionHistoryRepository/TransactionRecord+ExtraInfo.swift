@@ -8,17 +8,26 @@
 
 import Foundation
 import BlockchainSdk
+import TangemExpress
 
 extension TransactionRecord {
     enum TransactionRecordExtraInfo {
-        // [REDACTED_TODO_COMMENT]
+        case exchange(ExchangeTransaction)
+        case onramp(OnrampTransaction)
     }
 }
 
 extension TransactionRecord {
-    // [REDACTED_TODO_COMMENT]
     var extraInfo: TransactionRecordExtraInfo? {
-        _extraInfo as? TransactionRecordExtraInfo
+        guard let _extraInfo else {
+            return nil
+        }
+
+        guard let extraInfo = _extraInfo as? TransactionRecordExtraInfo else {
+            preconditionFailure("Unexpected extra info type: \(Swift.type(of: _extraInfo))")
+        }
+
+        return extraInfo
     }
 }
 
