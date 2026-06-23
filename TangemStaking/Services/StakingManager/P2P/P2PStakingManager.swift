@@ -55,15 +55,26 @@ extension P2PStakingManager: StakingManager {
                 return
             }
 
-            let balances = try await apiProvider.balances(
-                walletAddress: wallet.address,
-                vaults: yield.targets.map(\.address)
-            )
+            let balances: [StakingBalanceInfo]
+            do {
+                balances = try await apiProvider.balances(
+                    walletAddress: wallet.address,
+                    vaults: yield.targets.map(\.address)
+                )
+            } catch is CancellationError {
+                return
+            } catch {
+                updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
+                return
+            }
+
             let state = state(balances: balances, yield: yield)
             updateState(state)
         } catch is CancellationError {
             // Ignored intentionally
             return
+        } catch let error as StakingAvailabilityError {
+            updateUnavailableState(error: error, yieldIsAvailable: false)
         } catch {
             updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
@@ -135,6 +146,24 @@ private extension P2PStakingManager {
     func updateState(_ state: StakingManagerState) {
         stateRepository.storeState(state)
         _state.send(state)
+    }
+
+    func updateUnavailableState(error: Error, yieldIsAvailable: Bool) {
+        let cached = stateRepository.state()
+
+        let shouldHide: Bool
+        switch cached?.stakeState {
+        case .staked, .none:
+            shouldHide = false
+        case .availableToStake:
+            shouldHide = !yieldIsAvailable
+        }
+
+        if shouldHide {
+            updateState(.notEnabled)
+        } else {
+            updateState(.loadingError(error.localizedDescription, cached: cached))
+        }
     }
 
     func state(balances: [StakingBalanceInfo]?, yield: StakingYieldInfo?) -> StakingManagerState {

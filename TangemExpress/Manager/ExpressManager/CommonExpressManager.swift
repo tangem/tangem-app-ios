@@ -264,16 +264,3 @@ private extension CommonExpressManager {
 extension CommonExpressManager: @preconcurrency CustomStringConvertible {
     var description: String { objectDescription(self) }
 }
-
-// MARK: - SupportedProvidersFilter+
-
-private extension SupportedProvidersFilter {
-    func isSupported(provider: ExpressProvider) -> Bool {
-        switch self {
-        case .byTypes(let types):
-            return types.contains(provider.type)
-        case .byDifferentAddressExchangeSupport:
-            return !provider.exchangeOnlyWithinSingleAddress
-        }
-    }
-}
