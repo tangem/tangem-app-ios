@@ -1300,7 +1300,7 @@
 "staking_enabled" = "Staking activé";
 "staking_error_no_validators_message" = "Aucun validateur disponible pour le moment. Veuillez réessayer plus tard.";
 "staking_error_no_validators_title" = "Staking indisponible";
-"staking_error_unavailable_region" = "Staking is unavailable in your region";
+"staking_error_unavailable_region" = "Le staking est indisponible dans votre région";
 "staking_give_permission_fee_footer" = "Le réseau facturera des frais d’approbation de jeton pour vérifier que vous autorisez l’utilisation de votre jeton pour le jalonnement.";
 "staking_legal" = "En utilisant la fonctionnalité de staking, vous acceptez les %1$@ et %2$@ du fournisseur";
 "staking_locked" = "Bloqué";
