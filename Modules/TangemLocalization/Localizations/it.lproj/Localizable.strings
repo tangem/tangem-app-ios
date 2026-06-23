@@ -1300,6 +1300,7 @@
 "staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
 "staking_legal" = "By using staking functionality, you agree with provider’s %1$@ and %2$@";
 "staking_locked" = "Locked";
@@ -1406,6 +1407,8 @@
 "story_web3_title" = "Web 3.0 Compatible";
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "SWAP operation data:\nFrom: %1$@ %2$@\nTo: %3$@ %4$@\nBy %5$@ - %6$@";
 "support_selector_view_chat_button" = "Open chat";
 "support_selector_view_email_button" = "Open mail";
@@ -1808,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.";
 "twins_scan_twin_with_number" = "Tap the twin card with number %@ and do not remove until the end of the operation";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
 "unexpected_error_title" = "Something went wrong!";
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
@@ -1836,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Wallet name";
 "user_wallet_list_rename_popup_title" = "Rename wallet";
 "user_wallet_list_unlock_all_with" = "Unlock all with %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verifired";
 "visa_balance_limits_details_available" = "Available";
 "visa_balance_limits_details_blocked" = "Blocked";
