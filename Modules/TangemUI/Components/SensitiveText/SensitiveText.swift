@@ -36,11 +36,23 @@ public struct SensitiveText: View {
         case .string(let string):
             Text(visibilityState.isHidden ? maskedBalanceString : string)
         case .attributed(let string):
-            Text(visibilityState.isHidden ? AttributedString(maskedBalanceString) : string)
+            Text(visibilityState.isHidden ? string.masked(with: maskedBalanceString) : string)
                 .monospacedDigit()
         case .builder(let builder, let sensitive):
             Text(builder(visibilityState.isHidden ? maskedBalanceString : sensitive))
         }
+    }
+}
+
+// MARK: - Masking
+
+private extension AttributedString {
+    func masked(with mask: String) -> AttributedString {
+        var masked = AttributedString(mask)
+        if let attributes = runs.first?.attributes {
+            masked.mergeAttributes(attributes)
+        }
+        return masked
     }
 }
 
