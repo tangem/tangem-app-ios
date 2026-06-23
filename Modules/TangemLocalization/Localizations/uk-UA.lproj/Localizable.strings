@@ -1300,6 +1300,7 @@
 "staking_enabled" = "Стейкінг увімкнено";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
+"staking_error_unavailable_region" = "Стейкінг недоступний у вашому регіоні";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
 "staking_legal" = "Використовуючи функцію стейкінгу, ви погоджуєтесь з %1$@ та %2$@";
 "staking_locked" = "Заблоковано";
@@ -1406,6 +1407,8 @@
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
+"support_chat_screen_title" = "Чат підтримки";
+"support_chat_share_logs_button" = "Прикріпити логи";
 "support_chat_swap_prefilled_message" = "Дані про операцію обміну:\nЗвідки: %1$@ %2$@\nКуди: %3$@ %4$@\nЧерез: %5$@ - %6$@";
 "support_selector_view_chat_button" = "Відкрити чат";
 "support_selector_view_email_button" = "Відкрити пошту";
@@ -1808,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Ця дія є незворотною. Ви не матимете доступу до старого гаманця.";
 "twins_scan_twin_with_number" = "Прикладіть twin-картку з номером %@ та не прибирайте її до завершення операції";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Спробуйте ще раз пізніше. Якщо проблема залишиться, зверніться до служби підтримки.";
 "unexpected_error_title" = "Щось пішло не так!";
 "universal_error" = "Виникла помилка. Код помилки: %@. Спробуйте, будь ласка, знову. Якщо проблема знову виникає — зверніться до нашої служби підтримки.";
@@ -1836,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Назва гаманця";
 "user_wallet_list_rename_popup_title" = "Перейменування гаманця";
 "user_wallet_list_unlock_all_with" = "Розблокувати все з %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verifired";
 "visa_balance_limits_details_available" = "Available";
 "visa_balance_limits_details_blocked" = "Blocked";
