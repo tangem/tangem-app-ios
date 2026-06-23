@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Додати адресу та вибрати мережу";
 "address_book_add_address" = "Додати адресу";
 "address_book_add_contact" = "Додати контакт";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Ім'я контакту";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Скопіювати адресу";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Більше не показувати";
 "balance_hidden_got_it_button" = "Зрозуміло";
 "balance_hidden_title" = "Баланси приховані";
+"beta_mode_warning_title" = "Бета режим";
 "biometry_touch_id_reason" = "Touch ID використовується для збереження ваших карток та кілець у додатку";
 "bitcoin_promo_activation_error_title" = "Помилка активації";
 "bitcoin_promo_activation_error" = "Під час обробки промокоду сталася помилка. Будь ласка, спробуйте пізніше.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "Не вдається відправити транзакцію";
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Для забезпечення коректної роботи оновіть застосунок до останньої версії.";
 "force_update_banner_title" = "Необхідне оновлення";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "Стейкінг увімкнено";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
 "staking_legal" = "Використовуючи функцію стейкінгу, ви погоджуєтесь з %1$@ та %2$@";
 "staking_locked" = "Заблоковано";
@@ -1369,8 +1373,8 @@
 "staking_title_stake" = "Застейкати %@";
 "staking_title_unstake" = "Зняти зі стейкінгу %@";
 "staking_transaction_in_progress_text" = "Транзакція обробляється! Наразі триває перевірка в блокчейні. Це може зайняти кілька хвилин.";
-"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
-"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
+"staking_transaction_validation_unsafe" = "%@ стейкінг заборонено за результатами перевірок безпеки";
+"staking_transaction_validation_warning" = "%@ стейкінг викликає сумніви. Будь ласка, стейкайте на свій страх і ризик";
 "staking_unbonding_in" = "Розблокування через";
 "staking_unbonding" = "Розблокування";
 "staking_unlocked_locked" = "Розблокувати";
@@ -1403,6 +1407,8 @@
 "story_web3_title" = "Web 3.0 сумісність";
 "sui_not_enough_coin_for_fee_description" = "Для відправки потрібна вхідна транзакція на суму не менше %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостатньо коштів";
+"support_chat_screen_title" = "Чат підтримки";
+"support_chat_share_logs_button" = "Прикріпити логи застосунку";
 "support_chat_swap_prefilled_message" = "Дані про операцію обміну:\nЗвідки: %1$@ %2$@\nКуди: %3$@ %4$@\nЧерез: %5$@ - %6$@";
 "support_selector_view_chat_button" = "Відкрити чат";
 "support_selector_view_email_button" = "Відкрити пошту";
@@ -1454,7 +1460,7 @@
 "swapping_permission_header" = "Надати дозвіл";
 "swapping_permit_and_swap" = "Дозволити та обміняти";
 "swapping_rate_experience_title" = "Оцініть ваш досвід взаємодії з провайдером";
-"swapping_rate_feedback_placeholder" = "Напишіть ваш відгук";
+"swapping_rate_feedback_placeholder" = "Залиште відгук (необов'язково)";
 "swapping_rate_feedback_submit" = "Надіслати відгук";
 "swapping_rate_feedback_title" = "Що вплинуло на вашу оцінку?";
 "swapping_swap_action_in_progress" = "Обмін...";
@@ -1805,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Ця дія є незворотною. Ви не матимете доступу до старого гаманця.";
 "twins_scan_twin_with_number" = "Прикладіть twin-картку з номером %@ та не прибирайте її до завершення операції";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Спробуйте ще раз пізніше. Якщо проблема залишиться, зверніться до служби підтримки.";
 "unexpected_error_title" = "Щось пішло не так!";
 "universal_error" = "Виникла помилка. Код помилки: %@. Спробуйте, будь ласка, знову. Якщо проблема знову виникає — зверніться до нашої служби підтримки.";
@@ -1833,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Назва гаманця";
 "user_wallet_list_rename_popup_title" = "Перейменування гаманця";
 "user_wallet_list_unlock_all_with" = "Розблокувати все з %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verifired";
 "visa_balance_limits_details_available" = "Available";
 "visa_balance_limits_details_blocked" = "Blocked";
