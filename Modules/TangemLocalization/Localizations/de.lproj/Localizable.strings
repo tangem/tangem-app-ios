@@ -82,7 +82,7 @@
 "address_book_add_address_description" = "Adresse hinzufügen und Netzwerk auswählen";
 "address_book_add_address" = "Adresse hinzufügen";
 "address_book_add_contact" = "Kontakt hinzufügen";
-"address_book_choose_address" = "Choose address";
+"address_book_choose_address" = "Adresse auswählen";
 "address_book_contact_name" = "Name der Kontaktperson";
 "address_book_contact" = "Kontakt";
 "address_book_copy_address" = "Adresse kopieren";
@@ -573,7 +573,7 @@
 "feedback_subject_tx_failed" = "Eine Transaktion kann nicht gesendet werden";
 "feedback_subject_tx_push_failed" = "Transaktion kann nicht gepusht werden";
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
-"force_update_action" = "Update now";
+"force_update_action" = "Jetzt aktualisieren";
 "force_update_banner_message" = "Aktualisiere die Anwendung auf die neueste Version, um die ordnungsgemäße Funktionalität zu gewährleisten";
 "force_update_banner_title" = "Aktualisierung erforderlich";
 "force_update_brick_description" = "Diese Version der App wird nicht mehr unterstützt und kann auf diesem Gerät nicht aktualisiert werden.";
@@ -1300,6 +1300,7 @@
 "staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
+"staking_error_unavailable_region" = "Staking ist in Ihrer Region nicht verfügbar.";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "staking_locked" = "Gesperrt";
@@ -1406,6 +1407,8 @@
 "story_web3_title" = "Web 3.0-kompatibel";
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
+"support_chat_screen_title" = "Support-Chat";
+"support_chat_share_logs_button" = "App-Protokolle anhängen";
 "support_chat_swap_prefilled_message" = "SWAP-Operationsdaten:\nAus: %1$@ %2$@\nZu: %3$@ %4$@\nVon %5$@ - %6$@";
 "support_selector_view_chat_button" = "Chat öffnen";
 "support_selector_view_email_button" = "Mail öffnen";
@@ -1475,7 +1478,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Karte kann nicht umbenannt werden";
 "tangem_pay_card_frozen" = "Karte eingefroren";
 "tangem_pay_card_payment" = "Kartenzahlung";
-"tangem_pay_close_card_disabled_last_card" = "You can’t close the last card";
+"tangem_pay_close_card_disabled_last_card" = "Die letzte Karte kann nicht geschlossen werden.";
 "tangem_pay_close_card_popup_description" = "Es wird aus der App verschwinden";
 "tangem_pay_close_card_popup_primary_button_title" = "Karte schließen";
 "tangem_pay_close_card_popup_secondary_button_title" = "Geh zurück";
@@ -1808,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Diese Aktion ist unumkehrbar. Du hast keinen Zugriff mehr auf die alte Wallet.";
 "twins_scan_twin_with_number" = "Tippe auf die Doppelkarte oder Ring mit der Nummer %@ und entferne sie erst am Ende des Vorgangs.";
+"tx_history_onramp_top_up" = "Aufladen";
+"tx_history_onramp_topped_up" = "Aufgeladen";
 "unexpected_error_description" = "Bitte versuche es später noch einmal. Sollte das Problem weiterhin bestehen, wende Dich bitte an den Support.";
 "unexpected_error_title" = "Etwas ist schiefgelaufen!";
 "universal_error" = "Es ist ein Fehler aufgetreten. Fehlercode: %@. Bitte kontaktiere unseren Support.";
@@ -1836,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Wallet-Name";
 "user_wallet_list_rename_popup_title" = "Wallet umbenennen";
 "user_wallet_list_unlock_all_with" = "Alle mit %@ freischalten";
+"virtual_account_title" = "Virtuelles Konto";
+"virtual_account_transactions_empty" = "Noch keine Transaktionen. Beginnen Sie mit dem Einkaufen und sehen Sie sich hier den Verlauf an";
 "visa_balance_limits_details_aml_verified" = "AML-geprüft";
 "visa_balance_limits_details_available" = "Verfügbar";
 "visa_balance_limits_details_blocked" = "Gesperrt";
