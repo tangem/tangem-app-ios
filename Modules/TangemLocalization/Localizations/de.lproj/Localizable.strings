@@ -1300,7 +1300,7 @@
 "staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
-"staking_error_unavailable_region" = "Staking is unavailable in your region";
+"staking_error_unavailable_region" = "Staking ist in Ihrer Region nicht verfügbar.";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "staking_locked" = "Gesperrt";
