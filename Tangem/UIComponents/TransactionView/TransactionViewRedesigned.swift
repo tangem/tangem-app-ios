@@ -12,6 +12,7 @@ import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct TransactionViewRedesigned: View {
     let viewModel: TransactionViewModel
@@ -21,6 +22,13 @@ struct TransactionViewRedesigned: View {
     @ScaledMetric private var iconBorderWidth: CGFloat = 1
 
     private var display: TransactionDisplayModel { viewModel.display }
+
+    private var isConfirmed: Bool {
+        if case .confirmed = viewModel.icon.status { return true }
+        return false
+    }
+
+    private var transactionKey: String { viewModel.transactionType.accessibilityIdentifierKey }
 
     var body: some View {
         TangemTwoLineRowLayout(
@@ -40,6 +48,7 @@ struct TransactionViewRedesigned: View {
             iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
+        .accessibilityIdentifier(isConfirmed ? TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey) : "")
     }
 
     @ViewBuilder
@@ -70,6 +79,7 @@ struct TransactionViewRedesigned: View {
             Text(display.title)
                 .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
             if viewModel.inProgress {
                 ProgressDots(style: .small)
@@ -83,6 +93,7 @@ struct TransactionViewRedesigned: View {
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
+            .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionAmount(key: transactionKey))
     }
 
     @ViewBuilder
@@ -108,6 +119,7 @@ struct TransactionViewRedesigned: View {
             Text(viewModel.amount.currencyCode)
                 .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionCurrency(key: transactionKey))
         }
     }
 }

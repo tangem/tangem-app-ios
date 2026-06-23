@@ -289,6 +289,67 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     }
 }
 
+// MARK: - Gasless (fee coverage)
+
+extension SendSummaryScreen {
+    private var feeCoverageWarning: XCUIElement {
+        app.descendants(matching: .any)[SendAccessibilityIdentifiers.feeWillBeSubtractFromSendingAmountBanner].firstMatch
+    }
+
+    private var insufficientCoinForFeeBanner: XCUIElement {
+        app.descendants(matching: .any)[SendAccessibilityIdentifiers.insufficientBalanceForFeeBanner].firstMatch
+    }
+
+    @discardableResult
+    func assertFeeCurrencySymbol(_ symbol: String) -> Self {
+        XCTContext.runActivity(named: "Assert the network fee is paid in '\(symbol)'") { _ in
+            let badge = app.staticTexts[SendAccessibilityIdentifiers.networkFeeCurrencySymbol].firstMatch
+            waitAndAssertTrue(badge, "Fee currency badge should exist")
+            XCTAssertEqual(badge.label, symbol, "Network fee should be paid in '\(symbol)' but badge was '\(badge.label)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertFeeCoverageWarningDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Network fee coverage' notification is displayed") { _ in
+            waitAndAssertTrue(feeCoverageWarning, "'Network fee coverage' notification should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertFeeCoverageWarningNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Network fee coverage' notification is not displayed") { _ in
+            XCTAssertTrue(
+                feeCoverageWarning.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Network fee coverage' notification should not be displayed in the standard fee flow"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertInsufficientCoinForFeeNotificationNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert insufficient-coin-for-fee notification is not displayed") { _ in
+            XCTAssertTrue(
+                insufficientCoinForFeeBanner.waitForNonExistence(timeout: .robustUIUpdate),
+                "Insufficient-coin-for-fee notification should not be displayed when gasless covers the fee"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertSendButtonEnabled() -> Self {
+        XCTContext.runActivity(named: "Assert 'Send' button is enabled") { _ in
+            waitAndAssertTrue(activeFinishButton, "'Send' button should exist")
+            XCTAssertTrue(activeFinishButton.isEnabled, "'Send' button should be enabled")
+            return self
+        }
+    }
+}
+
 enum SendSummaryScreenElement: String, UIElement {
     case title
     case finishButton

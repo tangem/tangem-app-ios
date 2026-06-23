@@ -24,6 +24,7 @@ struct FeeSelectorRowView: View {
         }
         .buttonStyle(.plain)
         .disabled(viewModel.availability.isUnavailable)
+        .accessibilityIdentifier(viewModel.accessibilityIdentifier)
     }
 
     // MARK: - Sub Views
@@ -37,7 +38,6 @@ struct FeeSelectorRowView: View {
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 14)
-        .accessibilityIdentifier(viewModel.accessibilityIdentifier)
         .background(backgroundView)
         .overlay { SelectionOverlay().opacity(viewModel.isSelected ? 1 : 0) }
     }
@@ -64,6 +64,7 @@ struct FeeSelectorRowView: View {
                     loaderSize: CGSize(width: 100, height: 14),
                     isSensitiveText: viewModel.rowType.isToken
                 )
+                .accessibilityIdentifier(viewModel.subtitleAccessibilityIdentifier ?? "")
             }
         }
     }
