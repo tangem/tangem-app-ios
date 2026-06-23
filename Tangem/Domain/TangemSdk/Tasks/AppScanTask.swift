@@ -130,8 +130,10 @@ final class AppScanTask: CardSessionRunnable {
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
 
-        if isWalletInOnboarding,
-           card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+        let hasMasterSecret = card.firmwareVersion >= .v8 ? card.masterSecret != nil : true
+        let shouldReadPrimatyCard = card.settings.isBackupAllowed && card.backupStatus == .noBackup && hasMasterSecret
+        
+        if isWalletInOnboarding, shouldReadPrimatyCard {
             readPrimaryCard(session, completion)
             return
         } else {

@@ -64,7 +64,15 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var isWalletsCreated: Bool {
-        return !card.wallets.isEmpty
+        if card.wallets.isEmpty {
+            return false
+        }
+        
+        if card.firmwareVersion >= .v8, card.masterSecret == nil {
+            return false
+        }
+        
+        return true
     }
 
     var canImportKeys: Bool {

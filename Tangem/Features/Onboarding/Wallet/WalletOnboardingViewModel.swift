@@ -670,11 +670,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
-
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
+
+                var params = walletCreationType.params
+                params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+                logAnalytics(event: .walletCreatedSuccessfully, params: params, analyticsSystems: .all)
 
                 processPrimaryCardScan()
             case .failure(let error):
@@ -806,6 +808,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                             guard backupValidator.onProceedBackup(updatedCard) else {
                                 alert = makeResetCardSetAlert()
                                 return
+                            }
+
+                            if userWalletModel == nil {
+                                let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: cardIds ?? [])
+                                initializeUserWallet(from: cardInfo)
                             }
 
                             if backupServiceState == .finished {
