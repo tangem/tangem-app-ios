@@ -13,7 +13,7 @@ extension StakingValidationComposer {
     static func make(
         blockchain: Blockchain,
         accountAddress: String,
-        verifier: BlockaidStakingVerifier
+        verifier: StakingTransactionVerifier
     ) -> StakingTransactionValidator {
         StakingValidationComposer(
             localValidator: makeLocalValidator(blockchain: blockchain),
@@ -40,9 +40,9 @@ private extension StakingValidationComposer {
     static func makeRemoteValidator(
         blockchain: Blockchain,
         accountAddress: String,
-        verifier: BlockaidStakingVerifier
+        verifier: StakingTransactionVerifier
     ) -> RemoteStakingTransactionValidator? {
-        guard let network = BlockaidSupportedNetwork(blockchain: blockchain) else {
+        guard let network = RemoteValidationNetwork(blockchain: blockchain) else {
             return nil
         }
 

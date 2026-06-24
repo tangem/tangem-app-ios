@@ -18,7 +18,7 @@ final class StakingModelStateValidationDecorator {
     private let validator: StakingTransactionValidator?
     private let analyticsLogger: StakingValidationAnalyticsLogger
 
-    private let _validationState = CurrentValueSubject<StakingValidationState, Never>(.idle)
+    private let validationStateSubject = CurrentValueSubject<StakingValidationState, Never>(.idle)
     private var validationTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
 
@@ -51,7 +51,7 @@ extension StakingModelStateValidationDecorator: StakingModelStateProvider {
 
 extension StakingModelStateValidationDecorator: StakingValidationStateProvider {
     var validationState: AnyPublisher<StakingValidationState, Never> {
-        _validationState.eraseToAnyPublisher()
+        validationStateSubject.eraseToAnyPublisher()
     }
 }
 
@@ -61,7 +61,7 @@ extension StakingModelStateValidationDecorator: SendSummaryInput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(
             decoratee.isReadyToSendPublisher,
-            _validationState
+            validationStateSubject
         )
         .map { isReady, validationState in
             guard isReady else { return false }
@@ -108,17 +108,17 @@ private extension StakingModelStateValidationDecorator {
     func resetValidation() {
         validationTask?.cancel()
         validationTask = nil
-        _validationState.send(.idle)
+        validationStateSubject.send(.idle)
     }
 
     func triggerValidation(readyToStake: StakingModel.State.ReadyToStake, target: StakingTargetInfo) {
         guard let validator else {
-            _validationState.send(.idle)
+            validationStateSubject.send(.idle)
             return
         }
 
         validationTask?.cancel()
-        _validationState.send(.validating)
+        validationStateSubject.send(.validating)
 
         validationTask = Task { [weak self, stakingManager, analyticsLogger] in
             let result = await Self.performValidation(
@@ -132,7 +132,7 @@ private extension StakingModelStateValidationDecorator {
             guard !Task.isCancelled else { return }
 
             await MainActor.run { [weak self] in
-                self?._validationState.send(result)
+                self?.validationStateSubject.send(result)
             }
         }
     }

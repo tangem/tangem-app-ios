@@ -82,7 +82,7 @@ extension CommonStakingSendAnalyticsLogger: StakingAnalyticsLogger {
 
 extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
     func logSuccess() {
-        let isBlockaidSupported = BlockaidSupportedNetwork(blockchain: tokenItem.blockchain) != nil
+        let isBlockaidSupported = RemoteValidationNetwork(blockchain: tokenItem.blockchain) != nil
         let blockaidValue = isBlockaidSupported ? "Safe" : "Not performed"
         logEvent(blockaidValue: blockaidValue, mobileCheckValue: "true")
     }

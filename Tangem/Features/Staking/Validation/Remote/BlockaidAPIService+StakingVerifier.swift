@@ -15,9 +15,9 @@ private enum StakingBlockaidConstants {
     static let stakingDomain = URL(string: "https://tangem.com")!
 }
 
-extension CommonBlockaidAPIService: BlockaidStakingVerifier {
+extension CommonBlockaidAPIService: StakingTransactionVerifier {
     func verify(
-        network: BlockaidSupportedNetwork,
+        network: RemoteValidationNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws {
