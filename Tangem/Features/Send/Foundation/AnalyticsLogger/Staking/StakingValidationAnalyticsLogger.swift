@@ -9,5 +9,7 @@
 import BlockchainSdk
 
 protocol StakingValidationAnalyticsLogger: AnyObject {
-    func logScamVerification(error: StakingTransactionValidationError?)
+    func logSuccess()
+    func logLocalError(_ error: StakingTransactionValidationError)
+    func logRemoteError(_ error: RemoteStakingValidationError)
 }

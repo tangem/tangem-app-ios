@@ -67,15 +67,15 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
     }
 
     var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        guard let swapModelStateProvider else {
-            return Empty().eraseToAnyPublisher()
+        if let swapModelStateProvider {
+            return swapModelStateProvider
+                .statePublisher
+                .filter { $0.filter(loading: [.autoupdate]) }
+                .map { $0.isLoading }
+                .eraseToAnyPublisher()
         }
 
-        return swapModelStateProvider
-            .statePublisher
-            .filter { $0.filter(loading: [.autoupdate]) }
-            .map { $0.isLoading }
-            .eraseToAnyPublisher()
+        return input?.isUpdatingPublisher ?? Empty().eraseToAnyPublisher()
     }
 
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {

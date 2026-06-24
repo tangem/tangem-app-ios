@@ -66,7 +66,7 @@ private extension CommonBlockaidAPIService {
                 domain: StakingBlockaidConstants.stakingDomain
             )
         } catch {
-            throw StakingTransactionValidationError.blockaidValidationFailed(
+            throw RemoteStakingValidationError.validationFailed(
                 description: "Network error: \(error.localizedDescription)"
             )
         }
@@ -94,7 +94,7 @@ private extension CommonBlockaidAPIService {
                 domain: StakingBlockaidConstants.stakingDomain
             )
         } catch {
-            throw StakingTransactionValidationError.blockaidValidationFailed(
+            throw RemoteStakingValidationError.validationFailed(
                 description: "Network error: \(error.localizedDescription)"
             )
         }
@@ -105,11 +105,11 @@ private extension CommonBlockaidAPIService {
     func validateEvmResponse(_ response: BlockaidDTO.EvmScan.Response) throws {
         if response.simulation?.status != .success {
             let errorDescription = response.validation?.error ?? "Simulation failed"
-            throw StakingTransactionValidationError.blockaidValidationFailed(description: errorDescription)
+            throw RemoteStakingValidationError.validationFailed(description: errorDescription)
         }
 
         guard let validation = response.validation else {
-            throw StakingTransactionValidationError.blockaidValidationFailed(description: "Missing validation result")
+            throw RemoteStakingValidationError.validationFailed(description: "Missing validation result")
         }
 
         try checkValidationResult(validation)
@@ -117,7 +117,7 @@ private extension CommonBlockaidAPIService {
 
     func validateSolanaResponse(_ response: BlockaidDTO.SolanaScan.Response) throws {
         guard let validation = response.result.validation else {
-            throw StakingTransactionValidationError.blockaidValidationFailed(description: "Missing validation result")
+            throw RemoteStakingValidationError.validationFailed(description: "Missing validation result")
         }
 
         try checkValidationResult(validation)
@@ -129,17 +129,17 @@ private extension CommonBlockaidAPIService {
             return
 
         case .warning:
-            throw StakingTransactionValidationError.blockaidWarning(
+            throw RemoteStakingValidationError.warning(
                 description: validation.description ?? "Transaction flagged as potentially dangerous"
             )
 
         case .malicious:
-            throw StakingTransactionValidationError.blockaidMalicious(
+            throw RemoteStakingValidationError.malicious(
                 description: validation.description ?? "Transaction flagged as malicious"
             )
 
         case .error:
-            throw StakingTransactionValidationError.blockaidValidationFailed(
+            throw RemoteStakingValidationError.validationFailed(
                 description: validation.error ?? "Validation error"
             )
 

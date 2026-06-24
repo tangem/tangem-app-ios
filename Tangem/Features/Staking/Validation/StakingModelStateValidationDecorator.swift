@@ -11,8 +11,6 @@ import Combine
 import TangemStaking
 import BlockchainSdk
 
-/// Decorator that wraps StakingModelStateProvider and adds transaction validation.
-/// Follows OCP: proxies state unchanged, publishes validation result separately.
 final class StakingModelStateValidationDecorator {
     private let decoratee: StakingModelStateProvider
     private let targetProvider: StakingTargetsInput
@@ -141,21 +139,34 @@ private extension StakingModelStateValidationDecorator {
 
             try await validator.validate(rawTransactions)
 
-            analyticsLogger.logScamVerification(error: nil)
+            analyticsLogger.logSuccess()
             return .validated
         } catch let error as StakingTransactionValidationError {
-            analyticsLogger.logScamVerification(error: error)
-            return mapToValidationState(error: error)
+            analyticsLogger.logLocalError(error)
+            return mapToValidationState(localError: error)
+        } catch let error as RemoteStakingValidationError {
+            analyticsLogger.logRemoteError(error)
+            return mapToValidationState(remoteError: error)
         } catch {
             return .validated
         }
     }
 
-    static func mapToValidationState(error: StakingTransactionValidationError) -> StakingValidationState {
-        switch error {
-        case .blockaidWarning: .warning
-        case .blockaidMalicious: .blocked
-        default: .validated
+    static func mapToValidationState(localError: StakingTransactionValidationError) -> StakingValidationState {
+        switch localError {
+        case .emptyOrMalformedData, .notAStakingTransaction:
+            .blocked
+        }
+    }
+
+    static func mapToValidationState(remoteError: RemoteStakingValidationError) -> StakingValidationState {
+        switch remoteError {
+        case .warning:
+            .warning
+        case .malicious:
+            .blocked
+        case .validationFailed:
+            .validated
         }
     }
 }

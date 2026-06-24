@@ -171,12 +171,11 @@ extension StakingNotificationEvent: NotificationEvent {
         case .approveTransactionInProgress, .feeWillBeSubtractFromSendingAmount,
              .stakesWillMoveToNewValidator, .lowStakedBalance, .amountRequirementError,
              .insufficientFundsForFee, .insufficientFundsForFeeReduceAmount,
-             .validationWarning:
+             .validationWarning, .validationBlocked:
             .secondary
         case .unstake, .networkUnreachable, .withdraw, .claimRewards,
              .restakeRewards, .restake, .unlock, .revote, .maxAmountStaking,
-             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization,
-             .validationBlocked:
+             .cardanoAdditionalDeposit, .tonUnstaking, .tonExtraReserveInfo, .tonAccountInitialization:
             .action
         case .validationErrorEvent(let event): event.colorScheme
         }

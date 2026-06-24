@@ -81,35 +81,30 @@ extension CommonStakingSendAnalyticsLogger: StakingAnalyticsLogger {
 // MARK: - StakingValidationAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
-    func logScamVerification(error: StakingTransactionValidationError?) {
+    func logSuccess() {
         let isBlockaidSupported = BlockAidSupportedNetwork(blockchain: tokenItem.blockchain) != nil
+        let blockaidValue = isBlockaidSupported ? "Safe" : "Not performed"
+        logEvent(blockaidValue: blockaidValue, mobileCheckValue: "true")
+    }
 
+    func logLocalError(_ error: StakingTransactionValidationError) {
+        logEvent(blockaidValue: "Not performed", mobileCheckValue: "false")
+    }
+
+    func logRemoteError(_ error: RemoteStakingValidationError) {
         let blockaidValue: String
-        let mobileCheckValue: String
-
-        if let error {
-            switch error {
-            case .emptyOrMalformedData, .notAStakingTransaction:
-                blockaidValue = "Not performed"
-                mobileCheckValue = "false"
-            case .blockaidWarning:
-                blockaidValue = "Warning"
-                mobileCheckValue = "true"
-            case .blockaidMalicious:
-                blockaidValue = "Unsafe"
-                mobileCheckValue = "true"
-            case .blockaidValidationFailed:
-                blockaidValue = "Failed to validate"
-                mobileCheckValue = "true"
-            case .blockaidUnsupportedBlockchain:
-                blockaidValue = "Not performed"
-                mobileCheckValue = "true"
-            }
-        } else {
-            blockaidValue = isBlockaidSupported ? "Safe" : "Not performed"
-            mobileCheckValue = "true"
+        switch error {
+        case .warning:
+            blockaidValue = "Warning"
+        case .malicious:
+            blockaidValue = "Unsafe"
+        case .validationFailed:
+            blockaidValue = "Failed to validate"
         }
+        logEvent(blockaidValue: blockaidValue, mobileCheckValue: "true")
+    }
 
+    private func logEvent(blockaidValue: String, mobileCheckValue: String) {
         Analytics.log(event: .stakingScamVerification, params: [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,

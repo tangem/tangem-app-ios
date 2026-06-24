@@ -8,8 +8,6 @@
 
 import Foundation
 
-/// Validation state for staking transactions.
-/// Separate enum to avoid modifying StakingModel.State.
 enum StakingValidationState: Hashable {
     case idle
     case validating

@@ -18,6 +18,10 @@ class CommonStakingStepsManager {
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
 
+    /// Owns the validation-aware summary input for the flow duration.
+    /// Required because SendSummaryInteractor holds a weak reference.
+    private let validationSummaryInput: (any SendSummaryInput)?
+
     private var stack: [SendStep]
     private var bag: Set<AnyCancellable> = []
 
@@ -29,7 +33,8 @@ class CommonStakingStepsManager {
         targetsStep: StakingTargetsStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
-        summaryTitleProvider: SendSummaryTitleProvider
+        summaryTitleProvider: SendSummaryTitleProvider,
+        validationSummaryInput: (any SendSummaryInput)? = nil
     ) {
         self.provider = provider
         self.amountStep = amountStep
@@ -37,6 +42,7 @@ class CommonStakingStepsManager {
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
+        self.validationSummaryInput = validationSummaryInput
 
         stack = [amountStep]
         bind()

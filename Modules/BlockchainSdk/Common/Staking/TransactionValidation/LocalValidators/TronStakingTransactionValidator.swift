@@ -11,6 +11,7 @@ import Foundation
 /// Validates Tron staking transactions by checking contract type.
 public enum TronStakingTransactionValidator {
     static let stakingContractTypes: Set<Protocol_Transaction.Contract.ContractType> = [
+        .voteWitnessContract, // 4 - Vote for validator (part of staking flow)
         .freezeBalanceV2Contract, // 54 - Freeze TRX for energy/bandwidth
         .unfreezeBalanceV2Contract, // 55 - Unfreeze TRX
         .withdrawExpireUnfreezeContract, // 56 - Withdraw expired unfrozen TRX

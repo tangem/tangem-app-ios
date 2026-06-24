@@ -11,6 +11,8 @@ import TangemStaking
 import struct TangemUI.TokenIconInfo
 
 class StakingFlowFactory: StakingFlowDependenciesFactory {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
     let stakingableToken: SendStakingableToken
     let manager: any StakingManager
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
@@ -48,7 +50,23 @@ extension StakingFlowFactory {
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
-            minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider,
+            minimalBalanceProvider: walletModelDependenciesProvider.minimalBalanceProvider
+        )
+    }
+
+    func makeStakingTransactionValidator() -> StakingTransactionValidator? {
+        guard FeatureProvider.isAvailable(.stakingTransactionValidation) else { return nil }
+
+        let blockchain = tokenItem.blockchain
+        let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
+        let isRemoteValidationEnabled = BlockAidSupportedNetwork(blockchain: blockchain) != nil
+        let isValidationEnabled = isLocalValidationEnabled || isRemoteValidationEnabled
+        guard isValidationEnabled else { return nil }
+
+        return StakingValidationComposer.make(
+            blockchain: blockchain,
+            accountAddress: stakingableToken.defaultAddressString,
+            verifier: StakingTransactionVerifierFactory.make(apiKey: keysManager.blockaidAPIKey)
         )
     }
 
@@ -63,7 +81,7 @@ extension StakingFlowFactory {
     }
 
     func makeSummaryInputWithValidation() -> SendSummaryInput {
-        StakingSendReadyBlockingCombiner(
+        StakingValidationSendSummaryDecorator(
             decoratee: stakingModel,
             validationProvider: validationDecorator
         )
@@ -112,6 +130,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
+            validationSummaryInput: summaryInputWithValidation
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
