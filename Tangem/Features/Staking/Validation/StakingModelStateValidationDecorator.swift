@@ -128,8 +128,8 @@ private extension StakingModelStateValidationDecorator {
         validatedTransaction = nil
         validationStateSubject.send(.validating)
 
-        validationTask = Task { [weak self, stakingManager, analyticsLogger] in
-            guard let self else { return }
+        validationTask = Task { [weak self, weak analyticsLogger, stakingManager] in
+            guard let self, let analyticsLogger else { return }
 
             let target = decoratee.target
             let result = await Self.performValidation(
