@@ -25,6 +25,7 @@ enum Feature: String, Hashable, CaseIterable {
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case tangemPayTiers
     case supportChat
     case supportChatSwap
     case onrampApplePayHistoryFallback
@@ -57,6 +58,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .tangemPayTiers: return "1066_TangemPay_Tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
         case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
@@ -89,6 +91,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return .version("6.0")
         case .memoValidationBeforeConfirm: return .unspecified
         case .tangemPaySpendRedesign: return .unspecified
+        case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
         case .onrampApplePayHistoryFallback: return .version("6.0")
