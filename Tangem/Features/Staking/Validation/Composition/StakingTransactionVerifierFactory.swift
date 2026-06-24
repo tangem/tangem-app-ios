@@ -13,7 +13,7 @@ enum StakingTransactionVerifierFactory {
     static func make(
         apiKey: String,
         provider: TangemProvider<BlockaidTarget> = .init(configuration: .init(urlSessionConfiguration: .ephemeralConfiguration))
-    ) -> BlockAidStakingVerifier {
+    ) -> BlockaidStakingVerifier {
         CommonBlockaidAPIService(
             provider: provider,
             credential: BlockaidAPICredential(apiKey: apiKey)

@@ -15,9 +15,9 @@ private enum StakingBlockaidConstants {
     static let stakingDomain = URL(string: "https://tangem.com")!
 }
 
-extension CommonBlockaidAPIService: BlockAidStakingVerifier {
+extension CommonBlockaidAPIService: BlockaidStakingVerifier {
     func verify(
-        network: BlockAidSupportedNetwork,
+        network: BlockaidSupportedNetwork,
         accountAddress: String,
         unsignedTransaction: String
     ) async throws {
@@ -48,7 +48,7 @@ private extension CommonBlockaidAPIService {
             throw StakingTransactionValidationError.emptyOrMalformedData
         }
 
-        let txParams: [String: AnyCodable]
+        let txParams: BlockaidDTO.TransactionParams
         do {
             let decoded = try JSONDecoder().decode(EthereumCompiledTransactionData.self, from: jsonData)
             txParams = decoded.toBlockaidParams()
@@ -150,17 +150,12 @@ private extension CommonBlockaidAPIService {
 }
 
 private extension EthereumCompiledTransactionData {
-    func toBlockaidParams() -> [String: AnyCodable] {
-        var params: [String: AnyCodable] = [
-            "from": AnyCodable(from),
-            "to": AnyCodable(to),
-            "data": AnyCodable(data),
-        ]
-
-        if let value {
-            params["value"] = AnyCodable(value)
-        }
-
-        return params
+    func toBlockaidParams() -> BlockaidDTO.TransactionParams {
+        BlockaidDTO.TransactionParams(
+            from: from,
+            to: to,
+            data: data,
+            value: value ?? "0x0"
+        )
     }
 }
