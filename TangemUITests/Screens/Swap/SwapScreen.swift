@@ -464,6 +464,81 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         return self
     }
 
+    @discardableResult
+    func selectIdenticalReceiveToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Select identical receive token '\(tokenName)' to enter Transfer mode") { _ in
+            waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
+            receiveTokenSelector.waitAndTap()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            if !tokenButton.waitForExistence(timeout: .quick) {
+                let accountCard = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Account")).firstMatch
+                waitAndAssertTrue(accountCard, "An account card should be visible in the receive token selector")
+                accountCard.waitAndTap()
+            }
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
+            tokenButton.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
+    func assertConfirmButtonLabelIsTransfer() -> Self {
+        XCTContext.runActivity(named: "Assert action button label is 'Transfer'") { _ in
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            let expectedLabel = "Transfer"
+            let predicate = NSPredicate(format: "label == %@", expectedLabel)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: confirmButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Action button label should be '\(expectedLabel)' but was '\(confirmButton.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForProviderBlockNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert provider block is hidden in Transfer mode") { _ in
+            let providerBlock = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBlock]
+            XCTAssertTrue(providerBlock.waitForNonExistence(timeout: .robustUIUpdate), "Provider block should be hidden in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func tapMaxAmountFraction() -> Self {
+        XCTContext.runActivity(named: "Tap Max amount fraction chip") { _ in
+            let field = editableFromAmountField()
+            if !field.hasFocus {
+                field.tap()
+            }
+            let maxChip = app.buttons[SwapAccessibilityIdentifiers.amountFraction("max")].firstMatch
+            waitAndAssertTrue(maxChip, "Max amount fraction chip should exist")
+            // The chip lives in the keyboard accessory view and is often reported non-hittable, so tap by coordinate.
+            if maxChip.isHittable {
+                maxChip.tap()
+            } else {
+                maxChip.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            }
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForFromAmountIsNotZero() -> Self {
+        XCTContext.runActivity(named: "Validate from amount is greater than zero") { _ in
+            let field = editableFromAmountField()
+            let isNotZero = field.waitForValue(timeout: .robustUIUpdate) { value in
+                let digits = value.filter { $0.isNumber }
+                return !digits.isEmpty && digits.contains { $0 != "0" }
+            }
+            XCTAssertTrue(isNotZero, "From amount should be greater than zero, but was '\(field.getValue())'")
+        }
+        return self
+    }
+
     private func editableFromAmountField() -> XCUIElement {
         // The editable field is the hittable match; the overlaid measurement field disables hit testing.
         let query = app.textFields.matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
