@@ -255,6 +255,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
     func clearReferral() {
         AppSettings.shared.referralRefcode = nil
         AppSettings.shared.referralCampaign = nil
+        AppSettings.shared.hasReferralBindingRequest = false
         AppSettings.shared.shouldShowMobilePromoWalletSelector = false
         updateReferralState()
     }
