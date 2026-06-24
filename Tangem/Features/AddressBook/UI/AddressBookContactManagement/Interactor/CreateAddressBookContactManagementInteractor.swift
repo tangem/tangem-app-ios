@@ -14,22 +14,21 @@ import TangemLocalization
 import TangemUI
 
 final class CreateAddressBookContactManagementInteractor {
-    typealias DraftRow = AddressBookContactManagementViewModel.DraftRow
     typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
 
     @Injected(\.userWalletRepository)
-    private static var userWalletRepository: UserWalletRepository
+    private var userWalletRepository: UserWalletRepository
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
-    private let addressesSubject: CurrentValueSubject<[DraftRow], Never>
-    private let walletSubject: CurrentValueSubject<UserWalletInfo?, Never>
+    private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
+    private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
 
-    init() {
+    init(addressBookWallet: AddressBookWallet) {
         nameSubject = .init("")
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
         addressesSubject = .init([])
-        walletSubject = .init(Self.userWalletRepository.selectedModel?.userWalletInfo)
+        walletSubject = .init(addressBookWallet)
     }
 }
 
@@ -46,26 +45,26 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         colorSubject.eraseToAnyPublisher()
     }
 
-    var addressesPublisher: AnyPublisher<[DraftRow], Never> {
-        addressesSubject.eraseToAnyPublisher()
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> {
+        addressesSubject.map { AddressBookContactDraftEntries($0) }.removeDuplicates().eraseToAnyPublisher()
     }
 
     var walletPublisher: AnyPublisher<WalletRowType?, Never> {
         walletSubject
-            .map { walletInfo in
-                walletInfo.map {
-                    WalletRowType(
-                        userWalletId: $0.id,
-                        wallet: $0.name,
-                        isEditable: Self.userWalletRepository.models.count > 1
-                    )
-                }
+            .map { addressBookWallet -> WalletRowType? in
+                WalletRowType(
+                    userWalletInfo: addressBookWallet.wallet,
+                    isEditable: self.userWalletRepository.models.count > 1
+                )
             }
             .eraseToAnyPublisher()
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
-        addressesSubject.map { $0.count < 20 }.eraseToAnyPublisher()
+        addressesSubject
+            .map { $0.uniqueProperties(\.address).count < AddressBookContactDraftEntries.maxAddressCount }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
@@ -80,8 +79,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
 
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> {
         walletSubject
-            .map { walletInfo in
-                walletInfo.flatMap { CommonTangemIconProvider(config: $0.config).getMainButtonIcon() }
+            .map { addressBookWallet in
+                CommonTangemIconProvider(config: addressBookWallet.wallet.config).getMainButtonIcon()
             }
             .eraseToAnyPublisher()
     }
@@ -94,16 +93,30 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         colorSubject.send(color)
     }
 
-    func add(address: DraftRow) throws {
-        addressesSubject.value.append(address)
+    func update(addressBookWallet: AddressBookWallet) {
+        // [REDACTED_TODO_COMMENT]
+        walletSubject.send(addressBookWallet)
     }
 
-    func deleteAddress(id: String) {
+    func add(entries: [AddressBookEntryDraft]) throws {
+        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+
+        addressesSubject.value.append(contentsOf: entries)
+    }
+
+    func deleteAddress(id: AddressBookAddressEntryID) {
         addressesSubject.value.removeAll { $0.id == id }
     }
 
     func save() async throws {
-        // [REDACTED_TODO_COMMENT]
+        let name = try AddressBookContactNameValidator().validate(nameSubject.value)
+        let addressBookManager = walletSubject.value.addressBookManager
+
+        guard let entries = AddressBookContactDraftEntries(addressesSubject.value) else {
+            throw AddressBookValidationError.noEntries
+        }
+
+        try await addressBookManager.createContact(name: name, iconColor: colorSubject.value.rawValue, entries: entries)
     }
 
     func delete() async throws {}
