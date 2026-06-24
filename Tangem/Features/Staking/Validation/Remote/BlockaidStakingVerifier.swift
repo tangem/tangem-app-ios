@@ -22,7 +22,7 @@ enum BlockaidSupportedNetwork {
 
     init?(blockchain: Blockchain) {
         switch blockchain {
-        case .bsc, .ethereum:
+        case .bsc:
             self = .evm(blockchain)
         case .solana:
             self = .solana

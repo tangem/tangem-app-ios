@@ -12,7 +12,7 @@ import TangemStaking
 import BlockchainSdk
 
 final class StakingModelStateValidationDecorator {
-    private let decoratee: StakingModelStateProvider
+    private let decoratee: StakingModelStateProvider & SendSummaryInput
     private let targetProvider: StakingTargetsInput
     private let stakingManager: StakingManager
     private let validator: StakingTransactionValidator?
@@ -20,10 +20,10 @@ final class StakingModelStateValidationDecorator {
 
     private let _validationState = CurrentValueSubject<StakingValidationState, Never>(.idle)
     private var validationTask: Task<Void, Never>?
-    private var bag = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
 
     init(
-        decoratee: StakingModelStateProvider,
+        decoratee: StakingModelStateProvider & SendSummaryInput,
         targetProvider: StakingTargetsInput,
         stakingManager: StakingManager,
         validator: StakingTransactionValidator?,
@@ -35,7 +35,7 @@ final class StakingModelStateValidationDecorator {
         self.validator = validator
         self.analyticsLogger = analyticsLogger
 
-        bind()
+        subscribeToStateChanges()
     }
 }
 
@@ -55,10 +55,41 @@ extension StakingModelStateValidationDecorator: StakingValidationStateProvider {
     }
 }
 
+// MARK: - SendSummaryInput
+
+extension StakingModelStateValidationDecorator: SendSummaryInput {
+    var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest(
+            decoratee.isReadyToSendPublisher,
+            _validationState
+        )
+        .map { isReady, validationState in
+            guard isReady else { return false }
+            switch validationState {
+            case .idle, .validated, .warning:
+                return true
+            case .validating, .blocked:
+                return false
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
+    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
+        _validationState
+            .map { $0 == .validating }
+            .eraseToAnyPublisher()
+    }
+
+    var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
+        decoratee.summaryTransactionDataPublisher
+    }
+}
+
 // MARK: - Private
 
 private extension StakingModelStateValidationDecorator {
-    func bind() {
+    func subscribeToStateChanges() {
         guard validator != nil else { return }
 
         Publishers.CombineLatest(
@@ -68,7 +99,7 @@ private extension StakingModelStateValidationDecorator {
         .sink { [weak self] state, target in
             self?.handleStateChange(state: state, target: target)
         }
-        .store(in: &bag)
+        .store(in: &cancellables)
     }
 
     func handleStateChange(state: StakingModel.State, target: StakingTargetInfo) {

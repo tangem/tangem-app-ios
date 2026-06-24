@@ -24,7 +24,6 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
     lazy var validationDecorator = makeValidationDecorator()
     lazy var stateProvider: StakingModelStateProvider = validationDecorator
-    lazy var summaryInputWithValidation: SendSummaryInput = makeSummaryInputWithValidation()
 
     init(
         stakingableToken: SendStakingableToken,
@@ -79,13 +78,6 @@ extension StakingFlowFactory {
             analyticsLogger: analyticsLogger
         )
     }
-
-    func makeSummaryInputWithValidation() -> SendSummaryInput {
-        StakingValidationSendSummaryDecorator(
-            decoratee: stakingModel,
-            validationProvider: validationDecorator
-        )
-    }
 }
 
 // MARK: - SendGenericFlowFactory
@@ -129,8 +121,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
             targetsStep: targets.step,
             summaryStep: summary,
             finishStep: finish,
-            summaryTitleProvider: makeStakingSummaryTitleProvider(),
-            validationSummaryInput: summaryInputWithValidation
+            summaryTitleProvider: makeStakingSummaryTitleProvider()
         )
 
         let viewModel = makeSendBase(stepsManager: stepsManager, router: router)
@@ -228,7 +219,7 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
 
 extension StakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: summaryInputWithValidation, output: stakingModel)
+        SendSummaryStepBuilder.IO(input: validationDecorator, output: stakingModel)
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {
