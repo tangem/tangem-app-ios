@@ -59,7 +59,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
-        case .tangemPayTiers: return "1066_TangemPay_Tiers_1"
+        case .tangemPayTiers: return "TWI-1066_tangemPay_tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
         case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
@@ -69,8 +69,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
-        case .addressBook: return "10801-Address-Book"
-        case .bitcoinDexSwap: return "14413_Bitcoin_support_for_DEX_(LiFi_/_SwapKit)"
+        case .addressBook: return "TWI-83_address_book"
+        case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_DEX_(LiFi_/_SwapKit)"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
