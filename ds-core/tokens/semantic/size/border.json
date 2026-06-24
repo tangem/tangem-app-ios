@@ -133,19 +133,6 @@
       "$type": "borderWidth",
       "$value": "{dimension.0}"
     },
-    "xs": {
-      "$extensions": {
-        "com.figma.codeSyntax": {
-          "Android": "0.5.dp",
-          "iOS": "0.5"
-        },
-        "com.figma.scopes": [
-          "STROKE_FLOAT"
-        ]
-      },
-      "$type": "borderWidth",
-      "$value": "0.5px"
-    },
     "sm": {
       "$extensions": {
         "com.figma.codeSyntax": {
