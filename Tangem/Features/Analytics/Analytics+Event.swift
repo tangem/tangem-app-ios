@@ -183,6 +183,8 @@ extension Analytics {
         case sendSwapErrorExpressQuote = "[Token / Send] Error - Express quote"
         case sendSendWithSwapAmountScreenOpened = "[Token / Send] Send With Swap Amount Screen Opened"
         case sendNoticeCantSwapThisToken = "[Token / Send] Notice - Can't Swap This Token"
+        case sendNoticeSwapAvailable = "[Token / Send] Notice - Swap Available"
+        case sendNoticeSwapAvailableClicked = "[Token / Send] Notice - Swap Available Clicked"
         case sendNoticeNotEnoughFee = "[Token / Send] Notice - Not Enough Fee"
         case sendNoticeNetworkFeeCoverage = "[Token / Send] Notice - Network Fee Coverage"
         case sendButtonSendWithSwap = "[Token / Send] Button - Send with Swap"
