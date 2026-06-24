@@ -40,9 +40,10 @@ final class TransactionHistoryUpdater {
             // 1. `syncInitial`/`syncDelta` calls are re-entrant and synchronized, so they can be safely called multiple times within the loop
             // 2. In almost all cases there is only one, single provider, so `TaskGroup` is an overkill here - simple `for` loop is enough
             for provider in transactionHistoryProviders {
+                let providerId = provider.id.toAnyHashable()
                 let shouldScheduleUpdate = await scheduledUpdatesStorage.shouldScheduleUpdate(
                     updateToken: updateToken,
-                    providerId: provider.id.toAnyHashable()
+                    providerId: providerId
                 )
 
                 guard shouldScheduleUpdate else {
@@ -50,11 +51,12 @@ final class TransactionHistoryUpdater {
                     continue
                 }
 
-                Task {
+                Task { [scheduledUpdatesStorage] in
                     // Initial and delta syncs are mutually exclusive, and delta sync can start only after initial sync is completed,
                     // so we can safely trigger both types of syncs here without any additional checks/synchronization
                     await provider.syncInitial()
                     await provider.syncDelta()
+                    await scheduledUpdatesStorage.removeScheduledUpdate(updateToken: updateToken, providerId: providerId)
                 }
             }
         } catch {
