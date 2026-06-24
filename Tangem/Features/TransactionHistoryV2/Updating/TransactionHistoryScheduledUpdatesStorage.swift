@@ -18,6 +18,10 @@ actor TransactionHistoryScheduledUpdatesStorage {
             .insert(ScheduledUpdateTaskKey(updateToken: updateToken, providerId: providerId))
             .inserted
     }
+
+    func removeScheduledUpdate(updateToken: AnyHashable, providerId: AnyHashable) {
+        scheduledUpdateTasks.remove(ScheduledUpdateTaskKey(updateToken: updateToken, providerId: providerId))
+    }
 }
 
 // MARK: - Auxiliary types
