@@ -19,6 +19,7 @@ final class StakingModelStateValidationDecorator {
 
     private let validationStateSubject = CurrentValueSubject<StakingValidationState, Never>(.idle)
     private var validatedTransaction: StakingTransactionAction?
+    private var lastReadyToStake: StakingModel.State.ReadyToStake?
     private var validationTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
 
@@ -70,6 +71,8 @@ extension StakingModelStateValidationDecorator: StakingTransactionSender {
     }
 
     func performAction() async throws -> TransactionDispatcherResult {
+        await retryValidationIfNeeded()
+
         guard let validatedTransaction else {
             return try await decoratee.performAction()
         }
@@ -92,6 +95,27 @@ extension StakingModelStateValidationDecorator: StakingValidationStateProvider {
 // MARK: - Private
 
 private extension StakingModelStateValidationDecorator {
+    
+    // MARK: - Retry Validation
+
+    func retryValidationIfNeeded() async {
+        guard validatedTransaction == nil, let validator, let readyToStake = lastReadyToStake else {
+            return
+        }
+
+        let result = await Self.performValidation(
+            readyToStake: readyToStake,
+            target: decoratee.target,
+            stakingManager: stakingManager,
+            validator: validator,
+            analyticsLogger: analyticsLogger
+        )
+        validatedTransaction = result.transaction
+        validationStateSubject.send(result.state)
+    }
+
+    // MARK: - State Observation
+
     func subscribeToStateChanges() {
         guard validator != nil else { return }
 
@@ -108,6 +132,7 @@ private extension StakingModelStateValidationDecorator {
             return
         }
 
+        lastReadyToStake = readyToStake
         triggerValidation(readyToStake: readyToStake)
     }
 
