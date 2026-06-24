@@ -21,6 +21,7 @@ class CommonSendSummaryInteractor {
     private weak var input: SendSummaryInput?
     private weak var output: SendSummaryOutput?
     private weak var swapModelStateProvider: SwapModelStateProvider?
+    private weak var validationStateProvider: StakingValidationStateProvider?
 
     private let sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder
     private let sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder
@@ -30,6 +31,7 @@ class CommonSendSummaryInteractor {
         input: SendSummaryInput,
         output: SendSummaryOutput,
         swapModelStateProvider: SwapModelStateProvider?,
+        validationStateProvider: StakingValidationStateProvider?,
         sendDescriptionBuilder: SendTransactionSummaryDescriptionBuilder,
         sendWithSwapDescriptionBuilder: SendWithSwapTransactionSummaryDescriptionBuilder,
         stakingDescriptionBuilder: StakingTransactionSummaryDescriptionBuilder
@@ -37,6 +39,7 @@ class CommonSendSummaryInteractor {
         self.input = input
         self.output = output
         self.swapModelStateProvider = swapModelStateProvider
+        self.validationStateProvider = validationStateProvider
         self.sendDescriptionBuilder = sendDescriptionBuilder
         self.sendWithSwapDescriptionBuilder = sendWithSwapDescriptionBuilder
         self.stakingDescriptionBuilder = stakingDescriptionBuilder
@@ -75,7 +78,13 @@ extension CommonSendSummaryInteractor: SendSummaryInteractor {
                 .eraseToAnyPublisher()
         }
 
-        return input?.isUpdatingPublisher ?? Empty().eraseToAnyPublisher()
+        if let validationStateProvider {
+            return validationStateProvider.validationState
+                .map { $0 == .validating }
+                .eraseToAnyPublisher()
+        }
+
+        return Empty().eraseToAnyPublisher()
     }
 
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {

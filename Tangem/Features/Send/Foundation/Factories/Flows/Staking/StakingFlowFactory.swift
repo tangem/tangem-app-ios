@@ -219,7 +219,11 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
 
 extension StakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
-        SendSummaryStepBuilder.IO(input: validationDecorator, output: stakingModel)
+        SendSummaryStepBuilder.IO(
+            input: validationDecorator,
+            output: stakingModel,
+            validationStateProvider: validationDecorator
+        )
     }
 
     var summaryTypes: SendSummaryStepBuilder.Types {

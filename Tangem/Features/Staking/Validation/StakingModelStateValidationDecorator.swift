@@ -75,12 +75,6 @@ extension StakingModelStateValidationDecorator: SendSummaryInput {
         .eraseToAnyPublisher()
     }
 
-    var isUpdatingPublisher: AnyPublisher<Bool, Never> {
-        _validationState
-            .map { $0 == .validating }
-            .eraseToAnyPublisher()
-    }
-
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
         decoratee.summaryTransactionDataPublisher
     }

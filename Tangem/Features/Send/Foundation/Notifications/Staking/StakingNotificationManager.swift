@@ -17,10 +17,10 @@ protocol StakingNotificationManagerInput {
 
 protocol StakingNotificationManager: NotificationManager {
     func setup(provider: StakingModelStateProvider, input: StakingNotificationManagerInput)
-    func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String)
     func setup(provider: UnstakingModelStateProvider, input: StakingNotificationManagerInput)
     func setup(provider: RestakingModelStateProvider, input: StakingNotificationManagerInput)
     func setup(provider: StakingSingleActionModelStateProvider, input: StakingNotificationManagerInput)
+    func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String)
 }
 
 class CommonStakingNotificationManager {
