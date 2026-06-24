@@ -493,11 +493,7 @@ extension TangemPayAccount {
             String(info.productInstances.filter { $0.status == .active }.count)
         )
 
-        let existing = try? await orderResolver.findActiveOrder(types: TangemPayOrderType.cardIssueFamily) { order in
-            order.type == offerData.orderType
-                && order.data?.specificationName == offerData.specificationName
-                && order.data?.customerWalletAddress == customerWalletAddress
-        }
+        let existing = try await orderResolver.findActiveCardIssueOrder()
         let order: TangemPayOrderResponse
         if let existing {
             order = existing
