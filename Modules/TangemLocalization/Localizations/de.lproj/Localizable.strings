@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Adresse hinzufügen und Netzwerk auswählen";
 "address_book_add_address" = "Adresse hinzufügen";
 "address_book_add_contact" = "Kontakt hinzufügen";
+"address_book_choose_address" = "Adresse auswählen";
 "address_book_contact_name" = "Name der Kontaktperson";
 "address_book_contact" = "Kontakt";
 "address_book_copy_address" = "Adresse kopieren";
@@ -92,7 +93,7 @@
 "address_book_discard" = "Verwerfen";
 "address_book_edit_address" = "Adresse bearbeiten";
 "address_book_enter_address" = "Adresse eingeben";
-"address_book_invalid_address_error" = "Invalid address";
+"address_book_invalid_address_error" = "Ungültige Adresse";
 "address_book_keep_editing" = "Weiter bearbeiten";
 "address_book_new_contact" = "Neuer Kontakt";
 "address_book_no_contacts_description" = "Die von Ihnen hinzugefügten Kontakte werden hier angezeigt";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Nicht mehr anzeigen";
 "balance_hidden_got_it_button" = "Verstanden";
 "balance_hidden_title" = "Guthaben sind ausgeblendet";
+"beta_mode_warning_title" = "Beta-Phase";
 "biometry_touch_id_reason" = "Touch ID wird zum Speichern deiner Karten oder Ringe in der App verwendet";
 "bitcoin_promo_activation_error_title" = "Fehler bei der Aktivierung";
 "bitcoin_promo_activation_error" = "Bei der Bearbeitung Deines Aktionscodes ist ein Fehler aufgetreten. Bitte versuche es später noch einmal.";
@@ -214,7 +216,7 @@
 "common_attention" = "Achtung";
 "common_available_networks" = "Verfügbare Netzwerke";
 "common_back" = "Zurück";
-"common_backup_error" = "Backup Error";
+"common_backup_error" = "Sicherungsfehler";
 "common_backup" = "Sicherungskopie";
 "common_balance_title" = "Saldo";
 "common_balance" = "Bilanz: %@";
@@ -333,7 +335,7 @@
 "common_sell" = "Verkaufen";
 "common_send_colon" = "Senden:";
 "common_send_tx_error" = "Absenden der Transaktion fehlgeschlagen";
-"common_send_with_swap" = "Send&Swap";
+"common_send_with_swap" = "Senden & Tauschen";
 "common_send" = "Senden";
 "common_sending" = "Senden";
 "common_sent" = "Gesendet";
@@ -527,7 +529,7 @@
 "express_legal_one_placeholder" = "Durch die Nutzung der Swap-Funktion erklärst du dich mit den folgenden Bedingungen des Anbieters einverstanden %@";
 "express_legal_two_placeholders" = "Durch die Nutzung der Swap-Funktionalität erklärst du dich mit des Anbieters %1$@ und %2$@ einverstanden.";
 "express_more_providers_soon" = "Weitere Anbieter folgen in Kürze";
-"express_provider_best_dex_rate" = "Best DEX Rate";
+"express_provider_best_dex_rate" = "Bester DEX-Kurs";
 "express_provider_best_rate" = "Bester Preis";
 "express_provider_fca_warning_list" = "Warnliste der FCA";
 "express_provider_fixed_rate_is_unavailable" = "Der Festzins ist nicht verfügbar";
@@ -540,9 +542,9 @@
 "express_provider_permission_needed" = "Erlaubnis erforderlich";
 "express_provider_recommended" = "Empfohlen";
 "express_provider" = "Anbieter";
-"express_send_with_swap_not_supported_button" = "Swap token";
-"express_send_with_swap_not_supported_text" = "Swap it manually and then send it to the recipient";
-"express_send_with_swap_not_supported_title" = "%@ is not supported in Swap & Send";
+"express_send_with_swap_not_supported_button" = "Tauschen";
+"express_send_with_swap_not_supported_text" = "Tauschen Sie es manuell aus und senden Sie es anschließend an den Empfänger.";
+"express_send_with_swap_not_supported_title" = "%@ wird in Swap & Send nicht unterstützt.";
 "express_status_buying" = "Kauf %@";
 "express_status_hide_button_text" = "Diese Transaktion ausblenden";
 "express_status_hide_dialog_text" = "Sobald der Transaktionsstatus ausgeblendet ist, kann er nicht mehr angezeigt werden. Stattdessen kannst Du ihn durch einfaches Wischen schließen.";
@@ -571,13 +573,14 @@
 "feedback_subject_tx_failed" = "Eine Transaktion kann nicht gesendet werden";
 "feedback_subject_tx_push_failed" = "Transaktion kann nicht gepusht werden";
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
+"force_update_action" = "Jetzt aktualisieren";
 "force_update_banner_message" = "Aktualisiere die Anwendung auf die neueste Version, um die ordnungsgemäße Funktionalität zu gewährleisten";
 "force_update_banner_title" = "Aktualisierung erforderlich";
-"force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
-"force_update_brick_title" = "Update Unavailable";
+"force_update_brick_description" = "Diese Version der App wird nicht mehr unterstützt und kann auf diesem Gerät nicht aktualisiert werden.";
+"force_update_brick_title" = "Update nicht verfügbar";
 "force_update_button" = "Update";
-"force_update_os_description" = "Your operating system is out of date. Please update it to continue using the app.";
-"force_update_os_title" = "Update Your OS";
+"force_update_os_description" = "Ihr Betriebssystem ist veraltet. Bitte aktualisieren Sie es, um die App weiterhin nutzen zu können.";
+"force_update_os_title" = "Aktualisieren Sie Ihr Betriebssystem";
 "force_update_warning_message" = "Bitte aktualisiere die Anwendung auf die neueste Version, um eine einwandfreie Funktion zu gewährleisten.";
 "force_update_warning_title" = "Aktualisierung erforderlich";
 "gasless_not_enough_funds_to_cover_token_fee" = "Nicht genügend Mittel";
@@ -1066,7 +1069,7 @@
 "quick_action_buy_description" = "Kreditkarte oder Bankkonto";
 "quick_action_receive_description" = "Teilen deine Adresse oder dein QR-Code";
 "quick_action_sell_description" = "Sicherer Verkauf von Kryptowährungen";
-"quick_action_send_and_swap_description" = "Send with swap to another token";
+"quick_action_send_and_swap_description" = "Senden Sie mit Tausch an ein anderes Token";
 "quick_action_send_description" = "An eine andere Wallet senden";
 "quick_action_swap_description" = "Zwischen deinen Portfolios";
 "quick_top_up_chip_other" = "Andere";
@@ -1271,8 +1274,8 @@
 "staking_details_apr" = "Effektiver Jahreszins";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Belohnungen sammeln sich täglich automatisch in deinem Staking-Konto an.";
-"staking_details_autocompound_funds_earned" = "Funds earned: %@";
-"staking_details_autocompound_rewards_compounded" = "Rewards are compounded to your staking balance.";
+"staking_details_autocompound_funds_earned" = "Erzielte Einnahmen: %@";
+"staking_details_autocompound_rewards_compounded" = "Die Prämien werden Ihrem Staking-Guthaben gutgeschrieben.";
 "staking_details_autocompound_rewards_earned" = "Die Belohnungen werden auf Dein Stakingguthaben aufgezinst. Verdiente Gelder: %@";
 "staking_details_available" = "Verfügbar";
 "staking_details_average_reward_rate" = "Durchschnittliche Belohnungsquote";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
+"staking_error_unavailable_region" = "Staking ist in Ihrer Region nicht verfügbar.";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "staking_locked" = "Gesperrt";
@@ -1369,6 +1373,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "Staking beenden %@";
 "staking_transaction_in_progress_text" = "Die Transaktion wird bearbeitet! Derzeit findet eine Validierung in der Blockchain statt. Dies kann einige Minuten dauern.";
+"staking_transaction_validation_unsafe" = "%@ Staking aufgrund von Sicherheitsüberprüfungen untersagt";
+"staking_transaction_validation_warning" = "%@ Das Staking erscheint verdächtig. Bitte staken Sie auf eigenes Risiko.";
 "staking_unbonding_in" = "Entbindung in";
 "staking_unbonding" = "Lösen der Bindungen";
 "staking_unlocked_locked" = "Gelocktes unlocken";
@@ -1401,6 +1407,8 @@
 "story_web3_title" = "Web 3.0-kompatibel";
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
+"support_chat_screen_title" = "Support-Chat";
+"support_chat_share_logs_button" = "App-Protokolle anhängen";
 "support_chat_swap_prefilled_message" = "SWAP-Operationsdaten:\nAus: %1$@ %2$@\nZu: %3$@ %4$@\nVon %5$@ - %6$@";
 "support_selector_view_chat_button" = "Chat öffnen";
 "support_selector_view_email_button" = "Mail öffnen";
@@ -1452,7 +1460,7 @@
 "swapping_permission_header" = "Erlaubnis erteilen";
 "swapping_permit_and_swap" = "Genehmigen und tauschen";
 "swapping_rate_experience_title" = "Bewerten deine Erfahrung mit dem Anbieter";
-"swapping_rate_feedback_placeholder" = "Geben dein Feedback ein";
+"swapping_rate_feedback_placeholder" = "Geben dein Feedback";
 "swapping_rate_feedback_submit" = "Feedback senden";
 "swapping_rate_feedback_title" = "Was waren deine Erfahrungen?";
 "swapping_swap_action_in_progress" = "Tauschen...";
@@ -1470,7 +1478,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Karte kann nicht umbenannt werden";
 "tangem_pay_card_frozen" = "Karte eingefroren";
 "tangem_pay_card_payment" = "Kartenzahlung";
-"tangem_pay_close_card_disabled_last_card" = "You can’t close the last card";
+"tangem_pay_close_card_disabled_last_card" = "Die letzte Karte kann nicht geschlossen werden.";
 "tangem_pay_close_card_popup_description" = "Es wird aus der App verschwinden";
 "tangem_pay_close_card_popup_primary_button_title" = "Karte schließen";
 "tangem_pay_close_card_popup_secondary_button_title" = "Geh zurück";
@@ -1581,6 +1589,7 @@
 "tangempay_card_page_settings_title" = "Einstellungen der Karte";
 "tangempay_change_pin_code" = "PIN-Code ändern";
 "tangempay_come_back_if_forget_pin" = "Kehren Sie zur App zurück, falls Sie ihn vergessen.";
+"tangempay_common_card" = "Karte";
 "tangempay_daily_limit_hint" = "Limit von %@ bis %@ festlegen";
 "tangempay_daily_limit_set_button" = "Limits festlegen";
 "tangempay_declined_reason_1" = "Unzureichendes Guthaben";
@@ -1602,9 +1611,9 @@
 "tangempay_declined_reason_9" = "Karte gesperrt";
 "tangempay_declined_reason_reason" = "Grund";
 "tangempay_digital_card" = "Digitale";
-"tangempay_face_id_not_set_button" = "Set Face ID";
-"tangempay_face_id_not_set_description" = "Unable to use PIN without Face ID. Please turn on Face ID in app settings";
-"tangempay_face_id_not_set_title" = "Face ID not set";
+"tangempay_face_id_not_set_button" = "Face ID einstellen";
+"tangempay_face_id_not_set_description" = "PIN-Eingabe ohne Face ID nicht möglich. Bitte aktivieren Sie Face ID in den App-Einstellungen.";
+"tangempay_face_id_not_set_title" = "Face ID nicht eingerichtet";
 "tangempay_factory_settings_warning_title" = "Mir ist bewusst, dass ich den Zugriff auf meine Tangem Pay Card und alle darauf befindlichen Guthaben vollständig und ohne Möglichkeit der Wiederherstellung verliere.";
 "tangempay_failed_to_issue_card_retry_description" = "Ein technischer Fehler ist aufgetreten, bitte versuchen Sie es erneut, indem Sie auf die Schaltfläche unten klicken";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
@@ -1685,9 +1694,9 @@
 "tangempay_reissue_card_insufficient_funds_title" = "Gebühr kann nicht gedeckt werden";
 "tangempay_reissue_card_insufficient_funds" = "Unzureichendes Guthaben, um die Karte neu auszustellen";
 "tangempay_reissue_card_title" = "Ihre Karte neu ausstellen?";
-"tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
-"tangempay_remove_account_alert_title" = "Remove account?";
-"tangempay_remove_account" = "Remove account";
+"tangempay_remove_account_alert_description" = "Tangem Pay wird vom Hauptbildschirm entfernt und erscheint auch nach einer Neuinstallation der App nicht wieder.";
+"tangempay_remove_account_alert_title" = "Konto löschen?";
+"tangempay_remove_account" = "Konto löschen";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
@@ -1708,14 +1717,14 @@
 "tangempay_topup_receive_title" = "Von einer anderen Wallet oder Börse";
 "tangempay_topup_swap_body" = "Laden Sie Ihr Konto mit einem beliebigen Token aus Ihrer Wallet auf";
 "tangempay_topup_swap_title" = "Aus Ihrer Tangem Wallet";
-"tangempay_touch_id_not_set_button" = "Set Touch ID";
-"tangempay_touch_id_not_set_description" = "Unable to use PIN without Touch ID. Please turn on Touch ID in app settings";
-"tangempay_touch_id_not_set_title" = "Touch ID not set";
+"tangempay_touch_id_not_set_button" = "Touch ID einrichten";
+"tangempay_touch_id_not_set_description" = "PIN-Eingabe ohne Touch ID nicht möglich. Bitte aktivieren Sie Touch ID in den App-Einstellungen.";
+"tangempay_touch_id_not_set_title" = "Touch ID nicht konfiguriert";
 "tangempay_usdc_on_polygon_network" = "USDC im Polygon";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Klicken Sie auf die Schaltfläche unten, um den Zugriff wiederherzustellen";
 "tangempay_withdrawal_note_description" = "Gelder aus erstatteten Käufen werden nicht auf Ihr On-Chain-Guthaben zurückerstattet und stehen nicht für Abhebungen zur Verfügung, bleiben aber auf Ihrem Kartenguthaben für Einkäufe verfügbar";
 "tangempay_withdrawal_note_title" = "Bitte beachten Sie";
-"tangempay_your_balance" = "Your balance";
+"tangempay_your_balance" = "Ihr Guthaben";
 "tangempay_your_pin_code" = "Ihr PIN-Code";
 "toast_balances_hidden" = "Guthaben versteckt";
 "toast_balances_shown" = "Angezeigte Salden";
@@ -1802,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Diese Aktion ist unumkehrbar. Du hast keinen Zugriff mehr auf die alte Wallet.";
 "twins_scan_twin_with_number" = "Tippe auf die Doppelkarte oder Ring mit der Nummer %@ und entferne sie erst am Ende des Vorgangs.";
+"tx_history_onramp_top_up" = "Aufladen";
+"tx_history_onramp_topped_up" = "Aufgeladen";
 "unexpected_error_description" = "Bitte versuche es später noch einmal. Sollte das Problem weiterhin bestehen, wende Dich bitte an den Support.";
 "unexpected_error_title" = "Etwas ist schiefgelaufen!";
 "universal_error" = "Es ist ein Fehler aufgetreten. Fehlercode: %@. Bitte kontaktiere unseren Support.";
@@ -1830,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Wallet-Name";
 "user_wallet_list_rename_popup_title" = "Wallet umbenennen";
 "user_wallet_list_unlock_all_with" = "Alle mit %@ freischalten";
+"virtual_account_title" = "Virtuelles Konto";
+"virtual_account_transactions_empty" = "Noch keine Transaktionen. Beginnen Sie mit dem Einkaufen und sehen Sie sich hier den Verlauf an";
 "visa_balance_limits_details_aml_verified" = "AML-geprüft";
 "visa_balance_limits_details_available" = "Verfügbar";
 "visa_balance_limits_details_blocked" = "Gesperrt";
@@ -2100,7 +2113,7 @@
 "wc_all_dapps_disconnected" = "Alle dApps getrennt";
 "wc_allow_to_spend" = "Erlaubnis auszugeben";
 "wc_approve_description" = "Durch die Genehmigung erlaubst Du dApps oder Smart Contracts, Token in zukünftigen Transaktionen zu verwenden.";
-"wc_change_address" = "Change address";
+"wc_change_address" = "Adresse ändern";
 "wc_common_address" = "Vertragsadresse";
 "wc_common_connect" = "Verbinden";
 "wc_common_loading" = "Laden";

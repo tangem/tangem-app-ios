@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Adicione o endereço e selecione a rede.";
 "address_book_add_address" = "Adicionar endereço";
 "address_book_add_contact" = "Adicionar contato";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nome do contato";
 "address_book_contact" = "Contato";
 "address_book_copy_address" = "Copiar endereço";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Não mostrar novamente";
 "balance_hidden_got_it_button" = "Entendi";
 "balance_hidden_title" = "Os saldos estão ocultos.";
+"beta_mode_warning_title" = "Modo Beta";
 "biometry_touch_id_reason" = "O Touch ID é usado para salvar seus cartões e anéis no aplicativo.";
 "bitcoin_promo_activation_error_title" = "Erro de ativação";
 "bitcoin_promo_activation_error" = "Ocorreu um erro ao processar seu código promocional. Tente novamente mais tarde.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "Não foi possível enviar uma transação.";
 "feedback_subject_tx_push_failed" = "Não é possível enviar uma transação.";
 "feedback_token_description_error" = "Erro na descrição da moeda";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Atualize o aplicativo para a versão mais recente para garantir o funcionamento correto.";
 "force_update_banner_title" = "Atualização necessária";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "Staking ativado";
 "staking_error_no_validators_message" = "Não há validadores disponíveis no momento. Tente novamente mais tarde.";
 "staking_error_no_validators_title" = "Staking indisponível";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para staking.";
 "staking_legal" = "Ao utilizar a funcionalidade de staking, você concorda com os termos do provedor. %1$@ e %2$@";
 "staking_locked" = "Trancado";
@@ -1369,6 +1373,8 @@
 "staking_title_stake" = "Stake %@";
 "staking_title_unstake" = "Desvincule %@";
 "staking_transaction_in_progress_text" = "A transação está sendo processada! A validação está em andamento na blockchain. Isso pode levar alguns minutos.";
+"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
+"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
 "staking_unbonding_in" = "Desvinculação em";
 "staking_unbonding" = "Desvinculação";
 "staking_unlocked_locked" = "Desbloquear";
@@ -1401,6 +1407,8 @@
 "story_web3_title" = "Compatível com Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Uma transação de entrada de pelo menos %1$@ é necessário prosseguir";
 "sui_not_enough_coin_for_fee_title" = "Fundos insuficientes";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "Dados da operação SWAP:\nDe: %1$@ %2$@\nPara: %3$@ %4$@\nPor %5$@ - %6$@";
 "support_selector_view_chat_button" = "Abra o e-mail";
 "support_selector_view_email_button" = "Abra o e-mail";
@@ -1581,6 +1589,7 @@
 "tangempay_card_page_settings_title" = "Configurações do cartão";
 "tangempay_change_pin_code" = "Alterar código PIN";
 "tangempay_come_back_if_forget_pin" = "Volte ao aplicativo se você se esquecer.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Defina um limite a partir de %@ para %@";
 "tangempay_daily_limit_set_button" = "Definir limites";
 "tangempay_declined_reason_1" = "saldo insuficiente";
@@ -1802,6 +1811,8 @@
 "twins_recreate_toolbar" = "Gêmeo Tangem";
 "twins_recreate_warning" = "Essa ação é irreversível. Você não terá mais acesso à sua carteira antiga.";
 "twins_scan_twin_with_number" = "Toque no cartão gêmeo com o número %@ e não remova até o final da operação.";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Por favor, tente novamente mais tarde. Se o problema persistir, entre em contato com o suporte.";
 "unexpected_error_title" = "Algo deu errado!";
 "universal_error" = "Ocorreu um erro. Código do erro: %@Por favor, entre em contato com nosso suporte.";
@@ -1830,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Nome da carteira";
 "user_wallet_list_rename_popup_title" = "Renomear carteira";
 "user_wallet_list_unlock_all_with" = "Desbloqueie tudo com %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "Verificado AML";
 "visa_balance_limits_details_available" = "Disponível";
 "visa_balance_limits_details_blocked" = "Bloqueado";
