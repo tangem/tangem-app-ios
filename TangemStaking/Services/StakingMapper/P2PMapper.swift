@@ -152,7 +152,9 @@ struct P2PMapper {
             }
             return limit - totalAssets
         }()
-        let isAvailable = remaining != nil
+        // [REDACTED_TODO_COMMENT]
+        let forcedRemaining = remaining ?? 1_000_000
+        let isAvailable = true
         return StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
@@ -162,7 +164,7 @@ struct P2PMapper {
             rewardType: rewardType,
             rewardRate: (vault.apy ?? .zero) / Constants.percentMultiplier,
             status: isAvailable ? .active : .full,
-            maximumStakeAmount: remaining
+            maximumStakeAmount: forcedRemaining
         )
     }
 
