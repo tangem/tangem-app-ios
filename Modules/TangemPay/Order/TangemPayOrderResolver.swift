@@ -14,12 +14,12 @@ public struct TangemPayOrderResolver {
         self.customerService = customerService
     }
 
-    public func findActiveOrder(
-        types: [String],
-        matching predicate: (TangemPayOrderResponse) -> Bool
-    ) async throws -> TangemPayOrderResponse? {
-        let orders = try await customerService.findOrders(types: types, statuses: [.new, .processing])
-        return orders.filter(predicate).mostRecentByUpdatedAt
+    public func findActiveCardIssueOrder() async throws -> TangemPayOrderResponse? {
+        let orders = try await customerService.findOrders(
+            types: TangemPayOrderType.cardIssueFamily,
+            statuses: [.new, .processing]
+        )
+        return orders.mostRecentByUpdatedAt
     }
 
     public func placeOrder(
@@ -34,42 +34,6 @@ public struct TangemPayOrderResolver {
                 throw TangemPayOrderResolverError.insufficientBalance
             }
             throw serviceError
-        }
-    }
-
-    public func resolveOrCreateAdditionalCardIssueOrder(
-        orderType: String,
-        customerWalletAddress: String,
-        specificationName: String,
-        idempotencyKey: String
-    ) async throws -> TangemPayOrderResponse {
-        // Errors here are swallowed: a fresh placement is safe because the idempotency key prevents
-        // server-side duplicates.
-        if let orders = try? await customerService.findOrders(
-            types: TangemPayOrderType.cardIssueFamily,
-            statuses: [.new, .processing]
-        ), let existing = orders.first(where: { order in
-            order.type == orderType
-                && order.data?.specificationName == specificationName
-                && order.data?.customerWalletAddress == customerWalletAddress
-        }) {
-            return existing
-        }
-
-        let request = TangemPayPlaceOrderRequest(
-            type: orderType,
-            customerWalletAddress: customerWalletAddress,
-            specificationName: specificationName
-        )
-
-        do {
-            return try await customerService.placeOrder(request: request, idempotencyKey: idempotencyKey)
-        } catch {
-            // BFF code 140116 = CardIssueInsufficientBalanceException
-            if case .apiError(let apiError) = error, apiError.code == 140116 {
-                throw TangemPayOrderResolverError.insufficientBalance
-            }
-            throw error
         }
     }
 }
