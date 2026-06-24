@@ -8,7 +8,6 @@
 
 import BlockchainSdk
 
-/// Verifies staking transactions via BlockAid API.
 protocol BlockaidStakingVerifier {
     func verify(
         network: BlockaidSupportedNetwork,

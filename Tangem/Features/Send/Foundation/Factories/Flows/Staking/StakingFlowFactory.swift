@@ -59,7 +59,7 @@ extension StakingFlowFactory {
 
         let blockchain = tokenItem.blockchain
         let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
-        let isRemoteValidationEnabled = BlockAidSupportedNetwork(blockchain: blockchain) != nil
+        let isRemoteValidationEnabled = BlockaidSupportedNetwork(blockchain: blockchain) != nil
         let isValidationEnabled = isLocalValidationEnabled || isRemoteValidationEnabled
         guard isValidationEnabled else { return nil }
 
