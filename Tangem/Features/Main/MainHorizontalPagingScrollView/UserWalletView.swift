@@ -29,7 +29,12 @@ struct UserWalletView: View {
     @ScaledMetric private var headerBalanceTextHeight = CGFloat.unit(.x12)
     @ScaledMetric private var headerSubtitleHeight = CGFloat.unit(.x7)
 
-    @State private var headerAutoScrollTask: Task<Void, Never>?
+    @State private var settleTask: Task<Void, Never>?
+    @State private var scrollEnableTask: Task<Void, Never>?
+
+    /// [REDACTED_USERNAME] (not a stored `let`) so the engine survives the view's per-frame re-creations; being a class,
+    /// mutating its phase/velocity doesn't invalidate the view.
+    @State private var snapEngine = MagneticHeaderSnapEngine()
 
     private let pullToRefreshAction: @MainActor () async -> Void
     @EnvironmentObject private var scrollDetector: ScrollDetector
@@ -56,6 +61,7 @@ struct UserWalletView: View {
             ScrollViewReader { scrollProxy in
                 RefreshableScrollView(
                     axes: .vertical,
+                    scrollDisabled: scrollDisabled,
                     onNormalizedOffsetYChanged: handleNormalizedOffsetYChanged,
                     refreshAction: pullToRefreshAction,
                 ) {
@@ -67,14 +73,13 @@ struct UserWalletView: View {
                         contentFooterSpacer
                         bottomOverlaySpacer
                     }
-                    .scrollDisabled(scrollDisabled)
                     .onGeometryChange(
                         for: CGRect.self,
                         of: { contentGeometryProxy in
                             contentGeometryProxy.frame(in: .global)
                         },
                         action: { contentFrame in
-                            handleScrollChanged(contentFrame, rootGeometryProxy)
+                            handleScrollChanged(contentFrame, rootGeometryProxy, scrollProxy)
                         }
                     )
                 }
@@ -87,10 +92,14 @@ struct UserWalletView: View {
                     }
 
                     if isScrolling {
-                        cancelAutoScrollTask()
+                        apply(snapEngine.dragBegan(), with: scrollProxy)
                     } else {
-                        scheduleAutoScrollTask(with: scrollProxy)
+                        apply(snapEngine.dragEnded(), with: scrollProxy)
                     }
+                }
+                .onDisappear {
+                    settleTask?.cancel()
+                    scrollEnableTask?.cancel()
                 }
             }
         }
@@ -137,7 +146,7 @@ struct UserWalletView: View {
             .frame(height: containerGeometryProperties.bottomOverlayHeight)
     }
 
-    private func handleScrollChanged(_ contentFrame: CGRect, _ rootGeometryProxy: GeometryProxy) {
+    private func handleScrollChanged(_ contentFrame: CGRect, _ rootGeometryProxy: GeometryProxy, _ scrollProxy: ScrollViewProxy) {
         let scrollViewFrameHeight = rootGeometryProxy.size.height
         let contentOffsetY = contentFrame.minY
 
@@ -156,6 +165,12 @@ struct UserWalletView: View {
 
         self.headerOpacity = headerOpacity
         headerScale = headerScale(for: progress)
+
+        // A snap animation drives the offset while scroll is disabled; feeding it back would corrupt velocity.
+        if !scrollDisabled {
+            let command = snapEngine.offsetChanged(contentOffsetY, at: CACurrentMediaTime(), layout: snapLayout)
+            apply(command, with: scrollProxy)
+        }
 
         let contentProperties = ScrollContentProperties(
             contentOffsetY: contentOffsetY,
@@ -177,43 +192,51 @@ struct UserWalletView: View {
         onNormalizedOffsetYChanged(pagingIndicatorOffsetY, animation)
     }
 
-    private func cancelAutoScrollTask() {
-        headerAutoScrollTask?.cancel()
-        headerAutoScrollTask = nil
+    private var snapLayout: MagneticHeaderSnapEngine.Layout {
+        MagneticHeaderSnapEngine.Layout(
+            safeAreaInsetsTop: containerGeometryProperties.safeAreaInsetsTop,
+            fullHeaderHeight: Paddings.headerTop + headerHeight
+        )
     }
 
-    private func scheduleAutoScrollTask(with scrollViewProxy: ScrollViewProxy) {
-        headerAutoScrollTask = Task {
-            try? await Task.sleep(for: .seconds(Durations.headerAutoScrollDebounce))
+    private func apply(_ command: MagneticHeaderSnapEngine.Command?, with scrollProxy: ScrollViewProxy) {
+        switch command {
+        case .snap(let anchor):
+            snap(to: anchor, with: scrollProxy)
+        case .scheduleSettle:
+            scheduleSettle(with: scrollProxy)
+        case .cancelSettle:
+            settleTask?.cancel()
+        case .none:
+            break
+        }
+    }
 
+    private func scheduleSettle(with scrollProxy: ScrollViewProxy) {
+        settleTask?.cancel()
+        settleTask = Task {
+            try? await Task.sleep(for: .seconds(Durations.settleDebounce))
             guard !Task.isCancelled else { return }
-
-            performHeaderAutoScrollIfNeeded(with: scrollViewProxy)
-            headerAutoScrollTask = nil
+            apply(snapEngine.settleFired(offsetY: contentOffsetY, layout: snapLayout), with: scrollProxy)
         }
     }
 
-    private func performHeaderAutoScrollIfNeeded(with scrollViewProxy: ScrollViewProxy) {
-        let safeAreaInsetsTop = containerGeometryProperties.safeAreaInsetsTop
-        let fullHeaderHeight = Paddings.headerTop + headerHeight
-        let headerMaxY = contentOffsetY + fullHeaderHeight
+    private func snap(to anchor: MagneticHeaderSnapEngine.HeaderAnchor, with scrollProxy: ScrollViewProxy) {
+        let targetID: HeaderScrollAnchorIdentifier = anchor == .bottom ? .bottom : .top
 
-        let screenTopIsBelowHeaderTop = safeAreaInsetsTop > contentOffsetY
-        let screenTopIsAboveHeaderBottom = safeAreaInsetsTop < headerMaxY
-
-        guard screenTopIsBelowHeaderTop, screenTopIsAboveHeaderBottom else {
-            return
-        }
-
-        let hasReachedMiddlePoint = (safeAreaInsetsTop - contentOffsetY) > fullHeaderHeight / 2
-        let targetID: HeaderScrollAnchorIdentifier = hasReachedMiddlePoint ? .bottom : .top
-
+        // Disabling scroll halts in-flight deceleration so the spring starts from the current position.
         scrollDisabled = true
-        withAnimation(.spring(duration: Durations.headerAutoScrollAnimation)) {
-            scrollViewProxy.scrollTo(targetID, anchor: .top)
+        FeedbackGenerator.selection()
+        withAnimation(.spring(response: Durations.snapResponse, dampingFraction: Durations.snapDamping)) {
+            scrollProxy.scrollTo(targetID, anchor: .top)
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + Durations.headerAutoScrollAnimation) {
+        scrollEnableTask?.cancel()
+        scrollEnableTask = Task {
+            // snapResponse re-used as the re-enable delay: the spring keeps settling past it, but the phase
+            // guard means the residual programmatic offsets never reach flick detection.
+            try? await Task.sleep(for: .seconds(Durations.snapResponse))
+            guard !Task.isCancelled else { return }
             scrollDisabled = false
         }
     }
@@ -246,8 +269,9 @@ extension UserWalletView {
     }
 
     private enum Durations {
-        static let headerAutoScrollDebounce = 0.5
-        static let headerAutoScrollAnimation = 0.3
+        static let settleDebounce = 0.15
+        static let snapResponse = 0.25
+        static let snapDamping = 0.85
     }
 
     private enum HeaderScrollAnchorIdentifier: Hashable {
@@ -266,6 +290,7 @@ extension UserWalletView {
 extension UserWalletView {
     private struct RefreshableScrollView<Content: View>: View {
         let axes: Axis.Set
+        let scrollDisabled: Bool
         let onNormalizedOffsetYChanged: (CGFloat, Animation?) -> Void
         let refreshAction: @MainActor () async -> Void
         @ViewBuilder let content: Content
@@ -309,6 +334,7 @@ extension UserWalletView {
                         }
                     )
                 }
+                .scrollDisabled(scrollDisabled)
                 .coordinateSpace(name: RefreshableConstants.coordinateSpaceName)
             }
         }
