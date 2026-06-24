@@ -278,6 +278,12 @@ final class TangemPayAccount {
             ? card(cardId: cardId)?.displayName
             : legacyCustomerInfoSubject.value.productInstance.displayName.nilIfEmpty
     }
+
+    func cardNumberEnd(forCardId cardId: String) -> String? {
+        multipleCardsEnabled
+            ? card(cardId: cardId)?.cardNumberEnd
+            : legacyCustomerInfoSubject.value.customerInfo.card?.cardNumberEnd
+    }
 }
 
 enum TangemPayAccountError: Error {

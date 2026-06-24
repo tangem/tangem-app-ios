@@ -68,4 +68,11 @@ extension PersistentStorage: PersistentStorageProtocol {
         }
         try encryptAndWriteToDocuments(data, at: &documentPath, options: options)
     }
+
+    func remove(for key: PersistentStorageKey) throws {
+        let documentPath = documentPath(for: key.path)
+        if fileManager.fileExists(atPath: documentPath.path) {
+            try fileManager.removeItem(at: documentPath)
+        }
+    }
 }
