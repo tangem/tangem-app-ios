@@ -280,6 +280,10 @@ extension TransactionHistoryProvider: Identifiable {
     }
 }
 
+// MARK: - TransactionHistoryProviding protocol conformance
+
+extension TransactionHistoryProvider: TransactionHistoryProviding {}
+
 // MARK: - CustomStringConvertible protocol conformance
 
 extension TransactionHistoryProvider: CustomStringConvertible {
