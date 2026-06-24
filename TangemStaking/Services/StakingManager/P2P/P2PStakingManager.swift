@@ -63,6 +63,9 @@ extension P2PStakingManager: StakingManager {
                 )
             } catch is CancellationError {
                 return
+            } catch let error where error.isStakingRegionUnavailable {
+                updateRegionUnavailableState()
+                return
             } catch {
                 updateUnavailableState(error: error, yieldIsAvailable: yield.isAvailable)
                 return
@@ -73,6 +76,8 @@ extension P2PStakingManager: StakingManager {
         } catch is CancellationError {
             // Ignored intentionally
             return
+        } catch let error where error.isStakingRegionUnavailable {
+            updateRegionUnavailableState()
         } catch let error as StakingAvailabilityError {
             updateUnavailableState(error: error, yieldIsAvailable: false)
         } catch {
@@ -146,6 +151,19 @@ private extension P2PStakingManager {
     func updateState(_ state: StakingManagerState) {
         stateRepository.storeState(state)
         _state.send(state)
+    }
+
+    func updateRegionUnavailableState() {
+        let cached = stateRepository.state()
+
+        switch cached?.stakeState {
+        case .staked:
+            // Scenarios 2 & 3: show the cached staked balance + region message
+            updateState(.unavailableInRegion(cached: cached))
+        case .availableToStake, .none:
+            // Scenario 1: nothing staked — hide staking entirely
+            updateState(.notEnabled)
+        }
     }
 
     func updateUnavailableState(error: Error, yieldIsAvailable: Bool) {

@@ -197,6 +197,7 @@ private extension StakeKitStakingManager {
             balances = stakeInfo.balances
         case .availableToStake,
              .loadingError,
+             .unavailableInRegion,
              .notEnabled,
              .temporaryUnavailable:
             balances = nil

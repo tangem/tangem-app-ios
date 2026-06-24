@@ -34,6 +34,7 @@ final class StakingDetailsViewModel: ObservableObject {
     @Published var actionButtonType: ActionButtonType?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
+    @Published var regionUnavailableMessage: String?
 
     private(set) lazy var scrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: .zero),
@@ -154,12 +155,22 @@ private extension StakingDetailsViewModel {
     }
 
     func setupView(state: StakingManagerState) {
+        regionUnavailableMessage = nil
+
         switch state {
         case .loading:
             actionButtonLoading = true
         case .loadingError:
             actionButtonLoading = false
             actionButtonType = .none
+        case .unavailableInRegion:
+            actionButtonLoading = false
+            actionButtonType = .none
+            regionUnavailableMessage = Localization.stakingErrorUnavailableRegion
+            detailsViewModels = []
+            stakes = []
+            rewardViewData = nil
+            hideStakingInfoBanner = true
         case .notEnabled:
             actionButtonLoading = false
             actionButtonType = .none

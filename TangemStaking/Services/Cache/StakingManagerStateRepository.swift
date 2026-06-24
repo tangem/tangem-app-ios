@@ -81,6 +81,8 @@ private extension CommonStakingManagerStateRepository {
         switch state {
         case .availableToStake: .availableToStake
         case .staked(let stakedInfo): .staked(balance: stakedInfo.balances.blocked().sum())
+        // `.unavailableInRegion` (and other transient states) map to nil so `storeState`
+        // early-returns and the previously cached `.staked` balance is preserved.
         default: nil
         }
     }

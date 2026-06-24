@@ -92,6 +92,7 @@ private enum PreviewStakingState: String, CaseIterable, Identifiable {
     case enableAuto = "Enable (Auto)"
     case enableEmpty = "Enable (Empty)"
     case unavailable = "Unavailable"
+    case unavailableInRegion = "Unavailable (Region)"
 
     var id: String { rawValue }
 
@@ -139,6 +140,15 @@ private enum PreviewStakingState: String, CaseIterable, Identifiable {
             return .unavailable(item: .init(
                 title: "Staking unavailable",
                 description: "Staking is temporarily unavailable for this token. Please try again later."
+            ))
+
+        case .unavailableInRegion:
+            return .unavailableInRegion(item: .init(
+                title: "Staking",
+                message: "Staking is unavailable in your region",
+                fiatBalance: AttributedString("$1,234.56"),
+                cryptoBalance: "0.5 ETH",
+                action: {}
             ))
         }
     }

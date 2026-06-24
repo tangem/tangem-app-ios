@@ -13,6 +13,7 @@ enum TokenDetailsStakingState {
     case available(item: AvailableItem)
     case enable(item: EnableItem)
     case unavailable(item: UnavailableItem)
+    case unavailableInRegion(item: RegionItem)
 }
 
 // MARK: - Items
@@ -42,5 +43,13 @@ extension TokenDetailsStakingState {
     struct UnavailableItem {
         let title: String
         let description: String
+    }
+
+    struct RegionItem {
+        let title: String
+        let message: String
+        let fiatBalance: AttributedString
+        let cryptoBalance: String
+        let action: () -> Void
     }
 }

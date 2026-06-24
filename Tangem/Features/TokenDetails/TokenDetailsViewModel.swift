@@ -578,7 +578,9 @@ private extension TokenDetailsViewModel {
             stakingState = makeEnableStakingState(staked: staked)
         case .loadingError, .temporaryUnavailable:
             stakingState = makeUnavailableStakingState()
-        case .notEnabled:
+        case .unavailableInRegion(.some(let cached)):
+            stakingState = makeRegionUnavailableStakingState(cached: cached)
+        case .unavailableInRegion(.none), .notEnabled:
             stakingState = nil
         }
     }
@@ -640,6 +642,35 @@ private extension TokenDetailsViewModel {
         return .unavailable(item: item)
     }
 
+    private func makeRegionUnavailableStakingState(cached: CachedStakingManagerState) -> TokenDetailsStakingState {
+        let balance = cached.stakeState.balance
+
+        let cryptoBalance = balanceFormatter.formatCryptoBalance(
+            balance,
+            currencyCode: walletModel.tokenItem.currencySymbol
+        )
+
+        let fiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
+            balanceConverter.convertToFiat(balance, currencyId: currencyId)
+        }
+        let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
+        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
+            formattedFiatBalance,
+            font: Font.Tangem.Body16.medium,
+            integerColor: .Tangem.Text.Neutral.primary,
+            decimalColor: .Tangem.Text.Neutral.secondary
+        )
+
+        let item = TokenDetailsStakingState.RegionItem(
+            title: Localization.commonStaking,
+            message: Localization.stakingErrorUnavailableRegion,
+            fiatBalance: attributedFiatBalance,
+            cryptoBalance: cryptoBalance,
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
+        )
+        return .unavailableInRegion(item: item)
+    }
+
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {
         switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
         case (.auto, _):
@@ -662,7 +693,7 @@ private extension TokenDetailsViewModel {
             break
         case .availableToStake, .notEnabled:
             activeStakingViewData = nil
-        case .loadingError, .temporaryUnavailable:
+        case .loadingError, .temporaryUnavailable, .unavailableInRegion:
             activeStakingViewData = .init(balance: .loadingError, rewards: .none)
         case .staked(let staked):
             let rewards = mapToRewardsState(staked: staked)
