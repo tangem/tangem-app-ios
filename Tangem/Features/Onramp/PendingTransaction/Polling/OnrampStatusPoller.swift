@@ -118,7 +118,9 @@ final class OnrampStatusPoller {
                 let terminalTransactions = current.filter { $0.transactionRecord.transactionStatus.isTerminated(branch: .onramp) }
                 await terminalTransactionsStorage.performIsolated { $0.transactions = terminalTransactions }
 
-                let shouldForceReload = previous?.count ?? 0 != current.count
+                let previousIds = previous?.uniqueProperties(\.id) ?? []
+                let currentIds = current.uniqueProperties(\.id)
+                let shouldForceReload = previousIds != currentIds
                 await pollingService?.startPolling(requests: nonTerminalTransactions, force: shouldForceReload)
 
                 // If there are no transactions to poll, broadcast terminal-only or empty
