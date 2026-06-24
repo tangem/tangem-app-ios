@@ -17,7 +17,7 @@ enum SentExpressTransactionHistoryMapper {
         return ExchangeTransaction(
             txId: expressTransactionData.expressTransactionId,
             providerId: transaction.provider.id,
-            status: .waiting,
+            status: .created,
             rateType: nil, // [REDACTED_TODO_COMMENT]
             externalTx: mapToExternalTxInfo(
                 id: expressTransactionData.externalTxId,
@@ -31,7 +31,7 @@ enum SentExpressTransactionHistoryMapper {
             ),
             payOut: PayOutInfo(
                 address: transaction.receive.address ?? .unknown,
-                hash: nil // [REDACTED_TODO_COMMENT]
+                hash: nil // Unknown at this point
             ),
             refund: nil, // No refunds for exchange transactions
             from: ExpressHistoryAsset(
@@ -57,7 +57,7 @@ enum SentExpressTransactionHistoryMapper {
         OnrampTransaction(
             txId: transaction.txId,
             providerId: transaction.provider.id,
-            status: .waitingForPayment,
+            status: .created,
             failReason: nil, // Obviously, the transaction has been just sent and cannot fail at this point
             externalTx: mapToExternalTxInfo(id: transaction.externalTxId, url: transaction.externalTxUrl.flatMap(URL.init(string:))),
             payOut: PayOutInfo(
