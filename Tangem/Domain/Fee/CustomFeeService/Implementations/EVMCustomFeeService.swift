@@ -48,17 +48,13 @@ class EVMCustomFeeService {
 
     private var nonce: Int? { nonceTextField.value?.intValue() }
 
-    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
+    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(feeTokenItem.zeroFee)
     private var customFeeBeforeEditing: Fee?
     private var customMaxFeePerGasBeforeEditing: BigUInt?
     private var customPriorityFeeBeforeEditing: BigUInt?
     private var customMaxLimitBeforeEditing: BigUInt?
     private var customGasPriceBeforeEditing: BigUInt?
     private var customNonceBeforeEditing: Int?
-
-    private var zeroFee: Fee {
-        return Fee(Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: 0))
-    }
 
     private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
@@ -114,7 +110,7 @@ class EVMCustomFeeService {
             guard let gasLimit = gasLimit,
                   let maxFeePerGas = maxFeePerGas,
                   let priorityFee = priorityFee else {
-                return zeroFee
+                return feeTokenItem.zeroFee
             }
 
             parameters = EthereumEIP1559FeeParameters(
@@ -125,7 +121,7 @@ class EVMCustomFeeService {
             )
         } else {
             guard let gasLimit = gasLimit, let gasPrice = gasPrice else {
-                return zeroFee
+                return feeTokenItem.zeroFee
             }
 
             parameters = EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice, nonce: nonce)
@@ -141,12 +137,12 @@ class EVMCustomFeeService {
         let feeDecimalValue = feeTokenItem.decimalValue
 
         guard let feeValue, let currentGasLimit = gasLimit else {
-            return zeroFee
+            return feeTokenItem.zeroFee
         }
 
         let enteredFeeInSmallestDenomination = (feeValue * feeDecimalValue).rounded(roundingMode: .down)
         guard let enteredFeeInSmallestDenomination = BigUInt(decimal: enteredFeeInSmallestDenomination) else {
-            return zeroFee
+            return feeTokenItem.zeroFee
         }
 
         let parameters: EthereumFeeParameters
@@ -208,7 +204,7 @@ extension EVMCustomFeeService: CustomFeeProvider {
     }
 
     func initialSetupCustomFee(_ fee: BSDKFee) {
-        assert(customFeeSubject.value == zeroFee, "Duplicate initial setup")
+        assert(customFeeSubject.value == feeTokenItem.zeroFee, "Duplicate initial setup")
 
         customFeeSubject.send(fee)
         updateView(fee: fee)
@@ -219,13 +215,13 @@ extension EVMCustomFeeService: CustomFeeProvider {
 
 extension EVMCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
     var customFeeIsValid: Bool {
-        customFeeSubject.value != zeroFee
+        customFeeSubject.value != feeTokenItem.zeroFee
     }
 
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
         customFeeSubject
             .withWeakCaptureOf(self)
-            .map { $0.zeroFee != $1 }
+            .map { $0.feeTokenItem.zeroFee != $1 }
             .eraseToAnyPublisher()
     }
 
