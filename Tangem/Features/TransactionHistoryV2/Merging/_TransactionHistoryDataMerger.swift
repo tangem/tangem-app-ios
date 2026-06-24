@@ -55,7 +55,7 @@ struct _TransactionHistoryDataMerger {
             // [REDACTED_TODO_COMMENT]
 
             // Step 3: Add synthetic transaction if needed
-            if canAddSyntheticTransaction(from: exchangeTransaction) {
+            if shouldAddSyntheticTransaction(from: exchangeTransaction) {
                 output.append(makeSyntheticTransaction(from: exchangeTransaction))
             }
         }
@@ -71,7 +71,7 @@ struct _TransactionHistoryDataMerger {
             // [REDACTED_TODO_COMMENT]
 
             // Step 3: Add synthetic transaction if needed
-            if canAddSyntheticTransaction(from: onrampTransaction) {
+            if shouldAddSyntheticTransaction(from: onrampTransaction) {
                 output.append(makeSyntheticTransaction(from: onrampTransaction))
             }
         }
@@ -85,11 +85,11 @@ struct _TransactionHistoryDataMerger {
         return output
     }
 
-    private func canAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
+    private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
         Self.activeExchangeTransactionStatuses.contains(exchangeTransaction.status)
     }
 
-    private func canAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
+    private func shouldAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
         Self.activeOnrampTransactionStatuses.contains(onrampTransaction.status)
     }
 
