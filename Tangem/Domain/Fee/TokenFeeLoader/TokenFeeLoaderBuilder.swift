@@ -40,6 +40,10 @@ struct TokenFeeLoaderBuilder {
             )
         }
 
+        if case .bitcoin = tokenItem.blockchain {
+            return CommonBitcoinTokenFeeLoader(tokenItem: tokenItem, tokenFeeLoader: tokenFeeLoader)
+        }
+
         return tokenFeeLoader
     }
 
