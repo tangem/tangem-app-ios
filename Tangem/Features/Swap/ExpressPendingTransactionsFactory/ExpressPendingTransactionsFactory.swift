@@ -27,7 +27,7 @@ struct ExpressPendingTransactionsFactory {
         }
 
         let exchangeStatusPoller = ExchangeStatusPoller(
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
             cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
             expressRefundedTokenHandler: expressRefundedTokenHandler
@@ -40,12 +40,12 @@ struct ExpressPendingTransactionsFactory {
 
         let expressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
         let onrampStatusPoller = OnrampStatusPoller(
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
             expressAPIProvider: expressAPIProvider
         )
         let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
             expressAPIProvider: expressAPIProvider
         )

@@ -15,7 +15,7 @@ final class OnrampStatusPoller {
     @Injected(\.onrampPendingTransactionsRepository) private var onrampPendingTransactionsRepository: OnrampPendingTransactionRepository
     @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
-    private let userWalletId: String
+    private let userWalletId: UserWalletId
     private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
 
@@ -32,7 +32,7 @@ final class OnrampStatusPoller {
     private var pollingResultTask: Task<Void, Never>?
 
     init(
-        userWalletId: String,
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         expressAPIProvider: ExpressAPIProvider
     ) {
@@ -159,7 +159,7 @@ final class OnrampStatusPoller {
 
     private func filterRelatedTokenTransactions(list: [OnrampPendingTransactionRecord]) -> [OnrampPendingTransactionRecord] {
         return list.filter { record in
-            guard !record.isHidden, record.userWalletId == userWalletId else {
+            guard !record.isHidden, record.userWalletId == userWalletId.stringValue else {
                 return false
             }
             return record.destinationTokenTxInfo.tokenItem == tokenItem

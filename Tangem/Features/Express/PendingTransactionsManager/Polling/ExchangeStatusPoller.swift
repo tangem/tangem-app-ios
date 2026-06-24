@@ -17,7 +17,7 @@ final class ExchangeStatusPoller {
     @Injected(\.pendingExpressTransactionAnalyticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private let userWalletId: String
+    private let userWalletId: UserWalletId
     private let tokenItem: TokenItem
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
@@ -31,7 +31,7 @@ final class ExchangeStatusPoller {
     private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
 
     init(
-        userWalletId: String,
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
@@ -182,8 +182,8 @@ final class ExchangeStatusPoller {
                 return false
             }
 
-            let isSourceWallet = userWalletId == record.sourceTokenTxInfo.userWalletId
-            let isDestinationWallet = userWalletId == record.destinationTokenTxInfo.userWalletId
+            let isSourceWallet = userWalletId.stringValue == record.sourceTokenTxInfo.userWalletId
+            let isDestinationWallet = userWalletId.stringValue == record.destinationTokenTxInfo.userWalletId
 
             let isSourceToken = tokenItem == record.sourceTokenTxInfo.tokenItem
             let isDestinationToken = tokenItem == record.destinationTokenTxInfo.tokenItem
@@ -200,7 +200,7 @@ final class ExchangeStatusPoller {
     ) async throws -> (pending: PendingExpressTransaction, raw: ExchangeTransaction)? {
         do {
             ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
-            let sourceUserWalletId = transactionRecord.expressUserWalletId ?? transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId
+            let sourceUserWalletId = transactionRecord.expressUserWalletId ?? transactionRecord.sourceTokenTxInfo.userWalletId ?? userWalletId.stringValue
             let refcode = userWalletRepository.models
                 .first(where: { $0.userWalletId.stringValue == sourceUserWalletId })?
                 .refcodeProvider?.getRefcode()
