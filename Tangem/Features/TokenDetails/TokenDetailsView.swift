@@ -364,23 +364,30 @@ private extension TokenDetailsView {
     let cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
-    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let exchangeStatusPoller = ExchangeStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        walletModelUpdater: walletModel,
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
+    let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
+        walletModelUpdater: walletModel,
+        poller: exchangeStatusPoller
+    )
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
-    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+    let onrampStatusPoller = OnrampStatusPoller(
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
-        expressAPIProvider: onrampExpressAPIProvider,
-        unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletModel.userWalletId.stringValue,
-            tokenItem: walletModel.tokenItem,
-            expressAPIProvider: onrampExpressAPIProvider
-        )
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+        userWalletId: userWalletModel.userWalletId,
+        tokenItem: walletModel.tokenItem,
+        expressAPIProvider: onrampExpressAPIProvider
+    )
+    let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
+        unknownStatusRecoveryService: unknownStatusRecoveryService,
+        poller: onrampStatusPoller
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
         first: pendingExpressTxsManager,
