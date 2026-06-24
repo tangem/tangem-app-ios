@@ -229,6 +229,13 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
 
+        case .dex(.bitcoinPsbt(let psbtBase64)):
+            guard FeatureProvider.isAvailable(.bitcoinDexSwap) else {
+                throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+            }
+
+            return try await updateFees(psbtBase64: psbtBase64)
+
         case .approve(let txData, let toContractAddress, let feeMultiplier):
             let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
             let allFees = try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
@@ -287,6 +294,9 @@ private extension CommonTokenFeeProvider {
             // Is available. Do nothing
             break
         case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
+            // Is available. Do nothing
+            break
+        case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader && FeatureProvider.isAvailable(.bitcoinDexSwap):
             // Is available. Do nothing
             break
         case .dex:
@@ -425,6 +435,14 @@ private extension CommonTokenFeeProvider {
 
     func updateFees(compiledTransaction data: Data) async throws -> [BSDKFee] {
         let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: data)
+        try Task.checkCancellation()
+        return fees
+    }
+
+    // MARK: - Bitcoin
+
+    func updateFees(psbtBase64: String) async throws -> [BSDKFee] {
+        let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
         try Task.checkCancellation()
         return fees
     }
