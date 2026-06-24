@@ -98,7 +98,7 @@ final class GaslessSendUITests: BaseTestCase {
         static let nativeSymbol = "POL"
 
         static let gaslessFeeTxKey = "gaslessTransactionFee"
-        static let sentTxKey = "transfer"
+        static let sentTxKey = "gaslessTransfer"
 
         static let userTokensScenario = "user_tokens_api"
         static let quotesScenario = "quotes_api"
