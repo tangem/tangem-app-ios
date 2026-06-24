@@ -44,6 +44,8 @@ public struct ExpressTransactionData {
     public let externalTxId: String?
     /// The URL of CEX provider exchange status page
     public let externalTxURL: URL?
+    /// Original Express pay-in address when the executable transaction destination is rewritten locally.
+    public let payInAddress: String
 
     public init(
         requestId: String,
@@ -59,7 +61,8 @@ public struct ExpressTransactionData {
         otherNativeFee: Decimal?,
         estimatedGasLimit: Int?,
         externalTxId: String?,
-        externalTxURL: URL?
+        externalTxURL: URL?,
+        payInAddress: String
     ) {
         self.requestId = requestId
         self.fromAmount = fromAmount
@@ -75,5 +78,6 @@ public struct ExpressTransactionData {
         self.estimatedGasLimit = estimatedGasLimit
         self.externalTxId = externalTxId
         self.externalTxURL = externalTxURL
+        self.payInAddress = payInAddress
     }
 }

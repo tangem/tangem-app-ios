@@ -105,7 +105,8 @@ private extension CommonYieldModuleUpgradeHandler {
             otherNativeFee: data.otherNativeFee,
             estimatedGasLimit: data.estimatedGasLimit,
             externalTxId: data.externalTxId,
-            externalTxURL: data.externalTxURL
+            externalTxURL: data.externalTxURL,
+            payInAddress: data.payInAddress
         )
     }
 
