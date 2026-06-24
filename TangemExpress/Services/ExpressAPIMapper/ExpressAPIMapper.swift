@@ -136,7 +136,8 @@ struct ExpressAPIMapper {
             otherNativeFee: otherNativeFee,
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
-            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:))
+            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:)),
+            payInAddress: txDetails.txTo
         )
     }
 
