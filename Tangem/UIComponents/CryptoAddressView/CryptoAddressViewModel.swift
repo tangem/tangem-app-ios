@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 class CryptoAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var destinationAddressSection: [DestinationAddressSectionType]
@@ -43,6 +44,13 @@ class CryptoAddressViewModel: ObservableObject, Identifiable {
 
 private extension CryptoAddressViewModel {
     func bind() {
+        addressProcessor
+            .cryptoAddressViewStatePublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { $0.render(state: $1) }
+            .store(in: &bag)
+
         destinationAddressViewModel
             .addressPublisher()
             .dropFirst()
@@ -64,25 +72,26 @@ private extension CryptoAddressViewModel {
     private func addressDidChanged(destination: SendDestinationAddressViewModel.Address) -> Task<Void, Error> {
         destinationAddressViewModel.update(error: .none)
 
-        let hasValue = !destination.string.isEmpty
-        let shouldResolve = addressProcessor.willResolving(address: destination.string)
-        let shouldDebounce = hasValue && shouldResolve
+        let shouldDebounce = !destination.string.isEmpty && addressProcessor.willResolving(address: destination.string)
 
-        let newUpdatingTask = runWithDelayedLoading(onLongRunning: { [weak self] in
+        let task = runWithDelayedLoading(onLongRunning: { [weak self] in
             self?.destinationAddressViewModel.update(isValidating: true)
         }, operation: { [weak self] in
+            guard let self else { return }
+
             if shouldDebounce {
                 try await Task.sleep(for: .seconds(1))
             }
 
-            await self?.update(destination: destination)
-            await runOnMain { self?.destinationAddressViewModel.update(isValidating: false) }
+            // Resolution publishes its result through `cryptoAddressViewStatePublisher`; await it only to toggle the spinner.
+            await addressProcessor.update(destination: destination.string, source: destination.source).value
+            await runOnMain { self.destinationAddressViewModel.update(isValidating: false) }
         })
 
         resolvingTask?.cancel()
-        resolvingTask = newUpdatingTask
+        resolvingTask = task
 
-        return newUpdatingTask
+        return task
     }
 
     private func additionalFieldDidChanged(value: String) {
@@ -92,41 +101,46 @@ private extension CryptoAddressViewModel {
             let additionalField = try additionalFieldProcessor.makeAdditionalField(value: value)
             addressProcessor.update(additionalField: additionalField)
         } catch {
-            addressProcessor.update(additionalField: .none)
+            // Malformed memo: surface the parse error on the field; don't commit it to the processor.
             additionalFieldViewModel?.update(error: error.localizedDescription)
         }
     }
 
-    func update(destination: SendDestinationAddressViewModel.Address) async {
-        do {
-            let parameters = try await addressProcessor.update(destination: destination.string, source: destination.source)
-            await setupView(addressParameters: parameters)
-        } catch is CancellationError {
-            // Superseded by a newer address change — keep the current state.
-        } catch {
-            await runOnMain {
-                destinationAddressViewModel.update(error: error.localizedDescription)
-                // Drop a stale resolved-address row left from a previously valid address.
-                destinationAddressSection = [.destinationAddress(destinationAddressViewModel)]
+    func render(state: CryptoAddressViewState) {
+        switch state {
+        case .empty:
+            destinationAddressViewModel.update(error: nil)
+            destinationAddressSection = makeDestinationAddressSection(resolvedAddress: nil)
+            additionalFieldViewModel?.update(error: nil)
+            additionalFieldViewModel?.update(disabled: false)
+
+        case .invalidAddress(let message):
+            destinationAddressViewModel.update(error: message)
+            destinationAddressSection = makeDestinationAddressSection(resolvedAddress: nil)
+
+        case .valid(let context):
+            destinationAddressViewModel.update(error: nil)
+            destinationAddressSection = makeDestinationAddressSection(resolvedAddress: context.destination.address.showableResolved)
+
+            if !context.canEmbedAdditionalField, additionalFieldViewModel?.text.isEmpty == false {
+                additionalFieldViewModel?.update(text: "")
             }
+
+            additionalFieldViewModel?.update(error: nil)
+            additionalFieldViewModel?.update(disabled: !context.canEmbedAdditionalField)
+
+        case .additionalFieldRequired(let context):
+            destinationAddressViewModel.update(error: nil)
+            destinationAddressSection = makeDestinationAddressSection(resolvedAddress: context.destination.address.showableResolved)
+            additionalFieldViewModel?.update(disabled: !context.canEmbedAdditionalField)
+            additionalFieldViewModel?.update(error: Localization.sendValidationDestinationTagRequiredDescription)
         }
     }
 
-    @MainActor
-    func setupView(addressParameters: CryptoAddressParameters) {
-        destinationAddressSection = makeDestinationAddressSection(addressParameters: addressParameters)
-
-        if !addressParameters.canEmbedAdditionalField {
-            additionalFieldViewModel?.update(text: "")
-        }
-
-        additionalFieldViewModel?.update(disabled: !addressParameters.canEmbedAdditionalField)
-    }
-
-    func makeDestinationAddressSection(addressParameters: CryptoAddressParameters) -> [DestinationAddressSectionType] {
+    func makeDestinationAddressSection(resolvedAddress: String?) -> [DestinationAddressSectionType] {
         var section: [DestinationAddressSectionType] = [.destinationAddress(destinationAddressViewModel)]
-        if let destinationResolvedAddress = addressParameters.resolvedAddress {
-            section.append(.destinationResolvedAddress(destinationResolvedAddress))
+        if let resolvedAddress {
+            section.append(.destinationResolvedAddress(resolvedAddress))
         }
         return section
     }
