@@ -21,6 +21,7 @@ public struct VisaCustomerInfoResponse: Codable {
     public let card: Card?
     public let cards: [Card]
     public let depositAddress: String?
+    public let customerTariffPlan: CustomerTariffPlan?
 
     public init(
         id: String,
@@ -32,7 +33,8 @@ public struct VisaCustomerInfoResponse: Codable {
         kyc: KYCInfo?,
         card: Card? = nil,
         cards: [Card],
-        depositAddress: String?
+        depositAddress: String?,
+        customerTariffPlan: CustomerTariffPlan? = nil
     ) {
         self.id = id
         self.state = state
@@ -44,6 +46,7 @@ public struct VisaCustomerInfoResponse: Codable {
         self.card = card
         self.cards = cards
         self.depositAddress = depositAddress
+        self.customerTariffPlan = customerTariffPlan
     }
 
     public init(from decoder: Decoder) throws {
@@ -59,6 +62,7 @@ public struct VisaCustomerInfoResponse: Codable {
         card = try container.decodeIfPresent(Card.self, forKey: .card)
         cards = try container.decodeIfPresent([Card].self, forKey: .cards) ?? []
         depositAddress = try container.decodeIfPresent(String.self, forKey: .depositAddress)
+        customerTariffPlan = try container.decodeIfPresent(CustomerTariffPlan.self, forKey: .customerTariffPlan)
     }
 }
 
@@ -237,5 +241,96 @@ public extension VisaCustomerInfoResponse {
 
     func card(forCardId cardId: String) -> Card? {
         cards.first { $0.id == cardId }
+    }
+}
+
+public extension VisaCustomerInfoResponse {
+    struct CustomerTariffPlan: Codable {
+        public let status: Status
+        public let source: Source
+        public let transitionedAt: Date?
+        public let billedAt: Date?
+        public let nextBillingAt: Date?
+        public let tariffPlan: TariffPlan
+    }
+
+    struct TariffPlan: Codable {
+        public let id: String
+        public let type: String
+        public let name: String?
+        public let descriptionItems: [DescriptionItem]
+        public let fees: [Fee]
+        public let images: [Image]
+    }
+}
+
+public extension VisaCustomerInfoResponse.CustomerTariffPlan {
+    enum Status: String, Codable {
+        case active = "ACTIVE"
+        case transitioning = "TRANSITIONING"
+        case canceled = "CANCELED"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
+    }
+
+    enum Source: String, Codable {
+        case customer = "CUSTOMER"
+        case `default` = "DEFAULT"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
+    }
+}
+
+public extension VisaCustomerInfoResponse.TariffPlan {
+    struct DescriptionItem: Codable {
+        public let order: Int
+        public let title: String
+        public let body: String
+    }
+
+    struct Fee: Codable {
+        public let type: FeeType
+        public let amount: Decimal
+        public let currency: String
+        public let description: String?
+        public let period: Period?
+    }
+
+    struct Image: Codable {
+        public let type: String
+        public let url: String
+    }
+}
+
+public extension VisaCustomerInfoResponse.TariffPlan.Fee {
+    enum FeeType: String, Codable {
+        case free = "FREE"
+        case otc = "OTC"
+        case recurring = "RECURRING"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
+    }
+
+    enum Period: String, Codable {
+        case month = "MONTH"
+        case year = "YEAR"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
+        }
     }
 }
