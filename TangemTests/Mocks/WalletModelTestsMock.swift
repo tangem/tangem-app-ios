@@ -23,6 +23,10 @@ final class WalletModelTestsMock: WalletModel {
     private let _fiatAvailableBalance: Decimal
     private let _account: (any CryptoAccountModel)?
 
+    var transactionCreatorMock: TransactionCreator?
+    var multipleTransactionsSenderMock: MultipleTransactionsSender?
+    private(set) var updateAfterSendingTransactionCallCount = 0
+
     init(fiatBalance: Decimal, priceChange24h: Decimal?) {
         _fiatBalance = fiatBalance
         _priceChange24h = priceChange24h
@@ -122,7 +126,7 @@ final class WalletModelTestsMock: WalletModel {
 
     func updateTransactionsHistory() async {}
 
-    func updateAfterSendingTransaction() {}
+    func updateAfterSendingTransaction() { updateAfterSendingTransactionCallCount += 1 }
 
     // MARK: - WalletModelRentProvider
 
@@ -179,10 +183,14 @@ final class WalletModelTestsMock: WalletModel {
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { nil }
     var assetRequirementsManager: AssetRequirementsManager? { nil }
     var transactionFeeProvider: TransactionFeeProvider { fatalError() }
-    var transactionCreator: TransactionCreator { fatalError() }
+    var transactionCreator: TransactionCreator {
+        guard let transactionCreatorMock else { fatalError("transactionCreatorMock is not set") }
+        return transactionCreatorMock
+    }
+
     var transactionValidator: TransactionValidator { fatalError() }
     var transactionSender: TransactionSender { fatalError() }
-    var multipleTransactionsSender: MultipleTransactionsSender? { nil }
+    var multipleTransactionsSender: MultipleTransactionsSender? { multipleTransactionsSenderMock }
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { nil }
     var compiledTransactionSender: CompiledTransactionSender? { nil }
     var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { nil }
