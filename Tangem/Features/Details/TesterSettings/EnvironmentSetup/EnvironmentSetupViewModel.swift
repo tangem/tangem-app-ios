@@ -241,9 +241,14 @@ final class EnvironmentSetupViewModel: ObservableObject {
     func simulateReferralDeepLink() {
         guard let refcode = referralRefcodeInput.nilIfEmpty else { return }
 
-        AppSettings.shared.referralRefcode = refcode
-        AppSettings.shared.referralCampaign = "debug_simulation"
-        AppSettings.shared.shouldShowMobilePromoWalletSelector = true
+        let referralService = InjectedValues[\.referralService]
+        guard referralService.hasNoReferral else {
+            updateReferralState()
+            return
+        }
+
+        InjectedValues[\.mobileWalletPromoService].setNeedsPromo()
+        referralService.saveReferralIfNeeded(refcode: refcode, campaign: "debug_simulation")
         updateReferralState()
     }
 
