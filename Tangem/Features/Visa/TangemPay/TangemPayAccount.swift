@@ -210,6 +210,9 @@ final class TangemPayAccount {
     private let offersSubject = CurrentValueSubject<[TangemPayCustomerOffer], Never>([])
     private let activeIssueOrdersSubject = CurrentValueSubject<[TangemPayOrderResponse], Never>([])
     private let activeIssueOrderEventsSubject = PassthroughSubject<ActiveIssueOrderEvent, Never>()
+
+    private let loadOffersProcessor = SingleTaskProcessor<Void, Never>()
+    private let resumeIssuePollingProcessor = SingleTaskProcessor<Void, Never>()
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
     private let isReissuingCardSubject = CurrentValueSubject<Bool, Never>(false)
@@ -436,38 +439,46 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
 
 extension TangemPayAccount {
     func loadOffers() async {
-        do {
-            let offers = try await customerService.getCustomerOffers()
-            offersSubject.send(offers)
-        } catch {
-            VisaLogger.error("Failed to load TangemPay offers", error: error)
+        await loadOffersProcessor.execute { @MainActor [weak self] in
+            guard let self else { return }
+
+            do {
+                let offers = try await customerService.getCustomerOffers()
+                offersSubject.send(offers)
+            } catch {
+                VisaLogger.error("Failed to load TangemPay offers", error: error)
+            }
         }
     }
 
     func resumeAdditionalCardIssuePolling() async {
-        let localOrdersBeforeFetch = activeIssueOrdersSubject.value
+        await resumeIssuePollingProcessor.execute { @MainActor [weak self] in
+            guard let self else { return }
 
-        let bffActiveOrders: [TangemPayOrderResponse]
-        do {
-            bffActiveOrders = try await customerService.findOrders(
-                types: TangemPayOrderType.cardIssueFamily,
-                statuses: [.new, .processing]
-            )
-        } catch {
-            VisaLogger.error("Failed to restore in-flight card-issue polling", error: error)
-            return
+            let localOrdersBeforeFetch = activeIssueOrdersSubject.value
+
+            let bffActiveOrders: [TangemPayOrderResponse]
+            do {
+                bffActiveOrders = try await customerService.findOrders(
+                    types: TangemPayOrderType.cardIssueFamily,
+                    statuses: [.new, .processing]
+                )
+            } catch {
+                VisaLogger.error("Failed to restore in-flight card-issue polling", error: error)
+                return
+            }
+
+            let bffOrderIds = Set(bffActiveOrders.map(\.id))
+            let staleIds = localOrdersBeforeFetch.map(\.id).filter { !bffOrderIds.contains($0) }
+            if !staleIds.isEmpty {
+                staleIds.forEach { self.activeIssueOrderEventsSubject.send(.remove(id: $0)) }
+                orderStatusPollingService.cancel()
+            }
+
+            guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
+            activeIssueOrderEventsSubject.send(.upsert(order))
+            startAdditionalCardIssueTracking(orderId: order.id)
         }
-
-        let bffOrderIds = Set(bffActiveOrders.map(\.id))
-        let staleIds = localOrdersBeforeFetch.map(\.id).filter { !bffOrderIds.contains($0) }
-        if !staleIds.isEmpty {
-            staleIds.forEach { activeIssueOrderEventsSubject.send(.remove(id: $0)) }
-            orderStatusPollingService.cancel()
-        }
-
-        guard let order = bffActiveOrders.mostRecentByUpdatedAt else { return }
-        activeIssueOrderEventsSubject.send(.upsert(order))
-        startAdditionalCardIssueTracking(orderId: order.id)
     }
 
     func issueAdditionalCard() async throws -> TangemPayOrderResponse {
@@ -488,11 +499,7 @@ extension TangemPayAccount {
             String(info.productInstances.filter { $0.status == .active }.count)
         )
 
-        let existing = try? await orderResolver.findActiveOrder(types: TangemPayOrderType.cardIssueFamily) { order in
-            order.type == offerData.orderType
-                && order.data?.specificationName == offerData.specificationName
-                && order.data?.customerWalletAddress == customerWalletAddress
-        }
+        let existing = try await orderResolver.findActiveCardIssueOrder()
         let order: TangemPayOrderResponse
         if let existing {
             order = existing
