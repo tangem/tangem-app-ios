@@ -67,9 +67,9 @@ struct DEXProviderFlowHelper {
     }
 }
 
-// MARK: - Private
+// MARK: - Helpers
 
-private extension DEXProviderFlowHelper {
+extension DEXProviderFlowHelper {
     enum RestrictionCheckResult {
         case terminalState(ExpressProviderManagerState?)
         case dexApproveFlowState(ApproveData)
@@ -294,7 +294,7 @@ private extension DEXProviderFlowHelper {
 
 // MARK: - Approve & swap flow
 
-private extension DEXProviderFlowHelper {
+extension DEXProviderFlowHelper {
     func fetchExchangeDataAndProceedWithApprove(
         sourceAmount: Decimal,
         request: ExpressManagerSwappingPairRequest,
