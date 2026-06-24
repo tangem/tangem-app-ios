@@ -45,7 +45,7 @@ struct ExpressStatusTrackingFactory {
         )
 
         return ExchangeStatusPoller(
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
             cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
             expressRefundedTokenHandler: expressRefundedTokenHandler
@@ -54,7 +54,7 @@ struct ExpressStatusTrackingFactory {
 
     private func makeOnrampStatusPoller(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) -> OnrampStatusPoller {
         OnrampStatusPoller(
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
             expressAPIProvider: cachingExpressAPIProviderFactory.provider(
                 for: userWalletInfo.id.stringValue,
@@ -105,7 +105,7 @@ struct ExpressStatusTrackingFactory {
         )
 
         let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
-            userWalletId: userWalletInfo.id.stringValue,
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
             expressAPIProvider: expressAPIProvider
         )
