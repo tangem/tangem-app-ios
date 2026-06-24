@@ -59,9 +59,15 @@ final class GaslessTransactionSender {
     }
 }
 
+// MARK: - GaslessMultipleTransactionSending
+
+protocol GaslessMultipleTransactionSending {
+    func send(transactions: [BSDKTransaction]) async throws -> [TransactionDispatcherResult]
+}
+
 // MARK: - Approve & swap flow
 
-extension GaslessTransactionSender {
+extension GaslessTransactionSender: GaslessMultipleTransactionSending {
     func send(transactions: [BSDKTransaction]) async throws -> [TransactionDispatcherResult] {
         guard transactions.allSatisfy({ $0.fee.amount.type.isToken }) else {
             assertionFailure("Gasless fee should be in token")
