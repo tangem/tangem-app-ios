@@ -111,12 +111,17 @@ final class AccountArchiveUITests: BaseTestCase {
 
         wireMockClient.setScenarioStateSync(scenarioName, state: "ReadyToRestoreCustomToken")
 
-        archivedScreen
+        let cardSettings = archivedScreen
             .tapRecoverButton(for: account2Name)
             .verifyMigrationDialogVisible()
             .verifyMigrationDialogContains(text: mainAccountName)
             .verifyMigrationDialogContains(text: account2Name)
             .confirmMigrationDialog()
+
+        // Restore complete: backend now returns 2 accounts with the custom token moved to Account 2
+        wireMockClient.setScenarioStateSync(scenarioName, state: "CustomTokenRestored")
+
+        cardSettings
             .verifyAccountExists(account2Name)
             .goBackToDetails()
             .goBackToMain()

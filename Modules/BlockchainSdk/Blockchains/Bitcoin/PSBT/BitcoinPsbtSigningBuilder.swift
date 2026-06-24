@@ -14,6 +14,72 @@ import TangemSdk
 /// - Important: BitcoinDevKit Swift bindings do not currently expose mutable PSBT maps.
 ///   We therefore insert `partial_sigs` via `PsbtKeyValueMap`, then finalize the PSBT via `BitcoinDevKit.Psbt.finalize()`.
 public enum BitcoinPsbtSigningBuilder {
+    /// The PSBT inputs whose spending UTXO is locked by one of the wallet's `ownerScriptPubKeys`, paired with that script.
+    public static func ownedInputs(psbtBase64: String, ownerScriptPubKeys: Set<Data>) throws -> [(index: Int, scriptPubKey: Data)] {
+        guard Data(base64Encoded: psbtBase64) != nil else {
+            throw BlockchainSdk.BitcoinError.invalidBase64
+        }
+
+        let psbt = try Psbt(psbtBase64: psbtBase64)
+        let tx = try psbt.extractTx()
+        let txInputs = tx.input()
+        let psbtInputs = psbt.input()
+
+        return try txInputs.indices.compactMap { index in
+            let outpoint = txInputs[index].previousOutput
+            let utxo = try spendingUtxo(psbtInput: psbtInputs[index], vout: outpoint.vout)
+            let scriptPubKey = utxo.scriptPubkey.toBytes()
+            return ownerScriptPubKeys.contains(scriptPubKey) ? (index: index, scriptPubKey: scriptPubKey) : nil
+        }
+    }
+
+    /// Extract the raw, network-ready transaction (hex) from a finalized PSBT.
+    public static func extractRawTransactionHex(finalizedPsbtBase64: String) throws -> String {
+        guard Data(base64Encoded: finalizedPsbtBase64) != nil else {
+            throw BlockchainSdk.BitcoinError.invalidBase64
+        }
+
+        return try Psbt(psbtBase64: finalizedPsbtBase64).extractTx().serialize().hex()
+    }
+
+    /// The miner fee (in satoshi) the PSBT pays: total inputs value minus total outputs value.
+    public static func fee(psbtBase64: String) throws -> UInt64 {
+        guard Data(base64Encoded: psbtBase64) != nil else {
+            throw BlockchainSdk.BitcoinError.invalidBase64
+        }
+
+        let psbt = try Psbt(psbtBase64: psbtBase64)
+        let tx = try psbt.extractTx()
+        let txInputs = tx.input()
+        let psbtInputs = psbt.input()
+
+        var totalIn: UInt64 = 0
+        for index in txInputs.indices {
+            let outpoint = txInputs[index].previousOutput
+            let utxo = try spendingUtxo(psbtInput: psbtInputs[index], vout: outpoint.vout)
+            totalIn += utxo.value.toSat()
+        }
+
+        let totalOut = tx.output().reduce(UInt64(0)) { $0 + $1.value.toSat() }
+
+        guard totalIn >= totalOut else {
+            throw BlockchainSdk.BitcoinError.invalidPsbt("Inputs total is less than outputs total")
+        }
+
+        return totalIn - totalOut
+    }
+
+    /// The total value (in satoshi) the PSBT sends to outputs not owned by the wallet.
+    public static func sentAmount(psbtBase64: String, ownerScriptPubKeys: Set<Data>) throws -> UInt64 {
+        guard Data(base64Encoded: psbtBase64) != nil else {
+            throw BlockchainSdk.BitcoinError.invalidBase64
+        }
+
+        return try Psbt(psbtBase64: psbtBase64).extractTx().output()
+            .filter { !ownerScriptPubKeys.contains($0.scriptPubkey.toBytes()) }
+            .reduce(UInt64(0)) { $0 + $1.value.toSat() }
+    }
+
     /// Build hashes that must be signed for the given PSBT inputs (sorted by index).
     /// - Note: Returned hashes are double-SHA256 for BTC SIGHASH_ALL.
     public static func hashesToSign(psbtBase64: String, signInputs: [SignInput]) throws -> [Data] {
@@ -46,13 +112,13 @@ public enum BitcoinPsbtSigningBuilder {
         return hashes
     }
 
-    /// Apply signatures (in the same order as `signInputs.sorted(by: index)`), finalize inputs and return a base64 PSBT.
-    /// - Important: `signatures` must correspond to `hashesToSign` output order.
+    /// Apply signatures, finalize inputs and return a base64 PSBT.
+    /// - Important: `signatures` and `publicKeys` must align with `signInputs` sorted by index (the `hashesToSign` order).
     public static func applySignaturesAndFinalize(
         psbtBase64: String,
         signInputs: [SignInput],
         signatures: [SignatureInfo],
-        publicKey: Data
+        publicKeys: [Data]
     ) throws -> String {
         guard let psbtData = Data(base64Encoded: psbtBase64) else {
             throw BlockchainSdk.BitcoinError.invalidBase64
@@ -71,7 +137,7 @@ public enum BitcoinPsbtSigningBuilder {
         }
 
         let indices = signInputs.map(\.index).sorted()
-        guard indices.count == signatures.count else {
+        guard indices.count == signatures.count, indices.count == publicKeys.count else {
             throw BlockchainSdk.BitcoinError.wrongSignaturesCount
         }
 
@@ -87,7 +153,7 @@ public enum BitcoinPsbtSigningBuilder {
             do {
                 try psbtMaps.setPartialSignature(
                     inputIndex: inputIndex,
-                    publicKey: publicKey,
+                    publicKey: publicKeys[i],
                     signatureWithSighash: sigWithHashType
                 )
             } catch let error as BlockchainSdk.BitcoinError {
@@ -105,6 +171,21 @@ public enum BitcoinPsbtSigningBuilder {
         }
 
         return finalized.psbt.serialize()
+    }
+
+    /// Single-key convenience: stamps the same `publicKey` on every signed input.
+    public static func applySignaturesAndFinalize(
+        psbtBase64: String,
+        signInputs: [SignInput],
+        signatures: [SignatureInfo],
+        publicKey: Data
+    ) throws -> String {
+        try applySignaturesAndFinalize(
+            psbtBase64: psbtBase64,
+            signInputs: signInputs,
+            signatures: signatures,
+            publicKeys: Array(repeating: publicKey, count: signatures.count)
+        )
     }
 }
 
