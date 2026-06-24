@@ -27,26 +27,11 @@ class AppsFlyerWrapper {
         bind()
     }
 
-    /// AppsFlyer is allowed to run in Production (release builds only), and — to enable referral/OneLink
-    /// testing — in the Alpha and Beta environments. It stays disabled in the Internal environment.
-    /// Note: Alpha/Beta use the production AppsFlyer dev key, so test installs/events land in the prod account.
-    private var isAppsFlyerEnabled: Bool {
-        switch AppEnvironment.current {
-        case .production:
-            return !AppEnvironment.current.isDebug
-        case .alpha, .beta:
-            return true
-        case .internal:
-            return false
-        }
-    }
-
     func configure(delegate: AppDelegate) {
-        guard isAppsFlyerEnabled else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
-        AppsFlyerLib.shared().isDebug = !AppEnvironment.current.isProduction
         AppsFlyerLib.shared().disableIDFVCollection = true
         AppsFlyerLib.shared().appsFlyerDevKey = keysManager.appsFlyer.appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = keysManager.appsFlyer.appsFlyerAppID
@@ -54,7 +39,7 @@ class AppsFlyerWrapper {
     }
 
     func handleApplicationDidBecomeActive() {
-        guard isAppsFlyerEnabled else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -62,7 +47,7 @@ class AppsFlyerWrapper {
     }
 
     func handleUserActivity(userActivity: NSUserActivity) {
-        guard isAppsFlyerEnabled else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -70,7 +55,7 @@ class AppsFlyerWrapper {
     }
 
     func log(event: String, params: [String: Any]) {
-        guard isAppsFlyerEnabled else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
@@ -85,7 +70,7 @@ class AppsFlyerWrapper {
     }
 
     private func setUserId(userId: String) {
-        guard isAppsFlyerEnabled else {
+        guard !AppEnvironment.current.isInternalOrDebug else {
             return
         }
 
