@@ -187,7 +187,7 @@ public extension TangemButtonV2 {
                 DesignSystem.Color.interactionPressStaticLight
 
             case .secondary, .material, .outline, .ghost, .inverse:
-                DesignSystem.Color.interactionPress
+                DesignSystem.Color.interactionPressDefault
             }
         }
     }
