@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 /// The resolved destination produced by `CommonCryptoAddressProcessor`: the entered/resolved
 /// address plus the entered memo / destination-tag field.
@@ -46,7 +47,16 @@ enum CryptoAddressProcessorDestinationType: Equatable {
     }
 }
 
-enum CryptoAddressProcessorDestinationError: Error {
+enum CryptoAddressProcessorDestinationError {
     /// The address is empty or doesn't resolve to a valid address.
     case invalidAddress
+}
+
+extension CryptoAddressProcessorDestinationError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .invalidAddress:
+            return Localization.sendRecipientAddressError
+        }
+    }
 }
