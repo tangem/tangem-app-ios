@@ -667,6 +667,7 @@ extension Analytics {
         // MARK: - Add Funds
 
         case addFundsButtonBuy = "[Add Funds] Button - Buy"
+        case addFundsMethodScreenOpened = "[Add Funds] Method Screen Opened"
         case addFundsButtonSwap = "[Add Funds] Button - Swap"
         case addFundsButtonReceive = "[Add Funds] Button - Receive"
         case addFundsButtonGoToToken = "[Add Funds] Button - Go to Token"
