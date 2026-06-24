@@ -25,6 +25,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
         switch content {
         case .send(let viewModel): viewModel.blocks
         case .receive(let viewModel): viewModel.blocks
+        case .swap(let viewModel): viewModel.blocks
+        case .onramp(let viewModel): viewModel.blocks
         case .blocks(let blocks): blocks
         }
     }
@@ -32,6 +34,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     enum Content {
         case send(SendTransactionDetailsViewModel)
         case receive(ReceiveTransactionDetailsViewModel)
+        case swap(SwapTransactionDetailsViewModel)
+        case onramp(OnrampTransactionDetailsViewModel)
         case blocks([TransactionDetailsBlock])
     }
 }

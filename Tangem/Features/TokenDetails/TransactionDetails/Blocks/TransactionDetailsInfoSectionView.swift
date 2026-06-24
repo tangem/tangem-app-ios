@@ -53,7 +53,8 @@ struct TransactionDetailsInfoSectionView: View {
     private func rowView(_ row: TransactionDetailsInfoSectionViewData.Row, showsDivider: Bool) -> some View {
         switch row.content {
         case .text(let value):
-            TangemRow(title: row.title, value: value)
+            TangemRow(title: row.title)
+                .valueAccessory { textValue(value) }
                 .showDivider(showsDivider)
         case .link(let link):
             TangemRow(title: row.title)
@@ -61,6 +62,12 @@ struct TransactionDetailsInfoSectionView: View {
                 .onTap(link.handler)
                 .showDivider(showsDivider)
         }
+    }
+
+    private func textValue(_ value: String) -> some View {
+        Text(value)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
     }
 
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {

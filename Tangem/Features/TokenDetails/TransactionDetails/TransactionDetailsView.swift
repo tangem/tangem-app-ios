@@ -79,6 +79,27 @@ extension TransactionDetailsViewModel {
             content: .send(.preview())
         )
     }
+
+    static func previewSwapInProgress() -> TransactionDetailsViewModel { swap("Swapping", .inProgress, .previewInProgress()) }
+    static func previewSwapFinished() -> TransactionDetailsViewModel { swap("Swapped", .confirmed, .previewFinished()) }
+    static func previewSwapFailed() -> TransactionDetailsViewModel { swap("Swapping failed", .failed, .previewUnsuccessful()) }
+    static func previewOnrampInProgress() -> TransactionDetailsViewModel { onramp("Top up", .inProgress, .previewInProgress()) }
+    static func previewOnrampFinished() -> TransactionDetailsViewModel { onramp("Top up", .confirmed, .previewFinished()) }
+    static func previewOnrampFailed() -> TransactionDetailsViewModel { onramp("Top up failed", .failed, .previewUnsuccessful()) }
+
+    private static func swap(_ title: String, _ status: TransactionViewModel.Status, _ vm: SwapTransactionDetailsViewModel) -> TransactionDetailsViewModel {
+        .init(
+            header: .init(title: title, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .swap, status: status, isOutgoing: true), menuActions: .transactionDetailsPreview, onClose: {}),
+            content: .swap(vm)
+        )
+    }
+
+    private static func onramp(_ title: String, _ status: TransactionViewModel.Status, _ vm: OnrampTransactionDetailsViewModel) -> TransactionDetailsViewModel {
+        .init(
+            header: .init(title: title, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: status, isOutgoing: false), menuActions: .transactionDetailsPreview, onClose: {}),
+            content: .onramp(vm)
+        )
+    }
 }
 
 #Preview("Received") {
@@ -88,6 +109,36 @@ extension TransactionDetailsViewModel {
 
 #Preview("Sent") {
     TransactionDetailsView(viewModel: .previewSent())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Swap in progress") {
+    TransactionDetailsView(viewModel: .previewSwapInProgress())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Swap finished") {
+    TransactionDetailsView(viewModel: .previewSwapFinished())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Swap failed") {
+    TransactionDetailsView(viewModel: .previewSwapFailed())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Onramp in progress") {
+    TransactionDetailsView(viewModel: .previewOnrampInProgress())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Onramp finished") {
+    TransactionDetailsView(viewModel: .previewOnrampFinished())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Onramp failed") {
+    TransactionDetailsView(viewModel: .previewOnrampFailed())
         .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG

@@ -45,10 +45,30 @@ struct TransactionDetailsTokensViewData: Equatable {
     }
 
     struct Leg: Equatable {
+        enum Icon: Equatable {
+            case token(TokenIconInfo)
+            case image(url: URL?)
+        }
+
         let direction: String
-        let tokenIconInfo: TokenIconInfo
+        let icon: Icon
         let amountText: String
         let fiatText: String?
+        let isAmountStrikethrough: Bool
+
+        init(
+            direction: String,
+            icon: Icon,
+            amountText: String,
+            fiatText: String?,
+            isAmountStrikethrough: Bool = false
+        ) {
+            self.direction = direction
+            self.icon = icon
+            self.amountText = amountText
+            self.fiatText = fiatText
+            self.isAmountStrikethrough = isAmountStrikethrough
+        }
     }
 }
 
@@ -94,10 +114,10 @@ struct TransactionDetailsTokensView: View {
     // MARK: - Pair
 
     private func pairCard(from: TransactionDetailsTokensViewData.Leg, to: TransactionDetailsTokensViewData.Leg) -> some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             legRow(from)
             DashedDivider(color: DesignSystem.Color.borderSecondary)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 16)
             legRow(to)
         }
         .padding(.vertical, 4)
@@ -109,17 +129,19 @@ struct TransactionDetailsTokensView: View {
     }
 
     private func legRow(_ leg: TransactionDetailsTokensViewData.Leg) -> some View {
-        VStack(alignment: .leading, spacing: .zero) {
-            Text(leg.direction)
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-                .padding(.top, 12)
-                .padding(.bottom, 4)
+        HStack(alignment: .bottom, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(leg.direction)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
 
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(leg.amountText)
-                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .style(
+                            DesignSystem.Font.headingSmallToken,
+                            color: leg.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
+                        )
+                        .strikethrough(leg.isAmountStrikethrough)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
 
@@ -129,15 +151,24 @@ struct TransactionDetailsTokensView: View {
                             .lineLimit(1)
                     }
                 }
-
-                Spacer(minLength: 8)
-
-                TokenIcon(tokenIconInfo: leg.tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
             }
-            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            legIcon(leg.icon)
+                .frame(size: CGSize(bothDimensions: legTokenSide))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
+        .padding(16)
+    }
+
+    @ViewBuilder
+    private func legIcon(_ icon: TransactionDetailsTokensViewData.Leg.Icon) -> some View {
+        switch icon {
+        case .token(let tokenIconInfo):
+            TokenIcon(tokenIconInfo: tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
+        case .image(let url):
+            IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
+                .clipShape(Circle())
+        }
     }
 
     private var flowArrow: some View {
@@ -193,8 +224,8 @@ private extension TokenIconInfo {
 
         // Pair (swap / onramp)
         TransactionDetailsTokensView(data: .init(
-            from: .init(direction: "From", tokenIconInfo: .preview("Tether", color: .green), amountText: "− 390 USDT", fiatText: "$391.12"),
-            to: .init(direction: "To", tokenIconInfo: .preview("Polygon", color: .purple), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
+            from: .init(direction: "From", icon: .token(.preview("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
+            to: .init(direction: "To", icon: .token(.preview("Polygon", color: .purple)), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
         ))
     }
     .padding(16)
