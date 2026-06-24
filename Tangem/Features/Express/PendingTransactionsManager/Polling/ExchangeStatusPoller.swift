@@ -64,7 +64,9 @@ final class ExchangeStatusPoller {
             .sink { poller, transactions in
                 ExpressLogger.info("Receive new transactions to update: \(transactions.count). Number of already scheduled transactions: \(poller.transactionsScheduledForUpdate.count)")
                 // If transactions updated their statuses only no need to cancel currently scheduled task and force reload it
-                let shouldForceReload = poller.transactionsScheduledForUpdate.count != transactions.count
+                let scheduledIds = poller.transactionsScheduledForUpdate.uniqueProperties(\.transactionRecord.expressTransactionId)
+                let receivedIds = transactions.uniqueProperties(\.transactionRecord.expressTransactionId)
+                let shouldForceReload = scheduledIds != receivedIds
                 poller.transactionsScheduledForUpdate = transactions
                 poller.latestDisplayed = transactions
                 poller.subscribers.broadcast(
