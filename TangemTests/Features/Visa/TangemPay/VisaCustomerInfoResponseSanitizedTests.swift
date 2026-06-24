@@ -51,15 +51,15 @@ struct VisaCustomerInfoResponseSanitizedTests {
         #expect(sanitized.card?.expirationYear == "")
     }
 
-    @Test("card.isPinSet is reset to false")
-    func cardIsPinSet_isReset() throws {
+    @Test("card.isPinSet follows the multiple-cards toggle: reset in legacy, preserved in multi-card")
+    func cardIsPinSet_followsMultipleCardsToggle() throws {
         let response = try VisaCustomerInfoResponseFixture.fullyPopulated(cardIsPinSet: true)
         // sanity check: fixture really populates isPinSet=true
         #expect(response.card?.isPinSet == true)
 
         let sanitized = response.sanitizedForDiskCache()
 
-        #expect(sanitized.card?.isPinSet == false)
+        #expect(sanitized.card?.isPinSet == FeatureProvider.isAvailable(.tangemPayMultipleCards))
     }
 
     @Test("kyc payload is dropped entirely")
