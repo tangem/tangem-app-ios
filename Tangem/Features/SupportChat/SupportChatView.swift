@@ -19,8 +19,8 @@ struct SupportChatView: View {
 
     var body: some View {
         webViewContent
-            .navigationBarTitle(Localization.commonContactSupport, displayMode: .inline)
-            .navigationBarItems(trailing: logsButton)
+            .navigationBarTitle(Localization.supportChatScreenTitle, displayMode: .inline)
+            .navigationBarItems(trailing: navBarMenu)
             .onReceive(viewModel.injectJSPublisher) { script in
                 bridge.evaluate(script) { result, error in
                     if let error {
@@ -73,16 +73,20 @@ struct SupportChatView: View {
         }
     }
 
-    private var logsButton: some View {
-        Button(action: { viewModel.sendLogs() }) {
+    private var navBarMenu: some View {
+        Menu {
+            Button(action: { viewModel.sendLogs() }) {
+                Label(Localization.supportChatShareLogsButton, systemImage: "doc.text")
+            }
+            .disabled(viewModel.isSendingLogs)
+        } label: {
             if viewModel.isSendingLogs {
                 ActivityIndicatorView(style: .medium, color: UIColor(Colors.Text.primary1))
             } else {
-                Image(systemName: "doc.text")
+                Image(systemName: "ellipsis")
                     .foregroundColor(Colors.Text.primary1)
             }
         }
-        .accessibilityLabel(Localization.emailFallbackAlertShareLogsButton)
         .disabled(viewModel.isSendingLogs)
     }
 }

@@ -156,7 +156,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             txId: result.data.expressTransactionId,
             fromNetwork: result.source.network,
             fromAddress: result.address,
-            payinAddress: result.data.destinationAddress,
+            payinAddress: result.data.payInAddress,
             payinExtraId: result.data.extraDestinationId
         )
 

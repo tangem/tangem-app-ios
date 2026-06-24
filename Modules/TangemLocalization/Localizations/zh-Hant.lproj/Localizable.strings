@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Add address and select network";
 "address_book_add_address" = "Add address";
 "address_book_add_contact" = "Add contact";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Contact name";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Don't show again";
 "balance_hidden_got_it_button" = "Got it";
 "balance_hidden_title" = "Balances are hidden";
+"beta_mode_warning_title" = "Beta Mode";
 "biometry_touch_id_reason" = "Touch ID 用於將您的卡片保存在應用程序中";
 "bitcoin_promo_activation_error_title" = "Activation error";
 "bitcoin_promo_activation_error" = "An error occurred while processing your promo code. Please try again later.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "無法發送交易";
 "feedback_subject_tx_push_failed" = "無法推送交易";
 "feedback_token_description_error" = "Coin description error";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
 "force_update_banner_title" = "Update needed";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
 "staking_legal" = "By using staking functionality, you agree with provider’s %1$@ and %2$@";
 "staking_locked" = "Locked";
@@ -1403,6 +1407,8 @@
 "story_web3_title" = "兼容Web3.0";
 "sui_not_enough_coin_for_fee_description" = "An incoming transaction of at least %1$@ is required to proceed";
 "sui_not_enough_coin_for_fee_title" = "Insufficient funds";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "SWAP operation data:\nFrom: %1$@ %2$@\nTo: %3$@ %4$@\nBy %5$@ - %6$@";
 "support_selector_view_chat_button" = "Open chat";
 "support_selector_view_email_button" = "Open mail";
@@ -1805,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "這個動作是不可逆的。您將無法訪問舊錢包";
 "twins_scan_twin_with_number" = "將您的 iPhone 靠近編號為 %@ 的雙胞胎卡";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
 "unexpected_error_title" = "Something went wrong!";
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
@@ -1833,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "錢包名稱";
 "user_wallet_list_rename_popup_title" = "重新命名錢包";
 "user_wallet_list_unlock_all_with" = "用 %@ 解鎖全部";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verifired";
 "visa_balance_limits_details_available" = "Available";
 "visa_balance_limits_details_blocked" = "Blocked";
