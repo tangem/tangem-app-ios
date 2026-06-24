@@ -49,6 +49,10 @@ public protocol CompiledTransactionSender {
     func send(compiledTransaction data: Data, signer: TransactionSigner) async throws -> TransactionSendResult
 }
 
+public protocol BitcoinPsbtSwapSender {
+    func send(psbtBase64: String, destination: String, signer: TransactionSigner) async throws -> TransactionSendResult
+}
+
 // MARK: - TransactionSigner
 
 public protocol TransactionSigner {
