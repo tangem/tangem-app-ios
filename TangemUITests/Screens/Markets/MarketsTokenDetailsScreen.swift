@@ -16,6 +16,8 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
     private lazy var securityScoreRatingStars = image(.securityScoreRatingStars)
     private lazy var securityScoreReviewsCount = staticText(.securityScoreReviewsCount)
     private lazy var addFundsButton = app.buttons[ActionButtonsAccessibilityIdentifiers.addFundsButton].firstMatch
+    private lazy var addToPortfolioButton = app.buttons[MainAccessibilityIdentifiers.addToPortfolioButton].firstMatch
+    private lazy var backButton = app.buttons[CommonUIAccessibilityIdentifiers.backButton].firstMatch
 
     @discardableResult
     func verifyListedOnExchangesBlock() -> Self {
@@ -161,6 +163,24 @@ final class MarketsTokenDetailsScreen: ScreenBase<MarketsTokenDetailsScreenEleme
         XCTContext.runActivity(named: "Tap Add funds button on Markets token details screen") { _ in
             addFundsButton.waitAndTapWithScroll()
             return AddFundsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapAddToPortfolio() -> AddTokenFlowScreen {
+        XCTContext.runActivity(named: "Tap Add to portfolio button on Markets token details screen") { _ in
+            waitAndAssertTrue(addToPortfolioButton, "Add to portfolio button should exist on Markets token details screen")
+            addToPortfolioButton.waitAndTap()
+            return AddTokenFlowScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapBackButton() -> BuyTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Back button on Markets token details screen") { _ in
+            waitAndAssertTrue(backButton, "Back button should exist on Markets token details screen")
+            backButton.waitAndTap()
+            return BuyTokenSelectorScreen(app)
         }
     }
 }

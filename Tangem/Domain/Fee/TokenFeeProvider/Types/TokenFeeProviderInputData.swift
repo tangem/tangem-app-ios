@@ -47,4 +47,5 @@ enum TokenFeeProviderInputDataDEXType: Hashable {
     case ethereum(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?)
     case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
     case solana(compiledTransaction: Data)
+    case bitcoinPsbt(psbtBase64: String)
 }

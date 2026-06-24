@@ -37,6 +37,12 @@ protocol SolanaTokenFeeLoader: TokenFeeLoader {
     func getFee(compiledTransaction data: Data) async throws -> [BSDKFee]
 }
 
+// MARK: - BitcoinTokenFeeLoader
+
+protocol BitcoinTokenFeeLoader: TokenFeeLoader {
+    func getFee(psbtBase64: String) async throws -> [BSDKFee]
+}
+
 // MARK: - TokenFeeLoader+
 
 extension TokenFeeLoader {
@@ -54,6 +60,14 @@ extension TokenFeeLoader {
         }
 
         return solanaTokenFeeLoader
+    }
+
+    func asBitcoinTokenFeeLoader() throws -> BitcoinTokenFeeLoader {
+        guard let bitcoinTokenFeeLoader = self as? BitcoinTokenFeeLoader else {
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+
+        return bitcoinTokenFeeLoader
     }
 }
 
