@@ -23,6 +23,16 @@ final class AddFundsScreen: ScreenBase<AddFundsScreenElement> {
     }
 
     @discardableResult
+    func expandPortfolioToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Select '\(tokenName)' holding in 'Your portfolio'") { _ in
+            // Holdings picker rows have no identifier; match by leading token name.
+            let tokenItem = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "\(tokenName),")).firstMatch
+            tokenItem.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
     func tapSwap() -> SwapStoriesScreen {
         XCTContext.runActivity(named: "Tap Swap row on Add funds screen") { _ in
             swapRow.waitAndTap()
