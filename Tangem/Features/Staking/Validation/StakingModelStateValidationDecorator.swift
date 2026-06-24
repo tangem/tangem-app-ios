@@ -191,7 +191,7 @@ private extension StakingModelStateValidationDecorator {
         } catch let error as StakingTransactionValidationError {
             analyticsLogger.logLocalError(error)
             // Local validation failed — transaction is suspicious, don't pass it
-            return ValidationResult(state: mapToValidationState(localError: error), transaction: nil)
+            return ValidationResult(state: .blocked, transaction: nil)
         } catch let error as RemoteStakingValidationError {
             analyticsLogger.logRemoteError(error)
             let state = mapToValidationState(remoteError: error)
@@ -201,13 +201,6 @@ private extension StakingModelStateValidationDecorator {
         } catch {
             // Unknown validation error — allow to proceed with built transaction
             return ValidationResult(state: .validated, transaction: transactionInfo)
-        }
-    }
-
-    static func mapToValidationState(localError: StakingTransactionValidationError) -> StakingValidationState {
-        switch localError {
-        case .emptyOrMalformedData, .notAStakingTransaction:
-            .blocked
         }
     }
 

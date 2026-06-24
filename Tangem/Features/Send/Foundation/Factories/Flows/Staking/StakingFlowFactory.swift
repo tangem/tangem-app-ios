@@ -23,7 +23,6 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
     lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
     lazy var validationDecorator = makeValidationDecorator()
-    lazy var stateProvider: StakingModelStateProvider = validationDecorator
 
     init(
         stakingableToken: SendStakingableToken,
@@ -53,27 +52,24 @@ extension StakingFlowFactory {
         )
     }
 
-    func makeStakingTransactionValidator() -> StakingTransactionValidator? {
+    func makeValidationDecorator() -> StakingModelStateValidationDecorator? {
         guard FeatureProvider.isAvailable(.stakingTransactionValidation) else { return nil }
 
         let blockchain = tokenItem.blockchain
         let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
         let isRemoteValidationEnabled = RemoteValidationNetwork(blockchain: blockchain) != nil
-        let isValidationEnabled = isLocalValidationEnabled || isRemoteValidationEnabled
-        guard isValidationEnabled else { return nil }
+        guard isLocalValidationEnabled || isRemoteValidationEnabled else { return nil }
 
-        return StakingValidationComposer.make(
+        let validator = StakingValidationComposer.make(
             blockchain: blockchain,
             accountAddress: stakingableToken.defaultAddressString,
             verifier: StakingTransactionVerifierFactory.make(apiKey: keysManager.blockaidAPIKey)
         )
-    }
 
-    func makeValidationDecorator() -> StakingModelStateValidationDecorator {
-        StakingModelStateValidationDecorator(
+        return StakingModelStateValidationDecorator(
             decoratee: stakingModel,
             stakingManager: manager,
-            validator: makeStakingTransactionValidator(),
+            validator: validator,
             analyticsLogger: analyticsLogger
         )
     }
@@ -107,15 +103,20 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         sendFeeFinishViewModel.bind(input: stakingModel)
 
         // Notifications setup
-        notificationManager.setup(provider: stateProvider, input: stakingModel)
-        notificationManager.setup(validationStatePublisher: validationDecorator.validationState, tokenName: tokenItem.currencySymbol)
+        notificationManager.setup(provider: validationDecorator ?? stakingModel, input: stakingModel)
+        if let validationDecorator {
+            notificationManager.setup(
+                validationStatePublisher: validationDecorator.validationState,
+                tokenName: tokenItem.currencySymbol
+            )
+        }
         notificationManager.setupManager(with: stakingModel)
 
         // Analytics
         analyticsLogger.setup(stakingTargetsInput: stakingModel)
 
         let stepsManager = CommonStakingStepsManager(
-            provider: stateProvider,
+            provider: validationDecorator ?? stakingModel,
             amountStep: amount.step,
             targetsStep: targets.step,
             summaryStep: summary,
@@ -137,7 +138,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
 
 extension StakingFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: stakingModel, output: validationDecorator)
+        SendViewModelBuilder.IO(input: stakingModel, output: validationDecorator ?? stakingModel)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
@@ -219,7 +220,7 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
 extension StakingFlowFactory: SendSummaryStepBuildable {
     var summaryIO: SendSummaryStepBuilder.IO {
         SendSummaryStepBuilder.IO(
-            input: validationDecorator,
+            input: validationDecorator ?? stakingModel,
             output: stakingModel,
             validationStateProvider: validationDecorator
         )
