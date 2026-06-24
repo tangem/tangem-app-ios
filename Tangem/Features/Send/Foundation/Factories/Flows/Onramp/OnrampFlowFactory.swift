@@ -56,7 +56,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         self.coordinatorSource = coordinatorSource
 
         pendingExpressTransactionsManagerBuilder = .init(
-            userWalletId: sourceToken.userWalletInfo.id.stringValue,
+            userWalletId: sourceToken.userWalletInfo.id,
             tokenItem: sourceToken.tokenItem,
         )
 
