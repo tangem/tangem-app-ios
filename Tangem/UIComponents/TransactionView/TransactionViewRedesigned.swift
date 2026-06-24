@@ -48,7 +48,7 @@ struct TransactionViewRedesigned: View {
             iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
-        .accessibilityIdentifier(isConfirmed ? TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey) : "")
+        .accessibilityIdentifier(isConfirmed ? TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey) : nil)
     }
 
     @ViewBuilder
