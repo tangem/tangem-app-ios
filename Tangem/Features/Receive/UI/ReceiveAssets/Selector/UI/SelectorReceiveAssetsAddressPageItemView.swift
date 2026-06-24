@@ -69,6 +69,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                     .multilineTextAlignment(.center)
                     .infinityFrame(axis: .horizontal, alignment: .center)
                     .padding(.horizontal, Layout.TokenContentView.addressHorizontalPadding)
+                    .accessibilityIdentifier(viewModel.addressAccessibilityIdentifier)
             }
         }
     }
