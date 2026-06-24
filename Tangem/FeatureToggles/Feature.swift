@@ -25,17 +25,22 @@ enum Feature: String, Hashable, CaseIterable {
     case transfers
     case memoValidationBeforeConfirm
     case tangemPaySpendRedesign
+    case tangemPayTiers
     case supportChat
     case supportChatSwap
     case onrampApplePayHistoryFallback
     case mobileWalletMultiCreation
     case approveFlowV2
     case addAndOrganizeRedesign
+    case sendWithSwapAvailabilityCheck
     case swapFiatCalculation
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
+    case bitcoinDexSwap
 
+    /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
+    /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
     var name: String {
         switch self {
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
@@ -54,15 +59,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
+        case .tangemPayTiers: return "TWI-1066_tangem_pay_tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
         case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
+        case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
-        case .addressBook: return "10801-Address-Book"
+        case .addressBook: return "TWI-83_address_book"
+        case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
@@ -81,19 +89,22 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .tangemPayMultipleCards: return .unspecified
+        case .tangemPayMultipleCards: return .version("6.0")
         case .transfers: return .version("6.0")
         case .memoValidationBeforeConfirm: return .unspecified
-        case .tangemPaySpendRedesign: return .unspecified
+        case .tangemPaySpendRedesign: return .version("6.0")
+        case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
         case .onrampApplePayHistoryFallback: return .version("6.0")
         case .mobileWalletMultiCreation: return .unspecified
         case .approveFlowV2: return .version("6.0")
         case .addAndOrganizeRedesign: return .version("6.0")
+        case .sendWithSwapAvailabilityCheck: return .unspecified
         case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified
         case .addressBook: return .unspecified
+        case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
         }
     }

@@ -195,6 +195,7 @@ protocol WalletModelDependenciesProvider {
 
     var compiledTransactionFeeProvider: CompiledTransactionFeeProvider? { get }
     var compiledTransactionSender: CompiledTransactionSender? { get }
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? { get }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { get }
     var ethereumNetworkProvider: EthereumNetworkProvider? { get }

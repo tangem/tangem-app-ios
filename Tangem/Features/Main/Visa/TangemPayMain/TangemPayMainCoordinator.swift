@@ -33,6 +33,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     // MARK: - Child view models (push navigation)
 
     @Published var cardManagementViewModel: TangemPayCardManagementViewModel?
+    @Published var currentPlanViewModel: TangemPayCurrentPlanViewModel?
 
     // MARK: - Child view models (sheets)
 
@@ -83,7 +84,9 @@ extension TangemPayMainCoordinator {
             self?.sendCoordinator = nil
 
             switch options {
-            case .none, .closeButtonTap:
+            // Swap redirect is unreachable here: TangemPay opens only `.swap`-type flows,
+            // and the receive-token list exists only in the Send-with-Swap flow.
+            case .none, .closeButtonTap, .openSwap:
                 break
             case .openFeeCurrency(let feeCurrency):
                 self?.dismiss(with: feeCurrency)
@@ -143,6 +146,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             initialEntry: entry,
             coordinator: self
         )
+    }
+
+    func openCurrentPlan() {
+        currentPlanViewModel = TangemPayCurrentPlanViewModel()
     }
 
     func openFakedoorSheet() {

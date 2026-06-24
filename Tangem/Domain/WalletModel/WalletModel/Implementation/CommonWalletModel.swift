@@ -630,6 +630,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? CompiledTransactionSender
     }
 
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
+        walletManager as? BitcoinPsbtSwapSender
+    }
+
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
         walletManager as? BitcoinTransactionFeeCalculator
     }

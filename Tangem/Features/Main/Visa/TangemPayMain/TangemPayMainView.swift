@@ -312,8 +312,8 @@ struct TangemPayMainView: View {
             .padding(.top, 12)
         }
         .background {
-            TangemPayBackgroundView(textureOpacity: redesignedHeaderOpacity)
-                .animation(.default, value: headerHeightRatio)
+            DesignSystem.Color.bgPrimary
+                .ignoresSafeArea()
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
         .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
@@ -378,7 +378,6 @@ struct TangemPayMainView: View {
                 isReloadButtonBusy: false,
                 fetchMore: viewModel.fetchNextTransactionHistoryPage()
             )
-            .opacity(viewModel.isStale ? 0.6 : 1)
         }
     }
 
@@ -489,6 +488,15 @@ struct TangemPayMainView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                if FeatureProvider.isAvailable(.tangemPayTiers) {
+                    Button(action: viewModel.openCurrentPlan) {
+                        // [REDACTED_TODO_COMMENT]
+                        Label("Current plan", systemImage: "info.circle")
+                    }
+
+                    Divider()
+                }
+
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }

@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "添加地址并选择网络";
 "address_book_add_address" = "添加地址";
 "address_book_add_contact" = "添加联系人";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
 "address_book_copy_address" = "复制地址";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "不要再次显示";
 "balance_hidden_got_it_button" = "明白";
 "balance_hidden_title" = "余额已隐藏";
+"beta_mode_warning_title" = "测试模式";
 "biometry_touch_id_reason" = "Touch ID 用于在应用程序中保存您的卡片和指环";
 "bitcoin_promo_activation_error_title" = "激活错误";
 "bitcoin_promo_activation_error" = "处理您的优惠码时出错，请稍后再试。";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "无法发送交易";
 "feedback_subject_tx_push_failed" = "无法推送交易";
 "feedback_token_description_error" = "代币描述错误";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
 "force_update_banner_title" = "需要更新";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "已启用质押";
 "staking_error_no_validators_message" = "目前没有可用的验证节点。请稍后再试。";
 "staking_error_no_validators_title" = "质押功能不可用";
+"staking_error_unavailable_region" = "您所在的地区暂不支持质押功能";
 "staking_give_permission_fee_footer" = "网络将收取代币批准费，以验证您是否授权使用您的代币进行质押。";
 "staking_legal" = "使用质押功能即表示您同意提供商的 %1$@ 和 %2$@";
 "staking_locked" = "已锁定";
@@ -1369,8 +1373,8 @@
 "staking_title_stake" = "质押%@";
 "staking_title_unstake" = "取消抵押 %@";
 "staking_transaction_in_progress_text" = "交易正在处理中！区块链正在进行验证，这可能需要几分钟时间。";
-"staking_transaction_validation_unsafe" = "%@ staking prohibited due to security checks";
-"staking_transaction_validation_warning" = "%@ staking suspicious. Please stake at your own risk";
+"staking_transaction_validation_unsafe" = "因安全检查问题，禁止质押%@ ";
+"staking_transaction_validation_warning" = "%@ 质押行为可疑。请自行承担风险进行质押";
 "staking_unbonding_in" = "解绑在";
 "staking_unbonding" = "解除绑定";
 "staking_unlocked_locked" = "解锁";
@@ -1403,6 +1407,8 @@
 "story_web3_title" = "兼容 Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "至少需要有 %1$@ 的转入交易才能继续进行";
 "sui_not_enough_coin_for_fee_title" = "资金不足";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "兑换操作数据：\n从： %1$@ %2$@\n到： %3$@ %4$@\n由： %5$@ - %6$@";
 "support_selector_view_chat_button" = "打开聊天";
 "support_selector_view_email_button" = "打开邮件";
@@ -1454,7 +1460,7 @@
 "swapping_permission_header" = "给予许可";
 "swapping_permit_and_swap" = "许可和兑换";
 "swapping_rate_experience_title" = "请评价您与服务提供商的互动体验";
-"swapping_rate_feedback_placeholder" = "请输入您的反馈";
+"swapping_rate_feedback_placeholder" = "请输入您的反馈（可选）";
 "swapping_rate_feedback_submit" = "发送反馈";
 "swapping_rate_feedback_title" = "是什么影响了您的\n体验？";
 "swapping_swap_action_in_progress" = "互换...";
@@ -1805,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "此操作不可逆。您将无法访问旧钱包。";
 "twins_scan_twin_with_number" = "轻触带有数字 %@ 的第二张卡片，操作结束前请勿移除。";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "请稍后再试。如果问题仍然存在，请联系客服。";
 "unexpected_error_title" = "出问题了！";
 "universal_error" = "我们遇到了一个错误。错误代码： %@请联系我们的客服。";
@@ -1833,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "钱包名称";
 "user_wallet_list_rename_popup_title" = "重命名钱包";
 "user_wallet_list_unlock_all_with" = "解锁所有 %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "已通过反洗钱（AML）验证";
 "visa_balance_limits_details_available" = "可用";
 "visa_balance_limits_details_blocked" = "已屏蔽";
