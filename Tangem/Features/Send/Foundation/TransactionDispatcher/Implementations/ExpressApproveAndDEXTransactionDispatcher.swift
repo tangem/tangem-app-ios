@@ -14,7 +14,7 @@ import TangemExpress
 final class ExpressApproveAndDEXTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
-    private let gaslessTransactionSender: GaslessTransactionSender
+    private let gaslessTransactionSender: GaslessMultipleTransactionSending
 
     private var feeTokenItem: TokenItem { walletModel.feeTokenItem }
     private var transactionCreator: TransactionCreator { walletModel.transactionCreator }
@@ -22,7 +22,7 @@ final class ExpressApproveAndDEXTransactionDispatcher {
     init(
         walletModel: any WalletModel,
         transactionSigner: TangemSigner,
-        gaslessTransactionSender: GaslessTransactionSender
+        gaslessTransactionSender: GaslessMultipleTransactionSending
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
