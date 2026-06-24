@@ -32,7 +32,7 @@ extension TransactionRecord {
 }
 
 extension TransactionRecord {
-    func withExtraInfo(_ extraInfo: TransactionRecordExtraInfo?) -> TransactionRecord {
+    func withExtraInfo(_ extraInfo: TransactionRecordExtraInfo) -> TransactionRecord {
         return TransactionRecord(
             hash: hash,
             index: index,
