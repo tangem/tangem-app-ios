@@ -365,7 +365,7 @@ private extension TokenDetailsView {
         ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
     }
     let exchangeStatusPoller = ExchangeStatusPoller(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
         cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
@@ -376,12 +376,12 @@ private extension TokenDetailsView {
     )
     let onrampExpressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletModel.userWalletId.stringValue, refcode: userWalletModel.refcodeProvider?.getRefcode())
     let onrampStatusPoller = OnrampStatusPoller(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
         expressAPIProvider: onrampExpressAPIProvider
     )
     let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
-        userWalletId: userWalletModel.userWalletId.stringValue,
+        userWalletId: userWalletModel.userWalletId,
         tokenItem: walletModel.tokenItem,
         expressAPIProvider: onrampExpressAPIProvider
     )

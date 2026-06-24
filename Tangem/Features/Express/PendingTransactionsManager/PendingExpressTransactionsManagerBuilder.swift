@@ -7,9 +7,10 @@
 //
 
 import TangemExpress
+import TangemFoundation
 
 struct PendingExpressTransactionsManagerBuilder {
-    let userWalletId: String
+    let userWalletId: UserWalletId
     let tokenItem: TokenItem
 
     func makePendingExpressTransactionsManager(expressAPIProvider: ExpressAPIProvider) -> PendingExpressTransactionsManager {
