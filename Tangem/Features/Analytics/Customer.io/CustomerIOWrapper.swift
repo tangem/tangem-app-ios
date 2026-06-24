@@ -41,8 +41,16 @@ final class CustomerIOWrapper {
         CustomerIO.initialize(withConfig: sdkConfig)
         MessagingPush.initialize(withConfig: pushConfig)
 
+        shareCdpApiKeyWithNotificationServiceExtension()
         subscribeToUserWalletRepositoryEvents()
         subscribeToFcmTokenUpdatedEvent()
+    }
+
+    /// Publishes the Customer.io CDP API key into the shared App Group so the Notification Service
+    /// Extension can initialize the SDK and record the `delivered` metric. The key is bundled only
+    /// into the main app, so the extension reads it from here.
+    private func shareCdpApiKeyWithNotificationServiceExtension() {
+        AppGroupSharedStorage.customerIOCdpApiKey = keysManager.customerIO.iosApiKey
     }
 
     private func subscribeToUserWalletRepositoryEvents() {
