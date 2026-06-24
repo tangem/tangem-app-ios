@@ -289,7 +289,7 @@ private extension StakingModel {
 // MARK: - Send
 
 private extension StakingModel {
-    private func send() async throws -> TransactionDispatcherResult {
+    func send() async throws -> TransactionDispatcherResult {
         guard case .readyToStake(let readyToStake) = _state.value else {
             throw StakingModelError.readyToStakeNotFound
         }
@@ -505,6 +505,44 @@ extension StakingModel: SendBaseInput, SendBaseOutput {
         defer { _isLoading.send(false) }
 
         return try await send()
+    }
+}
+
+// MARK: - StakingTransactionSender
+
+extension StakingModel: StakingTransactionSender {
+    func send(_ transaction: StakingTransactionAction) async throws -> TransactionDispatcherResult {
+        _isLoading.send(true)
+        defer { _isLoading.send(false) }
+
+        guard case .readyToStake = _state.value else {
+            throw StakingModelError.readyToStakeNotFound
+        }
+
+        guard let target = _selectedTarget.value.value else {
+            throw StakingModelError.targetNotFound
+        }
+
+        do {
+            let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(
+                analyticsLogger: analyticsLogger
+            )
+            let result = try await dispatcher.send(transaction: .staking(transaction))
+            stakingManager.transactionDidSent(
+                action: StakingAction(
+                    amount: transaction.amount,
+                    targetType: .target(target),
+                    type: .stake
+                )
+            )
+            proceed(result: result)
+            return result
+        } catch let error as TransactionDispatcherResult.Error {
+            proceed(error: error)
+            throw error
+        } catch {
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
+        }
     }
 }
 

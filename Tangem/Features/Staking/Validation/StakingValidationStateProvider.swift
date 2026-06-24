@@ -9,6 +9,6 @@
 import Foundation
 import Combine
 
-protocol StakingValidationStateProvider {
+protocol StakingValidationStateProvider: AnyObject {
     var validationState: AnyPublisher<StakingValidationState, Never> { get }
 }

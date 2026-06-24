@@ -72,7 +72,6 @@ extension StakingFlowFactory {
     func makeValidationDecorator() -> StakingModelStateValidationDecorator {
         StakingModelStateValidationDecorator(
             decoratee: stakingModel,
-            targetProvider: stakingModel,
             stakingManager: manager,
             validator: makeStakingTransactionValidator(),
             analyticsLogger: analyticsLogger
@@ -138,7 +137,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
 
 extension StakingFlowFactory: SendBaseBuildable {
     var baseIO: SendViewModelBuilder.IO {
-        SendViewModelBuilder.IO(input: stakingModel, output: stakingModel)
+        SendViewModelBuilder.IO(input: stakingModel, output: validationDecorator)
     }
 
     var baseDependencies: SendViewModelBuilder.Dependencies {
