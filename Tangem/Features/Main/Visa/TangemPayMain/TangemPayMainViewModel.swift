@@ -349,6 +349,10 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func openCurrentPlan() {
+        coordinator?.openCurrentPlan()
+    }
+
     func termsAndLimits() {
         Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTermsAndLimits()
