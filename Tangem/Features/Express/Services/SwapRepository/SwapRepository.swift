@@ -21,6 +21,8 @@ protocol SwapRepository: ExpressRepository {
 
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair]
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair]
+
+    func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider]
 }
 
 private struct SwapRepositoryKey: InjectionKey {
