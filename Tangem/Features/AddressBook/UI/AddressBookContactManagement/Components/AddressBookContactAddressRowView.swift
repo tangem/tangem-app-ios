@@ -18,11 +18,10 @@ struct AddressBookContactAddressRowViewModel: Identifiable {
     let addressIconViewModel: AddressIconViewModel
     let onDelete: () -> Void
 
-    init(id: String, address: String, onDelete: @escaping () -> Void) {
+    init(id: String, address: String, networksCount: Int, onDelete: @escaping () -> Void) {
         self.id = id
         title = address
-        // Each entry holds a single network for now; the row reflects exactly one network.
-        subtitle = Localization.commonNetworksCount(1)
+        subtitle = Localization.commonNetworksCount(networksCount)
         addressIconViewModel = AddressIconViewModel(address: address)
         self.onDelete = onDelete
     }

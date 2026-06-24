@@ -17,21 +17,18 @@ struct AddressBooksView: View {
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            if viewModel.walletChips.count > 1 {
-                HorizontalChipsView(
-                    chips: viewModel.walletChips,
-                    selectedId: $viewModel.selectedChipId,
-                    horizontalInset: 8,
-                    verticalInset: 8
-                )
-            }
-
             content
         }
+        .interContentPadding(12)
         .navigationTitle(Text(Localization.addressBookTitle))
         // [REDACTED_TODO_COMMENT]
         .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
-        .toolbar {
+        .toolbar { trailingToolbarItem }
+    }
+
+    @ToolbarContentBuilder
+    private var trailingToolbarItem: some ToolbarContent {
+        if viewModel.showsToolbarAddButton {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: viewModel.openAddContact) {
                     DesignSystem.Icons.SignPlus.regular20.image
@@ -45,20 +42,37 @@ struct AddressBooksView: View {
 
     @ViewBuilder
     private var content: some View {
+        chipsView
+
         switch viewModel.contactsViewModels {
         case .loading:
-            // [REDACTED_TODO_COMMENT]
-            EmptyView()
+            AddressBooksLoadingView()
+
+        case .failure:
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
 
         case .success(let contactsViewModels) where contactsViewModels.isEmpty:
-            // [REDACTED_TODO_COMMENT]
-            EmptyView()
+            AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
 
         case .success(let contactsViewModels):
             GroupedSection(contactsViewModels, isLazy: true) {
                 AddressBookContactView(viewModel: $0)
             }
+            .separatorStyle(.none)
+            .cornerRadius(24)
             .horizontalPadding(0)
+        }
+    }
+
+    @ViewBuilder
+    private var chipsView: some View {
+        if viewModel.walletChips.count > 1 {
+            HorizontalChipsView(
+                chips: viewModel.walletChips,
+                selectedId: $viewModel.selectedChipId,
+                horizontalInset: 8,
+                verticalInset: 8
+            )
         }
     }
 }

@@ -54,6 +54,7 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published private(set) var isWithdrawButtonDisabled: Bool = false
     @Published private(set) var inlineNotifications: [NotificationViewInput] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
 
@@ -348,6 +349,10 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func openCurrentPlan() {
+        coordinator?.openCurrentPlan()
+    }
+
     func termsAndLimits() {
         Analytics.log(.visaScreenTermsAndLimitsClicked, contextParams: .userWallet(userWalletInfo.id))
         coordinator?.openTermsAndLimits()
@@ -390,12 +395,17 @@ final class TangemPayMainViewModel: ObservableObject {
             guard case .spend(let spend) = transaction.record else { return nil }
             return tangemPayAccount.cardDisplayName(forCardId: spend.cardId)
         }()
+        let cardNumberEnd: String? = {
+            guard case .spend(let spend) = transaction.record else { return nil }
+            return tangemPayAccount.cardNumberEnd(forCardId: spend.cardId)
+        }()
 
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
             userWalletId: userWalletInfo.id,
             customerId: tangemPayAccount.customerId,
-            cardName: cardName
+            cardName: cardName,
+            cardNumberEnd: cardNumberEnd
         )
     }
 }
@@ -425,6 +435,13 @@ private extension TangemPayMainViewModel {
             }
             .receiveOnMain()
             .assign(to: &$pendingExpressTransactions)
+
+        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.balanceTypePublisher
+            .map { balance in
+                balance.value?.isZero == true
+            }
+            .receiveOnMain()
+            .assign(to: &$isWithdrawButtonDisabled)
 
         bindInlineNotifications()
 
