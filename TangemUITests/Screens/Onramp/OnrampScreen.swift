@@ -200,6 +200,21 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func tapAnyBuyButton() -> OnrampProviderWebPage {
+        XCTContext.runActivity(named: "Tap Buy on any offer and open provider web page") { _ in
+            let buyButton = app.buttons.matching(NSPredicate(format: "label == 'Buy'"))
+                .firstMatch
+            waitAndAssertTrue(buyButton, "Buy button should exist before tapping")
+            buyButton.waitAndTap()
+
+            let webView = app.webViews.firstMatch
+            waitAndAssertTrue(webView, "Provider web view should appear after tapping Buy")
+
+            return OnrampProviderWebPage(app)
+        }
+    }
 }
 
 enum OnrampScreenElement: String, UIElement {
