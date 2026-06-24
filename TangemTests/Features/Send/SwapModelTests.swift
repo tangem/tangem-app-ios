@@ -90,7 +90,8 @@ private actor ExpressManagerStub: ExpressManager {
             otherNativeFee: nil,
             estimatedGasLimit: nil,
             externalTxId: nil,
-            externalTxURL: nil
+            externalTxURL: nil,
+            payInAddress: ""
         )
     }
 }
@@ -139,7 +140,8 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             otherNativeFee: nil,
             estimatedGasLimit: nil,
             externalTxId: nil,
-            externalTxURL: nil
+            externalTxURL: nil,
+            payInAddress: ""
         )
     }
 
