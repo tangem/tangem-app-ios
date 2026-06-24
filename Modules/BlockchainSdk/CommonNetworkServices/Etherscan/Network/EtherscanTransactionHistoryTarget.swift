@@ -19,7 +19,7 @@ struct EtherscanTransactionHistoryTarget {
 
 extension EtherscanTransactionHistoryTarget {
     enum Configuration {
-        case etherscan(chainId: Int, apiKey: String, isMock: Bool)
+        case etherscan(chainId: Int, apiKey: String, baseURL: URL)
         case adi
         case zkSync
     }
@@ -35,10 +35,8 @@ extension EtherscanTransactionHistoryTarget {
 extension EtherscanTransactionHistoryTarget: TargetType {
     var baseURL: URL {
         switch configuration {
-        case .etherscan(_, _, let isMock):
-            return isMock
-                ? URL(string: "\(WireMockEnvironment.baseURL)/api.etherscan.io/v2")!
-                : URL(string: "https://api.etherscan.io/v2")!
+        case .etherscan(_, _, let baseURL):
+            return baseURL
         case .adi:
             return URL(string: "https://explorer-bls.adifoundation.ai")!
         case .zkSync:

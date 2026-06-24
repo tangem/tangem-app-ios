@@ -105,10 +105,14 @@ public struct TransactionHistoryProviderFactory {
                 return nil
             }
 
+            let etherscanBaseURL = isMockedAPI
+                ? URL(string: "\(WireMockEnvironment.baseURL)/api.etherscan.io/v2")!
+                : URL(string: "https://api.etherscan.io/v2")!
+
             return EtherscanTransactionHistoryProvider(
                 mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
-                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey, isMock: isMockedAPI)
+                targetConfiguration: .etherscan(chainId: chainId, apiKey: keysConfig.etherscanApiKey, baseURL: etherscanBaseURL)
             )
         case .zkSync:
             return EtherscanTransactionHistoryProvider(
