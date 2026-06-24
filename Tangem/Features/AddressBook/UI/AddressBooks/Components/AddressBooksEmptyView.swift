@@ -70,11 +70,7 @@ struct AddressBooksEmptyView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct AddressBooksEmptyView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddressBooksEmptyView(onAddContactTap: {})
-            .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
-    }
+#Preview {
+    AddressBooksEmptyView(onAddContactTap: {})
+        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
 }
-#endif // DEBUG

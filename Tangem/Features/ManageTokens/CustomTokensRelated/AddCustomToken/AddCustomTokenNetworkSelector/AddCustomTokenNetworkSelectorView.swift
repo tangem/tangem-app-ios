@@ -18,15 +18,11 @@ struct AddCustomTokenNetworkSelectorView: View {
     }
 }
 
-struct AddCustomTokenNetworkSelectorView_Preview: PreviewProvider {
-    static let blockchains: Array = SupportedBlockchains.all.filter(\.isTestnet)
-
-    static let viewModel = AddCustomTokenNetworksListViewModel(
-        selectedBlockchainNetworkId: blockchains.first!.networkId,
-        blockchains: blockchains
+#Preview {
+    AddCustomTokenNetworkSelectorView(
+        viewModel: AddCustomTokenNetworksListViewModel(
+            selectedBlockchainNetworkId: SupportedBlockchains.all.filter(\.isTestnet).first!.networkId,
+            blockchains: SupportedBlockchains.all.filter(\.isTestnet)
+        )
     )
-
-    static var previews: some View {
-        AddCustomTokenNetworkSelectorView(viewModel: viewModel)
-    }
 }

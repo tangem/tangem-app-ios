@@ -111,7 +111,6 @@ public struct NFTNetworkSelectionListView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     NavigationStack {
         NFTNetworkSelectionListView(
@@ -126,4 +125,3 @@ public struct NFTNetworkSelectionListView: View {
         )
     }
 }
-#endif // DEBUG

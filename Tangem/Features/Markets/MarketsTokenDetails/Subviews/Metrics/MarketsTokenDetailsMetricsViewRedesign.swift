@@ -36,7 +36,6 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ScrollView {
         MarketsTokenDetailsMetricsViewRedesign(
@@ -108,4 +107,3 @@ struct MarketsTokenDetailsMetricsViewRedesign: View {
     }
     .background(Color.Tangem.Surface.level2)
 }
-#endif

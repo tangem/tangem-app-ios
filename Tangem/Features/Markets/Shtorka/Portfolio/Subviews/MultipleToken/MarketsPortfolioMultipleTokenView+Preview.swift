@@ -13,7 +13,6 @@ import TangemUI
 // MARK: - Previews
 
 #if DEBUG
-
 private enum PreviewMultipleBalanceState: String, CaseIterable, Identifiable {
     case loaded = "Loaded"
     case loadingNoCache = "Loading"
@@ -157,11 +156,8 @@ private struct PreviewMultipleTokenContent: View {
     }
 }
 
-struct MarketsPortfolioMultipleTokenView_Previews: PreviewProvider {
-    static var previews: some View {
-        MarketsPortfolioMultipleTokenInteractivePreview()
-            .previewDisplayName("Interactive")
-    }
+#Preview {
+    MarketsPortfolioMultipleTokenInteractivePreview()
+        .previewDisplayName("Interactive")
 }
-
 #endif // DEBUG

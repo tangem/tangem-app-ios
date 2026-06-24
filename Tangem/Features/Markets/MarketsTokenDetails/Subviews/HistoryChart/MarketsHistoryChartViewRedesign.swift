@@ -179,7 +179,6 @@ private extension MarketsHistoryChartViewRedesign {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     let factory = FakeMarketsHistoryChartViewModelFactory()
 
@@ -191,4 +190,3 @@ private extension MarketsHistoryChartViewRedesign {
         MarketsHistoryChartViewRedesign(viewModel: factory.makeWeek())
     }
 }
-#endif // DEBUG

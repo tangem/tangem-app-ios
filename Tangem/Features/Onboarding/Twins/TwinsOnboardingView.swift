@@ -183,11 +183,9 @@ struct TwinsOnboardingView: View {
     }
 }
 
-#if DEBUG
 #Preview {
     TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(
         input: PreviewData.previewTwinOnboardingInput,
         coordinator: OnboardingCoordinator()
     ))
 }
-#endif

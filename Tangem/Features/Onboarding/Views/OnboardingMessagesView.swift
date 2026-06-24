@@ -45,19 +45,17 @@ struct OnboardingMessagesView: View {
     }
 }
 
-struct OnboardingMessagesView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack(alignment: .top) {
-            OnboardingMessagesView(
-                title: "Create wallet",
-                subtitle: "Tap card to create wallet"
-            ) {}.background(Color.red)
+#Preview {
+    ZStack(alignment: .top) {
+        OnboardingMessagesView(
+            title: "Create wallet",
+            subtitle: "Tap card to create wallet"
+        ) {}.background(Color.red)
 
-            OnboardingMessagesView(
-                title: "Create wallet",
-                subtitle: "All the backup cards can be used as full-functional wallets with the identical keys."
-            ) {}.background(Color.green)
-        }
-        .padding(.horizontal, 80)
+        OnboardingMessagesView(
+            title: "Create wallet",
+            subtitle: "All the backup cards can be used as full-functional wallets with the identical keys."
+        ) {}.background(Color.green)
     }
+    .padding(.horizontal, 80)
 }

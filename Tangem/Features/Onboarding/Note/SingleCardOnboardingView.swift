@@ -168,14 +168,12 @@ struct SingleCardOnboardingView: View {
     }
 }
 
-#if DEBUG
 #Preview {
     SingleCardOnboardingView(viewModel: .init(
         input: PreviewData.previewNoteCardOnboardingInput,
         coordinator: OnboardingCoordinator()
     ))
 }
-#endif
 
 struct CardOnboardingBackgroundCircle: View {
     let scale: CGFloat

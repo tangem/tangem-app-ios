@@ -137,14 +137,12 @@ struct DetailsView: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            DetailsView(
-                viewModel: DetailsViewModel(
-                    coordinator: DetailsCoordinator()
-                )
+#Preview {
+    NavigationStack {
+        DetailsView(
+            viewModel: DetailsViewModel(
+                coordinator: DetailsCoordinator()
             )
-        }
+        )
     }
 }

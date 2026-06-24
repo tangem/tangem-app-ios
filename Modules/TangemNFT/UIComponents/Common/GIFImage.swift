@@ -22,11 +22,9 @@ struct GIFImage<Placeholder: View>: View {
     }
 }
 
-#if DEBUG
 #Preview {
     GIFImage(
         url: URL(string: "https://i.seadn.io/gcs/files/e31424bc14dd91a653cb01857cac52a4.gif?w=500&auto=format"),
         placeholder: Color.red
     )
 }
-#endif

@@ -176,8 +176,6 @@ struct OnboardingWalletInfoPager: View {
     }
 }
 
-struct OnboardingWalletInfoPager_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingWalletInfoPager(animated: true)
-    }
+#Preview {
+    OnboardingWalletInfoPager(animated: true)
 }

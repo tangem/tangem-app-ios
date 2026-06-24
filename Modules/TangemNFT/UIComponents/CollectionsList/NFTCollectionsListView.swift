@@ -306,7 +306,6 @@ private extension NFTCollectionsListViewModel.ViewState {
 
 // MARK: - Previews
 
-#if DEBUG
 let collections = (0 ... 20).map {
     NFTCollection(
         collectionIdentifier: "some-\($0)",
@@ -465,4 +464,3 @@ let collections = (0 ... 20).map {
         }
     }
 }
-#endif

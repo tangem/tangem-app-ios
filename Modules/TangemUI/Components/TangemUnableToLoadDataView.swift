@@ -40,7 +40,6 @@ public struct TangemUnableToLoadDataView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     struct PreviewHolder: View {
         @State var isLoading = false
@@ -58,4 +57,3 @@ public struct TangemUnableToLoadDataView: View {
 
     return PreviewHolder()
 }
-#endif // DEBUG

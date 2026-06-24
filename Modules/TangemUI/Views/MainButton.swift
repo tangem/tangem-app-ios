@@ -315,7 +315,6 @@ extension MainButton: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview(traits: .sizeThatFitsLayout) {
     Group {
@@ -410,4 +409,3 @@ extension MainButton: Setupable {
         }
     }
 }
-#endif // DEBUG

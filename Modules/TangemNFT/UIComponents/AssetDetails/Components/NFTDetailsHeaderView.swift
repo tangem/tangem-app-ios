@@ -117,7 +117,6 @@ private extension NFTDetailsHeaderView {
     }
 }
 
-#if DEBUG
 #Preview("Maximum state") {
     ZStack {
         Color.gray
@@ -265,5 +264,3 @@ private extension NFTDetailsHeaderView {
         .padding(.horizontal, 16)
     }
 }
-
-#endif

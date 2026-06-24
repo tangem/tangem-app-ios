@@ -85,22 +85,18 @@ private struct MainNetworkIndicator: View {
 
 // MARK: - Previews
 
-#if DEBUG
-struct NetworkIcon_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            NetworkIcon(imageAsset: Tokens.solanaFill, isActive: true, isMainIndicatorVisible: true)
+#Preview {
+    VStack {
+        NetworkIcon(imageAsset: Tokens.solanaFill, isActive: true, isMainIndicatorVisible: true)
 
-            NetworkIcon(
-                imageAsset: Tokens.solanaFill,
-                isActive: true,
-                isDisabled: false,
-                isMainIndicatorVisible: true,
-                size: CGSize(bothDimensions: 36)
-            )
-        }
-        .padding()
-        .previewLayout(.sizeThatFits)
+        NetworkIcon(
+            imageAsset: Tokens.solanaFill,
+            isActive: true,
+            isDisabled: false,
+            isMainIndicatorVisible: true,
+            size: CGSize(bothDimensions: 36)
+        )
     }
+    .padding()
+    .previewLayout(.sizeThatFits)
 }
-#endif // DEBUG

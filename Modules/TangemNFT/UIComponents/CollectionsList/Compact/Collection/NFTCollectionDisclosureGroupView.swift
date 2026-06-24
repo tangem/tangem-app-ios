@@ -89,7 +89,6 @@ struct NFTCollectionDisclosureGroupView: View {
     }
 }
 
-#if DEBUG
 struct DummyProvider: NFTChainIconProvider {
     func provide(by nftChain: NFTChain) -> ImageType {
         Tokens.solanaFill
@@ -144,4 +143,3 @@ struct DummyProvider: NFTChainIconProvider {
         )
     )
 }
-#endif

@@ -90,7 +90,6 @@ extension NFTCompactAssetView {
     }
 }
 
-#if DEBUG
 #Preview("Loaded") {
     NFTCompactAssetView(
         viewModel: NFTCompactAssetViewModel(
@@ -128,4 +127,3 @@ extension NFTCompactAssetView {
         )
     )
 }
-#endif

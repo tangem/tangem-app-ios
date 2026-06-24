@@ -43,9 +43,8 @@ struct AccessCodeRecoverySettingsView: View {
     }
 }
 
-struct AccessCodeRecoverySettingsView_Previews: PreviewProvider {
-    private static let viewModel = AccessCodeRecoverySettingsViewModel(with: UserCodeRecoveringMock())
-    static var previews: some View {
-        AccessCodeRecoverySettingsView(viewModel: viewModel)
-    }
+#Preview {
+    AccessCodeRecoverySettingsView(
+        viewModel: AccessCodeRecoverySettingsViewModel(with: UserCodeRecoveringMock())
+    )
 }
