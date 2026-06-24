@@ -67,11 +67,11 @@ extension Wallet2Config: UserWalletConfig {
         if card.wallets.isEmpty {
             return false
         }
-        
+
         if card.firmwareVersion >= .v8, card.masterSecret == nil {
             return false
         }
-        
+
         return true
     }
 

@@ -73,7 +73,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
                     completion(.failure(.missingPreflightRead))
                     return
                 }
-                
+
                 if card.firmwareVersion >= .v8 {
                     self.createMasterSecret(in: session, completion: completion)
                 } else {
@@ -81,13 +81,13 @@ class PreparePrimaryCardTask: CardSessionRunnable {
                     self.initializedCard = session.environment.card
                     self.checkIfAllWalletsCreated(in: session, completion: completion)
                 }
-                
+
             case .failure(let error):
                 completion(.failure(error))
             }
         }
     }
-    
+
     private func createMasterSecret(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         let command = CreateMasterSecretCommand()
         commandBag = command
@@ -102,7 +102,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             }
         }
     }
-    
+
     private func checkMasterSecret(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         let command = ReadMasterSecretCommand()
         commandBag = command
@@ -113,7 +113,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
                     completion(.failure(.walletAlreadyCreated))
                     return
                 }
-                
+
                 self.checkIfAllWalletsCreated(in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))

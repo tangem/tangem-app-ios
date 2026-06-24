@@ -132,7 +132,7 @@ final class AppScanTask: CardSessionRunnable {
 
         let hasMasterSecret = card.firmwareVersion >= .v8 ? card.masterSecret != nil : true
         let shouldReadPrimatyCard = card.settings.isBackupAllowed && card.backupStatus == .noBackup && hasMasterSecret
-        
+
         if isWalletInOnboarding, shouldReadPrimatyCard {
             readPrimaryCard(session, completion)
             return
