@@ -37,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
+    case bitcoinDexSwap
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -58,7 +59,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transfers: return "14042_Transfers"
         case .memoValidationBeforeConfirm: return "14202_Memo_Validation_Before_Confirm"
         case .tangemPaySpendRedesign: return "1540_TangemPay_Redesign"
-        case .tangemPayTiers: return "1066_TangemPay_Tiers_1"
+        case .tangemPayTiers: return "TWI-1066_tangemPay_tiers_1"
         case .supportChat: return "13815_Support_Chat_(Usedesk)"
         case .supportChatSwap: return "13815_Support_Chat_in_Swap_(Usedesk)"
         case .onrampApplePayHistoryFallback: return "14115_Onramp_Apple_Pay_History_Fallback"
@@ -69,6 +70,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
         case .addressBook: return "TWI-83_address_book"
+        case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_DEX_(LiFi_/_SwapKit)"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
     }
@@ -87,10 +89,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushNotificationsSettings: return .unspecified
         case .deeplinkPresentationWay: return .unspecified
         case .transactionHistoryV2: return .unspecified
-        case .tangemPayMultipleCards: return .unspecified
+        case .tangemPayMultipleCards: return .version("6.0")
         case .transfers: return .version("6.0")
         case .memoValidationBeforeConfirm: return .unspecified
-        case .tangemPaySpendRedesign: return .unspecified
+        case .tangemPaySpendRedesign: return .version("6.0")
         case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
@@ -102,6 +104,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified
         case .addressBook: return .unspecified
+        case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
         }
     }

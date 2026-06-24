@@ -312,8 +312,8 @@ struct TangemPayMainView: View {
             .padding(.top, 12)
         }
         .background {
-            TangemPayBackgroundView(textureOpacity: redesignedHeaderOpacity)
-                .animation(.default, value: headerHeightRatio)
+            DesignSystem.Color.bgPrimary
+                .ignoresSafeArea()
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
         .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
