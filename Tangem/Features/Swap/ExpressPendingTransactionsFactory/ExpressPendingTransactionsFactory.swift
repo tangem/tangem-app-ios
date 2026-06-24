@@ -26,24 +26,33 @@ struct ExpressPendingTransactionsFactory {
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         }
 
-        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
-            userWalletId: userWalletInfo.id.stringValue,
+        let exchangeStatusPoller = ExchangeStatusPoller(
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
-            walletModelUpdater: walletModelUpdater,
             cachingExpressAPIProviderFactory: cachingExpressAPIProviderFactory,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
+        let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
+            walletModelUpdater: walletModelUpdater,
+            poller: exchangeStatusPoller
+        )
+
         let expressAPIProvider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
-        let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
-            userWalletId: userWalletInfo.id.stringValue,
+        let onrampStatusPoller = OnrampStatusPoller(
+            userWalletId: userWalletInfo.id,
             tokenItem: tokenItem,
-            expressAPIProvider: expressAPIProvider,
-            unknownStatusRecoveryService: CommonOnrampUnknownStatusRecoveryService(
-                userWalletId: userWalletInfo.id.stringValue,
-                tokenItem: tokenItem,
-                expressAPIProvider: expressAPIProvider
-            )
+            expressAPIProvider: expressAPIProvider
+        )
+        let unknownStatusRecoveryService = CommonOnrampUnknownStatusRecoveryService(
+            userWalletId: userWalletInfo.id,
+            tokenItem: tokenItem,
+            expressAPIProvider: expressAPIProvider
+        )
+
+        let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
+            unknownStatusRecoveryService: unknownStatusRecoveryService,
+            poller: onrampStatusPoller
         )
 
         return CompoundPendingTransactionsManager(
