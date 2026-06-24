@@ -114,7 +114,7 @@ struct ExpressCurrencyView<Content: View>: View {
             HStack(spacing: 4) {
                 if !viewModel.state.isFiatAmountHidden {
                     LoadableTextView(
-                        state: viewModel.state.fiatAmountState,
+                        state: viewModel.state.alternativeAmountState,
                         font: Fonts.Regular.footnote,
                         textColor: Colors.Text.tertiary,
                         loaderSize: CGSize(width: 70, height: 12),
