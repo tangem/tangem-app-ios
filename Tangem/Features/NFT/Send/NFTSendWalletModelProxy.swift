@@ -275,6 +275,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.compiledTransactionSender
     }
 
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
+        mainTokenWalletModel.bitcoinPsbtSwapSender
+    }
+
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {
         mainTokenWalletModel.ethereumTransactionDataBuilder
     }
