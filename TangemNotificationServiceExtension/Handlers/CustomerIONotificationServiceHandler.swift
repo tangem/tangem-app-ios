@@ -9,6 +9,7 @@
 import UserNotifications
 import CioMessagingPush
 import CioMessagingPushFCM
+import CioInternalCommon
 
 /// Handles Customer.io rich pushes in the extension so the SDK can record the `delivered` metric and
 /// compose rich content. Customer.io only claims pushes carrying its delivery headers
