@@ -64,7 +64,7 @@ struct FeeSelectorRowView: View {
                     loaderSize: CGSize(width: 100, height: 14),
                     isSensitiveText: viewModel.rowType.isToken
                 )
-                .accessibilityIdentifier(viewModel.subtitleAccessibilityIdentifier ?? "")
+                .accessibilityIdentifier(viewModel.subtitleAccessibilityIdentifier)
             }
         }
     }
