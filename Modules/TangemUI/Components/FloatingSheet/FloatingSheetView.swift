@@ -12,11 +12,12 @@ import TangemUIUtils
 
 public struct FloatingSheetView: View {
     private let viewModel: (any FloatingSheetContentViewModel)?
+    @State private var renderedViewModel: (any FloatingSheetContentViewModel)?
+
     private let dismissSheetAction: () -> Void
 
-    @State private var sheetContentHeight: CGFloat = 0
-    @State private var sheetContentHasAppeared = false
     @State private var sheetContentConfiguration = FloatingSheetConfiguration.default
+    @State private var isSheetFrameUpdateAnimationEnabled = false
 
     @State private var keyboardHeight: CGFloat = 0
     @State private var verticalDragAmount: CGFloat = 0
@@ -33,7 +34,7 @@ public struct FloatingSheetView: View {
         GeometryReader { proxy in
             ZStack(alignment: .bottom) {
                 backgroundView
-                sheetContent(proxy)
+                sheetContainer(proxy)
             }
             .if(sheetContentConfiguration.isBackgroundAndSheetSwipeEnabled) {
                 $0.gesture(verticalSwipeGesture)
@@ -43,11 +44,20 @@ public struct FloatingSheetView: View {
         .if(sheetContentConfiguration.keyboardHandlingEnabled) { view in
             view.keyboardHeight(bindTo: $keyboardHeight)
         }
+        .onPreferenceChange(FloatingSheetConfigurationPreferenceKey.self) { sheetContentConfiguration in
+            self.sheetContentConfiguration = sheetContentConfiguration
+        }
         .onChange(of: isDragging) { _ in
-            // [REDACTED_USERNAME], this may happed when DragGesture got canceled and onEnded block was not executed
             let stoppedDraggingAndOffsetHasNotBeenReset = !isDragging && verticalDragAmount != .zero
             guard stoppedDraggingAndOffsetHasNotBeenReset else { return }
             verticalDragAmount = .zero
+        }
+        .task(id: viewModel?.id) {
+            if let viewModel {
+                await showRenderedSheet(viewModel)
+            } else {
+                hideRenderedSheet()
+            }
         }
     }
 
@@ -66,53 +76,40 @@ public struct FloatingSheetView: View {
             .animation(.dimmedBackground, value: viewModel == nil)
     }
 
-    private func sheetContent(_ proxy: GeometryProxy) -> some View {
+    private func sheetContainer(_ proxy: GeometryProxy) -> some View {
         ZStack {
-            if let viewModel, let sheetContent = registry.view(for: viewModel) {
-                ZStack {
-                    sheetContent
-                        .frame(
-                            height: min(sheetContentHeight, bottomSheetMaxHeight(proxy: proxy)),
-                            alignment: .bottom
-                        )
-                        .frame(maxWidth: .infinity)
-                        .background {
-                            makeSheetContentMeasurer(for: sheetContent)
-                        }
-                        .background(sheetContentConfiguration.sheetBackgroundColor)
-                        .contentShape(roundedRectangle)
-                        .clipShape(roundedRectangle)
-                        .padding(.horizontal, 8)
-                        .padding(.bottom, bottomSheetPadding)
-                        .padding(.bottom, keyboardHeight)
-                        .offset(y: verticalDragAmount)
-                        .animation(.keyboard, value: keyboardHeight)
-                        .animation(.floatingSheet, value: verticalDragAmount)
-                        .if(sheetContentConfiguration.isSheetSwipeEnabled) {
-                            $0.gesture(verticalSwipeGesture)
-                        }
-                        .id(viewModel.id)
-                        .transition(.slideFromBottom)
-                        .accessibilityElement(children: .contain)
-                        .accessibilityAddTraits(.isModal)
-                        .onAppear {
-                            DispatchQueue.main.async {
-                                sheetContentHasAppeared = true
-                            }
-                        }
-                        .onDisappear {
-                            sheetContentHasAppeared = false
-                        }
-                }
-                .onPreferenceChange(FloatingSheetConfigurationPreferenceKey.self) { sheetContentConfiguration in
-                    self.sheetContentConfiguration = sheetContentConfiguration
-                }
-                .frame(maxHeight: proxy.size.height * sheetContentConfiguration.maxHeightFraction, alignment: .bottom)
-                .transition(.slideFromBottom)
-            }
+            sheet(proxy)
         }
-        .animation(sheetContentHasAppeared ? sheetContentConfiguration.sheetFrameUpdateAnimation : nil, value: sheetContentHeight)
         .animation(.floatingSheet, value: viewModel?.id)
+    }
+
+    @ViewBuilder
+    private func sheet(_ proxy: GeometryProxy) -> some View {
+        if let renderedViewModel, let sheetContent = registry.view(for: renderedViewModel) {
+            FloatingSheetLayout(maxHeight: sheetMaxHeight(proxy)) {
+                sheetContent
+            }
+            .background(sheetContentConfiguration.sheetBackgroundColor)
+            .clipShape(roundedRectangle)
+            .contentShape(roundedRectangle)
+            .padding(.horizontal, 8)
+            .padding(.bottom, bottomSheetPadding)
+            .padding(.bottom, keyboardHeight)
+            .offset(y: verticalDragAmount)
+            .animation(.keyboard, value: keyboardHeight)
+            .animation(.floatingSheet, value: verticalDragAmount)
+            .if(sheetContentConfiguration.isSheetSwipeEnabled) {
+                $0.gesture(verticalSwipeGesture)
+            }
+            .transaction { transaction in
+                guard isSheetFrameUpdateAnimationEnabled else { return }
+                transaction.animation = sheetContentConfiguration.sheetFrameUpdateAnimation
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityAddTraits(.isModal)
+            .transition(.move(edge: .bottom))
+            .id(renderedViewModel.id)
+        }
     }
 
     private var verticalSwipeGesture: some Gesture {
@@ -136,21 +133,6 @@ public struct FloatingSheetView: View {
         RoundedRectangle(cornerRadius: 28, style: .continuous)
     }
 
-    @ViewBuilder
-    private func makeSheetContentMeasurer(for sheetContent: some View) -> some View {
-        // We need to measure the sheet content size only after it has appeared, otherwise
-        // incorrect height calculation may occur in some rare scenarios like [REDACTED_INFO]
-        if sheetContentHasAppeared {
-            sheetContent
-                .fixedSize(horizontal: false, vertical: true)
-                .hidden()
-                .id(viewModel?.id)
-                .onGeometryChange(for: CGFloat.self, of: \.size.height) { sheetContentHeight in
-                    self.sheetContentHeight = sheetContentHeight
-                }
-        }
-    }
-
     private var bottomSheetPadding: CGFloat {
         let keyboardIsHidden = keyboardHeight == .zero
 
@@ -161,7 +143,7 @@ public struct FloatingSheetView: View {
         return 32
     }
 
-    private func bottomSheetMaxHeight(proxy: GeometryProxy) -> CGFloat {
+    private func sheetMaxHeight(_ proxy: GeometryProxy) -> CGFloat {
         let visibleHeight = proxy.size.height + proxy.safeAreaInsets.top
         let maxHeight = visibleHeight * sheetContentConfiguration.maxHeightFraction
         let maxWithKeyboardHeight = proxy.size.height - keyboardHeight - bottomSheetPadding
@@ -170,6 +152,28 @@ public struct FloatingSheetView: View {
         // When keyboard is showing the max height will be limited the top safe area
         return isKeyboardShowing ? maxWithKeyboardHeight : maxHeight
     }
+
+    private func showRenderedSheet(_ viewModel: some FloatingSheetContentViewModel) async {
+        isSheetFrameUpdateAnimationEnabled = false
+        withAnimation(.floatingSheet) {
+            renderedViewModel = viewModel
+        }
+
+        try? await Task.sleep(for: .seconds(Animation.sheetAppearanceDuration))
+
+        guard !Task.isCancelled, renderedViewModel?.id == viewModel.id else { return }
+        isSheetFrameUpdateAnimationEnabled = true
+    }
+
+    private func hideRenderedSheet() {
+        isSheetFrameUpdateAnimationEnabled = false
+
+        guard renderedViewModel != nil else { return }
+
+        withAnimation(.floatingSheet) {
+            renderedViewModel = nil
+        }
+    }
 }
 
 private enum Layout {
@@ -177,12 +181,10 @@ private enum Layout {
 }
 
 private extension Animation {
-    static let dimmedBackground = Animation.timingCurve(0.65, 0, 0.35, 1, duration: 0.2)
-    static let floatingSheet = Animation.timingCurve(0.28, 0.02, 0.35, 1, duration: 0.3)
-}
+    static let sheetAppearanceDuration: TimeInterval = 0.3
 
-private extension AnyTransition {
-    static let slideFromBottom = AnyTransition.move(edge: .bottom)
+    static let dimmedBackground = Animation.timingCurve(0.65, 0, 0.35, 1, duration: 0.2)
+    static let floatingSheet = Animation.timingCurve(0.28, 0.02, 0.35, 1, duration: sheetAppearanceDuration)
 }
 
 /// A ``UIView`` wrapper that allows ``TangemUIUtils.PassthroughWindow.hitTest(_:with:)`` method to work properly in iOS 26.0, *.
@@ -209,4 +211,22 @@ private struct BackgroundViewRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+private struct FloatingSheetLayout: SwiftUI.Layout {
+    let maxHeight: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
+        guard let content = subviews.first else { return .zero }
+
+        let idealSize = content.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
+
+        return CGSize(width: proposal.width ?? idealSize.width, height: min(idealSize.height, maxHeight))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
+        guard let content = subviews.first else { return }
+
+        content.place(at: bounds.origin, anchor: .topLeading, proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
+    }
 }
