@@ -191,12 +191,14 @@ private extension TangemPayTransactionDetailsView {
     @ViewBuilder
     func redesignedIcon(_ icon: TangemPayTransactionDetailsDisplayModel.Icon) -> some View {
         switch icon {
-        case .merchantLogo(let url):
+        case .merchantLogo(let url?):
             IconView(
                 url: url,
                 size: CGSize(bothDimensions: 80),
                 cornerRadius: 80 / 2
             )
+        case .merchantLogo(nil):
+            redesignedGenericIcon(Assets.Visa.otherTransaction)
         case .withdrawal:
             redesignedGenericIcon(DesignSystem.Icons.ArrowUp.regular24)
         case .deposit:

@@ -7,9 +7,10 @@
 //
 
 import TangemExpress
+import TangemFoundation
 
 struct OnrampStatusTrackingFactory {
-    let userWalletId: String
+    let userWalletId: UserWalletId
     let tokenItem: TokenItem
     let transactionHistoryEnricherFactory: TransactionHistoryExpressDataEnriching.Factory
 

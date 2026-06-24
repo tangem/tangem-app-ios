@@ -56,7 +56,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         self.coordinatorSource = coordinatorSource
 
         onrampStatusTrackingFactory = .init(
-            userWalletId: sourceToken.userWalletInfo.id.stringValue,
+            userWalletId: sourceToken.userWalletInfo.id,
             tokenItem: sourceToken.tokenItem,
             transactionHistoryEnricherFactory: { [sourceToken] in
                 await sourceToken.transactionHistoryEnricher

@@ -8,6 +8,8 @@
 
 import Foundation
 import Combine
+import CryptoKit
+import TangemSdk
 import TangemFoundation
 import Experiment
 
@@ -71,7 +73,7 @@ final class CommonExperimentService {
 
     private func refetch(for ctx: ExperimentWalletContext) async {
         let builder = ExperimentUserBuilder()
-            .userId(ctx.userWalletId.stringValue)
+            .userId(ctx.userWalletId.hashedStringValue)
             .region(ctx.region)
             .language(ctx.language)
             .version(ctx.appVersion)
