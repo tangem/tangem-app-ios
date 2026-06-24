@@ -102,6 +102,7 @@ private final class SwapRepositoryStub: SwapRepository {
     func getAvailableProvidersIds(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType?) async -> [ExpressProvider.Id] { [] }
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
+    func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] { [] }
 
     // ExpressRepository
     func updateProvidersIds(for pair: ExpressManagerSwappingPair) async throws {}
@@ -252,6 +253,8 @@ private final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     func logTokenSearched(coin: CoinModel, searchText: String?) {}
     func logTokenChosen(token: TokenItem) {}
     func logSendSwapCantSwapThisToken(token: String) {}
+    func logSendSwapAvailable(token: String) {}
+    func logSendSwapAvailableClicked(token: String) {}
 
     // MARK: - SendDestinationAnalyticsLogger
 
