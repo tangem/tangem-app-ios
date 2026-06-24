@@ -272,7 +272,8 @@ private extension ExpressApproveAndDEXTransactionDispatcherTests {
             otherNativeFee: nil,
             estimatedGasLimit: nil,
             externalTxId: nil,
-            externalTxURL: nil
+            externalTxURL: nil,
+            payInAddress: ""
         )
     }
 
