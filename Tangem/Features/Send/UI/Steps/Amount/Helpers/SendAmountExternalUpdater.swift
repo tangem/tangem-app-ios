@@ -25,4 +25,10 @@ struct SendAmountExternalUpdater {
         let amount = try? interactor?.update(sourceAmount: amount)
         viewModel?.externalUpdate(amount: amount)
     }
+
+    /// The value is treated as crypto regardless of the current source calculation type.
+    func externalUpdate(cryptoAmount: Decimal?) {
+        let amount = try? interactor?.update(sourceCryptoAmount: cryptoAmount)
+        viewModel?.externalUpdate(amount: amount)
+    }
 }
