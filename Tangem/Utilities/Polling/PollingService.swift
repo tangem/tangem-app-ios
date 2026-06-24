@@ -16,15 +16,15 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
     }
 
     var resultStream: AsyncStream<[Response]> {
-        let (resultStream, resultContinuation) = AsyncStream<[Response]>.makeStream()
-        let uuid = UUID()
-        resultContinuations[uuid] = resultContinuation
-        resultContinuation.onTermination = { [weak self] _ in
-            runTask(isDetached: true) {
-                await self?.unsubscribe(uuid: uuid)
+        AsyncStream<[Response]>.multicast(
+            with: self,
+            onSubscribe: { poller, id, continuation in
+                poller.subscribers.subscribe(id: id, continuation: continuation)
+            },
+            onUnsubscribe: { poller, id in
+                poller.subscribers.unsubscribe(id: id)
             }
-        }
-        return resultStream
+        )
     }
 
     private let request: (RequestData) async -> ResponseData?
@@ -33,7 +33,7 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
     private let pollingInterval: TimeInterval
     private let maxConcurrentRequests: Int?
 
-    private var resultContinuations: [UUID: AsyncStream<[Response]>.Continuation] = [:]
+    private var subscribers = AsyncStream<[Response]>.MulticastSubscribers<UUID>()
     private var latestResult: [Response] = []
 
     private var updateTask: Task<Void, Never>?
@@ -60,10 +60,6 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
         // Calling `cancelTask()` produces a warning (error in the Swift 6 language mode)
         updateTask?.cancel()
         updateTask = nil
-
-        resultContinuations.forEach { _, continuation in
-            continuation.finish()
-        }
     }
 
     func startPolling(requests: [RequestData], force: Bool) {
@@ -158,12 +154,6 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
     }
 
     private func sendValue(_ value: [Response]) {
-        resultContinuations.forEach { _, continuation in
-            continuation.yield(value)
-        }
-    }
-
-    private func unsubscribe(uuid: UUID) {
-        resultContinuations.removeValue(forKey: uuid)
+        subscribers.yield(value)
     }
 }
