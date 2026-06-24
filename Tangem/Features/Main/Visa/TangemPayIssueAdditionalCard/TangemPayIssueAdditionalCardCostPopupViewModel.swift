@@ -65,6 +65,7 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
             style: .primary,
             size: .default,
             isLoading: isIssuing,
+            isDisabled: isInsufficientFunds,
             action: { [weak self] in self?.confirm() }
         )
     }
