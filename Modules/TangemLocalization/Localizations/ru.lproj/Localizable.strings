@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Добавить адрес и выбрать сеть";
 "address_book_add_address" = "Добавить адрес";
 "address_book_add_contact" = "Добавить контакт";
+"address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Имя контакта";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Копировать адрес";
@@ -154,6 +155,7 @@
 "balance_hidden_do_not_show_button" = "Больше не показывать";
 "balance_hidden_got_it_button" = "Понятно";
 "balance_hidden_title" = "Балансы скрыты";
+"beta_mode_warning_title" = "Бета режим";
 "biometry_touch_id_reason" = "Touch ID используется для сохранения карт и колец в приложении";
 "bitcoin_promo_activation_error_title" = "Ошибка активации";
 "bitcoin_promo_activation_error" = "При обработке промокода произошла ошибка. Пожалуйста, попробуйте позже.";
@@ -571,6 +573,7 @@
 "feedback_subject_tx_failed" = "Не могу отправить транзакцию";
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "feedback_token_description_error" = "Ошибка в описании монеты";
+"force_update_action" = "Update now";
 "force_update_banner_message" = "Для обеспечения корректной работы обновите приложение до последней версии.";
 "force_update_banner_title" = "Необходимо обновление";
 "force_update_brick_description" = "This version of the app is no longer supported and can't be updated on this device.";
@@ -1297,6 +1300,7 @@
 "staking_enabled" = "Стейкинг включен";
 "staking_error_no_validators_message" = "В данный момент нет доступных валидаторов. Попробуйте позже.";
 "staking_error_no_validators_title" = "Стейкинг недоступен";
+"staking_error_unavailable_region" = "Стейкинг недоступен в вашем регионе";
 "staking_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для стейкинга.";
 "staking_legal" = "Пользуясь стейкинг сервисом, вы соглашаетесь с %1$@ и %2$@";
 "staking_locked" = "Заблокировано";
@@ -1369,6 +1373,8 @@
 "staking_title_stake" = "Застейкать %@";
 "staking_title_unstake" = "Вывести %@";
 "staking_transaction_in_progress_text" = "Транзакция обрабатывается! В настоящее время идет проверка в блокчейне. Это может занять несколько минут.";
+"staking_transaction_validation_unsafe" = "%@ стейкинг запрещен по результатам проверок безопасности";
+"staking_transaction_validation_warning" = "%@ стейкинг вызывает сомнения. Пожалуйста, стейкайте на свой страх и риск";
 "staking_unbonding_in" = "Отзыв через";
 "staking_unbonding" = "Отзыв";
 "staking_unlocked_locked" = "Разблокировать";
@@ -1401,6 +1407,8 @@
 "story_web3_title" = "Поддержка Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Для отправки требуется входящая транзакция на сумму не менее %1$@";
 "sui_not_enough_coin_for_fee_title" = "Недостаточно средств";
+"support_chat_screen_title" = "Чат поддержки";
+"support_chat_share_logs_button" = "Прикрепить логи";
 "support_chat_swap_prefilled_message" = "Данные об операции обмена:\nОткуда: %1$@ %2$@\nКуда: %3$@ %4$@\nЧерез: %5$@ - %6$@";
 "support_selector_view_chat_button" = "Открыть чат";
 "support_selector_view_email_button" = "Открыть почту";
@@ -1452,7 +1460,7 @@
 "swapping_permission_header" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";
 "swapping_rate_experience_title" = "Оцените ваш опыт взаимодействия с провайдером";
-"swapping_rate_feedback_placeholder" = "Напишите ваш отзыв";
+"swapping_rate_feedback_placeholder" = "Оставьте отзыв (необязательно)";
 "swapping_rate_feedback_submit" = "Отправить отзыв";
 "swapping_rate_feedback_title" = "Что повлияло на вашу оценку?";
 "swapping_swap_action_in_progress" = "Обмен…";
@@ -1581,6 +1589,7 @@
 "tangempay_card_page_settings_title" = "Настройки карты";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можно посмотреть здесь, если забудете его.";
+"tangempay_common_card" = "Card";
 "tangempay_daily_limit_hint" = "Установить лимит от %@ до %@";
 "tangempay_daily_limit_set_button" = "Установить";
 "tangempay_declined_reason_1" = "недостаточно средств";
@@ -1802,6 +1811,8 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
 "twins_scan_twin_with_number" = "Приложите twin-карту с номером %@ и не убирайте до окончания операции";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
 "unexpected_error_description" = "Пожалуйста, попробуйте позже. Если проблема сохранится, обратитесь в поддержку.";
 "unexpected_error_title" = "Что-то пошло не так";
 "universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
@@ -1830,6 +1841,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_unlock_all_with" = "Разблокировать все с %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "AML verifired";
 "visa_balance_limits_details_available" = "Available";
 "visa_balance_limits_details_blocked" = "Blocked";
