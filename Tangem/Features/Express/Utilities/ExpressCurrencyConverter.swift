@@ -1,5 +1,5 @@
 //
-//  CommonTokenEnricher.swift
+//  ExpressCurrencyConverter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,22 +7,30 @@
 //
 
 import Foundation
-import Combine
 import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-class CommonTokenEnricher: TokenEnricher {
+struct ExpressCurrencyConverter {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     private let supportedBlockchains: Set<Blockchain>
+    private let shouldPerformLocalLookup: Bool
 
-    init(supportedBlockchains: Set<Blockchain>) {
+    init(
+        supportedBlockchains: Set<Blockchain>,
+        shouldPerformLocalLookup: Bool
+    ) {
         self.supportedBlockchains = supportedBlockchains
+        self.shouldPerformLocalLookup = shouldPerformLocalLookup
     }
 
-    func enrichToken(blockchainNetwork: BlockchainNetwork, contractAddress: String) async throws -> TokenItem {
+    func convert(
+        expressCurrency: ExpressCurrency,
+        in blockchainNetwork: BlockchainNetwork
+    ) async throws -> TokenItem {
         let blockchain = blockchainNetwork.blockchain
+        let contractAddress = expressCurrency.contractAddress
 
         guard supportedBlockchains.contains(blockchain) else {
             throw Error.unsupportedBlockchain
@@ -52,7 +60,9 @@ class CommonTokenEnricher: TokenEnricher {
     }
 }
 
-extension CommonTokenEnricher {
+// MARK: - Auxiliary types
+
+extension ExpressCurrencyConverter {
     enum Error: LocalizedError {
         case unsupportedBlockchain
         case notFound
