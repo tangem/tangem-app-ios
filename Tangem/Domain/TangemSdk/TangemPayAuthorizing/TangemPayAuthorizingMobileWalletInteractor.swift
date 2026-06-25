@@ -120,7 +120,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             context: context
         )
 
-        guard let signature = signResponse[dataToSign.publicKey]?.first else {
+        guard let signature = signResponse.first?.signature else {
             throw Error.signatureNotFound
         }
 
