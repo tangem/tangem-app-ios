@@ -8,7 +8,8 @@
 
 import Foundation
 
-protocol AddressBookContactManagementRoutable: AnyObject {
+protocol AddressBookContactManagementRoutable: AnyObject, AddressActionsRoutable {
     func dismissContactManagement()
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput)
+    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions)
+    func presentAddressActions(_ viewModel: AddressActionsViewModel)
 }

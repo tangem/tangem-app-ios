@@ -98,10 +98,11 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         walletSubject.send(addressBookWallet)
     }
 
-    func add(entries: [AddressBookEntryDraft]) throws {
-        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+    func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws {
+        let remaining = addressesSubject.value.filter { !ids.contains($0.id) }
+        try AddressBookContactDraftEntries.validate(adding: entries, to: remaining)
 
-        addressesSubject.value.append(contentsOf: entries)
+        addressesSubject.value = remaining + entries
     }
 
     func deleteAddress(id: AddressBookAddressEntryID) {
