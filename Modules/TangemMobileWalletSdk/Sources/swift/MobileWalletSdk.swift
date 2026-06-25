@@ -101,19 +101,20 @@ public protocol MobileWalletSdk {
         derivationPaths: [Data: [DerivationPath]]
     ) throws -> [Data: MobileWalletKeyInfo]
 
-    /// Signs data using the provided seed key and wallet ID.
+    /// Signs data using the provided seed key within an unlocked wallet context.
     /// - Parameters:
     ///  - dataToSign: An array of `SignData` objects containing the data to sign.
     ///  - seedKey: The seed key used for signing.
-    ///  - walletID: The identifier of the wallet used for signing.
-    ///  - auth: The authentication data used to unlock the wallet, such as an access
-    ///  code or biometrics.
-    ///  - Throws: An error if signing fails, such as if the wallet is missing or the authentication data is incorrect.
+    ///  - context: The unlocked wallet context authorizing access to the private key material.
+    ///  - Throws: An error if signing fails, such as if the wallet is missing or the context is invalid.
+    /// - Returns: One `MobileWalletSignature` per input hash, in input order, each tagged with the hash and
+    ///  public key it was produced for. Results stay per-input (not keyed by public key), so several inputs
+    ///  sharing one key each keep their own signature.
     func sign(
         dataToSign: [SignData],
         seedKey: Data,
         context: MobileWalletContext
-    ) throws -> [Data: [Data]]
+    ) throws -> [MobileWalletSignature]
 
     /// Retrieves the public data encryption key for a mobile wallet.
     /// - Parameter context: The wallet context containing authentication information.
