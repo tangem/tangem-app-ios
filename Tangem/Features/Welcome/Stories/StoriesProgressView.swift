@@ -42,14 +42,12 @@ struct StoriesProgressView: View {
     }
 }
 
-struct StoriesProgressView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack(alignment: .center) {
-            Color.purple
-            StoriesProgressView(pages: WelcomeStoryPage.allCases, currentPageIndex: 0, progress: .constant(0.3))
-                .padding()
-                .preferredColorScheme(.dark)
-        }
-        .previewLayout(.fixed(width: 400, height: 100))
+@available(iOS 17.0, *)
+#Preview(traits: .fixedLayout(width: 400, height: 100)) {
+    ZStack(alignment: .center) {
+        Color.purple
+        StoriesProgressView(pages: WelcomeStoryPage.allCases, currentPageIndex: 0, progress: .constant(0.3))
+            .padding()
+            .preferredColorScheme(.dark)
     }
 }

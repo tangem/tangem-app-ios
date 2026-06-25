@@ -38,9 +38,11 @@ struct DefaultToggleRowView: View {
     }
 }
 
-struct DefaultToggleRowViewPreview: PreviewProvider {
-    static var isSelected: Bool = true
-    static let viewModel = DefaultToggleRowViewModel(
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var isSelected: Bool = true
+
+    @Previewable @State var viewModel = DefaultToggleRowViewModel(
         title: "Title",
         isDisabled: false,
         isOn: .init(
@@ -49,7 +51,5 @@ struct DefaultToggleRowViewPreview: PreviewProvider {
         )
     )
 
-    static var previews: some View {
-        DefaultToggleRowView(viewModel: viewModel)
-    }
+    DefaultToggleRowView(viewModel: viewModel)
 }
