@@ -1,5 +1,5 @@
 //
-//  SwapMarketingBannerNotificationManager.swift
+//  OnrampMarketingBannerNotificationManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,9 +8,10 @@
 
 import Foundation
 import Combine
+import TangemExpress
 import TangemFoundation
 
-final class SwapMarketingBannerNotificationManager {
+final class OnrampMarketingBannerNotificationManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
     private let service = MarketingBannerService()
@@ -21,35 +22,30 @@ final class SwapMarketingBannerNotificationManager {
 
 // MARK: - Setup
 
-extension SwapMarketingBannerNotificationManager {
+extension OnrampMarketingBannerNotificationManager {
     // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()
     }
 
     func setup(
-        sourceTokenInput: SendSourceTokenInput,
-        sourceTokenAmountInput: SendSourceTokenAmountInput,
-        receiveTokenInput: SendReceiveTokenInput
+        tokenItem: TokenItem,
+        amountInput: any OnrampAmountInput,
+        providersInput: any OnrampProvidersInput
     ) {
         guard FeatureProvider.isAvailable(.marketingBanners) else {
             return
         }
 
-        let requests = Publishers.CombineLatest3(
-            sourceTokenInput.sourceTokenPublisher,
-            receiveTokenInput.receiveTokenPublisher,
-            sourceTokenAmountInput.sourceAmountPublisher
+        let requests = Publishers.CombineLatest(
+            amountInput.fiatCurrencyPublisher,
+            providersInput.selectedOnrampProviderPublisher
         )
-        .map { source, receive, amount -> SwapMarketingBannerRequest? in
-            guard let source = source.value, let receive = receive.value else {
-                return nil
-            }
-
-            return SwapMarketingBannerRequest(
-                source: source.tokenItem,
-                destination: receive.tokenItem,
-                sourceAmount: amount.value?.crypto
+        .map { fiatCurrency, provider -> OnrampMarketingBannerRequest? in
+            OnrampMarketingBannerRequest(
+                destination: tokenItem,
+                expectedCryptoAmount: provider?.value?.quote?.expectedAmount,
+                fiatCurrencyCode: fiatCurrency?.identity.code
             )
         }
         .eraseToAnyPublisher()
@@ -66,7 +62,7 @@ extension SwapMarketingBannerNotificationManager {
 
 // MARK: - Private
 
-private extension SwapMarketingBannerNotificationManager {
+private extension OnrampMarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
         let event = MarketingBannerNotificationEvent(banner: banner)
 
@@ -93,7 +89,7 @@ private extension SwapMarketingBannerNotificationManager {
 
 // MARK: - NotificationManager
 
-extension SwapMarketingBannerNotificationManager: NotificationManager {
+extension OnrampMarketingBannerNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
         notificationInputsSubject.value
     }
