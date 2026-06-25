@@ -388,7 +388,7 @@ struct TangemPayMainView: View {
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 Text(Localization.tokenDetailsBalanceTotal)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
 
@@ -477,11 +477,11 @@ struct TangemPayMainView: View {
         ToolbarItem(placement: .principal) {
             VStack(spacing: 4) {
                 Text(Localization.tangempayPaymentAccount)
-                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayUsdcOnPolygonNetwork)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
         }
