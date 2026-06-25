@@ -76,15 +76,8 @@ extension MobileWalletSigner: TangemSigner {
             }
 
         return signedDataPublisher
-            .map { signedHashesInfo in
-                return dataToSign
-                    .compactMap { dataToSign -> [SignatureInfo]? in
-                        guard let signedHashes = signedHashesInfo[dataToSign.publicKey] else { return nil }
-                        return zip(signedHashes, dataToSign.hashes).map { signedHash, hashToSign in
-                            return SignatureInfo(signature: signedHash, publicKey: dataToSign.publicKey, hash: hashToSign)
-                        }
-                    }
-                    .flatMap { $0 }
+            .map { signatures in
+                signatures.map { SignatureInfo(signature: $0.signature, publicKey: $0.publicKey, hash: $0.hash) }
             }
             .eraseToAnyPublisher()
     }
