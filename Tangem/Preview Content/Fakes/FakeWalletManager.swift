@@ -60,7 +60,8 @@ class FakeWalletManager: WalletManager {
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: KeysDerivingMock(),
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry,
+            transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
         )
 
         let walletModelsFactory = walletModelsFactoryProvider
@@ -149,9 +150,12 @@ class FakeWalletManager: WalletManager {
     }
 
     private func updateWalletModels() {
+        // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
+        let updateToken = UUID()
+
         Task {
             await TaskGroup.executeKeepingOrder(items: walletModels) { walletModel in
-                await walletModel.update(silent: true, features: .balances)
+                await walletModel.update(silent: true, options: .balances, updateToken: updateToken)
             }
         }
     }
