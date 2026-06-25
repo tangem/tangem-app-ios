@@ -89,6 +89,12 @@ final class ExpressStatusPollingHelper {
 // MARK: - Convenience initializers
 
 extension ExpressStatusPollingHelper {
+    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "To be removed, do not use")
+    convenience init(enricherFactory: @escaping TransactionHistoryExpressDataEnriching.Factory) {
+        self.init(exchangePoller: nil, onrampPoller: nil, enricherFactory: enricherFactory)
+    }
+
     convenience init(
         exchangePoller: any ExpressStatusPolling<ExchangeStatusPollIteration>,
         enricherFactory: @escaping TransactionHistoryExpressDataEnriching.Factory

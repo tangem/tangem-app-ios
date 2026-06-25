@@ -515,7 +515,7 @@ private final class StubOnrampPendingTransactionRepository: OnrampPendingTransac
         eventLog.append(.transactionAddedFromHistory)
     }
 
-    func hideSwapTransaction(with id: String) {}
+    func hideOnrampTransaction(with id: String) {}
 }
 
 private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
