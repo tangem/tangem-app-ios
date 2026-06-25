@@ -58,7 +58,11 @@ struct _TransactionHistoryDataMerger {
             // Step 1: Deterministic mapping
             if let bsdkTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payIn.hash)
                 ?? bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payOut.hash) {
-                output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.exchange(exchangeTransaction)) })
+                let info = ExchangeTransactionInfo(
+                    transaction: exchangeTransaction,
+                    provider: nil // [REDACTED_TODO_COMMENT]
+                )
+                output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.exchange(info)) })
                 continue
             }
 
@@ -74,7 +78,12 @@ struct _TransactionHistoryDataMerger {
         for onrampTransaction in onrampTransactions {
             // Step 1: Deterministic mapping
             if let bsdkTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: onrampTransaction.payOut.hash) {
-                output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.onramp(onrampTransaction)) })
+                let info = OnrampTransactionInfo(
+                    onrampTransaction: onrampTransaction,
+                    provider: nil, // [REDACTED_TODO_COMMENT]
+                    fiatCurrency: nil // [REDACTED_TODO_COMMENT]
+                )
+                output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.onramp(info)) })
                 continue
             }
 
@@ -105,6 +114,10 @@ struct _TransactionHistoryDataMerger {
     }
 
     private func makeSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> TransactionRecord {
+        let info = ExchangeTransactionInfo(
+            transaction: exchangeTransaction,
+            provider: nil // [REDACTED_TODO_COMMENT]
+        )
         let outgoing = isOutgoing(exchangeTransaction)
         let source: TransactionRecord.SourceType
         let destination: TransactionRecord.DestinationType
@@ -135,13 +148,18 @@ struct _TransactionHistoryDataMerger {
             type: .contractMethodName(name: Constants.swapMethodName),
             date: exchangeTransaction.createdAt,
             tokenTransfers: [], // No inner token transfers for exchange transactions because no such information is provided by the API
-            extraInfo: TransactionRecord.TransactionRecordExtraInfo.exchange(exchangeTransaction)
+            extraInfo: TransactionRecord.TransactionRecordExtraInfo.exchange(info)
         )
     }
 
     private func makeSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> TransactionRecord {
         // Onramp only has a pay-out leg (fiat -> crypto), so the wallet always receives.
         let amount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount ?? 0
+        let info = OnrampTransactionInfo(
+            onrampTransaction: onrampTransaction,
+            provider: nil, // [REDACTED_TODO_COMMENT]
+            fiatCurrency: nil // [REDACTED_TODO_COMMENT]
+        )
 
         return TransactionRecord(
             hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId, // [REDACTED_TODO_COMMENT]
@@ -154,7 +172,7 @@ struct _TransactionHistoryDataMerger {
             type: .contractMethodName(name: Constants.onrampMethodName),
             date: onrampTransaction.createdAt,
             tokenTransfers: [], // No inner token transfers for onramp transactions by definition
-            extraInfo: TransactionRecord.TransactionRecordExtraInfo.onramp(onrampTransaction)
+            extraInfo: TransactionRecord.TransactionRecordExtraInfo.onramp(info)
         )
     }
 
