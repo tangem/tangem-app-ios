@@ -11,6 +11,9 @@ import TangemAssets
 import TangemUIUtils
 
 public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
+    @Environment(\.isRedesign) private var isRedesign: Bool
+    @State private var sideWidth: CGFloat?
+
     private let title: String
     private let subtitle: String?
     private let leading: Leading
@@ -19,6 +22,7 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
 
     private var titleStyle = TangemFontStyle(font: Fonts.Bold.body)
     private var titleColor: Color = Colors.Text.primary1
+    private var horizontalSpacing: CGFloat = 8
     private var subtitleSpacing: CGFloat = 12
     private var verticalPadding: CGFloat = 12
 
@@ -37,6 +41,49 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     }
 
     public var body: some View {
+        if isRedesign {
+            redesignBody
+        } else {
+            legacyBody
+        }
+    }
+}
+
+// MARK: - Subviews
+
+private extension BottomSheetHeaderView {
+    var redesignBody: some View {
+        HStack(spacing: 0) {
+            leading
+                .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateSide(width:))
+                .frame(width: sideWidth, alignment: .leading)
+
+            Spacer(minLength: horizontalSpacing)
+
+            VStack(spacing: subtitleSpacing) {
+                Text(title)
+                    .style(titleStyle, color: titleColor)
+                    .accessibilityIdentifier(titleAccessibilityIdentifier)
+
+                if let subtitle {
+                    Text(subtitle)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                }
+            }
+            .lineLimit(nil)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: horizontalSpacing)
+
+            trailing
+                .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateSide(width:))
+                .frame(width: sideWidth, alignment: .trailing)
+        }
+        .padding(.vertical, verticalPadding)
+    }
+
+    var legacyBody: some View {
         ZStack(alignment: .center) {
             // Title layer
             VStack(spacing: subtitleSpacing) {
@@ -62,6 +109,14 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
         .infinityFrame(axis: .horizontal)
         .multilineTextAlignment(.center)
         .padding(.vertical, verticalPadding)
+    }
+}
+
+// MARK: - Layout update
+
+private extension BottomSheetHeaderView {
+    func updateSide(width: CGFloat) {
+        sideWidth = max(sideWidth ?? 0, width)
     }
 }
 
