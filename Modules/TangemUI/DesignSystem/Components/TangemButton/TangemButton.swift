@@ -16,6 +16,7 @@ public struct TangemButton: View, Setupable {
     private var cornerStyle: CornerStyle = .rectangular
     private var styleType: StyleType = .primary
     private var buttonState: ButtonState = .normal
+    private var fontOverride: TangemFontStyle?
 
     private var size: Size = .x10 {
         didSet {
@@ -101,9 +102,14 @@ public struct TangemButton: View, Setupable {
 
     @ViewBuilder
     private func title(for text: AttributedString) -> some View {
-        Text(text)
-            .font(size.font)
-            .lineLimit(1)
+        Group {
+            if let fontOverride {
+                Text(text).font(fontOverride)
+            } else {
+                Text(text).font(size.font)
+            }
+        }
+        .lineLimit(1)
     }
 
     @ViewBuilder
@@ -135,5 +141,9 @@ public extension TangemButton {
 
     func setSize(_ size: Size) -> Self {
         map { $0.size = size }
+    }
+
+    func setFont(_ font: TangemFontStyle) -> Self {
+        map { $0.fontOverride = font }
     }
 }
