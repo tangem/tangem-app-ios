@@ -459,7 +459,7 @@ struct GaslessYieldFeeTests {
             feeReceiver: "0x0000000000000000000000000000000000000003"
         )
         let batchTransaction = GaslessTransactionsDTO.Request.GaslessBatchTransaction(
-            gaslessBatchTransaction: .init(transactions: [transaction], fee: fee, nonce: "0"),
+            gaslessTransaction: .init(transactions: [transaction], fee: fee, nonce: "0"),
             signature: "0xsignature",
             userAddress: "0x0000000000000000000000000000000000000004",
             chainId: 137,
