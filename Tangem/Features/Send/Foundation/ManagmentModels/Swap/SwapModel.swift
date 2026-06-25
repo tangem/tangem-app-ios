@@ -873,7 +873,7 @@ extension SwapModel {
                 analyticsLogger.logSwapTransactionSent(result: result)
 
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
-                addTransactionToPendingRepository(
+                persistSentTransaction(
                     source: source,
                     receive: receive,
                     provider: selected.provider,
@@ -951,7 +951,7 @@ extension SwapModel {
             try? await source.sendYieldModuleHelper?.refreshVersionAfterUpgrade()
         }
 
-        addTransactionToPendingRepository(
+        persistSentTransaction(
             source: source,
             receive: receive,
             provider: provider,
@@ -979,7 +979,7 @@ extension SwapModel {
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
     }
 
-    func addTransactionToPendingRepository(
+    func persistSentTransaction(
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
@@ -999,6 +999,19 @@ extension SwapModel {
         )
 
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
+
+        persistSentTransaction(sentTransactionData, source: source)
+    }
+
+    func persistSentTransaction(_ txData: SentSwapTransactionData, source: SendSwapableToken) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return
+        }
+
+        // Fire-and-forget since we can't handle enriching errors anyway
+        runTask {
+            await source.transactionHistoryEnricher?.enrich(with: txData)
+        }
     }
 }
 

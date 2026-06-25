@@ -11,11 +11,11 @@ import Combine
 import TangemFoundation
 
 /// Simple helper to implement multicast observers pattern. Useful for pollers, etc.
-final class MulticastObserversHelper<Iteration> {
+final class MulticastObserversHelper<Value> {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     @discardableResult
-    func subscribe(_ handler: @escaping (Iteration) -> Void) -> Cancellable {
+    func subscribe(_ handler: @escaping (Value) -> Void) -> Cancellable {
         let id = UUID()
 
         let latest = state { state in
@@ -24,7 +24,7 @@ final class MulticastObserversHelper<Iteration> {
             return state.latest
         }
 
-        // Send the latest iteration to the new subscriber if it exists
+        // Send the latest value to the new subscriber if it exists
         if let latest {
             handler(latest)
         }
@@ -34,14 +34,14 @@ final class MulticastObserversHelper<Iteration> {
         }
     }
 
-    func broadcast(_ iteration: Iteration) {
+    func broadcast(_ value: Value) {
         let handlers = state { state in
-            state.latest = iteration
+            state.latest = value
 
             return state.handlers.values
         }
 
-        handlers.forEach { $0(iteration) }
+        handlers.forEach { $0(value) }
     }
 
     private func unsubscribe(id: UUID) {
@@ -52,10 +52,10 @@ final class MulticastObserversHelper<Iteration> {
 // MARK: - Auxiliary types
 
 extension MulticastObserversHelper {
-    typealias Handler = (Iteration) -> Void
+    typealias Handler = (Value) -> Void
 
     private struct State {
         var handlers: [UUID: Handler] = [:]
-        var latest: Iteration?
+        var latest: Value?
     }
 }

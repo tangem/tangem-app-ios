@@ -356,6 +356,7 @@ private final class SendSwapableTokenStub: SendSwapableToken {
     var allowanceService: (any AllowanceService)? { inner.allowanceService }
     var withdrawalNotificationProvider: WithdrawalNotificationProvider? { inner.withdrawalNotificationProvider }
     var emailDataCollectorBuilder: EmailDataCollectorBuilder { inner.emailDataCollectorBuilder }
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? { get async { await inner.transactionHistoryEnricher } }
     var transactionDispatcherProvider: any TransactionDispatcherProvider { inner.transactionDispatcherProvider }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { inner.tangemIconProvider }
