@@ -167,7 +167,7 @@ extension CommonUserTokensManager.Error: UniversalError {
     }
 }
 
-extension CommonTokenEnricher.Error: UniversalError {
+extension ExpressCurrencyConverter.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .notFound:
