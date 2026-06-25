@@ -36,11 +36,7 @@ struct ExpressStatusTrackingFactory {
     }
 
     private func makeExchangeStatusPoller(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) -> ExchangeStatusPoller {
-        let converter = ExpressCurrencyConverter(
-            supportedBlockchains: userWalletInfo.config.supportedBlockchains,
-            shouldPerformLocalLookup: false
-        )
-
+        let converter = ExpressCurrencyConverter(supportedBlockchains: userWalletInfo.config.supportedBlockchains)
         let expressRefundedTokenHandler = CommonExpressRefundedTokenHandler(
             converter: converter
         )
