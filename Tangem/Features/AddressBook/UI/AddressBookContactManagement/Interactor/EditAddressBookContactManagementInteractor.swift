@@ -32,7 +32,7 @@ final class EditAddressBookContactManagementInteractor {
         nameSubject = .init(contact.name.value)
         colorSubject = .init(AccountModel.CompositeIcon.Color(rawValue: contact.iconColor) ?? AccountModelUtils.UI.newAccountIcon().color)
         addressesSubject = .init(contact.entries.raw.map {
-            AddressBookEntryDraft(id: $0.id, address: $0.address, networkId: $0.networkId, memo: $0.memo)
+            AddressBookEntryDraft(id: $0.id, address: $0.address, blockchain: $0.blockchain, memo: $0.memo)
         })
         walletSubject = .init(addressBookWallet)
     }
@@ -106,10 +106,11 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         walletSubject.send(addressBookWallet)
     }
 
-    func add(entries: [AddressBookEntryDraft]) throws {
-        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+    func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws {
+        let remaining = addressesSubject.value.filter { !ids.contains($0.id) }
+        try AddressBookContactDraftEntries.validate(adding: entries, to: remaining)
 
-        addressesSubject.value.append(contentsOf: entries)
+        addressesSubject.value = remaining + entries
     }
 
     func deleteAddress(id: AddressBookAddressEntryID) {

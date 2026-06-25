@@ -13,6 +13,8 @@ import TangemLocalization
 import TangemFoundation
 
 class SendDestinationViewModel: ObservableObject, Identifiable {
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
+
     var destinationAddressSectionType: [DestinationAddressSectionType] {
         var section: [DestinationAddressSectionType] = [.destinationAddress(destinationAddressViewModel)]
         if let destinationResolvedAddress {
@@ -70,7 +72,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        interactor.preloadTransactionsHistoryIfNeeded()
+        interactor.preloadTransactionHistoryIfNeeded()
     }
 
     func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
@@ -236,6 +238,12 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 
     private func userDidTapSuggestedDestination(_ suggestedDestination: SendDestinationSuggested) {
+        if let userWalletInfo = suggestedDestination.userWalletInfo,
+           let alert = UserWalletBackupStatusHelper().alert(for: userWalletInfo) {
+            alertPresenter.present(alert: alert)
+            return
+        }
+
         FeedbackGenerator.success()
 
         analyticsLogger.setDestinationAnalyticsProvider(suggestedDestination.accountModelAnalyticsProvider)

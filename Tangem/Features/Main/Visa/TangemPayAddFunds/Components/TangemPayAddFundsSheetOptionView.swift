@@ -54,11 +54,11 @@ private extension TangemPayAddFundsSheetOptionView {
     var redesignedTitleView: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(option.title)
-                .font(DesignSystem.Font.subheadingMediumToken)
+                .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
 
             Text(option.subtitle)
-                .font(DesignSystem.Font.captionMediumToken)
+                .font(token: DesignSystem.Font.captionMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.leading)

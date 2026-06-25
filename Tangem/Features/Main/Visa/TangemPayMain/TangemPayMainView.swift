@@ -312,8 +312,8 @@ struct TangemPayMainView: View {
             .padding(.top, 12)
         }
         .background {
-            TangemPayBackgroundView(textureOpacity: redesignedHeaderOpacity)
-                .animation(.default, value: headerHeightRatio)
+            DesignSystem.Color.bgPrimary
+                .ignoresSafeArea()
         }
         .onReceive(elasticContainerModel.heightRatioPublisher) { headerHeightRatio = $0 }
         .onReceive(viewModel.refreshScrollViewStateObject.scrollViewInteractor.$visibleBodyHeight) { visibleBodyHeight = $0 }
@@ -363,7 +363,7 @@ struct TangemPayMainView: View {
                 PendingExpressTransactionView(info: transactionInfo)
             }
         }
-        .padding(.bottom, 28)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -388,7 +388,7 @@ struct TangemPayMainView: View {
                     .opacity(viewModel.isStale ? 0.6 : 1)
 
                 Text(Localization.tokenDetailsBalanceTotal)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
 
@@ -477,17 +477,26 @@ struct TangemPayMainView: View {
         ToolbarItem(placement: .principal) {
             VStack(spacing: 4) {
                 Text(Localization.tangempayPaymentAccount)
-                    .font(DesignSystem.Font.subheadingMediumToken)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayUsdcOnPolygonNetwork)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textTertiary)
             }
         }
 
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                if FeatureProvider.isAvailable(.tangemPayTiers) {
+                    Button(action: viewModel.openCurrentPlan) {
+                        // [REDACTED_TODO_COMMENT]
+                        Label("Current plan", systemImage: "info.circle")
+                    }
+
+                    Divider()
+                }
+
                 Button(action: viewModel.termsAndLimits) {
                     Label(Localization.tangemPayTermsLimits, systemImage: "text.page")
                 }
@@ -496,7 +505,9 @@ struct TangemPayMainView: View {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
             } label: {
-                NavbarDotsImage()
+                Image(systemName: "ellipsis")
+                    .foregroundColor(Colors.Icon.primary1)
+                    .accessibilityLabel(Localization.commonMore)
             }
         }
     }
