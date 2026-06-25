@@ -88,7 +88,11 @@ struct ExpressStatusTrackingFactory {
         exchangeStatusPoller: ExchangeStatusPoller,
         onrampStatusPoller: OnrampStatusPoller
     ) -> ExpressStatusPollingHelper {
-        ExpressStatusPollingHelper(
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return ExpressStatusPollingHelper(enricherFactory: transactionHistoryEnricherFactory)
+        }
+
+        return ExpressStatusPollingHelper(
             exchangePoller: exchangeStatusPoller,
             onrampPoller: onrampStatusPoller,
             enricherFactory: transactionHistoryEnricherFactory

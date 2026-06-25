@@ -210,6 +210,10 @@ class CommonWalletModel {
             return
         }
 
+        // Surface the cached quote while refreshing so the price and price-change shimmer in step with the
+        // balance (which already reloads through a loading state) instead of swapping silently ([REDACTED_INFO])
+        _rate.send(.loading(cached: rate.quote))
+
         let quotes = await quotesRepository.loadQuotes(currencyIds: [currencyId])
         updateQuote(quote: quotes[currencyId])
     }
@@ -421,6 +425,10 @@ extension CommonWalletModel: WalletModelUpdater {
     }
 
     private func updateV2TransactionHistory(updateToken: some Hashable) async {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return
+        }
+
         await transactionHistoryUpdater.updateHistoryIfNeeded(
             featuresPublisher: featureManager.featuresPublisher,
             updateToken: updateToken

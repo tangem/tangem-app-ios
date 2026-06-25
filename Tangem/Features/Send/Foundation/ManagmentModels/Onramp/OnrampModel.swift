@@ -461,6 +461,10 @@ private extension OnrampModel {
     }
 
     func persistSentTransaction(_ txData: SentOnrampTransactionData) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return
+        }
+
         // Fire-and-forget since we can't handle enriching errors anyway
         runTask { [transactionHistoryEnricherFactory] in
             await transactionHistoryEnricherFactory()?.enrich(with: txData)
