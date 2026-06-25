@@ -91,6 +91,7 @@ struct MultiWalletMainContentRedesignedView: View {
         .setCornerStyle(.rounded)
         .setStyleType(.primaryInverse)
         .setSize(.x9)
+        .setFont(Font.Tangem.Body14.regular)
         .accessibilityIdentifier(MainAccessibilityIdentifiers.organizeTokensButton)
     }
 

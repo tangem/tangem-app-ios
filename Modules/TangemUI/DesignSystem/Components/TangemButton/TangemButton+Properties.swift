@@ -236,8 +236,8 @@ public extension TangemButton {
 
         var font: Font {
             switch self {
-            case .x7: Fonts.Regular.footnote
-            case .x8, .x9, .x10, .x11, .x12, .x15: Fonts.Bold.body
+            case .x7: .Tangem.Subheadline.medium.font
+            case .x8, .x9, .x10, .x11, .x12, .x15: .Tangem.Body16.semibold.font
             }
         }
 
