@@ -72,7 +72,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 
     func onAppear() {
-        interactor.preloadTransactionsHistoryIfNeeded()
+        interactor.preloadTransactionHistoryIfNeeded()
     }
 
     func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
