@@ -54,45 +54,54 @@ struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
     }
 }
 
-struct DefaultMenuRowView_Preview: PreviewProvider {
-    struct PreviewView: View {
-        @State private var selectedAction: ActionType = .unlimited
+#if DEBUG
 
-        var viewModel: DefaultMenuRowViewModel<ActionType> {
-            DefaultMenuRowViewModel(
-                title: "Select action",
-                actions: ActionType.allCases
-            )
+private enum DefaultMenuRowPreviewActionType: DefaultMenuRowViewModelAction, CaseIterable {
+    case current
+    case unlimited
+
+    var id: Int { hashValue }
+
+    var title: String {
+        switch self {
+        case .current:
+            return "Current transaction"
+        case .unlimited:
+            return "Unlimited"
         }
-
-        var body: some View {
-            DefaultMenuRowView(viewModel: viewModel, selection: $selectedAction)
-                .padding(.horizontal, 16)
-                .background(Colors.Background.secondary)
-        }
-
-        enum ActionType: DefaultMenuRowViewModelAction, CaseIterable {
-            case current
-            case unlimited
-
-            var id: Int { hashValue }
-
-            var title: String {
-                switch self {
-                case .current:
-                    return "Current transaction"
-                case .unlimited:
-                    return "Unlimited"
-                }
-            }
-        }
-    }
-
-    static var previews: some View {
-        PreviewView()
-            .preferredColorScheme(.light)
-
-        PreviewView()
-            .preferredColorScheme(.dark)
     }
 }
+
+@available(iOS 17.0, *)
+#Preview("Light") {
+    @Previewable @State var selectedAction: DefaultMenuRowPreviewActionType = .unlimited
+
+    DefaultMenuRowView(
+        viewModel: DefaultMenuRowViewModel(
+            title: "Select action",
+            actions: DefaultMenuRowPreviewActionType.allCases
+        ),
+        selection: $selectedAction
+    )
+    .padding(.horizontal, 16)
+    .background(Colors.Background.secondary)
+    .preferredColorScheme(.light)
+}
+
+@available(iOS 17.0, *)
+#Preview("Dark") {
+    @Previewable @State var selectedAction: DefaultMenuRowPreviewActionType = .unlimited
+
+    DefaultMenuRowView(
+        viewModel: DefaultMenuRowViewModel(
+            title: "Select action",
+            actions: DefaultMenuRowPreviewActionType.allCases
+        ),
+        selection: $selectedAction
+    )
+    .padding(.horizontal, 16)
+    .background(Colors.Background.secondary)
+    .preferredColorScheme(.dark)
+}
+
+#endif // DEBUG

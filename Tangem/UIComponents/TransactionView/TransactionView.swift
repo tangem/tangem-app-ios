@@ -105,7 +105,8 @@ struct TransactionView: View {
     }
 }
 
-struct TransactionView_Previews: PreviewProvider {
+#if DEBUG
+enum TransactionViewPreviewData {
     static let previewViewModels: [TransactionViewModel] = [
         TransactionViewModel(
             hash: UUID().uuidString,
@@ -309,32 +310,37 @@ struct TransactionView_Previews: PreviewProvider {
             isFromYieldContract: false
         ),
     ]
+}
 
-    static var previews: some View {
-        Group {
-            VStack {
-                ForEach(previewViewModels) {
-                    TransactionView(viewModel: $0)
-                }
-            }
-            .padding()
-            .previewDisplayName("previewViewModels")
+#Preview {
+    let previewViewModels = TransactionViewPreviewData.previewViewModels
+    let figmaViewModels1 = TransactionViewPreviewData.figmaViewModels1
+    let figmaViewModels2 = TransactionViewPreviewData.figmaViewModels2
 
-            VStack {
-                ForEach(figmaViewModels1) {
-                    TransactionView(viewModel: $0)
-                }
+    Group {
+        VStack {
+            ForEach(previewViewModels) {
+                TransactionView(viewModel: $0)
             }
-            .padding()
-            .previewDisplayName("figmaViewModels1")
-
-            VStack {
-                ForEach(figmaViewModels2) {
-                    TransactionView(viewModel: $0)
-                }
-            }
-            .padding()
-            .previewDisplayName("figmaViewModels2")
         }
+        .padding()
+        .previewDisplayName("previewViewModels")
+
+        VStack {
+            ForEach(figmaViewModels1) {
+                TransactionView(viewModel: $0)
+            }
+        }
+        .padding()
+        .previewDisplayName("figmaViewModels1")
+
+        VStack {
+            ForEach(figmaViewModels2) {
+                TransactionView(viewModel: $0)
+            }
+        }
+        .padding()
+        .previewDisplayName("figmaViewModels2")
     }
 }
+#endif // DEBUG

@@ -40,15 +40,10 @@ struct DefaultToggleRowView: View {
 
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @State var isSelected: Bool = true
-
     @Previewable @State var viewModel = DefaultToggleRowViewModel(
         title: "Title",
         isDisabled: false,
-        isOn: .init(
-            get: { isSelected },
-            set: { isSelected = $0 }
-        )
+        isOn: .constant(false)
     )
 
     DefaultToggleRowView(viewModel: viewModel)

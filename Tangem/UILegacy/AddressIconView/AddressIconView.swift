@@ -28,8 +28,6 @@ struct AddressIconView: View {
     }
 }
 
-struct AddressIconView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddressIconView(viewModel: AddressIconViewModel(address: "0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359"))
-    }
+#Preview {
+    AddressIconView(viewModel: AddressIconViewModel(address: "0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359"))
 }

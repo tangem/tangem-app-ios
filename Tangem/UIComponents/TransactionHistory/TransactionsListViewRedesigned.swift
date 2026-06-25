@@ -223,11 +223,11 @@ private struct StatusStateView: View {
     let items = [
         TransactionListItem(
             header: "Today",
-            items: TransactionView_Previews.figmaViewModels1
+            items: TransactionViewPreviewData.figmaViewModels1
         ),
         TransactionListItem(
             header: "June 12, 2026",
-            items: TransactionView_Previews.figmaViewModels2
+            items: TransactionViewPreviewData.figmaViewModels2
         ),
     ]
     return ScrollView {
@@ -269,5 +269,4 @@ private struct StatusStateView: View {
     )
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
-
 #endif // DEBUG
