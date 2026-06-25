@@ -83,7 +83,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .version("6.0")
         case .transfers: return .version("6.0")
-        case .memoValidationBeforeConfirm: return .unspecified
+        case .memoValidationBeforeConfirm: return .version("6.0")
         case .tangemPaySpendRedesign: return .version("6.0")
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
