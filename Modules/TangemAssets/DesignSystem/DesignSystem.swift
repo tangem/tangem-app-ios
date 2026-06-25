@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // The `DesignSystem` namespace tree itself is generated from the DS-Core
 // `codeSyntax.iOS` paths into `Generated/DesignSystem/Namespaces+Generated.swift`.
@@ -44,7 +45,6 @@ extension UIColor {
 // MARK: - Typography token
 
 public struct TangemTypographyToken: Hashable, Sendable {
-    public let fontFamily: String
     public let fontWeight: Font.Weight
     public let fontSize: CGFloat
     public let relativeTo: Font.TextStyle
@@ -53,7 +53,6 @@ public struct TangemTypographyToken: Hashable, Sendable {
     public let tracking: CGFloat
 
     public init(
-        fontFamily: String,
         fontWeight: Font.Weight,
         fontSize: CGFloat,
         relativeTo: Font.TextStyle,
@@ -61,7 +60,6 @@ public struct TangemTypographyToken: Hashable, Sendable {
         lineSpacing: CGFloat,
         tracking: CGFloat
     ) {
-        self.fontFamily = fontFamily
         self.fontWeight = fontWeight
         self.fontSize = fontSize
         self.relativeTo = relativeTo
@@ -70,22 +68,46 @@ public struct TangemTypographyToken: Hashable, Sendable {
         self.tracking = tracking
     }
 
+    @available(iOS, deprecated: 10000, message: "Use the `.font(token:)` view modifier; this accessor exists only for `Font` sinks with no view-modifier path.")
     public var font: Font {
-        // `relativeTo:` opts the font into Dynamic Type scaling — the size grows
-        // with the user's preferred content size relative to the given text style.
-        // `.custom` is the only builder with a `relativeTo:` overload (`.system`
-        // has none), so all tiers route through it. The "SF Pro" family is not a
-        // registered PostScript name, so it silently resolves to the system SF
-        // face — exactly what design wants on iOS — now with Dynamic Type.
-        .custom(fontFamily, size: fontSize, relativeTo: relativeTo).weight(fontWeight)
+        let base = UIFont.systemFont(ofSize: fontSize, weight: fontWeight.uiWeight)
+        return Font(UIFontMetrics(forTextStyle: relativeTo.uiTextStyle).scaledFont(for: base))
     }
 }
 
-public extension View {
-    func font(_ token: TangemTypographyToken) -> some View {
-        font(token.font)
-            .lineSpacing(token.lineSpacing)
-            .tracking(token.tracking)
+private extension Font.Weight {
+    var uiWeight: UIFont.Weight {
+        switch self {
+        case .ultraLight: .ultraLight
+        case .thin: .thin
+        case .light: .light
+        case .regular: .regular
+        case .medium: .medium
+        case .semibold: .semibold
+        case .bold: .bold
+        case .heavy: .heavy
+        case .black: .black
+        default: .regular
+        }
+    }
+}
+
+private extension Font.TextStyle {
+    var uiTextStyle: UIFont.TextStyle {
+        switch self {
+        case .largeTitle: .largeTitle
+        case .title: .title1
+        case .title2: .title2
+        case .title3: .title3
+        case .headline: .headline
+        case .subheadline: .subheadline
+        case .body: .body
+        case .callout: .callout
+        case .footnote: .footnote
+        case .caption: .caption1
+        case .caption2: .caption2
+        default: .body
+        }
     }
 }
 
