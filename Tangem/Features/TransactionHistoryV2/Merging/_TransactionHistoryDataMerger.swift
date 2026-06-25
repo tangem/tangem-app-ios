@@ -46,6 +46,34 @@ struct _TransactionHistoryDataMerger {
         self.feeTokenItem = feeTokenItem
     }
 
+    func heuristicallyMatchingRefundBSDKTransaction(
+        for exchangeTransaction: ExchangeTransaction,
+        from bsdkTransactions: [TransactionRecord],
+    ) -> TransactionRecord? {
+        guard
+            exchangeTransaction.status == .refunded,
+            exchangeTransaction.refund?.currency == currentToken.expressCurrency.asCurrency
+        else {
+            return nil
+        }
+
+        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.refundHeuristicTimeWindow)
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential refunds
+                    || abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.refundHeuristicAmountTolerance
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
+    }
+
     func merge(
         bsdkTransactions: [TransactionRecord],
         exchangeTransactions: [ExchangeTransaction],
