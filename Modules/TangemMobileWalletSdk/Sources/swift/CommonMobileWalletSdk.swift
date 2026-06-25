@@ -16,18 +16,28 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
     private let privateInfoStorageManager: PrivateInfoStorageManager
     private let publicInfoStorageManager: PublicInfoStorageManager
 
-    public init() {
+    public convenience init() {
         let encryptedSecureStorage = EncryptedSecureStorage()
         let encryptedBiometricsStorage = EncryptedBiometricsStorage()
 
-        privateInfoStorageManager = PrivateInfoStorageManager(
-            privateInfoStorage: PrivateInfoStorage(),
-            encryptedSecureStorage: encryptedSecureStorage,
-            encryptedBiometricsStorage: encryptedBiometricsStorage
+        self.init(
+            privateInfoStorageManager: PrivateInfoStorageManager(
+                privateInfoStorage: PrivateInfoStorage(),
+                encryptedSecureStorage: encryptedSecureStorage,
+                encryptedBiometricsStorage: encryptedBiometricsStorage
+            ),
+            publicInfoStorageManager: PublicInfoStorageManager(
+                encryptedSecureStorage: encryptedSecureStorage
+            )
         )
-        publicInfoStorageManager = PublicInfoStorageManager(
-            encryptedSecureStorage: encryptedSecureStorage,
-        )
+    }
+
+    init(
+        privateInfoStorageManager: PrivateInfoStorageManager,
+        publicInfoStorageManager: PublicInfoStorageManager
+    ) {
+        self.privateInfoStorageManager = privateInfoStorageManager
+        self.publicInfoStorageManager = publicInfoStorageManager
     }
 
     public func importWallet(entropy: Data, passphrase: String) throws -> UserWalletId {
@@ -233,7 +243,7 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
         dataToSign: [SignData],
         seedKey: Data,
         context: MobileWalletContext
-    ) throws -> [Data: [Data]] {
+    ) throws -> [MobileWalletSignature] {
         var privateInfoData = try privateInfoStorageManager.getPrivateInfoData(context: context)
         defer { secureErase(data: &privateInfoData) }
 
@@ -243,43 +253,42 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
 
         defer { privateInfo.clear() }
 
-        let curves: [Data: EllipticCurve] = dataToSign.reduce(into: [:]) { partialResult, signData in
-            let curve = DerivationUtil.curve(
-                for: seedKey,
-                entropy: privateInfo.entropy,
-                passphrase: privateInfo.passphrase
-            )
-            partialResult[signData.publicKey] = curve
+        // The curve is a property of the seed key, identical for every `SignData` in the batch.
+        guard let curve = DerivationUtil.curve(
+            for: seedKey,
+            entropy: privateInfo.entropy,
+            passphrase: privateInfo.passphrase
+        ) else {
+            throw MobileWalletError.failedToDeriveKey
         }
 
-        var result = [Data: [Data]]()
-
-        try dataToSign.forEach { dataToSign in
-            guard let curve = curves[dataToSign.publicKey] else { return }
-            var signedHashes: [Data]?
-            switch curve {
+        // One signature per input hash, ordered and tagged with its public key. Collapsing by public key
+        // drops the signatures of every input but the last when a wallet spends several UTXOs from one
+        // address.
+        return try dataToSign.flatMap { signData -> [MobileWalletSignature] in
+            let signatures: [Data] = switch curve {
             case .bls12381_G2_AUG:
-                signedHashes = try BLSUtil.sign(
-                    hashes: dataToSign.hashes,
+                try BLSUtil.sign(
+                    hashes: signData.hashes,
                     entropy: privateInfo.entropy,
                     passphrase: privateInfo.passphrase
                 )
             case .secp256k1, .ed25519, .ed25519_slip0010:
-                signedHashes = try SignUtil.sign(
+                try SignUtil.sign(
                     entropy: privateInfo.entropy,
                     passphrase: privateInfo.passphrase,
-                    hashes: dataToSign.hashes,
+                    hashes: signData.hashes,
                     curve: curve,
-                    derivationPath: dataToSign.derivationPath
+                    derivationPath: signData.derivationPath
                 )
             default:
                 throw MobileWalletError.invalidCurve(curve)
             }
 
-            result[dataToSign.publicKey] = signedHashes
+            return zip(signData.hashes, signatures).map { hash, signature in
+                MobileWalletSignature(publicKey: signData.publicKey, hash: hash, signature: signature)
+            }
         }
-
-        return result
     }
 
     public func userWalletEncryptionKey(context: MobileWalletContext) throws -> UserWalletEncryptionKey {
