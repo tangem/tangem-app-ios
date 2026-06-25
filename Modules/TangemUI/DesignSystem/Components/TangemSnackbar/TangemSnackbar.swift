@@ -51,7 +51,7 @@ private extension TangemSnackbar {
             }
         }
         .padding(.leading, .unit(.x5))
-        .padding(.trailing, action == nil ? .unit(.x5) : .unit(.x1))
+        .padding(.trailing, action == nil ? .unit(.x5) : .unit(.x3))
         .frame(height: rightLayoutHeight)
     }
 
@@ -92,7 +92,7 @@ private extension TangemSnackbar {
             action: action.handler
         )
         .setStyleType(.secondary)
-        .setSize(.x9)
+        .setSize(.x7)
         .setCornerStyle(.rounded)
     }
 }
