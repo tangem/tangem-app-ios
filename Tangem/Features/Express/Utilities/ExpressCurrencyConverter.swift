@@ -25,6 +25,24 @@ struct ExpressCurrencyConverter {
         expressCurrency: ExpressCurrency,
         in blockchainNetwork: BlockchainNetwork
     ) async throws -> TokenItem {
+        do {
+            return try convertLocalOnly(expressCurrency: expressCurrency, in: blockchainNetwork)
+        } catch Error.notFound {
+            if let remoteToken = try await fetchRemoteToken(
+                blockchain: blockchainNetwork.blockchain,
+                contractAddress: expressCurrency.contractAddress
+            ) {
+                return .token(remoteToken, blockchainNetwork)
+            }
+        }
+
+        throw Error.notFound
+    }
+
+    func convertLocalOnly(
+        expressCurrency: ExpressCurrency,
+        in blockchainNetwork: BlockchainNetwork
+    ) throws -> TokenItem {
         let blockchain = blockchainNetwork.blockchain
         let contractAddress = expressCurrency.contractAddress
 
@@ -38,10 +56,6 @@ struct ExpressCurrencyConverter {
 
         if let localToken = fetchLocalToken(blockchain: blockchain, contractAddress: contractAddress) {
             return .token(localToken, blockchainNetwork)
-        }
-
-        if let remoteToken = try await fetchRemoteToken(blockchain: blockchain, contractAddress: contractAddress) {
-            return .token(remoteToken, blockchainNetwork)
         }
 
         throw Error.notFound
