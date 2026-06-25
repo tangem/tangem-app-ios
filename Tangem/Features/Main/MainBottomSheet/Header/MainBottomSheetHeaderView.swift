@@ -10,11 +10,14 @@ import SwiftUI
 import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MainBottomSheetHeaderView: View {
     @ObservedObject var viewModel: MainBottomSheetHeaderViewModel
 
     @FocusState private var isFocused: Bool
+
+    private var searchFieldInsets: EdgeInsets = Constants.searchFieldInsets
 
     private let backgroundColor: Color
 
@@ -48,7 +51,7 @@ struct MainBottomSheetHeaderView: View {
         .textFieldAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
         .clearButtonAccessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketClearButton)
         .frame(height: Constants.searchFieldHeight)
-        .padding(Constants.searchFieldPadding)
+        .padding(searchFieldInsets)
         .background(backgroundColor)
         .focused($isFocused)
         .onReceive(viewModel.$inputShouldBecomeFocused) { isFocused = $0 }
@@ -71,7 +74,15 @@ extension MainBottomSheetHeaderView {
     enum Constants {
         /// Not a scaled property because `RootViewControllerFactory` uses this control internally
         /// and its `Constants` values cannot be made scaled as it can't be added to the view hierarchy.
-        static let searchFieldPadding: CGFloat = .unit(.x4)
+        static let searchFieldInsets: EdgeInsets = .init(inset: .unit(.x4))
         static let searchFieldHeight: CGFloat = .unit(.x11)
+    }
+}
+
+// MARK: - Setupable
+
+extension MainBottomSheetHeaderView: Setupable {
+    func searchFieldInsets(_ insets: EdgeInsets) -> Self {
+        map { $0.searchFieldInsets = insets }
     }
 }
