@@ -46,7 +46,7 @@ struct CollapsedAccountItemHeaderView: View {
             primaryLeadingView: {
                 HStack(spacing: geometryEffectAnchorOffset) {
                     Text(name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(TangemRowConstants.Style.Title.font, color: TangemRowConstants.Style.Title.color)
                         .matchedGeometryEffect(nameGeometryEffect)
 
                     Color.clear
@@ -63,7 +63,7 @@ struct CollapsedAccountItemHeaderView: View {
             },
             secondaryLeadingView: {
                 Text(tokensCount)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                    .style(TangemRowConstants.Style.Subtitle.font, color: TangemRowConstants.Style.Subtitle.color)
                     .matchedGeometryEffect(tokensCountGeometryEffect)
             },
             secondaryTrailingView: {
