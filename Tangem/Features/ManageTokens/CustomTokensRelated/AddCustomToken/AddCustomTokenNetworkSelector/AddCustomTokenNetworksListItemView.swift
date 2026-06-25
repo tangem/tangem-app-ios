@@ -49,7 +49,8 @@ struct AddCustomTokenNetworksListItemView: View {
     }
 }
 
-#Preview {
+@available(iOS 17.0, *)
+#Preview(traits: .fixedLayout(width: 400, height: 300)) {
     VStack(spacing: 0) {
         AddCustomTokenNetworksListItemView(
             viewModel: .init(
@@ -84,5 +85,4 @@ struct AddCustomTokenNetworksListItemView: View {
             )
         )
     }
-    .previewLayout(.fixed(width: 400, height: 300))
 }

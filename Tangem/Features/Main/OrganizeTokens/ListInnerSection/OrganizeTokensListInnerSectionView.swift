@@ -50,7 +50,8 @@ private extension OrganizeTokensListInnerSectionView {
 
 // MARK: - Previews
 
-#Preview {
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         Group {
             OrganizeTokensListInnerSectionView(
@@ -66,6 +67,5 @@ private extension OrganizeTokensListInnerSectionView {
         .background(Colors.Background.primary)
     }
     .padding()
-    .previewLayout(.sizeThatFits)
     .background(Colors.Background.secondary)
 }

@@ -106,6 +106,7 @@ struct TransactionView: View {
 }
 
 #if DEBUG
+
 enum TransactionViewPreviewData {
     static let previewViewModels: [TransactionViewModel] = [
         TransactionViewModel(
@@ -312,35 +313,31 @@ enum TransactionViewPreviewData {
     ]
 }
 
-#Preview {
-    let previewViewModels = TransactionViewPreviewData.previewViewModels
-    let figmaViewModels1 = TransactionViewPreviewData.figmaViewModels1
-    let figmaViewModels2 = TransactionViewPreviewData.figmaViewModels2
-
-    Group {
-        VStack {
-            ForEach(previewViewModels) {
-                TransactionView(viewModel: $0)
-            }
+#Preview("previewViewModels") {
+    VStack {
+        ForEach(TransactionViewPreviewData.previewViewModels) {
+            TransactionView(viewModel: $0)
         }
-        .padding()
-        .previewDisplayName("previewViewModels")
-
-        VStack {
-            ForEach(figmaViewModels1) {
-                TransactionView(viewModel: $0)
-            }
-        }
-        .padding()
-        .previewDisplayName("figmaViewModels1")
-
-        VStack {
-            ForEach(figmaViewModels2) {
-                TransactionView(viewModel: $0)
-            }
-        }
-        .padding()
-        .previewDisplayName("figmaViewModels2")
     }
+    .padding()
 }
-#endif // DEBUG
+
+#Preview("figmaViewModels1") {
+    VStack {
+        ForEach(TransactionViewPreviewData.figmaViewModels1) {
+            TransactionView(viewModel: $0)
+        }
+    }
+    .padding()
+}
+
+#Preview("figmaViewModels2") {
+    VStack {
+        ForEach(TransactionViewPreviewData.figmaViewModels2) {
+            TransactionView(viewModel: $0)
+        }
+    }
+    .padding()
+}
+
+#endif

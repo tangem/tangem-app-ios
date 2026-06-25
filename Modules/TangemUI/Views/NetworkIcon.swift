@@ -85,7 +85,8 @@ private struct MainNetworkIndicator: View {
 
 // MARK: - Previews
 
-#Preview {
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         NetworkIcon(imageAsset: Tokens.solanaFill, isActive: true, isMainIndicatorVisible: true)
 
@@ -98,5 +99,4 @@ private struct MainNetworkIndicator: View {
         )
     }
     .padding()
-    .previewLayout(.sizeThatFits)
 }

@@ -109,7 +109,8 @@ public struct NewsRatingView: View {
 
 // MARK: - Previews
 
-#Preview {
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
     VStack(spacing: 20) {
         NewsRatingView(rating: "9.1", timeAgo: "1h ago")
 
@@ -119,5 +120,4 @@ public struct NewsRatingView: View {
     }
     .padding()
     .background(Colors.Background.primary)
-    .previewLayout(.sizeThatFits)
 }
