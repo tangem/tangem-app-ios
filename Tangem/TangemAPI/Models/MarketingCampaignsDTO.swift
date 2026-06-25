@@ -12,6 +12,8 @@ enum MarketingCampaignsDTO {
     enum Request: Equatable {
         case swap(Swap)
         case onramp(Onramp)
+        case staking(language: String?)
+        case yield(language: String?)
 
         struct Swap: Equatable {
             let fromNetwork: String
@@ -40,7 +42,13 @@ enum MarketingCampaignsDTO {
         let minAmount: Decimal?
         let maxAmount: Decimal?
         let providerIds: [String]?
+        let tokens: [Token]?
         let banner: Banner
+
+        struct Token: Decodable {
+            let networkId: String
+            let contractAddress: String?
+        }
     }
 
     struct Banner: Decodable {
@@ -94,6 +102,16 @@ extension MarketingCampaignsDTO.Request {
             parameters["toContractAddress"] = onramp.toContractAddress
             parameters["fiatCurrency"] = onramp.fiatCurrency
             parameters["language"] = onramp.language
+            return parameters
+
+        case .staking(let language):
+            var parameters: [String: Any] = ["type": "staking"]
+            parameters["language"] = language
+            return parameters
+
+        case .yield(let language):
+            var parameters: [String: Any] = ["type": "yield"]
+            parameters["language"] = language
             return parameters
         }
     }
