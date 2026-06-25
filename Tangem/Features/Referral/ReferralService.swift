@@ -14,6 +14,7 @@ protocol ReferralService {
     func saveReferralIfNeeded(refcode: String, campaign: String?)
     func saveAndBindIfNeeded(refcode: String, campaign: String?)
     func retryBindingIfNeeded()
+    func clearReferral()
 }
 
 private struct ReferralServiceKey: InjectionKey {

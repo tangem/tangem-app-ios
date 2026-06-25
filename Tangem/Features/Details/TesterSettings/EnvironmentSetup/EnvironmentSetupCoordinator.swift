@@ -28,6 +28,7 @@ final class EnvironmentSetupCoordinator: CoordinatorObject {
     @Published var addressesInfoViewModel: AddressesInfoViewModel?
     @Published var designSystemDemoCoordinator: DesignSystemDemoCoordinator?
     @Published var silentPushTesterViewModel: SilentPushTesterViewModel?
+    @Published var referralTesterViewModel: ReferralTesterViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -81,6 +82,10 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
 
     func openSilentPushTester() {
         silentPushTesterViewModel = SilentPushTesterViewModel()
+    }
+
+    func openReferralTester() {
+        referralTesterViewModel = ReferralTesterViewModel()
     }
 
     func openDesignSystemDemo() {

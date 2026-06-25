@@ -16,4 +16,5 @@ final class EnvironmentSetupRoutableMock: EnvironmentSetupRoutable {
     func openSparrowSurveyChatDemo(withToken: String) {}
     func openSparrowSurveyNPSDemo(withToken: String) {}
     func openSilentPushTester() {}
+    func openReferralTester() {}
 }

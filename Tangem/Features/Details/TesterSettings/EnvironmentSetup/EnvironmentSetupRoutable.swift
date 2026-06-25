@@ -18,4 +18,5 @@ protocol EnvironmentSetupRoutable: AnyObject {
     func openSparrowSurveyChatDemo(withToken token: String)
     func openSparrowSurveyNPSDemo(withToken token: String)
     func openSilentPushTester()
+    func openReferralTester()
 }
