@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "2650"
+   wasCreatedForAppExtension = "YES"
+   version = "2.0">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2D1553672FEC18DB00BF1F88"
+               BuildableName = "TangemNotificationServiceExtension.appex"
+               BlueprintName = "TangemNotificationServiceExtension"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5D3F77C124BF56D800E8695B"
+               BuildableName = "Tangem.app"
+               BlueprintName = "Tangem"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug(production)"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug(production)"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      launchStyle = "0"
+      askForAppToLaunch = "Yes"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES"
+      launchAutomaticallySubstyle = "2"
+      queueDebuggingEnableBacktraceRecording = "Yes"
+      notificationPayloadFile = "Examples/apps/watchOSExample/watchOSExample WatchKit Extension/PushNotificationPayload.apns">
+      <RemoteRunnable
+         runnableDebuggingMode = "0"
+         BundleIdentifier = "com.tangem.TangemAlpha"
+         RemotePath = "/var/containers/Bundle/Application/665AD314-14E0-44A7-B1FB-D234D67FCC67/Tangem.app">
+      </RemoteRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5D3F77C124BF56D800E8695B"
+            BuildableName = "Tangem.app"
+            BlueprintName = "Tangem"
+            ReferencedContainer = "container:TangemApp.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release(production)"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES"
+      askForAppToLaunch = "Yes"
+      launchAutomaticallySubstyle = "2">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5D3F77C124BF56D800E8695B"
+            BuildableName = "Tangem.app"
+            BlueprintName = "Tangem"
+            ReferencedContainer = "container:TangemApp.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug(production)">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release(production)"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>
