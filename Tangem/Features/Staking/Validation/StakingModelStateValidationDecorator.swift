@@ -95,7 +95,6 @@ extension StakingModelStateValidationDecorator: StakingValidationStateProvider {
 // MARK: - Private
 
 private extension StakingModelStateValidationDecorator {
-    
     // MARK: - Retry Validation
 
     func retryValidationIfNeeded() async {
