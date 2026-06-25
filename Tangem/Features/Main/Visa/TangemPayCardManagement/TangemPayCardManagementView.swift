@@ -451,7 +451,9 @@ struct TangemPayCardManagementView: View {
                         .disabled(closeCardRow.action == nil)
                     }
                 } label: {
-                    NavbarDotsImage()
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(Colors.Icon.primary1)
+                        .accessibilityLabel(Localization.commonMore)
                 }
             }
         }

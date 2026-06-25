@@ -55,6 +55,13 @@ struct MarketsSearchView: View {
 
     private var overlayHeight: CGFloat { viewModel.isSearching ? searchResultListOverlayTotalHeight : defaultListOverlayTotalHeight }
 
+    private var searchFieldInsets: EdgeInsets {
+        let inset: CGFloat = .unit(.x4)
+        return viewModel.isSearching
+            ? EdgeInsets(inset: inset)
+            : EdgeInsets(top: inset, leading: .unit(.x2), bottom: inset, trailing: inset)
+    }
+
     var body: some View {
         rootView
             .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] state in
@@ -156,6 +163,7 @@ struct MarketsSearchView: View {
             }
 
             MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel, backgroundColor: .clear)
+                .searchFieldInsets(searchFieldInsets)
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.isSearchFieldFocused)
     }
