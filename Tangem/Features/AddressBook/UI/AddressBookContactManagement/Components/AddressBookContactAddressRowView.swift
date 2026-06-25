@@ -8,7 +8,6 @@
 
 import SwiftUI
 import TangemUI
-import TangemAssets
 import TangemLocalization
 
 struct AddressBookContactAddressRowViewModel: Identifiable {
@@ -16,14 +15,14 @@ struct AddressBookContactAddressRowViewModel: Identifiable {
     let title: String
     let subtitle: String
     let addressIconViewModel: AddressIconViewModel
-    let onDelete: () -> Void
+    let onTap: () -> Void
 
-    init(id: String, address: String, networksCount: Int, onDelete: @escaping () -> Void) {
+    init(id: String, address: String, networksCount: Int, onTap: @escaping () -> Void) {
         self.id = id
         title = address
         subtitle = Localization.commonNetworksCount(networksCount)
         addressIconViewModel = AddressIconViewModel(address: address)
-        self.onDelete = onDelete
+        self.onTap = onTap
     }
 }
 
@@ -36,12 +35,6 @@ struct AddressBookContactAddressRowView: View {
             .start {
                 AddressIconView(viewModel: viewModel.addressIconViewModel)
             }
-            .end {
-                Button(action: viewModel.onDelete) {
-                    Image(systemName: "trash")
-                        .foregroundStyle(DesignSystem.Color.textAccentRed)
-                }
-                .buttonStyle(.plain)
-            }
+            .onTap(viewModel.onTap)
     }
 }
