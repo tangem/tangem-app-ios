@@ -1,0 +1,12 @@
+//
+//  NotificationServiceExtensionProduction.xcconfig
+//  TangemNotificationServiceExtension
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+#include "../../Tangem/App/AppEnvironmentConfig/Production.xcconfig"
+#include "NotificationServiceExtension.xcconfig"
+
+CODE_SIGN_ENTITLEMENTS = TangemNotificationServiceExtension/Config/TangemNotificationServiceExtension.entitlements
