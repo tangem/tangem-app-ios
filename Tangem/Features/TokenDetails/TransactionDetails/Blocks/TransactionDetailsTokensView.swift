@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TangemAccounts
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -50,14 +51,29 @@ struct TransactionDetailsTokensViewData: Equatable {
             case image(url: URL?)
         }
 
-        let direction: String
+        struct Direction: Equatable {
+            let label: String
+            let owner: Owner?
+
+            struct Owner: Equatable {
+                let icon: AccountIconView.ViewData?
+                let name: String
+            }
+
+            init(label: String, owner: Owner? = nil) {
+                self.label = label
+                self.owner = owner
+            }
+        }
+
+        let direction: Direction
         let icon: Icon
         let amountText: String
         let fiatText: String?
         let isAmountStrikethrough: Bool
 
         init(
-            direction: String,
+            direction: Direction,
             icon: Icon,
             amountText: String,
             fiatText: String?,
@@ -131,9 +147,7 @@ struct TransactionDetailsTokensView: View {
     private func legRow(_ leg: TransactionDetailsTokensViewData.Leg) -> some View {
         HStack(alignment: .bottom, spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
-                Text(leg.direction)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-                    .lineLimit(1)
+                directionCaption(leg.direction)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(leg.amountText)
@@ -158,6 +172,25 @@ struct TransactionDetailsTokensView: View {
                 .frame(size: CGSize(bothDimensions: legTokenSide))
         }
         .padding(16)
+    }
+
+    @ViewBuilder
+    private func directionCaption(_ direction: TransactionDetailsTokensViewData.Leg.Direction) -> some View {
+        HStack(spacing: 4) {
+            Text(direction.label)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .lineLimit(1)
+
+            if let owner = direction.owner {
+                if let icon = owner.icon {
+                    AccountIconView(data: icon, settings: .smallSized)
+                }
+
+                Text(owner.name)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+            }
+        }
     }
 
     @ViewBuilder
@@ -224,8 +257,8 @@ private extension TokenIconInfo {
 
         // Pair (swap / onramp)
         TransactionDetailsTokensView(data: .init(
-            from: .init(direction: "From", icon: .token(.preview("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
-            to: .init(direction: "To", icon: .token(.preview("Polygon", color: .purple)), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
+            from: .init(direction: .init(label: "From"), icon: .token(.preview("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
+            to: .init(direction: .init(label: "To"), icon: .token(.preview("Polygon", color: .purple)), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
         ))
     }
     .padding(16)
