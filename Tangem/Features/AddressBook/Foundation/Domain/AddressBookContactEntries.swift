@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import BlockchainSdk
 
 /// Address-book contact entries, generic over the entry kind: `AddressBookEntryDraft` while editing and
 /// `AddressBookVerifiedAddressEntry` for the verified read model. The single home for the entry-set
@@ -48,7 +49,7 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
             }
 
             networksByAddress[entry.address, default: []].append(
-                AddressBookContactAddressGroup.Network(id: entry.id, networkId: entry.networkId)
+                AddressBookContactAddressGroup.Network(id: entry.id, blockchain: entry.blockchain)
             )
         }
 
@@ -96,6 +97,8 @@ struct AddressBookContactAddressGroup: Hashable, Identifiable {
 
     struct Network: Hashable, Identifiable {
         let id: AddressBookAddressEntryID
-        let networkId: AddressBookNetworkID
+        let blockchain: BSDKBlockchain
+
+        var networkId: AddressBookNetworkID { AddressBookNetworkID(blockchain.networkId) }
     }
 }
