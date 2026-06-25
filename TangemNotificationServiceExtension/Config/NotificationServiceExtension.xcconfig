@@ -13,10 +13,10 @@
 // Derived from the host's bundle id inherited from the included app environment config.
 PRODUCT_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).NotificationService
 
-// Let Xcode inject the standard bundle keys (CFBundleIdentifier, CFBundleExecutable, version, …) from
-// build settings and merge them into our Info.plist, which carries only the custom keys (NSExtension,
-// SUITE_NAME). This keeps the plist minimal and the bundle id/version in sync with the host.
-GENERATE_INFOPLIST_FILE = YES
+// Use the checked-in Info.plist as the single source of truth (same approach as the host target).
+// The plist lists all bundle keys explicitly via build-setting variables, so there is no dependency
+// on Info.plist generation/merge behavior.
+GENERATE_INFOPLIST_FILE = NO
 INFOPLIST_FILE = TangemNotificationServiceExtension/Info.plist
 
 IPHONEOS_DEPLOYMENT_TARGET = 16.4
