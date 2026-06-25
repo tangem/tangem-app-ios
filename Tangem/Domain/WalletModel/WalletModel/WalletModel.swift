@@ -133,6 +133,8 @@ struct WalletModelUpdateOptions: OptionSet {
 
     static let balances = WalletModelUpdateOptions(rawValue: 1 << 0)
     static let transactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
+    /// Set only by bulk portfolio refreshes (`updateAll`): P2P staking balances are fetched via the batched endpoint.
+    static let batchStakingBalances = WalletModelUpdateOptions(rawValue: 1 << 2)
     static let full: WalletModelUpdateOptions = [.balances, .transactionHistory]
 }
 

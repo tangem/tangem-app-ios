@@ -15,6 +15,9 @@ import TangemFoundation
 class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
+    /// Shared singleton on purpose (unlike the per-manager `apiProvider`): it coalesces the concurrent
+    /// per-wallet balance calls of a bulk refresh into a single request, which requires one shared instance.
+    @Injected(\.p2pBatchBalancesService) private var p2pBatchBalancesService: P2PBatchBalancesService
 
     @Injected(\.stakingTargetAmountLimitProvider) var targetAmountLimitProvider: StakingTargetAmountLimitProvider
 
@@ -27,21 +30,30 @@ class StakingDependenciesFactory {
     }
 
     func makeP2PAPIProvider() -> P2PAPIProvider {
-        let network: P2PNetwork
-        let apiKey: String
-        if AppEnvironment.current.isTestnet {
-            network = .hoodi
-            apiKey = keysManager.p2pApiKeys.hoodi
-        } else {
-            network = .mainnet
-            apiKey = keysManager.p2pApiKeys.mainnet
-        }
-
+        let config = p2pConfig()
         return TangemStakingFactory().makeP2PAPIProvider(
-            credential: StakingAPICredential(apiKey: apiKey),
+            credential: StakingAPICredential(apiKey: config.apiKey),
             configuration: .stakingConfiguration,
-            network: network,
+            network: config.network,
         )
+    }
+
+    func makeP2PBatchBalancesService() -> P2PBatchBalancesService {
+        let config = p2pConfig()
+        return TangemStakingFactory().makeP2PBatchBalancesService(
+            credential: StakingAPICredential(apiKey: config.apiKey),
+            configuration: .stakingConfiguration,
+            network: config.network,
+            addressProvider: CommonP2PDelegatorAddressProvider(),
+            yieldInfoProvider: stakingYieldInfoProvider
+        )
+    }
+
+    private func p2pConfig() -> (network: P2PNetwork, apiKey: String) {
+        if AppEnvironment.current.isTestnet {
+            return (.hoodi, keysManager.p2pApiKeys.hoodi)
+        }
+        return (.mainnet, keysManager.p2pApiKeys.mainnet)
     }
 
     func makeStakingManager(integrationId: String, wallet: StakingWallet) -> StakingManager {
@@ -51,6 +63,7 @@ class StakingDependenciesFactory {
                 integrationId: integrationId,
                 wallet: wallet,
                 provider: makeP2PAPIProvider(),
+                batchBalancesService: p2pBatchBalancesService,
                 yieldInfoProvider: stakingYieldInfoProvider,
                 stateRepository: CommonStakingManagerStateRepository(
                     stakingWallet: wallet,

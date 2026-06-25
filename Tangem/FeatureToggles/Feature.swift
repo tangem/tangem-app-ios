@@ -38,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
     case bitcoinDexSwap
+    case p2pBatchStakingBalances
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -72,6 +73,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addressBook: return "TWI-83_address_book"
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
+        case .p2pBatchStakingBalances: return "[REDACTED_INFO]_P2P_Batch_Staking_Balances"
         }
     }
 
@@ -106,6 +108,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addressBook: return .unspecified
         case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
+        case .p2pBatchStakingBalances: return .unspecified
         }
     }
 }

@@ -131,7 +131,11 @@ class CommonWalletModelsManager {
         let maxConcurrentUpdates = 5
         let count = walletModels.count
         // [REDACTED_TODO_COMMENT]
-        let options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
+        var options: WalletModelUpdateOptions = FeatureProvider.isAvailable(.transactionHistoryV2) ? .full : .balances
+        if FeatureProvider.isAvailable(.p2pBatchStakingBalances) {
+            // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
+            options.insert(.batchStakingBalances)
+        }
         // Single token shared across the batch of all wallet models, so all updates belong to the same cycle
         let updateToken = UUID()
 

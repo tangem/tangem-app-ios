@@ -383,9 +383,11 @@ extension CommonWalletModel: WalletModelUpdater {
             if options.contains(.balances) {
                 if !silent { await updateState(.loading) }
 
+                let stakingSource: StakingUpdateSource = options.contains(.batchStakingBalances) ? .batch : .single
+
                 async let update: () = walletManager.update()
                 async let quotes: () = loadQuotes()
-                async let staking: ()? = _stakingManager?.updateState(loadActions: true)
+                async let staking: ()? = _stakingManager?.updateState(loadActions: true, source: stakingSource)
 
                 _ = await (update, quotes, staking)
                 await _receiveAddressService.update(with: wallet.addresses)
