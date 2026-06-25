@@ -10,6 +10,7 @@ import Foundation
 
 public enum ExpressTransactionStatus: String, Codable {
     case unknown
+    case preview
     case created
     case exchangeTxSent = "exchange-tx-sent"
     case waiting

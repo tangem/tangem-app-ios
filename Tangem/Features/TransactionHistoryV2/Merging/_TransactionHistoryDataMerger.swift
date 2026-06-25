@@ -18,7 +18,7 @@ struct _TransactionHistoryDataMerger {
     private let feeTokenItem: TokenItem
 
     private static let activeExchangeTransactionStatuses: Set<ExpressTransactionStatus> = [
-        /* .preview, */ // [REDACTED_TODO_COMMENT]
+        .preview,
         .created,
         .unknown,
         .exchangeTxSent,
@@ -181,6 +181,7 @@ struct _TransactionHistoryDataMerger {
              .txFailed:
             return .failed
         case .unknown,
+             .preview,
              .created,
              .exchangeTxSent,
              .waiting,
