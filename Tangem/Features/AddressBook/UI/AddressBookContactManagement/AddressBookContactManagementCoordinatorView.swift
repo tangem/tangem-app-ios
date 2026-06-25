@@ -16,7 +16,23 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
         NavigationStack {
             if let rootViewModel = coordinator.rootViewModel {
                 AddressBookContactManagementView(viewModel: rootViewModel)
+                    .navigationLinks(links)
             }
         }
+        .sheet(item: $coordinator.qrScanCoordinator) {
+            MainQRScanCoordinatorView(coordinator: $0)
+                .ignoresSafeArea()
+        }
+        .floatingSheetContent(for: AddressActionsViewModel.self) { viewModel in
+            AddressActionsView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.addAddressViewModel) {
+                AddressBookAddAddressView(viewModel: $0)
+            }
     }
 }

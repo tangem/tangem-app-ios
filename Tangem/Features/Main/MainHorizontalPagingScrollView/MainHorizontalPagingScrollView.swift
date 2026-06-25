@@ -23,6 +23,7 @@ struct MainHorizontalPagingScrollView: View {
     let detailsAction: () -> Void
 
     @State private var userWalletIDToScrollAdjustedValues = [UserWalletId: ScrollAdjustedValues]()
+    @State private var pagingIndicatorAnimationIsBlocked = true
 
     @State private var bottomOverlayHeight = CGFloat.zero
     @State private var contentFooterHeight = CGFloat.zero
@@ -56,6 +57,7 @@ struct MainHorizontalPagingScrollView: View {
             self.safeAreaInsetsTop = safeAreaInsetsTop
         }
         .onChange(of: userWalletPageBuilders.map(\.id)) { userWalletIDs in
+            pagingIndicatorAnimationIsBlocked = true
             userWalletIDToScrollAdjustedValues = userWalletIDToScrollAdjustedValues.filter { userWalletIDs.contains($0.key) }
         }
         .onAppear(perform: scrollDetector.startDetectingScroll)
@@ -106,9 +108,17 @@ struct MainHorizontalPagingScrollView: View {
                 TangemPagination(totalPages: userWalletPageBuilders.count, currentIndex: selectedUserWalletIndex)
                     .frame(height: .unit(.x8))
                     .offset(y: selectedUserWalletScrollAdjustedValues.pagingIndicatorOffsetY)
+                    .transaction { transaction in
+                        guard pagingIndicatorAnimationIsBlocked else { return }
+                        transaction.animation = nil
+                    }
                     .opacity(selectedUserWalletScrollAdjustedValues.pagingIndicatorOpacity)
 
                 Spacer()
+            }
+            .task(id: userWalletPageBuilders.map(\.id)) {
+                await Task.yield()
+                pagingIndicatorAnimationIsBlocked = false
             }
         }
     }
@@ -250,9 +260,6 @@ extension MainHorizontalPagingScrollView {
             self.userWalletPageBuilders = userWalletPageBuilders
 
             self.selectedCardIndex = selectedCardIndex
-            _scrollPositionID = State(
-                initialValue: Self.userWalletID(at: selectedCardIndex.wrappedValue, in: userWalletPageBuilders)
-            )
             self.onSelectedCardChanged = onSelectedCardChanged
 
             self.containerGeometryProperties = containerGeometryProperties
@@ -295,6 +302,11 @@ extension MainHorizontalPagingScrollView {
             }
             .onChange(of: selectedCardIndex.wrappedValue) { _, newSelectedCardIndex in
                 updateScrollPositionIDIfNeeded(from: newSelectedCardIndex)
+            }
+            .task {
+                withTransaction(Transaction(animation: nil)) {
+                    scrollPositionID = Self.userWalletID(at: selectedCardIndex.wrappedValue, in: userWalletPageBuilders)
+                }
             }
         }
 

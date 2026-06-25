@@ -56,6 +56,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         userWalletNotificationManager: NotificationManager,
         promotionNotificationsManager: PromotionNotificationsManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         tokenNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenRouter: SingleTokenRoutable,
@@ -87,6 +88,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             walletModel: walletModel,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 
@@ -236,8 +238,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         let mapper = MultiWalletNotificationBannerMapper()
 
         $notificationInputs
-            .combineLatest($tokenNotificationInputs)
-            .map { mapper.mapItems($0, $1) }
+            .map { mapper.mapItems($0) }
             .removeDuplicates()
             .assign(to: &$notificationBannerItems)
 
