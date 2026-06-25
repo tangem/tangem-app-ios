@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import BlockchainSdk
 
 final class CommonAddressBookManager {
     private let walletId: UserWalletId
@@ -16,6 +17,7 @@ final class CommonAddressBookManager {
     private let repository: AddressBookRepository
     private let signer: AddressBookSigning
     private let verifier: AddressBookSignatureVerifying
+    private let supportedBlockchains: Set<BSDKBlockchain>
 
     private let decodedContacts = OSAllocatedUnfairLock(initialState: [AddressBookDecodedContact]())
     private let contactsSubject = CurrentValueSubject<[AddressBookContact], Never>([])
@@ -26,13 +28,15 @@ final class CommonAddressBookManager {
         walletPublicKey: Data,
         repository: AddressBookRepository,
         signer: AddressBookSigning,
-        verifier: AddressBookSignatureVerifying
+        verifier: AddressBookSignatureVerifying,
+        supportedBlockchains: Set<BSDKBlockchain>
     ) {
         self.walletId = walletId
         self.walletPublicKey = walletPublicKey
         self.repository = repository
         self.signer = signer
         self.verifier = verifier
+        self.supportedBlockchains = supportedBlockchains
 
         bind()
         Task { await load() }
@@ -58,7 +62,7 @@ final class CommonAddressBookManager {
     // MARK: - Verification
 
     private func verify(_ contact: AddressBookDecodedContact) -> AddressBookContact? {
-        let builder = AddressBookVerifiedAddressEntryBuilder()
+        let builder = AddressBookVerifiedAddressEntryBuilder(supportedBlockchains: supportedBlockchains)
 
         let verified = contact.addresses.compactMap { entry in
             builder.make(

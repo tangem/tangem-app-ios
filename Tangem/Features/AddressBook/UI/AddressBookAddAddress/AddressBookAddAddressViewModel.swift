@@ -21,11 +21,14 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     private let interactor: AddressBookAddAddressInteractor
     private weak var coordinator: AddressBookAddAddressRoutable?
 
+    private var prefilledMemo: String?
+
     private var bag: Set<AnyCancellable> = []
 
     init(
         interactor: AddressBookAddAddressInteractor,
-        coordinator: AddressBookAddAddressRoutable
+        coordinator: AddressBookAddAddressRoutable,
+        options: AddressBookAddAddressOptions
     ) {
         self.interactor = interactor
         self.coordinator = coordinator
@@ -36,6 +39,11 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         )
 
         destinationAddressViewModel.router = self
+
+        if case .edit(let address, let memo, _) = options {
+            prefilledMemo = memo
+            destinationAddressViewModel.update(address: .init(string: address, source: .textField))
+        }
 
         bind()
     }
@@ -111,7 +119,8 @@ private extension AddressBookAddAddressViewModel {
             return nil
         }
 
-        let viewModel = SendDestinationAdditionalFieldViewModel(title: type.name)
+        let viewModel = SendDestinationAdditionalFieldViewModel(title: type.name, text: prefilledMemo ?? "")
+        prefilledMemo = nil
 
         viewModel.textPublisher()
             .dropFirst()
