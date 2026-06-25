@@ -344,6 +344,9 @@ private extension TokenDetailsView {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 #Preview {
     let userWalletModel = FakeUserWalletModel.wallet3Cards
     let cryptoAccountModel = userWalletModel
@@ -394,6 +397,11 @@ private extension TokenDetailsView {
         second: pendingOnrampTxsManager
     )
     let coordinator = TokenDetailsCoordinator()
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: exchangeStatusPoller,
+        onrampPoller: onrampStatusPoller,
+        enricherFactory: { nil }
+    )
 
     TokenDetailsView(
         viewModel: .init(
@@ -402,6 +410,7 @@ private extension TokenDetailsView {
             notificationManager: notifManager,
             userTokensManager: cryptoAccountModel.userTokensManager,
             pendingExpressTransactionsManager: pendingTxsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             xpubGenerator: nil,
             coordinator: coordinator,
             tokenRouter: SingleTokenRouter(
@@ -412,3 +421,4 @@ private extension TokenDetailsView {
         )
     )
 }
+#endif // DEBUG
