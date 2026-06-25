@@ -36,12 +36,13 @@ struct ExpressStatusTrackingFactory {
     }
 
     private func makeExchangeStatusPoller(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) -> ExchangeStatusPoller {
-        let tokenEnricher = CommonTokenEnricher(
-            supportedBlockchains: userWalletInfo.config.supportedBlockchains
+        let converter = ExpressCurrencyConverter(
+            supportedBlockchains: userWalletInfo.config.supportedBlockchains,
+            shouldPerformLocalLookup: false
         )
 
         let expressRefundedTokenHandler = CommonExpressRefundedTokenHandler(
-            tokenEnricher: tokenEnricher
+            converter: converter
         )
 
         return ExchangeStatusPoller(
