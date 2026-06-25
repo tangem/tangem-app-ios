@@ -1,0 +1,25 @@
+//
+//  NotificationServiceExtension.xcconfig
+//  TangemNotificationServiceExtension
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+// Shared Notification Service Extension settings. The per-variant configs include this after the
+// matching app environment config, so `APP_BUNDLE_IDENTIFIER` / `SUITE_NAME` are inherited from the
+// host variant while the extension-specific keys below override the app values.
+
+// Derived from the host's bundle id inherited from the included app environment config.
+PRODUCT_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).NotificationService
+
+// Let Xcode inject the standard bundle keys (CFBundleIdentifier, CFBundleExecutable, version, …) from
+// build settings and merge them into our Info.plist, which carries only the custom keys (NSExtension,
+// SUITE_NAME). This keeps the plist minimal and the bundle id/version in sync with the host.
+GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_FILE = TangemNotificationServiceExtension/Info.plist
+
+IPHONEOS_DEPLOYMENT_TARGET = 16.4
+
+// The extension has no asset catalog; clear the host's app-icon name to avoid a missing-icon warning.
+ASSETCATALOG_COMPILER_APPICON_NAME =
