@@ -124,7 +124,7 @@ extension TangemButtonV2 {
 
         private func paddedLabel(configuration: Configuration) -> some View {
             configuration.label
-                .font(size.typographyToken)
+                .font(token: size.typographyToken)
                 .opacity(isLoading ? 0 : 1)
                 .padding(.horizontal, contentHorizontalPadding)
                 .padding(.vertical, verticalPadding)
