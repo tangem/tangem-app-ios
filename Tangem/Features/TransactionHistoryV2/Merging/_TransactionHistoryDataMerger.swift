@@ -69,7 +69,8 @@ struct _TransactionHistoryDataMerger {
         return bsdkTransactions
             .filter { bsdkTransaction in
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential refunds
-                    || abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.refundHeuristicAmountTolerance
+                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.refundHeuristicAmountTolerance
+                    && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
             .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
     }
