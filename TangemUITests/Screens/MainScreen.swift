@@ -750,6 +750,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         }
     }
 
+    /// Mobile wallets derive locally, so generating resolves the missing address without a card scan.
+    @discardableResult
+    func generateMissingAddressesIfNeeded() -> Self {
+        XCTContext.runActivity(named: "Generate missing addresses if the notification is shown") { _ in
+            guard missingDerivationNotification.waitForExistence(timeout: .conditional) else {
+                return self
+            }
+            let generateButton = missingDerivationNotification.buttons.firstMatch
+            if generateButton.exists {
+                generateButton.waitAndTap()
+            } else {
+                missingDerivationNotification.waitAndTap()
+            }
+            XCTAssertTrue(
+                missingDerivationNotification.waitForNonExistence(timeout: .networkRequest),
+                "Missing derivation notification should disappear after addresses are generated"
+            )
+            return self
+        }
+    }
+
     @discardableResult
     func verifyMissingDerivationNotificationHasMessage() -> Self {
         XCTContext.runActivity(named: "Verify missing derivation notification has explanatory message") { _ in
