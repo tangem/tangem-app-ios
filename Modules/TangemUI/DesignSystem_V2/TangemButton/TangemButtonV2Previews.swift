@@ -49,6 +49,8 @@ public struct TangemButtonV2Showcase: View {
     @State private var customText: String = "Button"
     @State private var dynamicTypeIndex: Int = Self.dynamicTypeAllCases.firstIndex(of: .large) ?? 0
     @State private var tapCount = 0
+    @State private var backdropMoves = false
+    @State private var darkMode = false
 
     private enum ContentKind: String, CaseIterable {
         case label
@@ -81,6 +83,7 @@ public struct TangemButtonV2Showcase: View {
                 )
                 Toggle("isEnabled", isOn: $isEnabled)
                 Toggle("isLoading", isOn: $isLoading)
+                Toggle("dark mode", isOn: $darkMode)
                 pickerRow(
                     title: "layout",
                     cases: TangemButtonV2.HorizontalLayout.allCases,
@@ -126,23 +129,31 @@ public struct TangemButtonV2Showcase: View {
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
 
-                preview
-                    // Force a fresh mount whenever the size changes. The system's Glass
-                    // press-indicator caches its geometry on first mount and doesn't recompute
-                    // when @ScaledMetric values inside `Style` change due to a size switch —
-                    // leaving a stale press-shape inside the new outer capsule. Showcase-only
-                    // concern: production never resizes a live button.
-                    .id(size)
-                    .dynamicTypeSize(dynamicTypeSize)
-                    .padding(.vertical, 32)
-                    // Colorful backdrop so blur (`.regularMaterial`) and solid (no backdrop)
-                    // are visually distinct — on a flat background they both collapse to
-                    // ~white capsules and become indistinguishable.
-                    .frame(maxWidth: .infinity)
-                    .background(materialBackdrop)
+                previewStage(stage: "backdrop", background: materialBackdrop)
+                previewStage(stage: "clear", background: Color.clear)
             }
             .padding()
         }
+        .background(Color(uiColor: .systemBackground))
+        .environment(\.colorScheme, darkMode ? .dark : .light)
+    }
+
+    private func previewStage(stage: String, background: some View) -> some View {
+        preview
+            // Force a fresh mount whenever the size changes. The system's Glass
+            // press-indicator caches its geometry on first mount and doesn't recompute
+            // when @ScaledMetric values inside `Style` change due to a size switch —
+            // leaving a stale press-shape inside the new outer capsule. Showcase-only
+            // concern: production never resizes a live button. The `stage` prefix keeps
+            // the two sibling stages distinctly identified.
+            .id("\(stage)-\(size)")
+            .dynamicTypeSize(dynamicTypeSize)
+            .padding(.vertical, 32)
+            // Colorful backdrop so blur (`.regularMaterial`) and solid (no backdrop)
+            // are visually distinct — on a flat background they both collapse to
+            // ~white capsules and become indistinguishable.
+            .frame(maxWidth: .infinity, minHeight: 220)
+            .background(background)
     }
 
     @ViewBuilder
@@ -219,15 +230,22 @@ public struct TangemButtonV2Showcase: View {
     }
 
     private var materialBackdrop: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.2, green: 0.5, blue: 0.95),
-                Color(red: 0.85, green: 0.3, blue: 0.6),
-                Color(red: 0.95, green: 0.7, blue: 0.2),
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        let colors: [Color] = [
+            Color(red: 0.2, green: 0.5, blue: 0.95),
+            Color(red: 0.85, green: 0.3, blue: 0.6),
+            Color(red: 0.95, green: 0.7, blue: 0.2),
+            Color(red: 0.2, green: 0.8, blue: 0.5),
+        ]
+
+        return HStack(spacing: 0) {
+            ForEach(0 ..< 16, id: \.self) { index in
+                colors[index % colors.count]
+            }
+        }
+        .frame(width: 1600)
+        .offset(x: backdropMoves ? -260 : 260)
+        .animation(.linear(duration: 3).repeatForever(autoreverses: true), value: backdropMoves)
+        .onAppear { backdropMoves = true }
     }
 
     private func pickerRow<Value: Hashable>(
