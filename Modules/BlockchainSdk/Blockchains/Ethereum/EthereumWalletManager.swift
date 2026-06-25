@@ -544,7 +544,8 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: params
+            transactionFeeParameters: params,
+            yieldFeeOptions: nil
         )
     }
 
@@ -593,7 +594,8 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: params
+            transactionFeeParameters: params,
+            yieldFeeOptions: nil
         )
 
         // Convert otherNativeFee (bridge fee) to fee token and add to the fee amount
@@ -654,7 +656,8 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             feeToken: feeToken,
             feeRecipientAddress: feeRecipientAddress,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
-            transactionFeeParameters: eip1559Params
+            transactionFeeParameters: eip1559Params,
+            yieldFeeOptions: nil
         )
 
         // Convert otherNativeFee (bridge fee) to fee token and add to the fee amount
@@ -706,7 +709,7 @@ private extension EthereumWalletManager {
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal,
         transactionFeeParameters: EthereumEIP1559FeeParameters,
-        yieldFeeOptions: GaslessYieldFeeOptions? = nil
+        yieldFeeOptions: GaslessYieldFeeOptions?
     ) async throws -> Fee {
         // Addresses
         let ourAddress = wallet.defaultAddress.value
