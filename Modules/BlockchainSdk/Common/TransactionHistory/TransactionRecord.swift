@@ -111,7 +111,7 @@ public extension TransactionRecord {
         case single(Source)
         case multiple([Source])
 
-        var sources: [Source] {
+        public var sources: [Source] {
             switch self {
             case .single(let source): [source]
             case .multiple(let sources): sources
@@ -144,7 +144,7 @@ public extension TransactionRecord {
         case single(Destination)
         case multiple([Destination])
 
-        var destinations: [Destination] {
+        public var destinations: [Destination] {
             switch self {
             case .single(let destination): [destination]
             case .multiple(let destinations): destinations
