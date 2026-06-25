@@ -55,6 +55,7 @@ struct TransactionDetailsAddressView: View {
         case .address(let short, _): short
         case .contact(let name, _): name
         case .account(let name, _): name
+        // [REDACTED_TODO_COMMENT]
         case .accountInWallet(let accountName, _, let walletName): "\(accountName) \(Localization.commonIn) \(walletName)"
         case .wallet(let name): name
         }
