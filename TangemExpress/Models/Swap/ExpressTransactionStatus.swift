@@ -24,5 +24,7 @@ public enum ExpressTransactionStatus: String, Codable {
     case txFailed = "tx-failed"
     case refunded
     case verifying
+    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "Not present in the Express API (`EExchangeStatus`); Investigate and remove if not used")
     case paused
 }
