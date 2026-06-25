@@ -67,7 +67,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWalletMultiCreation: return "14278_Mobile_wallet_multi_creation"
         case .approveFlowV2: return "13786_Update_Swap_Phase_2_Permissions"
         case .addAndOrganizeRedesign: return "13923_Support_Add_&_Organize_feature_in_redesign"
-        case .stakingTransactionValidation: return "TWI-1602_Move_away_from_Blind_signing_in_staking"
+        case .stakingTransactionValidation: return "TWI-1602_move_away_from_blind_signing_in_staking"
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
         case .addressBook: return "TWI-83_address_book"
