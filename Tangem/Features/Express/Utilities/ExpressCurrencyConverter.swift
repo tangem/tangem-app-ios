@@ -12,17 +12,13 @@ import TangemExpress
 import TangemFoundation
 
 struct ExpressCurrencyConverter {
-    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private let supportedBlockchains: Set<Blockchain>
-    private let shouldPerformLocalLookup: Bool
 
-    init(
-        supportedBlockchains: Set<Blockchain>,
-        shouldPerformLocalLookup: Bool
-    ) {
+    init(supportedBlockchains: Set<Blockchain>) {
         self.supportedBlockchains = supportedBlockchains
-        self.shouldPerformLocalLookup = shouldPerformLocalLookup
     }
 
     func convert(
@@ -40,6 +36,33 @@ struct ExpressCurrencyConverter {
             return .blockchain(blockchainNetwork)
         }
 
+        if let localToken = fetchLocalToken(blockchain: blockchain, contractAddress: contractAddress) {
+            return .token(localToken, blockchainNetwork)
+        }
+
+        if let remoteToken = try await fetchRemoteToken(blockchain: blockchain, contractAddress: contractAddress) {
+            return .token(remoteToken, blockchainNetwork)
+        }
+
+        throw Error.notFound
+    }
+
+    private func fetchLocalToken(
+        blockchain: Blockchain,
+        contractAddress: String
+    ) -> Token? {
+        return AccountWalletModelsAggregator
+            .walletModels(from: userWalletRepository.models)
+            .lazy
+            .first { $0.tokenItem.blockchain == blockchain && $0.tokenItem.contractAddress == contractAddress }?
+            .tokenItem
+            .token
+    }
+
+    private func fetchRemoteToken(
+        blockchain: Blockchain,
+        contractAddress: String
+    ) async throws -> Token? {
         let requestModel = CoinsList.Request(
             supportedBlockchains: Set([blockchain]),
             contractAddress: contractAddress
@@ -49,14 +72,11 @@ struct ExpressCurrencyConverter {
             .loadCoins(requestModel: requestModel)
             .async()
 
-        let items = response.flatMap { $0.items }
-        let coinItem = items.first(where: { $0.blockchain.networkId == blockchain.networkId })
-
-        guard let token = coinItem?.token else {
-            throw Error.notFound
-        }
-
-        return .token(token, blockchainNetwork)
+        return response
+            .flatMap { $0.items }
+            .lazy
+            .first(where: { $0.blockchain.networkId == blockchain.networkId })?
+            .token
     }
 }
 
