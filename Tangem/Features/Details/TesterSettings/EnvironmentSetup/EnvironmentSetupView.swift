@@ -40,8 +40,6 @@ struct EnvironmentSetupView: View {
                     FeatureStateRowView(viewModel: viewModel)
                 }
 
-                referralControls
-
                 surveySparrowControls
 
                 demoCardIdControls
@@ -55,41 +53,6 @@ struct EnvironmentSetupView: View {
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
-    }
-
-    private var referralControls: some View {
-        VStack(spacing: 10) {
-            Text("Referral deep link (test)")
-                .font(.headline)
-                .textCase(.uppercase)
-
-            Text("Current refcode: \(viewModel.currentReferralRefcode)")
-                .font(.footnote)
-
-            TextField("Refcode (deep_link_sub1)", text: $viewModel.referralRefcodeInput)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .padding()
-                .border(.gray, width: 1)
-
-            MainButton(
-                title: "Simulate referral deep link",
-                action: viewModel.simulateReferralDeepLink
-            )
-
-            Button("Clear referral", action: viewModel.clearReferral)
-                .foregroundColor(Color.red)
-
-            Text(
-                """
-                Saves the referral attribute locally, exactly as the AppsFlyer handler would. \
-                Restart the app on a wallet-less state to reach the Welcome flow — stories are \
-                skipped when a refcode is present.
-                """
-            )
-            .font(.footnote)
-        }
-        .padding(.horizontal)
     }
 
     // [REDACTED_TODO_COMMENT]

@@ -42,6 +42,9 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.silentPushTesterViewModel) {
                 SilentPushTesterView(viewModel: $0)
             }
+            .navigation(item: $coordinator.referralTesterViewModel) {
+                ReferralTesterView(viewModel: $0)
+            }
     }
 
     @ViewBuilder

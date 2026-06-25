@@ -76,6 +76,11 @@ extension CommonReferralService: ReferralService {
         saveReferral(refcode: refcode, campaign: campaign)
     }
 
+    func clearReferral() {
+        AppSettings.shared.referralRefcode = nil
+        AppSettings.shared.referralCampaign = nil
+    }
+
     func retryBindingIfNeeded() {
         guard AppSettings.shared.hasReferralBindingRequest else {
             return

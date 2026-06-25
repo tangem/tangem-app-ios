@@ -37,10 +37,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
     /// Application UID
     @Published var applicationUid: String = ""
 
-    /// Referral (test) — deterministic simulation of the AppsFlyer referral deep link
-    @Published var referralRefcodeInput: String = "ARABBTC"
-    @Published private(set) var currentReferralRefcode: String = ""
-
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage.instance
@@ -208,6 +204,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Silent Push Tester", action: { [weak self] in
                 self?.coordinator?.openSilentPushTester()
             }),
+            DefaultRowViewModel(title: "Referral (test)", action: { [weak self] in
+                self?.coordinator?.openReferralTester()
+            }),
         ]
 
         forcedDemoCardId = AppSettings.shared.forcedDemoCardId ?? ""
@@ -222,7 +221,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
         fcmToken = Messaging.messaging().fcmToken ?? "none"
 
         updateApplicationUid()
-        updateReferralState()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
@@ -236,30 +234,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
         updateApplicationUid()
     }
 
-    /// Mirrors `AppsFlyerDeepReferralHandler`: persists the referral attribute and marks the mobile promo,
-    /// so the Welcome flow can be tested without relying on real AppsFlyer attribution.
-    func simulateReferralDeepLink() {
-        guard let refcode = referralRefcodeInput.nilIfEmpty else { return }
-
-        let referralService = InjectedValues[\.referralService]
-        guard referralService.hasNoReferral else {
-            updateReferralState()
-            return
-        }
-
-        InjectedValues[\.mobileWalletPromoService].setNeedsPromo()
-        referralService.saveReferralIfNeeded(refcode: refcode, campaign: "debug_simulation")
-        updateReferralState()
-    }
-
-    func clearReferral() {
-        AppSettings.shared.referralRefcode = nil
-        AppSettings.shared.referralCampaign = nil
-        AppSettings.shared.hasReferralBindingRequest = false
-        AppSettings.shared.shouldShowMobilePromoWalletSelector = false
-        updateReferralState()
-    }
-
     func showExitAlert() {
         let alert = Alert(
             title: Text("Are you sure you want to exit the app?"),
@@ -271,10 +245,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     private func updateApplicationUid() {
         applicationUid = AppSettings.shared.applicationUid
-    }
-
-    private func updateReferralState() {
-        currentReferralRefcode = AppSettings.shared.referralRefcode ?? "—"
     }
 
     // [REDACTED_TODO_COMMENT]

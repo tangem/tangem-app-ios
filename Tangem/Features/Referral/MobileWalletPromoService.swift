@@ -10,6 +10,7 @@ import Combine
 protocol MobileWalletPromoService {
     var shouldShowMobilePromoWalletSelector: Bool { get }
     func setNeedsPromo()
+    func resetPromo()
 }
 
 private struct MobileWalletPromoServiceKey: InjectionKey {
@@ -42,6 +43,10 @@ class CommonMobileWalletPromoService: MobileWalletPromoService {
         }
 
         AppSettings.shared.shouldShowMobilePromoWalletSelector = true
+    }
+
+    func resetPromo() {
+        AppSettings.shared.shouldShowMobilePromoWalletSelector = false
     }
 
     private func bind() {
