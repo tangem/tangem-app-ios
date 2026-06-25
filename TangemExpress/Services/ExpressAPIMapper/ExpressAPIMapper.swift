@@ -136,7 +136,8 @@ struct ExpressAPIMapper {
             otherNativeFee: otherNativeFee,
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
-            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:))
+            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:)),
+            payInAddress: txDetails.txTo
         )
     }
 
@@ -242,6 +243,8 @@ struct ExpressAPIMapper {
                 txId: response.txId,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
+                toAmount: codedData.toAmount,
+                countryCode: codedData.countryCode,
                 externalTxId: codedData.externalTxId,
                 externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
@@ -256,6 +259,8 @@ struct ExpressAPIMapper {
                 redirectURL: codedData.redirectUrl,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
+                toAmount: codedData.toAmount,
+                countryCode: codedData.countryCode,
                 externalTxId: codedData.externalTxId,
                 externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
@@ -292,6 +297,8 @@ struct ExpressAPIMapper {
             redirectURL: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
+            toAmount: codedData.toAmount,
+            countryCode: codedData.countryCode,
             externalTxId: codedData.externalTxId,
             externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
         )

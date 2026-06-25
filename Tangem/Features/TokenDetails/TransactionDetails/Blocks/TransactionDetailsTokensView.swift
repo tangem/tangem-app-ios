@@ -96,8 +96,10 @@ struct TransactionDetailsTokensView: View {
     private func pairCard(from: TransactionDetailsTokensViewData.Leg, to: TransactionDetailsTokensViewData.Leg) -> some View {
         VStack(spacing: 8) {
             legRow(from)
+
             DashedDivider(color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, 12)
+
             legRow(to)
         }
         .padding(.vertical, 4)

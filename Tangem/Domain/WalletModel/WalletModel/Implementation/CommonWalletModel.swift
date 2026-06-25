@@ -13,7 +13,6 @@ import CombineExt
 import BlockchainSdk
 import TangemStaking
 import TangemFoundation
-import TangemExpress
 import TangemSdk
 
 class CommonWalletModel {
@@ -47,6 +46,7 @@ class CommonWalletModel {
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
+    private let transactionHistoryUpdater: TransactionHistoryUpdater
 
     private var dynamicAddressesManager: DynamicAddressesManager? {
         featureManager.features.dynamicAddressesManager
@@ -79,6 +79,7 @@ class CommonWalletModel {
         walletManager: WalletManager,
         stakingManager: StakingManager?,
         featureManager: WalletModelFeaturesManager,
+        transactionHistoryUpdater: TransactionHistoryUpdater,
         transactionHistoryService: TransactionHistoryService?,
         receiveAddressService: ReceiveAddressService,
         sendAvailabilityProvider: TransactionSendAvailabilityProvider,
@@ -88,6 +89,7 @@ class CommonWalletModel {
         self.userWalletId = userWalletId
         self.walletManager = walletManager
         self.featureManager = featureManager
+        self.transactionHistoryUpdater = transactionHistoryUpdater
         _stakingManager = stakingManager
         _transactionHistoryService = transactionHistoryService
         _receiveAddressService = receiveAddressService
@@ -118,7 +120,6 @@ class CommonWalletModel {
         _ = fiatAvailableBalanceProvider
         _ = fiatStakingBalanceProvider
         _ = fiatTotalTokenBalanceProvider
-
         _ = _yieldModuleManager
         _ = _rate
     }
@@ -158,7 +159,7 @@ class CommonWalletModel {
                 .dropFirst() // drop initial value
                 .withWeakCaptureOf(self)
                 .asyncMap { walletModel, _ in
-                    await walletModel.update(silent: false, features: .balances)
+                    await walletModel.update(silent: false, options: .balances)
                 }
                 .sink { _ in }
                 .store(in: &bag)
@@ -209,6 +210,10 @@ class CommonWalletModel {
             return
         }
 
+        // Surface the cached quote while refreshing so the price and price-change shimmer in step with the
+        // balance (which already reloads through a loading state) instead of swapping silently ([REDACTED_INFO])
+        _rate.send(.loading(cached: rate.quote))
+
         let quotes = await quotesRepository.loadQuotes(currencyIds: [currencyId])
         updateQuote(quote: quotes[currencyId])
     }
@@ -234,7 +239,7 @@ class CommonWalletModel {
             try await Task.sleep(for: .seconds(10))
 
             self?.walletManager.setNeedsUpdate()
-            await self?.update(silent: false, features: .full)
+            await self?.update(silent: false, options: .full)
         }
     }
 }
@@ -248,7 +253,6 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
-    var features: [WalletModelFeature] { featureManager.features }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
@@ -371,11 +375,12 @@ extension CommonWalletModel: WalletModel {
 // MARK: - WalletModelUpdater
 
 extension CommonWalletModel: WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
         let logger = AppLogger.tag("WalletModelUpdater")
+        logger.info(self, "Start update with token '\(updateToken)'")
 
         async let balancesUpdate: () = {
-            if features.contains(.balances) {
+            if options.contains(.balances) {
                 if !silent { await updateState(.loading) }
 
                 async let update: () = walletManager.update()
@@ -384,22 +389,22 @@ extension CommonWalletModel: WalletModelUpdater {
 
                 _ = await (update, quotes, staking)
                 await _receiveAddressService.update(with: wallet.addresses)
-
                 await walletManagerDidUpdate()
-                logger.info(self, "Update method finished with state '\(walletManager.state)'")
             }
         }()
 
         async let transactionHistoryUpdate: () = {
-            if features.contains(.transactionHistory) {
+            if options.contains(.transactionHistory) {
                 await _transactionHistoryService?.clearHistory()
 
-                await updateTransactionsHistory()
+                await updateTransactionHistory(updateToken: updateToken)
             }
         }()
 
         // Keep parallel updating
         _ = await (balancesUpdate, transactionHistoryUpdate)
+
+        logger.info(self, "Update with token '\(updateToken)' finished with state '\(walletManager.state)'")
     }
 
     func updateAfterSendingTransaction() {
@@ -408,12 +413,30 @@ extension CommonWalletModel: WalletModelUpdater {
         startUpdatingTimer()
     }
 
-    func updateTransactionsHistory() async {
-        guard let _transactionHistoryService else {
+    func updateTransactionHistory() async {
+        // Passing dummy update token here since this is not batched update of multiple wallet models
+        await updateTransactionHistory(updateToken: UUID())
+    }
+
+    private func updateTransactionHistory(updateToken: some Hashable) async {
+        async let transactionHistoryV2Update = updateV2TransactionHistory(updateToken: updateToken)
+        async let bsdkTransactionHistoryUpdate = updateBSDKTransactionHistory()
+        _ = await (transactionHistoryV2Update, bsdkTransactionHistoryUpdate)
+    }
+
+    private func updateV2TransactionHistory(updateToken: some Hashable) async {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
             return
         }
 
-        try? await _transactionHistoryService.update().async()
+        await transactionHistoryUpdater.updateHistoryIfNeeded(
+            featuresPublisher: featureManager.featuresPublisher,
+            updateToken: updateToken
+        )
+    }
+
+    private func updateBSDKTransactionHistory() async {
+        try? await _transactionHistoryService?.update().async()
     }
 }
 
@@ -562,7 +585,7 @@ extension CommonWalletModel: WalletModelHelpers {
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
             updateWallet: { [weak self] in
-                await self?.update(silent: false, features: .full)
+                await self?.update(silent: false, options: .full)
             }
         )
     }
@@ -613,6 +636,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var compiledTransactionSender: CompiledTransactionSender? {
         walletManager as? CompiledTransactionSender
+    }
+
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
+        walletManager as? BitcoinPsbtSwapSender
     }
 
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? {
@@ -807,7 +834,7 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         let updatedBlockchainNetwork = try await dynamicAddressesManager.enableDynamicAddresses()
         tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
 
-        await update(silent: false, features: .full)
+        await update(silent: false, options: .full)
     }
 
     @MainActor
@@ -819,7 +846,7 @@ extension CommonWalletModel: WalletModelDynamicAddressesProvider {
         let updatedBlockchainNetwork = try dynamicAddressesManager.disableDynamicAddresses()
         tokenItem = tokenItem.with(blockchainNetwork: updatedBlockchainNetwork)
 
-        await update(silent: false, features: .full)
+        await update(silent: false, options: .full)
     }
 }
 
@@ -920,7 +947,7 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
         statePublisher
             .withWeakCaptureOf(self)
             .map { walletModel, _ in
-                // `_receiveAddressService` gets updated in the `update(silent:features:)` method call, which in turn
+                // `_receiveAddressService` gets updated in the `update(silent:options:)` method call, which in turn
                 // also updates the `_state` property and triggers `statePublisher` to emit a new value
                 walletModel._receiveAddressService.addressTypes
             }
