@@ -71,7 +71,7 @@ struct TypographyV2DemoView: View {
                     Text("Third stacked line")
                 }
             }
-            .font(token)
+            .font(token: token)
             .foregroundStyle(DesignSystem.Color.textPrimary)
             .dynamicTypeSize(typeSize)
             .frame(maxWidth: .infinity, alignment: .leading)
