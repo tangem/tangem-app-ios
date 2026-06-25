@@ -29,7 +29,7 @@ protocol AddressBookContactManagementInteractor {
     func update(color: AccountModel.CompositeIcon.Color)
     func update(addressBookWallet: AddressBookWallet)
 
-    func add(entries: [AddressBookEntryDraft]) throws
+    func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws
     func deleteAddress(id: AddressBookAddressEntryID)
 
     func save() async throws

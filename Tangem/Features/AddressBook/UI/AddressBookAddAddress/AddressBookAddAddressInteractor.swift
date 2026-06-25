@@ -13,7 +13,7 @@ import TangemLocalization
 import BlockchainSdk
 
 protocol AddressBookAddAddressOutput: AnyObject {
-    func userDidAddAddress(entries: [AddressBookEntryDraft])
+    func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID])
 }
 
 protocol AddressBookAddAddressInteractor {
@@ -30,9 +30,15 @@ protocol AddressBookAddAddressInteractor {
     func userDidRequestSave()
 }
 
+enum AddressBookAddAddressOptions {
+    case add
+    case edit(address: String, memo: String?, replacing: [AddressBookAddressEntryID])
+}
+
 final class CommonAddressBookAddAddressInteractor {
     private let userWalletInfo: UserWalletInfo
     private weak var output: AddressBookAddAddressOutput?
+    private let replacing: [AddressBookAddressEntryID]
 
     private let addressResolver = AddressBlockchainResolver()
 
@@ -45,9 +51,21 @@ final class CommonAddressBookAddAddressInteractor {
     private let _addressAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
 
-    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput) {
+    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
         self.userWalletInfo = userWalletInfo
         self.output = output
+
+        switch options {
+        case .add:
+            replacing = []
+        case .edit(let address, let memo, let replacing):
+            self.replacing = replacing
+            update(address: address, source: .textField)
+
+            if let memo {
+                update(additionalField: memo)
+            }
+        }
     }
 }
 
@@ -139,12 +157,12 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
             .map { blockchain in
                 AddressBookEntryDraft(
                     address: _address.value,
-                    networkId: AddressBookNetworkID(blockchain.networkId),
+                    blockchain: blockchain,
                     memo: memo
                 )
             }
 
-        output?.userDidAddAddress(entries: entries)
+        output?.userDidAddAddress(entries: entries, replacing: replacing)
     }
 }
 
