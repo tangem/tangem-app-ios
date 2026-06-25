@@ -75,6 +75,51 @@ struct _TransactionHistoryDataMerger {
             .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
     }
 
+    func heuristicallyMatchingReceiveBSDKTransaction(
+        for exchangeTransaction: ExchangeTransaction,
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
+        allBSDKTransactions: [TransactionRecord],
+    ) -> TransactionRecord? {
+        guard exchangeTransaction.to.currency == currentToken.expressCurrency.asCurrency else {
+            return nil
+        }
+
+        let targetAmount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
+        if let bsdkTransactionsGroupedByDestinationAddressString {
+            _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
+        } else {
+            _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
+                for destinationAddress in transaction.destinationAddresses {
+                    result[destinationAddress, default: []].append(transaction)
+                }
+            }
+            bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
+        }
+
+        guard let bsdkTransactions = _bsdkTransactionsGroupedByDestinationAddressString[exchangeTransaction.payOut.address] else {
+            return nil
+        }
+
+        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
+                    && !bsdkTransaction.sourceAddresses.contains(exchangeTransaction.fromAddress ?? .unknown) // Exclude self-transfers
+                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.receiveHeuristicAmountTolerance
+                    && targetDateRange.contains(bsdkTransaction.normalizedDate)
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
+    }
+
     func merge(
         bsdkTransactions: [TransactionRecord],
         exchangeTransactions: [ExchangeTransaction],
@@ -273,6 +318,8 @@ private extension _TransactionHistoryDataMerger {
         static let onrampMethodName = "onramp"
         static let refundHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
         static let refundHeuristicAmountTolerance = Decimal(stringValue: "0.15")! // 15% tolerance for amount differences
+        static let receiveHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
+        static let receiveHeuristicAmountTolerance = Decimal(stringValue: "0.05")! // 5% tolerance for amount differences
     }
 }
 
@@ -284,20 +331,18 @@ private extension TransactionRecord {
     }
 
     var sourceAmountValue: Decimal {
-        switch source {
-        case .single(let transfer):
-            return transfer.amount
-        case .multiple(let transfers):
-            return transfers.reduce(0) { $0 + $1.amount }
-        }
+        source.sources.reduce(0) { $0 + $1.amount }
     }
 
     var destinationAmountValue: Decimal {
-        switch destination {
-        case .single(let transfer):
-            return transfer.amount
-        case .multiple(let transfers):
-            return transfers.reduce(0) { $0 + $1.amount }
-        }
+        destination.destinations.reduce(0) { $0 + $1.amount }
+    }
+
+    var sourceAddresses: [String] {
+        source.sources.map(\.address)
+    }
+
+    var destinationAddresses: [String] {
+        destination.destinations.map(\.address.string)
     }
 }
