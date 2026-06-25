@@ -8,6 +8,8 @@
 
 import Combine
 import Foundation
+import UIKit
+import TangemUIUtils
 
 @MainActor
 final class CurrencySelectViewModel: ObservableObject {
@@ -82,7 +84,13 @@ extension CurrencySelectViewModel {
         Analytics.log(event: .mainCurrencyChanged, params: [.currency: selectedCurrency.title])
         AppSettings.shared.selectedCurrencyCode = selectedCurrency.code
 
-        coordinator?.dismissCurrencySelect()
+        // Try crashfix [REDACTED_INFO]
+        UIApplication.shared.endEditing()
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                self.coordinator?.dismissCurrencySelect()
+            }
+        }
     }
 
     private func handleSearchTextUpdated(_ searchText: String) {
