@@ -405,6 +405,21 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForNotificationMessageContaining(_ substring: String) -> Self {
+        XCTContext.runActivity(named: "Wait for notification message containing '\(substring)'") { _ in
+            XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
+            let predicate = NSPredicate(format: "label CONTAINS %@", substring)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: notificationMessage)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Notification message should contain '\(substring)' but was '\(notificationMessage.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForNotificationIcon() -> Self {
         XCTContext.runActivity(named: "Wait for notification icon to be displayed") { _ in
             XCTAssertTrue(notificationIcon.waitForExistence(timeout: .robustUIUpdate), "Notification icon should exist on swap screen")
@@ -503,6 +518,49 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         XCTContext.runActivity(named: "Assert provider block is hidden in Transfer mode") { _ in
             let providerBlock = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBlock]
             XCTAssertTrue(providerBlock.waitForNonExistence(timeout: .robustUIUpdate), "Provider block should be hidden in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertConfirmButtonLabelIsSwap() -> Self {
+        XCTContext.runActivity(named: "Assert action button label is 'Swap'") { _ in
+            waitAndAssertTrue(confirmButton, "Confirm button should exist")
+            let predicate = NSPredicate(format: "label == %@", "Swap")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: confirmButton)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Action button label should be 'Swap' but was '\(confirmButton.label)'"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForMemoFieldNotDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert manual memo/destination tag field is absent in Transfer mode") { _ in
+            let memoField = app.descendants(matching: .any)[SendAccessibilityIdentifiers.additionalFieldTextField]
+            XCTAssertTrue(memoField.waitForNonExistence(timeout: .robustUIUpdate), "Manual memo/destination tag field should not exist in Transfer mode")
+        }
+        return self
+    }
+
+    @discardableResult
+    func confirmTransferAndOpenFinish() -> SendFinishScreen {
+        XCTContext.runActivity(named: "Confirm transfer and open finish screen") { _ in
+            confirmSwap()
+            return SendFinishScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitForSendErrorAlert() -> Self {
+        XCTContext.runActivity(named: "Assert transaction error alert is shown and finish screen is not opened") { _ in
+            let alert = app.alerts.firstMatch
+            waitAndAssertTrue(alert, "Transaction failed alert should be displayed")
+            let finishHeader = app.staticTexts[SendAccessibilityIdentifiers.finishHeader]
+            XCTAssertFalse(finishHeader.waitForExistence(timeout: .conditional), "Finish screen should not be opened after a broadcast error")
         }
         return self
     }
