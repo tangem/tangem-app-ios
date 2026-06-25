@@ -242,5 +242,33 @@ private extension _TransactionHistoryDataMerger {
     enum Constants {
         static let swapMethodName = "swap"
         static let onrampMethodName = "onramp"
+        static let refundHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
+        static let refundHeuristicAmountTolerance = Decimal(stringValue: "0.15")! // 15% tolerance for amount differences
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension TransactionRecord {
+    var normalizedDate: Date {
+        date ?? .distantPast
+    }
+
+    var sourceAmountValue: Decimal {
+        switch source {
+        case .single(let transfer):
+            return transfer.amount
+        case .multiple(let transfers):
+            return transfers.reduce(0) { $0 + $1.amount }
+        }
+    }
+
+    var destinationAmountValue: Decimal {
+        switch destination {
+        case .single(let transfer):
+            return transfer.amount
+        case .multiple(let transfers):
+            return transfers.reduce(0) { $0 + $1.amount }
+        }
     }
 }
