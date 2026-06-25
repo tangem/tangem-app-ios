@@ -12,8 +12,8 @@ import TangemExpress
 
 extension TransactionRecord {
     enum TransactionRecordExtraInfo {
-        case exchange(ExchangeTransaction)
-        case onramp(OnrampTransaction)
+        case exchange(ExchangeTransactionInfo)
+        case onramp(OnrampTransactionInfo)
     }
 }
 
