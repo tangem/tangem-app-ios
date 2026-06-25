@@ -277,6 +277,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
             analyticsLogger: NoOpOnrampSendAnalyticsLogger(),
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
+            transactionHistoryEnricherFactory: { nil },
             predefinedValues: .init(amount: nil),
             isHistoryFallbackEnabled: true
         )
@@ -514,7 +515,7 @@ private final class StubOnrampPendingTransactionRepository: OnrampPendingTransac
         eventLog.append(.transactionAddedFromHistory)
     }
 
-    func hideSwapTransaction(with id: String) {}
+    func hideOnrampTransaction(with id: String) {}
 }
 
 private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
@@ -605,6 +606,8 @@ private enum StubFixtures {
             txId: "native-tx",
             fromAmount: 100,
             fromCurrencyCode: "USD",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         )
@@ -617,6 +620,8 @@ private enum StubFixtures {
             redirectURL: URL(string: "https://example.com/redirect")!,
             fromAmount: 100,
             fromCurrencyCode: "USD",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         )

@@ -13,22 +13,22 @@ import BlockchainSdk
 protocol SendDestinationTransactionHistoryProvider {
     var transactionHistoryPublisher: AnyPublisher<[SendDestinationSuggestedTransactionRecord], Never> { get }
 
-    func preloadTransactionsHistoryIfNeeded()
+    func preloadTransactionHistoryIfNeeded()
 }
 
 class EmptySendDestinationTransactionHistoryProvider: SendDestinationTransactionHistoryProvider {
     var transactionHistoryPublisher: AnyPublisher<[SendDestinationSuggestedTransactionRecord], Never> { .just(output: []) }
-    func preloadTransactionsHistoryIfNeeded() {}
+    func preloadTransactionHistoryIfNeeded() {}
 }
 
 class CommonSendDestinationTransactionHistoryProvider {
-    private let transactionHistoryUpdater: any WalletModelHistoryUpdater
+    private let transactionHistoryUpdater: any WalletModelUpdater & WalletModelTransactionHistoryProvider
     private let transactionHistoryMapper: TransactionHistoryMapper
 
     private var transactionHistorySubscription: AnyCancellable?
 
     init(
-        transactionHistoryUpdater: any WalletModelHistoryUpdater,
+        transactionHistoryUpdater: any WalletModelUpdater & WalletModelTransactionHistoryProvider,
         transactionHistoryMapper: TransactionHistoryMapper
     ) {
         self.transactionHistoryUpdater = transactionHistoryUpdater
@@ -54,7 +54,7 @@ extension CommonSendDestinationTransactionHistoryProvider: SendDestinationTransa
             .eraseToAnyPublisher()
     }
 
-    func preloadTransactionsHistoryIfNeeded() {
+    func preloadTransactionHistoryIfNeeded() {
         transactionHistorySubscription = transactionHistoryUpdater
             .transactionHistoryPublisher
             .prefix(1) // We only care about the most recent state and we process it only once
@@ -64,7 +64,7 @@ extension CommonSendDestinationTransactionHistoryProvider: SendDestinationTransa
                 case .notSupported, .loading, .loaded:
                     break
                 case .notLoaded, .error:
-                    Task { await provider.transactionHistoryUpdater.updateTransactionsHistory() }
+                    Task { await provider.transactionHistoryUpdater.updateTransactionHistory() }
                 }
             }
     }

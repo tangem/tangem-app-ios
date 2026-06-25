@@ -122,9 +122,9 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {}
 
-    func updateTransactionsHistory() async {}
+    func updateTransactionHistory() async {}
 
     func updateAfterSendingTransaction() { updateAfterSendingTransactionCallCount += 1 }
 
@@ -166,7 +166,6 @@ final class WalletModelTestsMock: WalletModel {
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
     var sendingRestrictions: SendingRestrictions? { nil }
-    var features: [WalletModelFeature] { [] }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
