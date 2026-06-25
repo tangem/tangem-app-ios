@@ -363,7 +363,7 @@ struct TangemPayMainView: View {
                 PendingExpressTransactionView(info: transactionInfo)
             }
         }
-        .padding(.bottom, 28)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -505,7 +505,9 @@ struct TangemPayMainView: View {
                     Label(Localization.tangempayPaySupport, systemImage: "text.bubble")
                 }
             } label: {
-                NavbarDotsImage()
+                Image(systemName: "ellipsis")
+                    .foregroundColor(Colors.Icon.primary1)
+                    .accessibilityLabel(Localization.commonMore)
             }
         }
     }
