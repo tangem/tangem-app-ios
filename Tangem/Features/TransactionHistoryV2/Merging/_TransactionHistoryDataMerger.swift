@@ -46,6 +46,74 @@ struct _TransactionHistoryDataMerger {
         self.feeTokenItem = feeTokenItem
     }
 
+    func heuristicallyMatchingSendBSDKTransaction(
+        for exchangeTransaction: ExchangeTransaction,
+        // Optional and inout, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedBySourceAddressString: inout [String: [TransactionRecord]]?,
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
+        allBSDKTransactions: [TransactionRecord],
+    ) -> TransactionRecord? {
+        guard exchangeTransaction.from.currency == currentToken.expressCurrency.asCurrency else {
+            return nil
+        }
+
+        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        var _bsdkTransactionsGroupedBySourceAddressString: [String: [TransactionRecord]]
+        if let bsdkTransactionsGroupedBySourceAddressString {
+            _bsdkTransactionsGroupedBySourceAddressString = bsdkTransactionsGroupedBySourceAddressString
+        } else {
+            _bsdkTransactionsGroupedBySourceAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
+                for sourceAddress in transaction.sourceAddresses {
+                    result[sourceAddress, default: []].append(transaction)
+                }
+            }
+            bsdkTransactionsGroupedBySourceAddressString = _bsdkTransactionsGroupedBySourceAddressString
+        }
+
+        var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
+        if let bsdkTransactionsGroupedByDestinationAddressString {
+            _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
+        } else {
+            _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
+                for destinationAddress in transaction.destinationAddresses {
+                    result[destinationAddress, default: []].append(transaction)
+                }
+            }
+            bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
+        }
+
+        guard let bsdkTransactionsCandidatesBySender = _bsdkTransactionsGroupedBySourceAddressString[exchangeTransaction.fromAddress ?? .unknown] else {
+            return nil
+        }
+
+        guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[exchangeTransaction.payIn.address] else {
+            return nil
+        }
+
+        let bsdkTransactions = bsdkTransactionsCandidatesBySender
+            .toSet()
+            .intersection(bsdkTransactionsCandidatesByReceiver)
+
+        let amountTolerance = currentToken.blockchain.isUTXO
+            ? Constants.sendHeuristicAmountUTXOTolerance
+            : Constants.sendHeuristicAmountTolerance
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
+                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= amountTolerance
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
+    }
+
     func heuristicallyMatchingRefundBSDKTransaction(
         for exchangeTransaction: ExchangeTransaction,
         from bsdkTransactions: [TransactionRecord],
@@ -316,6 +384,8 @@ private extension _TransactionHistoryDataMerger {
     enum Constants {
         static let swapMethodName = "swap"
         static let onrampMethodName = "onramp"
+        static let sendHeuristicAmountTolerance = Decimal(Double.ulpOfOne)
+        static let sendHeuristicAmountUTXOTolerance = Decimal(stringValue: "0.001")! // 0.1% tolerance for amount differences
         static let refundHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
         static let refundHeuristicAmountTolerance = Decimal(stringValue: "0.15")! // 15% tolerance for amount differences
         static let receiveHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
