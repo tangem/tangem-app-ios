@@ -23,6 +23,9 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
             MainQRScanCoordinatorView(coordinator: $0)
                 .ignoresSafeArea()
         }
+        .floatingSheetContent(for: AddressActionsViewModel.self) { viewModel in
+            AddressActionsView(viewModel: viewModel)
+        }
     }
 
     @ViewBuilder
