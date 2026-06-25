@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import Combine
 import TangemAssets
 import TangemAccounts
@@ -184,7 +185,7 @@ private extension AddressBookContactManagementViewModel {
                     address: group.address,
                     networksCount: group.networks.count
                 ) { [weak self] in
-                    self?.deleteAddress(entryIds: group.networks.map(\.id))
+                    self?.openAddressActions(for: group)
                 }
             )
         }
@@ -203,11 +204,32 @@ private extension AddressBookContactManagementViewModel {
             return
         }
 
-        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self)
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add)
+    }
+
+    func editAddress(_ group: AddressBookContactAddressGroup) {
+        guard let wallet = selectedWallet else {
+            return
+        }
+
+        coordinator?.openAddAddress(
+            userWalletInfo: wallet.userWalletInfo,
+            output: self,
+            options: .edit(address: group.address, memo: group.memo, replacing: group.networks.map(\.id))
+        )
     }
 
     func deleteAddress(entryIds: [AddressBookAddressEntryID]) {
         entryIds.forEach { interactor.deleteAddress(id: $0) }
+    }
+
+    func openAddressActions(for group: AddressBookContactAddressGroup) {
+        guard let coordinator else {
+            return
+        }
+
+        let viewModel = AddressActionsViewModel(group: group, output: self, routable: coordinator)
+        coordinator.presentAddressActions(viewModel)
     }
 
     @MainActor
@@ -248,12 +270,50 @@ private extension AddressBookContactManagementViewModel {
 // MARK: - AddressBookAddAddressOutput
 
 extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
-    func userDidAddAddress(entries: [AddressBookEntryDraft]) {
+    func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID]) {
         do {
-            try interactor.add(entries: entries)
+            try interactor.update(entries: entries, replacing: replacing)
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
+    }
+}
+
+// MARK: - AddressActionsOutput
+
+extension AddressBookContactManagementViewModel: AddressActionsOutput {
+    func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {
+        UIPasteboard.general.string = group.address
+
+        let snackbar = TangemSnackbar(title: Localization.walletNotificationAddressCopied)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+    }
+
+    func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {
+        editAddress(group)
+    }
+
+    func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {
+        guard canDeleteContact, (entries?.addressCount ?? 0) <= 1 else {
+            deleteAddress(entryIds: group.networks.map(\.id))
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        // ("…last address of «[name]»…", Lokalise key pending) and an alert-vs-dialog style confirmed against the mockup.
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: nil,
+            subtitle: Localization.addressBookDeleteContactDescription,
+            buttons: [
+                .init(title: Localization.commonDelete, role: .destructive) { [weak self] in
+                    guard let self else { return }
+                    Task { await self.delete() }
+                },
+                .cancel,
+            ]
+        )
     }
 }
 
