@@ -178,6 +178,21 @@ final actor TransactionHistoryProvider {
             emit(.failed(.init(reason: .transport(message: error.localizedDescription), syncKind: .userInitiated(kind))))
         }
     }
+
+    private static func merge(
+        bsdkTransactions: [TransactionRecord],
+        exchangeTransactions: [ExchangeTransaction],
+        onrampTransactions: [OnrampTransaction],
+        using merger: TransactionHistoryExpressDataMerger
+    ) -> [TransactionRecord] {
+        ensureNotOnMainQueue()
+
+        return merger.merge(
+            bsdkTransactions: bsdkTransactions,
+            exchangeTransactions: exchangeTransactions,
+            onrampTransactions: onrampTransactions
+        )
+    }
 }
 
 // MARK: - TransactionHistorySyncing protocol conformance
@@ -333,15 +348,23 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryBridging {
             .map { transactionHistoryState, exchangeTransactions, onrampTransactions in
                 switch transactionHistoryState {
                 case .loaded(let bsdkTransactions):
-                    ensureNotOnMainQueue()
-                    let mergedTransactions = merger.merge(
+                    let mergedTransactions = Self.merge(
                         bsdkTransactions: bsdkTransactions,
                         exchangeTransactions: exchangeTransactions,
-                        onrampTransactions: onrampTransactions
+                        onrampTransactions: onrampTransactions,
+                        using: merger
                     )
                     return .loaded(items: mergedTransactions)
+                case .notSupported:
+                    // The `.notSupported` state should be handled too, because merging can add synthetic transactions even without matching BSDK transactions.
+                    let mergedTransactions = Self.merge(
+                        bsdkTransactions: [],
+                        exchangeTransactions: exchangeTransactions,
+                        onrampTransactions: onrampTransactions,
+                        using: merger
+                    )
+                    return mergedTransactions.isEmpty ? .notSupported : .loaded(items: mergedTransactions)
                 case .error,
-                     .notSupported,
                      .notLoaded,
                      .loading:
                     return transactionHistoryState
