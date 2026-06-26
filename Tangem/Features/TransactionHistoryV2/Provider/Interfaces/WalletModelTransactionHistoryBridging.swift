@@ -11,7 +11,7 @@ import Combine
 
 /// Bridges the provider's Express/Onramp transaction history into the wallet model's on-chain history stream.
 protocol WalletModelTransactionHistoryBridging {
-    func bridgedTransactionHistory(
+    func bridgedTransactionHistoryPublisher(
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never>
