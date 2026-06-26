@@ -58,8 +58,6 @@ struct _TransactionHistoryDataMerger {
     func heuristicallyMatchingSendBSDKTransaction(
         for exchangeTransaction: ExchangeTransaction,
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
-        bsdkTransactionsGroupedBySourceAddressString: inout [String: [TransactionRecord]]?,
-        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
     ) -> TransactionRecord? {
@@ -74,18 +72,6 @@ struct _TransactionHistoryDataMerger {
             return nil
         }
 
-        var _bsdkTransactionsGroupedBySourceAddressString: [String: [TransactionRecord]]
-        if let bsdkTransactionsGroupedBySourceAddressString {
-            _bsdkTransactionsGroupedBySourceAddressString = bsdkTransactionsGroupedBySourceAddressString
-        } else {
-            _bsdkTransactionsGroupedBySourceAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
-                for sourceAddress in transaction.sourceAddresses {
-                    result[lowerCasedAddressStringIfNeeded(sourceAddress), default: []].append(transaction)
-                }
-            }
-            bsdkTransactionsGroupedBySourceAddressString = _bsdkTransactionsGroupedBySourceAddressString
-        }
-
         var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
         if let bsdkTransactionsGroupedByDestinationAddressString {
             _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
@@ -98,21 +84,14 @@ struct _TransactionHistoryDataMerger {
             bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
         }
 
-        guard let bsdkTransactionsCandidatesBySender = _bsdkTransactionsGroupedBySourceAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)] else {
-            return nil
-        }
-
         guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)] else {
             return nil
         }
 
-        let bsdkTransactions = bsdkTransactionsCandidatesBySender
-            .toSet()
-            .intersection(bsdkTransactionsCandidatesByReceiver)
-
         let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
+        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
 
-        return bsdkTransactions
+        return bsdkTransactionsCandidatesByReceiver
             .filter { bsdkTransaction in
                 // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
                 let amountToPayIn = bsdkTransaction.destinationAmount(
@@ -120,6 +99,8 @@ struct _TransactionHistoryDataMerger {
                     addressConverter: lowerCasedAddressStringIfNeeded
                 )
                 return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
+                    // The sender of the pay-in leg must be the owner
+                    && bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
                     && abs(amountToPayIn - targetAmount) <= amountBound
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
