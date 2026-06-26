@@ -1,5 +1,5 @@
 //
-//  _TransactionHistoryDataMerger.swift
+//  TransactionHistoryExpressDataMerger.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,8 @@ import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
-// [REDACTED_TODO_COMMENT]
 /// See https://app.notion.com/p/tangem/Express-36d5d34eb67880fa8082dcdb732c4364?source=copy_link#f5e12a848f494dc28b3ad32fd3243ede for details.
-struct _TransactionHistoryDataMerger {
+struct TransactionHistoryExpressDataMerger {
     // MARK: - Active statuses
 
     private static let activeExchangeTransactionStatuses: Set<ExpressTransactionStatus> = [
@@ -44,7 +43,7 @@ struct _TransactionHistoryDataMerger {
     private let currentToken: TokenItem
     private let isEvm: Bool
     private let isUTXO: Bool
-    private let syntheticTransactionFactory: TransactionHistorySyntheticExpressTransactionFactory
+    private let syntheticTransactionFactory: TransactionHistorySyntheticTransactionFactory
 
     // MARK: - Init
 
@@ -56,7 +55,7 @@ struct _TransactionHistoryDataMerger {
         self.currentToken = currentToken
         isEvm = currentToken.blockchain.isEvm
         isUTXO = currentToken.blockchain.isUTXO
-        syntheticTransactionFactory = TransactionHistorySyntheticExpressTransactionFactory(
+        syntheticTransactionFactory = TransactionHistorySyntheticTransactionFactory(
             ownerAddress: ownerAddress,
             currentToken: currentToken,
             feeTokenItem: feeTokenItem
@@ -438,7 +437,7 @@ struct _TransactionHistoryDataMerger {
 
 // MARK: - Constants
 
-private extension _TransactionHistoryDataMerger {
+private extension TransactionHistoryExpressDataMerger {
     enum Constants {
         static let sendHeuristicAmountTolerance = Decimal(Double.ulpOfOne)
         /// 0.1% tolerance for amount differences to account for UTXO change outputs.
