@@ -60,6 +60,7 @@ struct _TransactionHistoryDataMerger {
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
     ) -> TransactionRecord? {
         guard exchangeTransaction.from.currency == currentToken.expressCurrency.asCurrency else {
             return nil
@@ -103,6 +104,7 @@ struct _TransactionHistoryDataMerger {
                     addressConverter: lowerCasedAddressStringIfNeeded
                 )
                 return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
+                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
                     // The sender of the pay-in leg must be the owner
                     && bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
                     && abs(amountToPayIn - targetAmount) <= amountBound
@@ -113,6 +115,7 @@ struct _TransactionHistoryDataMerger {
     func heuristicallyMatchingRefundBSDKTransaction(
         for exchangeTransaction: ExchangeTransaction,
         from bsdkTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
     ) -> TransactionRecord? {
         guard
             exchangeTransaction.status == .refunded,
@@ -134,6 +137,7 @@ struct _TransactionHistoryDataMerger {
         return bsdkTransactions
             .filter { bsdkTransaction in
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential refunds
+                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
                     && abs(bsdkTransaction.destinationAmountValue - targetAmount) <= amountBound
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
@@ -145,6 +149,7 @@ struct _TransactionHistoryDataMerger {
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
     ) -> TransactionRecord? {
         guard
             exchangeTransaction.status != .refunded,
@@ -192,6 +197,7 @@ struct _TransactionHistoryDataMerger {
                     addressConverter: lowerCasedAddressStringIfNeeded
                 )
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
+                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
                     // Exclude self-transfers (the sender must not be the user)
                     && !bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
                     && abs(amountToPayOut - targetAmount) <= amountBound
@@ -207,6 +213,8 @@ struct _TransactionHistoryDataMerger {
     ) -> [TransactionRecord] {
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
+        // Tombstone-like pattern; IDs of BSDK transactions already claimed by a match
+        var consumedBSDKTransactionsIds: Set<TransactionRecord.ID> = []
 
         for exchangeTransaction in exchangeTransactions {
             // Step 1: Deterministic mapping
@@ -217,6 +225,7 @@ struct _TransactionHistoryDataMerger {
                     provider: nil // [REDACTED_TODO_COMMENT]
                 )
                 output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.exchange(info)) })
+                consumedBSDKTransactionsIds.formUnion(bsdkTransactions.map(\.id))
                 continue
             }
 
@@ -238,6 +247,7 @@ struct _TransactionHistoryDataMerger {
                     fiatCurrency: nil // [REDACTED_TODO_COMMENT]
                 )
                 output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.onramp(info)) })
+                consumedBSDKTransactionsIds.formUnion(bsdkTransactions.map(\.id))
                 continue
             }
 
@@ -252,7 +262,7 @@ struct _TransactionHistoryDataMerger {
 
         // Adding remaining BSDK transactions that were not enriched with exchange or onramp info
         for bsdkTransactions in bsdkTransactionsGroupedByHash {
-            output.append(contentsOf: bsdkTransactions.value)
+            output.append(contentsOf: bsdkTransactions.value.filter { !consumedBSDKTransactionsIds.contains($0.id) })
         }
 
         // [REDACTED_TODO_COMMENT]
