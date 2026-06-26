@@ -198,6 +198,58 @@ struct _TransactionHistoryDataMerger {
             .min(by: \.normalizedDate) // Select the earliest transaction
     }
 
+    func heuristicallyMatchingReceiveBSDKTransaction(
+        for onrampTransaction: OnrampTransaction,
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
+        allBSDKTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+    ) -> TransactionRecord? {
+        guard
+            onrampTransaction.to.currency == currentToken.expressCurrency.asCurrency,
+            let targetAmount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount
+        else {
+            return nil
+        }
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
+            from: allBSDKTransactions,
+            cache: &bsdkTransactionsGroupedByDestinationAddressString
+        )
+
+        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(onrampTransaction.payOut.address)
+        ] else {
+            return nil
+        }
+
+        let targetDateRange = onrampTransaction.createdAt ... onrampTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                guard
+                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
+                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    targetDateRange.contains(bsdkTransaction.normalizedDate)
+                else {
+                    return false
+                }
+
+                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
+                let amountToPayOut = bsdkTransaction.destinationAmount(
+                    to: onrampTransaction.payOut.address,
+                    addressConverter: lowerCasedAddressStringIfNeeded
+                )
+                return abs(amountToPayOut - targetAmount) <= amountBound
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction
+    }
 
     /// Groups BSDK transactions by their (normalized) destination address, building the grouping lazily on first
     /// use and caching it in `cache` to avoid O(n) * O(m) complexity across the send / receive matchers.
