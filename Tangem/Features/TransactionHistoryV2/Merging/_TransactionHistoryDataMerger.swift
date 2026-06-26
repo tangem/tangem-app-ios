@@ -14,10 +14,7 @@ import TangemFoundation
 // [REDACTED_TODO_COMMENT]
 /// See https://app.notion.com/p/tangem/Express-36d5d34eb67880fa8082dcdb732c4364?source=copy_link#f5e12a848f494dc28b3ad32fd3243ede for details.
 struct _TransactionHistoryDataMerger {
-    private let currentToken: TokenItem
-    private let isEvm: Bool
-    private let isUTXO: Bool
-    private let syntheticTransactionFactory: TransactionHistorySyntheticExpressTransactionFactory
+    // MARK: - Active statuses
 
     private static let activeExchangeTransactionStatuses: Set<ExpressTransactionStatus> = [
         .preview,
@@ -42,6 +39,15 @@ struct _TransactionHistoryDataMerger {
         .sending,
     ]
 
+    // MARK: - Dependencies
+
+    private let currentToken: TokenItem
+    private let isEvm: Bool
+    private let isUTXO: Bool
+    private let syntheticTransactionFactory: TransactionHistorySyntheticExpressTransactionFactory
+
+    // MARK: - Init
+
     init(
         ownerAddress: String,
         currentToken: TokenItem,
@@ -57,221 +63,7 @@ struct _TransactionHistoryDataMerger {
         )
     }
 
-    func heuristicallyMatchingSendBSDKTransaction(
-        for exchangeTransaction: ExchangeTransaction,
-        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
-        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
-        allBSDKTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
-    ) -> TransactionRecord? {
-        guard exchangeTransaction.from.currency == currentToken.expressCurrency.asCurrency else {
-            return nil
-        }
-
-        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
-
-        // Prevents division by zero
-        guard targetAmount > 0 else {
-            return nil
-        }
-
-        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
-            from: allBSDKTransactions,
-            cache: &bsdkTransactionsGroupedByDestinationAddressString
-        )
-
-        guard let bsdkTransactionsCandidatesByReceiver = bsdkTransactionsGroupedByDestinationAddressString[
-            lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)
-        ] else {
-            return nil
-        }
-
-        let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
-        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
-
-        return bsdkTransactionsCandidatesByReceiver
-            .filter { bsdkTransaction in
-                guard
-                    bsdkTransaction.isOutgoing, // Only consider outgoing transactions as potential matches
-                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
-                    // The sender of the pay-in leg must be the owner
-                    bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
-                else {
-                    return false
-                }
-
-                // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
-                let amountToPayIn = bsdkTransaction.destinationAmount(
-                    to: exchangeTransaction.payIn.address,
-                    addressConverter: lowerCasedAddressStringIfNeeded
-                )
-                return abs(amountToPayIn - targetAmount) <= amountBound
-            }
-            .min(by: \.normalizedDate) // Select the earliest transaction
-    }
-
-    func heuristicallyMatchingRefundBSDKTransaction(
-        for exchangeTransaction: ExchangeTransaction,
-        from bsdkTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
-    ) -> TransactionRecord? {
-        guard
-            exchangeTransaction.status == .refunded,
-            exchangeTransaction.refund?.currency == currentToken.expressCurrency.asCurrency
-        else {
-            return nil
-        }
-
-        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
-
-        // Prevents division by zero
-        guard targetAmount > 0 else {
-            return nil
-        }
-
-        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.refundHeuristicTimeWindow)
-        let amountBound = Constants.refundHeuristicAmountTolerance * targetAmount
-
-        return bsdkTransactions
-            .filter { bsdkTransaction in
-                return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential refunds
-                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
-                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) <= amountBound
-                    && targetDateRange.contains(bsdkTransaction.normalizedDate)
-            }
-            .min(by: \.normalizedDate) // Select the earliest transaction
-    }
-
-    func heuristicallyMatchingReceiveBSDKTransaction(
-        for exchangeTransaction: ExchangeTransaction,
-        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
-        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
-        allBSDKTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
-    ) -> TransactionRecord? {
-        guard
-            exchangeTransaction.status != .refunded,
-            exchangeTransaction.to.currency == currentToken.expressCurrency.asCurrency
-        else {
-            return nil
-        }
-
-        let targetAmount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
-
-        // Prevents division by zero
-        guard targetAmount > 0 else {
-            return nil
-        }
-
-        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
-            from: allBSDKTransactions,
-            cache: &bsdkTransactionsGroupedByDestinationAddressString
-        )
-
-        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
-            lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)
-        ] else {
-            return nil
-        }
-
-        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
-        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
-        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
-
-        return bsdkTransactions
-            .filter { bsdkTransaction in
-                guard
-                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
-                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
-                    targetDateRange.contains(bsdkTransaction.normalizedDate),
-                    // Exclude self-transfers (the sender must not be the user)
-                    !bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
-                else {
-                    return false
-                }
-
-                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
-                let amountToPayOut = bsdkTransaction.destinationAmount(
-                    to: exchangeTransaction.payOut.address,
-                    addressConverter: lowerCasedAddressStringIfNeeded
-                )
-                return abs(amountToPayOut - targetAmount) <= amountBound
-            }
-            .min(by: \.normalizedDate) // Select the earliest transaction
-    }
-
-    func heuristicallyMatchingReceiveBSDKTransaction(
-        for onrampTransaction: OnrampTransaction,
-        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
-        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
-        allBSDKTransactions: [TransactionRecord],
-        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
-    ) -> TransactionRecord? {
-        guard
-            onrampTransaction.to.currency == currentToken.expressCurrency.asCurrency,
-            let targetAmount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount
-        else {
-            return nil
-        }
-
-        // Prevents division by zero
-        guard targetAmount > 0 else {
-            return nil
-        }
-
-        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
-            from: allBSDKTransactions,
-            cache: &bsdkTransactionsGroupedByDestinationAddressString
-        )
-
-        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
-            lowerCasedAddressStringIfNeeded(onrampTransaction.payOut.address)
-        ] else {
-            return nil
-        }
-
-        let targetDateRange = onrampTransaction.createdAt ... onrampTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
-        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
-
-        return bsdkTransactions
-            .filter { bsdkTransaction in
-                guard
-                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
-                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
-                    targetDateRange.contains(bsdkTransaction.normalizedDate)
-                else {
-                    return false
-                }
-
-                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
-                let amountToPayOut = bsdkTransaction.destinationAmount(
-                    to: onrampTransaction.payOut.address,
-                    addressConverter: lowerCasedAddressStringIfNeeded
-                )
-                return abs(amountToPayOut - targetAmount) <= amountBound
-            }
-            .min(by: \.normalizedDate) // Select the earliest transaction
-    }
-
-    /// Groups BSDK transactions by their (normalized) destination address, building the grouping lazily on first
-    /// use and caching it in `cache` to avoid O(n) * O(m) complexity across the send / receive matchers.
-    private func makeDestinationAddressGroupedBSDKTransactions(
-        from allBSDKTransactions: [TransactionRecord],
-        cache: inout [String: [TransactionRecord]]?
-    ) -> [String: [TransactionRecord]] {
-        if let cache {
-            return cache
-        }
-
-        let grouped = allBSDKTransactions.reduce(into: [String: [TransactionRecord]]()) { result, transaction in
-            for destinationAddress in transaction.destinationAddresses {
-                result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
-            }
-        }
-        cache = grouped
-
-        return grouped
-    }
+    // MARK: - Merge routine
 
     func merge(
         bsdkTransactions: [TransactionRecord],
@@ -386,6 +178,228 @@ struct _TransactionHistoryDataMerger {
         }
 
         return sortedRecords(output)
+    }
+
+    // MARK: - Heuristic matching (Exchange)
+
+    func heuristicallyMatchingSendBSDKTransaction(
+        for exchangeTransaction: ExchangeTransaction,
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
+        allBSDKTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+    ) -> TransactionRecord? {
+        guard exchangeTransaction.from.currency == currentToken.expressCurrency.asCurrency else {
+            return nil
+        }
+
+        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
+            from: allBSDKTransactions,
+            cache: &bsdkTransactionsGroupedByDestinationAddressString
+        )
+
+        guard let bsdkTransactionsCandidatesByReceiver = bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)
+        ] else {
+            return nil
+        }
+
+        let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
+        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
+
+        return bsdkTransactionsCandidatesByReceiver
+            .filter { bsdkTransaction in
+                guard
+                    bsdkTransaction.isOutgoing, // Only consider outgoing transactions as potential matches
+                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    // The sender of the pay-in leg must be the owner
+                    bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
+                else {
+                    return false
+                }
+
+                // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
+                let amountToPayIn = bsdkTransaction.destinationAmount(
+                    to: exchangeTransaction.payIn.address,
+                    addressConverter: lowerCasedAddressStringIfNeeded
+                )
+                return abs(amountToPayIn - targetAmount) <= amountBound
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction
+    }
+
+    func heuristicallyMatchingReceiveBSDKTransaction(
+        for exchangeTransaction: ExchangeTransaction,
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
+        allBSDKTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+    ) -> TransactionRecord? {
+        guard
+            exchangeTransaction.status != .refunded,
+            exchangeTransaction.to.currency == currentToken.expressCurrency.asCurrency
+        else {
+            return nil
+        }
+
+        let targetAmount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
+            from: allBSDKTransactions,
+            cache: &bsdkTransactionsGroupedByDestinationAddressString
+        )
+
+        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)
+        ] else {
+            return nil
+        }
+
+        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
+        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                guard
+                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
+                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    targetDateRange.contains(bsdkTransaction.normalizedDate),
+                    // Exclude self-transfers (the sender must not be the user)
+                    !bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
+                else {
+                    return false
+                }
+
+                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
+                let amountToPayOut = bsdkTransaction.destinationAmount(
+                    to: exchangeTransaction.payOut.address,
+                    addressConverter: lowerCasedAddressStringIfNeeded
+                )
+                return abs(amountToPayOut - targetAmount) <= amountBound
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction
+    }
+
+    func heuristicallyMatchingRefundBSDKTransaction(
+        for exchangeTransaction: ExchangeTransaction,
+        from bsdkTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+    ) -> TransactionRecord? {
+        guard
+            exchangeTransaction.status == .refunded,
+            exchangeTransaction.refund?.currency == currentToken.expressCurrency.asCurrency
+        else {
+            return nil
+        }
+
+        let targetAmount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.refundHeuristicTimeWindow)
+        let amountBound = Constants.refundHeuristicAmountTolerance * targetAmount
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential refunds
+                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
+                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) <= amountBound
+                    && targetDateRange.contains(bsdkTransaction.normalizedDate)
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction
+    }
+
+    // MARK: - Heuristic matching (Onramp)
+
+    func heuristicallyMatchingReceiveBSDKTransaction(
+        for onrampTransaction: OnrampTransaction,
+        // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
+        bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
+        allBSDKTransactions: [TransactionRecord],
+        consumedBSDKTransactionsIds: Set<TransactionRecord.ID>,
+    ) -> TransactionRecord? {
+        guard
+            onrampTransaction.to.currency == currentToken.expressCurrency.asCurrency,
+            let targetAmount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount
+        else {
+            return nil
+        }
+
+        // Prevents division by zero
+        guard targetAmount > 0 else {
+            return nil
+        }
+
+        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
+            from: allBSDKTransactions,
+            cache: &bsdkTransactionsGroupedByDestinationAddressString
+        )
+
+        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(onrampTransaction.payOut.address)
+        ] else {
+            return nil
+        }
+
+        let targetDateRange = onrampTransaction.createdAt ... onrampTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
+
+        return bsdkTransactions
+            .filter { bsdkTransaction in
+                guard
+                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
+                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    targetDateRange.contains(bsdkTransaction.normalizedDate)
+                else {
+                    return false
+                }
+
+                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
+                let amountToPayOut = bsdkTransaction.destinationAmount(
+                    to: onrampTransaction.payOut.address,
+                    addressConverter: lowerCasedAddressStringIfNeeded
+                )
+                return abs(amountToPayOut - targetAmount) <= amountBound
+            }
+            .min(by: \.normalizedDate) // Select the earliest transaction
+    }
+
+    // MARK: - Helpers
+
+    /// Groups BSDK transactions by their (normalized) destination address, building the grouping lazily on first
+    /// use and caching it in `cache` to avoid O(n) * O(m) complexity across the send / receive matchers.
+    private func makeDestinationAddressGroupedBSDKTransactions(
+        from allBSDKTransactions: [TransactionRecord],
+        cache: inout [String: [TransactionRecord]]?
+    ) -> [String: [TransactionRecord]] {
+        if let cache {
+            return cache
+        }
+
+        let grouped = allBSDKTransactions.reduce(into: [String: [TransactionRecord]]()) { result, transaction in
+            for destinationAddress in transaction.destinationAddresses {
+                result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
+            }
+        }
+        cache = grouped
+
+        return grouped
     }
 
     private func sortedRecords(_ records: [TransactionRecord]) -> [TransactionRecord] {
