@@ -45,6 +45,44 @@ struct CommonEthereumTokenFeeLoaderTests {
             Issue.record("Unexpected error: \(error)")
         }
     }
+
+    @Test("bumps the EIP-1559 approve gas price by 15% and leaves the swap untouched")
+    func getApproveWithSwapFee_eip1559_bumpsApproveGasPriceOnly() async throws {
+        let swapFee = makeEIP1559Fee(maxFeePerGas: 50_000_000_000, priorityFee: 5_000_000_000, gasLimit: 200_000)
+        let approveSlow = makeEIP1559Fee(maxFeePerGas: 30_000_000_000, priorityFee: 1_000_000_000, gasLimit: 90_000)
+        let approveMarket = makeEIP1559Fee(maxFeePerGas: 40_000_000_000, priorityFee: 2_000_000_000, gasLimit: 100_000)
+        let loader = makeLoader(swapFees: [swapFee], approveFees: [approveSlow, approveMarket])
+
+        let result = try await loader.getApproveWithSwapFee(request: makeRequest(), approveInput: makeApproveInput())
+
+        let parameters = try #require(result.first?.parameters as? ApproveWithSwapFeeParameters)
+
+        let approveParameters = try #require(parameters.approveFee.parameters as? EthereumEIP1559FeeParameters)
+        #expect(approveParameters.maxFeePerGas == 46_000_000_000)
+        #expect(approveParameters.priorityFee == 2_300_000_000)
+
+        let swapParameters = try #require(parameters.swapParameters as? EthereumEIP1559FeeParameters)
+        #expect(swapParameters.maxFeePerGas == 50_000_000_000)
+        #expect(swapParameters.priorityFee == 5_000_000_000)
+    }
+
+    @Test("bumps the legacy approve gas price by 15% and leaves the swap untouched")
+    func getApproveWithSwapFee_legacy_bumpsApproveGasPriceOnly() async throws {
+        let swapFee = makeLegacyFee(gasPrice: 30_000_000_000, gasLimit: 200_000)
+        let approveSlow = makeLegacyFee(gasPrice: 18_000_000_000, gasLimit: 90_000)
+        let approveMarket = makeLegacyFee(gasPrice: 20_000_000_000, gasLimit: 100_000)
+        let loader = makeLoader(swapFees: [swapFee], approveFees: [approveSlow, approveMarket])
+
+        let result = try await loader.getApproveWithSwapFee(request: makeRequest(), approveInput: makeApproveInput())
+
+        let parameters = try #require(result.first?.parameters as? ApproveWithSwapFeeParameters)
+
+        let approveParameters = try #require(parameters.approveFee.parameters as? EthereumLegacyFeeParameters)
+        #expect(approveParameters.gasPrice == 23_000_000_000)
+
+        let swapParameters = try #require(parameters.swapParameters as? EthereumLegacyFeeParameters)
+        #expect(swapParameters.gasPrice == 30_000_000_000)
+    }
 }
 
 // MARK: - Helpers
@@ -62,6 +100,20 @@ private extension CommonEthereumTokenFeeLoaderTests {
         Fee(
             Amount(with: .ethereum(testnet: false), type: .coin, value: Decimal(string: "0.003")!),
             parameters: EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: 20_000_000_000)
+        )
+    }
+
+    func makeEIP1559Fee(maxFeePerGas: BigUInt, priorityFee: BigUInt, gasLimit: BigUInt) -> Fee {
+        Fee(
+            Amount(with: .ethereum(testnet: false), type: .coin, value: Decimal(string: "0.003")!),
+            parameters: EthereumEIP1559FeeParameters(gasLimit: gasLimit, maxFeePerGas: maxFeePerGas, priorityFee: priorityFee)
+        )
+    }
+
+    func makeLegacyFee(gasPrice: BigUInt, gasLimit: BigUInt) -> Fee {
+        Fee(
+            Amount(with: .ethereum(testnet: false), type: .coin, value: Decimal(string: "0.003")!),
+            parameters: EthereumLegacyFeeParameters(gasLimit: gasLimit, gasPrice: gasPrice)
         )
     }
 
