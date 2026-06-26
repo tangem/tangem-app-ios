@@ -41,6 +41,12 @@ final actor TransactionHistoryProvider {
     /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
     private nonisolated let onrampUpdatesSubject = CurrentValueSubject<[OnrampTransaction], Never>([])
 
+    private nonisolated let mappingQueue = DispatchQueue(
+        label: "com.tangem.TransactionHistoryProvider.mappingQueue",
+        qos: .userInitiated,
+        target: .global(qos: .userInitiated)
+    )
+
     init(
         repository: TransactionHistoryRepository,
         userWalletId: UserWalletId,
@@ -323,6 +329,7 @@ extension TransactionHistoryProvider: WalletModelTransactionHistoryBridging {
         // [REDACTED_TODO_COMMENT]
         return transactionHistoryPublisher
             .combineLatest(exchangeUpdatesSubject, onrampUpdatesSubject)
+            .receive(on: mappingQueue)
             .map { transactionHistoryState, exchangeTransactions, onrampTransactions in
                 switch transactionHistoryState {
                 case .loaded(let bsdkTransactions):
