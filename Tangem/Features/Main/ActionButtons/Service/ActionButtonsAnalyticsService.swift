@@ -30,7 +30,8 @@ enum ActionButtonsAnalyticsService {
 
     static func trackScreenOpened(_ screenModel: ActionButtonModel) {
         let event: Analytics.Event = switch screenModel {
-        case .buy: .actionButtonsBuyScreenOpened
+        case .buy:
+            FeatureProvider.isAvailable(.addFundsStage1) ? .addFundsMethodScreenOpened : .actionButtonsBuyScreenOpened
         case .swap: .actionButtonsSwapScreenOpened
         case .sell: .actionButtonsSellScreenOpened
         }
