@@ -49,16 +49,15 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
             spender: approveInput.spender
         )
 
-        async let swapFeesTask = estimateFees(request: request, stateOverride: unlimitedAllowanceOverride)
-        async let approveFeesTask = estimateFees(
-            request: EthereumFeeRequestData(
-                amount: BSDKAmount(with: feeBlockchain, type: .coin, value: 0),
-                destination: approveInput.tokenContractAddress,
-                txData: approveInput.txData,
-                otherNativeFee: nil
-            ),
-            stateOverride: nil
+        let approveRequest = EthereumFeeRequestData(
+            amount: BSDKAmount(with: feeBlockchain, type: .coin, value: 0),
+            destination: approveInput.tokenContractAddress,
+            txData: approveInput.txData,
+            otherNativeFee: nil
         )
+
+        async let swapFeesTask = estimateFees(request: request, stateOverride: unlimitedAllowanceOverride)
+        async let approveFeesTask = estimateFees(request: approveRequest, stateOverride: nil)
 
         let (swapFees, approveFees) = try await (swapFeesTask, approveFeesTask)
 
@@ -66,8 +65,13 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
             throw TokenFeeLoaderError.approveFeeNotFound
         }
 
+        let increasedApproveFee = marketApproveFee.increasingGasPrice(
+            byPercents: EthereumFeeParametersConstants.approveWithSwapGasPriceIncreasePercent,
+            decimalValue: feeBlockchain.decimalValue
+        )
+
         return try swapFees.map { swapFee in
-            try ApproveWithSwapFeeParameters.combinedFee(swapFee: swapFee, approveFee: marketApproveFee)
+            try ApproveWithSwapFeeParameters.combinedFee(swapFee: swapFee, approveFee: increasedApproveFee)
         }
     }
 }
