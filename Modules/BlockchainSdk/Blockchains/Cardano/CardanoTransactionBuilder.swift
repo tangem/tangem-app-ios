@@ -18,9 +18,11 @@ class CardanoTransactionBuilder {
     private var outputs: [CardanoUnspentOutput] = []
     private let coinType: CoinType = .cardano
     private let address: String
+    private let ttl: UInt64
 
-    init(address: String) {
+    init(address: String, ttl: UInt64) {
         self.address = address
+        self.ttl = ttl
     }
 }
 
@@ -49,8 +51,7 @@ extension CardanoTransactionBuilder {
 
     func buildCompiledForSend(
         transaction: CardanoTransaction,
-        signatures: [SignatureInfo],
-        ttl: UInt64 = Constants.ttl
+        signatures: [SignatureInfo]
     ) throws -> Data {
         let witnessesArray: [CBOR] = signatures.enumerated().map { _, sigInfo in
             let vKey = sigInfo.publicKey.prefix(Constants.publicKeyLength)
@@ -301,7 +302,7 @@ private extension CardanoTransactionBuilder {
                 $0.transferMessage.tokenAmount = tokenBundle
             }
 
-            $0.ttl = Constants.ttl
+            $0.ttl = ttl
         }
 
         input.plan = AnySigner.plan(input: input, coin: coinType)
@@ -418,12 +419,6 @@ private extension CardanoTransactionBuilder {
     }
 
     enum Constants {
-        // Transaction validity time. Currently we are using absolute values.
-        // At 16 April 2023 was 90007700 slot number.
-        // We need to rework this logic to use relative validity time.
-        // [REDACTED_TODO_COMMENT]
-        // This can be constructed using absolute ttl slot from `/metadata` endpoint.
-        static let ttl: UInt64 = 190000000
         static let hashLength = 32
         static let publicKeyLength = 32
     }
