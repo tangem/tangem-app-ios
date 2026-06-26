@@ -227,8 +227,6 @@ extension LoadableBalanceView: Setupable {
 
 // MARK: - Previews
 
-// MARK: - Previews
-
 #Preview {
     VStack(alignment: .trailing, spacing: 16) {
         VStack(alignment: .trailing, spacing: 2) {

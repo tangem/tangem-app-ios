@@ -74,7 +74,7 @@ import TangemUI
     @Previewable @State var cryptoState = PreviewBalanceState.loaded
     @Previewable @State var isCustomToken = false
 
-    /// Stored as @State so the reference survives SwiftUI re-renders of the struct
+    // Stored as @State so the reference survives SwiftUI re-renders of the struct
     @Previewable @State var dataProvider = PreviewBalanceDataProvider()
 
     func previewToggle(title: String, isOn: Binding<Bool>) -> some View {

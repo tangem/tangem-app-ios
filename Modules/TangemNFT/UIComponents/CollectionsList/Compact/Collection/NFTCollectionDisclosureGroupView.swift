@@ -89,14 +89,14 @@ struct NFTCollectionDisclosureGroupView: View {
     }
 }
 
-struct DummyProvider: NFTChainIconProvider {
-    func provide(by nftChain: NFTChain) -> ImageType {
-        Tokens.solanaFill
-    }
-}
-
 #Preview {
-    NFTCollectionDisclosureGroupView(
+    struct DummyProvider: NFTChainIconProvider {
+        func provide(by nftChain: NFTChain) -> ImageType {
+            Tokens.solanaFill
+        }
+    }
+
+    return NFTCollectionDisclosureGroupView(
         viewModel: NFTCollectionDisclosureGroupViewModel(
             nftCollection: NFTCollection(
                 collectionIdentifier: "some",

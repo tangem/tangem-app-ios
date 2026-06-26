@@ -92,8 +92,8 @@ struct CheckmarkSwitch: View {
 
 @available(iOS 17.0, *)
 #Preview {
-    @Previewable @State var isEvenChecked: Bool = false
-    @Previewable @State var isOddChecked: Bool = true
+    @Previewable @State var isEvenChecked = false
+    @Previewable @State var isOddChecked = true
 
     VStack {
         CheckmarkSwitch(

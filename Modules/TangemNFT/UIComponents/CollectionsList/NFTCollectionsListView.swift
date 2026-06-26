@@ -306,6 +306,14 @@ private extension NFTCollectionsListViewModel.ViewState {
 
 // MARK: - Previews
 
+#if DEBUG
+
+struct DummyProvider: NFTChainIconProvider {
+    func provide(by nftChain: NFTChain) -> ImageType {
+        Tokens.solanaFill
+    }
+}
+
 let collections = (0 ... 20).map {
     NFTCollection(
         collectionIdentifier: "some-\($0)",
@@ -464,3 +472,5 @@ let collections = (0 ... 20).map {
         }
     }
 }
+
+#endif

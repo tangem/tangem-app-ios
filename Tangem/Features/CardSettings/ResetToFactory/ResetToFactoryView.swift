@@ -145,6 +145,7 @@ private extension ResetToFactoryView {
         }
     }
 }
+
 #Preview {
     NavigationStack {
         ResetToFactoryView(

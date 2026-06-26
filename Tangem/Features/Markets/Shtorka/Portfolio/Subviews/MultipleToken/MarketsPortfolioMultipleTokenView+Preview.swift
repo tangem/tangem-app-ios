@@ -128,8 +128,7 @@ import TangemUI
                         PreviewMultiplePublishers.crypto1.eraseToAnyPublisher(),
                         PreviewMultiplePublishers.crypto2.eraseToAnyPublisher(),
                     ],
-                    onTapAction: {
-                    }
+                    onTapAction: {}
                 )
             )
         }
