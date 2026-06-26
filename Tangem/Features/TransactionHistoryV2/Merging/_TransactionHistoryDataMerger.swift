@@ -108,8 +108,10 @@ struct _TransactionHistoryDataMerger {
 
         return bsdkTransactions
             .filter { bsdkTransaction in
+                // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
+                let amountToPayIn = bsdkTransaction.destinationAmount(to: exchangeTransaction.payIn.address)
                 return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
-                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= amountTolerance
+                    && abs(amountToPayIn - targetAmount) / targetAmount <= amountTolerance
             }
             .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
     }
@@ -181,10 +183,12 @@ struct _TransactionHistoryDataMerger {
 
         return bsdkTransactions
             .filter { bsdkTransaction in
+                // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
+                let amountToPayOut = bsdkTransaction.destinationAmount(to: exchangeTransaction.payOut.address)
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
-                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.receiveHeuristicAmountTolerance
                     // Exclude self-transfers (the sender must not be the user)
                     && !bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
+                    && abs(amountToPayOut - targetAmount) / targetAmount <= Constants.receiveHeuristicAmountTolerance
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
             .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
@@ -413,6 +417,12 @@ private extension TransactionRecord {
 
     var destinationAmountValue: Decimal {
         destination.destinations.reduce(0) { $0 + $1.amount }
+    }
+
+    func destinationAmount(to address: String) -> Decimal {
+        destination.destinations
+            .filter { $0.address.string.caseInsensitiveEquals(to: address) }
+            .reduce(0) { $0 + $1.amount }
     }
 
     var sourceAddresses: [String] {
