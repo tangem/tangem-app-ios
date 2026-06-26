@@ -63,6 +63,7 @@ struct TransactionHistorySyntheticExpressTransactionFactory {
             type: .contractMethodName(name: Constants.swapMethodName),
             date: exchangeTransaction.createdAt,
             tokenTransfers: [], // No inner token transfers for exchange transactions because no such information is provided by the API
+            nonce: nil, // No on-chain nonce for a synthetic record
             extraInfo: TransactionRecord.TransactionRecordExtraInfo.exchange(info)
         )
     }
@@ -87,6 +88,7 @@ struct TransactionHistorySyntheticExpressTransactionFactory {
             type: .contractMethodName(name: Constants.onrampMethodName),
             date: onrampTransaction.createdAt,
             tokenTransfers: [], // No inner token transfers for onramp transactions by definition
+            nonce: nil, // No on-chain nonce for a synthetic record
             extraInfo: TransactionRecord.TransactionRecordExtraInfo.onramp(info)
         )
     }

@@ -23,6 +23,8 @@ public struct TransactionRecord: Hashable {
     public let date: Date?
     public let tokenTransfers: [TokenTransfer]
     public let isFromYieldContract: Bool
+    /// For EVM only.
+    public let nonce: Int?
 
     // [REDACTED_TODO_COMMENT]
     @available(iOS, deprecated: 100000.0, message: "Implementation details, do not use this property.")
@@ -50,6 +52,7 @@ public struct TransactionRecord: Hashable {
         date: Date?,
         tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
+        nonce: Int?,
         extraInfo: Any? = nil
     ) {
         self.index = index
@@ -63,6 +66,7 @@ public struct TransactionRecord: Hashable {
         self.date = date
         self.tokenTransfers = tokenTransfers
         self.isFromYieldContract = isFromYieldContract
+        self.nonce = nonce
         _extraInfo = extraInfo
     }
 }

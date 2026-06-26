@@ -171,7 +171,8 @@ final class TronTransactionHistoryMapper {
                 isOutgoing: transactionInfo.isOutgoing,
                 type: type,
                 date: date,
-                tokenTransfers: tokenTransfers
+                tokenTransfers: tokenTransfers,
+                nonce: nil
             )
         }
     }

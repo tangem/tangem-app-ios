@@ -24,7 +24,8 @@ extension Array where Element == TransactionRecord {
                     isOutgoing: oldRecord.isOutgoing,
                     type: oldRecord.type,
                     date: oldRecord.date,
-                    tokenTransfers: oldRecord.tokenTransfers
+                    tokenTransfers: oldRecord.tokenTransfers,
+                    nonce: oldRecord.nonce
                 )
             } else {
                 append(record)

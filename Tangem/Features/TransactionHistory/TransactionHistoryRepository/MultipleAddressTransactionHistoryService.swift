@@ -190,7 +190,8 @@ private extension MultipleAddressTransactionHistoryService {
                         isOutgoing: oldRecord.isOutgoing,
                         type: oldRecord.type,
                         date: oldRecord.date,
-                        tokenTransfers: oldRecord.tokenTransfers
+                        tokenTransfers: oldRecord.tokenTransfers,
+                        nonce: oldRecord.nonce
                     )
                     zippedHashes.append(record.hash)
                 } else {
