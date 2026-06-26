@@ -95,10 +95,17 @@
 "address_book_enter_address" = "Insira o endereço";
 "address_book_invalid_address_error" = "Endereço inválido";
 "address_book_keep_editing" = "Continue editando";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "Novo contato";
 "address_book_no_contacts_description" = "Os contatos que você adicionar aparecerão aqui.";
 "address_book_no_contacts" = "Ainda não há contatos.";
 "address_book_remove_address" = "Remover endereço";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Este contato será vinculado à agenda de endereços desta carteira.";
 "address_book_select_network" = "Selecione a rede";
 "address_book_title" = "Agenda de endereços";
@@ -278,6 +285,7 @@
 "common_get_token" = "Obter token";
 "common_go_to_provider" = "Ir para o provedor";
 "common_go_to_token" = "Ir para o token";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "Entendi";
 "common_hide" = "Esconder";
 "common_hold_to" = "Mantenha-se em %@";
@@ -602,6 +610,8 @@
 "hardware_wallet_key_feature_title" = "Geração de chaves";
 "hardware_wallet_security_feature_description" = "Todas as operações criptográficas ocorrem dentro do chip de segurança, certificado contra clonagem e adulteração física.";
 "hardware_wallet_security_feature_title" = "Segurança em nível de hardware";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "Encomendar Tangem";
 "home_button_scan" = "Escanear Tangem";
 "hot_crypto_add_token_subtitle" = "para %@";
@@ -1157,6 +1167,7 @@
 "send_extras_hint_memo" = "Memorando";
 "send_fee_unreachable_error_text" = "Verifique sua conexão de rede.";
 "send_fee_unreachable_error_title" = "Informações sobre tarifas de rede indisponíveis";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "Você envia";
 "send_from_wallet_name" = "De %@";
 "send_from_wallet" = "De **%@**";
