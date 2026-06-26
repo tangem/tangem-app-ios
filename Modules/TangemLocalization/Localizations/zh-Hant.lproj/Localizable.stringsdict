@@ -399,10 +399,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li card</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li 張卡</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
