@@ -65,9 +65,7 @@ final actor TransactionHistoryProvider {
         subscribeToRepositoryUpdates()
     }
 
-    /// Forwards the repository's Express/Onramp record streams into Combine subjects so the bridging publisher
-    /// can combine them with the wallet model's on-chain history. A single shared consumer per stream.
-    private func subscribeToRepositoryUpdates() {
+    private nonisolated func subscribeToRepositoryUpdates() {
         runTask { [weak self] in
             guard let stream = self?.repository.exchangeHistoryUpdates else {
                 return
