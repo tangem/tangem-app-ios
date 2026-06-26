@@ -7,6 +7,9 @@
 //
 
 import Foundation
+import Combine
+import CombineExt
+import BlockchainSdk
 import CryptoSwift
 import TangemExpress
 import TangemFoundation
@@ -32,6 +35,12 @@ final actor TransactionHistoryProvider {
     private var _hasCompletedInitialSync: Bool?
     private var lastSuccessfulPullToRefreshAt: Date?
 
+    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
+    private nonisolated let exchangeUpdatesSubject = CurrentValueSubject<[ExchangeTransaction], Never>([])
+
+    /// - Note: Combine subjects are internally synchronized, so the actor doesn't need to guard them, hence `nonisolated`.
+    private nonisolated let onrampUpdatesSubject = CurrentValueSubject<[OnrampTransaction], Never>([])
+
     init(
         repository: TransactionHistoryRepository,
         userWalletId: UserWalletId,
@@ -45,6 +54,32 @@ final actor TransactionHistoryProvider {
 
         syncMetadataStorage = { @MainActor in
             SyncMetadataStorage(userWalletId: userWalletId, address: address)
+        }
+
+        subscribeToRepositoryUpdates()
+    }
+
+    /// Forwards the repository's Express/Onramp record streams into Combine subjects so the bridging publisher
+    /// can combine them with the wallet model's on-chain history. A single shared consumer per stream.
+    private func subscribeToRepositoryUpdates() {
+        runTask { [weak self] in
+            guard let stream = self?.repository.exchangeHistoryUpdates else {
+                return
+            }
+
+            for await transactions in stream {
+                self?.exchangeUpdatesSubject.send(transactions)
+            }
+        }
+
+        runTask { [weak self] in
+            guard let stream = self?.repository.onrampHistoryUpdates else {
+                return
+            }
+
+            for await transactions in stream {
+                self?.onrampUpdatesSubject.send(transactions)
+            }
         }
     }
 
@@ -269,6 +304,43 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
         } catch {
             TransactionHistoryLogger.error(self, "Failed to enrich with onramp transaction", error: error)
         }
+    }
+}
+
+// MARK: - WalletModelTransactionHistoryBridging protocol conformance
+
+extension TransactionHistoryProvider: WalletModelTransactionHistoryBridging {
+    nonisolated func bridgedTransactionHistory(
+        transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
+        feeTokenItem: TokenItem
+    ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
+        let merger = TransactionHistoryExpressDataMerger(
+            ownerAddress: address,
+            currentToken: tokenItem,
+            feeTokenItem: feeTokenItem
+        )
+
+        // [REDACTED_TODO_COMMENT]
+        return transactionHistoryPublisher
+            .combineLatest(exchangeUpdatesSubject, onrampUpdatesSubject)
+            .map { transactionHistoryState, exchangeTransactions, onrampTransactions in
+                switch transactionHistoryState {
+                case .loaded(let bsdkTransactions):
+                    ensureNotOnMainQueue()
+                    let mergedTransactions = merger.merge(
+                        bsdkTransactions: bsdkTransactions,
+                        exchangeTransactions: exchangeTransactions,
+                        onrampTransactions: onrampTransactions
+                    )
+                    return .loaded(items: mergedTransactions)
+                case .error,
+                     .notSupported,
+                     .notLoaded,
+                     .loading:
+                    return transactionHistoryState
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }
 
