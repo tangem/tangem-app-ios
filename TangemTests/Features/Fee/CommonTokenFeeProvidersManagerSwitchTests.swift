@@ -11,7 +11,7 @@
 import Foundation
 import Testing
 import Combine
-import BlockchainSdk
+@testable import BlockchainSdk
 import BigInt
 import TangemFoundation
 @testable import Tangem
