@@ -37,7 +37,6 @@ struct TangemPayOfferViewV2: View {
             DesignSystem.Color.bgPrimary
                 .ignoresSafeArea()
         }
-        .environment(\.colorScheme, .dark)
         .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
             WebViewContainer(viewModel: $0)
         }
@@ -155,7 +154,7 @@ struct TangemPayOfferViewV2: View {
     private func faqItem(question: String, answer: String, showDivider: Bool) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             if showDivider {
-                Color.white.opacity(0.1)
+                DesignSystem.Color.borderSecondary
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 12)
