@@ -151,7 +151,10 @@ struct _TransactionHistoryDataMerger {
         bsdkTransactionsGroupedByDestinationAddressString: inout [String: [TransactionRecord]]?,
         allBSDKTransactions: [TransactionRecord],
     ) -> TransactionRecord? {
-        guard exchangeTransaction.to.currency == currentToken.expressCurrency.asCurrency else {
+        guard
+            exchangeTransaction.status != .refunded,
+            exchangeTransaction.to.currency == currentToken.expressCurrency.asCurrency
+        else {
             return nil
         }
 
