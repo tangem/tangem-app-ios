@@ -33,7 +33,8 @@ struct PendingTransactionRecordMapper {
             isOutgoing: !pending.isIncoming,
             type: .transfer,
             date: pending.date,
-            tokenTransfers: []
+            tokenTransfers: [],
+            nonce: (pending.transactionParams as? EthereumTransactionParams)?.nonce
         )
     }
 
