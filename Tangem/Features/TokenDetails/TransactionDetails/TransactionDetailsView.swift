@@ -19,8 +19,12 @@ struct TransactionDetailsView: View {
             TransactionDetailsHeaderView(data: viewModel.header)
 
             VStack(spacing: blocksSpacing) {
-                ForEach(viewModel.blocks) { blockView($0) }
+                ForEach(viewModel.blocks) { block in
+                    blockView(block)
+                        .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.3), value: viewModel.blocks.map(\.id))
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 24)
@@ -29,7 +33,9 @@ struct TransactionDetailsView: View {
         .floatingSheetConfiguration { config in
             config.sheetBackgroundColor = DesignSystem.Color.bgSecondary
             config.backgroundInteractionBehavior = .tapToDismiss
-            config.verticalSwipeBehavior = .init(target: .sheet, threshold: 100)
+            // `verticalSwipeBehavior(.sheet)` is intentionally omitted: the drag gesture it attaches to
+            // the sheet swallows the move-in present transition (sheet pops instead of sliding). Dismissal
+            // stays available via background tap + the header close button. See [REDACTED_INFO].
         }
     }
 
@@ -87,14 +93,14 @@ extension TransactionDetailsViewModel {
     static func previewOnrampFinished() -> TransactionDetailsViewModel { onramp("Top up", .confirmed, .previewFinished()) }
     static func previewOnrampFailed() -> TransactionDetailsViewModel { onramp("Top up failed", .failed, .previewUnsuccessful()) }
 
-    private static func swap(_ title: String, _ status: TransactionViewModel.Status, _ vm: SwapTransactionDetailsViewModel) -> TransactionDetailsViewModel {
+    private static func swap(_ title: String, _ status: TransactionViewModel.Status, _ vm: SwapTransactionDetailsViewData) -> TransactionDetailsViewModel {
         .init(
             header: .init(title: title, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .swap, status: status, isOutgoing: true), menuActions: .transactionDetailsPreview, onClose: {}),
             content: .swap(vm)
         )
     }
 
-    private static func onramp(_ title: String, _ status: TransactionViewModel.Status, _ vm: OnrampTransactionDetailsViewModel) -> TransactionDetailsViewModel {
+    private static func onramp(_ title: String, _ status: TransactionViewModel.Status, _ vm: OnrampTransactionDetailsViewData) -> TransactionDetailsViewModel {
         .init(
             header: .init(title: title, date: "Jan 20 2026, 9:24 PM", operationIcon: .init(type: .transfer, status: status, isOutgoing: false), menuActions: .transactionDetailsPreview, onClose: {}),
             content: .onramp(vm)

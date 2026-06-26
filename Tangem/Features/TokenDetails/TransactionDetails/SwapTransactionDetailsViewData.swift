@@ -1,29 +1,21 @@
 //
-//  SwapTransactionDetailsViewModel.swift
+//  SwapTransactionDetailsViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
 import TangemLocalization
 import TangemUI
 
-@MainActor
-final class SwapTransactionDetailsViewModel: ObservableObject {
-    enum Stage: Hashable {
-        case inProgress
-        case finished
-        case unsuccessful
-    }
-
+struct SwapTransactionDetailsViewData: TransactionDetailsOperationViewData {
     struct Leg {
         let amount: String
-        let symbol: String
-        let tokenIconInfo: TokenIconInfo
+        let symbol: String?
+        let tokenIconInfo: TokenIconInfo?
     }
 
-    let stage: Stage
+    let stage: TransactionDetailsOperationStage
     let source: Leg
     let destination: Leg
 
@@ -37,7 +29,7 @@ final class SwapTransactionDetailsViewModel: ObservableObject {
     let action: TransactionDetailsActionButtonViewData?
 
     init(
-        stage: Stage,
+        stage: TransactionDetailsOperationStage,
         source: Leg,
         destination: Leg,
         isDestinationEstimated: Bool,
@@ -58,44 +50,28 @@ final class SwapTransactionDetailsViewModel: ObservableObject {
         self.action = action
     }
 
-    var blocks: [TransactionDetailsBlock] {
-        var blocks: [TransactionDetailsBlock] = [.tokens(tokensData)]
-
-        if stage != .finished, let statusBanner {
-            blocks.append(.statusBanner(statusBanner))
-        }
-
-        if let infoData {
-            blocks.append(.info(infoData))
-        }
-
-        if let action {
-            blocks.append(.action(action))
-        }
-
-        return blocks
-    }
-
-    private var tokensData: TransactionDetailsTokensViewData {
+    var tokensData: TransactionDetailsTokensViewData {
         TransactionDetailsTokensViewData(
             from: .init(
                 direction: .init(label: Localization.swappingFromTitleV2),
-                icon: .token(source.tokenIconInfo),
+                icon: icon(for: source),
                 amountText: sourceAmountText,
                 fiatText: nil,
+                isSymbolLoading: source.symbol == nil,
                 isAmountStrikethrough: false
             ),
             to: .init(
                 direction: .init(label: destinationLabel),
-                icon: .token(destination.tokenIconInfo),
+                icon: icon(for: destination),
                 amountText: destinationAmountText,
                 fiatText: nil,
+                isSymbolLoading: destination.symbol == nil,
                 isAmountStrikethrough: stage == .unsuccessful
             )
         )
     }
 
-    private var infoData: TransactionDetailsInfoSectionViewData? {
+    var infoData: TransactionDetailsInfoSectionViewData? {
         var rows: [TransactionDetailsInfoSectionViewData.Row] = []
 
         if let provider {
@@ -104,14 +80,18 @@ final class SwapTransactionDetailsViewModel: ObservableObject {
 
         if let rate {
             // [REDACTED_TODO_COMMENT]
-            rows.append(.init(id: "rate", title: "Rate", content: .text(rate)))
+            rows.append(.init(title: "Rate", content: .text(rate)))
         }
 
         if let networkFee {
-            rows.append(.init(id: "fee", title: Localization.commonNetworkFeeTitle, content: .text(networkFee)))
+            rows.append(.init(title: Localization.commonNetworkFeeTitle, content: .text(networkFee)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)
+    }
+
+    private func icon(for leg: Leg) -> TransactionDetailsTokensViewData.Leg.Icon {
+        leg.tokenIconInfo.map { .token($0) } ?? .loading
     }
 
     private var destinationLabel: String {
@@ -122,15 +102,19 @@ final class SwapTransactionDetailsViewModel: ObservableObject {
     }
 
     private var sourceAmountText: String {
-        "− \(source.amount) \(source.symbol)"
+        amountText(prefix: "−", leg: source)
     }
 
     private var destinationAmountText: String {
-        let base = "\(destination.amount) \(destination.symbol)"
-        switch stage {
-        case .inProgress: return isDestinationEstimated ? "~ \(base)" : base
-        case .finished: return "+ \(base)"
-        case .unsuccessful: return base
+        let prefix: String? = switch stage {
+        case .inProgress: isDestinationEstimated ? "~" : nil
+        case .finished: "+"
+        case .unsuccessful: nil
         }
+        return amountText(prefix: prefix, leg: destination)
+    }
+
+    private func amountText(prefix: String?, leg: Leg) -> String {
+        [prefix, leg.amount, leg.symbol].compactMap { $0 }.joined(separator: " ")
     }
 }

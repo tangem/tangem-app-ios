@@ -1,14 +1,11 @@
 //
-//  SendTransactionDetailsViewModel.swift
+//  SendTransactionDetailsViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
-
-@MainActor
-final class SendTransactionDetailsViewModel: ObservableObject {
+struct SendTransactionDetailsViewData {
     let tokens: TransactionDetailsTokensViewData
 
     /// Shown for in-progress / failed states; omitted for a plain confirmed send.

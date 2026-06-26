@@ -14,8 +14,7 @@ import TangemFoundation
 struct TransactionDetailsInfoSectionViewData: Equatable {
     let rows: [Row]
 
-    struct Row: Identifiable, Equatable {
-        let id: String
+    struct Row: Equatable {
         let title: String
         let content: Content
 
@@ -29,7 +28,8 @@ struct TransactionDetailsInfoSectionViewData: Equatable {
         struct Link: Equatable {
             let text: String
             let iconURL: URL?
-            @IgnoredEquatable var handler: () -> Void
+            /// `nil` → the row is non-interactive (no trailing arrow, no tap).
+            @IgnoredEquatable var handler: (() -> Void)?
         }
     }
 }
@@ -39,7 +39,7 @@ struct TransactionDetailsInfoSectionView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            ForEach(Array(data.rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(Array(data.rows.enumerated()), id: \.offset) { index, row in
                 rowView(row, showsDivider: index != data.rows.count - 1)
             }
         }
@@ -53,21 +53,24 @@ struct TransactionDetailsInfoSectionView: View {
     private func rowView(_ row: TransactionDetailsInfoSectionViewData.Row, showsDivider: Bool) -> some View {
         switch row.content {
         case .text(let value):
-            TangemRow(title: row.title)
-                .valueAccessory { textValue(value) }
+            // Native `value` slot: it gets the row's trailing-preserved width priority, so long values
+            // (e.g. the rate) fit where a custom accessory would get truncated.
+            TangemRow(title: row.title, value: value)
+                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                .contentLead(.end)
+                .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
-            TangemRow(title: row.title)
+            let row = TangemRow(title: row.title)
                 .valueAccessory { linkValue(link) }
-                .onTap(link.handler)
                 .showDivider(showsDivider)
-        }
-    }
 
-    private func textValue(_ value: String) -> some View {
-        Text(value)
-            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-            .lineLimit(1)
+            if let handler = link.handler {
+                row.onTap(handler)
+            } else {
+                row
+            }
+        }
     }
 
     private func linkValue(_ link: TransactionDetailsInfoSectionViewData.Row.Link) -> some View {
@@ -80,13 +83,16 @@ struct TransactionDetailsInfoSectionView: View {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
-            // [REDACTED_TODO_COMMENT]
-            Assets.arrowRightUpMini.image
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(size: CGSize(bothDimensions: 16))
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
+            // The trailing "open external" arrow only makes sense when the row is actually tappable.
+            if link.handler != nil {
+                // [REDACTED_TODO_COMMENT]
+                Assets.arrowRightUpMini.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(size: CGSize(bothDimensions: 16))
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
         }
     }
 }
@@ -96,9 +102,9 @@ struct TransactionDetailsInfoSectionView: View {
 #if DEBUG
 #Preview("Info section") {
     TransactionDetailsInfoSectionView(data: .init(rows: [
-        .init(id: "provider", title: "Provider", content: .link(.init(text: "DEX • Mercuryo", iconURL: nil, handler: {}))),
-        .init(id: "rate", title: "Rate", content: .text("1 POL ≈ 0.36 USDT")),
-        .init(id: "fee", title: "Network fee", content: .text("0.00056 ETH")),
+        .init(title: "Provider", content: .link(.init(text: "DEX • Mercuryo", iconURL: nil, handler: {}))),
+        .init(title: "Rate", content: .text("1 POL ≈ 0.36 USDT")),
+        .init(title: "Network fee", content: .text("0.00056 ETH")),
     ]))
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)

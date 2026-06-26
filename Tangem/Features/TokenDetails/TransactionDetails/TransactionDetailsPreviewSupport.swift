@@ -36,35 +36,35 @@ private let previewTruncatedAddress = "33Bd321fS...ga21412B"
 
 // MARK: - Send / Receive
 
-extension SendTransactionDetailsViewModel {
-    static func preview() -> SendTransactionDetailsViewModel {
-        SendTransactionDetailsViewModel(
+extension SendTransactionDetailsViewData {
+    static func preview() -> SendTransactionDetailsViewData {
+        SendTransactionDetailsViewData(
             tokens: .init(tokenIconInfo: .transactionDetailsPreview(name: "Tether"), amountText: "−350.31 USDT", fiatText: "$350.31"),
             recipient: .init(label: "Recipient", actor: .address(short: previewTruncatedAddress, blockiesImage: nil), onCopy: {}),
-            info: .init(rows: [.init(id: "fee", title: "Network fee", content: .text("0.00056 ETH"))])
+            info: .init(rows: [.init(title: "Network fee", content: .text("0.00056 ETH"))])
         )
     }
 
-    static func previewFailed() -> SendTransactionDetailsViewModel {
-        SendTransactionDetailsViewModel(
+    static func previewFailed() -> SendTransactionDetailsViewData {
+        SendTransactionDetailsViewData(
             tokens: .init(tokenIconInfo: .transactionDetailsPreview(name: "Tether"), amountText: "−350.31 USDT", fiatText: "$350.31"),
             statusBanner: .init(kind: .warning, title: "Failed", subtitle: "The transaction was not sent"),
             recipient: .init(label: "Recipient", actor: .address(short: previewTruncatedAddress, blockiesImage: nil), onCopy: {}),
-            info: .init(rows: [.init(id: "fee", title: "Network fee", content: .text("0.00056 ETH"))])
+            info: .init(rows: [.init(title: "Network fee", content: .text("0.00056 ETH"))])
         )
     }
 }
 
-extension ReceiveTransactionDetailsViewModel {
-    static func preview() -> ReceiveTransactionDetailsViewModel {
-        ReceiveTransactionDetailsViewModel(
+extension ReceiveTransactionDetailsViewData {
+    static func preview() -> ReceiveTransactionDetailsViewData {
+        ReceiveTransactionDetailsViewData(
             tokens: .init(tokenIconInfo: .transactionDetailsPreview(name: "Tether"), amountText: "+350.31 USDT", fiatText: "$350.31"),
             sender: .init(label: "From address", actor: .address(short: previewTruncatedAddress, blockiesImage: nil), onCopy: {})
         )
     }
 
-    static func previewInProgress() -> ReceiveTransactionDetailsViewModel {
-        ReceiveTransactionDetailsViewModel(
+    static func previewInProgress() -> ReceiveTransactionDetailsViewData {
+        ReceiveTransactionDetailsViewData(
             tokens: .init(tokenIconInfo: .transactionDetailsPreview(name: "Tether"), amountText: "+350.31 USDT", fiatText: "$350.31"),
             statusBanner: .init(kind: .inProgress, title: "Awaiting funds"),
             sender: .init(label: "From address", actor: .address(short: previewTruncatedAddress, blockiesImage: nil), onCopy: {})
@@ -74,7 +74,7 @@ extension ReceiveTransactionDetailsViewModel {
 
 // MARK: - Swap
 
-extension SwapTransactionDetailsViewModel {
+extension SwapTransactionDetailsViewData {
     private static var previewSource: Leg {
         .init(amount: "390", symbol: "USDT", tokenIconInfo: .transactionDetailsPreview(name: "Tether"))
     }
@@ -87,24 +87,24 @@ extension SwapTransactionDetailsViewModel {
         .init(name: "DEX • Mercuryo", iconURL: nil, onTap: {})
     }
 
-    static func previewInProgress() -> SwapTransactionDetailsViewModel {
-        SwapTransactionDetailsViewModel(
+    static func previewInProgress() -> SwapTransactionDetailsViewData {
+        SwapTransactionDetailsViewData(
             stage: .inProgress, source: previewSource, destination: previewDestination, isDestinationEstimated: true,
             statusBanner: .init(kind: .inProgress, title: "Deposit confirmed"),
             provider: previewProvider, rate: "1 POL ≈ 0.36 USDT", networkFee: "0.00056 ETH"
         )
     }
 
-    static func previewFinished() -> SwapTransactionDetailsViewModel {
-        SwapTransactionDetailsViewModel(
+    static func previewFinished() -> SwapTransactionDetailsViewData {
+        SwapTransactionDetailsViewData(
             stage: .finished, source: previewSource, destination: previewDestination, isDestinationEstimated: false,
             statusBanner: .init(kind: .success, title: "Funds received"),
             provider: previewProvider, rate: "1 POL ≈ 0.36 USDT", networkFee: "0.00056 ETH"
         )
     }
 
-    static func previewUnsuccessful() -> SwapTransactionDetailsViewModel {
-        SwapTransactionDetailsViewModel(
+    static func previewUnsuccessful() -> SwapTransactionDetailsViewData {
+        SwapTransactionDetailsViewData(
             stage: .unsuccessful, source: previewSource, destination: previewDestination, isDestinationEstimated: false,
             statusBanner: .init(kind: .warning, title: "Failed", subtitle: "Visit provider's website to refund your money"),
             provider: previewProvider, rate: "1 POL ≈ 0.36 USDT", networkFee: nil
@@ -114,7 +114,7 @@ extension SwapTransactionDetailsViewModel {
 
 // MARK: - Onramp
 
-extension OnrampTransactionDetailsViewModel {
+extension OnrampTransactionDetailsViewData {
     private static var previewPaid: PaidLeg {
         .init(amount: "3,903.02", symbol: "SEK", fiatPrice: "$ 391.12", flagIconURL: nil)
     }
@@ -134,22 +134,22 @@ extension OnrampTransactionDetailsViewModel {
         .init(name: "Mercuryo", iconURL: nil, onTap: {})
     }
 
-    static func previewInProgress() -> OnrampTransactionDetailsViewModel {
-        OnrampTransactionDetailsViewModel(
+    static func previewInProgress() -> OnrampTransactionDetailsViewData {
+        OnrampTransactionDetailsViewData(
             stage: .inProgress, paid: previewPaid, received: previewReceived, isReceivedEstimated: true,
             statusBanner: .init(kind: .inProgress, title: "Awaiting payment"), provider: previewProvider, rate: "1 BTC ≈ 75,200.00 USD"
         )
     }
 
-    static func previewFinished() -> OnrampTransactionDetailsViewModel {
-        OnrampTransactionDetailsViewModel(
+    static func previewFinished() -> OnrampTransactionDetailsViewData {
+        OnrampTransactionDetailsViewData(
             stage: .finished, paid: previewPaid, received: previewReceived, isReceivedEstimated: false,
             statusBanner: .init(kind: .success, title: "Funds received"), provider: previewProvider, rate: "1 BTC ≈ 75,200.00 USD"
         )
     }
 
-    static func previewUnsuccessful() -> OnrampTransactionDetailsViewModel {
-        OnrampTransactionDetailsViewModel(
+    static func previewUnsuccessful() -> OnrampTransactionDetailsViewData {
+        OnrampTransactionDetailsViewData(
             stage: .unsuccessful, paid: previewPaid, received: previewReceived, isReceivedEstimated: false,
             statusBanner: .init(kind: .warning, title: "Failed", subtitle: "The payment was not completed"), provider: previewProvider, rate: "1 BTC ≈ 75,200.00 USD"
         )

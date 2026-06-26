@@ -1,14 +1,11 @@
 //
-//  ReceiveTransactionDetailsViewModel.swift
+//  ReceiveTransactionDetailsViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
-
-@MainActor
-final class ReceiveTransactionDetailsViewModel: ObservableObject {
+struct ReceiveTransactionDetailsViewData {
     let tokens: TransactionDetailsTokensViewData
 
     /// Shown for in-progress / just-received states; omitted for a plain confirmed receive.

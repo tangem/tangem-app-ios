@@ -49,6 +49,7 @@ struct TransactionDetailsTokensViewData: Equatable {
         enum Icon: Equatable {
             case token(TokenIconInfo)
             case image(url: URL?)
+            case loading
         }
 
         struct Direction: Equatable {
@@ -69,6 +70,7 @@ struct TransactionDetailsTokensViewData: Equatable {
         let direction: Direction
         let icon: Icon
         let amountText: String
+        let isSymbolLoading: Bool
         let fiatText: String?
         let isAmountStrikethrough: Bool
 
@@ -77,12 +79,14 @@ struct TransactionDetailsTokensViewData: Equatable {
             icon: Icon,
             amountText: String,
             fiatText: String?,
+            isSymbolLoading: Bool = false,
             isAmountStrikethrough: Bool = false
         ) {
             self.direction = direction
             self.icon = icon
             self.amountText = amountText
             self.fiatText = fiatText
+            self.isSymbolLoading = isSymbolLoading
             self.isAmountStrikethrough = isAmountStrikethrough
         }
     }
@@ -135,7 +139,7 @@ struct TransactionDetailsTokensView: View {
 
             DashedDivider(color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, 16)
-          
+
             legRow(to)
         }
         .padding(.vertical, 4)
@@ -152,14 +156,22 @@ struct TransactionDetailsTokensView: View {
                 directionCaption(leg.direction)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(leg.amountText)
-                        .style(
-                            DesignSystem.Font.headingSmallToken,
-                            color: leg.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
-                        )
-                        .strikethrough(leg.isAmountStrikethrough)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(leg.amountText)
+                            .style(
+                                DesignSystem.Font.headingSmallToken,
+                                color: leg.isAmountStrikethrough ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
+                            )
+                            .strikethrough(leg.isAmountStrikethrough)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+
+                        if leg.isSymbolLoading {
+                            SkeletonView()
+                                .frame(width: 44, height: 16)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+                    }
 
                     if let fiatText = leg.fiatText {
                         Text(fiatText)
@@ -202,7 +214,10 @@ struct TransactionDetailsTokensView: View {
             TokenIcon(tokenIconInfo: tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
         case .image(let url):
             IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
-                .clipShape(Circle())
+                .clipShape(.circle)
+        case .loading:
+            SkeletonView()
+                .clipShape(.circle)
         }
     }
 
@@ -261,6 +276,12 @@ private extension TokenIconInfo {
         TransactionDetailsTokensView(data: .init(
             from: .init(direction: .init(label: "From"), icon: .token(.preview("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
             to: .init(direction: .init(label: "To"), icon: .token(.preview("Polygon", color: .purple)), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
+        ))
+
+        // Pair with the destination token still resolving (skeleton symbol + icon)
+        TransactionDetailsTokensView(data: .init(
+            from: .init(direction: .init(label: "From"), icon: .token(.preview("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
+            to: .init(direction: .init(label: "To"), icon: .loading, amountText: "~ 1,800.00", fiatText: nil, isSymbolLoading: true)
         ))
     }
     .padding(16)

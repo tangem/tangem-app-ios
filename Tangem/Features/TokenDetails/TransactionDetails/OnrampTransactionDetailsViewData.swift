@@ -1,29 +1,30 @@
 //
-//  OnrampTransactionDetailsViewModel.swift
+//  OnrampTransactionDetailsViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import Combine
 import TangemAccounts
 import TangemLocalization
 import TangemUI
 
-@MainActor
-final class OnrampTransactionDetailsViewModel: ObservableObject {
-    enum Stage: Hashable {
-        case inProgress
-        case finished
-        case unsuccessful
-    }
-
+struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
     struct PaidLeg {
         let amount: String
         let symbol: String
         let fiatPrice: String?
         let flagIconURL: URL?
+        let isFlagLoading: Bool
+
+        init(amount: String, symbol: String, fiatPrice: String?, flagIconURL: URL?, isFlagLoading: Bool = false) {
+            self.amount = amount
+            self.symbol = symbol
+            self.fiatPrice = fiatPrice
+            self.flagIconURL = flagIconURL
+            self.isFlagLoading = isFlagLoading
+        }
     }
 
     struct ReceivedLeg {
@@ -35,7 +36,7 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
         let tokenIconInfo: TokenIconInfo
     }
 
-    let stage: Stage
+    let stage: TransactionDetailsOperationStage
     let paid: PaidLeg
     let received: ReceivedLeg
 
@@ -48,7 +49,7 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
     let action: TransactionDetailsActionButtonViewData?
 
     init(
-        stage: Stage,
+        stage: TransactionDetailsOperationStage,
         paid: PaidLeg,
         received: ReceivedLeg,
         isReceivedEstimated: Bool,
@@ -67,32 +68,14 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
         self.action = action
     }
 
-    var blocks: [TransactionDetailsBlock] {
-        var blocks: [TransactionDetailsBlock] = [.tokens(tokensData)]
-
-        if stage != .finished, let statusBanner {
-            blocks.append(.statusBanner(statusBanner))
-        }
-
-        if let infoData {
-            blocks.append(.info(infoData))
-        }
-
-        if let action {
-            blocks.append(.action(action))
-        }
-
-        return blocks
-    }
-
-    private var tokensData: TransactionDetailsTokensViewData {
+    var tokensData: TransactionDetailsTokensViewData {
         let isUnsuccessful = stage == .unsuccessful
 
         return TransactionDetailsTokensViewData(
             from: .init(
                 // [REDACTED_TODO_COMMENT]
                 direction: .init(label: "You paid"),
-                icon: .image(url: paid.flagIconURL),
+                icon: paid.isFlagLoading ? .loading : .image(url: paid.flagIconURL),
                 amountText: paidAmountText,
                 fiatText: paid.fiatPrice,
                 isAmountStrikethrough: false
@@ -110,7 +93,7 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
         )
     }
 
-    private var infoData: TransactionDetailsInfoSectionViewData? {
+    var infoData: TransactionDetailsInfoSectionViewData? {
         var rows: [TransactionDetailsInfoSectionViewData.Row] = []
 
         if let provider {
@@ -119,7 +102,7 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
 
         if let rate {
             // [REDACTED_TODO_COMMENT]
-            rows.append(.init(id: "rate", title: "Rate", content: .text(rate)))
+            rows.append(.init(title: "Rate", content: .text(rate)))
         }
 
         return rows.isEmpty ? nil : .init(rows: rows)

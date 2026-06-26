@@ -11,6 +11,8 @@ import Combine
 import struct TangemUIUtils.AlertBinder
 
 class SingleTokenRoutableMock: SingleTokenRoutable {
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {}
+
     var errorAlertPublisher: AnyPublisher<AlertBinder?, Never> { .just(output: nil) }
 
     func openReceive(walletModel: any WalletModel) {}

@@ -10,6 +10,8 @@ import Foundation
 import Combine
 import UIKit
 import BlockchainSdk
+import TangemAccounts
+import TangemExpress
 import TangemFoundation
 import TangemStories
 import TangemLocalization
@@ -34,6 +36,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
     @Published private(set) final var miniChartData: LoadingResult<[Double], any Error> = .loading
+
+    private var loadedTransactionRecords: [TransactionRecord] = []
 
     private(set) final lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject(
         settings: .init(stopRefreshingDelay: 0.2),
@@ -148,6 +152,59 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         tokenRouter.openExplorer(at: url, for: walletModel)
+    }
+
+    final func openTransactionDetails(_ transaction: TransactionViewModel) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            openTransactionExplorer(transaction: transaction.hash)
+            return
+        }
+
+        let matchesRecord: (TransactionRecord) -> Bool = { $0.hash == transaction.hash && $0.index == transaction.index }
+
+        let recordUpdates = walletModel.transactionHistoryPublisher
+            .compactMap { state -> TransactionRecord? in
+                guard case .loaded(let records) = state else { return nil }
+                return records.first(where: matchesRecord)
+            }
+            .eraseToAnyPublisher()
+
+        let supportedBlockchains = userWalletInfo.config.supportedBlockchains
+        let currencyConverter = ExpressCurrencyConverter(supportedBlockchains: supportedBlockchains)
+        let resolveExpressToken: (ExpressCurrency) -> TokenItem? = { currency in
+            guard let blockchain = supportedBlockchains.first(where: { $0.networkId == currency.network }) else {
+                return nil
+            }
+            return try? currencyConverter.convertLocalOnly(
+                expressCurrency: currency,
+                in: BlockchainNetwork(blockchain, derivationPath: nil)
+            )
+        }
+
+        let receiverName: String
+        let receiverAccountIcon: AccountIconView.ViewData?
+        if isAccountsMode, let account = walletModel.account {
+            receiverName = account.name
+            receiverAccountIcon = AccountModelUtils.UI.iconViewData(accountModel: account)
+        } else {
+            receiverName = userWalletInfo.name
+            receiverAccountIcon = nil
+        }
+
+        tokenRouter.openTransactionDetails(
+            TransactionDetailsRouteData(
+                transaction: transaction,
+                record: loadedTransactionRecords.first(where: matchesRecord),
+                recordUpdates: recordUpdates,
+                walletModel: walletModel,
+                tokenIconInfo: TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom),
+                tokenSymbol: walletModel.tokenItem.currencySymbol,
+                tokenCurrencyId: walletModel.tokenItem.currencyId,
+                receiverName: receiverName,
+                receiverAccountIcon: receiverAccountIcon,
+                resolveExpressToken: resolveExpressToken
+            )
+        )
     }
 
     final func fetchMoreHistory() -> FetchMore? {
@@ -522,6 +579,7 @@ extension SingleTokenBaseViewModel {
         case .error(let error):
             transactionHistoryState = .error(error)
         case .loaded(let records):
+            loadedTransactionRecords = records
             // [REDACTED_INFO]: redesign collapses old txs into monthly groups and resolves rich
             // account/wallet chips per row; legacy keeps day-only buckets and plain addresses.
             let redesignEnabled = FeatureProvider.isAvailable(.redesign)

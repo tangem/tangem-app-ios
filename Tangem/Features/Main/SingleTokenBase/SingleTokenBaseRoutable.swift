@@ -26,4 +26,9 @@ protocol SingleTokenBaseRoutable: AnyObject {
         userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openTransactionDetails(_ data: TransactionDetailsRouteData)
+}
+
+extension SingleTokenBaseRoutable {
+    func openTransactionDetails(_ data: TransactionDetailsRouteData) {}
 }

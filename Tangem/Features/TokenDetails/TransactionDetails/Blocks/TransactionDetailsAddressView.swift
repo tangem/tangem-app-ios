@@ -82,7 +82,7 @@ struct TransactionDetailsAddressView: View {
                 .resizable()
                 .interpolation(.none)
                 .frame(size: CGSize(bothDimensions: iconSide))
-                .clipShape(Circle())
+                .clipShape(.circle)
         } else {
             Circle()
                 .fill(DesignSystem.Color.bgOpaquePrimary)
