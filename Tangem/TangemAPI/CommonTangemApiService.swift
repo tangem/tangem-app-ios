@@ -280,6 +280,12 @@ extension CommonTangemApiService: TangemApiService {
         )
     }
 
+    // MARK: - Marketing
+
+    func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
+        try await self.request(for: .marketingCampaigns(parameters: request.parameters), decoder: decoder)
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
