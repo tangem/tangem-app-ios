@@ -74,8 +74,10 @@ struct _TransactionHistoryDataMerger {
 
         var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
         if let bsdkTransactionsGroupedByDestinationAddressString {
+            // Re-use the cached grouping if it was already created in a previous call to this function
             _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
         } else {
+            // Lazily create the grouping of BSDK transactions by destination address string to avoid O(n) * O(m) complexity
             _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
                 for destinationAddress in transaction.destinationAddresses {
                     result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
@@ -160,8 +162,10 @@ struct _TransactionHistoryDataMerger {
 
         var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
         if let bsdkTransactionsGroupedByDestinationAddressString {
+            // Re-use the cached grouping if it was already created in a previous call to this function
             _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
         } else {
+            // Lazily create the grouping of BSDK transactions by destination address string to avoid O(n) * O(m) complexity
             _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
                 for destinationAddress in transaction.destinationAddresses {
                     result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
