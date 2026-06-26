@@ -71,6 +71,8 @@ struct TangemApiTarget: TargetType {
             return "/banner/displays"
         case .hidePromotion(let request):
             return "/banner/displays/\(request.displayId)"
+        case .marketingCampaigns:
+            return "/marketing/campaigns"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -166,6 +168,7 @@ struct TangemApiTarget: TargetType {
              .promotion,
              .yieldBoostPromotionStatus,
              .loadPromotions,
+             .marketingCampaigns,
              .apiList,
              .features,
              .coinsList,
@@ -237,6 +240,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(request)
         case .hidePromotion(let request):
             return .requestJSONEncodable(request)
+        case .marketingCampaigns(let parameters):
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -360,6 +365,7 @@ struct TangemApiTarget: TargetType {
              .yieldBoostPromotionStatus,
              .loadPromotions,
              .hidePromotion,
+             .marketingCampaigns,
              .activatePromoCode,
              .story,
              .coinsList,
@@ -418,6 +424,8 @@ extension TangemApiTarget {
         // Promotions
         case loadPromotions(request: PromotionsDTO.Load.Request)
         case hidePromotion(request: PromotionsDTO.Hide.Request)
+
+        case marketingCampaigns(parameters: [String: Any])
 
         case story(_ id: String)
 
@@ -481,7 +489,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .marketingCampaigns:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -537,6 +545,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .promotion,
              .loadPromotions,
              .hidePromotion,
+             .marketingCampaigns,
              .pushNotificationsEligible,
              .getUserAccounts,
              .saveUserAccounts,
