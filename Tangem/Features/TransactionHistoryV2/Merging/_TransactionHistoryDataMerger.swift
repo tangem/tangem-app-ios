@@ -98,16 +98,21 @@ struct _TransactionHistoryDataMerger {
 
         return bsdkTransactionsCandidatesByReceiver
             .filter { bsdkTransaction in
+                guard
+                    bsdkTransaction.isOutgoing, // Only consider outgoing transactions as potential matches
+                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    // The sender of the pay-in leg must be the owner
+                    bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
+                else {
+                    return false
+                }
+
                 // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
                 let amountToPayIn = bsdkTransaction.destinationAmount(
                     to: exchangeTransaction.payIn.address,
                     addressConverter: lowerCasedAddressStringIfNeeded
                 )
-                return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
-                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
-                    // The sender of the pay-in leg must be the owner
-                    && bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
-                    && abs(amountToPayIn - targetAmount) <= amountBound
+                return abs(amountToPayIn - targetAmount) <= amountBound
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
     }
@@ -191,17 +196,22 @@ struct _TransactionHistoryDataMerger {
 
         return bsdkTransactions
             .filter { bsdkTransaction in
+                guard
+                    !bsdkTransaction.isOutgoing, // Only consider incoming transactions as potential matches
+                    !consumedBSDKTransactionsIds.contains(bsdkTransaction.id),
+                    targetDateRange.contains(bsdkTransaction.normalizedDate),
+                    // Exclude self-transfers (the sender must not be the user)
+                    !bsdkTransaction.sourceAddresses.contains(where: { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress })
+                else {
+                    return false
+                }
+
                 // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
                 let amountToPayOut = bsdkTransaction.destinationAmount(
                     to: exchangeTransaction.payOut.address,
                     addressConverter: lowerCasedAddressStringIfNeeded
                 )
-                return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
-                    && !consumedBSDKTransactionsIds.contains(bsdkTransaction.id)
-                    // Exclude self-transfers (the sender must not be the user)
-                    && !bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
-                    && abs(amountToPayOut - targetAmount) <= amountBound
-                    && targetDateRange.contains(bsdkTransaction.normalizedDate)
+                return abs(amountToPayOut - targetAmount) <= amountBound
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
     }
