@@ -341,23 +341,39 @@ struct _TransactionHistoryDataMerger {
         }
 
         for onrampTransaction in onrampTransactions {
-            // Step 1: Deterministic mapping
-            if let bsdkTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: onrampTransaction.payOut.hash) {
-                let info = OnrampTransactionInfo(
-                    onrampTransaction: onrampTransaction,
-                    provider: nil, // [REDACTED_TODO_COMMENT]
-                    fiatCurrency: nil // [REDACTED_TODO_COMMENT]
+            let info = OnrampTransactionInfo(
+                onrampTransaction: onrampTransaction,
+                provider: nil, // [REDACTED_TODO_COMMENT]
+                fiatCurrency: nil // [REDACTED_TODO_COMMENT]
+            )
+
+            var didMatch = false
+
+            // Step 1: Deterministic mapping for receive (no send for Onramp) transactions by hashes
+            var matchedBSDKTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: onrampTransaction.payOut.hash)
+
+            // Step 2: Heuristic mapping for receive (no send or refund for Onramp) transactions,
+            // performed only if no deterministic match was found
+            if matchedBSDKTransactions == nil {
+                let heuristicMatch = heuristicallyMatchingReceiveBSDKTransaction(
+                    for: onrampTransaction,
+                    bsdkTransactionsGroupedByDestinationAddressString: &bsdkTransactionsGroupedByDestinationAddressString,
+                    allBSDKTransactions: bsdkTransactions,
+                    consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
                 )
-                output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.onramp(info)) })
-                consumedBSDKTransactionsIds.formUnion(bsdkTransactions.map(\.id))
-                continue
+
+                matchedBSDKTransactions = heuristicMatch.flatMap { bsdkTransactionsGroupedByHash.removeValue(forKey: $0.hash) }
             }
 
-            // Step 2: Heuristic mapping
-            // [REDACTED_TODO_COMMENT]
+            if let matchedBSDKTransactions {
+                output.append(contentsOf: matchedBSDKTransactions.map { $0.withExtraInfo(.onramp(info)) })
+                // Updating the tombstone set to prevent double-matching of the already consumed BSDK transaction
+                consumedBSDKTransactionsIds.formUnion(matchedBSDKTransactions.map(\.id))
+                didMatch = true
+            }
 
-            // Step 3: Add synthetic transaction if needed
-            if shouldAddSyntheticTransaction(from: onrampTransaction) {
+            // Step 3: Add a synthetic transaction only when no on-chain leg was matched.
+            if !didMatch, shouldAddSyntheticTransaction(from: onrampTransaction) {
                 output.append(makeSyntheticTransaction(from: onrampTransaction))
             }
         }
