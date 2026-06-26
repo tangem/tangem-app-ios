@@ -95,10 +95,17 @@
 "address_book_enter_address" = "アドレスを入力";
 "address_book_invalid_address_error" = "無効なアドレス";
 "address_book_keep_editing" = "編集を続ける";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "新しい連絡先";
 "address_book_no_contacts_description" = "追加した連絡先はここに表示されます。";
 "address_book_no_contacts" = "連絡先はまだありません";
 "address_book_remove_address" = "アドレスを削除";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "この連絡先は、このウォレットのアドレス帳に紐付けられます。";
 "address_book_select_network" = "ネットワークを選択";
 "address_book_title" = "連絡先";
@@ -278,6 +285,7 @@
 "common_get_token" = "トークンを取得";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "わかりました";
 "common_hide" = "非表示";
 "common_hold_to" = "%@まで長押し";
@@ -602,6 +610,8 @@
 "hardware_wallet_key_feature_title" = "鍵生成";
 "hardware_wallet_security_feature_description" = "すべての暗号処理は、複製や物理的な改ざんに対する認証を受けたセキュアチップ内で行われます。";
 "hardware_wallet_security_feature_title" = "ハードウェアレベルのセキュリティ";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "Tangemを注文";
 "home_button_scan" = "Tangemをスキャン";
 "hot_crypto_add_token_subtitle" = "%@へ";
@@ -1157,6 +1167,7 @@
 "send_extras_hint_memo" = "メモ";
 "send_fee_unreachable_error_text" = "ネットワーク接続を確認してください";
 "send_fee_unreachable_error_title" = "ネットワーク手数料についての情報にアクセスできません";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "送信する";
 "send_from_wallet_name" = "%@から";
 "send_from_wallet" = "**%@** より";
