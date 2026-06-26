@@ -14,7 +14,6 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
     private let addressProvider: P2PDelegatorAddressProvider
     private let yieldInfoProvider: StakingYieldInfoProvider
 
-    private var cached: Cached?
     private var inFlight: Task<[String: [StakingBalanceInfo]], Error>?
 
     init(
@@ -30,10 +29,9 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
     }
 
     func balances() async throws -> [String: [StakingBalanceInfo]] {
-        if let cached, !cached.isExpired {
-            return cached.balances
-        }
-
+        // Coalesce the concurrent per-wallet calls of one bulk refresh into a single in-flight request.
+        // No longer-lived cache: every fresh request re-reads the current address set, so adding or
+        // removing an account reloads correctly on the next update without extra invalidation logic.
         if let inFlight {
             return try await inFlight.value
         }
@@ -43,7 +41,6 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
 
         do {
             let balances = try await task.value
-            cached = Cached(balances: balances, timestamp: Date())
             inFlight = nil
             return balances
         } catch {
@@ -89,21 +86,5 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
         }
 
         return result
-    }
-}
-
-private extension CommonP2PBatchBalancesService {
-    struct Cached {
-        let balances: [String: [StakingBalanceInfo]]
-        let timestamp: Date
-
-        var isExpired: Bool {
-            Date().timeIntervalSince(timestamp) > Constants.cacheValidityInterval
-        }
-    }
-
-    enum Constants {
-        /// Collapses a single bulk-refresh cycle (its waves of per-wallet updates) into one POST per vault.
-        static let cacheValidityInterval: TimeInterval = 10
     }
 }
