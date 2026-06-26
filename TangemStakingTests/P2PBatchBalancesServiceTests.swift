@@ -58,6 +58,37 @@ final class P2PBatchBalancesServiceTests: XCTestCase {
         }
     }
 
+    func testSecondCallWithSameAddressSetIsServedFromCache() async throws {
+        let info = try Self.decodedInfo()
+        let service = MockP2PStakingAPIService(result: info)
+        let sut = makeSUT(service: service)
+
+        _ = try await sut.balances()
+        _ = try await sut.balances()
+
+        let calls = await service.accountsListCalls
+        XCTAssertEqual(calls.count, 1, "A second call with an unchanged address set must reuse the cached batch")
+    }
+
+    func testAddressSetChangeForcesRefetch() async throws {
+        let info = try Self.decodedInfo()
+        let service = MockP2PStakingAPIService(result: info)
+        let addressProvider = MockAddressProvider(addresses: [addressA])
+        let sut = CommonP2PBatchBalancesService(
+            service: service,
+            mapper: P2PMapper(),
+            addressProvider: addressProvider,
+            yieldInfoProvider: MockYieldInfoProvider(yield: makeYield(vaultAddress: vault))
+        )
+
+        _ = try await sut.balances()
+        addressProvider.addresses = [addressA, addressBad]
+        _ = try await sut.balances()
+
+        let calls = await service.accountsListCalls
+        XCTAssertEqual(calls.count, 2, "Changing the delegator-address set must trigger a fresh batch request")
+    }
+
     // MARK: - Per-address handling
 
     func testAddressWithoutAccountResolvesToNoBalances() async throws {
@@ -230,8 +261,9 @@ private actor MockP2PStakingAPIService: P2PStakingAPIService {
     }
 }
 
-private struct MockAddressProvider: P2PDelegatorAddressProvider {
-    let addresses: [String]
+private final class MockAddressProvider: P2PDelegatorAddressProvider {
+    var addresses: [String]
+    init(addresses: [String]) { self.addresses = addresses }
     func delegatorAddresses() -> [String] { addresses }
 }
 
