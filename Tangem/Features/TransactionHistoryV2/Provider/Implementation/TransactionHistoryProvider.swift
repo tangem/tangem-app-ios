@@ -310,7 +310,7 @@ extension TransactionHistoryProvider: TransactionHistoryExpressDataEnriching {
 // MARK: - WalletModelTransactionHistoryBridging protocol conformance
 
 extension TransactionHistoryProvider: WalletModelTransactionHistoryBridging {
-    nonisolated func bridgedTransactionHistory(
+    nonisolated func bridgedTransactionHistoryPublisher(
         transactionHistoryPublisher: some Publisher<WalletModelTransactionHistoryState, Never>,
         feeTokenItem: TokenItem
     ) -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
