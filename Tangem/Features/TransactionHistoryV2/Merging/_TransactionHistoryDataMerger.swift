@@ -385,8 +385,25 @@ struct _TransactionHistoryDataMerger {
             output.append(contentsOf: bsdkTransactions.value.filter { !consumedBSDKTransactionsIds.contains($0.id) })
         }
 
-        // [REDACTED_TODO_COMMENT]
-        return output
+        return sortedRecords(output)
+    }
+
+    private func sortedRecords(_ records: [TransactionRecord]) -> [TransactionRecord] {
+        return records.sorted { lhs, rhs in
+            let lhsDate = lhs.date ?? .distantFuture
+            let rhsDate = rhs.date ?? .distantFuture
+            if lhsDate != rhsDate {
+                return lhsDate > rhsDate // timestamp (date) DESC
+            }
+
+            let lhsNonce = lhs.nonce ?? -1
+            let rhsNonce = rhs.nonce ?? -1
+            if lhsNonce != rhsNonce {
+                return lhsNonce > rhsNonce // IFNULL(nonce, -1) DESC
+            }
+
+            return lhs.hash < rhs.hash // hash ASC
+        }
     }
 
     private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
