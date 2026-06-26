@@ -42,7 +42,8 @@ extension BlockchairTransactionRecordMapper: TransactionRecordMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: date,
-            tokenTransfers: nil
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }

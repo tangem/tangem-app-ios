@@ -684,7 +684,11 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
 
     /// Listen tx history changes
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
-        transactionHistoryState()
+        WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
+            transactionHistoryPublisher: transactionHistoryState(),
+            featuresPublisher: featureManager.featuresPublisher,
+            feeTokenItem: feeTokenItem
+        )
     }
 
     var hasPendingTransactions: Bool {
