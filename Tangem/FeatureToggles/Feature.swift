@@ -73,7 +73,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addressBook: return "TWI-83_address_book"
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
-        case .p2pBatchStakingBalances: return "[REDACTED_INFO]_P2P_Batch_Staking_Balances"
+        case .p2pBatchStakingBalances: return "[REDACTED_INFO]_p2p_batch_staking_balances"
         }
     }
 

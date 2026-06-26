@@ -66,9 +66,11 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
             return [:]
         }
 
-        let infos = try await withThrowingTaskGroup(of: P2PDTO.AccountsList.AccountsListInfo.self) { group in
+        let infos = try await withThrowingTaskGroup(of: P2PDTO.AccountsList.AccountsListInfo.self) { [service] group in
             for vault in vaults {
-                group.addTask { try await self.accountsList(vault: vault, addresses: addresses) }
+                group.addTask {
+                    try await service.getAccountsList(vaultAddress: vault, delegatorAddresses: addresses)
+                }
             }
 
             var collected = [P2PDTO.AccountsList.AccountsListInfo]()
@@ -87,10 +89,6 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
         }
 
         return result
-    }
-
-    private func accountsList(vault: String, addresses: [String]) async throws -> P2PDTO.AccountsList.AccountsListInfo {
-        try await service.getAccountsList(vaultAddress: vault, delegatorAddresses: addresses)
     }
 }
 
