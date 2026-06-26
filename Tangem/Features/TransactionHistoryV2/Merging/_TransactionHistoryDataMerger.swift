@@ -41,7 +41,11 @@ struct _TransactionHistoryDataMerger {
         .sending,
     ]
 
-    init(ownerAddress: String, currentToken: TokenItem, feeTokenItem: TokenItem) {
+    init(
+        ownerAddress: String,
+        currentToken: TokenItem,
+        feeTokenItem: TokenItem
+    ) {
         self.ownerAddress = ownerAddress
         self.currentToken = currentToken
         self.feeTokenItem = feeTokenItem
@@ -418,10 +422,6 @@ private extension _TransactionHistoryDataMerger {
 private extension TransactionRecord {
     var normalizedDate: Date {
         date ?? .distantPast
-    }
-
-    var sourceAmountValue: Decimal {
-        source.sources.reduce(0) { $0 + $1.amount }
     }
 
     var destinationAmountValue: Decimal {
