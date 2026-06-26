@@ -73,21 +73,12 @@ struct _TransactionHistoryDataMerger {
             return nil
         }
 
-        var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
-        if let bsdkTransactionsGroupedByDestinationAddressString {
-            // Re-use the cached grouping if it was already created in a previous call to this function
-            _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
-        } else {
-            // Lazily create the grouping of BSDK transactions by destination address string to avoid O(n) * O(m) complexity
-            _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
-                for destinationAddress in transaction.destinationAddresses {
-                    result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
-                }
-            }
-            bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
-        }
+        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
+            from: allBSDKTransactions,
+            cache: &bsdkTransactionsGroupedByDestinationAddressString
+        )
 
-        guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[
+        guard let bsdkTransactionsCandidatesByReceiver = bsdkTransactionsGroupedByDestinationAddressString[
             lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)
         ] else {
             return nil
@@ -170,21 +161,12 @@ struct _TransactionHistoryDataMerger {
             return nil
         }
 
-        var _bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]
-        if let bsdkTransactionsGroupedByDestinationAddressString {
-            // Re-use the cached grouping if it was already created in a previous call to this function
-            _bsdkTransactionsGroupedByDestinationAddressString = bsdkTransactionsGroupedByDestinationAddressString
-        } else {
-            // Lazily create the grouping of BSDK transactions by destination address string to avoid O(n) * O(m) complexity
-            _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
-                for destinationAddress in transaction.destinationAddresses {
-                    result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
-                }
-            }
-            bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
-        }
+        let bsdkTransactionsGroupedByDestinationAddressString = makeDestinationAddressGroupedBSDKTransactions(
+            from: allBSDKTransactions,
+            cache: &bsdkTransactionsGroupedByDestinationAddressString
+        )
 
-        guard let bsdkTransactions = _bsdkTransactionsGroupedByDestinationAddressString[
+        guard let bsdkTransactions = bsdkTransactionsGroupedByDestinationAddressString[
             lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)
         ] else {
             return nil
@@ -214,6 +196,27 @@ struct _TransactionHistoryDataMerger {
                 return abs(amountToPayOut - targetAmount) <= amountBound
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
+    }
+
+
+    /// Groups BSDK transactions by their (normalized) destination address, building the grouping lazily on first
+    /// use and caching it in `cache` to avoid O(n) * O(m) complexity across the send / receive matchers.
+    private func makeDestinationAddressGroupedBSDKTransactions(
+        from allBSDKTransactions: [TransactionRecord],
+        cache: inout [String: [TransactionRecord]]?
+    ) -> [String: [TransactionRecord]] {
+        if let cache {
+            return cache
+        }
+
+        let grouped = allBSDKTransactions.reduce(into: [String: [TransactionRecord]]()) { result, transaction in
+            for destinationAddress in transaction.destinationAddresses {
+                result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
+            }
+        }
+        cache = grouped
+
+        return grouped
     }
 
     func merge(
