@@ -37,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
+    case marketingBanners
     case bitcoinDexSwap
     case p2pBatchStakingBalances
 
@@ -74,6 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .p2pBatchStakingBalances: return "[REDACTED_INFO]_p2p_batch_staking_balances"
+        case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
         }
     }
 
@@ -109,6 +111,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
         case .p2pBatchStakingBalances: return .unspecified
+        case .marketingBanners: return .unspecified
         }
     }
 }
