@@ -113,7 +113,7 @@ struct _TransactionHistoryDataMerger {
                 return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
                     && abs(amountToPayIn - targetAmount) / targetAmount <= amountTolerance
             }
-            .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
+            .min(by: \.normalizedDate) // Select the earliest transaction
     }
 
     func heuristicallyMatchingRefundBSDKTransaction(
@@ -142,7 +142,7 @@ struct _TransactionHistoryDataMerger {
                     && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.refundHeuristicAmountTolerance
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
-            .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
+            .min(by: \.normalizedDate) // Select the earliest transaction
     }
 
     func heuristicallyMatchingReceiveBSDKTransaction(
@@ -191,7 +191,7 @@ struct _TransactionHistoryDataMerger {
                     && abs(amountToPayOut - targetAmount) / targetAmount <= Constants.receiveHeuristicAmountTolerance
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
-            .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
+            .min(by: \.normalizedDate) // Select the earliest transaction
     }
 
     func merge(
@@ -324,6 +324,7 @@ struct _TransactionHistoryDataMerger {
         )
     }
 
+    @inline(__always)
     private func isOutgoing(_ exchangeTransaction: ExchangeTransaction) -> Bool {
         // Fast path: using the owner address to determine the direction
         let isOnSendLeg = exchangeTransaction.fromAddress.map { ownerAddress.caseInsensitiveEquals(to: $0) } ?? false
