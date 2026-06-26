@@ -226,25 +226,61 @@ struct _TransactionHistoryDataMerger {
         output.reserveCapacity(bsdkTransactions.count + exchangeTransactions.count + onrampTransactions.count)
         // Tombstone-like pattern; IDs of BSDK transactions already claimed by a match
         var consumedBSDKTransactionsIds: Set<TransactionRecord.ID> = []
+        // Lazily built once on first use and shared across the send / receive matchers (see their `inout` param).
+        var bsdkTransactionsGroupedByDestinationAddressString: [String: [TransactionRecord]]?
 
         for exchangeTransaction in exchangeTransactions {
-            // Step 1: Deterministic mapping
-            if let bsdkTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payIn.hash)
-                ?? bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payOut.hash) {
-                let info = ExchangeTransactionInfo(
-                    transaction: exchangeTransaction,
-                    provider: nil // [REDACTED_TODO_COMMENT]
+            let info = ExchangeTransactionInfo(
+                transaction: exchangeTransaction,
+                provider: nil // [REDACTED_TODO_COMMENT]
+            )
+
+            var didMatch = false
+
+            // Step 1: Deterministic mapping for send/receive transactions by hashes
+            var matchedBSDKTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payIn.hash)
+                ?? bsdkTransactionsGroupedByHash.removeValue(forKey: exchangeTransaction.payOut.hash)
+
+            // Step 2a: Heuristic mapping for send/receive transactions, performed only if no deterministic match was found
+            if matchedBSDKTransactions == nil {
+                let heuristicMatch = heuristicallyMatchingSendBSDKTransaction(
+                    for: exchangeTransaction,
+                    bsdkTransactionsGroupedByDestinationAddressString: &bsdkTransactionsGroupedByDestinationAddressString,
+                    allBSDKTransactions: bsdkTransactions,
+                    consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
+                ) ?? heuristicallyMatchingReceiveBSDKTransaction(
+                    for: exchangeTransaction,
+                    bsdkTransactionsGroupedByDestinationAddressString: &bsdkTransactionsGroupedByDestinationAddressString,
+                    allBSDKTransactions: bsdkTransactions,
+                    consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
                 )
-                output.append(contentsOf: bsdkTransactions.map { $0.withExtraInfo(.exchange(info)) })
-                consumedBSDKTransactionsIds.formUnion(bsdkTransactions.map(\.id))
-                continue
+
+                matchedBSDKTransactions = heuristicMatch.flatMap { bsdkTransactionsGroupedByHash.removeValue(forKey: $0.hash) }
             }
 
-            // Step 2: Heuristic mapping
-            // [REDACTED_TODO_COMMENT]
+            if let matchedBSDKTransactions {
+                output.append(contentsOf: matchedBSDKTransactions.map { $0.withExtraInfo(.exchange(info)) })
+                // Updating the tombstone set to prevent double-matching of the already consumed BSDK transaction
+                consumedBSDKTransactionsIds.formUnion(matchedBSDKTransactions.map(\.id))
+                didMatch = true
+            }
 
-            // Step 3: Add synthetic transaction if needed
-            if shouldAddSyntheticTransaction(from: exchangeTransaction) {
+            // Step 2b: Heuristic mapping for the refund transaction.
+            // This is performed regardless of whether a send/receive match was found above,
+            // because the refund leg is a separate on-chain transaction that can coexist with the deposit / pay-out leg.
+            if let refundMatch = heuristicallyMatchingRefundBSDKTransaction(
+                for: exchangeTransaction,
+                from: bsdkTransactions,
+                consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
+            ), let refundedBSDKTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: refundMatch.hash) {
+                output.append(contentsOf: refundedBSDKTransactions.map { $0.withExtraInfo(.exchange(info)) })
+                // Updating the tombstone set to prevent double-matching of the already consumed BSDK transaction
+                consumedBSDKTransactionsIds.formUnion(refundedBSDKTransactions.map(\.id))
+                didMatch = true
+            }
+
+            // Step 3: Add a synthetic transaction only when no on-chain leg was matched.
+            if !didMatch, shouldAddSyntheticTransaction(from: exchangeTransaction) {
                 output.append(makeSyntheticTransaction(from: exchangeTransaction))
             }
         }
