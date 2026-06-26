@@ -26,8 +26,11 @@ extension SolanaTransactionHistoryTarget {
         case getTransactionsForAddress(
             address: String,
             limit: Int,
-            paginationToken: String?,
-            tokenAccountsFilter: TokenAccountsFilter
+            paginationToken: String?
+        )
+        case getTokenAccountsByOwner(
+            owner: String,
+            mint: String
         )
 
         var id: Int { 1 }
@@ -36,26 +39,28 @@ extension SolanaTransactionHistoryTarget {
             switch self {
             case .getTransactionsForAddress:
                 return "getTransactionsForAddress"
+            case .getTokenAccountsByOwner:
+                return "getTokenAccountsByOwner"
             }
         }
 
         var params: (any Encodable)? {
             switch self {
-            case .getTransactionsForAddress(let address, let limit, let paginationToken, let tokenAccountsFilter):
+            case .getTransactionsForAddress(let address, let limit, let paginationToken):
                 return [
                     AnyEncodable(address),
                     AnyEncodable(GetTransactionsConfig(
                         limit: limit,
-                        paginationToken: paginationToken,
-                        tokenAccountsFilter: tokenAccountsFilter
+                        paginationToken: paginationToken
                     )),
                 ]
+            case .getTokenAccountsByOwner(let owner, let mint):
+                return [
+                    AnyEncodable(owner),
+                    AnyEncodable(GetTokenAccountsByOwnerFilter(mint: mint)),
+                    AnyEncodable(GetTokenAccountsByOwnerConfig()),
+                ]
             }
-        }
-
-        enum TokenAccountsFilter {
-            case `default`
-            case balanceChanged
         }
     }
 }
@@ -98,30 +103,22 @@ extension SolanaTransactionHistoryTarget {
         let maxSupportedTransactionVersion: Int = 0
         let limit: Int
         let paginationToken: String?
-        let filters: GetTransactionsFilters?
 
         init(
             limit: Int,
-            paginationToken: String?,
-            tokenAccountsFilter: Request.TokenAccountsFilter
+            paginationToken: String?
         ) {
             self.limit = limit
             self.paginationToken = paginationToken
-            filters = GetTransactionsFilters(tokenAccountsFilter: tokenAccountsFilter)
         }
     }
 
-    private struct GetTransactionsFilters: Encodable {
-        let tokenAccounts: String
+    private struct GetTokenAccountsByOwnerFilter: Encodable {
+        let mint: String
+    }
 
-        init?(tokenAccountsFilter: Request.TokenAccountsFilter) {
-            switch tokenAccountsFilter {
-            case .default:
-                return nil
-            case .balanceChanged:
-                tokenAccounts = "balanceChanged"
-            }
-        }
+    private struct GetTokenAccountsByOwnerConfig: Encodable {
+        let encoding: String = "jsonParsed"
     }
 }
 
