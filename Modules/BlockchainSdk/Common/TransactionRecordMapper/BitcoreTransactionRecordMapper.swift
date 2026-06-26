@@ -35,7 +35,7 @@ extension BitcoreTransactionRecordMapper: TransactionRecordMapper {
             .init(address: .user($0.address), amount: Decimal($0.value) / blockchain.decimalValue)
         }
         let fee = Decimal(transaction.transaction.fee) / blockchain.decimalValue
-        let date = transaction.transaction.blockTime ?? Date()
+        let date = transaction.transaction.blockTime
         let isConfirmed: Bool = (transaction.transaction.confirmations ?? 0) > 0
 
         return TransactionRecord(

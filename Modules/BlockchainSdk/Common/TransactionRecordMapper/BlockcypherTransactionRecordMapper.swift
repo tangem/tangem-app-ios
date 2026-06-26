@@ -30,7 +30,7 @@ extension BlockcypherTransactionRecordMapper: TransactionRecordMapper {
         }
 
         let fee: Decimal = transaction.fees / blockchain.decimalValue
-        let date = transaction.confirmed ?? Date()
+        let date = transaction.confirmed
 
         return TransactionRecord(
             hash: transaction.hash,
