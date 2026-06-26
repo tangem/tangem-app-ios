@@ -223,6 +223,7 @@ struct _TransactionHistoryDataMerger {
     ) -> [TransactionRecord] {
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
+        output.reserveCapacity(bsdkTransactions.count + exchangeTransactions.count + onrampTransactions.count)
         // Tombstone-like pattern; IDs of BSDK transactions already claimed by a match
         var consumedBSDKTransactionsIds: Set<TransactionRecord.ID> = []
 
