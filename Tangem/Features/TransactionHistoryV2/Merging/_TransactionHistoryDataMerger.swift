@@ -12,6 +12,7 @@ import TangemExpress
 import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
+/// See https://app.notion.com/p/tangem/Express-36d5d34eb67880fa8082dcdb732c4364?source=copy_link#f5e12a848f494dc28b3ad32fd3243ede for details.
 struct _TransactionHistoryDataMerger {
     private let ownerAddress: String
     private let currentToken: TokenItem
@@ -48,7 +49,6 @@ struct _TransactionHistoryDataMerger {
 
     func heuristicallyMatchingSendBSDKTransaction(
         for exchangeTransaction: ExchangeTransaction,
-        // Optional and inout, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
         bsdkTransactionsGroupedBySourceAddressString: inout [String: [TransactionRecord]]?,
         // Optional and inout argument, so it will be lazily created on demand and cached for future calls to avoid O(n) * O(m) complexity
@@ -283,6 +283,7 @@ struct _TransactionHistoryDataMerger {
         } else {
             // Pay-out leg: the wallet receives the `to` asset at its payout address.
             let amount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
+            source = .single(.init(address: .unknown, amount: amount)) // The source address of the pay-out leg is unknown at this point
             destination = .single(.init(address: .user(exchangeTransaction.payOut.address), amount: amount))
             hash = exchangeTransaction.payOut.hash ?? exchangeTransaction.txId
         }
@@ -314,6 +315,7 @@ struct _TransactionHistoryDataMerger {
         return TransactionRecord(
             hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId,
             index: 0, // A single transaction record, therefore index is always 0
+            source: .single(.init(address: .unknown, amount: amount)), // The source address of the pay-out leg is unknown at this point
             destination: .single(.init(address: .user(onrampTransaction.payOut.address), amount: amount)),
             fee: feeTokenItem.zeroFee, // Unknown at this point
             status: syntheticTransactionStatus(from: onrampTransaction.status),
@@ -398,11 +400,16 @@ private extension _TransactionHistoryDataMerger {
         static let swapMethodName = "swap"
         static let onrampMethodName = "onramp"
         static let sendHeuristicAmountTolerance = Decimal(Double.ulpOfOne)
-        static let sendHeuristicAmountUTXOTolerance = Decimal(stringValue: "0.001")! // 0.1% tolerance for amount differences
-        static let refundHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
-        static let refundHeuristicAmountTolerance = Decimal(stringValue: "0.15")! // 15% tolerance for amount differences
-        static let receiveHeuristicTimeWindow: TimeInterval = 60 * 60 * 24 // 1 day
-        static let receiveHeuristicAmountTolerance = Decimal(stringValue: "0.05")! // 5% tolerance for amount differences
+        /// 0.1% tolerance for amount differences to account for UTXO change outputs.
+        static let sendHeuristicAmountUTXOTolerance = Decimal(stringValue: "0.001")!
+        /// 1 day.
+        static let refundHeuristicTimeWindow: TimeInterval = 60 * 60 * 24
+        /// 15% tolerance for amount differences to account for multiple UTXO outputs w/o address filtration.
+        static let refundHeuristicAmountTolerance = Decimal(stringValue: "0.15")!
+        /// 1 day.
+        static let receiveHeuristicTimeWindow: TimeInterval = 60 * 60 * 24
+        /// 5% tolerance for amount differences to account for multiple UTXO outputs with address filtration.
+        static let receiveHeuristicAmountTolerance = Decimal(stringValue: "0.05")!
     }
 }
 
