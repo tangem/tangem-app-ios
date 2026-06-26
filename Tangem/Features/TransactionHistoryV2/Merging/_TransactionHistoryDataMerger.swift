@@ -115,7 +115,10 @@ struct _TransactionHistoryDataMerger {
         return bsdkTransactions
             .filter { bsdkTransaction in
                 // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
-                let amountToPayIn = bsdkTransaction.destinationAmount(to: exchangeTransaction.payIn.address)
+                let amountToPayIn = bsdkTransaction.destinationAmount(
+                    to: exchangeTransaction.payIn.address,
+                    addressConverter: lowerCasedAddressStringIfNeeded
+                )
                 return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
                     && abs(amountToPayIn - targetAmount) <= amountBound
             }
@@ -195,7 +198,10 @@ struct _TransactionHistoryDataMerger {
         return bsdkTransactions
             .filter { bsdkTransaction in
                 // Compare against the amount received at the pay-out address specifically (filtering UTXO change output, etc)
-                let amountToPayOut = bsdkTransaction.destinationAmount(to: exchangeTransaction.payOut.address)
+                let amountToPayOut = bsdkTransaction.destinationAmount(
+                    to: exchangeTransaction.payOut.address,
+                    addressConverter: lowerCasedAddressStringIfNeeded
+                )
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
                     // Exclude self-transfers (the sender must not be the user)
                     && !bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
@@ -432,10 +438,17 @@ private extension TransactionRecord {
         destination.destinations.reduce(0) { $0 + $1.amount }
     }
 
-    func destinationAmount(to address: String) -> Decimal {
-        destination.destinations
-            .filter { $0.address.string.caseInsensitiveEquals(to: address) }
-            .reduce(0) { $0 + $1.amount }
+    func destinationAmount(
+        to address: String,
+        addressConverter: (_ address: String) -> String
+    ) -> Decimal {
+        let targetAddress = addressConverter(address)
+
+        return destination.destinations.reduce(into: Decimal.zero) { sum, destination in
+            if addressConverter(destination.address.string) == targetAddress {
+                sum += destination.amount
+            }
+        }
     }
 
     var sourceAddresses: [String] {
