@@ -165,7 +165,8 @@ private extension SolanaTransactionHistoryMapper {
             isOutgoing: isOutgoing,
             type: recordType,
             date: transaction.blockTime.map { Date(timeIntervalSince1970: TimeInterval($0)) },
-            tokenTransfers: []
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 

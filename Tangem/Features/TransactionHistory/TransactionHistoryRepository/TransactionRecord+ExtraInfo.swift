@@ -45,6 +45,7 @@ extension TransactionRecord {
             date: date,
             tokenTransfers: tokenTransfers,
             isFromYieldContract: isFromYieldContract,
+            nonce: nonce,
             extraInfo: extraInfo
         )
     }

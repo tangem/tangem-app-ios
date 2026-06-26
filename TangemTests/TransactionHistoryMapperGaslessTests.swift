@@ -151,7 +151,9 @@ final class TransactionHistoryMapperGaslessTests {
             status: .confirmed,
             isOutgoing: true,
             type: .transfer,
-            date: Date()
+            date: Date(),
+            tokenTransfers: [],
+            nonce: nil
         )
         let suggested = mapper.mapSuggestedRecord(record)
         #expect(suggested?.address == "0xReceiverAddress")
@@ -198,7 +200,8 @@ private extension TransactionHistoryMapperGaslessTests {
                     decimals: 6,
                     contract: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
                 ),
-            ]
+            ],
+            nonce: nil
         )
     }
 }

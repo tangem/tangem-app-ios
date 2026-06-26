@@ -155,7 +155,8 @@ extension KaspaTransactionHistoryMapper: TransactionHistoryMapper {
                 isOutgoing: isOutgoing,
                 type: .transfer,
                 date: transaction.blockTime,
-                tokenTransfers: []
+                tokenTransfers: [],
+                nonce: nil
             )
         }
     }

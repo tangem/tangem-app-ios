@@ -48,7 +48,8 @@ extension BitcoreTransactionRecordMapper: TransactionRecordMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: date,
-            tokenTransfers: []
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 }

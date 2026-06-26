@@ -61,7 +61,8 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
             isOutgoing: isOutgoing,
             type: .transfer,
             date: Date(timeIntervalSince1970: TimeInterval(transaction.blockTime)),
-            tokenTransfers: []
+            tokenTransfers: [],
+            nonce: nil
         )
     }
 
