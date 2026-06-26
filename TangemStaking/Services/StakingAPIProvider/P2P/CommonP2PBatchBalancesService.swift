@@ -15,6 +15,7 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
     private let yieldInfoProvider: StakingYieldInfoProvider
 
     private var inFlight: Task<[String: [StakingBalanceInfo]], Error>?
+    private var cached: Cached?
 
     init(
         service: P2PStakingAPIService,
@@ -29,18 +30,31 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
     }
 
     func balances() async throws -> [String: [StakingBalanceInfo]] {
-        // Coalesce the concurrent per-wallet calls of one bulk refresh into a single in-flight request.
-        // No longer-lived cache: every fresh request re-reads the current address set, so adding or
-        // removing an account reloads correctly on the next update without extra invalidation logic.
+        // Per-wallet managers pull at spread-out times during one refresh, so a short cache keyed by the
+        // delegator-address set collapses them into a single POST. The key is the address set itself, so
+        // adding/removing an account changes the key and forces an immediate refetch (no stale data), while
+        // concurrent pulls additionally share the in-flight task.
+        let addressMap = Dictionary(
+            addressProvider.delegatorAddresses().map { ($0.lowercased(), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let addressKey = Set(addressMap.keys)
+
+        if let cached, cached.addressKey == addressKey, !cached.isExpired {
+            return cached.balances
+        }
+
         if let inFlight {
             return try await inFlight.value
         }
 
-        let task = Task { try await self.fetchAll() }
+        let addresses = Array(addressMap.values)
+        let task = Task { try await self.fetchAll(delegatorAddresses: addresses) }
         inFlight = task
 
         do {
             let balances = try await task.value
+            cached = Cached(addressKey: addressKey, balances: balances, timestamp: Date())
             inFlight = nil
             return balances
         } catch {
@@ -49,17 +63,15 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
         }
     }
 
-    private func fetchAll() async throws -> [String: [StakingBalanceInfo]] {
+    private func fetchAll(delegatorAddresses addresses: [String]) async throws -> [String: [StakingBalanceInfo]] {
+        guard !addresses.isEmpty else {
+            return [:]
+        }
+
         let yield = try await yieldInfoProvider.yieldInfo(for: StakingIntegrationId.ethereumP2P.rawValue)
         let vaults = yield.targets.map(\.address)
 
-        // Deduplicate case-insensitively while keeping a concrete casing for the request.
-        let addresses = Array(
-            Dictionary(addressProvider.delegatorAddresses().map { ($0.lowercased(), $0) }, uniquingKeysWith: { first, _ in first })
-                .values
-        )
-
-        guard !vaults.isEmpty, !addresses.isEmpty else {
+        guard !vaults.isEmpty else {
             return [:]
         }
 
@@ -86,5 +98,23 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
         }
 
         return result
+    }
+}
+
+private extension CommonP2PBatchBalancesService {
+    struct Cached {
+        let addressKey: Set<String>
+        let balances: [String: [StakingBalanceInfo]]
+        let timestamp: Date
+
+        var isExpired: Bool {
+            Date().timeIntervalSince(timestamp) > Constants.cacheValidityInterval
+        }
+    }
+
+    enum Constants {
+        /// Long enough to coalesce a single refresh cycle's spread-out per-wallet pulls; staking balances
+        /// change slowly, so serving a slightly older value within this window is acceptable.
+        static let cacheValidityInterval: TimeInterval = 60
     }
 }
