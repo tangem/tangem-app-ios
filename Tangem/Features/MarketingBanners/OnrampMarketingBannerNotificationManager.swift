@@ -23,11 +23,6 @@ final class OnrampMarketingBannerNotificationManager {
 // MARK: - Setup
 
 extension OnrampMarketingBannerNotificationManager {
-    // [REDACTED_TODO_COMMENT]
-    var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
-        linkedBannersSubject.eraseToAnyPublisher()
-    }
-
     func setup(
         tokenItem: TokenItem,
         amountInput: any OnrampAmountInput,
@@ -102,5 +97,14 @@ extension OnrampMarketingBannerNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         notificationInputsSubject.value.removeAll { $0.id == id }
+    }
+}
+
+// MARK: - LinkedMarketingBannerProviding
+
+extension OnrampMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
+    // [REDACTED_TODO_COMMENT]
+    var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
+        linkedBannersSubject.eraseToAnyPublisher()
     }
 }

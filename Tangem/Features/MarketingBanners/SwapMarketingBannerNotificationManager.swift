@@ -22,11 +22,6 @@ final class SwapMarketingBannerNotificationManager {
 // MARK: - Setup
 
 extension SwapMarketingBannerNotificationManager {
-    // [REDACTED_TODO_COMMENT]
-    var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
-        linkedBannersSubject.eraseToAnyPublisher()
-    }
-
     func setup(
         sourceTokenInput: SendSourceTokenInput,
         sourceTokenAmountInput: SendSourceTokenAmountInput,
@@ -106,5 +101,14 @@ extension SwapMarketingBannerNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         notificationInputsSubject.value.removeAll { $0.id == id }
+    }
+}
+
+// MARK: - LinkedMarketingBannerProviding
+
+extension SwapMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
+    // [REDACTED_TODO_COMMENT]
+    var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
+        linkedBannersSubject.eraseToAnyPublisher()
     }
 }
