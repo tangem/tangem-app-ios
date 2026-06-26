@@ -17,6 +17,8 @@ struct _TransactionHistoryDataMerger {
     private let ownerAddress: String
     private let currentToken: TokenItem
     private let feeTokenItem: TokenItem
+    private let isEvm: Bool
+    private let isUTXO: Bool
 
     private static let activeExchangeTransactionStatuses: Set<ExpressTransactionStatus> = [
         .preview,
@@ -49,6 +51,8 @@ struct _TransactionHistoryDataMerger {
         self.ownerAddress = ownerAddress
         self.currentToken = currentToken
         self.feeTokenItem = feeTokenItem
+        isEvm = currentToken.blockchain.isEvm
+        isUTXO = currentToken.blockchain.isUTXO
     }
 
     func heuristicallyMatchingSendBSDKTransaction(
@@ -106,7 +110,7 @@ struct _TransactionHistoryDataMerger {
             .toSet()
             .intersection(bsdkTransactionsCandidatesByReceiver)
 
-        let amountTolerance = currentToken.blockchain.isUTXO
+        let amountTolerance = isUTXO
             ? Constants.sendHeuristicAmountUTXOTolerance
             : Constants.sendHeuristicAmountTolerance
 
@@ -348,7 +352,7 @@ struct _TransactionHistoryDataMerger {
 
     @inline(__always)
     private func lowerCasedAddressStringIfNeeded(_ address: String) -> String {
-        return currentToken.blockchain.isEvm ? address.lowercased() : address
+        return isEvm ? address.lowercased() : address
     }
 
     private func syntheticTransactionStatus(from status: ExpressTransactionStatus) -> TransactionRecord.TransactionStatus {
