@@ -1,5 +1,5 @@
 //
-//  TransactionHistorySyntheticExpressTransactionFactory.swift
+//  TransactionHistorySyntheticTransactionFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ import TangemFoundation
 
 /// Builds synthetic `TransactionRecord` placeholders for Express (swap) and onramp transactions that have no
 /// matching on-chain transaction (e.g. a still in-flight deal), so they're still surfaced in the history.
-struct TransactionHistorySyntheticExpressTransactionFactory {
+struct TransactionHistorySyntheticTransactionFactory {
     private let ownerAddress: String
     private let currentToken: TokenItem
     private let feeTokenItem: TokenItem
@@ -155,7 +155,7 @@ struct TransactionHistorySyntheticExpressTransactionFactory {
 
 // MARK: - Constants
 
-private extension TransactionHistorySyntheticExpressTransactionFactory {
+private extension TransactionHistorySyntheticTransactionFactory {
     enum Constants {
         static let swapMethodName = "swap"
         static let onrampMethodName = "onramp"
