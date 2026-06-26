@@ -72,7 +72,7 @@ struct _TransactionHistoryDataMerger {
         } else {
             _bsdkTransactionsGroupedBySourceAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
                 for sourceAddress in transaction.sourceAddresses {
-                    result[sourceAddress, default: []].append(transaction)
+                    result[lowerCasedAddressStringIfNeeded(sourceAddress), default: []].append(transaction)
                 }
             }
             bsdkTransactionsGroupedBySourceAddressString = _bsdkTransactionsGroupedBySourceAddressString
@@ -84,17 +84,17 @@ struct _TransactionHistoryDataMerger {
         } else {
             _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
                 for destinationAddress in transaction.destinationAddresses {
-                    result[destinationAddress, default: []].append(transaction)
+                    result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
                 }
             }
             bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
         }
 
-        guard let bsdkTransactionsCandidatesBySender = _bsdkTransactionsGroupedBySourceAddressString[exchangeTransaction.fromAddress ?? .unknown] else {
+        guard let bsdkTransactionsCandidatesBySender = _bsdkTransactionsGroupedBySourceAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)] else {
             return nil
         }
 
-        guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[exchangeTransaction.payIn.address] else {
+        guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)] else {
             return nil
         }
 
@@ -166,23 +166,25 @@ struct _TransactionHistoryDataMerger {
         } else {
             _bsdkTransactionsGroupedByDestinationAddressString = allBSDKTransactions.reduce(into: [:]) { result, transaction in
                 for destinationAddress in transaction.destinationAddresses {
-                    result[destinationAddress, default: []].append(transaction)
+                    result[lowerCasedAddressStringIfNeeded(destinationAddress), default: []].append(transaction)
                 }
             }
             bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
         }
 
-        guard let bsdkTransactions = _bsdkTransactionsGroupedByDestinationAddressString[exchangeTransaction.payOut.address] else {
+        guard let bsdkTransactions = _bsdkTransactionsGroupedByDestinationAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)] else {
             return nil
         }
 
         let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
 
         return bsdkTransactions
             .filter { bsdkTransaction in
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
-                    && !bsdkTransaction.sourceAddresses.contains(exchangeTransaction.fromAddress ?? .unknown) // Exclude self-transfers
                     && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.receiveHeuristicAmountTolerance
+                    // Exclude self-transfers (the sender must not be the user)
+                    && !bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
             .min(by: \.normalizedDate) // Select the earliest transaction within the target date range
@@ -330,6 +332,11 @@ struct _TransactionHistoryDataMerger {
         // Slow path: the address is ambiguous (owner on both or neither leg, e.g. a swap sent to self),
         // using current token to determine the direction
         return currentToken.expressCurrency.asCurrency == exchangeTransaction.from.currency
+    }
+
+    @inline(__always)
+    private func lowerCasedAddressStringIfNeeded(_ address: String) -> String {
+        return currentToken.blockchain.isEvm ? address.lowercased() : address
     }
 
     private func syntheticTransactionStatus(from status: ExpressTransactionStatus) -> TransactionRecord.TransactionStatus {
