@@ -67,6 +67,25 @@ public struct TransactionRecord: Hashable {
     }
 }
 
+// MARK: - ID
+
+public extension TransactionRecord {
+    /// Lightweight, stable identity of a record — `hash` + `index`.
+    struct ID: Hashable {
+        public let hash: String
+        public let index: Int
+
+        public init(hash: String, index: Int) {
+            self.hash = hash
+            self.index = index
+        }
+    }
+
+    var id: ID {
+        ID(hash: hash, index: index)
+    }
+}
+
 // MARK: - TransactionType
 
 public extension TransactionRecord {
