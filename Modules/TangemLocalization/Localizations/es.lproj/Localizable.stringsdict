@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li address</string>
+        <string>%li dirección</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>%li direcciones</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -61,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li day ago</string>
+        <string>hace %li dia</string>
         <key>other</key>
-        <string>%li days ago</string>
+        <string>hace %li días</string>
       </dict>
     </dict>
     <key>common_hours</key>
@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li hour</string>
+        <string>%li hora</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li horas</string>
       </dict>
     </dict>
     <key>common_hours_time_ago</key>
@@ -408,9 +408,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li tarjeta</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li tarjetas</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
