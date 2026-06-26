@@ -110,16 +110,14 @@ struct _TransactionHistoryDataMerger {
             .toSet()
             .intersection(bsdkTransactionsCandidatesByReceiver)
 
-        let amountTolerance = isUTXO
-            ? Constants.sendHeuristicAmountUTXOTolerance
-            : Constants.sendHeuristicAmountTolerance
+        let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
 
         return bsdkTransactions
             .filter { bsdkTransaction in
                 // Compare against the amount sent to the pay-in (deposit) address specifically (filtering UTXO change output, etc)
                 let amountToPayIn = bsdkTransaction.destinationAmount(to: exchangeTransaction.payIn.address)
                 return bsdkTransaction.isOutgoing // Only consider outgoing transactions as potential matches
-                    && abs(amountToPayIn - targetAmount) / targetAmount <= amountTolerance
+                    && abs(amountToPayIn - targetAmount) <= amountBound
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
     }
@@ -143,11 +141,12 @@ struct _TransactionHistoryDataMerger {
         }
 
         let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.refundHeuristicTimeWindow)
+        let amountBound = Constants.refundHeuristicAmountTolerance * targetAmount
 
         return bsdkTransactions
             .filter { bsdkTransaction in
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential refunds
-                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) / targetAmount <= Constants.refundHeuristicAmountTolerance
+                    && abs(bsdkTransaction.destinationAmountValue - targetAmount) <= amountBound
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
@@ -191,6 +190,7 @@ struct _TransactionHistoryDataMerger {
 
         let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
         let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
+        let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
 
         return bsdkTransactions
             .filter { bsdkTransaction in
@@ -199,7 +199,7 @@ struct _TransactionHistoryDataMerger {
                 return !bsdkTransaction.isOutgoing // Only consider incoming transactions as potential matches
                     // Exclude self-transfers (the sender must not be the user)
                     && !bsdkTransaction.sourceAddresses.contains { lowerCasedAddressStringIfNeeded($0) == normalizedFromAddress }
-                    && abs(amountToPayOut - targetAmount) / targetAmount <= Constants.receiveHeuristicAmountTolerance
+                    && abs(amountToPayOut - targetAmount) <= amountBound
                     && targetDateRange.contains(bsdkTransaction.normalizedDate)
             }
             .min(by: \.normalizedDate) // Select the earliest transaction
