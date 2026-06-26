@@ -58,7 +58,7 @@ class CommonWalletModel {
     private let _state: CurrentValueSubject<WalletModelState, Never> = .init(.created)
     private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(.loading(cached: quotesRepository.quote(for: tokenItem)))
 
-    private let _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
+    private let transactionHistoryUpdateTrigger: PassthroughSubject<Void, Never> = .init()
     private var bag = Set<AnyCancellable>()
 
     private var amountType: Amount.AmountType {
@@ -409,7 +409,7 @@ extension CommonWalletModel: WalletModelUpdater {
 
     func updateAfterSendingTransaction() {
         // Force update transactions history to take a new pending transaction from the local storage
-        _localPendingTransactionSubject.send(())
+        transactionHistoryUpdateTrigger.send(())
         startUpdatingTimer()
     }
 
@@ -737,7 +737,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         }
 
         return Publishers.Merge3(
-            _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
+            transactionHistoryUpdateTrigger.withLatestFrom(_transactionHistoryService.statePublisher),
             _transactionHistoryService.statePublisher,
             pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
