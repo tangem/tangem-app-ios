@@ -279,13 +279,12 @@ struct _TransactionHistoryDataMerger {
             let amount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
             source = .single(.init(address: exchangeTransaction.fromAddress ?? .unknown, amount: amount))
             destination = .single(.init(address: .user(exchangeTransaction.payIn.address), amount: amount))
-            hash = exchangeTransaction.payIn.hash ?? exchangeTransaction.txId // [REDACTED_TODO_COMMENT]
+            hash = exchangeTransaction.payIn.hash ?? exchangeTransaction.txId
         } else {
             // Pay-out leg: the wallet receives the `to` asset at its payout address.
             let amount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
-            source = .single(.init(address: .unknown, amount: amount)) // [REDACTED_TODO_COMMENT]
             destination = .single(.init(address: .user(exchangeTransaction.payOut.address), amount: amount))
-            hash = exchangeTransaction.payOut.hash ?? exchangeTransaction.txId // [REDACTED_TODO_COMMENT]
+            hash = exchangeTransaction.payOut.hash ?? exchangeTransaction.txId
         }
 
         return TransactionRecord(
@@ -313,9 +312,8 @@ struct _TransactionHistoryDataMerger {
         )
 
         return TransactionRecord(
-            hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId, // [REDACTED_TODO_COMMENT]
+            hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId,
             index: 0, // A single transaction record, therefore index is always 0
-            source: .single(.init(address: .unknown, amount: amount)), // [REDACTED_TODO_COMMENT]
             destination: .single(.init(address: .user(onrampTransaction.payOut.address), amount: amount)),
             fee: feeTokenItem.zeroFee, // Unknown at this point
             status: syntheticTransactionStatus(from: onrampTransaction.status),
