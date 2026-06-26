@@ -84,7 +84,9 @@ struct _TransactionHistoryDataMerger {
             bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
         }
 
-        guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)] else {
+        guard let bsdkTransactionsCandidatesByReceiver = _bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(exchangeTransaction.payIn.address)
+        ] else {
             return nil
         }
 
@@ -168,7 +170,9 @@ struct _TransactionHistoryDataMerger {
             bsdkTransactionsGroupedByDestinationAddressString = _bsdkTransactionsGroupedByDestinationAddressString
         }
 
-        guard let bsdkTransactions = _bsdkTransactionsGroupedByDestinationAddressString[lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)] else {
+        guard let bsdkTransactions = _bsdkTransactionsGroupedByDestinationAddressString[
+            lowerCasedAddressStringIfNeeded(exchangeTransaction.payOut.address)
+        ] else {
             return nil
         }
 
