@@ -420,10 +420,12 @@ struct _TransactionHistoryDataMerger {
         }
     }
 
+    @inline(__always)
     private func shouldAddSyntheticTransaction(from exchangeTransaction: ExchangeTransaction) -> Bool {
         Self.activeExchangeTransactionStatuses.contains(exchangeTransaction.status)
     }
 
+    @inline(__always)
     private func shouldAddSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> Bool {
         Self.activeOnrampTransactionStatuses.contains(onrampTransaction.status)
     }
@@ -455,6 +457,7 @@ private extension _TransactionHistoryDataMerger {
 // MARK: - Convenience extensions
 
 private extension TransactionRecord {
+    @inline(__always)
     var normalizedDate: Date {
         date ?? .distantPast
     }

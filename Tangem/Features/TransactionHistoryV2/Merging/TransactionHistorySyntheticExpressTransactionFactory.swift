@@ -93,7 +93,6 @@ struct TransactionHistorySyntheticExpressTransactionFactory {
         )
     }
 
-    @inline(__always)
     private func isOutgoing(_ exchangeTransaction: ExchangeTransaction) -> Bool {
         // Fast path: using the owner address to determine the direction
         let isOnSendLeg = exchangeTransaction.fromAddress.map { ownerAddress.caseInsensitiveEquals(to: $0) } ?? false
