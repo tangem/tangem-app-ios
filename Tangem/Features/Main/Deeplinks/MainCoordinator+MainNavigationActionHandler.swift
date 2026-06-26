@@ -399,11 +399,10 @@ extension MainCoordinator {
                 return false
             }
 
-            coordinator.openDeepLink(
-                .onboardVisa(
-                    deeplinkString: deeplinkString
-                )
-            )
+            let hasDeeplinkParams = params.entry != nil || params.id != nil
+
+            coordinator.openDeepLink(.onboardVisa(deeplinkString: hasDeeplinkParams ? deeplinkString : nil))
+
             return true
         }
 
