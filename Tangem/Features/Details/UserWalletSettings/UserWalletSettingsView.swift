@@ -156,17 +156,11 @@ struct UserWalletSettingsView: View {
     }
 }
 
-#if DEBUG
-private enum UserWalletSettingsViewPreviewData {
-    static let viewModel = UserWalletSettingsViewModel(
-        userWalletModel: UserWalletModelMock(),
-        coordinator: UserWalletSettingsCoordinator()
+#Preview {
+    UserWalletSettingsView(
+        viewModel: UserWalletSettingsViewModel(
+            userWalletModel: UserWalletModelMock(),
+            coordinator: UserWalletSettingsCoordinator()
+        )
     )
 }
-
-#Preview {
-    let viewModel = UserWalletSettingsViewPreviewData.viewModel
-
-    UserWalletSettingsView(viewModel: viewModel)
-}
-#endif // DEBUG
