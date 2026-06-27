@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import Combine
 @testable import TangemStaking
 
 final class P2PBatchBalancesServiceTests: XCTestCase {
@@ -87,6 +88,34 @@ final class P2PBatchBalancesServiceTests: XCTestCase {
 
         let calls = await service.accountsListCalls
         XCTAssertEqual(calls.count, 2, "Changing the delegator-address set must trigger a fresh batch request")
+    }
+
+    func testAddressPublisherEmissionTriggersBatchFetch() async throws {
+        let info = try Self.decodedInfo()
+        let service = MockP2PStakingAPIService(result: info)
+        let addressProvider = MockAddressProvider(addresses: [addressA], emitsPublisher: true)
+        let sut = CommonP2PBatchBalancesService(
+            service: service,
+            mapper: P2PMapper(),
+            addressProvider: addressProvider,
+            yieldInfoProvider: MockYieldInfoProvider(yield: makeYield(vaultAddress: vault)),
+            debounceInterval: 0.05
+        )
+        withExtendedLifetime(sut) {}
+
+        // Let the actor wire up its subscription, then publish a changed address set.
+        try await Task.sleep(nanoseconds: 100_000_000)
+        addressProvider.emit([addressA, addressBad])
+
+        let fullSet = Set([addressA, addressBad])
+        var matched = false
+        for _ in 0 ..< 40 where !matched {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            let calls = await service.accountsListCalls
+            matched = calls.contains { Set($0.delegatorAddresses) == fullSet }
+        }
+
+        XCTAssertTrue(matched, "An address-set change must proactively trigger a batch fetch carrying the new set")
     }
 
     // MARK: - Per-address handling
@@ -263,8 +292,25 @@ private actor MockP2PStakingAPIService: P2PStakingAPIService {
 
 private final class MockAddressProvider: P2PDelegatorAddressProvider {
     var addresses: [String]
-    init(addresses: [String]) { self.addresses = addresses }
+    private let subject: CurrentValueSubject<[String], Never>?
+
+    /// `emitsPublisher: false` keeps `delegatorAddressesPublisher` silent so a test exercises only the pull path
+    /// (and the service's init-time subscription never triggers a fetch).
+    init(addresses: [String], emitsPublisher: Bool = false) {
+        self.addresses = addresses
+        subject = emitsPublisher ? CurrentValueSubject(addresses) : nil
+    }
+
     func delegatorAddresses() -> [String] { addresses }
+
+    var delegatorAddressesPublisher: AnyPublisher<[String], Never> {
+        subject?.eraseToAnyPublisher() ?? Empty(completeImmediately: false).eraseToAnyPublisher()
+    }
+
+    func emit(_ newAddresses: [String]) {
+        addresses = newAddresses
+        subject?.send(newAddresses)
+    }
 }
 
 private struct MockYieldInfoProvider: StakingYieldInfoProvider {

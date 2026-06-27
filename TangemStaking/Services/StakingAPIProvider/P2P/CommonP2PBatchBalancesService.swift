@@ -7,60 +7,107 @@
 //
 
 import Foundation
+import Combine
 
 actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
     private let service: P2PStakingAPIService
     private let mapper: P2PMapper
     private let addressProvider: P2PDelegatorAddressProvider
     private let yieldInfoProvider: StakingYieldInfoProvider
+    private let debounceInterval: TimeInterval
 
-    private var inFlight: Task<[String: [StakingBalanceInfo]], Error>?
+    private var inFlight: InFlight?
     private var cached: Cached?
+    private var generation = 0
+    private var subscription: AnyCancellable?
 
     init(
         service: P2PStakingAPIService,
         mapper: P2PMapper,
         addressProvider: P2PDelegatorAddressProvider,
-        yieldInfoProvider: StakingYieldInfoProvider
+        yieldInfoProvider: StakingYieldInfoProvider,
+        debounceInterval: TimeInterval = Constants.defaultDebounceInterval
     ) {
         self.service = service
         self.mapper = mapper
         self.addressProvider = addressProvider
         self.yieldInfoProvider = yieldInfoProvider
+        self.debounceInterval = debounceInterval
+
+        Task { await observeAddressChanges() }
     }
 
     func balances() async throws -> [String: [StakingBalanceInfo]] {
-        // Per-wallet managers pull at spread-out times during one refresh, so a short cache keyed by the
-        // delegator-address set collapses them into a single POST. The key is the address set itself, so
-        // adding/removing an account changes the key and forces an immediate refetch (no stale data), while
-        // concurrent pulls additionally share the in-flight task.
-        let addressMap = Dictionary(
-            addressProvider.delegatorAddresses().map { ($0.lowercased(), $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        let addressKey = Set(addressMap.keys)
+        try await fetch(for: addressProvider.delegatorAddresses(), forceRefresh: false)
+    }
 
-        if let cached, cached.addressKey == addressKey, !cached.isExpired {
+    // MARK: - Publisher-driven proactive refresh
+
+    /// Watches the cross-account delegator-address set and proactively refetches when it changes (account/wallet
+    /// added or removed), so balances stay current without waiting for a manual refresh. `removeDuplicates` plus
+    /// debounce coalesce the spread-out emissions of one loading wave into a single batch request.
+    private func observeAddressChanges() {
+        subscription = addressProvider
+            .delegatorAddressesPublisher
+            .map { Set($0) }
+            .removeDuplicates()
+            .debounce(for: .seconds(debounceInterval), scheduler: DispatchQueue.global(qos: .utility))
+            .sink { [weak self] addresses in
+                Task { [weak self] in
+                    try? await self?.fetch(for: Array(addresses), forceRefresh: true)
+                }
+            }
+    }
+
+    // MARK: - Core
+
+    /// Concurrent callers join the in-flight request that already covers their address set; sequential pull-path
+    /// callers within the cache window reuse the last result. `forceRefresh` (publisher-driven) bypasses the cache
+    /// so an address change always hits the network, but still joins an in-flight request that covers it.
+    @discardableResult
+    private func fetch(for addresses: [String], forceRefresh: Bool) async throws -> [String: [StakingBalanceInfo]] {
+        // Send addresses in their original (checksummed) case like the legacy single-account path, but dedupe and
+        // key the in-flight/cache by lowercase so the same address in different casing collapses to one request.
+        let requested = dedupedPreservingCase(addresses)
+        let key = Set(requested.map { $0.lowercased() })
+
+        if let inFlight, inFlight.key.isSuperset(of: key) {
+            return try await inFlight.task.value
+        }
+
+        if !forceRefresh, let cached, !cached.isExpired, cached.key.isSuperset(of: key) {
             return cached.balances
         }
 
-        if let inFlight {
-            return try await inFlight.value
-        }
-
-        let addresses = Array(addressMap.values)
-        let task = Task { try await self.fetchAll(delegatorAddresses: addresses) }
-        inFlight = task
+        generation += 1
+        let id = generation
+        let task = Task { try await self.fetchAll(delegatorAddresses: requested) }
+        inFlight = InFlight(id: id, key: key, task: task)
 
         do {
             let balances = try await task.value
-            cached = Cached(addressKey: addressKey, balances: balances, timestamp: Date())
-            inFlight = nil
+            cached = Cached(key: key, balances: balances, timestamp: Date())
+            clearInFlight(id: id)
             return balances
         } catch {
-            inFlight = nil
+            clearInFlight(id: id)
             throw error
         }
+    }
+
+    private func clearInFlight(id: Int) {
+        if inFlight?.id == id {
+            inFlight = nil
+        }
+    }
+
+    private func dedupedPreservingCase(_ addresses: [String]) -> [String] {
+        var seen = Set<String>()
+        var result = [String]()
+        for address in addresses where seen.insert(address.lowercased()).inserted {
+            result.append(address)
+        }
+        return result
     }
 
     private func fetchAll(delegatorAddresses addresses: [String]) async throws -> [String: [StakingBalanceInfo]] {
@@ -102,8 +149,14 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
 }
 
 private extension CommonP2PBatchBalancesService {
+    struct InFlight {
+        let id: Int
+        let key: Set<String>
+        let task: Task<[String: [StakingBalanceInfo]], Error>
+    }
+
     struct Cached {
-        let addressKey: Set<String>
+        let key: Set<String>
         let balances: [String: [StakingBalanceInfo]]
         let timestamp: Date
 
@@ -113,8 +166,11 @@ private extension CommonP2PBatchBalancesService {
     }
 
     enum Constants {
-        /// Long enough to coalesce a single refresh cycle's spread-out per-wallet pulls; staking balances
-        /// change slowly, so serving a slightly older value within this window is acceptable.
+        /// Coalesces the spread-out address emissions of a single loading wave into one batch request.
+        static let defaultDebounceInterval: TimeInterval = 1
+
+        /// Absorbs the sequential pull-path callers of one refresh cycle; staking balances change slowly, so
+        /// serving a slightly older value within this window is acceptable.
         static let cacheValidityInterval: TimeInterval = 60
     }
 }
