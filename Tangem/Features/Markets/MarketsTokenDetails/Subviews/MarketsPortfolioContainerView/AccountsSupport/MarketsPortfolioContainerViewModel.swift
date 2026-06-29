@@ -27,10 +27,12 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
     @Published private(set) var tokenItemViewModels: [MarketsPortfolioTokenItemViewModel] = []
     @Published private(set) var tokenWithExpandedQuickActions: MarketsPortfolioTokenItemViewModel?
     @Published private(set) var portfolioBlockState: PortfolioBlockState = .loading
+    @Published private(set) var isAddButtonVisible: Bool = false
 
     private var bag = Set<AnyCancellable>()
     private var balanceCancellables = Set<AnyCancellable>()
     private var portfolioBlockStateCancellable: AnyCancellable?
+    private var addButtonVisibilityCancellable: AnyCancellable?
     private var matchedWalletModels: [any WalletModel] = []
     private var hasMultiCurrencyWallet: Bool = false
     @Published private var totalFiatBalanceText: String?
@@ -161,6 +163,23 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             )
 
         bindPortfolioBlockState()
+        bindAddButtonVisibility()
+    }
+
+    private func bindAddButtonVisibility() {
+        addButtonVisibilityCancellable = Publishers.CombineLatest($typeView, $isAddTokenButtonDisabled)
+            .map { [weak self] typeView, isAddTokenButtonDisabled in
+                guard let self, hasMultiCurrencyWallet else { return false }
+                switch typeView {
+                case .empty, .list:
+                    return !isAddTokenButtonDisabled
+                case .loading, .unsupported, .unavailable:
+                    return false
+                }
+            }
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: \.isAddButtonVisible, on: self, ownership: .weak)
     }
 
     private func bindPortfolioBlockState() {
@@ -263,7 +282,10 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 .eraseToAnyPublisher()
         }
 
-        guard walletDataPublishers.isNotEmpty else { return }
+        guard walletDataPublishers.isNotEmpty else {
+            resetToEmptyState()
+            return
+        }
 
         walletDataPublishers
             .combineLatest()
@@ -275,6 +297,17 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 viewModel.buildUIFromWalletsData(walletsData)
             }
             .store(in: &bag)
+    }
+
+    private func resetToEmptyState() {
+        balanceCancellables.removeAll()
+        matchedWalletModels = []
+        hasMultiCurrencyWallet = false
+        isAddTokenButtonDisabled = true
+        totalFiatBalanceText = nil
+        tokenItemViewModels = []
+        typeView = .loading
+        isLoadingNetworks = false
     }
 
     private func buildUIFromWalletsData(_ walletsData: [WalletData]) {
