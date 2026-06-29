@@ -100,7 +100,7 @@ extension P2PTarget: TargetTypeLogConvertible {
 
     var shouldLogResponseBody: Bool {
         switch target {
-        case .getVaultsList, .getAccountSummary, .getAccountsList:
+        case .getVaultsList, .getAccountSummary:
             return true
         default:
             return false
