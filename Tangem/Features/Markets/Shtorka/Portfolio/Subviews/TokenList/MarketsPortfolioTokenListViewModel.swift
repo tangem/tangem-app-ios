@@ -21,11 +21,11 @@ final class MarketsPortfolioTokenListViewModel: ObservableObject {
     var addTokenPromo: AddTokenPromo?
 
     var hasWalletHeader: Bool {
-        sections.count > 1
+        sections.count > 1 || hasAccountHeader
     }
 
     var hasAccountHeader: Bool {
-        sections.contains { $0.accounts.count > 1 }
+        sections.contains(where: \.walletHasMultipleAccounts)
     }
 
     private let onSelect: (any WalletModel) -> Void
@@ -62,10 +62,13 @@ private extension MarketsPortfolioTokenListViewModel {
         var sections: [WalletSection] = []
 
         for walletModel in walletModels {
-            guard
-                let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
-                let account = walletModel.account
-            else {
+            guard let userWalletModel = userWalletRepository.models[walletModel.userWalletId] else {
+                continue
+            }
+
+            // `WalletModel.account` is a weak reference, so fall back to resolving the owning account
+            // from the wallet's account models to avoid silently dropping rows.
+            guard let account = walletModel.account ?? resolveAccount(for: walletModel, in: userWalletModel) else {
                 continue
             }
 
@@ -136,10 +139,17 @@ private extension MarketsPortfolioTokenListViewModel {
             id: walletModel.userWalletId,
             title: userWalletModel.name,
             thumbnail: userWalletModel.config.walletThumbnailType,
+            walletHasMultipleAccounts: userWalletModel.accountModelsManager.cryptoAccountModels.count > 1,
             accounts: [account]
         )
 
         sections.append(section)
+    }
+
+    func resolveAccount(for walletModel: any WalletModel, in userWalletModel: any UserWalletModel) -> (any CryptoAccountModel)? {
+        userWalletModel.accountModelsManager.cryptoAccountModels.first { account in
+            account.walletModelsManager.walletModels.contains { $0.id == walletModel.id }
+        }
     }
 
     func makeTokenRow(walletModel: any WalletModel) -> TokenRow {
@@ -192,6 +202,7 @@ extension MarketsPortfolioTokenListViewModel {
         let id: AnyHashable
         let title: String
         let thumbnail: ThumbnailWalletViewType?
+        let walletHasMultipleAccounts: Bool
         var accounts: [AccountSection]
     }
 
