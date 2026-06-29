@@ -55,6 +55,8 @@ final class WelcomeCoordinator: CoordinatorObject {
     private var tangemPayMobileOnboardingObserver: AnyCancellable?
     private var needsToShowTangemPayMobileOnboarding = false
 
+    private var mobileWalletPromoObserver: AnyCancellable?
+
     /// When the user carries a referral signal, the intro stories are skipped in favour of the
     /// alternative wallet creation screen. We can't open it until any startup onboarding is dismissed.
     private var shouldSkipStories = false
@@ -92,6 +94,46 @@ final class WelcomeCoordinator: CoordinatorObject {
         }
 
         bindTangemPayMobileOnboarding()
+        bindMobileWalletPromo()
+    }
+
+    /// Referral attribution can resolve after the Welcome flow is already on screen (on a cold launch the
+    /// stories are rendered before AppsFlyer reports the deep link). When the promo becomes available we
+    /// switch from the intro stories to the alternative wallet creation screen instead of waiting for the
+    /// next launch.
+    private func bindMobileWalletPromo() {
+        guard FeatureProvider.isAvailable(.hideStoriesInMobileWallet) else {
+            return
+        }
+
+        mobileWalletPromoObserver = AppSettings.shared.$shouldShowMobilePromoWalletSelector
+            .dropFirst()
+            .filter { $0 }
+            .first()
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { coordinator, _ in
+                coordinator.skipStoriesForMobileWalletPromo()
+            }
+    }
+
+    private func skipStoriesForMobileWalletPromo() {
+        guard !shouldSkipStories else {
+            return
+        }
+
+        shouldSkipStories = true
+
+        // If a startup onboarding (notification permission / Tangem Pay) is on screen, its dismiss handler
+        // opens the create wallet flow once `shouldSkipStories` is set, so the stories are never revealed.
+        guard welcomeOnboardingCoordinator == nil,
+              tangemPayMobileOnboardingCoordinator == nil,
+              createWalletSelectorCoordinator == nil else {
+            return
+        }
+
+        // Stories are the topmost screen — replace them with the create wallet flow right away.
+        openCreateWallet(showsBackButton: false)
     }
 
     private func bindTangemPayMobileOnboarding() {

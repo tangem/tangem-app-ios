@@ -28,6 +28,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var debugMenuPresenter: DebugMenuPresenter?
     private var isSceneStarted = false
 
+    /// Universal links delivered on a cold launch (via `connectionOptions`). Forwarded to AppsFlyer only
+    /// after `start()` in `sceneDidBecomeActive`, so the SDK is configured by the time it resolves them.
+    private var pendingColdLaunchUserActivities: Set<NSUserActivity> = []
+
     // MARK: - Lifecycle
 
     /// This method can be called during app close, so we have to move out the one-time initialization code outside.
@@ -35,6 +39,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if !handleUrlContexts(connectionOptions.urlContexts) {
             handleActivities(connectionOptions.userActivities)
         }
+
+        pendingColdLaunchUserActivities = connectionOptions.userActivities
 
         startApp(scene: scene, appCoordinatorOptions: .default)
         appOverlaysManager.setup(with: scene)
@@ -70,6 +76,11 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         PerformanceMonitorConfigurator.configureIfAvailable()
         AppsFlyerWrapper.shared.handleApplicationDidBecomeActive()
+
+        pendingColdLaunchUserActivities.forEach {
+            AppsFlyerWrapper.shared.handleUserActivity(userActivity: $0)
+        }
+        pendingColdLaunchUserActivities = []
     }
 
     /// Additional view to fix no-refresh in bg issue for iOS prior to 17.
