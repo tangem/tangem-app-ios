@@ -91,6 +91,10 @@ class UserWalletModelMock: UserWalletModel {
         AccountModelsManagerMock()
     }
 
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
