@@ -22,11 +22,11 @@ struct TangemPayInsufficientFundsBanner: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(DesignSystem.Font.subheadingMediumToken)
+                        .font(token: DesignSystem.Font.subheadingMediumToken)
                         .foregroundStyle(DesignSystem.Color.textPrimary)
 
                     Text(message)
-                        .font(DesignSystem.Font.captionMediumToken)
+                        .font(token: DesignSystem.Font.captionMediumToken)
                         .foregroundStyle(DesignSystem.Color.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
