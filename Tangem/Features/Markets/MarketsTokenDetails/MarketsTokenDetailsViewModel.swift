@@ -46,6 +46,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     @Published private(set) var portfolioViewModel: MarketsPortfolioContainerViewModel?
     @Published private(set) var portfolioBlockState: MarketsPortfolioContainerViewModel.PortfolioBlockState = .loading
+    @Published private(set) var isAddButtonVisible: Bool = false
 
     @Published private(set) var historyChartViewModel: MarketsHistoryChartViewModel?
     @Published private(set) var securityScoreViewModel: MarketsTokenDetailsSecurityScoreViewModel?
@@ -318,6 +319,14 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     }
 
     func onTapAddToPortfolioPromo() {
+        addTokenToPortfolio()
+    }
+
+    func onTapAddButton() {
+        addTokenToPortfolio()
+    }
+
+    private func addTokenToPortfolio() {
         guard
             let portfolioViewModel,
             !portfolioViewModel.isAddTokenButtonDisabled,
@@ -617,6 +626,13 @@ private extension MarketsTokenDetailsViewModel {
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.portfolioBlockState, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        portfolioViewModel
+            .$isAddButtonVisible
+            .receiveOnMain()
+            .removeDuplicates()
+            .assign(to: \.isAddButtonVisible, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
