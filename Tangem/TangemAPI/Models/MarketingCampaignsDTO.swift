@@ -35,7 +35,7 @@ enum MarketingCampaignsDTO {
         let campaigns: [Campaign]
     }
 
-    struct Campaign: Decodable {
+    struct Campaign: Codable {
         let id: Int
         let type: String
         let priority: Int
@@ -45,13 +45,13 @@ enum MarketingCampaignsDTO {
         let tokens: [Token]?
         let banner: Banner
 
-        struct Token: Decodable {
+        struct Token: Codable {
             let networkId: String
             let contractAddress: String?
         }
     }
 
-    struct Banner: Decodable {
+    struct Banner: Codable {
         let uiType: UIType
         let text: String?
         let icon: URL?
@@ -59,7 +59,7 @@ enum MarketingCampaignsDTO {
         let deeplink: URL?
         let dismissible: Bool
 
-        enum UIType: Decodable {
+        enum UIType: Codable {
             case standalone
             case linkedToProvider
             case unknown(String)
@@ -75,6 +75,21 @@ enum MarketingCampaignsDTO {
                 default:
                     self = .unknown(raw)
                 }
+            }
+
+            func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+
+                let raw: String = switch self {
+                case .standalone:
+                    "standalone"
+                case .linkedToProvider:
+                    "linked_to_provider"
+                case .unknown(let raw):
+                    raw
+                }
+
+                try container.encode(raw)
             }
         }
     }
