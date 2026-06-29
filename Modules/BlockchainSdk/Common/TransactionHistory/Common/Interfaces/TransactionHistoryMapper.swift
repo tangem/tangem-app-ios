@@ -35,7 +35,7 @@ extension TransactionHistory {
 
         var errorDescription: String? {
             switch self {
-            case .notFound(let message): 
+            case .notFound(let message):
                 "\(message) not found"
             }
         }
