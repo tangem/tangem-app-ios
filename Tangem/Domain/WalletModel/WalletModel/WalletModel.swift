@@ -17,7 +17,8 @@ protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
     WalletModelHelpers, WalletModelFeesProvider, WalletModelDependenciesProvider,
-    WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
+    WalletModelRentProvider, WalletModelUpdater, WalletModelTransactionHistoryProvider,
+    WalletModelTransactionHistoryAddressesProvider, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
     ReceiveAddressTypesProvider, WalletModelResolvable {
     var id: WalletModelId { get }
@@ -40,10 +41,7 @@ protocol WalletModel:
     var qrReceiveMessage: String { get }
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
-
     var sendingRestrictions: SendingRestrictions? { get }
-
-    var features: [WalletModelFeature] { get }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
     // MARK: - Staking
@@ -102,28 +100,40 @@ extension WalletModel {
 // MARK: - WalletModelUpdater
 
 protocol WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async
+    /// - Parameter updateToken: Identifies the update cycle this call belongs to. A batch update of multiple
+    /// wallet models (e.g. `updateAll`) passes a single token to every wallet model, so calls originating
+    /// from the same cycle can be recognized and deduplicated instead of redoing the same work more than once.
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async
 
-    func updateTransactionsHistory() async
+    func updateTransactionHistory() async
     func updateAfterSendingTransaction()
 }
 
 extension WalletModelUpdater {
-    /// It can be call as `Fire-and-forget` update
+    /// Overload for a standalone update: mints a fresh `updateToken` so the call forms its own cycle
+    /// and isn't coalesced with any other update.
+    /// Use when you need to update a single wallet model without triggering updates for other wallet models.
+    func update(silent: Bool, options: WalletModelUpdateOptions) async {
+        await update(silent: silent, options: options, updateToken: UUID())
+    }
+
+    /// Overload for the `Fire-and-forget` style call.
     @discardableResult
-    func startUpdateTask(silent: Bool = false, features: [WalletModelUpdaterFeatureType] = .full) -> Task<Void, Never> {
-        Task { await update(silent: silent, features: features) }
+    func startUpdateTask(
+        silent: Bool = false,
+        options: WalletModelUpdateOptions = .full,
+        updateToken: some Hashable = UUID()
+    ) -> Task<Void, Never> {
+        Task { await update(silent: silent, options: options, updateToken: updateToken) }
     }
 }
 
-enum WalletModelUpdaterFeatureType {
-    case balances
-    case transactionHistory
-}
+struct WalletModelUpdateOptions: OptionSet {
+    let rawValue: Int
 
-extension [WalletModelUpdaterFeatureType] {
-    static let balances: [WalletModelUpdaterFeatureType] = [.balances]
-    static let full: [WalletModelUpdaterFeatureType] = [.balances, .transactionHistory]
+    static let balances = WalletModelUpdateOptions(rawValue: 1 << 0)
+    static let transactionHistory = WalletModelUpdateOptions(rawValue: 1 << 1)
+    static let full: WalletModelUpdateOptions = [.balances, .transactionHistory]
 }
 
 // MARK: - WalletModelBalancesProvider
@@ -204,8 +214,6 @@ protocol WalletModelDependenciesProvider {
 }
 
 // MARK: - Tx history
-
-protocol WalletModelHistoryUpdater: WalletModelTransactionHistoryProvider & WalletModelUpdater & WalletModelTransactionHistoryAddressesProvider {}
 
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
