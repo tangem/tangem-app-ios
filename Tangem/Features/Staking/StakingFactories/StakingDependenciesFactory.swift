@@ -15,8 +15,6 @@ import TangemFoundation
 class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
-    /// Shared singleton on purpose (unlike the per-manager `apiProvider`): it coalesces the concurrent
-    /// per-wallet balance calls of a bulk refresh into a single request, which requires one shared instance.
     @Injected(\.p2pBatchBalancesService) private var p2pBatchBalancesService: P2PBatchBalancesService
 
     @Injected(\.stakingTargetAmountLimitProvider) var targetAmountLimitProvider: StakingTargetAmountLimitProvider
