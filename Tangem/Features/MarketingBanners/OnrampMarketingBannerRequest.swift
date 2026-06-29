@@ -1,5 +1,5 @@
 //
-//  SwapMarketingBannerRequest.swift
+//  OnrampMarketingBannerRequest.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import Foundation
 
-struct SwapMarketingBannerRequest: Equatable {
-    let source: TokenItem
+struct OnrampMarketingBannerRequest: Equatable {
     let destination: TokenItem
-    let sourceAmount: Decimal?
+    let expectedCryptoAmount: Decimal?
+    let fiatCurrencyCode: String?
 }
