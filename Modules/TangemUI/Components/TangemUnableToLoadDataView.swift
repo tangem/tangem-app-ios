@@ -30,7 +30,6 @@ public struct TangemUnableToLoadDataView: View {
             )
             .setButtonState(isLoading: isButtonBusy)
             .setStyleType(.secondary)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.intrinsic)
             .setSize(.x9)
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
