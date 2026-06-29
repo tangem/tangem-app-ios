@@ -226,8 +226,10 @@ private extension RestakingModel {
 
         do {
             let transaction: StakingTransactionAction
-            if let cached = validationHandler?.cachedTransaction(for: tokenItem.blockchain) {
-                transaction = cached
+            if let validated = validationHandler?.validatedTransaction(for: tokenItem.blockchain) {
+                transaction = validated
+            } else if let revalidated = await validationHandler?.revalidate(action: action) {
+                transaction = revalidated
             } else {
                 transaction = try await stakingManager.transaction(action: action)
             }

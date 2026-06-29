@@ -21,8 +21,7 @@ final class StakingValidationHandler: StakingValidationStateProvider {
     private let stateSubject = CurrentValueSubject<StakingValidationState, Never>(.idle)
 
     private var validationTask: Task<Void, Never>?
-
-    private(set) var validatedTransaction: StakingTransactionAction?
+    private var validatedTransaction: ValidatedTransaction?
 
     var validationState: AnyPublisher<StakingValidationState, Never> {
         stateSubject.eraseToAnyPublisher()
@@ -56,13 +55,28 @@ final class StakingValidationHandler: StakingValidationStateProvider {
         stateSubject.send(.idle)
     }
 
-    /// Returns cached transaction, or `nil` for Solana (blockhash expires quickly).
-    func cachedTransaction(for blockchain: Blockchain) -> StakingTransactionAction? {
-        guard case .solana = blockchain else {
-            return validatedTransaction
+    /// Returns validated transaction if still valid, or `nil` if expired/missing.
+    func validatedTransaction(for blockchain: Blockchain) -> StakingTransactionAction? {
+        guard let validatedTransaction, !validatedTransaction.isExpired(for: blockchain) else {
+            return nil
+        }
+        return validatedTransaction.transaction
+    }
+
+    /// Rebuilds and revalidates transaction. Use when cache is expired.
+    func revalidate(action: StakingAction) async -> StakingTransactionAction? {
+        guard let transaction = await buildTransaction(action: action) else {
+            return nil
         }
 
-        return nil
+        let result = await validationProvider.validate(transaction)
+        await handleValidationResult(result)
+
+        guard result.state.allowsSending else {
+            return nil
+        }
+
+        return transaction
     }
 }
 
@@ -111,8 +125,36 @@ private extension StakingValidationHandler {
     func handleValidationResult(_ result: StakingValidationResult) {
         guard !Task.isCancelled else { return }
 
-        validatedTransaction = result.transaction
+        if let transaction = result.transaction {
+            validatedTransaction = ValidatedTransaction(transaction: transaction, validatedAt: Date())
+        }
         stateSubject.send(result.state)
         validationTask = nil
+    }
+}
+
+// MARK: - ValidatedTransaction
+
+private extension StakingValidationHandler {
+    struct ValidatedTransaction {
+        let transaction: StakingTransactionAction
+        let validatedAt: Date
+
+        func isExpired(for blockchain: Blockchain) -> Bool {
+            guard let timeout = blockchain.stakingCacheTimeout else { return false }
+            return Date().timeIntervalSince(validatedAt) >= timeout
+        }
+    }
+}
+
+// MARK: - Blockchain + Staking Cache
+
+private extension Blockchain {
+    /// Solana blockhash expires in ~60-90 sec, we use 50 sec safety margin.
+    var stakingCacheTimeout: TimeInterval? {
+        switch self {
+        case .solana: return 50
+        default: return nil
+        }
     }
 }
