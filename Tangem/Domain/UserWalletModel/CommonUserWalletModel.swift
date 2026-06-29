@@ -30,6 +30,7 @@ class CommonUserWalletModel {
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let addressBookManager: AddressBookManager
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -57,7 +58,8 @@ class CommonUserWalletModel {
         keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
-        accountModelsManager: AccountModelsManager
+        accountModelsManager: AccountModelsManager,
+        addressBookManager: AddressBookManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -69,6 +71,7 @@ class CommonUserWalletModel {
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
+        self.addressBookManager = addressBookManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
     }

@@ -95,10 +95,17 @@
 "address_book_enter_address" = "Enter address";
 "address_book_invalid_address_error" = "Invalid address";
 "address_book_keep_editing" = "Keep editing";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "New contact";
 "address_book_no_contacts_description" = "Contacts added will appear here";
 "address_book_no_contacts" = "No contacts yet";
 "address_book_remove_address" = "Remove address";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "This contact will be linked to this wallet’s address book.";
 "address_book_select_network" = "Select network";
 "address_book_title" = "Address book";
@@ -278,6 +285,7 @@
 "common_get_token" = "Get token";
 "common_go_to_provider" = "Go to provider";
 "common_go_to_token" = "Go to token";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "Got it";
 "common_hide" = "Hide";
 "common_hold_to" = "Hold to %@";
@@ -602,6 +610,8 @@
 "hardware_wallet_key_feature_title" = "Key Generation";
 "hardware_wallet_security_feature_description" = "All cryptographic operations happen inside the secure chip, certified against cloning and physical tampering.";
 "hardware_wallet_security_feature_title" = "Hardware-Level Security";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "Order Tangem";
 "home_button_scan" = "Scan Tangem";
 "hot_crypto_add_token_subtitle" = "to %@";
@@ -1157,6 +1167,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Check your network connection";
 "send_fee_unreachable_error_title" = "Network fee info unreachable";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "You send";
 "send_from_wallet_name" = "From %@";
 "send_from_wallet" = "From **%@**";
