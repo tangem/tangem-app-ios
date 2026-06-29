@@ -17,4 +17,5 @@ struct MarketsTokenDetailsMetrics: Codable, Equatable {
     let totalSupply: Decimal?
     let maxSupply: Decimal?
     let fullyDilutedValuation: Decimal?
+    let fullyDilutedValuationChange24H: Decimal?
 }
