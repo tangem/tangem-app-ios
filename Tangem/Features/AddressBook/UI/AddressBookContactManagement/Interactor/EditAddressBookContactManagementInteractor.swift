@@ -14,20 +14,17 @@ import TangemLocalization
 import TangemUI
 
 final class EditAddressBookContactManagementInteractor {
-    typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
-
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
-
     private let contact: AddressBookContact
+    private let addressBooksProvider: any AddressBooksProvider
 
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
 
-    init(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
+    init(contact: AddressBookContact, addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
         self.contact = contact
+        self.addressBooksProvider = addressBooksProvider
 
         nameSubject = .init(contact.name.value)
         colorSubject = .init(AccountModel.CompositeIcon.Color(rawValue: contact.iconColor) ?? AccountModelUtils.UI.newAccountIcon().color)
@@ -55,15 +52,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         addressesSubject.map { AddressBookContactDraftEntries($0) }.removeDuplicates().eraseToAnyPublisher()
     }
 
-    var walletPublisher: AnyPublisher<WalletRowType?, Never> {
-        walletSubject
-            .map { addressBookWallet -> WalletRowType? in
-                WalletRowType(
-                    userWalletInfo: addressBookWallet.wallet,
-                    isEditable: self.userWalletRepository.models.count > 1
-                )
-            }
-            .eraseToAnyPublisher()
+    var walletPublisher: AnyPublisher<AddressBookWallet, Never> {
+        walletSubject.eraseToAnyPublisher()
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
@@ -102,7 +92,6 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
     }
 
     func update(addressBookWallet: AddressBookWallet) {
-        // [REDACTED_TODO_COMMENT]
         walletSubject.send(addressBookWallet)
     }
 
@@ -119,19 +108,62 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
 
     func save() async throws {
         let name = try AddressBookContactNameValidator().validate(nameSubject.value)
-        let addressBookManager = walletSubject.value.addressBookManager
+        let source = try sourceAddressBookWallet()
+        let target = walletSubject.value
 
-        // Deleting the last address deletes the contact; otherwise the whole edit is applied atomically.
+        // Deleting the last address deletes the contact; the chosen wallet is moot when nothing remains.
         guard let entries = AddressBookContactDraftEntries(addressesSubject.value) else {
-            try await addressBookManager.deleteContact(id: contact.id)
+            try await source.addressBookManager.deleteContact(id: contact.id)
             return
         }
 
-        try await addressBookManager.updateContact(id: contact.id, name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+        if target.wallet.id == contact.walletId {
+            try await target.addressBookManager.updateContact(id: contact.id, name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+        } else {
+            try await move(from: source, to: target, name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+        }
     }
 
     func delete() async throws {
-        let addressBookManager = walletSubject.value.addressBookManager
-        try await addressBookManager.deleteContact(id: contact.id)
+        try await sourceAddressBookWallet().addressBookManager.deleteContact(id: contact.id)
+    }
+}
+
+// MARK: - Wallet change (move between books)
+
+private extension EditAddressBookContactManagementInteractor {
+    /// The book the contact currently lives in — resolved from its own `walletId` rather than stored, so it
+    /// stays the source even after `walletSubject` is switched to the wallet the user wants to move it to.
+    func sourceAddressBookWallet() throws -> AddressBookWallet {
+        guard let wallet = addressBooksProvider.addressBooks.first(where: { $0.wallet.id == contact.walletId }) else {
+            throw AddressBookManagerError.contactNotFound
+        }
+
+        return wallet
+    }
+
+    /// Each book is signed with its owning wallet's key, so the move re-signs the contact's entries under the
+    /// target wallet — keeping its `id` — then drops it from the source book. Re-sign first so a cancelled
+    /// signing ceremony leaves the original untouched: the contact is never absent from both books, and the
+    /// re-signed copy is rolled back if the source delete fails.
+    func move(
+        from source: AddressBookWallet,
+        to target: AddressBookWallet,
+        name: AddressBookContactName,
+        iconColor: String,
+        entries: AddressBookContactDraftEntries
+    ) async throws {
+        try await target.addressBookManager.reSignContact(id: contact.id, name: name, iconColor: iconColor, entries: entries)
+
+        do {
+            try await source.addressBookManager.deleteContact(id: contact.id)
+        } catch {
+            do {
+                try await target.addressBookManager.deleteContact(id: contact.id)
+            } catch let rollbackError {
+                AppLogger.error("Address book: move rollback failed, contact may now exist in both wallets", error: rollbackError)
+            }
+            throw error
+        }
     }
 }

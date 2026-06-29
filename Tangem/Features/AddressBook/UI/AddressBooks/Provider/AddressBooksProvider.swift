@@ -9,7 +9,12 @@
 import Combine
 
 protocol AddressBooksProvider {
+    /// Point-in-time read for callers that act immediately (wallet picker, resolving a contact's source book).
     var addressBooks: [AddressBookWallet] { get }
+
+    /// Pushes the book set when it changes (a wallet added / removed / locked), seeded with the current value.
+    /// Per-book contact changes come from `AddressBookWallet`, not from here.
+    var addressBooksPublisher: AnyPublisher<[AddressBookWallet], Never> { get }
 }
 
 struct AddressBookWallet {
