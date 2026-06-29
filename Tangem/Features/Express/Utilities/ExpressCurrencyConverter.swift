@@ -39,6 +39,8 @@ struct ExpressCurrencyConverter {
         throw Error.notFound
     }
 
+    // [REDACTED_TODO_COMMENT]
+    @available(iOS, deprecated: 100000.0, message: "Temporary local-only converter, will be removed in future ([REDACTED_INFO])")
     func convertLocalOnly(
         expressCurrency: ExpressCurrency,
         in blockchainNetwork: BlockchainNetwork
