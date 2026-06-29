@@ -24,4 +24,38 @@ public struct ExchangeTransaction: TransactionHistoryRecord, Hashable, @unchecke
     public let updatedAt: Date
     public let payTill: Date?
     public let averageDuration: TimeInterval?
+
+    public init(
+        txId: String,
+        providerId: ExpressProvider.Id,
+        status: ExpressTransactionStatus,
+        rateType: ExpressProviderRateType?,
+        externalTx: ExternalTxInfo?,
+        fromAddress: String?,
+        payIn: PayInInfo,
+        payOut: PayOutInfo,
+        refund: RefundInfo?,
+        from: ExpressHistoryAsset,
+        to: ExpressHistoryAsset,
+        createdAt: Date,
+        updatedAt: Date,
+        payTill: Date?,
+        averageDuration: TimeInterval?
+    ) {
+        self.txId = txId
+        self.providerId = providerId
+        self.status = status
+        self.rateType = rateType
+        self.externalTx = externalTx
+        self.fromAddress = fromAddress
+        self.payIn = payIn
+        self.payOut = payOut
+        self.refund = refund
+        self.from = from
+        self.to = to
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.payTill = payTill
+        self.averageDuration = averageDuration
+    }
 }

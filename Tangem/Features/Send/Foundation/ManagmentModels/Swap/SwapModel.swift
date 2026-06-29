@@ -873,7 +873,7 @@ extension SwapModel {
                 analyticsLogger.logSwapTransactionSent(result: result)
 
                 await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
-                addTransactionToPendingRepository(
+                persistSentTransaction(
                     source: source,
                     receive: receive,
                     provider: selected.provider,
@@ -951,7 +951,7 @@ extension SwapModel {
             try? await source.sendYieldModuleHelper?.refreshVersionAfterUpgrade()
         }
 
-        addTransactionToPendingRepository(
+        persistSentTransaction(
             source: source,
             receive: receive,
             provider: provider,
@@ -979,7 +979,7 @@ extension SwapModel {
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
     }
 
-    func addTransactionToPendingRepository(
+    func persistSentTransaction(
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
@@ -999,6 +999,19 @@ extension SwapModel {
         )
 
         expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData)
+
+        persistSentTransaction(sentTransactionData, source: source)
+    }
+
+    func persistSentTransaction(_ txData: SentSwapTransactionData, source: SendSwapableToken) {
+        guard FeatureProvider.isAvailable(.transactionHistoryV2) else {
+            return
+        }
+
+        // Fire-and-forget since we can't handle enriching errors anyway
+        runTask {
+            await source.transactionHistoryEnricher?.enrich(with: txData)
+        }
     }
 }
 
@@ -1103,7 +1116,7 @@ extension SwapModel: SendSourceTokenAmountInput, SendSourceTokenAmountOutput {
     var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _sourceAmount)
             .withWeakCaptureOf(self)
-            .map { $0.mapToAmountResult(state: $1.0, amount: $1.1) }
+            .map { $0.mapToSourceAmountResult(state: $1.0, amount: $1.1) }
             .eraseToAnyPublisher()
     }
 
@@ -1156,7 +1169,7 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
     var receiveAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
         Publishers.CombineLatest(_providersState, _receiveAmount)
             .withWeakCaptureOf(self)
-            .map { $0.mapToAmountResult(state: $1.0, amount: $1.1) }
+            .map { $0.mapToReceiveAmountResult(state: $1.0, amount: $1.1) }
             .eraseToAnyPublisher()
     }
 
@@ -1213,10 +1226,28 @@ extension SwapModel: SendReceiveTokenAmountInput, SendReceiveTokenAmountOutput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
+    private func mapToSourceAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
         switch state {
         case .loading(.rates), .loading(.providers):
             return .loading
+        default:
+            break
+        }
+
+        switch amount {
+        case .none: return .failure(SendAmountError.noAmount)
+        case .some(let amount): return .success(amount)
+        }
+    }
+
+    private func mapToReceiveAmountResult(state: ProvidersState, amount: SendAmount?) -> LoadingResult<SendAmount, any Error> {
+        switch state {
+        case .loading(.rates), .loading(.providers):
+            return .loading
+        case .failure(let error):
+            return .failure(error)
+        case .loaded(_, .requiredRefresh(let occurredError, _)):
+            return .failure(occurredError)
         default:
             break
         }
