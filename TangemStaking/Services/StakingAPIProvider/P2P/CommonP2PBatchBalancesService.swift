@@ -43,9 +43,6 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
 
     // MARK: - Publisher-driven proactive refresh
 
-    /// Watches the cross-account delegator-address set and proactively refetches when it changes (account/wallet
-    /// added or removed), so balances stay current without waiting for a manual refresh. `removeDuplicates` plus
-    /// debounce coalesce the spread-out emissions of one loading wave into a single batch request.
     private func observeAddressChanges() {
         subscription = addressProvider
             .delegatorAddressesPublisher
@@ -61,13 +58,8 @@ actor CommonP2PBatchBalancesService: P2PBatchBalancesService {
 
     // MARK: - Core
 
-    /// Concurrent callers join the in-flight request that already covers their address set; sequential pull-path
-    /// callers within the cache window reuse the last result. `forceRefresh` (publisher-driven) bypasses the cache
-    /// so an address change always hits the network, but still joins an in-flight request that covers it.
     @discardableResult
     private func fetch(for addresses: [String], forceRefresh: Bool) async throws -> [String: [StakingBalanceInfo]] {
-        // Send addresses in their original (checksummed) case like the legacy single-account path, but dedupe and
-        // key the in-flight/cache by lowercase so the same address in different casing collapses to one request.
         let requested = dedupedPreservingCase(addresses)
         let key = Set(requested.map { $0.lowercased() })
 
@@ -166,11 +158,7 @@ private extension CommonP2PBatchBalancesService {
     }
 
     enum Constants {
-        /// Coalesces the spread-out address emissions of a single loading wave into one batch request.
         static let defaultDebounceInterval: TimeInterval = 1
-
-        /// Absorbs the sequential pull-path callers of one refresh cycle; staking balances change slowly, so
-        /// serving a slightly older value within this window is acceptable.
         static let cacheValidityInterval: TimeInterval = 60
     }
 }
