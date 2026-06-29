@@ -21,7 +21,8 @@ final class NoopAddressBookManager: AddressBookManager {
     }
 
     func load() async {}
-    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {}
+    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID { AddressBookContactID() }
+    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {}
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {}
     func deleteContact(id: AddressBookContactID) async throws {}
 }
