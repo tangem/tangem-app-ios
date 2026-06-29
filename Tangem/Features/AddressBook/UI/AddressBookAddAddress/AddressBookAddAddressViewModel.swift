@@ -40,7 +40,7 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
 
         destinationAddressViewModel.router = self
 
-        if case .edit(let address, let memo, _) = options {
+        if case .edit(let address, let memo, _, _) = options {
             prefilledMemo = memo
             destinationAddressViewModel.update(address: .init(string: address, source: .textField))
         }
@@ -53,7 +53,17 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     }
 
     func userDidRequestNetworksChange() {
-        // [REDACTED_TODO_COMMENT]
+        guard case .resolved(let resolved, let selected) = addressNetworksType, let coordinator else {
+            return
+        }
+
+        let viewModel = ChooseNetworkViewModel(
+            candidates: resolved,
+            preselected: selected,
+            output: self,
+            routable: coordinator
+        )
+        coordinator.presentChooseNetwork(viewModel)
     }
 
     func userDidRequestAddAddress() {
@@ -93,11 +103,11 @@ private extension AddressBookAddAddressViewModel {
             .sink { $0.additionalFieldViewModel?.update(error: $1) }
             .store(in: &bag)
 
-        interactor.resolvedNetworks
-            .removeDuplicates()
+        Publishers.CombineLatest(interactor.resolvedNetworks, interactor.selectedNetworks)
+            .removeDuplicates { $0 == $1 }
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .map { $0.mapToAddressNetworksType(networks: $1) }
+            .map { $0.mapToAddressNetworksType(resolved: $1.0, selected: $1.1) }
             .assign(to: &$addressNetworksType)
 
         interactor.isAddAddressEnabledPublisher
@@ -106,12 +116,12 @@ private extension AddressBookAddAddressViewModel {
             .assign(to: &$isAddAddressEnabled)
     }
 
-    func mapToAddressNetworksType(networks: Set<BSDKBlockchain>) -> AddressNetworksType {
-        guard !networks.isEmpty else {
+    func mapToAddressNetworksType(resolved: Set<BSDKBlockchain>, selected: Set<BSDKBlockchain>) -> AddressNetworksType {
+        guard !resolved.isEmpty else {
             return .idle
         }
 
-        return .resolved(networks: networks)
+        return .resolved(resolved: resolved, selected: selected)
     }
 
     func mapToAdditionalFieldViewModel(type: SendDestinationAdditionalFieldType?) -> SendDestinationAdditionalFieldViewModel? {
@@ -158,24 +168,32 @@ extension AddressBookAddAddressViewModel {
     }
 }
 
+// MARK: - ChooseNetworkOutput
+
+extension AddressBookAddAddressViewModel: ChooseNetworkOutput {
+    func chooseNetworkDidConfirm(_ selected: Set<BSDKBlockchain>) {
+        interactor.update(selectedNetworks: selected)
+    }
+}
+
 // MARK: - Types
 
 extension AddressBookAddAddressViewModel {
     enum AddressNetworksType: Identifiable {
         case idle
-        case resolved(networks: Set<BSDKBlockchain>)
+        case resolved(resolved: Set<BSDKBlockchain>, selected: Set<BSDKBlockchain>)
 
         var id: String {
             switch self {
             case .idle: "idle"
-            case .resolved(let resolved): resolved.hashValue.description
+            case .resolved: "resolved"
             }
         }
 
         var isEditable: Bool {
             switch self {
             case .idle: false
-            case .resolved(let networks): networks.count > 1
+            case .resolved(let resolved, _): resolved.count > 1
             }
         }
     }

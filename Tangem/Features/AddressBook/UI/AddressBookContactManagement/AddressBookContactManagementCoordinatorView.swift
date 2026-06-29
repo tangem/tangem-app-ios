@@ -26,6 +26,9 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
         .floatingSheetContent(for: AddressActionsViewModel.self) { viewModel in
             AddressActionsView(viewModel: viewModel)
         }
+        .sheet(item: $coordinator.chooseNetworkViewModel) { viewModel in
+            ChooseNetworkView(viewModel: viewModel)
+        }
     }
 
     @ViewBuilder
