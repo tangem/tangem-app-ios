@@ -60,7 +60,6 @@ private extension MarketsPortfolioMultipleTokenView {
             action: viewModel.onTap
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setSize(.x9)
         .allowsHitTesting(false)
     }
