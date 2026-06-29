@@ -95,7 +95,7 @@ extension CommonWCEthTransactionBuilder: WCEthTransactionBuilder {
         }
 
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
-        async let walletUpdate: () = walletModel.update(silent: false, features: .balances)
+        async let walletUpdate: () = walletModel.update(silent: false, options: .balances)
         let fee = try await getFee(for: wcTransaction, with: valueAmount, blockchain: blockchain, using: ethereumNetworkProvider)
         let _ = await walletUpdate
 

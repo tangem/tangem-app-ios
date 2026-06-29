@@ -226,7 +226,7 @@ private extension YieldModuleTransactionViewModel {
         notificationManager.createFeeUnreachableNotification {
             Task { @MainActor [weak self] in
                 self?.setNetworkFeeStateLoading()
-                await self?.walletModel.update(silent: true, features: .balances)
+                await self?.walletModel.update(silent: true, options: .balances)
                 await self?.fetchNetworkFee(for: yieldAction)
             }
         }
