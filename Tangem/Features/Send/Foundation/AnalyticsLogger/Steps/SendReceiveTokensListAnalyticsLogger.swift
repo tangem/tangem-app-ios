@@ -12,4 +12,6 @@ protocol SendReceiveTokensListAnalyticsLogger {
 
     func logTokenChosen(token: TokenItem)
     func logSendSwapCantSwapThisToken(token: String)
+    func logSendSwapAvailable(token: String)
+    func logSendSwapAvailableClicked(token: String)
 }
