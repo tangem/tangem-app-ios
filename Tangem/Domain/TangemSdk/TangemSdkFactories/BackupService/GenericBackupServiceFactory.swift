@@ -12,7 +12,7 @@ import TangemSdk
 class GenericBackupServiceFactory: BackupServiceFactory {
     private let isAccessCodeSet: Bool
     private let defaultBlockchains: [TokenItem]
-    
+
     init(isAccessCodeSet: Bool, defaultBlockchains: [TokenItem]) {
         self.isAccessCodeSet = isAccessCodeSet
         self.defaultBlockchains = defaultBlockchains

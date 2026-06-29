@@ -6,7 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-
 import Foundation
 import TangemSdk
 
@@ -15,10 +14,10 @@ struct DefaultDerivationsHelper {
         let config = UserWalletConfigFactory().makeConfig(
             cardInfo: CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
         )
-       
+
         return makeDefaultDerivations(defaultBlockchains: config.defaultBlockchains)
     }
-    
+
     func makeDefaultDerivations(defaultBlockchains: [TokenItem]) -> [EllipticCurve: [DerivationPath]] {
         let blockchainNetworks = defaultBlockchains.map { $0.blockchainNetwork }
 
@@ -26,6 +25,6 @@ struct DefaultDerivationsHelper {
             result[network.blockchain.curve, default: []].append(contentsOf: network.derivationPaths())
         }
 
-       return derivations
+        return derivations
     }
 }
