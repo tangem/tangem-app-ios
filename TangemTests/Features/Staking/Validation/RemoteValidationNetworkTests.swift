@@ -43,13 +43,13 @@ struct RemoteValidationNetworkTests {
 private extension RemoteValidationNetworkTests {
     static let evmBlockchains: [Blockchain] = [
         .bsc(testnet: false),
+        .ethereum(testnet: false),
     ]
 
     var solanaBlockchain: Blockchain { .solana(curve: .ed25519, testnet: false) }
 
     static let unsupportedBlockchains: [Blockchain] = [
         .bitcoin(testnet: false),
-        .ethereum(testnet: false),
         .polygon(testnet: false),
         .tron(testnet: false),
         .cardano(extended: false),

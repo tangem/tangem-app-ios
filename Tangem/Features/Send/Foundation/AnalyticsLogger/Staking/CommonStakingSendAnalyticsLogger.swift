@@ -83,34 +83,39 @@ extension CommonStakingSendAnalyticsLogger: StakingAnalyticsLogger {
 extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
     func logSuccess() {
         let isBlockaidSupported = RemoteValidationNetwork(blockchain: tokenItem.blockchain) != nil
-        let blockaidValue = isBlockaidSupported ? "Safe" : "Not performed"
-        logEvent(blockaidValue: blockaidValue, mobileCheckValue: "true")
+        let blockaidValue: Analytics.ParameterValue = isBlockaidSupported ? .blockaidSafe : .blockaidNotPerformed
+        logEvent(blockaidValue: blockaidValue, mobileCheckValue: .true)
     }
 
     func logLocalError(_ error: StakingTransactionValidationError) {
-        logEvent(blockaidValue: "Not performed", mobileCheckValue: "false")
+        logEvent(blockaidValue: .blockaidNotPerformed, mobileCheckValue: .false)
     }
 
     func logRemoteError(_ error: RemoteStakingValidationError) {
-        let blockaidValue: String
+        let blockaidValue: Analytics.ParameterValue
         switch error {
         case .warning:
-            blockaidValue = "Warning"
+            blockaidValue = .blockaidWarning
         case .malicious:
-            blockaidValue = "Unsafe"
+            blockaidValue = .blockaidUnsafe
         case .validationFailed:
-            blockaidValue = "Failed to validate"
+            blockaidValue = .blockaidFailedToValidate
         }
-        logEvent(blockaidValue: blockaidValue, mobileCheckValue: "true")
+        logEvent(blockaidValue: blockaidValue, mobileCheckValue: .true)
     }
 
-    private func logEvent(blockaidValue: String, mobileCheckValue: String) {
+    func logNoRawTransactions() {
+        // No raw transaction data available — possible blind signing attempt
+        logEvent(blockaidValue: .blockaidNotPerformed, mobileCheckValue: .false)
+    }
+
+    private func logEvent(blockaidValue: Analytics.ParameterValue, mobileCheckValue: Analytics.ParameterValue) {
         Analytics.log(event: .stakingScamVerification, params: [
             .token: tokenItem.currencySymbol,
             .blockchain: tokenItem.blockchain.displayName,
-            .provider: "StakeKit",
-            .blockaid: blockaidValue,
-            .mobileCheck: mobileCheckValue,
+            .provider: Analytics.ParameterValue.providerStakeKit.rawValue,
+            .blockaid: blockaidValue.rawValue,
+            .mobileCheck: mobileCheckValue.rawValue,
         ])
     }
 }

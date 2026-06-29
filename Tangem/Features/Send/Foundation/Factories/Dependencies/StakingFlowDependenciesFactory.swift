@@ -51,6 +51,21 @@ extension StakingFlowDependenciesFactory {
     func makeStakingSummaryTitleProvider() -> SendSummaryTitleProvider {
         StakingSendSummaryTitleProvider(actionType: actionType.sendFlowActionType, tokenItem: tokenItem, walletName: userWalletInfo.name)
     }
+
+    func makeValidationHandler(
+        stakingManager: StakingManager,
+        blockaidAPIKey: String,
+        analyticsLogger: StakingSendAnalyticsLogger
+    ) -> StakingValidationHandler? {
+        guard let validationProvider = makeValidationProvider(blockaidAPIKey: blockaidAPIKey, analyticsLogger: analyticsLogger) else {
+            return nil
+        }
+
+        return StakingValidationHandler(
+            stakingManager: stakingManager,
+            validationProvider: validationProvider
+        )
+    }
 }
 
 extension StakingAction.ActionType {
@@ -66,5 +81,35 @@ extension StakingAction.ActionType {
         case .pending(.restake): .restake
         case .pending(.claimUnstaked): .claimUnstaked
         }
+    }
+}
+
+private extension StakingFlowDependenciesFactory {
+    func makeValidationProvider(
+        blockaidAPIKey: String,
+        analyticsLogger: StakingSendAnalyticsLogger
+    ) -> StakingValidationProvider? {
+        guard FeatureProvider.isAvailable(.stakingTransactionValidation) else {
+            return nil
+        }
+
+        let blockchain = tokenItem.blockchain
+        let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
+        let isRemoteValidationEnabled = RemoteValidationNetwork(blockchain: blockchain) != nil
+
+        guard isLocalValidationEnabled || isRemoteValidationEnabled else {
+            return nil
+        }
+
+        let validator = StakingValidationComposer.make(
+            blockchain: blockchain,
+            accountAddress: stakingableToken.defaultAddressString,
+            verifier: StakingTransactionVerifierFactory.make(apiKey: blockaidAPIKey)
+        )
+
+        return StakingValidationService(
+            validator: validator,
+            analyticsLogger: analyticsLogger
+        )
     }
 }

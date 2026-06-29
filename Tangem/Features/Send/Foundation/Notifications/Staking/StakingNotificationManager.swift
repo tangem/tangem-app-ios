@@ -402,7 +402,7 @@ extension CommonStakingNotificationManager: StakingNotificationManager {
     func setup(validationStatePublisher: AnyPublisher<StakingValidationState, Never>, tokenName: String) {
         validationSubscription = validationStatePublisher
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { manager, validationState in
                 manager.update(validationState: validationState, tokenName: tokenName)

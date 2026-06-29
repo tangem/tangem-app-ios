@@ -22,7 +22,7 @@ enum RemoteValidationNetwork {
 
     init?(blockchain: Blockchain) {
         switch blockchain {
-        case .bsc:
+        case .bsc, .ethereum:
             self = .evm(blockchain)
         case .solana:
             self = .solana

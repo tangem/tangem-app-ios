@@ -70,8 +70,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .stakingTransactionValidation: return "TWI-1602_move_away_from_blind_signing_in_staking"
         case .sendWithSwapAvailabilityCheck: return "14316_Send_With_Swap_Availability_Check"
         case .swapFiatCalculation: return "14315_Swap_Fiat_Calculation"
-        case .addressBook: return "TWI-83_address_book"
         case .swapChooseBestDEX: return "14412_[SWAP_Ph.3]_Chose_Best_DEX_instead_of_best_rate"
+        case .addressBook: return "TWI-83_address_book"
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         }
@@ -104,9 +104,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .addAndOrganizeRedesign: return .version("6.0")
         case .stakingTransactionValidation: return .unspecified
         case .sendWithSwapAvailabilityCheck: return .unspecified
+        case .swapChooseBestDEX: return .version("6.0")
         case .swapFiatCalculation: return .unspecified
         case .addressBook: return .unspecified
-        case .swapChooseBestDEX: return .version("6.0")
         case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
         }

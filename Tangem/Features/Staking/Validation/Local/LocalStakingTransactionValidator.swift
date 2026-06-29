@@ -31,8 +31,8 @@ struct LocalStakingTransactionValidator: StakingTransactionValidator {
             try SolanaStakingTransactionValidator.validate(unsignedData)
         case .cosmos:
             try CosmosStakingTransactionValidator.validate(unsignedData)
-        case .polygon:
-            try PolygonStakingTransactionValidator.validate(unsignedData)
+        case .ethereum:
+            try POLStakingTransactionValidator.validate(unsignedData)
         case .bsc:
             try BNBStakingTransactionValidator.validate(unsignedData)
         case .cardano:

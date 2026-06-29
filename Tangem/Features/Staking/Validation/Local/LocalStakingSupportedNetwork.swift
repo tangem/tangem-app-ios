@@ -13,7 +13,7 @@ enum LocalStakingSupportedNetwork {
     case tron
     case solana
     case cosmos
-    case polygon
+    case ethereum
     case bsc
     case cardano
 
@@ -22,7 +22,7 @@ enum LocalStakingSupportedNetwork {
         case .tron: self = .tron
         case .solana: self = .solana
         case .cosmos: self = .cosmos
-        case .polygon: self = .polygon
+        case .ethereum: self = .ethereum
         case .bsc: self = .bsc
         case .cardano: self = .cardano
         default: return nil

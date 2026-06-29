@@ -14,4 +14,13 @@ enum StakingValidationState: Hashable {
     case validated
     case warning
     case blocked
+
+    var allowsSending: Bool {
+        switch self {
+        case .idle, .validated, .warning:
+            true
+        case .validating, .blocked:
+            false
+        }
+    }
 }

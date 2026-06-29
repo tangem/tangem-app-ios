@@ -39,6 +39,7 @@ final class RestakingModel {
     private let sendSourceToken: SendStakingableToken
     private let sendAmountValidator: SendAmountValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
+    private let validationHandler: StakingValidationHandler?
 
     private var transactionValidator: SendTransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
@@ -53,12 +54,14 @@ final class RestakingModel {
         sendSourceToken: SendStakingableToken,
         sendAmountValidator: SendAmountValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
+        validationHandler: StakingValidationHandler?
     ) {
         self.stakingManager = stakingManager
         self.action = action
         self.sendSourceToken = sendSourceToken
         self.sendAmountValidator = sendAmountValidator
         self.analyticsLogger = analyticsLogger
+        self.validationHandler = validationHandler
 
         bind()
     }
@@ -68,7 +71,14 @@ final class RestakingModel {
 
 extension RestakingModel: RestakingModelStateProvider {
     var stakingAction: Action {
-        action
+        guard let target = _selectedTarget.value.value else {
+            return action
+        }
+        return StakingAction(
+            amount: action.amount,
+            targetType: .target(target),
+            type: action.type
+        )
     }
 
     var state: State {
@@ -169,6 +179,13 @@ private extension RestakingModel {
 
     func update(state: RestakingModel.State) {
         _state.send(state)
+
+        switch state {
+        case .ready:
+            validationHandler?.validate(action: stakingAction)
+        default:
+            validationHandler?.reset()
+        }
     }
 
     func makeAmount(value: Decimal) -> BSDKAmount {
@@ -208,7 +225,12 @@ private extension RestakingModel {
         )
 
         do {
-            let transaction = try await stakingManager.transaction(action: action)
+            let transaction: StakingTransactionAction
+            if let cached = validationHandler?.validatedTransaction {
+                transaction = cached
+            } else {
+                transaction = try await stakingManager.transaction(action: action)
+            }
             let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
             let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
@@ -344,14 +366,21 @@ extension RestakingModel: SendFeeInput {
 
 extension RestakingModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        _state.map { state in
-            switch state {
-            case .loading, .validationError, .networkError, .stakingValidationError:
-                return false
-            case .ready:
-                return true
+        let validationStatePublisher = validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
+
+        return Publishers.CombineLatest(_state, validationStatePublisher)
+            .map { state, validationState in
+                let isModelReady: Bool
+                switch state {
+                case .ready:
+                    isModelReady = true
+                case .loading, .validationError, .networkError, .stakingValidationError:
+                    isModelReady = false
+                }
+
+                return isModelReady && validationState.allowsSending
             }
-        }.eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     var summaryTransactionDataPublisher: AnyPublisher<SendSummaryTransactionData?, Never> {
@@ -407,6 +436,14 @@ extension RestakingModel: NotificationTapDelegate {
         default:
             assertionFailure("StakingModel doesn't support notification action \(action)")
         }
+    }
+}
+
+// MARK: - StakingValidationStateProvider
+
+extension RestakingModel: StakingValidationStateProvider {
+    var validationState: AnyPublisher<StakingValidationState, Never> {
+        validationHandler?.validationState ?? Just(.validated).eraseToAnyPublisher()
     }
 }
 

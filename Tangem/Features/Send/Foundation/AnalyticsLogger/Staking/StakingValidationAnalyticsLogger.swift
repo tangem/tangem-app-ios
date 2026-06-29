@@ -12,4 +12,5 @@ protocol StakingValidationAnalyticsLogger: AnyObject {
     func logSuccess()
     func logLocalError(_ error: StakingTransactionValidationError)
     func logRemoteError(_ error: RemoteStakingValidationError)
+    func logNoRawTransactions()
 }

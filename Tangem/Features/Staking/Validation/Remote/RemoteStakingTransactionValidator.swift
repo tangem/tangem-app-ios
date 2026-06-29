@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-/// Validates staking transactions via remote API (BNB, Solana).
+/// Validates staking transactions via remote API (Ethereum, BNB, Solana).
 struct RemoteStakingTransactionValidator: StakingTransactionValidator {
     private let network: RemoteValidationNetwork
     private let accountAddress: String
