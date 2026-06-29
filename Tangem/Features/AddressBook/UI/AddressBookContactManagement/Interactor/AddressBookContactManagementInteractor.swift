@@ -8,6 +8,7 @@
 
 import Combine
 import TangemAccounts
+import TangemFoundation
 import TangemUI
 
 protocol AddressBookContactManagementInteractor {
@@ -16,8 +17,8 @@ protocol AddressBookContactManagementInteractor {
     var contactNamePublisher: AnyPublisher<String, Never> { get }
     var contactColorPublisher: AnyPublisher<AccountModel.CompositeIcon.Color, Never> { get }
 
-    var addressesPublisher: AnyPublisher<[AddressBookContactManagementViewModel.DraftRow], Never> { get }
-    var walletPublisher: AnyPublisher<AddressBookContactManagementViewModel.WalletRowType?, Never> { get }
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> { get }
+    var walletPublisher: AnyPublisher<AddressBookWallet, Never> { get }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> { get }
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { get }
@@ -27,9 +28,10 @@ protocol AddressBookContactManagementInteractor {
 
     func update(name: String)
     func update(color: AccountModel.CompositeIcon.Color)
+    func update(addressBookWallet: AddressBookWallet)
 
-    func add(address: AddressBookContactManagementViewModel.DraftRow) throws
-    func deleteAddress(id: String)
+    func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws
+    func deleteAddress(id: AddressBookAddressEntryID)
 
     func save() async throws
     func delete() async throws

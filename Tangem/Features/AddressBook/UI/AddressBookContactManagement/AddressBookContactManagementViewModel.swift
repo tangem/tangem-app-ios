@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import Combine
 import TangemAssets
 import TangemAccounts
@@ -30,12 +31,12 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published var errorAlert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
-    @Published private var drafts: [DraftRow] = []
+    @Published private var entries: AddressBookContactDraftEntries?
     @Published private var canAddNewAddress: Bool = true
 
     let title: String
 
-    var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
+    var maxNameLength: Int { AddressBookContactNameValidator.maxLength }
 
     let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
         .allCases
@@ -55,6 +56,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     // MARK: - Dependencies
 
     private let interactor: AddressBookContactManagementInteractor
+    private let addressBooksProvider: any AddressBooksProvider
     private weak var coordinator: AddressBookContactManagementRoutable?
     private var bag = Set<AnyCancellable>()
 
@@ -68,9 +70,11 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     init(
         interactor: AddressBookContactManagementInteractor,
-        coordinator: AddressBookContactManagementRoutable
+        coordinator: AddressBookContactManagementRoutable,
+        addressBooksProvider: any AddressBooksProvider = .common()
     ) {
         self.interactor = interactor
+        self.addressBooksProvider = addressBooksProvider
         self.coordinator = coordinator
 
         title = interactor.title
@@ -89,7 +93,23 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     func userDidRequestWalletChange() {
-        // [REDACTED_TODO_COMMENT]
+        guard let selectedWallet, let coordinator else {
+            return
+        }
+
+        let addressBookWallets = addressBooksProvider.addressBooks
+            .filter { $0.wallet.id != selectedWallet.userWalletInfo.id }
+
+        guard addressBookWallets.isNotEmpty else {
+            return
+        }
+
+        let viewModel = AddressBookWalletPickerViewModel(
+            addressBookWallets: addressBookWallets,
+            output: self,
+            routable: coordinator
+        )
+        coordinator.presentWalletPicker(viewModel)
     }
 
     func userDidRequestDone() {
@@ -143,9 +163,16 @@ private extension AddressBookContactManagementViewModel {
 
         interactor.addressesPublisher
             .receiveOnMain()
-            .assign(to: &$drafts)
+            .assign(to: &$entries)
 
         interactor.walletPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, addressBookWallet -> WalletRowType? in
+                WalletRowType(
+                    userWalletInfo: addressBookWallet.wallet,
+                    isEditable: viewModel.addressBooksProvider.addressBooks.count > 1
+                )
+            }
             .receiveOnMain()
             .assign(to: &$selectedWallet)
 
@@ -165,20 +192,26 @@ private extension AddressBookContactManagementViewModel {
             .receiveOnMain()
             .assign(to: &$mainButtonIcon)
 
-        Publishers.CombineLatest($drafts, $canAddNewAddress)
+        Publishers.CombineLatest($entries, $canAddNewAddress)
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                viewModel.makeAddressesSection(drafts: args.0, canAddNewAddress: args.1)
+                viewModel.makeAddressesSection(entries: args.0, canAddNewAddress: args.1)
             }
             .receiveOnMain()
             .assign(to: &$addressesSection)
     }
 
-    func makeAddressesSection(drafts: [DraftRow], canAddNewAddress: Bool) -> [AddressRowType] {
-        var types: [AddressRowType] = drafts.map { draft in
+    func makeAddressesSection(entries: AddressBookContactDraftEntries?, canAddNewAddress: Bool) -> [AddressRowType] {
+        // One row per address — an address may be saved in several networks; the row shows that count.
+        let grouped = entries?.groupedByAddress ?? []
+        var types: [AddressRowType] = grouped.map { group in
             .address(
-                AddressBookContactAddressRowViewModel(id: draft.id, address: draft.address) { [weak self] in
-                    self?.deleteRow(id: draft.id)
+                AddressBookContactAddressRowViewModel(
+                    id: group.id,
+                    address: group.address,
+                    networksCount: group.networks.count
+                ) { [weak self] in
+                    self?.openAddressActions(for: group)
                 }
             )
         }
@@ -192,15 +225,42 @@ private extension AddressBookContactManagementViewModel {
         return types
     }
 
-    /// Mock: appends a synthetic EVM address. The full "enter address → detect networks → memo" flow
-    /// is a follow-up; this exercises the create/add CRUD path end to end.
     func addNewAddress() {
-        let address = "0x" + String((0 ..< 40).map { _ in "0123456789abcdef".randomElement()! })
-        try? interactor.add(address: DraftRow(id: UUID().uuidString, address: address))
+        guard let wallet = selectedWallet else {
+            return
+        }
+
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add)
     }
 
-    func deleteRow(id: String) {
-        interactor.deleteAddress(id: id)
+    func editAddress(_ group: AddressBookContactAddressGroup) {
+        guard let wallet = selectedWallet else {
+            return
+        }
+
+        coordinator?.openAddAddress(
+            userWalletInfo: wallet.userWalletInfo,
+            output: self,
+            options: .edit(
+                address: group.address,
+                memo: group.memo,
+                networks: Set(group.networks.map(\.blockchain)),
+                replacing: group.networks.map(\.id)
+            )
+        )
+    }
+
+    func deleteAddress(entryIds: [AddressBookAddressEntryID]) {
+        entryIds.forEach { interactor.deleteAddress(id: $0) }
+    }
+
+    func openAddressActions(for group: AddressBookContactAddressGroup) {
+        guard let coordinator else {
+            return
+        }
+
+        let viewModel = AddressActionsViewModel(group: group, output: self, routable: coordinator)
+        coordinator.presentAddressActions(viewModel)
     }
 
     @MainActor
@@ -214,9 +274,7 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.save()
             coordinator?.dismissContactManagement()
         } catch {
-            guard !error.isCancellationError else { return }
-
-            presentGenericError()
+            presentGenericError(message: error.localizedDescription)
         }
     }
 
@@ -231,25 +289,76 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.delete()
             coordinator?.dismissContactManagement()
         } catch {
-            guard !error.isCancellationError else { return }
-
-            presentGenericError()
+            presentGenericError(message: error.localizedDescription)
         }
     }
 
-    func presentGenericError() {
-        errorAlert = AlertBinder(title: Localization.commonError, message: Localization.commonUnknownError)
+    func presentGenericError(message: String) {
+        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+    }
+}
+
+// MARK: - AddressBookAddAddressOutput
+
+extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
+    func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID]) {
+        do {
+            try interactor.update(entries: entries, replacing: replacing)
+        } catch {
+            presentGenericError(message: error.localizedDescription)
+        }
+    }
+}
+
+// MARK: - AddressBookWalletPickerOutput
+
+extension AddressBookContactManagementViewModel: AddressBookWalletPickerOutput {
+    func walletPickerDidSelect(_ addressBookWallet: AddressBookWallet) {
+        interactor.update(addressBookWallet: addressBookWallet)
+    }
+}
+
+// MARK: - AddressActionsOutput
+
+extension AddressBookContactManagementViewModel: AddressActionsOutput {
+    func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {
+        UIPasteboard.general.string = group.address
+
+        let snackbar = TangemSnackbar(title: Localization.walletNotificationAddressCopied)
+            .icon(DesignSystem.Icons.Success.regular20)
+            .iconColor(DesignSystem.Color.iconAccentBlue)
+        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+    }
+
+    func addressActionsDidRequestEdit(_ group: AddressBookContactAddressGroup) {
+        editAddress(group)
+    }
+
+    func addressActionsDidRequestRemove(_ group: AddressBookContactAddressGroup) {
+        guard canDeleteContact, (entries?.addressCount ?? 0) <= 1 else {
+            deleteAddress(entryIds: group.networks.map(\.id))
+            return
+        }
+
+        // [REDACTED_TODO_COMMENT]
+        // ("…last address of «[name]»…", Lokalise key pending) and an alert-vs-dialog style confirmed against the mockup.
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: nil,
+            subtitle: Localization.addressBookDeleteContactDescription,
+            buttons: [
+                .init(title: Localization.commonDelete, role: .destructive) { [weak self] in
+                    guard let self else { return }
+                    Task { await self.delete() }
+                },
+                .cancel,
+            ]
+        )
     }
 }
 
 // MARK: - Types
 
 extension AddressBookContactManagementViewModel {
-    struct DraftRow: Identifiable {
-        let id: String
-        var address: String
-    }
-
     enum AddressRowType: Identifiable {
         case address(AddressBookContactAddressRowViewModel)
         case addNewAddress(AddressBookContactAddNewAddressRowViewModel)
@@ -263,10 +372,11 @@ extension AddressBookContactManagementViewModel {
     }
 
     struct WalletRowType: Identifiable {
-        let userWalletId: UserWalletId
-        let wallet: String
+        let userWalletInfo: UserWalletInfo
         let isEditable: Bool
 
-        var id: String { userWalletId.stringValue }
+        var id: String { userWalletInfo.id.stringValue }
+        var name: String { userWalletInfo.name }
+        var supportedBlockchains: Set<BSDKBlockchain> { userWalletInfo.config.supportedBlockchains }
     }
 }
