@@ -82,7 +82,11 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     var actionButtonsDisabled: Bool {
-        freezingState.shouldDisableActionButtons || isStale
+        let allCardsBlocked = cardEntries.allConforms { cardEntry in
+            cardEntry.card?.productInstance.status == .blocked
+        }
+
+        return freezingState.shouldDisableActionButtons || isStale || allCardsBlocked
     }
 
     var hasIssuingEntry: Bool {
