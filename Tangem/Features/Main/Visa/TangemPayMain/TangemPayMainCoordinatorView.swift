@@ -30,6 +30,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.cardManagementViewModel) {
                 TangemPayCardManagementView(viewModel: $0)
             }
+            .navigation(item: $coordinator.currentPlanViewModel) {
+                TangemPayCurrentPlanView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
