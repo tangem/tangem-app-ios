@@ -11,6 +11,8 @@ import Combine
 import TangemFoundation
 
 class AddressBookContactManagementCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -62,9 +64,21 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput) {
-        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output)
-        addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self)
+    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options)
+        addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
+    }
+
+    func presentAddressActions(_ viewModel: AddressActionsViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func dismissAddressActions() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 

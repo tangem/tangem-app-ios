@@ -110,7 +110,6 @@ private extension EarnDetailViewRedesign {
             action: { viewModel.handleViewAction(.back) }
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setSize(.x11)
     }
 

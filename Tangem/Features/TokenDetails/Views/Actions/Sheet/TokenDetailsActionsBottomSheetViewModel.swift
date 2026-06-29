@@ -9,10 +9,11 @@
 import Foundation
 import TangemUI
 
-final class TokenDetailsActionsBottomSheetViewModel: FloatingSheetContentViewModel {
+final class TokenDetailsActionsBottomSheetViewModel: ObservableObject, FloatingSheetContentViewModel {
     let title: String
-    let items: [TokenDetailsActionRowItem]
     let onClose: () -> Void
+
+    @Published private(set) var state: State
 
     init(
         title: String,
@@ -20,7 +21,27 @@ final class TokenDetailsActionsBottomSheetViewModel: FloatingSheetContentViewMod
         onClose: @escaping () -> Void
     ) {
         self.title = title
-        self.items = items
         self.onClose = onClose
+        state = .actions(items)
+    }
+
+    func showReceive(_ viewModel: ReceiveMainViewModel) {
+        state = .receive(viewModel)
+    }
+}
+
+// MARK: - State
+
+extension TokenDetailsActionsBottomSheetViewModel {
+    enum State {
+        case actions([TokenDetailsActionRowItem])
+        case receive(ReceiveMainViewModel)
+
+        var id: String {
+            switch self {
+            case .actions: return "actions"
+            case .receive: return "receive"
+            }
+        }
     }
 }

@@ -58,4 +58,36 @@ public extension Fee {
 
         return Fee(amount, parameters: newParameters)
     }
+
+    func increasingGasPrice(byPercents: BigUInt, decimalValue: Decimal) -> Fee {
+        guard let parameters = parameters as? EthereumFeeParameters else {
+            return self
+        }
+
+        let newParameters: any EthereumFeeParameters
+        switch parameters.parametersType {
+        case .eip1559(let eip1559):
+            newParameters = EthereumEIP1559FeeParameters(
+                gasLimit: eip1559.gasLimit,
+                maxFeePerGas: eip1559.maxFeePerGas * (BigUInt(100) + byPercents) / BigUInt(100),
+                priorityFee: eip1559.priorityFee * (BigUInt(100) + byPercents) / BigUInt(100),
+                nonce: eip1559.nonce
+            )
+        case .legacy(let legacy):
+            newParameters = EthereumLegacyFeeParameters(
+                gasLimit: legacy.gasLimit,
+                gasPrice: legacy.gasPrice * (BigUInt(100) + byPercents) / BigUInt(100),
+                nonce: legacy.nonce
+            )
+        case .gasless:
+            return self
+        }
+
+        let feeValue = newParameters.calculateFee(decimalValue: decimalValue)
+
+        var amount = amount
+        amount.value = feeValue
+
+        return Fee(amount, parameters: newParameters)
+    }
 }

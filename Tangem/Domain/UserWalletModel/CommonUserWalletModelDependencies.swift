@@ -218,7 +218,8 @@ private extension CommonUserWalletModelDependencies {
             userWalletConfig: config,
             keysRepository: keysRepository,
             keysDerivingInteractor: keysDerivingInteractor,
-            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry()
+            transactionHistoryProviderRegistry: transactionHistoryProviderRegistry ?? DummyTransactionHistoryProviderRegistry(),
+            transactionHistoryScheduledUpdatesStorage: TransactionHistoryScheduledUpdatesStorage()
         )
 
         let dependenciesFactory = CommonCryptoAccountDependenciesFactory(
@@ -325,7 +326,8 @@ private extension CommonUserWalletModelDependencies {
             walletPublicKey: walletPublicKeySeed,
             repository: repository,
             signer: CommonAddressBookSigner(signer: config.tangemSigner),
-            verifier: CommonAddressBookSignatureVerifier()
+            verifier: CommonAddressBookSignatureVerifier(),
+            supportedBlockchains: config.supportedBlockchains
         )
     }
 }
