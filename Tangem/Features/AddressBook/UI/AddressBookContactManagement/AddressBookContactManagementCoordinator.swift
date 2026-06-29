@@ -23,6 +23,7 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var addAddressViewModel: AddressBookAddAddressViewModel?
+    @Published var chooseNetworkViewModel: ChooseNetworkViewModel?
 
     // MARK: - Child coordinators
 
@@ -87,6 +88,14 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
 extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
     func dismissAddAddress() {
         addAddressViewModel = nil
+    }
+
+    func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel) {
+        chooseNetworkViewModel = viewModel
+    }
+
+    func dismissChooseNetwork() {
+        chooseNetworkViewModel = nil
     }
 
     func openQRScanner(completion: @escaping (String) -> Void) {
