@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import TangemFoundation
 import TangemExpress
 import TangemUI
@@ -23,6 +24,9 @@ protocol SendReceiveTokenNetworkSelectorViewRoutable: AnyObject {
 class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Injected(\.swapRepository)
     private var swapRepository: SwapRepository
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
 
     @Published var notification: NotificationViewInput?
     @Published var state: ViewState = .loading
@@ -257,13 +261,17 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             )
         }
 
-        // A held network lets the swap open with both sides prefilled
-        let heldTokenItem = swapableReceiveTokenItems.first { tokenItem in
-            (try? WalletModelFinder.findWalletModel(userWalletId: userWalletId, tokenItem: tokenItem)) != nil
-        }
+        let walletModels = userWalletRepository.models
+            .first { $0.userWalletId == userWalletId }
+            .map { AccountWalletModelsAggregator.walletModels(from: $0.accountModelsManager) } ?? []
 
-        if let heldTokenItem {
-            router?.openManualSwap(option: makeSwapOption(heldTokenItem))
+        // Match ignoring derivation
+        let heldWalletModel = swapableReceiveTokenItems.lazy.compactMap { item in
+            walletModels.first { $0.tokenItem.blockchain == item.blockchain && $0.tokenItem.token == item.token }
+        }.first
+
+        if let heldWalletModel {
+            router?.openManualSwap(option: makeSwapOption(heldWalletModel.tokenItem))
             return
         }
 

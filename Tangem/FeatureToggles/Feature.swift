@@ -38,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
     case addressBook
     case swapChooseBestDEX
     case hideStoriesInMobileWallet
+    case marketingBanners
     case bitcoinDexSwap
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
@@ -74,6 +75,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addressBook: return "TWI-83_address_book"
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
+        case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
         }
     }
 
@@ -93,7 +95,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .transactionHistoryV2: return .unspecified
         case .tangemPayMultipleCards: return .version("6.0")
         case .transfers: return .version("6.0")
-        case .memoValidationBeforeConfirm: return .unspecified
+        case .memoValidationBeforeConfirm: return .version("6.0")
         case .tangemPaySpendRedesign: return .version("6.0")
         case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
@@ -109,6 +111,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .addressBook: return .unspecified
         case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
+        case .marketingBanners: return .unspecified
         }
     }
 }
