@@ -107,4 +107,8 @@ extension OnrampFlowBaseDependenciesFactory {
     func makeOnrampNotificationManager(input: OnrampNotificationManagerInput, delegate: NotificationTapDelegate) -> OnrampNotificationManager {
         CommonOnrampNotificationManager(input: input, delegate: delegate)
     }
+
+    func makeOnrampMarketingBannerNotificationManager() -> OnrampMarketingBannerNotificationManager {
+        OnrampMarketingBannerNotificationManager()
+    }
 }
