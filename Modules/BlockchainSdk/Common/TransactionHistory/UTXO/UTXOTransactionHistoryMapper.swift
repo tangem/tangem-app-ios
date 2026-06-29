@@ -40,7 +40,7 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
 
     func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, walletAddress: [String]) throws -> TransactionRecord {
         guard let feeSatoshi = Decimal(stringValue: transaction.fees) else {
-            throw TransactionHistoryMapperError.notFound("Transaction.fees")
+            throw TransactionHistory.MapperError.notFound("Transaction.fees")
         }
 
         let walletAddressSet = Set(walletAddress)
