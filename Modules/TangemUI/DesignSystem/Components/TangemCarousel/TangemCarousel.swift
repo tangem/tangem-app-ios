@@ -51,10 +51,7 @@ public struct TangemCarousel<Data, Content>: View
 
     public var body: some View {
         VStack(spacing: SizeUnit.x4.value) {
-            if containerWidth > 0, !data.isEmpty {
-                scrollableContent
-                    .onChange(of: translation) { onTranslationChanged?($0) }
-            }
+            pages
 
             if !hidePagination, data.count > 1 {
                 TangemPagination(
@@ -80,6 +77,25 @@ public struct TangemCarousel<Data, Content>: View
 // MARK: - Subviews
 
 private extension TangemCarousel {
+    @ViewBuilder
+    var pages: some View {
+        if containerWidth > 0, data.isNotEmpty {
+            scrollableContent
+                .onChange(of: translation) { onTranslationChanged?($0) }
+        } else if let currentElement {
+            // Gives the carousel its real height on the first layout pass; otherwise an enclosing
+            // animated container shows the 0 -> full height jump as a collapse-then-grow.
+            content(currentElement)
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    var currentElement: Data.Element? {
+        guard data.isNotEmpty else { return nil }
+        let index = clamp(externalIndex, min: 0, max: data.count - 1)
+        return data[data.index(data.startIndex, offsetBy: index)]
+    }
+
     var scrollableContent: some View {
         let items = displayItems
         let baseIndex = isEndless ? currentIndex + 1 : currentIndex

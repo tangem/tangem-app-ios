@@ -209,7 +209,6 @@ private struct StatusStateView: View {
         )
         .setStyleType(.secondary)
         .setSize(.x10)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.intrinsic)
         .setButtonState(isLoading: button.isLoading)
     }

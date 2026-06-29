@@ -117,7 +117,6 @@ private extension EarnFilterBottomSheetLayout {
             action: onClose
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setSize(.x9)
     }
 
@@ -127,7 +126,6 @@ private extension EarnFilterBottomSheetLayout {
             action: onCancel
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
     }
