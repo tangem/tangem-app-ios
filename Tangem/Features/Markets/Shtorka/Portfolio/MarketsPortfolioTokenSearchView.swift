@@ -89,7 +89,6 @@ private extension MarketsPortfolioTokenSearchView {
             }
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setSize(.x7)
     }
 }

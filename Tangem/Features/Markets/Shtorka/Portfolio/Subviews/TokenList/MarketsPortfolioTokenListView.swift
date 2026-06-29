@@ -92,7 +92,6 @@ private extension MarketsPortfolioTokenListView {
                 action: viewModel.onCloseTap
             )
             .setStyleType(.secondary)
-            .setCornerStyle(.rounded)
             .setSize(.x10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
