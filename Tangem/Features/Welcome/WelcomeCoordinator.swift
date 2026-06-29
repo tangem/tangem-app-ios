@@ -124,6 +124,10 @@ final class WelcomeCoordinator: CoordinatorObject {
 
         shouldSkipStories = true
 
+        // Drop the stories root so it isn't left mounted under the create wallet screen (the create wallet
+        // flow is pushed onto the navigation stack, not presented over a cleared root otherwise).
+        rootViewModel = nil
+
         // If a startup onboarding (notification permission / Tangem Pay) is on screen, its dismiss handler
         // opens the create wallet flow once `shouldSkipStories` is set, so the stories are never revealed.
         guard welcomeOnboardingCoordinator == nil,
