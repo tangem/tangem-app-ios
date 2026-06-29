@@ -95,10 +95,17 @@
 "address_book_enter_address" = "输入地址";
 "address_book_invalid_address_error" = "无效地址";
 "address_book_keep_editing" = "继续编辑";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "新联系人";
 "address_book_no_contacts_description" = "添加的联系人将显示在此处";
 "address_book_no_contacts" = "尚无联系人";
 "address_book_remove_address" = "移除地址";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "该联系人将与该钱包的通讯录关联。";
 "address_book_select_network" = "选择网络";
 "address_book_title" = "地址簿";
@@ -278,6 +285,7 @@
 "common_get_token" = "获取代币";
 "common_go_to_provider" = "前往服务提供商";
 "common_go_to_token" = "前往代币";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "知道了";
 "common_hide" = "隐藏";
 "common_hold_to" = "保持到 %@";
@@ -602,6 +610,8 @@
 "hardware_wallet_key_feature_title" = "密钥生成";
 "hardware_wallet_security_feature_description" = "所有加密操作都在安全芯片内部进行，该芯片经过认证，可防止克隆和物理篡改。";
 "hardware_wallet_security_feature_title" = "硬件级安全";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "订购 Tangem";
 "home_button_scan" = "扫描 Tangem";
 "hot_crypto_add_token_subtitle" = "到 %@";
@@ -1157,6 +1167,7 @@
 "send_extras_hint_memo" = "备忘录";
 "send_fee_unreachable_error_text" = "请检查您的网络连接";
 "send_fee_unreachable_error_title" = "网络费用信息无法获取";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "您发送";
 "send_from_wallet_name" = "从 %@";
 "send_from_wallet" = "从 **%@**";

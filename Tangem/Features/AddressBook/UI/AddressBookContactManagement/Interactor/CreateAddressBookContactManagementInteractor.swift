@@ -14,17 +14,15 @@ import TangemLocalization
 import TangemUI
 
 final class CreateAddressBookContactManagementInteractor {
-    typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
-
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
-
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
+    private let addressBooksProvider: any AddressBooksProvider
 
-    init(addressBookWallet: AddressBookWallet) {
+    init(addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
+        self.addressBooksProvider = addressBooksProvider
+
         nameSubject = .init("")
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
         addressesSubject = .init([])
@@ -49,15 +47,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         addressesSubject.map { AddressBookContactDraftEntries($0) }.removeDuplicates().eraseToAnyPublisher()
     }
 
-    var walletPublisher: AnyPublisher<WalletRowType?, Never> {
-        walletSubject
-            .map { addressBookWallet -> WalletRowType? in
-                WalletRowType(
-                    userWalletInfo: addressBookWallet.wallet,
-                    isEditable: self.userWalletRepository.models.count > 1
-                )
-            }
-            .eraseToAnyPublisher()
+    var walletPublisher: AnyPublisher<AddressBookWallet, Never> {
+        walletSubject.eraseToAnyPublisher()
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
@@ -94,7 +85,6 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     func update(addressBookWallet: AddressBookWallet) {
-        // [REDACTED_TODO_COMMENT]
         walletSubject.send(addressBookWallet)
     }
 
