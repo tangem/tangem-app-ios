@@ -29,7 +29,16 @@ protocol NotificationEvent: Identifiable {
 
     var bannerKind: NotificationBannerKind? { get }
 
+    /// Redesign-only copy/icon, force-mapped by the redesign banner mapper. Legacy `NotificationView` ignores it.
+    var redesignedBannerContent: RedesignedBannerContent? { get }
+
     var descriptionLinkTint: Color? { get }
+}
+
+struct RedesignedBannerContent {
+    let title: NotificationView.Title?
+    let description: String?
+    let icon: NotificationView.MessageIcon
 }
 
 extension NotificationEvent where Self: Hashable {
@@ -103,6 +112,8 @@ extension NotificationEvent {
     }
 
     var bannerKind: NotificationBannerKind? { nil }
+
+    var redesignedBannerContent: RedesignedBannerContent? { nil }
 
     var colorTheme: NotificationView.ColorTheme {
         .system

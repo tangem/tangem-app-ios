@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemPay
@@ -20,29 +21,61 @@ protocol TangemPayReissueSheetRoutable: AnyObject {
 
 final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        Image(systemName: "arrow.triangle.2.circlepath")
+        isInsufficientFunds
+            ? DesignSystem.Icons.Error.regular28.image
+            : DesignSystem.Icons.ArrowRefresh.regular32.image
+    }
+
+    var iconStyle: TangemPayPopupIconStyle {
+        isInsufficientFunds ? .warning : .info
     }
 
     var title: AttributedString {
-        .init(Localization.tangempayReissueCardTitle)
+        isInsufficientFunds
+            ? .init(Localization.tangempayReissueCardInsufficientFundsTitle)
+            : .init(Localization.tangempayReissueCardTitle)
     }
 
     var description: AttributedString {
-        .init(Localization.tangempayReissueCardDescription)
+        isInsufficientFunds
+            ? .init(Localization.tangempayReissueCardInsufficientFundsSubtitle)
+            : .init(Localization.tangempayReissueCardDescription)
     }
 
     var primaryButton: MainButton.Settings {
-        MainButton.Settings(
+        if isInsufficientFunds {
+            return MainButton.Settings(
+                title: Localization.tangempayCardDetailsAddFunds,
+                style: .primary,
+                size: .default,
+                action: openAddFunds
+            )
+        }
+
+        return MainButton.Settings(
             title: Localization.tangempayCardDetailsReissueCard,
             style: .primary,
             size: .default,
             isLoading: isLoading,
-            isDisabled: isInsufficientFunds,
             action: confirmReissue
         )
     }
 
+    var secondaryButton: MainButton.Settings? {
+        MainButton.Settings(
+            title: Localization.commonCancel,
+            style: .secondary,
+            size: .default,
+            action: dismiss
+        )
+    }
+
+    var feeLabel: String {
+        Localization.tangempayReissueCardFeeLabel
+    }
+
     let feeText: String
+    let balanceText: String
     @Published private(set) var isLoading: Bool = false
     let isInsufficientFunds: Bool
 
@@ -58,6 +91,7 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
         userWalletId: UserWalletId,
         tangemPayAccount: TangemPayAccount,
         feeText: String,
+        balanceText: String,
         isInsufficientFunds: Bool,
         coordinator: TangemPayReissueSheetRoutable,
         onError: @escaping () -> Void
@@ -66,6 +100,7 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
         card = nil
         self.tangemPayAccount = tangemPayAccount
         self.feeText = feeText
+        self.balanceText = balanceText
         self.isInsufficientFunds = isInsufficientFunds
         self.coordinator = coordinator
         self.onError = onError
@@ -77,6 +112,7 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
         userWalletId: UserWalletId,
         card: TangemPayCard,
         feeText: String,
+        balanceText: String,
         isInsufficientFunds: Bool,
         coordinator: TangemPayReissueSheetRoutable,
         onError: @escaping () -> Void
@@ -85,6 +121,7 @@ final class TangemPayReissueSheetViewModel: ObservableObject, FloatingSheetConte
         self.card = card
         tangemPayAccount = nil
         self.feeText = feeText
+        self.balanceText = balanceText
         self.isInsufficientFunds = isInsufficientFunds
         self.coordinator = coordinator
         self.onError = onError

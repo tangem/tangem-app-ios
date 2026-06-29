@@ -17,10 +17,12 @@ enum PersistentStorageKey {
     case walletConnectSessions
     case pendingExpressTransactions
     case pendingOnrampTransactions
+    case onrampUnknownStatuses
     case pendingStakingTransactions
     case onrampPreference
     case tokenSearchQueryHistory
     case tokenSearchAssetHistory
+    case addressBook(cid: String)
 
     var path: String {
         switch self {
@@ -34,6 +36,8 @@ enum PersistentStorageKey {
             return "express_pending_transactions"
         case .pendingOnrampTransactions:
             return "onramp_pending_transactions"
+        case .onrampUnknownStatuses:
+            return "onramp_unknown_statuses"
         case .pendingStakingTransactions:
             return "staking_pending_transactions"
         case .onrampPreference:
@@ -42,6 +46,8 @@ enum PersistentStorageKey {
             return "token_search_query_history"
         case .tokenSearchAssetHistory:
             return "token_search_asset_history"
+        case .addressBook(let cid):
+            return "address_book_\(cid)"
         }
     }
 
@@ -56,6 +62,8 @@ enum PersistentStorageKey {
             false
         case .pendingOnrampTransactions:
             false
+        case .onrampUnknownStatuses:
+            false
         case .pendingStakingTransactions:
             false
         case .walletConnectSessions:
@@ -65,6 +73,10 @@ enum PersistentStorageKey {
         case .tokenSearchQueryHistory:
             false
         case .tokenSearchAssetHistory:
+            false
+        case .addressBook:
+            // The cached blob is already AES-256-GCM encrypted, so it matches the convention of the
+            // other per-wallet caches (e.g. accounts) rather than enabling complete file protection.
             false
         }
     }

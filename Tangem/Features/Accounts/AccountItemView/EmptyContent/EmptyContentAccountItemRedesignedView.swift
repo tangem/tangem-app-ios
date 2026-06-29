@@ -15,7 +15,7 @@ struct EmptyContentAccountItemRedesignedView: View {
     let onManageTokensTap: () -> Void
 
     var body: some View {
-        VStack(spacing: .unit(.x2)) {
+        VStack(spacing: .unit(.x4)) {
             MultiWalletTokenItemsEmptyView()
                 .iconColor(Color.Tangem.Graphic.Neutral.quaternary)
                 .textColor(Color.Tangem.Text.Neutral.tertiary)
@@ -25,7 +25,6 @@ struct EmptyContentAccountItemRedesignedView: View {
                 content: .text(AttributedString(Localization.commonAddTokens)),
                 action: onManageTokensTap
             )
-            .setCornerStyle(.rounded)
             .setStyleType(.secondary)
             .setSize(.x10)
             .setHorizontalLayout(.intrinsic)

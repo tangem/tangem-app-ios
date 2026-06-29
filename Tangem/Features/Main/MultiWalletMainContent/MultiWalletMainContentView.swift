@@ -222,7 +222,7 @@ struct MultiWalletMainContentView: View {
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             getTangemPayBannerNotificationManager: FakeUserWalletNotificationManager(),
-            yieldApyBoostBannerNotificationManager: FakeUserWalletNotificationManager(),
+            yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService(userWalletId: userWalletModel.userWalletId),
             forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),

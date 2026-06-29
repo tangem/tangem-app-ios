@@ -28,6 +28,9 @@ protocol SendAmountInteractor: AnyObject {
     var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { get }
 
     func update(sourceAmount: Decimal?) throws -> SendAmount?
+    /// Same as `update(sourceAmount:)` but the value is always treated as crypto,
+    /// regardless of the current source calculation type.
+    func update(sourceCryptoAmount: Decimal?) throws -> SendAmount?
     func update(sourceType: SendAmountCalculationType) throws -> SendAmount?
     func updateToMaxAmount() throws -> SendAmount
     func update(receiveAmount: Decimal?) -> SendAmount?
@@ -227,36 +230,34 @@ class CommonSendAmountInteractor {
     }
 
     private var sourceRestrictionInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
-        guard let receiveTokenAmountInput, let sourceTokenInput else {
+        guard let receiveTokenAmountInput else {
             return .just(output: nil)
         }
 
-        return Publishers.CombineLatest3(
+        return Publishers.CombineLatest(
             receiveTokenAmountInput.exchangeRestrictionPublisher,
-            sourceTokenInput.sourceTokenPublisher,
             _sourceType
         )
-        .map { [weak self] restriction, tokenResult, calculationType -> SendAmountViewModel.BottomInfoTextType? in
-            guard let self, let restriction, let token = tokenResult.value else { return nil }
-            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: calculationType)
+        .map { [weak self] restriction, calculationType -> SendAmountViewModel.BottomInfoTextType? in
+            guard let self, let restriction else { return nil }
+            return mapRestrictionToInfoText(restriction, calculationType: calculationType)
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
     }
 
     private var receiveRestrictionInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> {
-        guard let receiveTokenAmountInput, let receiveTokenInput else {
+        guard let receiveTokenAmountInput else {
             return .just(output: nil)
         }
 
-        return Publishers.CombineLatest3(
+        return Publishers.CombineLatest(
             receiveTokenAmountInput.exchangeRestrictionPublisher,
-            receiveTokenInput.receiveTokenPublisher,
             _receiveType
         )
-        .map { [weak self] restriction, tokenResult, calculationType -> SendAmountViewModel.BottomInfoTextType? in
-            guard let self, let restriction, let token = tokenResult.value else { return nil }
-            return mapRestrictionToInfoText(restriction, tokenItem: token.tokenItem, calculationType: calculationType)
+        .map { [weak self] restriction, calculationType -> SendAmountViewModel.BottomInfoTextType? in
+            guard let self, let restriction else { return nil }
+            return mapRestrictionToInfoText(restriction, calculationType: calculationType)
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
@@ -264,19 +265,18 @@ class CommonSendAmountInteractor {
 
     private func mapRestrictionToInfoText(
         _ restriction: ExchangeAmountRestriction,
-        tokenItem: TokenItem,
         calculationType: SendAmountCalculationType
     ) -> SendAmountViewModel.BottomInfoTextType {
         switch restriction {
         case .exchangeDataLoadingFailed:
             return .error(Localization.commonSomethingWentWrong)
-        case .tooSmallAmount(let amount):
-            // Round UP so the displayed minimum is always sufficient after conversion
-            let formatted = formatRestrictionAmount(amount, tokenItem: tokenItem, calculationType: calculationType, roundingMode: .up)
+        case .tooSmallAmount(let amount, let currencySymbol, let currencyId):
+            // Round UP so the displayed minimum is always sufficient after conversion.
+            let formatted = formatRestrictionAmount(amount, currencySymbol: currencySymbol, currencyId: currencyId, calculationType: calculationType, roundingMode: .up)
             return .error(Localization.warningExpressTooMinimalAmountTitle(formatted))
-        case .tooBigAmount(let amount):
-            // Round DOWN so the displayed maximum is always achievable after conversion
-            let formatted = formatRestrictionAmount(amount, tokenItem: tokenItem, calculationType: calculationType, roundingMode: .down)
+        case .tooBigAmount(let amount, let currencySymbol, let currencyId):
+            // Round DOWN so the displayed maximum is always achievable after conversion.
+            let formatted = formatRestrictionAmount(amount, currencySymbol: currencySymbol, currencyId: currencyId, calculationType: calculationType, roundingMode: .down)
             return .error(Localization.warningExpressTooMaximumAmountTitle(formatted))
         case .balanceExceeded:
             return .error(Localization.commonInsufficientBalance)
@@ -285,7 +285,8 @@ class CommonSendAmountInteractor {
 
     private func formatRestrictionAmount(
         _ cryptoAmount: Decimal,
-        tokenItem: TokenItem,
+        currencySymbol: String,
+        currencyId: String?,
         calculationType: SendAmountCalculationType,
         roundingMode: NSDecimalNumber.RoundingMode
     ) -> String {
@@ -293,11 +294,10 @@ class CommonSendAmountInteractor {
         case .crypto:
             var options = BalanceFormattingOptions.defaultCryptoFormattingOptions
             options.roundingType = .default(roundingMode: roundingMode, scale: options.maxFractionDigits)
-            return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: tokenItem.currencySymbol, formattingOptions: options)
+            return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: currencySymbol, formattingOptions: options)
         case .fiat:
-            guard let currencyId = tokenItem.currencyId,
-                  let rawFiat = balanceConverter.convertToFiat(cryptoAmount, currencyId: currencyId) else {
-                return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: tokenItem.currencySymbol)
+            guard let currencyId, let rawFiat = balanceConverter.convertToFiat(cryptoAmount, currencyId: currencyId) else {
+                return balanceFormatter.formatCryptoBalance(cryptoAmount, currencyCode: currencySymbol)
             }
             var options = BalanceFormattingOptions.defaultFiatFormattingOptions
             options.roundingType = .default(roundingMode: roundingMode, scale: 2)
@@ -396,6 +396,19 @@ extension CommonSendAmountInteractor: SendAmountInteractor {
             }
         }()
 
+        _cachedAmount.send(amount)
+
+        return amount
+    }
+
+    func update(sourceCryptoAmount: Decimal?) throws -> SendAmount? {
+        guard let sourceCryptoAmount else {
+            _cachedAmount.send(nil)
+            return nil
+        }
+
+        let fiat = try convertToFiat(cryptoValue: sourceCryptoAmount)
+        let amount = makeSendAmount(crypto: sourceCryptoAmount, fiat: fiat)
         _cachedAmount.send(amount)
 
         return amount

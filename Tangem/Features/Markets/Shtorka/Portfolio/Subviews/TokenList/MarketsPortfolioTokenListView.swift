@@ -85,14 +85,13 @@ private extension MarketsPortfolioTokenListView {
     var topBar: some View {
         ZStack {
             Text(viewModel.barTitle)
-                .style(.Tangem.Heading17.medium, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
 
             TangemButton(
                 content: .icon(Assets.DesignSystem.close),
                 action: viewModel.onCloseTap
             )
             .setStyleType(.secondary)
-            .setCornerStyle(.rounded)
             .setSize(.x10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
@@ -148,7 +147,7 @@ private extension MarketsPortfolioTokenListView {
     func walletHeader(title: String, thumbnail: ThumbnailWalletViewType?) -> some View {
         HStack(spacing: walletHeaderSpacing) {
             Text(title)
-                .style(.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Subheadline.medium, color: .Tangem.Text.Neutral.secondary)
 
             thumbnail.map {
                 MiniatureWalletView(type: $0)
@@ -193,7 +192,7 @@ private extension MarketsPortfolioTokenListView {
             name: title
         )
         .iconSettings(.smallSized)
-        .style(.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
+        .style(Font.Tangem.Caption12.regular, color: .Tangem.Text.Neutral.primary)
     }
 }
 

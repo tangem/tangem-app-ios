@@ -23,11 +23,38 @@ final class AddFundsScreen: ScreenBase<AddFundsScreenElement> {
     }
 
     @discardableResult
+    func expandPortfolioToken(_ tokenName: String) -> Self {
+        XCTContext.runActivity(named: "Select '\(tokenName)' holding in 'Your portfolio'") { _ in
+            // Holdings picker rows have no identifier; match by leading token name.
+            let tokenItem = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "\(tokenName),")).firstMatch
+            tokenItem.waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
     func tapSwap() -> SwapStoriesScreen {
         XCTContext.runActivity(named: "Tap Swap row on Add funds screen") { _ in
             swapRow.waitAndTap()
             return SwapStoriesScreen(app)
         }
+    }
+
+    @discardableResult
+    func tapCloseButton() -> MainScreen {
+        XCTContext.runActivity(named: "Tap Close button") { _ in
+            // Multiple close buttons may exist in the sheet stack; tap the topmost hittable one
+            let closeButtons = app.buttons.matching(identifier: CommonUIAccessibilityIdentifiers.closeButton)
+            for i in 0 ..< closeButtons.count {
+                let button = closeButtons.element(boundBy: i)
+                if button.isHittable {
+                    button.tap()
+                    return
+                }
+            }
+            XCTFail("No hittable Close button found on Add Funds screen")
+        }
+        return MainScreen(app)
     }
 }
 

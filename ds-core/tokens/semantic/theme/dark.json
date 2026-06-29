@@ -5,7 +5,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.text.primary",
-            "iOS": "DesignSystem.Tokens.Theme.Text.primary"
+            "iOS": "DesignSystem.Color.textPrimary"
           },
           "com.figma.scopes": [
             "TEXT_FILL"
@@ -18,7 +18,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.text.secondary",
-            "iOS": "DesignSystem.Tokens.Theme.Text.secondary"
+            "iOS": "DesignSystem.Color.textSecondary"
           },
           "com.figma.scopes": [
             "TEXT_FILL"
@@ -31,7 +31,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.text.tertiary",
-            "iOS": "DesignSystem.Tokens.Theme.Text.tertiary"
+            "iOS": "DesignSystem.Color.textTertiary"
           },
           "com.figma.scopes": [
             "TEXT_FILL"
@@ -44,7 +44,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.text.brand",
-            "iOS": "DesignSystem.Tokens.Theme.Text.brand"
+            "iOS": "DesignSystem.Color.textBrand"
           },
           "com.figma.scopes": [
             "TEXT_FILL"
@@ -57,8 +57,8 @@
         "primary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.contrastOnlightPrimary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.ContrastOnlight.primary"
+              "Android": "TangemTheme.colors3.text.staticLight.primary",
+              "iOS": "DesignSystem.Color.textStaticLightPrimary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -70,8 +70,8 @@
         "secondary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.contrastOnlightSecondary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.ContrastOnlight.secondary"
+              "Android": "TangemTheme.colors3.text.staticLight.secondary",
+              "iOS": "DesignSystem.Color.textStaticLightSecondary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -83,8 +83,8 @@
         "tertiary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.contrastOnlightTertiary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.ContrastOnlight.tertiary"
+              "Android": "TangemTheme.colors3.text.staticLight.tertiary",
+              "iOS": "DesignSystem.Color.textStaticLightTertiary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -98,8 +98,8 @@
         "primary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.contrastPrimary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Contrast.primary"
+              "Android": "TangemTheme.colors3.text.staticDark.primary",
+              "iOS": "DesignSystem.Color.textStaticDarkPrimary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -111,8 +111,8 @@
         "secondary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.contrastSecondary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Contrast.secondary"
+              "Android": "TangemTheme.colors3.text.staticDark.secondary",
+              "iOS": "DesignSystem.Color.textStaticDarkSecondary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -124,8 +124,8 @@
         "tertiary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.contrastTertiary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Contrast.tertiary"
+              "Android": "TangemTheme.colors3.text.staticDark.tertiary",
+              "iOS": "DesignSystem.Color.textStaticDarkTertiary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -139,8 +139,8 @@
         "primary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.inversePrimary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Inverse.primary"
+              "Android": "TangemTheme.colors3.text.inverse.primary",
+              "iOS": "DesignSystem.Color.textInversePrimary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -152,8 +152,8 @@
         "secondary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.inverseSecondary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Inverse.secondary"
+              "Android": "TangemTheme.colors3.text.inverse.secondary",
+              "iOS": "DesignSystem.Color.textInverseSecondary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -165,8 +165,8 @@
         "tertiary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.inverseTertiary",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Inverse.tertiary"
+              "Android": "TangemTheme.colors3.text.inverse.tertiary",
+              "iOS": "DesignSystem.Color.textInverseTertiary"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -180,8 +180,8 @@
         "success": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.statusSuccess",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Status.success"
+              "Android": "TangemTheme.colors3.text.status.success",
+              "iOS": "DesignSystem.Color.textStatusSuccess"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -193,8 +193,8 @@
         "error": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.statusError",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Status.error"
+              "Android": "TangemTheme.colors3.text.status.error",
+              "iOS": "DesignSystem.Color.textStatusError"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -206,8 +206,8 @@
         "warning": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.statusWarning",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Status.warning"
+              "Android": "TangemTheme.colors3.text.status.warning",
+              "iOS": "DesignSystem.Color.textStatusWarning"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -219,8 +219,8 @@
         "info": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.statusInfo",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Status.info"
+              "Android": "TangemTheme.colors3.text.status.info",
+              "iOS": "DesignSystem.Color.textStatusInfo"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -234,8 +234,8 @@
         "blue": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.accentblue",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.blue"
+              "Android": "TangemTheme.colors3.text.accent.blue",
+              "iOS": "DesignSystem.Color.textAccentBlue"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -247,8 +247,8 @@
         "violet": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.accentviolet",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.violet"
+              "Android": "TangemTheme.colors3.text.accent.violet",
+              "iOS": "DesignSystem.Color.textAccentViolet"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -260,8 +260,8 @@
         "red": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.accentred",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.red"
+              "Android": "TangemTheme.colors3.text.accent.red",
+              "iOS": "DesignSystem.Color.textAccentRed"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -273,8 +273,8 @@
         "orange": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.accentorange",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.orange"
+              "Android": "TangemTheme.colors3.text.accent.orange",
+              "iOS": "DesignSystem.Color.textAccentOrange"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -286,8 +286,8 @@
         "yellow": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.accentyellow",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.yellow"
+              "Android": "TangemTheme.colors3.text.accent.yellow",
+              "iOS": "DesignSystem.Color.textAccentYellow"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -299,8 +299,8 @@
         "green": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.text.accentgreen",
-              "iOS": "DesignSystem.Tokens.Theme.Text.Accent.green"
+              "Android": "TangemTheme.colors3.text.accent.green",
+              "iOS": "DesignSystem.Color.textAccentGreen"
             },
             "com.figma.scopes": [
               "TEXT_FILL"
@@ -308,6 +308,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.40}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.text.accent.neutral",
+              "iOS": "DesignSystem.Color.textAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "TEXT_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.40}"
         }
       }
     },
@@ -316,7 +329,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.bg.primary",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.primary"
+            "iOS": "DesignSystem.Color.bgPrimary"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -329,7 +342,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.bg.secondary",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.secondary"
+            "iOS": "DesignSystem.Color.bgSecondary"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -342,7 +355,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.bg.tertiary",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.tertiary"
+            "iOS": "DesignSystem.Color.bgTertiary"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -355,7 +368,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.bg.brand",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.brand"
+            "iOS": "DesignSystem.Color.bgBrand"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -367,8 +380,8 @@
       "inverse": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.colors3.bg.inversePrimary",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.Inverse.primary"
+            "Android": "TangemTheme.colors3.bg.inverse",
+            "iOS": "DesignSystem.Color.bgInverse"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -380,8 +393,8 @@
       "base": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.colors3.bg.primary",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.primary"
+            "Android": "TangemTheme.colors3.bg.base",
+            "iOS": "DesignSystem.Color.bgBase"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -394,7 +407,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.bg.disabled",
-            "iOS": "DesignSystem.Tokens.Theme.Bg.disabled"
+            "iOS": "DesignSystem.Color.bgDisabled"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -407,8 +420,8 @@
         "primary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.opaque",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.opaque"
+              "Android": "TangemTheme.colors3.bg.opaque.primary",
+              "iOS": "DesignSystem.Color.bgOpaquePrimary"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -420,8 +433,8 @@
         "secondary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.opaque",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.opaque"
+              "Android": "TangemTheme.colors3.bg.opaque.secondary",
+              "iOS": "DesignSystem.Color.bgOpaqueSecondary"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -435,8 +448,8 @@
         "success": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusSuccess",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.success"
+              "Android": "TangemTheme.colors3.bg.status.success",
+              "iOS": "DesignSystem.Color.bgStatusSuccess"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -448,8 +461,8 @@
         "success-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusSuccess",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.success"
+              "Android": "TangemTheme.colors3.bg.status.successSubtle",
+              "iOS": "DesignSystem.Color.bgStatusSuccessSubtle"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -461,8 +474,8 @@
         "error": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusError",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.error"
+              "Android": "TangemTheme.colors3.bg.status.error",
+              "iOS": "DesignSystem.Color.bgStatusError"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -474,8 +487,8 @@
         "error-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusError",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.error"
+              "Android": "TangemTheme.colors3.bg.status.errorSubtle",
+              "iOS": "DesignSystem.Color.bgStatusErrorSubtle"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -487,8 +500,8 @@
         "warning": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusWarning",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.warning"
+              "Android": "TangemTheme.colors3.bg.status.warning",
+              "iOS": "DesignSystem.Color.bgStatusWarning"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -500,8 +513,8 @@
         "warning-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusWarning",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.warning"
+              "Android": "TangemTheme.colors3.bg.status.warningSubtle",
+              "iOS": "DesignSystem.Color.bgStatusWarningSubtle"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -513,8 +526,8 @@
         "info": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusInfo",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.info"
+              "Android": "TangemTheme.colors3.bg.status.info",
+              "iOS": "DesignSystem.Color.bgStatusInfo"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -526,8 +539,8 @@
         "info-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.statusInfo",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Status.info"
+              "Android": "TangemTheme.colors3.bg.status.infoSubtle",
+              "iOS": "DesignSystem.Color.bgStatusInfoSubtle"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -541,8 +554,8 @@
         "blue": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.accentblue",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.blue"
+              "Android": "TangemTheme.colors3.bg.accent.blue",
+              "iOS": "DesignSystem.Color.bgAccentBlue"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -554,8 +567,8 @@
         "violet": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.accentviolet",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.violet"
+              "Android": "TangemTheme.colors3.bg.accent.violet",
+              "iOS": "DesignSystem.Color.bgAccentViolet"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -567,8 +580,8 @@
         "red": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.accentred",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.red"
+              "Android": "TangemTheme.colors3.bg.accent.red",
+              "iOS": "DesignSystem.Color.bgAccentRed"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -580,8 +593,8 @@
         "orange": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.accentorange",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.orange"
+              "Android": "TangemTheme.colors3.bg.accent.orange",
+              "iOS": "DesignSystem.Color.bgAccentOrange"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -593,8 +606,8 @@
         "yellow": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.accentyellow",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.yellow"
+              "Android": "TangemTheme.colors3.bg.accent.yellow",
+              "iOS": "DesignSystem.Color.bgAccentYellow"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -606,8 +619,8 @@
         "green": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.bg.accentgreen",
-              "iOS": "DesignSystem.Tokens.Theme.Bg.Accent.green"
+              "Android": "TangemTheme.colors3.bg.accent.green",
+              "iOS": "DesignSystem.Color.bgAccentGreen"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -615,6 +628,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.50}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.bg.accent.neutral",
+              "iOS": "DesignSystem.Color.bgAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "FRAME_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.50}"
         }
       }
     },
@@ -623,7 +649,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.icon.primary",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.primary"
+            "iOS": "DesignSystem.Color.iconPrimary"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -636,7 +662,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.icon.secondary",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.secondary"
+            "iOS": "DesignSystem.Color.iconSecondary"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -649,7 +675,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.icon.tertiary",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.tertiary"
+            "iOS": "DesignSystem.Color.iconTertiary"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -662,7 +688,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.icon.brand",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.brand"
+            "iOS": "DesignSystem.Color.iconBrand"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -674,8 +700,8 @@
       "static-light": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.colors3.icon.contrastOnlight",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.contrastOnlight"
+            "Android": "TangemTheme.colors3.icon.staticLight",
+            "iOS": "DesignSystem.Color.iconStaticLight"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -687,8 +713,8 @@
       "static-dark": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.colors3.icon.contrast",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.contrast"
+            "Android": "TangemTheme.colors3.icon.staticDark",
+            "iOS": "DesignSystem.Color.iconStaticDark"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -701,7 +727,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.icon.inverse",
-            "iOS": "DesignSystem.Tokens.Theme.Icon.inverse"
+            "iOS": "DesignSystem.Color.iconInverse"
           },
           "com.figma.scopes": [
             "SHAPE_FILL"
@@ -714,8 +740,8 @@
         "success": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.statusSuccess",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.success"
+              "Android": "TangemTheme.colors3.icon.status.success",
+              "iOS": "DesignSystem.Color.iconStatusSuccess"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -727,8 +753,8 @@
         "error": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.statusError",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.error"
+              "Android": "TangemTheme.colors3.icon.status.error",
+              "iOS": "DesignSystem.Color.iconStatusError"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -740,8 +766,8 @@
         "warning": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.statusWarning",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.warning"
+              "Android": "TangemTheme.colors3.icon.status.warning",
+              "iOS": "DesignSystem.Color.iconStatusWarning"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -753,8 +779,8 @@
         "info": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.statusInfo",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Status.info"
+              "Android": "TangemTheme.colors3.icon.status.info",
+              "iOS": "DesignSystem.Color.iconStatusInfo"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -768,8 +794,8 @@
         "blue": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.accentblue",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.blue"
+              "Android": "TangemTheme.colors3.icon.accent.blue",
+              "iOS": "DesignSystem.Color.iconAccentBlue"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -781,8 +807,8 @@
         "violet": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.accentviolet",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.violet"
+              "Android": "TangemTheme.colors3.icon.accent.violet",
+              "iOS": "DesignSystem.Color.iconAccentViolet"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -794,8 +820,8 @@
         "red": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.accentred",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.red"
+              "Android": "TangemTheme.colors3.icon.accent.red",
+              "iOS": "DesignSystem.Color.iconAccentRed"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -807,8 +833,8 @@
         "orange": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.accentorange",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.orange"
+              "Android": "TangemTheme.colors3.icon.accent.orange",
+              "iOS": "DesignSystem.Color.iconAccentOrange"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -820,8 +846,8 @@
         "yellow": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.accentyellow",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.yellow"
+              "Android": "TangemTheme.colors3.icon.accent.yellow",
+              "iOS": "DesignSystem.Color.iconAccentYellow"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -833,8 +859,8 @@
         "green": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.icon.accentgreen",
-              "iOS": "DesignSystem.Tokens.Theme.Icon.Accent.green"
+              "Android": "TangemTheme.colors3.icon.accent.green",
+              "iOS": "DesignSystem.Color.iconAccentGreen"
             },
             "com.figma.scopes": [
               "SHAPE_FILL"
@@ -842,6 +868,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.40}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.icon.accent.neutral",
+              "iOS": "DesignSystem.Color.iconAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "SHAPE_FILL"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.40}"
         }
       }
     },
@@ -850,7 +889,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.border.primary",
-            "iOS": "DesignSystem.Tokens.Theme.Border.primary"
+            "iOS": "DesignSystem.Color.borderPrimary"
           },
           "com.figma.scopes": [
             "STROKE_COLOR"
@@ -863,7 +902,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.border.secondary",
-            "iOS": "DesignSystem.Tokens.Theme.Border.secondary"
+            "iOS": "DesignSystem.Color.borderSecondary"
           },
           "com.figma.scopes": [
             "STROKE_COLOR"
@@ -876,7 +915,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.border.tertiary",
-            "iOS": "DesignSystem.Tokens.Theme.Border.tertiary"
+            "iOS": "DesignSystem.Color.borderTertiary"
           },
           "com.figma.scopes": [
             "STROKE_COLOR"
@@ -889,7 +928,7 @@
         "$extensions": {
           "com.figma.codeSyntax": {
             "Android": "TangemTheme.colors3.border.brand",
-            "iOS": "DesignSystem.Tokens.Theme.Border.brand"
+            "iOS": "DesignSystem.Color.borderBrand"
           },
           "com.figma.scopes": [
             "STROKE_COLOR"
@@ -902,8 +941,8 @@
         "primary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.inversePrimary",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Inverse.primary"
+              "Android": "TangemTheme.colors3.border.inverse.primary",
+              "iOS": "DesignSystem.Color.borderInversePrimary"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -915,8 +954,8 @@
         "secondary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.inverseSecondary",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Inverse.secondary"
+              "Android": "TangemTheme.colors3.border.inverse.secondary",
+              "iOS": "DesignSystem.Color.borderInverseSecondary"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -928,8 +967,8 @@
         "tertiary": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.inverseTertiary",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Inverse.tertiary"
+              "Android": "TangemTheme.colors3.border.inverse.tertiary",
+              "iOS": "DesignSystem.Color.borderInverseTertiary"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -943,8 +982,8 @@
         "success": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusSuccess",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.success"
+              "Android": "TangemTheme.colors3.border.status.success",
+              "iOS": "DesignSystem.Color.borderStatusSuccess"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -956,8 +995,8 @@
         "success-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusSuccess",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.success"
+              "Android": "TangemTheme.colors3.border.status.successSubtle",
+              "iOS": "DesignSystem.Color.borderStatusSuccessSubtle"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -969,8 +1008,8 @@
         "error": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusError",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.error"
+              "Android": "TangemTheme.colors3.border.status.error",
+              "iOS": "DesignSystem.Color.borderStatusError"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -982,8 +1021,8 @@
         "error-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusError",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.error"
+              "Android": "TangemTheme.colors3.border.status.errorSubtle",
+              "iOS": "DesignSystem.Color.borderStatusErrorSubtle"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -995,8 +1034,8 @@
         "warning": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusWarning",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.warning"
+              "Android": "TangemTheme.colors3.border.status.warning",
+              "iOS": "DesignSystem.Color.borderStatusWarning"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1008,8 +1047,8 @@
         "warning-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusWarning",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.warning"
+              "Android": "TangemTheme.colors3.border.status.warningSubtle",
+              "iOS": "DesignSystem.Color.borderStatusWarningSubtle"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1021,8 +1060,8 @@
         "info": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusInfo",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.info"
+              "Android": "TangemTheme.colors3.border.status.info",
+              "iOS": "DesignSystem.Color.borderStatusInfo"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1034,8 +1073,8 @@
         "info-subtle": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.statusInfo",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Status.info"
+              "Android": "TangemTheme.colors3.border.status.infoSubtle",
+              "iOS": "DesignSystem.Color.borderStatusInfoSubtle"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1049,8 +1088,8 @@
         "blue": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.accentblue",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.blue"
+              "Android": "TangemTheme.colors3.border.accent.blue",
+              "iOS": "DesignSystem.Color.borderAccentBlue"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1062,8 +1101,8 @@
         "violet": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.accentviolet",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.violet"
+              "Android": "TangemTheme.colors3.border.accent.violet",
+              "iOS": "DesignSystem.Color.borderAccentViolet"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1075,8 +1114,8 @@
         "red": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.accentred",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.red"
+              "Android": "TangemTheme.colors3.border.accent.red",
+              "iOS": "DesignSystem.Color.borderAccentRed"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1088,8 +1127,8 @@
         "orange": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.accentorange",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.orange"
+              "Android": "TangemTheme.colors3.border.accent.orange",
+              "iOS": "DesignSystem.Color.borderAccentOrange"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1101,8 +1140,8 @@
         "yellow": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.accentyellow",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.yellow"
+              "Android": "TangemTheme.colors3.border.accent.yellow",
+              "iOS": "DesignSystem.Color.borderAccentYellow"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1114,8 +1153,8 @@
         "green": {
           "$extensions": {
             "com.figma.codeSyntax": {
-              "Android": "TangemTheme.colors3.border.accentgreen",
-              "iOS": "DesignSystem.Tokens.Theme.Border.Accent.green"
+              "Android": "TangemTheme.colors3.border.accent.green",
+              "iOS": "DesignSystem.Color.borderAccentGreen"
             },
             "com.figma.scopes": [
               "STROKE_COLOR"
@@ -1123,6 +1162,19 @@
           },
           "$type": "color",
           "$value": "{palette.green.40}"
+        },
+        "neutral": {
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.border.accent.neutral",
+              "iOS": "DesignSystem.Color.borderAccentNeutral"
+            },
+            "com.figma.scopes": [
+              "STROKE_COLOR"
+            ]
+          },
+          "$type": "color",
+          "$value": "{palette.neutral.40}"
         }
       }
     },
@@ -1130,8 +1182,8 @@
       "modal": {
         "$extensions": {
           "com.figma.codeSyntax": {
-            "Android": "TangemTheme.colors3.overlay.primary",
-            "iOS": "DesignSystem.Tokens.Theme.Overlay.primary"
+            "Android": "TangemTheme.colors3.overlay.modal",
+            "iOS": "DesignSystem.Color.overlayModal"
           },
           "com.figma.scopes": [
             "FRAME_FILL"
@@ -1147,7 +1199,7 @@
           "$extensions": {
             "com.figma.codeSyntax": {
               "Android": "TangemTheme.colors3.interaction.press.default",
-              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.default"
+              "iOS": "DesignSystem.Color.interactionPressDefault"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -1160,7 +1212,7 @@
           "$extensions": {
             "com.figma.codeSyntax": {
               "Android": "TangemTheme.colors3.interaction.press.staticLight",
-              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.staticLight"
+              "iOS": "DesignSystem.Color.interactionPressStaticLight"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -1173,7 +1225,7 @@
           "$extensions": {
             "com.figma.codeSyntax": {
               "Android": "TangemTheme.colors3.interaction.press.staticDark",
-              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.staticDark"
+              "iOS": "DesignSystem.Color.interactionPressStaticDark"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -1186,7 +1238,7 @@
           "$extensions": {
             "com.figma.codeSyntax": {
               "Android": "TangemTheme.colors3.interaction.press.inverse",
-              "iOS": "DesignSystem.Tokens.Theme.Interaction.Press.inverse"
+              "iOS": "DesignSystem.Color.interactionPressInverse"
             },
             "com.figma.scopes": [
               "FRAME_FILL"
@@ -1201,7 +1253,7 @@
           "$extensions": {
             "com.figma.codeSyntax": {
               "Android": "TangemTheme.colors3.interaction.focusRing.default",
-              "iOS": "DesignSystem.Tokens.Theme.Interaction.FocusRing.Default"
+              "iOS": "DesignSystem.Color.interactionFocusRingDefault"
             },
             "com.figma.scopes": [
               "EFFECT_COLOR"
@@ -1214,7 +1266,7 @@
           "$extensions": {
             "com.figma.codeSyntax": {
               "Android": "TangemTheme.colors3.interaction.focusRing.brand",
-              "iOS": "DesignSystem.Tokens.Theme.Interaction.FocusRing.Brand"
+              "iOS": "DesignSystem.Color.interactionFocusRingBrand"
             },
             "com.figma.scopes": [
               "EFFECT_COLOR"
@@ -1222,6 +1274,620 @@
           },
           "$type": "color",
           "$value": "{palette.blue.50}"
+        }
+      }
+    },
+    "glow": {
+      "magic": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.yellow.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step1",
+              "iOS": "DesignSystem.Color.glowMagicStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.60}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step2",
+              "iOS": "DesignSystem.Color.glowMagicStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.70}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step3",
+              "iOS": "DesignSystem.Color.glowMagicStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.blue.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step4",
+              "iOS": "DesignSystem.Color.glowMagicStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.30}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step5",
+              "iOS": "DesignSystem.Color.glowMagicStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step6",
+              "iOS": "DesignSystem.Color.glowMagicStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.violet.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step7",
+              "iOS": "DesignSystem.Color.glowMagicStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.red.60}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step8",
+              "iOS": "DesignSystem.Color.glowMagicStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.80}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step9",
+              "iOS": "DesignSystem.Color.glowMagicStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.70}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magic.step10",
+              "iOS": "DesignSystem.Color.glowMagicStep10"
+            }
+          }
+        }
+      },
+      "magic-blend": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.violet.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step1",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step2",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba( {palette.orange.40}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step3",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.yellow.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step4",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.green.40}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step5",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.20}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step6",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.green.20}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step7",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.50}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step8",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.violet.70}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step9",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.red.40}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.magicBlend.step10",
+              "iOS": "DesignSystem.Color.glowMagicBlendStep10"
+            }
+          }
+        }
+      },
+      "success": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.green.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step1",
+              "iOS": "DesignSystem.Color.glowSuccessStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step2",
+              "iOS": "DesignSystem.Color.glowSuccessStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step3",
+              "iOS": "DesignSystem.Color.glowSuccessStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.green.60}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step4",
+              "iOS": "DesignSystem.Color.glowSuccessStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step5",
+              "iOS": "DesignSystem.Color.glowSuccessStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step6",
+              "iOS": "DesignSystem.Color.glowSuccessStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.green.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step7",
+              "iOS": "DesignSystem.Color.glowSuccessStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step8",
+              "iOS": "DesignSystem.Color.glowSuccessStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step9",
+              "iOS": "DesignSystem.Color.glowSuccessStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.green.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.success.step10",
+              "iOS": "DesignSystem.Color.glowSuccessStep10"
+            }
+          }
+        }
+      },
+      "error": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.red.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step1",
+              "iOS": "DesignSystem.Color.glowErrorStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step2",
+              "iOS": "DesignSystem.Color.glowErrorStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step3",
+              "iOS": "DesignSystem.Color.glowErrorStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.red.60}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step4",
+              "iOS": "DesignSystem.Color.glowErrorStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step5",
+              "iOS": "DesignSystem.Color.glowErrorStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step6",
+              "iOS": "DesignSystem.Color.glowErrorStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.red.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step7",
+              "iOS": "DesignSystem.Color.glowErrorStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step8",
+              "iOS": "DesignSystem.Color.glowErrorStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step9",
+              "iOS": "DesignSystem.Color.glowErrorStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.red.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.error.step10",
+              "iOS": "DesignSystem.Color.glowErrorStep10"
+            }
+          }
+        }
+      },
+      "warning": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.yellow.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step1",
+              "iOS": "DesignSystem.Color.glowWarningStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step2",
+              "iOS": "DesignSystem.Color.glowWarningStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step3",
+              "iOS": "DesignSystem.Color.glowWarningStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.yellow.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step4",
+              "iOS": "DesignSystem.Color.glowWarningStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step5",
+              "iOS": "DesignSystem.Color.glowWarningStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step6",
+              "iOS": "DesignSystem.Color.glowWarningStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.yellow.30}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step7",
+              "iOS": "DesignSystem.Color.glowWarningStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step8",
+              "iOS": "DesignSystem.Color.glowWarningStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step9",
+              "iOS": "DesignSystem.Color.glowWarningStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.yellow.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.warning.step10",
+              "iOS": "DesignSystem.Color.glowWarningStep10"
+            }
+          }
+        }
+      },
+      "info": {
+        "step1": {
+          "$type": "color",
+          "$value": "{palette.blue.50}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step1",
+              "iOS": "DesignSystem.Color.glowInfoStep1"
+            }
+          }
+        },
+        "step2": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step2",
+              "iOS": "DesignSystem.Color.glowInfoStep2"
+            }
+          }
+        },
+        "step3": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step3",
+              "iOS": "DesignSystem.Color.glowInfoStep3"
+            }
+          }
+        },
+        "step4": {
+          "$type": "color",
+          "$value": "{palette.blue.60}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step4",
+              "iOS": "DesignSystem.Color.glowInfoStep4"
+            }
+          }
+        },
+        "step5": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step5",
+              "iOS": "DesignSystem.Color.glowInfoStep5"
+            }
+          }
+        },
+        "step6": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step6",
+              "iOS": "DesignSystem.Color.glowInfoStep6"
+            }
+          }
+        },
+        "step7": {
+          "$type": "color",
+          "$value": "{palette.blue.40}",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step7",
+              "iOS": "DesignSystem.Color.glowInfoStep7"
+            }
+          }
+        },
+        "step8": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step8",
+              "iOS": "DesignSystem.Color.glowInfoStep8"
+            }
+          }
+        },
+        "step9": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0.3)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step9",
+              "iOS": "DesignSystem.Color.glowInfoStep9"
+            }
+          }
+        },
+        "step10": {
+          "$type": "color",
+          "$value": "rgba({palette.blue.80}, 0)",
+          "$extensions": {
+            "com.figma.codeSyntax": {
+              "Android": "TangemTheme.colors3.glow.info.step10",
+              "iOS": "DesignSystem.Color.glowInfoStep10"
+            }
+          }
         }
       }
     }

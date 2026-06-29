@@ -1,8 +1,12 @@
 #!/bin/bash
 # Setup Docker environment using Colima
-# No parameters required
+# Optional env: COLIMA_CPU (default: 4), COLIMA_MEMORY (GiB, default: 8)
+# Note: CPU/memory only apply when the VM is created; a running instance keeps its size
 
 set -e
+
+COLIMA_CPU="${COLIMA_CPU:-4}"
+COLIMA_MEMORY="${COLIMA_MEMORY:-8}"
 
 # Set custom paths to avoid permission issues
 export COLIMA_HOME="$HOME/.colima"
@@ -32,12 +36,12 @@ if ! colima status &> /dev/null; then
   colima stop --force 2>/dev/null || true
   colima delete --force 2>/dev/null || true
 
-  echo "Starting Colima..."
-  if ! colima start --cpu 4 --memory 8; then
+  echo "Starting Colima (cpu: $COLIMA_CPU, memory: ${COLIMA_MEMORY}GiB)..."
+  if ! colima start --cpu "$COLIMA_CPU" --memory "$COLIMA_MEMORY"; then
     echo "First start attempt failed, cleaning up and retrying..."
     colima stop --force 2>/dev/null || true
     colima delete --force 2>/dev/null || true
-    colima start --cpu 4 --memory 8
+    colima start --cpu "$COLIMA_CPU" --memory "$COLIMA_MEMORY"
   fi
 else
   echo "Colima already running"

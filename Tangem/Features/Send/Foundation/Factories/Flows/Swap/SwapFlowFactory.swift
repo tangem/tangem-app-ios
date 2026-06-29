@@ -33,6 +33,7 @@ class SwapFlowFactory: SwapFlowBaseDependenciesFactory {
         swapTokenPairResolver: swapTokenPairResolver
     )
     lazy var notificationManager = makeSwapNotificationManager()
+    lazy var marketingNotificationManager = makeSwapMarketingBannerNotificationManager()
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
     init(
@@ -71,7 +72,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable, coordinatorStateProvider: SendCoordinatorStateProvider) -> SendViewModel {
         let amount = makeSwapAmountStep()
         let fee = makeSendFeeStep(router: router)
-        let providers = makeSwapProviders()
+        let providers = makeSwapProviders(router: router)
 
         let summary = makeSwapSummaryStep(
             swapAmountViewModel: amount.viewModel,
@@ -97,6 +98,12 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             swapModelStateProvider: swapModel
         )
 
+        marketingNotificationManager.setup(
+            sourceTokenInput: swapModel,
+            sourceTokenAmountInput: swapModel,
+            receiveTokenInput: swapModel
+        )
+
         // Logger setup
         analyticsLogger.setup(sendFeeInput: swapModel)
         analyticsLogger.setup(sendSourceTokenInput: swapModel)
@@ -111,6 +118,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers.selector,
             tokenSelectorBuilder: tokenSelectorBuilder,
+            summaryTitleProvider: SwapSummaryTitleProvider(sourceTokenInput: swapModel, receiveTokenInput: swapModel),
             router: router
         )
 
@@ -139,7 +147,9 @@ extension SwapFlowFactory: SendBaseBuildable {
             alertBuilder: makeSwapAlertBuilder(),
             mailDataBuilder: CommonSendMailDataBuilder(
                 baseDataInput: swapModel,
-                sourceTokenInput: swapModel
+                sourceTokenInput: swapModel,
+                receiveTokenInput: swapModel,
+                providersInput: swapModel
             ),
             approveViewModelInputDataBuilder: CommonApproveViewModelInputDataBuilder(
                 dataProvider: swapModel,
@@ -204,6 +214,7 @@ extension SwapFlowFactory: SwapSummaryStepBuildable {
     var summaryDependencies: SwapSummaryStepBuilder.Dependencies {
         SwapSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
+            marketingNotificationManager: marketingNotificationManager,
             autoupdatingTimer: autoupdatingTimer,
             analyticsLogger: analyticsLogger,
             swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder()
@@ -230,6 +241,8 @@ extension SwapFlowFactory: SendSwapProvidersBuildable {
         SendSwapProvidersBuilder.IO(
             input: swapModel,
             output: swapModel,
+            approveInput: swapModel,
+            approveOutput: swapModel,
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
             receiveTokenAmountInput: swapModel
@@ -257,12 +270,16 @@ extension SwapFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: initialTokenItem, isSwapFlow: true)
+        SendFinishStepBuilder.Types(tokenItem: initialTokenItem)
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
+            headerTitleProvider: SwapFinishHeaderTitleProvider(
+                sourceTokenInput: swapModel,
+                receiveTokenInput: swapModel
+            )
         )
     }
 }

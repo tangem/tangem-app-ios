@@ -48,7 +48,7 @@ enum NotificationButtonActionType: Identifiable {
     case openAppStoreReview
     /// No action
     case empty
-    case support
+    case backupErrorSupport
     case openCurrency
     case unlock(icon: MainButton.Icon?)
     case renewTangemPaySession(icon: MainButton.Icon?)
@@ -89,7 +89,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
-        case .support: "support".hashValue
+        case .backupErrorSupport: "backupErrorSupport".hashValue
         case .openCurrency: "openCurrency".hashValue
         case .unlock: "unlock".hashValue
         case .renewTangemPaySession: "renewTangemPaySession".hashValue
@@ -143,7 +143,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.tokenSwapPromotionButton
         case .empty:
             return ""
-        case .support:
+        case .backupErrorSupport:
             return Localization.commonContactSupport
         case .openCurrency:
             return Localization.commonGoToToken
@@ -210,7 +210,7 @@ enum NotificationButtonActionType: Identifiable {
              .openFeedbackMail,
              .openAppStoreReview,
              .empty,
-             .support,
+             .backupErrorSupport,
              .openCurrency,
              .addTokenTrustline,
              .openMobileFinishActivation,
@@ -243,7 +243,8 @@ enum NotificationButtonActionType: Identifiable {
              .allowPushPermissionRequest,
              .activate,
              .openYieldBoostPromo,
-             .addFunds:
+             .addFunds,
+             .backupErrorSupport:
             return .primary
         case .backupCard,
              .openFeeCurrency,
@@ -256,7 +257,6 @@ enum NotificationButtonActionType: Identifiable {
              .leaveAmount,
              .openLink,
              .openDeeplink,
-             .support,
              .stake,
              .openFeedbackMail,
              .openCurrency,

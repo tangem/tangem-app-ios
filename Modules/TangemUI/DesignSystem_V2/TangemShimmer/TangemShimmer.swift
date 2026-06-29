@@ -15,7 +15,8 @@ import TangemUIUtils
 ///
 /// ```swift
 /// TangemShimmer()
-/// TangemShimmer().variant(.text(style: .body))               // bar fills the style's default share of the parent
+/// TangemShimmer().variant(.text(style: .body))                          // bar fills the style's default share of the parent
+/// TangemShimmer().variant(.text(style: .body, alignment: .center))
 /// TangemShimmer().variant(.custom(width: 100, height: 24))
 /// ```
 public struct TangemShimmer: View {
@@ -25,8 +26,8 @@ public struct TangemShimmer: View {
 
     public var body: some View {
         switch variant {
-        case .text(let style):
-            TangemShimmerTextBlock(style: style)
+        case .text(let style, let alignment):
+            TangemShimmerTextBlock(style: style, alignment: alignment)
 
         case .custom(let width, let height, let cornerRadius):
             TangemShimmerCustomBlock(width: width, height: height, cornerRadius: cornerRadius)
@@ -46,8 +47,14 @@ extension TangemShimmer: Setupable {
 
 public extension TangemShimmer {
     enum Variant: Hashable, Sendable {
-        case text(style: TextStyle)
+        case text(style: TextStyle, alignment: Alignment = .leading)
         case custom(width: CGFloat? = nil, height: CGFloat? = nil, cornerRadius: CGFloat? = nil)
+    }
+
+    enum Alignment: Hashable, Sendable {
+        case leading
+        case center
+        case trailing
     }
 
     enum TextStyle: Hashable, Sendable, CaseIterable {
@@ -61,35 +68,47 @@ public extension TangemShimmer {
         var lineHeight: CGFloat {
             switch self {
             case .display:
-                Font.Display.medium.lineHeight
+                DesignSystem.Font.displayMediumToken.lineHeight
 
             case .headingMedium:
-                Font.Heading.medium.lineHeight
+                DesignSystem.Font.headingMediumToken.lineHeight
 
             case .headingSmall:
-                Font.Heading.small.lineHeight
+                DesignSystem.Font.headingSmallToken.lineHeight
 
             case .body:
-                Font.Body.medium.lineHeight
+                DesignSystem.Font.bodyMediumToken.lineHeight
 
             case .subheading:
-                Font.Subheading.medium.lineHeight
+                DesignSystem.Font.subheadingMediumToken.lineHeight
 
             case .caption:
-                Font.Caption.medium.lineHeight
+                DesignSystem.Font.captionMediumToken.lineHeight
+            }
+        }
+
+        /// Inner top/bottom inset so the animated bar is glyph-sized rather than line-sized,
+        /// while the placeholder keeps the full line-height footprint. Per Figma `Shimmer / Text` spec.
+        var verticalPadding: CGFloat {
+            switch self {
+            case .display:
+                4
+
+            case .headingMedium, .headingSmall, .body, .subheading, .caption:
+                2
             }
         }
 
         var cornerRadius: CGFloat {
             switch self {
             case .display:
-                CornerRadius._150
+                12
 
             case .headingMedium:
-                CornerRadius._100
+                8
 
             case .headingSmall, .body, .subheading, .caption:
-                CornerRadius._200
+                16
             }
         }
 
@@ -115,9 +134,6 @@ public extension TangemShimmer {
                 0.3
             }
         }
-
-        private typealias Font = DesignSystem.Tokens.Font
-        private typealias CornerRadius = DesignSystem.Tokens.CornerRadius
     }
 }
 
@@ -125,31 +141,37 @@ public extension TangemShimmer {
 
 private struct TangemShimmerTextBlock: View {
     let style: TangemShimmer.TextStyle
+    let alignment: TangemShimmer.Alignment
 
-    @ScaledMetric private var height: CGFloat
+    @ScaledMetric private var barHeight: CGFloat
     @ScaledMetric private var cornerRadius: CGFloat
+    @ScaledMetric private var verticalPadding: CGFloat
 
-    init(style: TangemShimmer.TextStyle) {
+    init(style: TangemShimmer.TextStyle, alignment: TangemShimmer.Alignment) {
         self.style = style
-        _height = ScaledMetric(wrappedValue: style.lineHeight)
+        self.alignment = alignment
+        _barHeight = ScaledMetric(wrappedValue: style.lineHeight - 2 * style.verticalPadding)
         _cornerRadius = ScaledMetric(wrappedValue: style.cornerRadius)
+        _verticalPadding = ScaledMetric(wrappedValue: style.verticalPadding)
     }
 
     var body: some View {
-        LeadingRatioWidth(ratio: style.widthRatio) {
+        RatioWidth(ratio: style.widthRatio, alignment: alignment) {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(DesignSystem.Tokens.Theme.Bg.Opaque.secondary)
+                .fill(DesignSystem.Color.bgOpaqueSecondary)
                 .mask { TangemShimmerShine() }
-                .frame(height: height)
+                .frame(height: barHeight)
+                .padding(.vertical, verticalPadding)
         }
     }
 }
 
-/// Lays a single subview out at `ratio` of the proposed width, pinned to the leading edge,
+/// Lays a single subview out at `ratio` of the proposed width, pinned to `alignment`,
 /// while the layout itself reports the full proposed width — so it fills the line like text
 /// would, without `GeometryReader`'s greedy, intrinsic-size-less behavior.
-private struct LeadingRatioWidth: Layout {
+private struct RatioWidth: Layout {
     let ratio: CGFloat
+    let alignment: TangemShimmer.Alignment
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let bar = subviews.first?.sizeThatFits(.unspecified) ?? .zero
@@ -157,10 +179,16 @@ private struct LeadingRatioWidth: Layout {
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let width = bounds.width * ratio
+        let x: CGFloat = switch alignment {
+        case .leading: bounds.minX
+        case .center: bounds.midX - width / 2
+        case .trailing: bounds.maxX - width
+        }
         subviews.first?.place(
-            at: CGPoint(x: bounds.minX, y: bounds.minY),
+            at: CGPoint(x: x, y: bounds.minY),
             anchor: .topLeading,
-            proposal: ProposedViewSize(width: bounds.width * ratio, height: bounds.height)
+            proposal: ProposedViewSize(width: width, height: bounds.height)
         )
     }
 }
@@ -178,7 +206,7 @@ private struct TangemShimmerCustomBlock: View {
         let scaledHeight = height.map { $0 * scale }
         let resolvedCornerRadius: CGFloat = cornerRadius ?? (scaledHeight.map { $0 / 2 } ?? 0)
         return RoundedRectangle(cornerRadius: resolvedCornerRadius, style: .continuous)
-            .fill(DesignSystem.Tokens.Theme.Bg.Opaque.secondary)
+            .fill(DesignSystem.Color.bgOpaqueSecondary)
             .mask { TangemShimmerShine() }
             .frame(width: scaledWidth, height: scaledHeight)
     }

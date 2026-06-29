@@ -51,10 +51,7 @@ public struct TangemCarousel<Data, Content>: View
 
     public var body: some View {
         VStack(spacing: SizeUnit.x4.value) {
-            if containerWidth > 0, !data.isEmpty {
-                scrollableContent
-                    .onChange(of: translation) { onTranslationChanged?($0) }
-            }
+            pages
 
             if !hidePagination, data.count > 1 {
                 TangemPagination(
@@ -80,6 +77,25 @@ public struct TangemCarousel<Data, Content>: View
 // MARK: - Subviews
 
 private extension TangemCarousel {
+    @ViewBuilder
+    var pages: some View {
+        if containerWidth > 0, data.isNotEmpty {
+            scrollableContent
+                .onChange(of: translation) { onTranslationChanged?($0) }
+        } else if let currentElement {
+            // Gives the carousel its real height on the first layout pass; otherwise an enclosing
+            // animated container shows the 0 -> full height jump as a collapse-then-grow.
+            content(currentElement)
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    var currentElement: Data.Element? {
+        guard data.isNotEmpty else { return nil }
+        let index = clamp(externalIndex, min: 0, max: data.count - 1)
+        return data[data.index(data.startIndex, offsetBy: index)]
+    }
+
     var scrollableContent: some View {
         let items = displayItems
         let baseIndex = isEndless ? currentIndex + 1 : currentIndex
@@ -88,13 +104,17 @@ private extension TangemCarousel {
             ForEach(items, id: \.id) { item in
                 content(item.element)
                     .frame(width: containerWidth)
+                    // Once a drag passes the gesture's slop, disable the content so an
+                    // in-flight press (e.g. a banner button) is canceled and a swipe started
+                    // on a button never fires it. A pure tap keeps translation at 0.
+                    .disabled(translation != 0)
             }
         }
         .frame(width: containerWidth, alignment: .leading)
         .offset(x: -CGFloat(baseIndex) * pageStep)
         .offset(x: effectiveTranslation)
         .animation(.easeOut(duration: animationDuration), value: translation)
-        .if(data.count > 1) { $0.highPriorityGesture(dragGesture) }
+        .if(data.count > 1) { $0.simultaneousGesture(dragGesture) }
     }
 }
 
@@ -119,7 +139,8 @@ private extension TangemCarousel {
     }
 
     var dragGesture: some Gesture {
-        DragGesture()
+        // minimumDistance 0 claims the drag on touch-down so an enclosing pager yields instead of stealing the pan.
+        DragGesture(minimumDistance: 0)
             .updating($translation) { value, state, _ in
                 state = value.translation.width
             }

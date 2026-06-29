@@ -38,7 +38,6 @@ private extension SwapModelTests {
             expressManager: ExpressManagerStub(),
             swapRepository: SwapRepositoryStub(),
             expressPendingTransactionRepository: ExpressPendingTransactionRepositoryStub(),
-            expressDestinationService: ExpressDestinationServiceStub(),
             expressAPIProvider: ExpressAPIProviderStub(),
             expressUserWalletId: UserWalletId(value: Data()),
             analyticsLogger: SendAnalyticsLoggerStub(),
@@ -91,7 +90,8 @@ private actor ExpressManagerStub: ExpressManager {
             otherNativeFee: nil,
             estimatedGasLimit: nil,
             externalTxId: nil,
-            externalTxURL: nil
+            externalTxURL: nil,
+            payInAddress: ""
         )
     }
 }
@@ -102,6 +102,7 @@ private final class SwapRepositoryStub: SwapRepository {
     func getAvailableProvidersIds(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType?) async -> [ExpressProvider.Id] { [] }
     func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
     func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
+    func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] { [] }
 
     // ExpressRepository
     func updateProvidersIds(for pair: ExpressManagerSwappingPair) async throws {}
@@ -114,16 +115,6 @@ private final class ExpressPendingTransactionRepositoryStub: ExpressPendingTrans
     func updateItems(_ items: [ExpressPendingTransactionRecord]) {}
     func swapTransactionDidSend(_ transaction: SentSwapTransactionData) {}
     func hideSwapTransaction(with id: String) {}
-}
-
-private final class ExpressDestinationServiceStub: ExpressDestinationService {
-    func getSource(destination: TokenItem) async throws -> any SendSwapableToken {
-        throw ExpressDestinationServiceError.sourceNotFound(destination: destination)
-    }
-
-    func getDestination(source: TokenItem) async throws -> any SendSwapableToken {
-        throw ExpressDestinationServiceError.destinationNotFound(source: source)
-    }
 }
 
 private final class ExpressAPIProviderStub: ExpressAPIProvider {
@@ -150,20 +141,13 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             otherNativeFee: nil,
             estimatedGasLimit: nil,
             externalTxId: nil,
-            externalTxURL: nil
+            externalTxURL: nil,
+            payInAddress: ""
         )
     }
 
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction {
-        ExpressTransaction(
-            providerId: "",
-            externalStatus: .unknown,
-            refundedCurrency: nil,
-            externalTxId: nil,
-            externalTxURL: nil,
-            averageDuration: nil,
-            createdAt: nil
-        )
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
+        fatalError("Not used in tests")
     }
 
     func exchangeSent(result: ExpressTransactionSentResult) async throws {}
@@ -191,6 +175,8 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             redirectURL: URL(string: "https://stub")!,
             fromAmount: .zero,
             fromCurrencyCode: "",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         )
@@ -203,13 +189,15 @@ private final class ExpressAPIProviderStub: ExpressAPIProvider {
             redirectURL: URL(string: "https://stub")!,
             fromAmount: .zero,
             fromCurrencyCode: "",
+            toAmount: nil,
+            countryCode: "",
             externalTxId: nil,
             externalTxURL: nil
         ))
     }
 
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
-        OnrampTransaction(fromAmount: .zero, toAmount: nil, status: .unknown, externalTxId: nil, externalTxURL: nil)
+        fatalError("Not used in tests")
     }
 
     /// History
@@ -269,6 +257,8 @@ private final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     func logTokenSearched(coin: CoinModel, searchText: String?) {}
     func logTokenChosen(token: TokenItem) {}
     func logSendSwapCantSwapThisToken(token: String) {}
+    func logSendSwapAvailable(token: String) {}
+    func logSendSwapAvailableClicked(token: String) {}
 
     // MARK: - SendDestinationAnalyticsLogger
 

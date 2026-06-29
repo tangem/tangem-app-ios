@@ -1,0 +1,38 @@
+//
+//  AddressBookContactManagementInteractor.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Combine
+import TangemAccounts
+import TangemFoundation
+import TangemUI
+
+protocol AddressBookContactManagementInteractor {
+    var title: String { get }
+
+    var contactNamePublisher: AnyPublisher<String, Never> { get }
+    var contactColorPublisher: AnyPublisher<AccountModel.CompositeIcon.Color, Never> { get }
+
+    var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> { get }
+    var walletPublisher: AnyPublisher<AddressBookWallet, Never> { get }
+
+    var possibleToAddNewAddress: AnyPublisher<Bool, Never> { get }
+    var possibleToDeleteContact: AnyPublisher<Bool, Never> { get }
+
+    var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> { get }
+    var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> { get }
+
+    func update(name: String)
+    func update(color: AccountModel.CompositeIcon.Color)
+    func update(addressBookWallet: AddressBookWallet)
+
+    func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws
+    func deleteAddress(id: AddressBookAddressEntryID)
+
+    func save() async throws
+    func delete() async throws
+}

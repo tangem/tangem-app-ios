@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemLogger
 
 struct ExpressAPIMapper {
     let exchangeDataDecoder: ExpressExchangeDataDecoder
@@ -91,6 +92,7 @@ struct ExpressAPIMapper {
             txDetailsJson: response.txDetailsJson,
             signature: response.signature
         )
+        ExpressLogger.info(txDetails.logDescription)
 
         guard request.requestId == txDetails.requestId else {
             throw ExpressAPIMapperError.requestIdNotEqual
@@ -136,7 +138,8 @@ struct ExpressAPIMapper {
             otherNativeFee: otherNativeFee,
             estimatedGasLimit: txDetails.gas.flatMap(Int.init),
             externalTxId: txDetails.externalTxId,
-            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:))
+            externalTxURL: txDetails.externalTxUrl.flatMap(URL.init(string:)),
+            payInAddress: txDetails.txTo
         )
     }
 
@@ -157,36 +160,6 @@ struct ExpressAPIMapper {
 
             return .zero
         }
-    }
-
-    func mapToExpressTransaction(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressTransaction {
-        ExpressTransaction(
-            providerId: .init(response.providerId),
-            externalStatus: ExpressTransactionStatus(rawValue: response.status) ?? .unknown,
-            refundedCurrency: mapToRefundedExpressCurrency(response: response),
-            externalTxId: response.externalTxId,
-            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:)),
-            averageDuration: response.averageDuration,
-            createdAt: response.createdAt
-        )
-    }
-
-    private func mapToRefundedExpressCurrency(response: ExpressDTO.Swap.ExchangeStatus.Response) -> ExpressCurrency? {
-        guard
-            let refundContractAddress = response.refundContractAddress,
-            let refundNetwork = response.refundNetwork
-        else {
-            ExpressLogger.info(
-                String(
-                    format: "Refunded currency missing required fields: refundContractAddress %@, refundNetwork %@",
-                    String(describing: response.refundContractAddress),
-                    String(describing: response.refundNetwork)
-                )
-            )
-            return nil
-        }
-
-        return ExpressCurrency(contractAddress: refundContractAddress, network: refundNetwork)
     }
 
     // MARK: - Onramp
@@ -272,6 +245,8 @@ struct ExpressAPIMapper {
                 txId: response.txId,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
+                toAmount: codedData.toAmount,
+                countryCode: codedData.countryCode,
                 externalTxId: codedData.externalTxId,
                 externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
@@ -286,6 +261,8 @@ struct ExpressAPIMapper {
                 redirectURL: codedData.redirectUrl,
                 fromAmount: fromAmount,
                 fromCurrencyCode: codedData.fromCurrencyCode,
+                toAmount: codedData.toAmount,
+                countryCode: codedData.countryCode,
                 externalTxId: codedData.externalTxId,
                 externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
             ))
@@ -322,36 +299,18 @@ struct ExpressAPIMapper {
             redirectURL: codedData.redirectUrl,
             fromAmount: fromAmount,
             fromCurrencyCode: codedData.fromCurrencyCode,
+            toAmount: codedData.toAmount,
+            countryCode: codedData.countryCode,
             externalTxId: codedData.externalTxId,
             externalTxURL: codedData.externalTxUrl.flatMap(URL.init(string:))
         )
     }
 
-    func mapToOnrampTransaction(response: ExpressDTO.Onramp.Status.Response) throws -> OnrampTransaction {
-        guard var fromAmount = Decimal(stringValue: response.fromAmount) else {
-            throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
-        }
-
-        fromAmount /= pow(10, response.fromPrecision)
-
-        let toAmount = response.toAmount
-            .flatMap { Decimal(stringValue: $0) }
-            .map { $0 / pow(10, response.toDecimals) }
-
-        return OnrampTransaction(
-            fromAmount: fromAmount,
-            toAmount: toAmount,
-            status: OnrampTransactionStatus(rawValue: response.status) ?? .unknown,
-            externalTxId: response.externalTxId,
-            externalTxURL: response.externalTxUrl.flatMap(URL.init(string:))
-        )
-    }
-
-    // MARK: - History
+    // MARK: - Transactions & history
 
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.History.Response) throws -> ExchangeHistoryPage {
         try ExchangeHistoryPage(
-            records: response.items.map(mapToExchangeHistoryRecord(record:)),
+            records: response.items.map(mapToExchangeTransaction(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
             hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
@@ -360,7 +319,7 @@ struct ExpressAPIMapper {
 
     func mapToExchangeHistoryPage(response: ExpressDTO.Swap.HistoryDelta.Response) throws -> ExchangeHistoryPage {
         try ExchangeHistoryPage(
-            records: response.items.map(mapToExchangeHistoryRecord(record:)),
+            records: response.items.map(mapToExchangeTransaction(record:)),
             nextCursor: response.pagination.startCursor?.value,
             startDeltaCursor: nil,
             hasMore: response.pagination.hasMore
@@ -369,7 +328,7 @@ struct ExpressAPIMapper {
 
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.History.Response) throws -> OnrampHistoryPage {
         try OnrampHistoryPage(
-            records: response.items.map(mapToOnrampHistoryRecord(record:)),
+            records: response.items.map(mapToOnrampTransaction(record:)),
             nextCursor: response.pagination.endCursor?.value,
             startDeltaCursor: response.pagination.startDeltaCursor?.value,
             hasMore: response.pagination.hasMore ?? response.pagination.hasNextPage ?? false // [REDACTED_TODO_COMMENT]
@@ -378,20 +337,20 @@ struct ExpressAPIMapper {
 
     func mapToOnrampHistoryPage(response: ExpressDTO.Onramp.HistoryDelta.Response) throws -> OnrampHistoryPage {
         try OnrampHistoryPage(
-            records: response.items.map(mapToOnrampHistoryRecord(record:)),
+            records: response.items.map(mapToOnrampTransaction(record:)),
             nextCursor: response.pagination.startCursor?.value,
             startDeltaCursor: nil,
             hasMore: response.pagination.hasMore
         )
     }
 
-    private func mapToExchangeHistoryRecord(record: ExpressDTO.Swap.History.Record) throws -> ExchangeHistoryRecord {
-        try ExchangeHistoryRecord(
+    func mapToExchangeTransaction(record: ExpressDTO.Swap.Transaction) throws -> ExchangeTransaction {
+        try ExchangeTransaction(
             txId: record.txId,
             providerId: record.providerId,
             status: ExpressTransactionStatus(rawValue: record.status) ?? .unknown,
             rateType: ExpressProviderRateType(rawValue: record.rateType),
-            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: record.externalTxStatus, url: record.externalTxUrl),
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, url: record.externalTxUrl),
             fromAddress: record.fromAddress,
             payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
             payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
@@ -422,55 +381,39 @@ struct ExpressAPIMapper {
         )
     }
 
-    private func mapToOnrampHistoryRecord(record: ExpressDTO.Onramp.History.Record) throws -> OnrampHistoryRecord {
-        try OnrampHistoryRecord(
+    func mapToOnrampTransaction(record: ExpressDTO.Onramp.Transaction) throws -> OnrampTransaction {
+        try OnrampTransaction(
             txId: record.txId,
             providerId: record.providerId,
             status: OnrampTransactionStatus(rawValue: record.status) ?? .unknown,
-            rateType: ExpressProviderRateType(rawValue: record.rateType),
-            externalTx: mapToExternalTxInfo(id: record.externalTxId, status: record.externalTxStatus, url: record.externalTxUrl),
-            fromAddress: record.fromAddress,
-            payIn: PayInInfo(address: record.payinAddress, extraId: record.payinExtraId, hash: record.payinHash),
+            failReason: record.failReason,
+            externalTx: mapToExternalTxInfo(id: record.externalTxId, url: record.externalTxUrl),
             payOut: PayOutInfo(address: record.payoutAddress, hash: record.payoutHash),
-            refund: mapToRefundInfo(
-                address: record.refundAddress,
-                extraId: record.refundExtraId,
-                network: record.refundNetwork,
-                contractAddress: record.refundContractAddress
-            ),
             from: mapToOnrampHistoryFiatAsset(
                 currencyCode: record.fromCurrencyCode,
                 amount: record.fromAmount,
                 precision: record.fromPrecision
             ),
-            to: mapToExpressHistoryAsset(
+            to: mapToOnrampHistoryCryptoAsset(
                 contractAddress: record.toContractAddress,
                 network: record.toNetwork,
                 decimals: record.toDecimals,
                 amount: record.toAmount,
                 actualAmount: record.toActualAmount
             ),
+            paymentMethod: record.paymentMethod,
+            countryCode: record.countryCode,
             createdAt: record.createdAt,
-            updatedAt: record.updatedAt ?? record.createdAt,
-            payTill: record.payTill,
-            averageDuration: record.averageDuration
+            updatedAt: record.updatedAt ?? record.createdAt
         )
     }
 
-    private func mapToExternalTxInfo(id: String?, status: String?, url: String?) -> ExternalTxInfo? {
+    private func mapToExternalTxInfo(id: String?, url: String?) -> ExternalTxInfo? {
         guard let id else {
-            ExpressLogger.info(
-                String(
-                    format: "External tx info missing required field: id %@ (status %@, url %@)",
-                    String(describing: id),
-                    String(describing: status),
-                    String(describing: url)
-                )
-            )
             return nil
         }
 
-        return ExternalTxInfo(id: id, status: status, url: url.flatMap(URL.init(string:)))
+        return ExternalTxInfo(id: id, url: url.flatMap(URL.init(string:)))
     }
 
     private func mapToRefundInfo(address: String?, extraId: String?, network: String?, contractAddress: String?) -> RefundInfo? {
@@ -533,6 +476,29 @@ struct ExpressAPIMapper {
         return OnrampHistoryFiatAsset(currencyCode: currencyCode, amount: rawAmount / pow(10, precision))
     }
 
+    private func mapToOnrampHistoryCryptoAsset(
+        contractAddress: String,
+        network: String,
+        decimals: Int,
+        amount: String?,
+        actualAmount: String?
+    ) throws -> OnrampHistoryCryptoAsset {
+        func mapToDecimal(_ value: String) throws -> Decimal {
+            guard let rawValue = Decimal(stringValue: value) else {
+                throw ExpressAPIMapperError.mapToDecimalError(value)
+            }
+
+            return rawValue / pow(10, decimals)
+        }
+
+        return try OnrampHistoryCryptoAsset(
+            currency: ExpressCurrency(contractAddress: contractAddress, network: network),
+            amount: amount.map(mapToDecimal),
+            actualAmount: actualAmount.map(mapToDecimal),
+            decimals: decimals
+        )
+    }
+
     private func mapToRefundedCurrency(network: String?, contractAddress: String?) -> ExpressCurrency? {
         guard
             let network,
@@ -567,5 +533,26 @@ enum ExpressAPIMapperError: LocalizedError {
         case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .widgetUrlMissing: "Widget url is missing for a widget transaction"
         }
+    }
+}
+
+// MARK: - Logging
+
+private extension DecodedTransactionDetails {
+    var logDescription: String {
+        "Exchange data decoded transaction details payload:"
+            .appendingLogProperty(\.requestId, of: self)
+            .appendingLogProperty(\.txType, of: self)
+            .appendingLogProperty(\.txFrom, of: self)
+            .appendingLogProperty(\.txTo, of: self)
+            .appendingLogProperty(\.txExtraId, of: self)
+            // txData skipped intentionally
+            .appendingLogProperty(\.txValue, of: self)
+            .appendingLogProperty(\.otherNativeFee, of: self)
+            .appendingLogProperty(\.gas, of: self)
+            .appendingLogProperty(\.externalTxId, of: self)
+            .appendingLogProperty(\.externalTxUrl, of: self)
+            .appendingLogProperty(\.payoutAddress, of: self)
+            .appendingLogProperty(\.payoutExtraId, of: self)
     }
 }

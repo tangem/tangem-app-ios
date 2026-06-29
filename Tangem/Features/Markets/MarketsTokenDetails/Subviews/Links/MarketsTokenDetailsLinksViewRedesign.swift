@@ -33,15 +33,8 @@ struct MarketsTokenDetailsLinksViewRedesign: View {
 private extension MarketsTokenDetailsLinksViewRedesign {
     func sectionView(_ item: MarketsTokenDetailsLinkSection) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
-            Separator(
-                height: .minimal,
-                color: .Tangem.Graphic.Neutral.quaternary,
-                axis: .horizontal
-            )
-            .padding(.horizontal, sectionHorizontalPadding)
-
             Text(item.section.title)
-                .style(.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
+                .style(Font.Tangem.Heading20.semibold, color: .Tangem.Text.Neutral.primary)
                 .padding(.horizontal, sectionHorizontalPadding)
                 .padding(.top, titleTopPadding)
 
@@ -60,7 +53,7 @@ private extension MarketsTokenDetailsLinksViewRedesign {
 
     func linkButton(for item: LinkItem) -> some View {
         var text = AttributedString(item.data.text)
-        text.font = .Tangem.Body16.semibold
+        text.setFontStyle(Font.Tangem.Body16.semibold)
 
         let content: TangemButton.Content = {
             if let imageType = item.iconImageType {
@@ -75,8 +68,7 @@ private extension MarketsTokenDetailsLinksViewRedesign {
 
         return TangemButton(content: content, action: item.data.action)
             .setStyleType(.secondary)
-            .setSize(.x9)
-            .setCornerStyle(.rounded)
+            .setSize(.x8)
     }
 }
 

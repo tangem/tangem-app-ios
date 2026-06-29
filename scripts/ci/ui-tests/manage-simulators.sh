@@ -1,7 +1,8 @@
 #!/bin/bash
 # Find available simulators, boot them (recreating if broken), and build port mapping for WireMock
 # Required env: SIMULATOR_COUNT
-# Optional env: RUNTIME (default from .ios-sim-runtime line 2), BOOT_TIMEOUT (default: 120)
+# Optional env: RUNTIME (default from .ios-sim-runtime line 2), BOOT_TIMEOUT (default: 120),
+#               MAX_SIMULATOR_COUNT (default: 4)
 # Outputs to GITHUB_OUTPUT: simulator_udids, port_mapping, devices_yaml
 
 set -e
@@ -9,6 +10,13 @@ set -e
 if [ -z "$SIMULATOR_COUNT" ]; then
   echo "ERROR: SIMULATOR_COUNT environment variable is required"
   exit 1
+fi
+
+# Full-suite runs with 5+ simulators exhaust host memory and take the runner down
+MAX_SIMULATOR_COUNT="${MAX_SIMULATOR_COUNT:-4}"
+if [ "$SIMULATOR_COUNT" -gt "$MAX_SIMULATOR_COUNT" ]; then
+  echo "WARNING: SIMULATOR_COUNT=$SIMULATOR_COUNT exceeds max $MAX_SIMULATOR_COUNT, clamping"
+  SIMULATOR_COUNT="$MAX_SIMULATOR_COUNT"
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

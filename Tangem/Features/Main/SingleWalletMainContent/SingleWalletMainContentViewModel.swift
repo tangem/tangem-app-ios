@@ -36,15 +36,15 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     // MARK: - Dependencies
 
-    @Injected(\.addFundsBannerVisibilityProvider) private var addFundsBannerVisibilityProvider: AddFundsBannerVisibilityProvider
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private let userWalletModel: UserWalletModel
     private let userWalletNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let forceUpdateBannerNotificationManager: NotificationManager
     private let rateAppController: RateAppInteractionController
     private let contextActionTokenRouter: SingleTokenRoutable
-    private weak var coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?
+    private weak var addFundsRoutable: (any ActionButtonsBuyFlowRoutable)?
 
     private let isPageSelectedSubject = PassthroughSubject<Bool, Never>()
 
@@ -59,6 +59,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         promotionNotificationsManager: PromotionNotificationsManager,
         forceUpdateBannerNotificationManager: NotificationManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
+        expressStatusPollingHelper: ExpressStatusPollingHelper,
         tokenNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         tokenRouter: SingleTokenRoutable,
@@ -66,13 +67,13 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         coordinator: (any ActionButtonsRoutable & MultiWalletMainContentRoutable)?,
         accountModel: (any CryptoAccountModel)?
     ) {
+        self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
         self.promotionNotificationsManager = promotionNotificationsManager
         self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
         contextActionTokenRouter = tokenRouter
         self.delegate = delegate
-        self.coordinator = coordinator
 
         if WalletPromoBannerUtil().shouldShowBanner() {
             walletPromoBannerViewModel = .init(
@@ -90,6 +91,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
             walletModel: walletModel,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenRouter: tokenRouter
         )
 
@@ -174,6 +176,13 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     }
 
     override func copyDefaultAddress() {
+        if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(
+            for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
+        ) {
+            alert = unavailableAlert
+            return
+        }
+
         super.copyDefaultAddress()
         Analytics.log(
             event: .buttonCopyAddress,
@@ -253,7 +262,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     private func openAddFunds() {
         let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-        coordinator?.openBuy(userWalletModels: userWalletModels)
+        addFundsRoutable?.openBuy(userWalletModels: userWalletModels, preferredWalletId: ActionButtonsBuyPreselection.userWalletId(for: userWalletModel))
     }
 }
 
@@ -277,7 +286,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionsProvider {
         return actionBuilder.buildContextActionsSections(
             tokenItem: tokenItemViewModel.tokenItem,
             walletModel: walletModel,
-            userWalletConfig: userWalletInfo.config,
+            userWalletInfo: userWalletInfo,
             canNavigateToMarketsDetails: isMarketsDetailsAvailable,
             canHideToken: false
         )
@@ -290,18 +299,30 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
     func didTapContextAction(_ action: TokenActionType, for tokenItemViewModel: TokenItemViewModel) {
         switch action {
         case .buy:
+            if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.buyAvailablity) {
+                alert = unavailableAlert
+                return
+            }
+
             contextActionTokenRouter.openOnramp(walletModel: walletModel)
         case .send:
             contextActionTokenRouter.openSend(walletModel: walletModel)
         case .receive:
+            if let unavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain) {
+                alert = unavailableAlert
+                return
+            }
+
             contextActionTokenRouter.openReceive(walletModel: walletModel)
         case .exchange:
             guard let parameters = SwapPredefinedParametersHelper().makeParameters(
-                origin: .tokenDetails(walletModel: walletModel),
-                userWalletInfo: userWalletInfo
+                walletModel: walletModel,
+                userWalletInfo: userWalletInfo,
+                position: .automatic
             ) else {
                 return
             }
+
             contextActionTokenRouter.openSwap(parameters: parameters)
         case .sell:
             contextActionTokenRouter.openSell(for: walletModel)
@@ -310,6 +331,7 @@ extension SingleWalletMainContentViewModel: TokenItemContextActionDelegate {
         case .yield:
             contextActionTokenRouter.openYieldModule(walletModel: walletModel)
         case .copyAddress:
+            // Gated inside copyDefaultAddress() via receiveAvailability.
             copyDefaultAddress()
         case .marketsDetails:
             openMarketsTokenDetails()

@@ -168,6 +168,10 @@ public struct NotificationBanner: View, Setupable {
             .frame(width: iconWidth, height: iconHeight)
     }
 
+    private var closeButtonClearance: CGFloat {
+        bannerType.isClosable ? SizeUnit.x6.value : 0
+    }
+
     private func textStack(title: AttributedString, subtitle: AttributedString) -> some View {
         let alignment: HorizontalAlignment = isCentered ? .center : .leading
         let textAlignment: TextAlignment = isCentered ? .center : .leading
@@ -176,7 +180,7 @@ public struct NotificationBanner: View, Setupable {
             if title.characters.isNotEmpty {
                 Text(title)
                     .style(
-                        .Tangem.Body16.medium,
+                        Font.Tangem.Body16.medium,
                         color: .Tangem.Text.Neutral.primary
                     )
                     .lineLimit(nil)
@@ -188,7 +192,7 @@ public struct NotificationBanner: View, Setupable {
             if subtitle.characters.isNotEmpty {
                 Text(subtitle)
                     .style(
-                        .Tangem.Caption12.semibold,
+                        Font.Tangem.Caption12.semibold,
                         color: .Tangem.Text.Neutral.secondary
                     )
                     .lineLimit(nil)
@@ -198,6 +202,7 @@ public struct NotificationBanner: View, Setupable {
             }
         }
         .padding(.horizontal, SizeUnit.x1.value)
+        .padding(isCentered ? .horizontal : .trailing, closeButtonClearance)
         .padding(.top, SizeUnit.x1.value)
     }
 

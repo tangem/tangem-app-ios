@@ -110,12 +110,11 @@ private extension EarnDetailViewRedesign {
             action: { viewModel.handleViewAction(.back) }
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setSize(.x11)
     }
 
     var navigationTitle: some View {
         Text(Localization.earnTitle)
-            .style(.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+            .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
     }
 }

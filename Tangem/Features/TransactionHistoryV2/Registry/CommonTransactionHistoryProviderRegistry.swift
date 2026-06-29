@@ -44,7 +44,7 @@ actor CommonTransactionHistoryProviderRegistry {
 
     private func purgeRegistry(using walletModels: [any WalletModel]) {
         let actualKeys = walletModels
-            .map { TransactionHistoryProviderKey(address: $0.defaultAddressString) }
+            .map { TransactionHistoryProviderKey(address: $0.defaultAddressString, tokenItem: $0.tokenItem) }
             .toSet()
 
         providers = providers.filter { actualKeys.contains($0.key) }
@@ -56,8 +56,8 @@ actor CommonTransactionHistoryProviderRegistry {
             refcode: walletInfo.refcodeProvider?.getRefcode()
         )
 
-        let exchangeStorage = InMemoryTransactionHistoryRecordsStorage<ExchangeHistoryRecord>()
-        let onrampStorage = InMemoryTransactionHistoryRecordsStorage<OnrampHistoryRecord>()
+        let exchangeStorage = InMemoryTransactionHistoryRecordsStorage<ExchangeTransaction>()
+        let onrampStorage = InMemoryTransactionHistoryRecordsStorage<OnrampTransaction>()
 
         let exchangeNetworkService = TransactionHistoryNetworkServiceFactory.makeExchangeService(
             apiProvider: apiProvider,
@@ -80,6 +80,7 @@ actor CommonTransactionHistoryProviderRegistry {
         return TransactionHistoryProvider(
             repository: repository,
             userWalletId: userWalletId,
+            tokenItem: key.tokenItem,
             address: key.address
         )
     }
@@ -88,7 +89,7 @@ actor CommonTransactionHistoryProviderRegistry {
 // MARK: - TransactionHistoryProviderRegistry protocol conformance
 
 extension CommonTransactionHistoryProviderRegistry: TransactionHistoryProviderRegistry {
-    func provider(for key: TransactionHistoryProviderKey) -> TransactionHistorySyncing {
+    func provider(for key: TransactionHistoryProviderKey) -> any TransactionHistoryProviding {
         if let existing = providers[key] {
             return existing
         }

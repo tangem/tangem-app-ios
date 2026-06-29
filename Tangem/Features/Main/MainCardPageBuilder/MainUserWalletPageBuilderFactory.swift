@@ -60,7 +60,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let balanceProvider = providerFactory.makeHeaderBalanceProvider(for: model)
         let subtitleProvider = providerFactory.makeHeaderSubtitleProvider(for: model, isMultiWallet: isMultiWalletPage)
 
-        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+        let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: model.isUserWalletLocked,
             totalBalanceProvider: model
         )
@@ -186,13 +186,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             placement: .main
         )
 
-        let expressFactory = ExpressPendingTransactionsFactory(
+        let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: model.userWalletInfo,
             tokenItem: dependencies.walletModel.tokenItem,
             walletModelUpdater: dependencies.walletModel,
+            transactionHistoryEnricherFactory: { [weak walletModel = dependencies.walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
 
-        let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
+        let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let accountModel: (any CryptoAccountModel)? = {
             let cryptoAccounts = model.accountModelsManager.accountModels.cryptoAccounts()
@@ -206,7 +213,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             userWalletNotificationManager: userWalletNotificationManager,
             promotionNotificationsManager: promotionNotificationsManager,
             forceUpdateBannerNotificationManager: ForceUpdateBannerNotificationManager(),
-            pendingExpressTransactionsManager: pendingTransactionsManager,
+            pendingExpressTransactionsManager: expressStatusTracking.manager,
+            expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             tokenNotificationManager: singleWalletNotificationManager,
             rateAppController: rateAppController,
             tokenRouter: tokenRouter,
@@ -232,7 +240,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         multiWalletContentDelegate: MultiWalletMainContentDelegate?,
         nftLifecycleHandler: NFTFeatureLifecycleHandling
     ) -> [MainUserWalletPageBuilder] {
-        return models.compactMap {
+        models.map {
             createPage(
                 for: $0,
                 lockedUserWalletDelegate: lockedUserWalletDelegate,
@@ -249,7 +257,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let subtitleProvider = VisaWalletMainHeaderSubtitleProvider(isUserWalletLocked: isUserWalletLocked, dataSource: visaUserWalletModel)
 
-        let navigationBalanceProvider = CommonMainNavigationBalanceProvider(
+        let navigationBalanceProvider = MainNavigationBalanceProvider(
             isUserWalletLocked: visaUserWalletModel.isUserWalletLocked,
             totalBalanceProvider: visaUserWalletModel
         )

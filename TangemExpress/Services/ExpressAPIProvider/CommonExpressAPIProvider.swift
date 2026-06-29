@@ -8,8 +8,9 @@
 
 import Foundation
 import AnyCodable
+import TangemLogger
 
-class CommonExpressAPIProvider {
+final class CommonExpressAPIProvider {
     let expressAPIService: ExpressAPIService
     let expressAPIMapper: ExpressAPIMapper
 
@@ -138,15 +139,21 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             partnerOperationType: item.operationType.rawValue
         )
 
+        ExpressLogger.info(request.logDescription)
+
         let response = try await expressAPIService.exchangeData(request: request)
+        ExpressLogger.info(response.logDescription)
+
         let data = try expressAPIMapper.mapToExpressTransactionData(item: item, request: request, response: response)
         return data
     }
 
-    func exchangeStatus(transactionId: String) async throws -> ExpressTransaction {
+    func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
         let request = ExpressDTO.Swap.ExchangeStatus.Request(txId: transactionId)
         let response = try await expressAPIService.exchangeStatus(request: request)
-        let transaction = expressAPIMapper.mapToExpressTransaction(response: response)
+        ExpressLogger.info(response.logDescription)
+
+        let transaction = try expressAPIMapper.mapToExchangeTransaction(record: response)
         return transaction
     }
 
@@ -156,11 +163,14 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
             txId: result.data.expressTransactionId,
             fromNetwork: result.source.network,
             fromAddress: result.address,
-            payinAddress: result.data.destinationAddress,
+            payinAddress: result.data.payInAddress,
             payinExtraId: result.data.extraDestinationId
         )
 
-        _ = try await expressAPIService.exchangeSent(request: request)
+        ExpressLogger.info(request.logDescription)
+
+        let response = try await expressAPIService.exchangeSent(request: request)
+        ExpressLogger.info(response.logDescription)
     }
 
     // MARK: - Onramp
@@ -286,7 +296,7 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
     func onrampStatus(transactionId: String) async throws -> OnrampTransaction {
         let request = ExpressDTO.Onramp.Status.Request(txId: transactionId)
         let response = try await expressAPIService.onrampStatus(request: request)
-        return try expressAPIMapper.mapToOnrampTransaction(response: response)
+        return try expressAPIMapper.mapToOnrampTransaction(record: response)
     }
 
     // MARK: - History
@@ -333,5 +343,97 @@ extension CommonExpressAPIProvider: ExpressAPIProvider {
         let response = try await expressAPIService.onrampHistoryDelta(request: request)
 
         return try expressAPIMapper.mapToOnrampHistoryPage(response: response)
+    }
+}
+
+// MARK: - Logging
+
+private extension ExpressDTO.Swap.ExchangeData.Request {
+    var logDescription: String {
+        "Exchange data request payload:"
+            // requestId, quoteId skipped intentionally
+            .appendingLogProperty(\.fromAddress, of: self)
+            .appendingLogProperty(\.fromContractAddress, of: self)
+            .appendingLogProperty(\.fromNetwork, of: self)
+            .appendingLogProperty(\.toContractAddress, of: self)
+            .appendingLogProperty(\.toNetwork, of: self)
+            .appendingLogProperty(\.toDecimals, of: self)
+            .appendingLogProperty(\.fromAmount, of: self)
+            .appendingLogProperty(\.toAmount, of: self)
+            .appendingLogProperty(\.fromDecimals, of: self)
+            .appendingLogProperty(\.providerId, of: self)
+            .appendingLogProperty(\.rateType, of: self)
+            .appendingLogProperty(\.toAddress, of: self)
+            // toExtraId skipped intentionally
+            .appendingLogProperty(\.refundAddress, of: self)
+        // refundExtraId, partnerOperationType skipped intentionally
+    }
+}
+
+private extension ExpressDTO.Swap.ExchangeData.Response {
+    var logDescription: String {
+        "Exchange data response payload:"
+            .appendingLogProperty(\.txId, of: self)
+            .appendingLogProperty(\.fromAmount, of: self)
+            .appendingLogProperty(\.fromDecimals, of: self)
+            .appendingLogProperty(\.toAmount, of: self)
+            .appendingLogProperty(\.toDecimals, of: self)
+            // txDetailsJson, signature skipped intentionally
+            .appendingLogProperty(\.payTill, of: self)
+    }
+}
+
+private extension ExpressDTO.Swap.ExchangeStatus.Response {
+    var logDescription: String {
+        "Exchange status response payload:"
+            .appendingLogProperty(\.txId, of: self)
+            .appendingLogProperty(\.providerId, of: self)
+            .appendingLogProperty(\.fromAddress, of: self)
+            .appendingLogProperty(\.payinAddress, of: self)
+            .appendingLogProperty(\.payinExtraId, of: self)
+            .appendingLogProperty(\.payoutAddress, of: self)
+            .appendingLogProperty(\.refundAddress, of: self)
+            .appendingLogProperty(\.refundExtraId, of: self)
+            .appendingLogProperty(\.rateType, of: self)
+            .appendingLogProperty(\.status, of: self)
+            .appendingLogProperty(\.externalTxId, of: self)
+            .appendingLogProperty(\.externalTxUrl, of: self)
+            .appendingLogProperty(\.payinHash, of: self)
+            .appendingLogProperty(\.payoutHash, of: self)
+            .appendingLogProperty(\.refundNetwork, of: self)
+            .appendingLogProperty(\.refundContractAddress, of: self)
+            .appendingLogProperty(\.createdAt, of: self)
+            .appendingLogProperty(\.updatedAt, of: self)
+            .appendingLogProperty(\.payTill, of: self)
+            .appendingLogProperty(\.averageDuration, of: self)
+            .appendingLogProperty(\.fromContractAddress, of: self)
+            .appendingLogProperty(\.fromNetwork, of: self)
+            .appendingLogProperty(\.fromDecimals, of: self)
+            .appendingLogProperty(\.fromAmount, of: self)
+            .appendingLogProperty(\.toContractAddress, of: self)
+            .appendingLogProperty(\.toNetwork, of: self)
+            .appendingLogProperty(\.toDecimals, of: self)
+            .appendingLogProperty(\.toAmount, of: self)
+            .appendingLogProperty(\.toActualAmount, of: self)
+    }
+}
+
+private extension ExpressDTO.Swap.ExchangeSent.Request {
+    var logDescription: String {
+        "Exchange sent request payload:"
+            .appendingLogProperty(\.txHash, of: self)
+            .appendingLogProperty(\.txId, of: self)
+            .appendingLogProperty(\.fromNetwork, of: self)
+            .appendingLogProperty(\.fromAddress, of: self)
+            .appendingLogProperty(\.payinAddress, of: self)
+            .appendingLogProperty(\.payinExtraId, of: self)
+    }
+}
+
+private extension ExpressDTO.Swap.ExchangeSent.Response {
+    var logDescription: String {
+        "Exchange sent response payload:"
+            .appendingLogProperty(\.txId, of: self)
+            .appendingLogProperty(\.status, of: self)
     }
 }

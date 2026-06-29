@@ -18,12 +18,12 @@ struct TangemPayBalanceView: View {
         LoadableBalanceView(
             state: Self.applyFractionStyling(state),
             style: .init(
-                font: DesignSystem.Tokens.Font.Display.medium.font,
-                textColor: DesignSystem.Tokens.Theme.Text.primary
+                font: DesignSystem.Font.displayMediumToken.font,
+                textColor: DesignSystem.Color.textPrimary
             ),
             loader: .init(
                 size: CGSize(width: 140, height: 44),
-                cornerRadius: DesignSystem.Tokens.CornerRadius._100
+                cornerRadius: 8
             ),
             accessibilityIdentifier: TangemPayAccessibilityIdentifiers.paymentAccountBalance
         )
@@ -57,10 +57,16 @@ private extension TangemPayBalanceView {
         BalanceFormatter().formatAttributedTotalBalance(
             fiatBalance: raw,
             formattingOptions: .init(
-                integerPartFont: DesignSystem.Tokens.Font.Display.medium.font,
-                fractionalPartFont: DesignSystem.Tokens.Font.Heading.medium.font,
-                integerPartColor: DesignSystem.Tokens.Theme.Text.primary,
-                fractionalPartColor: DesignSystem.Tokens.Theme.Text.primary,
+                integerPartFont: TangemFontStyle(
+                    font: DesignSystem.Font.displayMediumToken.font,
+                    tracking: DesignSystem.Font.displayMediumToken.tracking
+                ),
+                fractionalPartFont: TangemFontStyle(
+                    font: DesignSystem.Font.headingMediumToken.font,
+                    tracking: DesignSystem.Font.headingMediumToken.tracking
+                ),
+                integerPartColor: DesignSystem.Color.textPrimary,
+                fractionalPartColor: DesignSystem.Color.textPrimary,
                 fractionalPartIncludesDecimalSeparator: true
             )
         )
@@ -77,6 +83,6 @@ private extension TangemPayBalanceView {
         TangemPayBalanceView(state: .loading())
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(DesignSystem.Tokens.Theme.Bg.primary)
+    .background(DesignSystem.Color.bgPrimary)
 }
 #endif // DEBUG

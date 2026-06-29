@@ -104,7 +104,7 @@ private extension EarnFilterBottomSheetLayout {
             leadingContent: { EmptyView() },
             principalContent: {
                 Text(title)
-                    .style(.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Heading17.semibold, color: .Tangem.Text.Neutral.primary)
             },
             trailingContent: { closeButton }
         )
@@ -117,7 +117,6 @@ private extension EarnFilterBottomSheetLayout {
             action: onClose
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setSize(.x9)
     }
 
@@ -127,7 +126,6 @@ private extension EarnFilterBottomSheetLayout {
             action: onCancel
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
     }

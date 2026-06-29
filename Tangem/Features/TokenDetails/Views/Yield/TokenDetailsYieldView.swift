@@ -73,16 +73,15 @@ private extension TokenDetailsYieldView {
 
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     Text(item.title)
-                        .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
                     .setStyleType(.positive)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)
@@ -114,7 +113,7 @@ private extension TokenDetailsYieldView {
                     Text(item.title)
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -125,7 +124,6 @@ private extension TokenDetailsYieldView {
                     action: item.learnAction.closure
                 )
                 .setStyleType(.secondary)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.infinity)
 
@@ -134,7 +132,6 @@ private extension TokenDetailsYieldView {
                     action: item.activateAction.closure
                 )
                 .setStyleType(.positive)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.infinity)
             }
@@ -160,11 +157,11 @@ private extension TokenDetailsYieldView {
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
-                    .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                 HStack(spacing: spinnerSpacing) {
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
 
                     spinner
                 }
@@ -207,19 +204,18 @@ private extension TokenDetailsYieldView {
                 VStack(alignment: .leading, spacing: verticalSpacing) {
                     HStack(spacing: badgeSpacing) {
                         Text(item.title)
-                            .style(.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
+                            .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
 
                         badge.map { badgeView(type: $0) }
                     }
 
                     Text(item.description)
-                        .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
                     .setStyleType(.secondary)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)

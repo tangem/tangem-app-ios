@@ -61,7 +61,7 @@ struct SingleWalletMainContentRedesignedView: View {
 private extension SingleWalletMainContentRedesignedView {
     enum Constants {
         static let cornerRadius: CGFloat = .unit(.x5)
-        static let tokenListBackgroundColor = Color.Tangem.Surface.level2
+        static let tokenListBackgroundColor = Color.Tangem.Surface.level3
     }
 }
 
@@ -76,6 +76,12 @@ private extension SingleWalletMainContentRedesignedView {
         .walletModelsManager
         .walletModels[0]
 
+    let expressStatusPollingHelper = ExpressStatusPollingHelper(
+        exchangePoller: FakeExpressStatusPoller<ExchangeStatusPollIteration>(),
+        onrampPoller: FakeExpressStatusPoller<OnrampStatusPollIteration>(),
+        enricherFactory: { nil }
+    )
+
     SingleWalletMainContentRedesignedView(
         viewModel: SingleWalletMainContentViewModel(
             userWalletModel: userWalletModel,
@@ -84,6 +90,7 @@ private extension SingleWalletMainContentRedesignedView {
             promotionNotificationsManager: FakePromotionNotificationsManager(),
             forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
+            expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             tokenRouter: SingleTokenRoutableMock(),
@@ -93,4 +100,4 @@ private extension SingleWalletMainContentRedesignedView {
         )
     )
 }
-#endif
+#endif // DEBUG

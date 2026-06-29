@@ -155,7 +155,8 @@ extension StakingFlowFactory: SendAmountStepBuildable {
             sendAmountValidator: StakingAmountValidator(
                 tokenItem: tokenItem,
                 validator: stakingableToken.transactionValidator,
-                stakingManagerStatePublisher: manager.statePublisher
+                stakingManagerStatePublisher: manager.statePublisher,
+                analyticsLogger: analyticsLogger
             ),
             amountModifier: StakingAmountModifier(tokenItem: tokenItem, actionType: actionType.sendFlowActionType),
             notificationService: .none,
@@ -220,6 +221,9 @@ extension StakingFlowFactory: SendFinishStepBuildable {
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
+        SendFinishStepBuilder.Dependencies(
+            analyticsLogger: analyticsLogger,
+            headerTitleProvider: StakingFinishHeaderTitleProvider()
+        )
     }
 }

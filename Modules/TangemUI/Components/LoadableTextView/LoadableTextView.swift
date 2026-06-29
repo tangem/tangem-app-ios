@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemFoundation
 
 public struct LoadableTextView: View {
     private let state: State
-    private let font: Font
+    private let fontStyle: TangemFontStyle
     private let textColor: Color
     private let loaderSize: CGSize
     private let loaderCornerRadiusStyle: CornerRadiusStyle
@@ -27,8 +28,28 @@ public struct LoadableTextView: View {
         lineLimit: Int = 1,
         isSensitiveText: Bool = false
     ) {
+        self.init(
+            state: state,
+            style: TangemFontStyle(font: font),
+            textColor: textColor,
+            loaderSize: loaderSize,
+            loaderCornerRadiusStyle: loaderCornerRadiusStyle,
+            lineLimit: lineLimit,
+            isSensitiveText: isSensitiveText
+        )
+    }
+
+    public init(
+        state: State,
+        style: TangemFontStyle,
+        textColor: Color,
+        loaderSize: CGSize,
+        loaderCornerRadiusStyle: CornerRadiusStyle = .rounded(3.0),
+        lineLimit: Int = 1,
+        isSensitiveText: Bool = false
+    ) {
         self.state = state
-        self.font = font
+        fontStyle = style
         self.textColor = textColor
         self.loaderSize = loaderSize
         self.loaderCornerRadiusStyle = loaderCornerRadiusStyle
@@ -76,6 +97,10 @@ public struct LoadableTextView: View {
                 skeletonView
                     .frame(width: loaderSize.width, height: loaderSize.height)
             }
+        case .loadingCached(let text):
+            styledText(text, isSensitive: isSensitiveText)
+                .shimmer()
+                .environment(\.isShimmerActive, true)
         case .loaded(let text):
             styledText(text, isSensitive: isSensitiveText)
         }
@@ -106,7 +131,7 @@ public struct LoadableTextView: View {
                 Text(text)
             }
         }
-        .style(font, color: textColor)
+        .style(fontStyle, color: textColor)
         .lineLimit(lineLimit)
     }
 }
@@ -118,6 +143,7 @@ public extension LoadableTextView {
         case initialized
         case noData
         case loading
+        case loadingCached(text: String)
         case loaded(text: String)
     }
 }
@@ -153,14 +179,14 @@ struct LoadableTextView_Previews: PreviewProvider {
                 HStack(spacing: 8) {
                     LoadableTextView(
                         state: .loading,
-                        font: .Tangem.Caption12.regular,
+                        style: Font.Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12)
                     )
 
                     LoadableTextView(
                         state: .loaded(text: "0.21432543264 ETH"),
-                        font: .Tangem.Caption12.regular,
+                        style: Font.Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12)
                     )
@@ -175,7 +201,7 @@ struct LoadableTextView_Previews: PreviewProvider {
                 HStack(spacing: 8) {
                     LoadableTextView(
                         state: .loading,
-                        font: .Tangem.Caption12.regular,
+                        style: Font.Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12),
                         loaderCornerRadiusStyle: .capsule
@@ -183,7 +209,7 @@ struct LoadableTextView_Previews: PreviewProvider {
 
                     LoadableTextView(
                         state: .loaded(text: "0.21432543264 ETH"),
-                        font: .Tangem.Caption12.regular,
+                        style: Font.Tangem.Caption12.regular,
                         textColor: .Tangem.Text.Neutral.tertiary,
                         loaderSize: .init(width: 40, height: 12),
                         loaderCornerRadiusStyle: .capsule
@@ -196,7 +222,7 @@ struct LoadableTextView_Previews: PreviewProvider {
             ForEach(states.indexed(), id: \.1.1) { _, state in
                 LoadableTextView(
                     state: state.0,
-                    font: .Tangem.Caption12.regular,
+                    style: Font.Tangem.Caption12.regular,
                     textColor: .Tangem.Text.Neutral.tertiary,
                     loaderSize: .init(width: 100, height: 20)
                 )

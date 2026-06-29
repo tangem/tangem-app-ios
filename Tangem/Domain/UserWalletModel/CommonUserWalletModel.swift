@@ -30,6 +30,7 @@ class CommonUserWalletModel {
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let addressBookManager: AddressBookManager
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -46,6 +47,7 @@ class CommonUserWalletModel {
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
+    private let backupValidator = BackupValidator()
 
     init(
         walletInfo: WalletInfo,
@@ -57,7 +59,8 @@ class CommonUserWalletModel {
         keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
-        accountModelsManager: AccountModelsManager
+        accountModelsManager: AccountModelsManager,
+        addressBookManager: AddressBookManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -69,6 +72,7 @@ class CommonUserWalletModel {
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
+        self.addressBookManager = addressBookManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
     }
@@ -307,12 +311,12 @@ extension CommonUserWalletModel: UserWalletModel {
         }
     }
 
-    func validate() -> Bool {
+    var backupState: UserWalletBackupState {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return BackupValidator().validate(card: cardInfo.card)
+            return backupValidator.validate(card: cardInfo.card) ? .valid : .incompleteBackup
         case .mobileWallet:
-            return true
+            return .valid
         }
     }
 }

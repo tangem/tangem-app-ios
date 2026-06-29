@@ -30,6 +30,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.cardManagementViewModel) {
                 TangemPayCardManagementView(viewModel: $0)
             }
+            .navigation(item: $coordinator.currentPlanViewModel) {
+                TangemPayCurrentPlanView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
@@ -51,6 +54,12 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayFreezeSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayUnfreezeSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayBiometryNotSetPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayCloseCardSheetViewModel.self) {

@@ -14,7 +14,8 @@ protocol OnrampPendingTransactionRepository: AnyObject {
 
     func updateItems(_ items: [OnrampPendingTransactionRecord])
     func onrampTransactionDidSend(_ txData: SentOnrampTransactionData, userWalletId: String)
-    func hideSwapTransaction(with id: String)
+    func addRecordIfNeeded(_ record: OnrampPendingTransactionRecord)
+    func hideOnrampTransaction(with id: String)
 }
 
 extension OnrampPendingTransactionRepository {

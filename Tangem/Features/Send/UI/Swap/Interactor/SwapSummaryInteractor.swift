@@ -21,8 +21,6 @@ protocol SwapSummaryInteractor: AnyObject {
     var mainButtonStatePublisher: AnyPublisher<SwapSummaryViewModel.MainButtonState, Never> { get }
 
     func userDidRequestSwapSourceAndReceiveToken()
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount()
     func userDidRequestSourceAmount(fraction: SwapAmountFraction)
     func userDidRequestSwap()
 }
@@ -157,11 +155,6 @@ extension CommonSwapSummaryInteractor: SwapSummaryInteractor {
         output?.userDidRequestSwap()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    func userDidRequestMaxAmount() {
-        output?.userDidRequestMaxAmount()
-    }
-
     func userDidRequestSourceAmount(fraction: SwapAmountFraction) {
         output?.userDidRequestSourceAmount(fraction: fraction)
     }
@@ -178,6 +171,12 @@ private extension CommonSwapSummaryInteractor {
         switch data {
         case .swap(let amount, let fee, let provider, let sourceTokenItem):
             return swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: provider, sourceTokenItem: sourceTokenItem)
+        case .send(let amount, let fee):
+            guard let sourceTokenItem = sourceTokenInput?.sourceToken.value?.tokenItem else {
+                return nil
+            }
+
+            return swapDescriptionBuilder.makeDescription(amount: amount, fee: fee, provider: nil, sourceTokenItem: sourceTokenItem)
         default:
             return nil
         }

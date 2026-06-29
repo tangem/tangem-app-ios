@@ -61,6 +61,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
                 throw error
             }
 
+            PushSettingsLogger.error("Failed to fetch notification preferences", error: error)
             if let failedPreferences = await stateStore.applyFetchFailure() {
                 await publish(failedPreferences)
             }
@@ -76,7 +77,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         await publish(context.optimisticPreferences)
 
-        let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
+        let request = NotificationPreferencesDTO.Body(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
@@ -89,6 +90,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
             _ = await stateStore.finishUpdate(completion: .success(context.optimisticPreferences))
             scheduleReconciliationFetchIfNeeded()
         } catch {
+            PushSettingsLogger.error("Failed to update notification preferences, rolling back", error: error)
             // Roll back to the last server-confirmed snapshot on both failure and cancellation.
             // Single-flight means a cancelled write is never superseded by a newer one, so leaving
             // its unconfirmed optimistic value in `preferencesSubject` would desync it from
@@ -109,7 +111,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
 
         await publish(context.optimisticPreferences)
 
-        let request = NotificationPreferencesDTO.Update.Request(preferences: context.optimisticPreferences)
+        let request = NotificationPreferencesDTO.Body(preferences: context.optimisticPreferences)
 
         do {
             try await tangemApiService.updateNotificationPreferences(
@@ -129,6 +131,7 @@ extension CommonNotificationPreferencesProvider: NotificationPreferencesProvider
             // this retries it (no-op when the fetch already reconciled).
             scheduleReconciliationFetchIfNeeded()
         } catch {
+            PushSettingsLogger.error("Failed to enable all notification preferences, rolling back", error: error)
             if let rollbackPreferences = await stateStore.finishUpdate(completion: .failure(context.rollbackPreferences)) {
                 await publish(rollbackPreferences)
             }

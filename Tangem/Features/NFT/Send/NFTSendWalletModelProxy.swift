@@ -57,6 +57,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         asset.name
     }
 
+    var allAddresses: [Address] {
+        mainTokenWalletModel.allAddresses
+    }
+
     var addresses: [Address] {
         mainTokenWalletModel.addresses
     }
@@ -121,8 +125,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
-    var features: [WalletModelFeature] { [] }
-
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         // No additional features for NFT
         .just(output: [])
@@ -164,12 +166,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         .just(output: state)
     }
 
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
-        await mainTokenWalletModel.update(silent: silent, features: features)
+    func update(silent: Bool, options: WalletModelUpdateOptions, updateToken: some Hashable) async {
+        await mainTokenWalletModel.update(silent: silent, options: options, updateToken: updateToken)
     }
 
-    func updateTransactionsHistory() async {
-        await mainTokenWalletModel.updateTransactionsHistory()
+    func updateTransactionHistory() async {
+        await mainTokenWalletModel.updateTransactionHistory()
     }
 
     func updateAfterSendingTransaction() {
@@ -271,6 +273,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var compiledTransactionSender: CompiledTransactionSender? {
         mainTokenWalletModel.compiledTransactionSender
+    }
+
+    var bitcoinPsbtSwapSender: BitcoinPsbtSwapSender? {
+        mainTokenWalletModel.bitcoinPsbtSwapSender
     }
 
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? {

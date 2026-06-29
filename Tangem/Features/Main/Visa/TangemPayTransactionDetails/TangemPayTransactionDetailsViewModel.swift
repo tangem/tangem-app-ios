@@ -25,6 +25,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     @Published private(set) var mainButtonAction: MainButtonAction
     @Published private(set) var additionalInfo: TangemPayTransactionDetailsView.AdditionalInfo?
 
+    @Published private(set) var displayModel: TangemPayTransactionDetailsDisplayModel?
+
     // MARK: - Dependencies
 
     private let origin: Origin
@@ -52,6 +54,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         origin: Origin,
         userWalletId: UserWalletId,
         customerId: String,
+        cardName: String? = nil,
+        cardNumberEnd: String? = nil,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.origin = origin
@@ -78,12 +82,18 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         state = displayData.state
         additionalInfo = displayData.additionalInfo
         mainButtonAction = displayData.mainButtonAction
+
+        displayModel = FeatureProvider.isAvailable(.tangemPaySpendRedesign)
+            ? Self.makeDisplayModel(origin: origin, cardName: cardName, cardNumberEnd: cardNumberEnd)
+            : nil
     }
 
     convenience init(
         transaction: TangemPayTransactionRecord,
         userWalletId: UserWalletId,
         customerId: String,
+        cardName: String?,
+        cardNumberEnd: String?,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.init(
@@ -91,8 +101,24 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             origin: .history(transaction),
             userWalletId: userWalletId,
             customerId: customerId,
+            cardName: cardName,
+            cardNumberEnd: cardNumberEnd,
             coordinator: coordinator
         )
+    }
+
+    private static func makeDisplayModel(
+        origin: Origin,
+        cardName: String?,
+        cardNumberEnd: String?
+    ) -> TangemPayTransactionDetailsDisplayModel? {
+        let mapper = TangemPayTransactionDetailsRedesignedMapper()
+        switch origin {
+        case .history(let transaction):
+            return transaction.redesignedDisplayModel(using: mapper, cardName: cardName, cardNumberEnd: cardNumberEnd)
+        case .push(let payload):
+            return payload.redesignedDisplayModel(using: mapper)
+        }
     }
 
     func userDidTapClose() {

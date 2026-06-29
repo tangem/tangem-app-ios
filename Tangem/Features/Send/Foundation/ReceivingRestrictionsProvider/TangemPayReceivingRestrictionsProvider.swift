@@ -9,8 +9,15 @@
 import Foundation
 
 struct TangemPayReceivingRestrictionsProvider: ReceivingRestrictionsProvider {
+    let userWalletInfo: UserWalletInfo
+
     func restriction(expectAmount: Decimal) -> ReceivedRestriction? {
-        // TangemPay doesn't have receiving restrictions
+        // A card-linked wallet must not receive funds (top-up), even if it was somehow chosen as the swap destination.
+        if !userWalletInfo.backupState.isValid {
+            return .incompleteBackup
+        }
+
+        // TangemPay has no other receiving restrictions.
         return nil
     }
 }

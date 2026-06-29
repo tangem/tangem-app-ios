@@ -95,14 +95,14 @@ struct MainBottomSheetFooterView: View {
 
     private var backgroundColor: Color {
         if FeatureProvider.isAvailable(.redesign) {
-            Color.Tangem.Surface.level2
+            Color.Tangem.Surface.level3
         } else {
             Colors.Background.primary
         }
     }
 
     private var edgeInsets: EdgeInsets {
-        let inset = MainBottomSheetHeaderView.Constants.searchFieldPadding
+        let inset = MainBottomSheetHeaderView.Constants.searchFieldInsets.bottom
         let bottomInset = UIDevice.current.hasHomeScreenIndicator ? UIApplication.safeAreaInsets.bottom : inset
         return EdgeInsets(
             top: inset,

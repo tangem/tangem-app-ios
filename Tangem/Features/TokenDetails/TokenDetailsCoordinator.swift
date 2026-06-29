@@ -61,13 +61,20 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             coordinator: self
         )
 
-        let expressFactory = ExpressPendingTransactionsFactory(
+        let expressFactory = ExpressStatusTrackingFactory(
             userWalletInfo: options.userWalletInfo,
             tokenItem: options.walletModel.tokenItem,
             walletModelUpdater: options.walletModel,
+            transactionHistoryEnricherFactory: { [weak walletModel = options.walletModel] in
+                try? await walletModel?
+                    .featuresPublisher
+                    .first()
+                    .async()
+                    .transactionHistoryProvider
+            }
         )
 
-        let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
+        let expressStatusTracking = expressFactory.makeExpressStatusTracking()
 
         let factory = XPUBGeneratorFactory(cardInteractor: options.keysDerivingInteractor)
         let xpubGenerator = factory.makeXPUBGenerator(
@@ -80,7 +87,8 @@ final class TokenDetailsCoordinator: CoordinatorObject {
             walletModel: options.walletModel,
             notificationManager: notificationManager,
             userTokensManager: options.userTokensManager,
-            pendingExpressTransactionsManager: pendingTransactionsManager,
+            pendingExpressTransactionsManager: expressStatusTracking.manager,
+            expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             xpubGenerator: xpubGenerator,
             coordinator: self,
             tokenRouter: tokenRouter,
@@ -325,7 +333,7 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
 
         Task { @MainActor [tangemStoriesPresenter] in
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .token,
                 presentCompletion: { [weak self] in
                     coordinator.start(with: options)

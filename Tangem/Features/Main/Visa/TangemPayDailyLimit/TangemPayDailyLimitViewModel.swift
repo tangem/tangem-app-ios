@@ -31,7 +31,10 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
     @Published var alert: AlertBinder?
 
     let maxLimit: Int
-    let currency: String = AppConstants.usdCurrencyCode
+
+    var isEditingLimit: Bool {
+        state == .editLimit
+    }
 
     var hintText: String {
         guard let minFormatted = formatter.string(from: .init(value: minLimit)),
@@ -42,9 +45,9 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
         return Localization.tangempayDailyLimitHint(minFormatted, maxFormatted)
     }
 
-    lazy var presets: [String] = [minLimit, 5000, 10_000, 25_000]
-        .filter { $0 <= maxLimit }
-        .map { formatter.string(from: .init(value: $0)) ?? "" }
+    lazy var presetValues: [Int] = [minLimit, 5000, 10_000, 25_000].filter { $0 <= maxLimit }
+
+    lazy var presets: [String] = presetValues.map { formatter.string(from: .init(value: $0)) ?? "" }
 
     private let formatter = BalanceFormatter().makeDefaultFiatFormatter(
         forCurrencyCode: AppConstants.usdCurrencyCode,
@@ -155,7 +158,7 @@ final class TangemPayDailyLimitViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        amountFieldViewModel.valuePublisher
+        amountFieldViewModel.valuePublisher()
             .map { [maxLimit] value in
                 guard let value else { return false }
                 let intValue = NSDecimalNumber(decimal: value).intValue

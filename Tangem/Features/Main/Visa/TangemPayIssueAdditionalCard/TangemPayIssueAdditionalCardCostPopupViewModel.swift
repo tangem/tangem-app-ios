@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
@@ -21,9 +22,13 @@ protocol TangemPayIssueAdditionalCardCostPopupRoutable: AnyObject {
     func issueCostPopupDidCancel()
 }
 
-final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, FloatingSheetContentViewModel, TangemPayPopupViewModel {
     var icon: Image {
-        Image(systemName: "creditcard.fill")
+        DesignSystem.Icons.CardPlus.regular32.image
+    }
+
+    var iconStyle: TangemPayPopupIconStyle {
+        .info
     }
 
     var title: AttributedString {
@@ -34,12 +39,24 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
         .init(Localization.tangempayIssueAdditionalCardDescription)
     }
 
+    var feeLabel: String {
+        Localization.tangempayIssueAdditionalCardFeeLabel
+    }
+
     var feeText: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.currencyCode = fee.currency
-        return formatter.string(from: fee.amount as NSDecimalNumber) ?? "\(fee.amount) \(fee.currency)"
+        Self.formatCurrency(fee.amount, currencyCode: fee.currency)
+    }
+
+    var insufficientFundsBannerTitle: String {
+        Localization.tangempayIssueAdditionalCardInsufficientFundsTitle
+    }
+
+    var insufficientFundsBannerMessage: String {
+        Localization.tangempayIssueAdditionalCardInsufficientFundsSubtitle
+    }
+
+    var addFundsButtonTitle: String {
+        Localization.tangempayCardDetailsAddFunds
     }
 
     var primaryButton: MainButton.Settings {
@@ -107,8 +124,16 @@ final class TangemPayIssueAdditionalCardCostPopupViewModel: ObservableObject, Fl
 }
 
 private extension TangemPayIssueAdditionalCardCostPopupViewModel {
+    static func formatCurrency(_ amount: Decimal, currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.currencyCode = currencyCode
+        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currencyCode)"
+    }
+
     func confirm() {
-        guard !isIssuing, !isInsufficientFunds else { return }
+        guard !isIssuing else { return }
 
         Analytics.log(.visaScreenExtraCardIssuanceConfirmed, contextParams: .userWallet(userWalletId))
 

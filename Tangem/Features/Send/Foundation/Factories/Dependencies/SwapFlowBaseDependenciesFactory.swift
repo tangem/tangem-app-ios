@@ -30,7 +30,6 @@ extension SwapFlowBaseDependenciesFactory {
             expressManager: expressDependenciesFactory.expressManager,
             swapRepository: expressDependenciesFactory.swapRepository,
             expressPendingTransactionRepository: expressDependenciesFactory.expressPendingTransactionRepository,
-            expressDestinationService: expressDependenciesFactory.expressDestinationService,
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider,
             expressUserWalletId: expressDependenciesFactory.userWalletInfo.id,
             analyticsLogger: analyticsLogger,
@@ -44,6 +43,10 @@ extension SwapFlowBaseDependenciesFactory {
 
     func makeSwapNotificationManager() -> SwapNotificationManager {
         CommonSwapNotificationManager()
+    }
+
+    func makeSwapMarketingBannerNotificationManager() -> SwapMarketingBannerNotificationManager {
+        SwapMarketingBannerNotificationManager()
     }
 
     func makeSwapAlertBuilder() -> SendAlertBuilder {

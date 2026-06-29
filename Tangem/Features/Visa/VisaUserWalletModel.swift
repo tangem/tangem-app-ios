@@ -458,7 +458,14 @@ extension VisaUserWalletModel: MainHeaderBalanceProvider {
             if let balances, let tokenItem {
                 let balanceFormatter = BalanceFormatter()
                 let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
+                let formattingOptions: TotalBalanceFormattingOptions = FeatureProvider.isAvailable(.redesign)
+                    ? .defaultOptionsRedesign
+                    : .defaultOptions
+
+                let formattedForMain = balanceFormatter.formatAttributedTotalBalance(
+                    fiatBalance: formattedBalance,
+                    formattingOptions: formattingOptions
+                )
                 return .loaded(text: .attributed(formattedForMain))
             } else {
                 return .loading()
@@ -566,7 +573,13 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.accountModelsManager
     }
 
-    func validate() -> Bool { userWalletModel.validate() }
+    var backupState: UserWalletBackupState {
+        userWalletModel.backupState
+    }
+
+    var addressBookManager: AddressBookManager {
+        userWalletModel.addressBookManager
+    }
 
     func update(type: UpdateRequest) {
         userWalletModel.update(type: type)

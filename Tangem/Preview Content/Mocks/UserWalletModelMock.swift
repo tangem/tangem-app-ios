@@ -91,13 +91,17 @@ class UserWalletModelMock: UserWalletModel {
         AccountModelsManagerMock()
     }
 
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
 
     func getAnalyticsContextData() -> AnalyticsContextData? { nil }
 
-    func validate() -> Bool { true }
+    var backupState: UserWalletBackupState { .valid }
 
     func update(type: UpdateRequest) {}
 

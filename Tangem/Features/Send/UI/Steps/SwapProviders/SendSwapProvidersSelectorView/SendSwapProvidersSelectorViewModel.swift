@@ -18,15 +18,27 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
 
     // MARK: - ViewState
 
+    @Published private(set) var viewState: ViewState = .providerList
+
     @Published var ukNotificationInput: NotificationViewInput?
     @Published var providerViewModels: [SendSwapProvidersSelectorProviderViewData] = []
     @Published var providerTypeFilterOptions: [ProviderTypeFilter] = []
     @Published var selectedProviderTypeFilter: ProviderTypeFilter = .all
 
+    // MARK: - Approve state
+
+    /// Transient draft for the approve-policy menu's two-way binding. Not a second source of
+    /// truth: the swap model owns the policy — this is seeded from it when the menu opens and
+    /// pushed back on confirm. Exists because the radio menu needs a `Binding`.
+    @Published var selectedApprovePolicy: BSDKApprovePolicy = .specified
+
     // MARK: - Dependencies
 
     private weak var input: SendSwapProvidersInput?
     private weak var output: SendSwapProvidersOutput?
+    private weak var router: SendSwapProvidersRoutable?
+    private weak var approveInput: SwapApproveInput?
+    private weak var approveOutput: SwapApproveOutput?
     private weak var receiveTokenInput: SendReceiveTokenInput?
     private weak var receiveTokenAmountInput: SendReceiveTokenAmountInput?
 
@@ -40,6 +52,9 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     init(
         input: SendSwapProvidersInput,
         output: SendSwapProvidersOutput,
+        router: SendSwapProvidersRoutable,
+        approveInput: SwapApproveInput,
+        approveOutput: SwapApproveOutput,
         receiveTokenInput: SendReceiveTokenInput,
         receiveTokenAmountInput: SendReceiveTokenAmountInput?,
         tokenItem: TokenItem,
@@ -49,6 +64,9 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     ) {
         self.input = input
         self.output = output
+        self.router = router
+        self.approveInput = approveInput
+        self.approveOutput = approveOutput
         self.receiveTokenInput = receiveTokenInput
         self.receiveTokenAmountInput = receiveTokenAmountInput
         self.tokenItem = tokenItem
@@ -70,6 +88,44 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     @MainActor
     func dismiss() {
         floatingSheetPresenter.removeActiveSheet()
+        resetState()
+    }
+
+    @MainActor
+    func resetState() {
+        viewState = .providerList
+        selectedProviderTypeFilter = .all
+    }
+}
+
+// MARK: - Approve flow
+
+extension SendSwapProvidersSelectorViewModel {
+    @MainActor
+    func openApprove() {
+        selectedApprovePolicy = approveInput?.approvePolicy ?? .specified
+
+        let menuViewModel = DefaultMenuRowViewModel<BSDKApprovePolicy>(
+            title: Localization.givePermissionRowsAmount(tokenItem.currencySymbol),
+            actions: [.unlimited, .specified]
+        )
+
+        viewState = .approve(menuViewModel)
+    }
+
+    @MainActor
+    func closeApprove() {
+        viewState = .providerList
+    }
+
+    @MainActor
+    func didTapConfirm() {
+        approveOutput?.userDidSelectApprovePolicy(selectedApprovePolicy)
+        viewState = .providerList
+    }
+
+    func openLearnMoreAboutApprove() {
+        router?.openLearnMoreAboutApprove()
     }
 }
 
@@ -87,7 +143,7 @@ private extension SendSwapProvidersSelectorViewModel {
         .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
             let showable = providers
                 .showableProviders(selectedProviderId: selectedProvider?.provider.id)
-                .sortedByAttractively()
+                .sortedByAttractivelyPreferringBestDEX()
 
             return ShowableProvidersState(selectedProvider: selectedProvider, providers: showable)
         }
@@ -133,8 +189,6 @@ private extension SendSwapProvidersSelectorViewModel {
     }
 
     static func computeFilterOptions(showableProviders: [ExpressAvailableProvider]) -> [ProviderTypeFilter] {
-        guard FeatureProvider.isAvailable(.swapProviderTypeFilter) else { return [] }
-
         let hasCex = showableProviders.contains(where: \.provider.type.isCEX)
         let hasDex = showableProviders.contains(where: \.provider.type.isDEX)
 
@@ -167,14 +221,16 @@ private extension SendSwapProvidersSelectorViewModel {
         let badge: SendSwapProvidersSelectorProviderViewData.Badge? = switch providerBadge {
         case .none: .none
         case .fcaWarning: .fcaWarning
-        case .permissionNeeded: .permissionNeeded
+        case .permissionNeeded: FeatureProvider.isAvailable(.approveFlowV2) ? nil : .permissionNeeded
         case .bestRate: .bestRate
+        case .bestDexRate: .bestDexRate
         }
 
         if let percentSubtitle = makePercentSubtitle(selectedProvider: selectedProvider, provider: availableProvider) {
             subtitles.append(percentSubtitle)
         }
 
+        let showsTrailingButton = FeatureProvider.isAvailable(.approveFlowV2) && state.isApproveWithSwapRequired
         let provider = availableProvider.provider
         return SendSwapProvidersSelectorProviderViewData(
             id: provider.id,
@@ -183,7 +239,8 @@ private extension SendSwapProvidersSelectorViewModel {
             providerType: provider.type.title,
             isDisabled: state.quote == nil,
             badge: badge,
-            subtitles: subtitles
+            subtitles: subtitles,
+            showTrailingSettingsButton: showsTrailingButton
         )
     }
 
@@ -226,6 +283,29 @@ private extension SendSwapProvidersSelectorViewModel {
             return NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
         } else {
             return nil
+        }
+    }
+}
+
+// MARK: - ViewState
+
+extension SendSwapProvidersSelectorViewModel {
+    enum ViewState: Hashable {
+        case providerList
+        case approve(DefaultMenuRowViewModel<BSDKApprovePolicy>)
+
+        var title: String {
+            switch self {
+            case .providerList: Localization.expressProviderForSwap
+            case .approve: Localization.givePermissionTitle
+            }
+        }
+
+        var showsButton: Bool {
+            switch self {
+            case .providerList: false
+            case .approve: true
+            }
         }
     }
 }

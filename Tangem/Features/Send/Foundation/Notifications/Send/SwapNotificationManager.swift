@@ -98,12 +98,6 @@ private extension CommonSwapNotificationManager {
         state: SwapModel.ProvidersState
     ) -> [SwapNotificationEvent] {
         switch (source, receive, state) {
-        case (.success, .failure(ExpressDestinationServiceError.destinationNotFound(let source)), _):
-            return [.noDestinationTokens(tokenName: source.name)]
-
-        case (.failure(ExpressDestinationServiceError.sourceNotFound(let destination)), .success, _):
-            return [.noDestinationTokens(tokenName: destination.name)]
-
         // Expected when couldn't load the providers list
         case (_, _, .failure):
             return [.refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)]
@@ -217,6 +211,9 @@ private extension CommonSwapNotificationManager {
         case .restriction(.notEnoughReceivedAmount(let minAmount, let tokenSymbol), _):
             return [.notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")]
 
+        case .restriction(.incompleteBackup, _):
+            return [.incompleteBackup]
+
         case .permissionRequired:
             return [
                 .permissionNeeded(
@@ -276,8 +273,37 @@ private extension CommonSwapNotificationManager {
 
             return events
 
+        case .readyToApproveAndSwap(let readyState):
+            var events: [SwapNotificationEvent] = []
+
+            if let hpi = readyState.quote.highPriceImpact, !hpi.level.isNegligible {
+                events.append(
+                    .highPriceImpactWarning(
+                        level: hpi.level,
+                        analyticsParams: hpiAnalyticsParams(base: analyticsParams, source: source, receive: receive)
+                    )
+                )
+            }
+
+            return events
+
         case .readyToTransfer(let transferState):
             var events: [SwapNotificationEvent] = []
+
+            if transferState.subtractFee.subtractFee > 0 {
+                let feeTokenItem = transferState.subtractFee.feeTokenItem
+                let feeFiatValue = BalanceConverter().convertToFiat(transferState.subtractFee.subtractFee, currencyId: feeTokenItem.currencyId ?? "")
+
+                let cryptoAmountFormatted = balanceFormatter.formatCryptoBalance(transferState.subtractFee.subtractFee, currencyCode: feeTokenItem.currencySymbol)
+                let fiatAmountFormatted = balanceFormatter.formatFiatBalance(feeFiatValue)
+
+                let event = SwapNotificationEvent.feeWillBeSubtractFromSendingAmount(
+                    cryptoAmountFormatted: cryptoAmountFormatted,
+                    fiatAmountFormatted: fiatAmountFormatted
+                )
+
+                events.append(event)
+            }
 
             if let notification = transferState.notification {
                 let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)

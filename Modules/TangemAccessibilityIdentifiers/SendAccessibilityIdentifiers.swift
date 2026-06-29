@@ -90,6 +90,8 @@ public enum SendAccessibilityIdentifiers {
     public static let networkSelectorErrorTitle = "sendNetworkSelectorErrorTitle"
     public static let networkSelectorErrorSubtitle = "sendNetworkSelectorErrorSubtitle"
     public static let networkSelectorGotItButton = "sendNetworkSelectorGotItButton"
+    public static let networkSelectorSwapRequiredTitle = "sendNetworkSelectorSwapRequiredTitle"
+    public static let networkSelectorSwapTokenButton = "sendNetworkSelectorSwapTokenButton"
 
     public static func receiveTokenListItem(name: String) -> String {
         "sendReceiveTokenListItem_\(name)"
@@ -101,13 +103,21 @@ public enum SendAccessibilityIdentifiers {
 
     /// Swap Provider Selector
     public static let swapProviderBestRateBadge = "sendSwapProviderBestRateBadge"
+    public static let swapProviderBestDexRateBadge = "sendSwapProviderBestDexRateBadge"
 
     public static func swapProviderSelectorRow(name: String) -> String {
         "sendSwapProviderSelectorRow_\(name)"
     }
 
+    public static func swapProviderSelectorApproveButton(name: String) -> String {
+        "sendSwapProviderSelectorApproveButton_\(name)"
+    }
+
     /// Token search in receive token list
     public static let receiveTokenSearchBar = "sendReceiveTokenSearchBar"
+
+    /// Send Summary (Confirm) screen
+    public static let summaryDestinationBlock = "sendSummaryDestinationBlock"
 
     /// Send Finish Screen
     public static let finishHeader = "sendFinishHeader"

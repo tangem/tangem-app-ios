@@ -36,8 +36,30 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
     func tapToken(_ label: String) -> AddFundsScreen {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
-            tokensList.staticTextByLabel(label: label).waitAndTap()
+            // Label appears in both portfolio and Market Pulse, so target the portfolio item by id.
+            let tokenItem = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: label)].firstMatch
+            waitAndAssertTrue(tokenItem, "Token \(label) should exist in portfolio section")
+            tokenItem.waitAndTap()
             return AddFundsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapTrendingToken(_ name: String) -> MarketsTokenDetailsScreen {
+        XCTContext.runActivity(named: "Tap Trending token with name: \(name)") { _ in
+            let tokenButton = app.buttons[MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: name)].firstMatch
+            waitAndAssertTrue(tokenButton, "Trending token \(name) should exist on Buy Token Selector screen")
+            tokenButton.waitAndTap()
+            return MarketsTokenDetailsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func waitTokenInWalletSection(_ token: String) -> Self {
+        XCTContext.runActivity(named: "Wait \(token) is displayed in Wallet section") { _ in
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: token)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token \(token) should display in Wallet section")
+            return self
         }
     }
 }

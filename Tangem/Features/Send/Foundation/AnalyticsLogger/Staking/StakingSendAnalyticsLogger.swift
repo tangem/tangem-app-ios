@@ -18,7 +18,9 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendFinishAnalyticsLogger,
     SendApproveAnalyticsLogger {
     func setup(stakingTargetsInput: StakingTargetsInput)
+    func logNoticeUninitializedAddress()
     func logNoticeNotEnoughFee()
+    func logErrorSumLimit(errorMessage: String)
 }
 
 // MARK: - Management Model

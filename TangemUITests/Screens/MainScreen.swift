@@ -110,8 +110,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainBuy() -> BuyTokenSelectorScreen {
         XCTContext.runActivity(named: "Tap Buy action on main screen") { _ in
-            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
-            buyActionButton.waitAndTap()
+            tapMainActionButton(MainAccessibilityIdentifiers.buyTitle)
             return BuyTokenSelectorScreen(app)
         }
     }
@@ -119,8 +118,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainSwap() -> SwapStoriesScreen {
         XCTContext.runActivity(named: "Tap Exchange action on main screen") { _ in
-            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
-            swapActionButton.waitAndTap()
+            tapMainActionButton(MainAccessibilityIdentifiers.exchangeTitle)
             return SwapStoriesScreen(app)
         }
     }
@@ -128,8 +126,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func tapMainSell() -> SellTokenSelectorScreen {
         XCTContext.runActivity(named: "Tap Sell action on main screen") { _ in
-            waitAndAssertTrue(sellActionButton, "Sell title should exist on main screen")
-            sellActionButton.waitAndTap()
+            tapMainActionButton(MainAccessibilityIdentifiers.sellTitle)
             return SellTokenSelectorScreen(app)
         }
     }
@@ -156,8 +153,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Tap token with label: \(label)") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
             let token = tokenElement(named: label)
-            scrollTokensListToVisible(token)
-            token.waitAndTap()
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token \(label) should be visible after scrolling")
+            token.waitForStableFrame()
+
+            // Scroll the row clear of the Markets sheet so the tap lands on it, not the sheet.
+            for _ in 0 ..< 5 where !token.isHittable {
+                scrollTokensList(byOffset: -200)
+                token.waitForStableFrame()
+            }
+
+            token.tapEvenIfNotHittable()
             return TokenScreen(app)
         }
     }
@@ -251,8 +256,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func verifyAccountVisible(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Verify account '\(accountName)' visible on main screen") { _ in
-            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
-            waitAndAssertTrue(account, "Account '\(accountName)' should be visible on main screen")
+            waitAndAssertTrue(accountElement(named: accountName), "Account '\(accountName)' should be visible on main screen")
             return self
         }
     }
@@ -260,9 +264,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func expandAccount(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
-            let account = app.buttons[AccountsAccessibilityIdentifiers.expandableAccountItem(accountName: accountName)]
+            let account = accountElement(named: accountName)
             waitAndAssertTrue(account, "Account '\(accountName)' should exist on main screen")
-            account.tap()
+            account.tapEvenIfNotHittable()
             return self
         }
     }
@@ -297,7 +301,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Get tokens order from main screen") { _ in
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
 
-            let tokenTitleQuery = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
+            let visibleList = visibleTokensList()
+            let tokenTitleQuery = visibleList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
             let expectation = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "count > 0"),
                 object: tokenTitleQuery
@@ -325,7 +330,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let labels = sortedElements.map { $0.label }
 
             if labels.isEmpty {
-                let allTexts = tokensList.staticTexts.allElementsBoundByIndex.map {
+                let allTexts = visibleList.staticTexts.allElementsBoundByIndex.map {
                     "[\($0.identifier): '\($0.label)']"
                 }.joined(separator: ", ")
                 XCTFail("No token titles found. Available static texts: \(allTexts)")
@@ -515,7 +520,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let contextMenuIndicator = app.buttons["Buy"].firstMatch
             let maxAttempts = 3
             for attempt in 1 ... maxAttempts {
-                token.press(forDuration: 1.5)
+                token.pressEvenIfNotHittable(forDuration: 1.5)
                 if contextMenuIndicator.waitForExistence(timeout: .quick) {
                     break
                 }
@@ -700,8 +705,10 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForTotalBalanceContainsCurrency(_ currencySymbol: String) -> Self {
         XCTContext.runActivity(named: "Validate total balance contains currency symbol: \(currencySymbol)") { _ in
             waitAndAssertTrue(totalBalance, "Total balance element should exist")
-            let balanceText = totalBalance.label
-            XCTAssertTrue(balanceText.contains(currencySymbol), "Total balance should contain '\(currencySymbol)' but was '\(balanceText)'")
+            // Balance shows a dash briefly after a currency change, so wait for the symbol.
+            let predicate = NSPredicate(format: "label CONTAINS %@", currencySymbol)
+            let result = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: totalBalance)], timeout: .robustUIUpdate)
+            XCTAssertEqual(result, .completed, "Total balance should contain '\(currencySymbol)' but was '\(totalBalance.label)'")
             return self
         }
     }
@@ -739,6 +746,27 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
+            return self
+        }
+    }
+
+    /// Mobile wallets derive locally, so generating resolves the missing address without a card scan.
+    @discardableResult
+    func generateMissingAddressesIfNeeded() -> Self {
+        XCTContext.runActivity(named: "Generate missing addresses if the notification is shown") { _ in
+            guard missingDerivationNotification.waitForExistence(timeout: .conditional) else {
+                return self
+            }
+            let generateButton = missingDerivationNotification.buttons.firstMatch
+            if generateButton.exists {
+                generateButton.waitAndTap()
+            } else {
+                missingDerivationNotification.waitAndTap()
+            }
+            XCTAssertTrue(
+                missingDerivationNotification.waitForNonExistence(timeout: .networkRequest),
+                "Missing derivation notification should disappear after addresses are generated"
+            )
             return self
         }
     }
@@ -817,9 +845,18 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             .firstMatch
     }
 
+    /// Redesigned main account headers share `mainTokensList`; locate by the account-name label at app scope.
+    private func accountElement(named accountName: String) -> XCUIElement {
+        app.staticTextByLabel(label: accountName)
+    }
+
     /// Waits for main screen elements before coordinate-based wallet swipe.
     private func waitForMainScreenReadyForSwipe() {
         waitAndAssertTrue(tokensList, "Tokens list should exist before swiping wallet")
+        // The redesigned header collapses into the navbar when the list is scrolled, so scroll back up to restore it.
+        for _ in 0 ..< 5 where !totalBalance.exists && !totalBalanceShimmer.exists {
+            scrollTokensList(byOffset: 250)
+        }
         // Loading state exposes the header via `totalBalanceShimmer` instead of `totalBalance`.
         let headerExists = totalBalance.waitForExistence(timeout: .conditional)
             || totalBalanceShimmer.waitForExistence(timeout: .conditional)
@@ -856,9 +893,40 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     private func scrollTokensList(byOffset dy: CGFloat) {
-        let start = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        // firstMatch can be an off-screen paged list with an infinite frame; scroll the on-screen one, fall back to the app.
+        let list = visibleTokensList()
+        let anchor: XCUIElement = hasVisibleFrame(list) ? list : app
+        let start = anchor.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
         let end = start.withOffset(CGVector(dx: 0, dy: dy))
         start.press(forDuration: 0.1, thenDragTo: end)
+    }
+
+    /// Horizontal paging keeps neighbor wallet pages mounted, so read tokens from the on-screen page's list, not firstMatch.
+    private func visibleTokensList() -> XCUIElement {
+        let query = app.otherElements.matching(identifier: MainAccessibilityIdentifiers.tokensList)
+        let onScreen = query.allElementsBoundByIndex.first { element in
+            let frame = element.frame
+            return frame.isFinite && frame.width > 0 && app.frame.contains(CGPoint(x: frame.midX, y: frame.midY))
+        }
+        return onScreen ?? query.firstMatch
+    }
+
+    /// Redesign keeps every wallet page mounted (horizontal paging); with multiple wallets the same
+    /// action button exists per wallet, so tap the enabled one and force the tap.
+    private func tapMainActionButton(_ identifier: String) {
+        // The identifier is carried by the icon button; tapping the text label does not reach it in the
+        // multi-wallet carousel. Among the per-wallet buttons, prefer the visible page's enabled one
+        // (isHittable is unreliable inside the carousel, so use hasVisibleFrame), then any enabled one.
+        let buttonQuery = app.buttons.matching(identifier: identifier)
+        let predicate = NSPredicate { _, _ in buttonQuery.allElementsBoundByIndex.contains { $0.isEnabled } }
+        XCTAssertEqual(
+            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: nil)], timeout: .robustUIUpdate),
+            .completed,
+            "Action button '\(identifier)' should become enabled on the visible page"
+        )
+        let enabledButtons = buttonQuery.allElementsBoundByIndex.filter { $0.isEnabled }
+        let element = enabledButtons.first { hasVisibleFrame($0) } ?? enabledButtons.first ?? buttonQuery.firstMatch
+        element.tapEvenIfNotHittable()
     }
 
     private func isGrouped() -> Bool {

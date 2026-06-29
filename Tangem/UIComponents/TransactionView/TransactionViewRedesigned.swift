@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TangemAssets
 import TangemFoundation
 import TangemUI
@@ -36,20 +37,38 @@ struct TransactionViewRedesigned: View {
         ZStack {
             Circle().fill(iconBackgroundColor)
 
-            viewModel.icon.icon
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: glyphSize, height: glyphSize)
-                .foregroundStyle(iconGlyphColor)
+            iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
+    }
+
+    @ViewBuilder
+    private var iconContent: some View {
+        if case .tangemPay(.spend(_, let iconURL?, _, _)) = viewModel.transactionType {
+            KFImage(iconURL)
+                .resizable()
+                .placeholder { glyphImage }
+                .aspectRatio(contentMode: .fit)
+                .frame(width: iconContainerSide, height: iconContainerSide)
+                .clipShape(Circle())
+        } else {
+            glyphImage
+        }
+    }
+
+    private var glyphImage: some View {
+        viewModel.icon.icon
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: glyphSize, height: glyphSize)
+            .foregroundStyle(iconGlyphColor)
     }
 
     private var nameView: some View {
         HStack(spacing: .unit(.x2)) {
             Text(display.title)
-                .style(.Tangem.Body16.medium, color: nameColor)
+                .style(Font.Tangem.Body16.medium, color: nameColor)
                 .lineLimit(1)
 
             if viewModel.inProgress {
@@ -59,8 +78,8 @@ struct TransactionViewRedesigned: View {
     }
 
     private var amountView: some View {
-        Text(viewModel.amount.value)
-            .style(.Tangem.Body16.medium, color: amountColor)
+        SensitiveText(viewModel.amount.value)
+            .style(Font.Tangem.Body16.medium, color: amountColor)
             .strikethrough(isFailed, color: amountColor)
             .lineLimit(1)
             .layoutPriority(1)
@@ -74,7 +93,7 @@ struct TransactionViewRedesigned: View {
 
         case .text(let description):
             Text(description)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
                 .lineLimit(1)
                 .truncationMode(viewModel.transactionDescriptionTruncationMode)
 
@@ -87,7 +106,7 @@ struct TransactionViewRedesigned: View {
     private var currencyView: some View {
         if viewModel.amount.currencyCode.isNotEmpty {
             Text(viewModel.amount.currencyCode)
-                .style(.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+                .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
                 .lineLimit(1)
         }
     }
@@ -107,9 +126,28 @@ private extension TransactionViewRedesigned {
     }
 
     var amountColor: Color {
+        if let tangemPayAmountColor {
+            return tangemPayAmountColor
+        }
+
         switch viewModel.icon.status {
-        case .failed, .undefined, .inProgress: .Tangem.Text.Neutral.tertiary
-        case .confirmed: .Tangem.Text.Neutral.primary
+        case .failed, .undefined, .inProgress: return .Tangem.Text.Neutral.tertiary
+        case .confirmed: return .Tangem.Text.Neutral.primary
+        }
+    }
+
+    var tangemPayAmountColor: Color? {
+        guard case .tangemPay(let payType) = viewModel.transactionType else { return nil }
+
+        switch payType {
+        case .spend(_, _, let isDeclined, _) where isDeclined:
+            return .Tangem.Text.Status.warning
+        case .spend(_, _, _, let isNegativeAmount) where isNegativeAmount:
+            return .Tangem.Text.Status.accent
+        case .transfer where !viewModel.isOutgoing:
+            return .Tangem.Text.Status.accent
+        case .spend, .transfer, .fee:
+            return nil
         }
     }
 

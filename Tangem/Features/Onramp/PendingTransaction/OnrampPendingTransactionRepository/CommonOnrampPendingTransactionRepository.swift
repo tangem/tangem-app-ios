@@ -29,7 +29,7 @@ class CommonOnrampPendingTransactionRepository {
         }
     }
 
-    private func addRecordIfNeeded(_ record: OnrampPendingTransactionRecord) {
+    private func appendRecordIfMissing(_ record: OnrampPendingTransactionRecord) {
         if pendingTransactionSubject.value.contains(where: { $0.expressTransactionId == record.expressTransactionId }) {
             return
         }
@@ -80,11 +80,17 @@ extension CommonOnrampPendingTransactionRepository: OnrampPendingTransactionRepo
         )
 
         lockQueue.async { [weak self] in
-            self?.addRecordIfNeeded(onrampPendingTransactionRecord)
+            self?.appendRecordIfMissing(onrampPendingTransactionRecord)
         }
     }
 
-    func hideSwapTransaction(with id: String) {
+    func addRecordIfNeeded(_ record: OnrampPendingTransactionRecord) {
+        lockQueue.async { [weak self] in
+            self?.appendRecordIfMissing(record)
+        }
+    }
+
+    func hideOnrampTransaction(with id: String) {
         lockQueue.async { [weak self] in
             guard let self else { return }
 

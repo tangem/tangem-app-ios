@@ -22,6 +22,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published private(set) var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
 
@@ -76,7 +77,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     private func resolvePresentationStyleForInnerFlow() -> MarketsTokenDetailsPresentationStyle {
         switch presentationStyle {
-        case .marketsSheet:
+        case .marketsSheet, .addFundsSheet:
             return .marketsSheet
 
         // [REDACTED_USERNAME], if we're already in a fullScreenCover, navigationStack should be used for inner flows.
@@ -377,8 +378,9 @@ extension MarketsTokenDetailsCoordinator: AddFundsRoutable {
     func addFundsRequestSwap(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         let helper = SwapPredefinedParametersHelper()
         guard let parameters = helper.makeParameters(
-            origin: .markets(walletModel: walletModel),
-            userWalletInfo: userWalletModel.userWalletInfo
+            walletModel: walletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
+            position: .automatic
         ) else {
             return
         }
@@ -435,7 +437,16 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         }
     }
 
-    func openReceive(walletModel: any WalletModel) {
+    func openReceive(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+        if let unavailableAlert = TokenActionAvailabilityAlertBuilder().alert(
+            for: availabilityProvider.receiveAvailability,
+            blockchain: walletModel.tokenItem.blockchain
+        ) {
+            alertPresenter.present(alert: unavailableAlert)
+            return
+        }
+
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
             tokenItem: walletModel.tokenItem,
@@ -470,7 +481,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             }
 
             tangemStoriesPresenter.present(
-                story: .initialSwapStoryBasedOnToggle,
+                story: .swap(.initialWithoutImages),
                 analyticsSource: .markets,
                 presentCompletion: openSwapBlock
             )
@@ -480,6 +491,14 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     }
 
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: input.userWalletInfo, walletModel: input.walletModel)
+        guard availabilityProvider.isTopUpAvailable else {
+            if let backupAlert = UserWalletBackupStatusHelper().alert(for: input.userWalletInfo) {
+                alertPresenter.present(alert: backupAlert)
+            }
+            return
+        }
+
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
@@ -552,6 +571,51 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         flowViewModel.showAddToken(viewModel)
     }
 
+    func openAddFundsTokenList(walletModels: [any WalletModel], walletDataProvider: MarketsWalletDataProvider) {
+        Task { @MainActor in
+            weak var flowViewModelRef: MarketsPortfolioFlowViewModel?
+
+            let portfolioViewModel = MarketsPortfolioTokenListViewModel(
+                walletModels: walletModels,
+                dismissesOnSelect: false,
+                onSelect: { [weak self] walletModel in
+                    guard let self, let flowViewModel = flowViewModelRef else { return }
+                    showAddFunds(in: flowViewModel, walletModel: walletModel, walletDataProvider: walletDataProvider)
+                },
+                coordinator: self
+            )
+
+            let flowViewModel = MarketsPortfolioFlowViewModel(portfolioViewModel: portfolioViewModel)
+            flowViewModelRef = flowViewModel
+
+            floatingSheetPresenter.enqueue(sheet: flowViewModel)
+        }
+    }
+
+    private func showAddFunds(
+        in flowViewModel: MarketsPortfolioFlowViewModel,
+        walletModel: any WalletModel,
+        walletDataProvider: MarketsWalletDataProvider
+    ) {
+        guard let userWalletModel = walletDataProvider.userWalletModels[walletModel.userWalletId] else {
+            return
+        }
+
+        Task { @MainActor in
+            let viewModel = AddFundsViewModel(
+                input: .init(
+                    mode: .sheet(.full),
+                    primaryAction: .goToToken,
+                    walletModel: walletModel,
+                    userWalletModel: userWalletModel
+                ),
+                coordinator: self
+            )
+
+            flowViewModel.showAddFunds(viewModel)
+        }
+    }
+
     private func openPortfolioTokenDetails(walletModel: any WalletModel) {
         guard
             let userWalletModel = userWalletRepository.models[walletModel.userWalletId],
@@ -619,7 +683,7 @@ extension MarketsTokenDetailsCoordinator {
 
             Task {
                 try await Task.sleep(for: .seconds(1))
-                await walletModel.update(silent: true, features: .balances)
+                await walletModel.update(silent: true, options: .balances)
             }
         }
     }

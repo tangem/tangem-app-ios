@@ -25,6 +25,7 @@ final class SendCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.alertPresenter) private var alertPresenter: any AlertPresenter
 
     // MARK: - Root view model
 
@@ -59,6 +60,8 @@ final class SendCoordinator: CoordinatorObject {
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
 
+    let supportChatPresenter = SupportChatPresenter()
+
     private var marketsTokenAdditionCoordinator: SwapMarketsTokenAdditionCoordinator?
     private var safariHandle: SafariHandle?
 
@@ -73,8 +76,29 @@ final class SendCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        guard isWalletBackupStatusValid(options) else {
+            assertionFailure("UserWalletBackupState is invalid. Do not allow to continue.")
+            return dismiss(reason: .other)
+        }
+
         let flowFactory = SendFactory().flowFactory(options: options)
-        rootViewModel = flowFactory.make(router: self, coordinatorStateProvider: stateProvider)
+        rootViewModel = flowFactory
+            .make(router: self, coordinatorStateProvider: stateProvider)
+    }
+
+    private func isWalletBackupStatusValid(_ options: Options) -> Bool {
+        switch options.type {
+        case .onramp(let sourceToken, _):
+            // Onramp credits the wallet, so block it on a card-linked (non-toppable) wallet.
+            if let alert = UserWalletBackupStatusHelper().alert(for: sourceToken.userWalletInfo) {
+                alertPresenter.present(alert: alert)
+                return false
+            }
+
+            return true
+        default:
+            return true
+        }
     }
 
     private func mapDismissReasonToDismissOptions(_ reason: SendDismissReason) -> DismissOptions? {
@@ -94,6 +118,17 @@ extension SendCoordinator {
     struct Options {
         let type: SendType
         let source: Source
+        let shouldStartFromTokenList: Bool
+
+        init(
+            type: SendType,
+            source: Source,
+            shouldStartFromTokenList: Bool = false
+        ) {
+            self.type = type
+            self.source = source
+            self.shouldStartFromTokenList = shouldStartFromTokenList
+        }
     }
 
     enum Source {
@@ -122,9 +157,14 @@ extension SendCoordinator {
 
     enum DismissOptions {
         case openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption)
+        case openSwap(SwapNavigatingDismissOption)
         case closeButtonTap
     }
 }
+
+// MARK: - SupportChatPresenting
+
+extension SendCoordinator: SupportChatPresenting {}
 
 // MARK: - SendRoutable
 
@@ -141,6 +181,20 @@ extension SendCoordinator: SendRoutable {
         Task { @MainActor in
             mailPresenter.present(viewModel: mailViewModel)
         }
+    }
+
+    func openSwapSupportSelection(with dataCollector: EmailDataCollector, recipient: String, chatDataCollector: ChatDataCollector) {
+        let chatInput = SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: dataCollector),
+            userIdentifier: chatDataCollector.userIdentifier,
+            source: .swap,
+            initialMessage: .swap(message: chatDataCollector.message)
+        )
+
+        openSupportTypeSelection(
+            emailAction: { [weak self] in self?.openMail(with: dataCollector, recipient: recipient) },
+            chatInput: chatInput
+        )
     }
 
     func openExplorer(url: URL) {
@@ -183,9 +237,13 @@ extension SendCoordinator: SendRoutable {
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder, onDismiss: (() -> Void)?) {
         let coordinator = SendReceiveTokenCoordinator(
             receiveTokensListBuilder: tokensListBuilder,
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] swapOption in
                 self?.sendReceiveTokenCoordinator = nil
                 onDismiss?()
+
+                if let swapOption {
+                    self?.dismiss(with: .openSwap(swapOption))
+                }
             }, popToRootAction: popToRootAction
         )
 
@@ -256,6 +314,10 @@ extension SendCoordinator: SendDestinationRoutable {
 // MARK: - SwapRoutable
 
 extension SendCoordinator: SwapRoutable {
+    func openBackupErrorSupport(userWalletInfo: UserWalletInfo) {
+        UserWalletBackupStatusHelper().openBackupErrorSupport(for: userWalletInfo)
+    }
+
     func openSwapTokenSelector(
         swapTokenSelectorViewModelBuilder: SwapTokenSelectorViewModelBuilder,
         direction: SwapTokenSelectorViewModel.SwapDirection
@@ -346,11 +408,17 @@ extension SendCoordinator: OnrampRoutable {
     }
 
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {
-        safariHandle = safariManager.openURL(url, configuration: .init(), onDismiss: onDismiss, onSuccess: { [weak self] url in
-            self?.safariHandle = nil
+        safariHandle = safariManager.openURL(url, configuration: .init(), onDismiss: { [weak self] in
+            self?.cleanupOnrampWebView()
+            onDismiss()
+        }, onSuccess: { [weak self] url in
+            self?.cleanupOnrampWebView()
             onSuccess(url)
         })
+    }
 
+    private func cleanupOnrampWebView() {
+        safariHandle = nil
         dismissOnrampRedirecting()
     }
 
@@ -376,6 +444,10 @@ extension SendCoordinator: ApproveRoutable {
 
     func userDidCancel() {
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
+
+    func openLearnMoreAboutApprove() {
+        openLearnMore()
     }
 
     func openLearnMore() {
