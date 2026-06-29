@@ -205,7 +205,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func initializeUserWallet(from cardInfo: CardInfo) {
-        guard userWalletModel == nil else {
+        guard userWalletModel == nil, cardInfo.card.wallets.first?.publicKey != nil else {
             return
         }
 

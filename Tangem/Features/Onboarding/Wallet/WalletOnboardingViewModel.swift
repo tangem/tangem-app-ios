@@ -813,23 +813,23 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 return
                             }
 
-                            // Wallet 3
-                            if userWalletModel == nil {
-                                let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: cardIds ?? [])
-                                initializeUserWallet(from: cardInfo)
-                            }
-
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
                                 if containsRing,
                                    let userWalletId = userWalletModel?.userWalletId.stringValue {
                                     AppSettings.shared.userWalletIdsWithRing.insert(userWalletId)
                                 }
+                                
+                                backupValidator.onBackupCompleted()
+                                
+                                // Wallet 3
+                                if userWalletModel == nil {
+                                    let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: cardIds ?? [])
+                                    initializeUserWallet(from: cardInfo)
+                                }
 
                                 trySaveAccessCodes()
-
-                                backupValidator.onBackupCompleted()
-
+                                
                                 let backupedUserWalletModel: UserWalletModel?
                                 switch userWalletModel {
                                 case .some(let model):
