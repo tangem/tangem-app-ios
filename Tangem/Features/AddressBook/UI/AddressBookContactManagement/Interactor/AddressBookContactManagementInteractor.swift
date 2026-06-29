@@ -8,6 +8,7 @@
 
 import Combine
 import TangemAccounts
+import TangemFoundation
 import TangemUI
 
 protocol AddressBookContactManagementInteractor {
@@ -17,7 +18,7 @@ protocol AddressBookContactManagementInteractor {
     var contactColorPublisher: AnyPublisher<AccountModel.CompositeIcon.Color, Never> { get }
 
     var addressesPublisher: AnyPublisher<AddressBookContactDraftEntries?, Never> { get }
-    var walletPublisher: AnyPublisher<AddressBookContactManagementViewModel.WalletRowType?, Never> { get }
+    var walletPublisher: AnyPublisher<AddressBookWallet, Never> { get }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> { get }
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { get }

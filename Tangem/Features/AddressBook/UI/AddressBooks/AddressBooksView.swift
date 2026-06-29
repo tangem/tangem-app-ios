@@ -16,14 +16,11 @@ struct AddressBooksView: View {
     @ObservedObject var viewModel: AddressBooksViewModel
 
     var body: some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            content
-        }
-        .interContentPadding(12)
-        .navigationTitle(Text(Localization.addressBookTitle))
-        // [REDACTED_TODO_COMMENT]
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
-        .toolbar { trailingToolbarItem }
+        content
+            .navigationTitle(Text(Localization.addressBookTitle))
+            // [REDACTED_TODO_COMMENT]
+            .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+            .toolbar { trailingToolbarItem }
     }
 
     @ToolbarContentBuilder
@@ -42,6 +39,19 @@ struct AddressBooksView: View {
 
     @ViewBuilder
     private var content: some View {
+        if case .success(let contactsViewModels) = viewModel.contactsViewModels, contactsViewModels.isEmpty {
+            AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
+                .infinityFrame()
+        } else {
+            GroupedScrollView(contentType: .lazy(spacing: 8)) {
+                scrollContent
+            }
+            .interContentPadding(12)
+        }
+    }
+
+    @ViewBuilder
+    private var scrollContent: some View {
         chipsView
 
         switch viewModel.contactsViewModels {
@@ -50,9 +60,6 @@ struct AddressBooksView: View {
 
         case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
-
-        case .success(let contactsViewModels) where contactsViewModels.isEmpty:
-            AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
 
         case .success(let contactsViewModels):
             GroupedSection(contactsViewModels, isLazy: true) {
