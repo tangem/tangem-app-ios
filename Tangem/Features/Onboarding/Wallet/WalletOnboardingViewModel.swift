@@ -670,8 +670,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
+                // Wallet 3 can’t be initialized here because the wallet public keys are empty
                 initializeUserWallet(from: cardInfo)
-             
+
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
