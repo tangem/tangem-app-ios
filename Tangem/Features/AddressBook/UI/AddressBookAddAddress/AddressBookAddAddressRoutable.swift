@@ -8,7 +8,8 @@
 
 import Foundation
 
-protocol AddressBookAddAddressRoutable: AnyObject {
+protocol AddressBookAddAddressRoutable: AnyObject, ChooseNetworkRoutable {
     func dismissAddAddress()
     func openQRScanner(completion: @escaping (String) -> Void)
+    func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel)
 }
