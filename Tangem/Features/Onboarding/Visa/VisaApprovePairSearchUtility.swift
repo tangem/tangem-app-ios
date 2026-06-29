@@ -60,7 +60,7 @@ struct VisaApprovePairSearchUtility {
         derivationPath: DerivationPath?,
         in wallet: KeyInfo
     ) throws(VisaWalletPublicKeyUtility.SearchError) -> (seedKey: Data, derivedKey: Data) {
-        guard let derivationPath else {
+        guard let walletPublicKey = wallet.publicKey, let derivationPath else {
             let legacyKey = try findLegacyPublicKey(for: targetAddress, in: wallet)
             return (legacyKey, legacyKey)
         }
@@ -71,11 +71,13 @@ struct VisaApprovePairSearchUtility {
 
         try visaWalletPublicKeyUtility.validateExtendedPublicKey(targetAddress: targetAddress, extendedPublicKey: extendedPublicKey, derivationPath: derivationPath)
 
-        return (wallet.publicKey, extendedPublicKey.publicKey)
+        return (walletPublicKey, extendedPublicKey.publicKey)
     }
 
     private func findLegacyPublicKey(for targetAddress: String, in wallet: KeyInfo) throws(VisaWalletPublicKeyUtility.SearchError) -> Data {
-        let walletPublicKey = wallet.publicKey
+        guard let walletPublicKey = wallet.publicKey else {
+            throw VisaWalletPublicKeyUtility.SearchError.missingWalletOnTargetCurve
+        }
 
         try visaWalletPublicKeyUtility.validatePublicKey(targetAddress: targetAddress, walletPublicKey: walletPublicKey)
 

@@ -48,48 +48,11 @@ struct CardDTO: Codable {
         isBackupVerified = card.isBackupVerified
     }
 
-    init(cardDTOv4: CardDTOv4) {
-        cardId = cardDTOv4.cardId
-        batchId = cardDTOv4.batchId
-        cardPublicKey = cardDTOv4.cardPublicKey
-        firmwareVersion = cardDTOv4.firmwareVersion
-        manufacturer = cardDTOv4.manufacturer
-        issuer = cardDTOv4.issuer
-        settings = .init(settingsV4: cardDTOv4.settings)
-        userSettings = .init(isUserCodeRecoveryAllowed: cardDTOv4.firmwareVersion >= .backupAvailable)
-        linkedTerminalStatus = cardDTOv4.linkedTerminalStatus
-        isAccessCodeSet = cardDTOv4.isAccessCodeSet
-        isPasscodeSet = cardDTOv4.isPasscodeSet
-        supportedCurves = cardDTOv4.supportedCurves
-        backupStatus = cardDTOv4.backupStatus
-        wallets = cardDTOv4.wallets.map {
-            .init(
+    private func mapWallets(_ cardWallets: [Card.Wallet]) -> [CardDTO.Wallet] {
+        return cardWallets.map {
+            return CardDTO.Wallet(
                 publicKey: $0.publicKey,
                 chainCode: $0.chainCode,
-                curve: $0.curve,
-                settings: $0.settings,
-                totalSignedHashes: $0.totalSignedHashes,
-                remainingSignatures: $0.remainingSignatures,
-                index: $0.index,
-                proof: $0.proof,
-                isImported: cardDTOv4.firmwareVersion < .keysImportAvailable ? false : nil,
-                hasBackup: $0.hasBackup,
-                derivedKeys: $0.derivedKeys
-            )
-        }
-        attestation = cardDTOv4.attestation
-    }
-
-    private func mapWallets(_ cardWallets: [Card.Wallet]) -> [CardDTO.Wallet] {
-        return cardWallets.compactMap {
-            guard let walletPublicKey = $0.publicKey,
-                  let chainCode = $0.chainCode else {
-                return nil
-            }
-
-            return CardDTO.Wallet(
-                publicKey: walletPublicKey,
-                chainCode: chainCode,
                 curve: $0.curve,
                 settings: $0.settings,
                 totalSignedHashes: $0.totalSignedHashes,
@@ -131,20 +94,6 @@ extension CardDTO {
             isBackupAllowed = settings.isBackupAllowed
             isKeysImportAllowed = settings.isKeysImportAllowed
         }
-
-        init(settingsV4: CardDTOv4.Settings) {
-            securityDelay = settingsV4.securityDelay
-            maxWalletsCount = settingsV4.maxWalletsCount
-            isSettingAccessCodeAllowed = settingsV4.isSettingAccessCodeAllowed
-            isSettingPasscodeAllowed = settingsV4.isSettingPasscodeAllowed
-            isRemovingUserCodesAllowed = settingsV4.isResettingUserCodesAllowed
-            isLinkedTerminalEnabled = settingsV4.isLinkedTerminalEnabled
-            supportedEncryptionModes = settingsV4.supportedEncryptionModes
-            isFilesAllowed = settingsV4.isFilesAllowed
-            isHDWalletAllowed = settingsV4.isHDWalletAllowed
-            isBackupAllowed = settingsV4.isBackupAllowed
-            isKeysImportAllowed = false
-        }
     }
 }
 
@@ -152,7 +101,7 @@ extension CardDTO {
     /// Describing wallets created on card
     struct Wallet: Codable {
         /// Wallet's public key.  For `secp256k1`, the key can be compressed or uncompressed. Use `Secp256k1Key` for any conversions.
-        public let publicKey: Data
+        public let publicKey: Data?
         /// Optional chain code for BIP32 derivation.
         public let chainCode: Data?
         /// Elliptic curve used for all wallet key operations.

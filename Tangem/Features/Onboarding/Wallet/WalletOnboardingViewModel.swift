@@ -670,6 +670,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
+                initializeUserWallet(from: cardInfo)
+             
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
@@ -810,6 +812,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 return
                             }
 
+                            // Wallet 3
                             if userWalletModel == nil {
                                 let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: cardIds ?? [])
                                 initializeUserWallet(from: cardInfo)

@@ -41,9 +41,13 @@ extension CommonXPUBKeyGenerator: XPUBKeyGenerator {
 
         let masterKey = try masterKey()
         let paths = try xpubDerivationPaths()
+        
+        guard let masterKeyPublicKey = masterKey.publicKey else {
+            throw Error.failedToCreateXPUBKey
+        }
 
         let derivationResult = try await keysDerivingInteractor.deriveKeys(
-            derivations: [masterKey.publicKey: [paths.child, paths.parent]]
+            derivations: [masterKeyPublicKey: [paths.child, paths.parent]]
         )
 
         keysRepository.update(derivations: derivationResult)
