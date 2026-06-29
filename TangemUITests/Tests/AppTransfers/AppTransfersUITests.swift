@@ -185,6 +185,95 @@ final class AppTransfersUITests: BaseTestCase {
             .waitForTokenAvailable(Constants.token)
     }
 
+    func testTransferBetweenDifferentWalletsReachesFinish() {
+        setAllureId(9995)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: Constants.ethereumWithSecondTokenScenarios
+        )
+
+        importHotWallet()
+            .addNewWallet(name: .wallet2)
+            .swipeWalletRight()
+            .verifyTokenVisible(Constants.token)
+            .tapMainSwap()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken(Constants.token)
+            .selectIdenticalReceiveToken(Constants.token, onWallet: Constants.secondWalletName)
+            .enterFromAmount(Constants.amount)
+            .waitForFeeCalculation()
+            .waitForProviderBlockNotDisplayed()
+            .confirmTransferAndOpenFinish()
+            .assertHeaderTitle(Constants.transferInProgressTitle)
+    }
+
+    func testAddMissingTokenToRecipientWalletEnablesTransfer() {
+        setAllureId(9996)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            clearStorage: true,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "RecipientWithoutEthereum"),
+                ScenarioConfig(name: "eth_call_api", initialState: "Started"),
+                ScenarioConfig(name: "eth_network_balance", initialState: "Started"),
+            ]
+        )
+
+        let mainScreen = importHotWallet()
+            .verifyTokenVisible(Constants.bitcoinToken)
+
+        wireMockClient.setScenarioStateSync("user_tokens_api", state: "EthereumWithSecondToken")
+
+        mainScreen
+            .addNewWallet(name: .wallet2)
+            .verifyTokenVisible(Constants.token)
+            .tapMainSwap()
+            .closeStoriesIfNeeded()
+            .validateSwapScreenDisplayed()
+            .chooseSourceToken(Constants.token)
+            .tapToTokenSelector()
+            .typeSearchText(Constants.token)
+            .selectMarketToken(Constants.token)
+            .selectWallet(named: Constants.recipientWalletName)
+            .tapAddTokenButton()
+            .waitForTokenAddedToast()
+            .assertConfirmButtonLabelIsTransfer()
+            .waitForProviderBlockNotDisplayed()
+    }
+
+    func testTransferModeAvailableFromTangemPayAccount() {
+        setAllureId(9856)
+
+        launchApp(
+            tangemApiType: .mock,
+            expressApiType: .mock,
+            visaApiType: .mock,
+            clearStorage: true,
+            scenarios: [
+                ScenarioConfig(name: "tangem_pay_eligibility", initialState: "PaeraCustomer"),
+                ScenarioConfig(name: "tangem_pay_balance_update", initialState: "InitialBalance"),
+                ScenarioConfig(name: "tangem_pay_transaction_history", initialState: "InitialEmpty"),
+                ScenarioConfig(name: "user_tokens_api", initialState: "TangemPayTransferUsdc"),
+            ]
+        )
+
+        importHotWallet()
+            .openTangemPay()
+            .waitForScreen()
+            .tapWithdraw()
+            .waitForScreen()
+            .tapGotIt()
+            .validateSwapScreenDisplayed()
+            .chooseTokenFromEmptySelector(Constants.tangemPayToken)
+            .waitForProviderBlockNotDisplayed()
+    }
+
     func testFeeCalculationErrorDisablesTransfer() {
         setAllureId(9998)
 
@@ -288,6 +377,74 @@ final class AppTransfersUITests: BaseTestCase {
         .waitForFeeAmountDisplayed()
     }
 
+    func testTronNetworkFee() {
+        setAllureId(10005)
+
+        openSwapInTransferMode(
+            token: Constants.tronToken,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameTron"),
+                ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
+            ]
+        )
+        .enterFromAmount(Constants.amount)
+        .waitForFeeCalculation()
+        .assertConfirmButtonLabelIsTransfer()
+        .waitForProviderBlockNotDisplayed()
+        .waitForFeeAmountDisplayed()
+    }
+
+    func testTonNetworkFee() {
+        setAllureId(10012)
+
+        openSwapInTransferMode(
+            token: Constants.tonToken,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameTON"),
+                ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
+            ]
+        )
+        .enterFromAmount(Constants.amount)
+        .waitForFeeCalculation()
+        .assertConfirmButtonLabelIsTransfer()
+        .waitForProviderBlockNotDisplayed()
+        .waitForFeeAmountDisplayed()
+    }
+
+    func testCosmosNetworkFee() {
+        setAllureId(10013)
+
+        openSwapInTransferMode(
+            token: Constants.cosmosToken,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameCosmos"),
+                ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
+            ]
+        )
+        .enterFromAmount(Constants.amount)
+        .waitForFeeCalculation()
+        .assertConfirmButtonLabelIsTransfer()
+        .waitForProviderBlockNotDisplayed()
+        .waitForFeeAmountDisplayed()
+    }
+
+    func testAptosNetworkFee() {
+        setAllureId(10015)
+
+        openSwapInTransferMode(
+            token: Constants.aptosToken,
+            scenarios: [
+                ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameAptos"),
+                ScenarioConfig(name: "networks_providers", initialState: "AppTransfersNetworks"),
+            ]
+        )
+        .enterFromAmount(Constants.amount)
+        .waitForFeeCalculation()
+        .assertConfirmButtonLabelIsTransfer()
+        .waitForProviderBlockNotDisplayed()
+        .waitForFeeAmountDisplayed()
+    }
+
     func testAmountBelowDestinationReserveDisablesTransfer() {
         setAllureId(9852)
 
@@ -375,7 +532,14 @@ private extension AppTransfersUITests {
         static let xrpToken = "XRP Ledger"
         static let stellarToken = "Stellar"
         static let kaspaToken = "Kaspa"
+        static let tronToken = "Tron"
+        static let tonToken = "Gram"
+        static let cosmosToken = "Cosmos"
+        static let aptosToken = "Aptos"
         static let swapReceiveToken = "USDC"
+        static let tangemPayToken = "USDC"
+        static let recipientWalletName = "Wallet"
+        static let secondWalletName = "Wallet 2"
         static let amount = "0.001"
         static let aboveBalanceAmount = "100"
         static let belowMinimumAmount = "0.00000001"
@@ -393,6 +557,12 @@ private extension AppTransfersUITests {
         static let xrpTransferScenarios: [ScenarioConfig] = [
             ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsSameXRP"),
             ScenarioConfig(name: "ripple_account_info", initialState: "Started"),
+        ]
+
+        static let ethereumWithSecondTokenScenarios: [ScenarioConfig] = [
+            ScenarioConfig(name: "user_tokens_api", initialState: "EthereumWithSecondToken"),
+            ScenarioConfig(name: "eth_call_api", initialState: "Started"),
+            ScenarioConfig(name: "eth_network_balance", initialState: "Started"),
         ]
     }
 }
