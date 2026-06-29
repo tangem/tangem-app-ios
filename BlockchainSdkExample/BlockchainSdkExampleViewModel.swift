@@ -439,14 +439,21 @@ class BlockchainSdkExampleViewModel: ObservableObject {
     }
 
     private func createWalletManager(blockchain: Blockchain, wallet: Card.Wallet) throws -> WalletManager {
-        let publicKey = Wallet.PublicKey(seedKey: wallet.publicKey, derivationType: .none)
+        guard let walletPublicKey = wallet.publicKey else {
+            throw TangemSdkError.walletUnavailableBackupRequired
+        }
+        
+        let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: .none)
         return try walletManagerFactory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
     }
 
     private func createStubWalletManager(blockchain: Blockchain, wallet: Card.Wallet) throws -> WalletManager {
+        guard let walletPublicKey = wallet.publicKey else {
+            throw TangemSdkError.walletUnavailableBackupRequired
+        }
         return try walletManagerFactory.makeStubWalletManager(
             blockchain: blockchain,
-            dummyPublicKey: dummyPublicKey.isEmpty ? wallet.publicKey : Data(hex: dummyPublicKey),
+            dummyPublicKey: dummyPublicKey.isEmpty ? walletPublicKey : Data(hex: dummyPublicKey),
             dummyAddress: dummyAddress
         )
     }
