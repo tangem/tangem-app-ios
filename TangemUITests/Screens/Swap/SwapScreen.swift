@@ -497,6 +497,25 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         }
     }
 
+    /// Selects an identical receive token located on a DIFFERENT wallet by first switching to its wallet chip.
+    @discardableResult
+    func selectIdenticalReceiveToken(_ tokenName: String, onWallet walletName: String) -> Self {
+        XCTContext.runActivity(named: "Select identical receive token '\(tokenName)' on wallet '\(walletName)'") { _ in
+            waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
+            receiveTokenSelector.waitAndTap()
+
+            // The source token is filtered out under its own wallet's chip; the identical token lives under the other wallet's chip.
+            let walletChip = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", walletName)).firstMatch
+            waitAndAssertTrue(walletChip, "Wallet chip '\(walletName)' should exist in the receive token selector")
+            walletChip.tapEvenIfNotHittable()
+
+            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible under wallet '\(walletName)'")
+            tokenButton.tapEvenIfNotHittable()
+            return self
+        }
+    }
+
     @discardableResult
     func assertConfirmButtonLabelIsTransfer() -> Self {
         XCTContext.runActivity(named: "Assert action button label is 'Transfer'") { _ in
