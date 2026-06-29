@@ -41,7 +41,7 @@ extension CommonXPUBKeyGenerator: XPUBKeyGenerator {
 
         let masterKey = try masterKey()
         let paths = try xpubDerivationPaths()
-        
+
         guard let masterKeyPublicKey = masterKey.publicKey else {
             throw Error.failedToCreateXPUBKey
         }
