@@ -59,7 +59,6 @@ struct TokensManagementFlowView: View {
         )
         .setStyleType(.secondary)
         .setSize(.x12)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
