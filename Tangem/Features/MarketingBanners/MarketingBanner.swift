@@ -28,4 +28,19 @@ extension MarketingBanner {
     enum Action {
         case deeplink(URL)
     }
+
+    var isStandalone: Bool {
+        if case .standalone = placement {
+            return true
+        }
+
+        return false
+    }
+}
+
+struct MarketingBanners {
+    let standalone: MarketingBanner?
+    let linked: [MarketingBanner]
+
+    static let empty = MarketingBanners(standalone: nil, linked: [])
 }
