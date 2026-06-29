@@ -25,7 +25,6 @@ struct EmptyContentAccountItemRedesignedView: View {
                 content: .text(AttributedString(Localization.commonAddTokens)),
                 action: onManageTokensTap
             )
-            .setCornerStyle(.rounded)
             .setStyleType(.secondary)
             .setSize(.x10)
             .setHorizontalLayout(.intrinsic)
