@@ -111,8 +111,12 @@ private extension WalletConnectBitcoinSignPsbtHandler {
 
     func signingPublicKey(for inputs: [WalletConnectPsbtSignInput]) throws -> Data {
         // WC spec provides `address` per input. We validate it's one of our wallet addresses.
+        let comparator = AddressComparator()
+        let blockchain = walletModel.tokenItem.blockchain
         for input in inputs {
-            let matches = walletModel.addressesString.contains(where: { $0.caseInsensitiveCompare(input.address) == .orderedSame })
+            let matches = walletModel.addressesString.contains {
+                comparator.addressesMatch($0, input.address, blockchain: blockchain)
+            }
             guard matches else {
                 throw WalletConnectTransactionRequestProcessingError.invalidPayload("Unknown address for signing: \(input.address)")
             }

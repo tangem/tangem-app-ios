@@ -29,7 +29,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         viewType: ExpressCurrencyViewType,
         headerType: SendTokenHeader,
         balanceState: LoadableBalanceView.State = .empty,
-        fiatAmountState: LoadableTextView.State = .initialized,
+        alternativeAmountState: LoadableTextView.State = .initialized,
         priceChangeState: PriceChangeState? = nil,
         tokenIconState: TokenIconState = .loading,
         symbolState: LoadableTextView.State = .loading,
@@ -39,7 +39,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state = State(
             headerType: headerType,
             balanceState: balanceState,
-            fiatAmountState: fiatAmountState,
+            alternativeAmountState: alternativeAmountState,
             priceChangeState: priceChangeState,
             tokenIconState: tokenIconState,
             symbolState: symbolState,
@@ -65,22 +65,22 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
     func updateFiatValue(expectAmount: Decimal?, tokenItem: TokenItem?) {
         guard let expectAmount else {
-            update(fiatAmountState: .loaded(text: balanceFormatter.formatFiatBalance(0)))
+            update(alternativeAmountState: .loaded(text: balanceFormatter.formatFiatBalance(0)))
             return
         }
 
         guard let currencyId = tokenItem?.currencyId else {
-            update(fiatAmountState: .loaded(text: balanceFormatter.formatFiatBalance(0)))
+            update(alternativeAmountState: .loaded(text: balanceFormatter.formatFiatBalance(0)))
             return
         }
 
         if let fiatValue = balanceConverter.convertToFiat(expectAmount, currencyId: currencyId) {
             let formatted = balanceFormatter.formatFiatBalance(fiatValue)
-            update(fiatAmountState: .loaded(text: formatted))
+            update(alternativeAmountState: .loaded(text: formatted))
             return
         }
 
-        update(fiatAmountState: .loading)
+        update(alternativeAmountState: .loading)
 
         balanceConvertTask?.cancel()
         balanceConvertTask = runTask(in: self) { [currencyId, balanceConverter, balanceFormatter] viewModel in
@@ -90,7 +90,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             try Task.checkCancellation()
 
             await runOnMain {
-                viewModel.update(fiatAmountState: .loaded(text: formatted))
+                viewModel.update(alternativeAmountState: .loaded(text: formatted))
             }
         }
     }
@@ -112,12 +112,22 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
         state.errorState = errorState
     }
 
-    func update(fiatAmountState: LoadableTextView.State) {
-        state.fiatAmountState = fiatAmountState
+    func update(alternativeAmountState: LoadableTextView.State) {
+        state.alternativeAmountState = alternativeAmountState
     }
 
     func update(isFiatAmountHidden: Bool) {
         state.isFiatAmountHidden = isFiatAmountHidden
+    }
+
+    func update(isSwitchCurrencyAvailable: Bool) {
+        state.isSwitchCurrencyAvailable = isSwitchCurrencyAvailable
+    }
+
+    /// Prevents an in-flight async conversion from overwriting
+    /// the bottom row after the calculation type has changed.
+    func cancelPendingFiatConversion() {
+        balanceConvertTask?.cancel()
     }
 }
 
@@ -126,12 +136,13 @@ extension ExpressCurrencyViewModel {
         var headerType: SendTokenHeader
         var errorState: ErrorState?
         var balanceState: LoadableBalanceView.State
-        var fiatAmountState: LoadableTextView.State
+        var alternativeAmountState: LoadableTextView.State
         var priceChangeState: PriceChangeState?
         var tokenIconState: TokenIconState
         var symbolState: LoadableTextView.State
         var canChangeCurrency: Bool
         var isFiatAmountHidden: Bool = false
+        var isSwitchCurrencyAvailable: Bool = false
 
         mutating func update(
             wallet: LoadingResult<any SendGenericToken, Error>,

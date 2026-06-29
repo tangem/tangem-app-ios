@@ -43,4 +43,8 @@ struct CommonSendTransferableToken: SendTransferableToken {
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { sourceToken.accountModelAnalyticsProvider }
     var tangemIconProvider: any TangemIconProvider { sourceToken.tangemIconProvider }
     var confirmTransactionPolicy: any ConfirmTransactionPolicy { sourceToken.confirmTransactionPolicy }
+
+    var transactionHistoryEnricher: TransactionHistoryExpressDataEnriching? {
+        get async { await sourceToken.transactionHistoryEnricher }
+    }
 }
