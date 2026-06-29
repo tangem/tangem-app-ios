@@ -46,7 +46,6 @@ class CommonUserWalletModel {
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-    private let backupValidator = BackupValidator()
 
     init(
         walletInfo: WalletInfo,
@@ -311,7 +310,7 @@ extension CommonUserWalletModel: UserWalletModel {
     var backupState: UserWalletBackupState {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return backupValidator.validate(card: cardInfo.card) ? .valid : .incompleteBackup
+            return BackupValidator().validate(card: cardInfo.card) ? .valid : .incompleteBackup
         case .mobileWallet:
             return .valid
         }
