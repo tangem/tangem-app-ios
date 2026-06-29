@@ -121,7 +121,6 @@ struct EarnFilterHeaderView: View {
                 action: action
             )
             .setStyleType(.primaryInverse)
-            .setCornerStyle(.rounded)
             .setSize(.x9)
             .setButtonState(isLoading: isLoading, isDisabled: !isEnabled)
         }
