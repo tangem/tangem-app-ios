@@ -442,7 +442,7 @@ class BlockchainSdkExampleViewModel: ObservableObject {
         guard let walletPublicKey = wallet.publicKey else {
             throw TangemSdkError.walletUnavailableBackupRequired
         }
-        
+
         let publicKey = Wallet.PublicKey(seedKey: walletPublicKey, derivationType: .none)
         return try walletManagerFactory.makeWalletManager(blockchain: blockchain, publicKey: publicKey)
     }
