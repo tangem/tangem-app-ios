@@ -11,15 +11,11 @@ import Moya
 import TangemFoundation
 import TangemNetworkUtils
 
-class CommonExpressAPIService {
+final class CommonExpressAPIService {
     private let provider: TangemProvider<ExpressAPITarget>
     private let expressAPIType: ExpressAPIType
 
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
-        return decoder
-    }()
+    private let decoder: JSONDecoder
 
     init(provider: TangemProvider<ExpressAPITarget>, expressAPIType: ExpressAPIType) {
         assert(
@@ -29,10 +25,11 @@ class CommonExpressAPIService {
 
         self.provider = provider
         self.expressAPIType = expressAPIType
+
+        decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
     }
 }
-
-// MARK: - ExpressAPIService
 
 extension CommonExpressAPIService: ExpressAPIService {
     // MARK: - Swap
@@ -150,7 +147,7 @@ private extension CommonExpressAPIService {
 
     func tryMapErrorFromBody(response: Response) -> ExpressAPIError? {
         do {
-            let error = try JSONDecoder().decode(ExpressDTO.APIError.Response.self, from: response.data)
+            let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
             return error.error
         } catch {
             return nil
