@@ -88,7 +88,6 @@ struct MultiWalletMainContentRedesignedView: View {
             ),
             action: viewModel.onOpenOrganizeTokensButtonTap
         )
-        .setCornerStyle(.rounded)
         .setStyleType(.primaryInverse)
         .setSize(.x9)
         .setFont(Font.Tangem.Body14.regular)
@@ -118,7 +117,6 @@ struct MultiWalletMainContentRedesignedView: View {
                 content: .text(AttributedString(Localization.commonAddTokens)),
                 action: viewModel.onAddTokensTap
             )
-            .setCornerStyle(.rounded)
             .setStyleType(.secondary)
             .setSize(.x10)
             .setHorizontalLayout(.intrinsic)
