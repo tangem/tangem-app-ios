@@ -683,7 +683,7 @@ extension MarketsTokenDetailsCoordinator {
 
             Task {
                 try await Task.sleep(for: .seconds(1))
-                await walletModel.update(silent: true, features: .balances)
+                await walletModel.update(silent: true, options: .balances)
             }
         }
     }
