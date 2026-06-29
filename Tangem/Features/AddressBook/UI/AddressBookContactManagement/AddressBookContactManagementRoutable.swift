@@ -8,8 +8,9 @@
 
 import Foundation
 
-protocol AddressBookContactManagementRoutable: AnyObject, AddressActionsRoutable {
+protocol AddressBookContactManagementRoutable: AnyObject, AddressActionsRoutable, AddressBookWalletPickerRoutable {
     func dismissContactManagement()
     func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions)
     func presentAddressActions(_ viewModel: AddressActionsViewModel)
+    func presentWalletPicker(_ viewModel: AddressBookWalletPickerViewModel)
 }
