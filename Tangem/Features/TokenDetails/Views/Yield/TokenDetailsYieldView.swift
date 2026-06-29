@@ -82,7 +82,6 @@ private extension TokenDetailsYieldView {
 
                 TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
                     .setStyleType(.positive)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)
@@ -125,7 +124,6 @@ private extension TokenDetailsYieldView {
                     action: item.learnAction.closure
                 )
                 .setStyleType(.secondary)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.infinity)
 
@@ -134,7 +132,6 @@ private extension TokenDetailsYieldView {
                     action: item.activateAction.closure
                 )
                 .setStyleType(.positive)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.infinity)
             }
@@ -219,7 +216,6 @@ private extension TokenDetailsYieldView {
 
                 TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
                     .setStyleType(.secondary)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)

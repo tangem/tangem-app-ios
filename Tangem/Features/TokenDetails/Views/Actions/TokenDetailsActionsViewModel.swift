@@ -174,13 +174,21 @@ private extension TokenDetailsActionsViewModel {
     }
 
     func presentSheet(kind: TokenDetailsActionsKind, options: [TokenActionType]) {
+        weak var sheetViewModelRef: TokenDetailsActionsBottomSheetViewModel?
+
         let items = options.map { type in
             makeRowItem(
                 for: type,
                 isAvailable: isRowItemAvailable(for: type),
                 onTap: { [weak self] in
-                    self?.dismissSheet()
-                    self?.perform(type, kind: kind)
+                    guard let self else { return }
+                    switch type {
+                    case .receive:
+                        morphToReceive(in: sheetViewModelRef)
+                    case .buy, .send, .exchange, .stake, .sell, .copyAddress, .marketsDetails, .hide, .yield:
+                        dismissSheet()
+                        perform(type, kind: kind)
+                    }
                 }
             )
         }
@@ -191,9 +199,23 @@ private extension TokenDetailsActionsViewModel {
                 self?.dismissSheet()
             }
         )
+        sheetViewModelRef = sheetViewModel
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: sheetViewModel)
+        }
+    }
+
+    func morphToReceive(in sheetViewModel: TokenDetailsActionsBottomSheetViewModel?) {
+        Task { @MainActor in
+            guard let receiveViewModel = actionsRoutable?.makeReceiveViewModel() else {
+                // Receive is unavailable: the routable set its support alert, which presents behind
+                // the sheet, so dismiss the sheet to let it surface.
+                dismissSheet()
+                return
+            }
+
+            sheetViewModel?.showReceive(receiveViewModel)
         }
     }
 
