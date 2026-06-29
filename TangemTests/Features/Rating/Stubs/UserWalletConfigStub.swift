@@ -38,7 +38,7 @@ struct UserWalletConfigStub: UserWalletConfig {
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability { .available }
     func makeAnyWalletManagerFactory() -> AnyWalletManagerFactory { AnyWalletManagerFactoryStub() }
     func makeOnboardingStepsBuilder(backupService: BackupService) -> any OnboardingStepsBuilder { OnboardingStepsBuilderStub() }
-    func makeBackupService() -> BackupService { GenericBackupServiceFactory(isAccessCodeSet: false).makeBackupService() }
+    func makeBackupService() -> BackupService { GenericBackupServiceFactory(isAccessCodeSet: false, defaultBlockchains: []).makeBackupService() }
     func makeTangemSdk() -> TangemSdk { GenericTangemSdkFactory(isAccessCodeSet: false).makeTangemSdk() }
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory { MainHeaderProviderFactoryStub() }
     func makeActionButtonsRole() -> ActionButtonsWalletRole { ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false) }

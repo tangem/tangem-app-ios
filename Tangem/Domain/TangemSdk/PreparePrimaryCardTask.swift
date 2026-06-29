@@ -40,17 +40,8 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         }
 
         if card.settings.isHDWalletAllowed {
-            let config = UserWalletConfigFactory().makeConfig(
-                cardInfo: CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
-            )
-            let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
-
-            let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
-                result[network.blockchain.curve, default: []].append(contentsOf: network.derivationPaths())
-            }
-
             var sdkConfig = session.environment.config
-            sdkConfig.defaultDerivationPaths = derivations
+            sdkConfig.defaultDerivationPaths = DefaultDerivationsHelper().makeDefaultDerivations(for: card)
             session.updateConfig(with: sdkConfig)
         }
 
@@ -205,3 +196,6 @@ extension PreparePrimaryCardTask {
         let primaryCard: PrimaryCard?
     }
 }
+
+
+
