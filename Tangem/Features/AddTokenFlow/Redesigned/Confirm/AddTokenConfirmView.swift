@@ -168,7 +168,6 @@ struct AddTokenConfirmView: View {
             action: viewModel.handleConfirmTap
         )
         .setStyleType(.primary)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
         .setButtonState(isLoading: viewModel.isSaving, isDisabled: viewModel.isTokenAlreadyAdded)

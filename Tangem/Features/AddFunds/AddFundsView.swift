@@ -127,7 +127,6 @@ struct AddFundsView: View {
             action: viewModel.userDidTapPrimary
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
     }
