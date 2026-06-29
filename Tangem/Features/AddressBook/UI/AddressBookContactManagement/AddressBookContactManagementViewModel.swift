@@ -215,7 +215,12 @@ private extension AddressBookContactManagementViewModel {
         coordinator?.openAddAddress(
             userWalletInfo: wallet.userWalletInfo,
             output: self,
-            options: .edit(address: group.address, memo: group.memo, replacing: group.networks.map(\.id))
+            options: .edit(
+                address: group.address,
+                memo: group.memo,
+                networks: Set(group.networks.map(\.blockchain)),
+                replacing: group.networks.map(\.id)
+            )
         )
     }
 

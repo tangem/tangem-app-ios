@@ -48,17 +48,7 @@ struct AddressBookAddAddressView: View {
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
         HStack(spacing: 4) {
-            let title = switch networks {
-            case .idle:
-                Localization.addressBookSelectNetwork
-            case .resolved(let networks):
-                // [REDACTED_TODO_COMMENT]
-                networks.map { $0.currencySymbol }.joined(separator: ", ")
-            }
-
-            Text(title)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
+            networksValueContent(networks: networks)
 
             if networks.isEditable {
                 Assets.Glyphs.selectIcon.image
@@ -67,6 +57,28 @@ struct AddressBookAddAddressView: View {
                     .frame(width: 20, height: 20)
             }
         }
+    }
+
+    @ViewBuilder
+    private func networksValueContent(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
+        switch networks {
+        case .idle:
+            networksPlaceholder
+        case .resolved(_, let selected) where selected.isEmpty:
+            networksPlaceholder
+        case .resolved(_, let selected):
+            NetworksIconsView(
+                icons: selected
+                    .sorted { $0.networkId < $1.networkId }
+                    .map { .image(NetworkImageProvider().provide(by: $0, filled: true)) }
+            )
+        }
+    }
+
+    private var networksPlaceholder: some View {
+        Text(Localization.addressBookSelectNetwork)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+            .lineLimit(1)
     }
 
     private var bottomButton: some View {
