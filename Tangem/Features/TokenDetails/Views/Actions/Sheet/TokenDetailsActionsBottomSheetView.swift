@@ -42,7 +42,6 @@ struct TokenDetailsActionsBottomSheetView: View {
             action: viewModel.onClose
         )
         .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
     }
