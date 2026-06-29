@@ -81,6 +81,18 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
             floatingSheetPresenter.removeActiveSheet()
         }
     }
+
+    func presentWalletPicker(_ viewModel: AddressBookWalletPickerViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func dismissWalletPicker() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
 }
 
 // MARK: - AddressBookAddAddressRoutable
