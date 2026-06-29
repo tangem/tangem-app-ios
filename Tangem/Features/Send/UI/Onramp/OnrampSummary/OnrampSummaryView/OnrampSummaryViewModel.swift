@@ -31,6 +31,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let tokenItem: TokenItem
     private let interactor: OnrampSummaryInteractor
     private let notificationManager: NotificationManager
+    private let marketingNotificationManager: any NotificationManager
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
 
@@ -44,6 +45,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         tokenItem: TokenItem,
         interactor: OnrampSummaryInteractor,
         notificationManager: NotificationManager,
+        marketingNotificationManager: any NotificationManager,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     ) {
@@ -51,6 +53,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         self.tokenItem = tokenItem
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.marketingNotificationManager = marketingNotificationManager
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
 
@@ -76,10 +79,13 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
 
 private extension OnrampSummaryViewModel {
     func bind() {
-        notificationManager
-            .notificationPublisher
-            .receiveOnMain()
-            .assign(to: &$notificationInputs)
+        Publishers.CombineLatest(
+            marketingNotificationManager.notificationPublisher,
+            notificationManager.notificationPublisher
+        )
+        .map { $0 + $1 }
+        .receiveOnMain()
+        .assign(to: &$notificationInputs)
 
         interactor
             .isLoadingPublisher
