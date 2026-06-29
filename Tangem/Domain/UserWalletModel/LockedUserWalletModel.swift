@@ -180,14 +180,14 @@ final class LockedUserWalletModel: UserWalletModel {
         switch existingInfo {
         case .cardWallet(let keys):
             for wallet in mutableCardInfo.card.wallets {
-                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
-                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                if let walletPublicKey = wallet.publicKey, let existingDerivedKeys = keys[walletPublicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = existingDerivedKeys
                 }
             }
         case .mobileWallet(let keys):
             for wallet in mutableCardInfo.card.wallets {
-                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
-                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                if let walletPublicKey = wallet.publicKey, let existingDerivedKeys = keys[walletPublicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[walletPublicKey]?.derivedKeys = existingDerivedKeys
                 }
             }
         }

@@ -79,7 +79,6 @@ extension StoredUserWallet: Decodable {
         case associatedCardIds
         case walletData
         case card
-        case cardDTOv4
         case mobileWalletInfo
     }
 
@@ -91,17 +90,6 @@ extension StoredUserWallet: Decodable {
 
         if let mobileWallet = try? container.decode(MobileWalletInfo.self, forKey: .mobileWalletInfo) {
             walletInfo = .mobileWallet(mobileWallet)
-        } else if let cardDTOv4 = try? container.decode(CardDTOv4.self, forKey: .card) {
-            let associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
-            let walletData = try container.decode(DefaultWalletData.self, forKey: .walletData)
-
-            let cardDTO = CardDTO(cardDTOv4: cardDTOv4)
-            let cardInfo = CardInfo(
-                card: cardDTO,
-                walletData: walletData,
-                associatedCardIds: associatedCardIds
-            )
-            walletInfo = WalletInfo.cardWallet(cardInfo)
         } else {
             let cardDTO = try container.decode(CardDTO.self, forKey: .card)
             let associatedCardIds = try container.decode(Set<String>.self, forKey: .associatedCardIds)
