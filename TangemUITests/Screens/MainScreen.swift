@@ -911,17 +911,21 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return onScreen ?? query.firstMatch
     }
 
-    /// Redesign keeps every wallet page mounted (horizontal paging) and flaps hittability, so tap the hittable match by coordinate.
+    /// Redesign keeps every wallet page mounted (horizontal paging); with multiple wallets the same
+    /// action button exists per wallet, so tap the enabled one and force the tap.
     private func tapMainActionButton(_ identifier: String) {
-        let query = app.staticTexts.matching(identifier: identifier)
-        let predicate = NSPredicate { _, _ in query.allElementsBoundByIndex.contains { $0.isHittable } }
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        // The identifier is carried by the icon button; tapping the text label does not reach it in the
+        // multi-wallet carousel. Among the per-wallet buttons, prefer the visible page's enabled one
+        // (isHittable is unreliable inside the carousel, so use hasVisibleFrame), then any enabled one.
+        let buttonQuery = app.buttons.matching(identifier: identifier)
+        let predicate = NSPredicate { _, _ in buttonQuery.allElementsBoundByIndex.contains { $0.isEnabled } }
         XCTAssertEqual(
-            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+            XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: nil)], timeout: .robustUIUpdate),
             .completed,
-            "Action button '\(identifier)' should become hittable on the visible page"
+            "Action button '\(identifier)' should become enabled on the visible page"
         )
-        let element = query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
+        let enabledButtons = buttonQuery.allElementsBoundByIndex.filter { $0.isEnabled }
+        let element = enabledButtons.first { hasVisibleFrame($0) } ?? enabledButtons.first ?? buttonQuery.firstMatch
         element.tapEvenIfNotHittable()
     }
 
