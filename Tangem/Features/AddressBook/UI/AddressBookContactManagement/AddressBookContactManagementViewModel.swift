@@ -56,6 +56,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     // MARK: - Dependencies
 
     private let interactor: AddressBookContactManagementInteractor
+    private let addressBooksProvider: any AddressBooksProvider
     private weak var coordinator: AddressBookContactManagementRoutable?
     private var bag = Set<AnyCancellable>()
 
@@ -69,9 +70,11 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     init(
         interactor: AddressBookContactManagementInteractor,
-        coordinator: AddressBookContactManagementRoutable
+        coordinator: AddressBookContactManagementRoutable,
+        addressBooksProvider: any AddressBooksProvider = .common()
     ) {
         self.interactor = interactor
+        self.addressBooksProvider = addressBooksProvider
         self.coordinator = coordinator
 
         title = interactor.title
@@ -90,7 +93,23 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     func userDidRequestWalletChange() {
-        // [REDACTED_TODO_COMMENT]
+        guard let selectedWallet, let coordinator else {
+            return
+        }
+
+        let addressBookWallets = addressBooksProvider.addressBooks
+            .filter { $0.wallet.id != selectedWallet.userWalletInfo.id }
+
+        guard addressBookWallets.isNotEmpty else {
+            return
+        }
+
+        let viewModel = AddressBookWalletPickerViewModel(
+            addressBookWallets: addressBookWallets,
+            output: self,
+            routable: coordinator
+        )
+        coordinator.presentWalletPicker(viewModel)
     }
 
     func userDidRequestDone() {
@@ -147,6 +166,13 @@ private extension AddressBookContactManagementViewModel {
             .assign(to: &$entries)
 
         interactor.walletPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, addressBookWallet -> WalletRowType? in
+                WalletRowType(
+                    userWalletInfo: addressBookWallet.wallet,
+                    isEditable: viewModel.addressBooksProvider.addressBooks.count > 1
+                )
+            }
             .receiveOnMain()
             .assign(to: &$selectedWallet)
 
@@ -215,7 +241,12 @@ private extension AddressBookContactManagementViewModel {
         coordinator?.openAddAddress(
             userWalletInfo: wallet.userWalletInfo,
             output: self,
-            options: .edit(address: group.address, memo: group.memo, replacing: group.networks.map(\.id))
+            options: .edit(
+                address: group.address,
+                memo: group.memo,
+                networks: Set(group.networks.map(\.blockchain)),
+                replacing: group.networks.map(\.id)
+            )
         )
     }
 
@@ -276,6 +307,14 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
+    }
+}
+
+// MARK: - AddressBookWalletPickerOutput
+
+extension AddressBookContactManagementViewModel: AddressBookWalletPickerOutput {
+    func walletPickerDidSelect(_ addressBookWallet: AddressBookWallet) {
+        interactor.update(addressBookWallet: addressBookWallet)
     }
 }
 
