@@ -1,5 +1,5 @@
 //
-//  TransactionRecord+ExtraInfo.swift
+//  TransactionHistoryExpressExtraInfo.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,28 +11,21 @@ import BlockchainSdk
 import TangemExpress
 
 extension TransactionRecord {
-    enum TransactionRecordExtraInfo {
-        case exchange(ExchangeTransactionInfo)
-        case onramp(OnrampTransactionInfo)
-    }
-}
-
-extension TransactionRecord {
-    var extraInfo: TransactionRecordExtraInfo? {
-        guard let _extraInfo else {
+    var expressExtraInfo: TransactionHistoryExpressExtraInfo? {
+        guard let extraInfo else {
             return nil
         }
 
-        guard let extraInfo = _extraInfo as? TransactionRecordExtraInfo else {
-            preconditionFailure("Unexpected extra info type: \(Swift.type(of: _extraInfo))")
+        guard let expressExtraInfo = extraInfo as? TransactionHistoryExpressExtraInfo else {
+            preconditionFailure("Unexpected extra info type: \(Swift.type(of: extraInfo))")
         }
 
-        return extraInfo
+        return expressExtraInfo
     }
 }
 
 extension TransactionRecord {
-    func withExtraInfo(_ extraInfo: TransactionRecordExtraInfo) -> TransactionRecord {
+    func withExpressExtraInfo(_ extraInfo: TransactionHistoryExpressExtraInfo) -> TransactionRecord {
         return TransactionRecord(
             hash: hash,
             index: index,
