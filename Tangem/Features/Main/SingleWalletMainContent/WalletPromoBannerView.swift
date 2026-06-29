@@ -57,7 +57,6 @@ struct WalletPromoBannerView: View {
             )
             .setStyleType(.primary)
             .setHorizontalLayout(.infinity)
-            .setCornerStyle(.rounded)
             .setSize(.x9)
             .padding(.top, actionPadding)
         }
