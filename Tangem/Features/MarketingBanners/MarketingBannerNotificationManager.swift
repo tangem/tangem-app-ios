@@ -1,5 +1,5 @@
 //
-//  OnrampMarketingBannerNotificationManager.swift
+//  MarketingBannerNotificationManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,13 +8,11 @@
 
 import Foundation
 import Combine
-import TangemExpress
 import TangemFoundation
 
-final class OnrampMarketingBannerNotificationManager {
+final class MarketingBannerNotificationManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
-    private let service = MarketingBannerService()
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
@@ -22,30 +20,9 @@ final class OnrampMarketingBannerNotificationManager {
 
 // MARK: - Setup
 
-extension OnrampMarketingBannerNotificationManager {
-    func setup(
-        tokenItem: TokenItem,
-        amountInput: any OnrampAmountInput,
-        providersInput: any OnrampProvidersInput
-    ) {
-        guard FeatureProvider.isAvailable(.marketingBanners) else {
-            return
-        }
-
-        let requests = Publishers.CombineLatest(
-            amountInput.fiatCurrencyPublisher,
-            providersInput.selectedOnrampProviderPublisher
-        )
-        .map { fiatCurrency, provider -> OnrampMarketingBannerRequest? in
-            OnrampMarketingBannerRequest(
-                destination: tokenItem,
-                expectedCryptoAmount: provider?.value?.quote?.expectedAmount,
-                fiatCurrencyCode: fiatCurrency?.identity.code
-            )
-        }
-        .eraseToAnyPublisher()
-
-        subscription = service.bannerPublisher(for: requests)
+extension MarketingBannerNotificationManager {
+    func setup(bannersPublisher: AnyPublisher<MarketingBanners, Never>) {
+        subscription = bannersPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, banners in
@@ -57,7 +34,7 @@ extension OnrampMarketingBannerNotificationManager {
 
 // MARK: - Private
 
-private extension OnrampMarketingBannerNotificationManager {
+private extension MarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
         MarketingBannerNotificationInputFactory.makeInput(
             for: banner,
@@ -69,7 +46,7 @@ private extension OnrampMarketingBannerNotificationManager {
 
 // MARK: - NotificationManager
 
-extension OnrampMarketingBannerNotificationManager: NotificationManager {
+extension MarketingBannerNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
         notificationInputsSubject.value
     }
@@ -87,7 +64,7 @@ extension OnrampMarketingBannerNotificationManager: NotificationManager {
 
 // MARK: - LinkedMarketingBannerProviding
 
-extension OnrampMarketingBannerNotificationManager: LinkedMarketingBannerProviding {
+extension MarketingBannerNotificationManager: LinkedMarketingBannerProviding {
     // [REDACTED_TODO_COMMENT]
     var linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never> {
         linkedBannersSubject.eraseToAnyPublisher()

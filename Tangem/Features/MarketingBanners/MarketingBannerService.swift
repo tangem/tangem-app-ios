@@ -76,9 +76,7 @@ private extension MarketingBannerService {
             return .empty
         }
 
-        let usdAmount = request.sourceAmount.flatMap { amount in
-            request.source.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
+        let usdAmount = await usdValue(forCrypto: request.sourceAmount, currencyId: request.source.currencyId)
 
         return selectBanners(from: campaigns, usdAmount: usdAmount)
     }
@@ -97,11 +95,17 @@ private extension MarketingBannerService {
             return .empty
         }
 
-        let usdAmount = request.expectedCryptoAmount.flatMap { amount in
-            request.destination.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
-        }
+        let usdAmount = await usdValue(forCrypto: request.expectedCryptoAmount, currencyId: request.destination.currencyId)
 
         return selectBanners(from: campaigns, usdAmount: usdAmount)
+    }
+
+    func usdValue(forCrypto amount: Decimal?, currencyId: String?) async -> Decimal? {
+        guard let amount, let currencyId else {
+            return nil
+        }
+
+        return try? await balanceConverter.convertToUsd(amount, currencyId: currencyId)
     }
 
     func selectBanners(

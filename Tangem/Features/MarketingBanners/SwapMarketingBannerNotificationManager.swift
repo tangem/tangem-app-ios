@@ -63,25 +63,10 @@ extension SwapMarketingBannerNotificationManager {
 
 private extension SwapMarketingBannerNotificationManager {
     func makeInput(for banner: MarketingBanner) -> NotificationViewInput {
-        let event = MarketingBannerNotificationEvent(banner: banner)
-
-        let dismissAction: NotificationView.NotificationAction = { [weak self] id in
-            self?.dismissNotification(with: id)
-        }
-
-        let style: NotificationView.Style = switch banner.action {
-        case .deeplink(let url):
-            .tappable(hasChevron: true) { [weak self] _ in
-                _ = self?.incomingActionHandler.handleIncomingURL(url)
-            }
-        case .none:
-            .plain
-        }
-
-        return NotificationViewInput(
-            style: style,
-            severity: event.severity,
-            settings: .init(event: event, dismissAction: banner.isDismissible ? dismissAction : nil)
+        MarketingBannerNotificationInputFactory.makeInput(
+            for: banner,
+            incomingActionHandler: incomingActionHandler,
+            dismiss: { [weak self] id in self?.dismissNotification(with: id) }
         )
     }
 }
