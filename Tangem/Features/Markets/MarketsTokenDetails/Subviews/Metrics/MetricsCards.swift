@@ -112,24 +112,40 @@ struct MetricsFDVCard: View {
     var body: some View {
         MetricsCardContainer(backgroundColor: .Tangem.Surface.level3, action: action) {
             VStack(alignment: .leading, spacing: .zero) {
-                MetricsValueText(viewModel.record(for: .fullyDilutedValuation)?.recordData)
+                VStack(alignment: .leading, spacing: .unit(.x1)) {
+                    titleRow
+
+                    if let recordSubdata = viewModel.record(for: .fullyDilutedValuation)?.recordSubdata {
+                        Text(Localization.marketsTokenDetailsValuationValueInTotal(recordSubdata))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                            .style(Font.Tangem.Caption12.medium, color: .Tangem.Text.Neutral.primary)
+                    }
+                }
 
                 Spacer()
 
-                VStack(alignment: .leading, spacing: .unit(.x1)) {
-                    if let fdvRecord = viewModel.record(for: .fullyDilutedValuation) {
-                        Text(Localization.marketsTokenDetailsValuationValueInTotal(fdvRecord.recordData))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.6)
-                            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.primary)
-                    }
-
-                    MetricsInfoLabel(
-                        title: Localization.marketsTokenDetailsFullyDilutedValuation,
-                        action: action
-                    )
-                }
+                MetricsInfoLabel(
+                    title: Localization.marketsTokenDetailsFullyDilutedValuation,
+                    action: action
+                )
             }
+        }
+    }
+
+    private var titleRow: some View {
+        HStack(alignment: .top, spacing: .zero) {
+            MetricsValueText(viewModel.record(for: .fullyDilutedValuation)?.recordData)
+
+            Text(Localization.marketsTokenDetailsTradingInterval)
+                .style(
+                    Font.Tangem.Caption11.medium,
+                    color: MetricsValueText.color(
+                        hasData: viewModel.record(for: .fullyDilutedValuation) != nil
+                    )
+                )
+                .padding(.leading, .unit(.x1))
+                .padding(.top, .unit(.x1))
         }
     }
 
