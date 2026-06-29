@@ -105,6 +105,7 @@ extension MarketsTokenDetailsMetricsView {
     struct RecordInfo: Identifiable {
         let type: RecordType
         let recordData: String
+        var recordSubdata: String?
 
         var id: String {
             "\(type.id) - \(recordData)"
@@ -127,7 +128,8 @@ extension MarketsTokenDetailsMetricsView {
                 volume24H: 42854017104,
                 totalSupply: 112286364258.112,
                 maxSupply: 112286364258.112,
-                fullyDilutedValuation: 112234033891
+                fullyDilutedValuation: 112234033891,
+                fullyDilutedValuationChange24H: 242234033
             ),
             notationFormatter: .init(),
             cryptoCurrencyCode: "USDT",
