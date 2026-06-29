@@ -40,7 +40,6 @@ struct OrganizeTokensListFooterRedesigned: View {
             )
             .setStyleType(.secondary)
             .setSize(buttonSize)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.infinity)
             .background(.regularMaterial, in: Capsule())
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.cancelButton)
@@ -51,7 +50,6 @@ struct OrganizeTokensListFooterRedesigned: View {
             )
             .setStyleType(.primary)
             .setSize(buttonSize)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.infinity)
             .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)
         }

@@ -127,7 +127,6 @@ struct AddressBookContactManagementView: View {
             content: doneButtonContent,
             action: viewModel.userDidRequestDone
         )
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
         .setStyleType(.primary)
