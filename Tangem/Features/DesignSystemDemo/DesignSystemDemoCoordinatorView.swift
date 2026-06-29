@@ -62,6 +62,9 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemSearchFieldDemoViewModel) {
                 TangemSearchFieldDemo(viewModel: $0)
             }
+            .navigation(item: $coordinator.tangemSearchDemoViewModel) {
+                TangemSearchDemoView(viewModel: $0)
+            }
             .navigation(item: $coordinator.tangemDropDownDemoViewModel) {
                 TangemDropDownDemoView(viewModel: $0)
             }
@@ -105,6 +108,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemShimmer") {
                         viewModel.openTangemShimmerDemo()
+                    }
+
+                    MainButton(title: "TangemSearch") {
+                        viewModel.openTangemSearchDemo()
                     }
 
                     MainButton(title: "Typography V2") {

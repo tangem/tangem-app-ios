@@ -14,17 +14,15 @@ import TangemLocalization
 import TangemUI
 
 final class CreateAddressBookContactManagementInteractor {
-    typealias WalletRowType = AddressBookContactManagementViewModel.WalletRowType
-
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
-
     private let nameSubject: CurrentValueSubject<String, Never>
     private let colorSubject: CurrentValueSubject<AccountModel.CompositeIcon.Color, Never>
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
+    private let addressBooksProvider: any AddressBooksProvider
 
-    init(addressBookWallet: AddressBookWallet) {
+    init(addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
+        self.addressBooksProvider = addressBooksProvider
+
         nameSubject = .init("")
         colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
         addressesSubject = .init([])
@@ -49,15 +47,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
         addressesSubject.map { AddressBookContactDraftEntries($0) }.removeDuplicates().eraseToAnyPublisher()
     }
 
-    var walletPublisher: AnyPublisher<WalletRowType?, Never> {
-        walletSubject
-            .map { addressBookWallet -> WalletRowType? in
-                WalletRowType(
-                    userWalletInfo: addressBookWallet.wallet,
-                    isEditable: self.userWalletRepository.models.count > 1
-                )
-            }
-            .eraseToAnyPublisher()
+    var walletPublisher: AnyPublisher<AddressBookWallet, Never> {
+        walletSubject.eraseToAnyPublisher()
     }
 
     var possibleToAddNewAddress: AnyPublisher<Bool, Never> {
@@ -94,14 +85,14 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     func update(addressBookWallet: AddressBookWallet) {
-        // [REDACTED_TODO_COMMENT]
         walletSubject.send(addressBookWallet)
     }
 
-    func add(entries: [AddressBookEntryDraft]) throws {
-        try AddressBookContactDraftEntries.validate(adding: entries, to: addressesSubject.value)
+    func update(entries: [AddressBookEntryDraft], replacing ids: [AddressBookAddressEntryID]) throws {
+        let remaining = addressesSubject.value.filter { !ids.contains($0.id) }
+        try AddressBookContactDraftEntries.validate(adding: entries, to: remaining)
 
-        addressesSubject.value.append(contentsOf: entries)
+        addressesSubject.value = remaining + entries
     }
 
     func deleteAddress(id: AddressBookAddressEntryID) {

@@ -11,6 +11,8 @@ import Combine
 import TangemFoundation
 
 class AddressBookContactManagementCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -21,6 +23,7 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var addAddressViewModel: AddressBookAddAddressViewModel?
+    @Published var chooseNetworkViewModel: ChooseNetworkViewModel?
 
     // MARK: - Child coordinators
 
@@ -62,9 +65,33 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput) {
-        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output)
-        addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self)
+    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options)
+        addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
+    }
+
+    func presentAddressActions(_ viewModel: AddressActionsViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func dismissAddressActions() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func presentWalletPicker(_ viewModel: AddressBookWalletPickerViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func dismissWalletPicker() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -73,6 +100,14 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
 extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
     func dismissAddAddress() {
         addAddressViewModel = nil
+    }
+
+    func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel) {
+        chooseNetworkViewModel = viewModel
+    }
+
+    func dismissChooseNetwork() {
+        chooseNetworkViewModel = nil
     }
 
     func openQRScanner(completion: @escaping (String) -> Void) {

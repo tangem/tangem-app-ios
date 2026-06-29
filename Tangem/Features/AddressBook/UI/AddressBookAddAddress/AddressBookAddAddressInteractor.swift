@@ -13,7 +13,7 @@ import TangemLocalization
 import BlockchainSdk
 
 protocol AddressBookAddAddressOutput: AnyObject {
-    func userDidAddAddress(entries: [AddressBookEntryDraft])
+    func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID])
 }
 
 protocol AddressBookAddAddressInteractor {
@@ -22,17 +22,25 @@ protocol AddressBookAddAddressInteractor {
     var additionalFieldType: AnyPublisher<SendDestinationAdditionalFieldType?, Never> { get }
     var addressAdditionalFieldError: AnyPublisher<String?, Never> { get }
     var resolvedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> { get }
+    var selectedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> { get }
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> { get }
 
     func update(address: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
+    func update(selectedNetworks: Set<BSDKBlockchain>)
 
     func userDidRequestSave()
+}
+
+enum AddressBookAddAddressOptions {
+    case add
+    case edit(address: String, memo: String?, networks: Set<BSDKBlockchain>, replacing: [AddressBookAddressEntryID])
 }
 
 final class CommonAddressBookAddAddressInteractor {
     private let userWalletInfo: UserWalletInfo
     private weak var output: AddressBookAddAddressOutput?
+    private let replacing: [AddressBookAddressEntryID]
 
     private let addressResolver = AddressBlockchainResolver()
 
@@ -44,10 +52,28 @@ final class CommonAddressBookAddAddressInteractor {
     private let _additionalFieldType = CurrentValueSubject<SendDestinationAdditionalFieldType?, Never>(.none)
     private let _addressAdditionalFieldError = CurrentValueSubject<Error?, Never>(nil)
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
+    private let _selectedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
 
-    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput) {
+    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
         self.userWalletInfo = userWalletInfo
         self.output = output
+
+        switch options {
+        case .add:
+            replacing = []
+        case .edit(let address, let memo, let networks, let replacing):
+            self.replacing = replacing
+            update(address: address, source: .textField)
+
+            let validSelected = networks.intersection(_resolvedNetworks.value)
+            if validSelected.isNotEmpty {
+                update(selectedNetworks: validSelected)
+            }
+
+            if let memo {
+                update(additionalField: memo)
+            }
+        }
     }
 }
 
@@ -74,8 +100,12 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
         _resolvedNetworks.eraseToAnyPublisher()
     }
 
+    var selectedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> {
+        _selectedNetworks.eraseToAnyPublisher()
+    }
+
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(_address, _resolvedNetworks)
+        Publishers.CombineLatest(_address, _selectedNetworks)
             .map { address, networks in !address.isEmpty && !networks.isEmpty }
             .eraseToAnyPublisher()
     }
@@ -100,7 +130,7 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     func update(additionalField value: String) {
-        guard let blockchain = _resolvedNetworks.value.singleElement,
+        guard let blockchain = _selectedNetworks.value.singleElement,
               let fieldType = _additionalFieldType.value else {
             _additionalField.send(.notSupported)
             _addressAdditionalFieldError.send(nil)
@@ -128,23 +158,26 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
         }
     }
 
+    func update(selectedNetworks: Set<BSDKBlockchain>) {
+        _selectedNetworks.send(selectedNetworks.intersection(_resolvedNetworks.value))
+        applyAdditionalFieldType()
+        update(additionalField: _additionalField.value.extraId ?? "")
+    }
+
     func userDidRequestSave() {
-        // One AddressEntry per resolved network — the same address can be saved across several chains
-        // (e.g. an EVM address on Ethereum + Polygon). Until the network selector lands ([REDACTED_INFO]),
-        // every resolved network is treated as selected.
         let memo = _additionalField.value.extraId
 
-        let entries = _resolvedNetworks.value
+        let entries = _selectedNetworks.value
             .sorted { $0.networkId < $1.networkId }
             .map { blockchain in
                 AddressBookEntryDraft(
                     address: _address.value,
-                    networkId: AddressBookNetworkID(blockchain.networkId),
+                    blockchain: blockchain,
                     memo: memo
                 )
             }
 
-        output?.userDidAddAddress(entries: entries)
+        output?.userDidAddAddress(entries: entries, replacing: replacing)
     }
 }
 
@@ -154,10 +187,15 @@ private extension CommonAddressBookAddAddressInteractor {
     func apply(address: String, networks: Set<BSDKBlockchain>, valid: Bool, error: Error?) {
         _address.send(address)
         _resolvedNetworks.send(networks)
+        _selectedNetworks.send(networks.count == 1 ? networks : [])
         _addressValid.send(valid)
         _addressError.send(error)
 
-        let additionalFieldType = networks.singleElement.flatMap {
+        applyAdditionalFieldType()
+    }
+
+    func applyAdditionalFieldType() {
+        let additionalFieldType = _selectedNetworks.value.singleElement.flatMap {
             SendDestinationAdditionalFieldType.type(for: $0)
         }
 

@@ -15,6 +15,7 @@ public struct TangemSnackbar: View, Setupable {
     private let action: Action?
 
     private var icon: ImageType?
+    private var iconColor: Color = .Tangem.Graphic.Neutral.secondary
 
     @ScaledMetric private var iconSize: CGFloat = .unit(.x5)
     @ScaledMetric private var rightLayoutHeight: CGFloat = .unit(.x11)
@@ -50,7 +51,7 @@ private extension TangemSnackbar {
             }
         }
         .padding(.leading, .unit(.x5))
-        .padding(.trailing, action == nil ? .unit(.x5) : .unit(.x1))
+        .padding(.trailing, action == nil ? .unit(.x5) : .unit(.x3))
         .frame(height: rightLayoutHeight)
     }
 
@@ -77,7 +78,7 @@ private extension TangemSnackbar {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: iconSize, height: iconSize)
-                    .foregroundStyle(Color.Tangem.Graphic.Neutral.secondary)
+                    .foregroundStyle(iconColor)
             }
 
             Text(title)
@@ -91,8 +92,7 @@ private extension TangemSnackbar {
             action: action.handler
         )
         .setStyleType(.secondary)
-        .setSize(.x9)
-        .setCornerStyle(.rounded)
+        .setSize(.x7)
     }
 }
 
@@ -101,6 +101,10 @@ private extension TangemSnackbar {
 public extension TangemSnackbar {
     func icon(_ icon: ImageType?) -> Self {
         map { $0.icon = icon }
+    }
+
+    func iconColor(_ color: Color) -> Self {
+        map { $0.iconColor = color }
     }
 }
 

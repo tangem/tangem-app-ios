@@ -46,7 +46,6 @@ private extension MarketsDescriptionDialogueView {
                     viewModel.closeAction()
                 }
                 .setStyleType(.secondary)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.intrinsic)
             }
@@ -55,6 +54,7 @@ private extension MarketsDescriptionDialogueView {
         .titleColor(Color.Tangem.Text.Neutral.primary)
         .padding(.horizontal, .unit(.x4))
         .padding(.top, .unit(.x3))
+        .environment(\.isRedesign, FeatureProvider.isAvailable(.redesign))
     }
 
     var descriptionContent: some View {

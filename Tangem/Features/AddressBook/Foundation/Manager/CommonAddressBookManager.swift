@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import BlockchainSdk
 
 final class CommonAddressBookManager {
     private let walletId: UserWalletId
@@ -16,6 +17,7 @@ final class CommonAddressBookManager {
     private let repository: AddressBookRepository
     private let signer: AddressBookSigning
     private let verifier: AddressBookSignatureVerifying
+    private let supportedBlockchains: Set<BSDKBlockchain>
 
     private let decodedContacts = OSAllocatedUnfairLock(initialState: [AddressBookDecodedContact]())
     private let contactsSubject = CurrentValueSubject<[AddressBookContact], Never>([])
@@ -26,13 +28,15 @@ final class CommonAddressBookManager {
         walletPublicKey: Data,
         repository: AddressBookRepository,
         signer: AddressBookSigning,
-        verifier: AddressBookSignatureVerifying
+        verifier: AddressBookSignatureVerifying,
+        supportedBlockchains: Set<BSDKBlockchain>
     ) {
         self.walletId = walletId
         self.walletPublicKey = walletPublicKey
         self.repository = repository
         self.signer = signer
         self.verifier = verifier
+        self.supportedBlockchains = supportedBlockchains
 
         bind()
         Task { await load() }
@@ -58,7 +62,7 @@ final class CommonAddressBookManager {
     // MARK: - Verification
 
     private func verify(_ contact: AddressBookDecodedContact) -> AddressBookContact? {
-        let builder = AddressBookVerifiedAddressEntryBuilder()
+        let builder = AddressBookVerifiedAddressEntryBuilder(supportedBlockchains: supportedBlockchains)
 
         let verified = contact.addresses.compactMap { entry in
             builder.make(
@@ -172,6 +176,36 @@ final class CommonAddressBookManager {
             addresses: addresses
         )
     }
+
+    @discardableResult
+    private func insert(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
+        try ensureBookMutable()
+
+        let drafts = entries.raw
+
+        try ensureAddressesNonEmpty(drafts)
+        try AddressBookContactDraftEntries.validate(adding: drafts, to: [])
+        try ensureNameUnique(name, excluding: nil)
+
+        let signed = try await sign(drafts, contactId: id, name: name)
+        let now = Date()
+        let contact = AddressBookDecodedContact(
+            id: id,
+            walletId: walletId.stringValue,
+            name: name,
+            icon: "",
+            iconColor: iconColor,
+            createdAt: now,
+            updatedAt: now,
+            addresses: signed
+        )
+
+        // Re-read the snapshot after signing so a change that landed during the card tap is not
+        // clobbered by a stale pre-await copy.
+        try await repository.save(contacts: snapshot + [contact])
+
+        return id
+    }
 }
 
 // MARK: - AddressBookManager protocol conformance
@@ -189,33 +223,12 @@ extension CommonAddressBookManager: AddressBookManager {
         await repository.load()
     }
 
-    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {
-        try ensureBookMutable()
+    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
+        try await insert(id: AddressBookContactID(), name: name, iconColor: iconColor, entries: entries)
+    }
 
-        let drafts = entries.raw
-
-        try ensureAddressesNonEmpty(drafts)
-        try AddressBookContactDraftEntries.validate(adding: drafts, to: [])
-
-        try ensureNameUnique(name, excluding: nil)
-
-        let contactId = AddressBookContactID()
-        let entries = try await sign(drafts, contactId: contactId, name: name)
-        let now = Date()
-        let contact = AddressBookDecodedContact(
-            id: contactId,
-            walletId: walletId.stringValue,
-            name: name,
-            icon: "",
-            iconColor: iconColor,
-            createdAt: now,
-            updatedAt: now,
-            addresses: entries
-        )
-
-        // Re-read the snapshot after signing so a change that landed during the card tap is not
-        // clobbered by a stale pre-await copy.
-        try await repository.save(contacts: snapshot + [contact])
+    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {
+        try await insert(id: id, name: name, iconColor: iconColor, entries: entries)
     }
 
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {
