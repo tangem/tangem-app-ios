@@ -670,8 +670,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                // Wallet 3 can’t be initialized here because the wallet public keys are empty
-                initializeUserWallet(from: cardInfo)
+                // Wallet 3 can be configured not to reveal the public keys until the backup process is completed.
+                // In that case, the user wallet will be initialized after the backup.
+                if initializeUserWallet(from: cardInfo) {
+                    // This is just an optimization for the case where Wallet 3 is configured to reveal the public keys from the start.
+                    backupService.config.defaultDerivationPaths = [:]
+                }
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
@@ -822,7 +826,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 
                                 backupValidator.onBackupCompleted()
                                 
-                                // Wallet 3
+                                // Wallet 3 can be configured not to reveal the public keys until the backup process is completed.
+                                // In that case, the user wallet will be initialized after the backup.
                                 if userWalletModel == nil {
                                     let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: cardIds ?? [])
                                     initializeUserWallet(from: cardInfo)
