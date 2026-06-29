@@ -36,7 +36,6 @@ struct AddTokenNetworkPickerView: View {
             )
             .setStyleType(.secondary)
             .setSize(.x12)
-            .setCornerStyle(.rounded)
             .setHorizontalLayout(.infinity)
             .padding(AddTokenRedesignedConstants.horizontalPadding)
         }

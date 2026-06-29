@@ -51,7 +51,6 @@ struct MarketsTokenDetailsSecurityScoreDetailsRedesignedView: View {
                     viewModel.closeAction?()
                 }
                 .setStyleType(.secondary)
-                .setCornerStyle(.rounded)
                 .setSize(.x9)
                 .setHorizontalLayout(.intrinsic)
             }
