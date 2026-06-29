@@ -99,7 +99,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayTiers: return .unspecified
         case .supportChat: return .unspecified
         case .supportChatSwap: return .unspecified
-        case .addressBook: return .unspecified
         case .mobileWalletMultiCreation: return .unspecified
         case .onrampApplePayHistoryFallback: return .version("6.0")
         case .approveFlowV2: return .version("6.0")
