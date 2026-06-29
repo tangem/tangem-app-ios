@@ -28,8 +28,14 @@ final class MarketingBannerService {
 extension MarketingBannerService {
     func bannerPublisher(
         for requests: AnyPublisher<SwapMarketingBannerRequest?, Never>
-    ) -> AnyPublisher<MarketingBanner?, Never> {
-        makeBannerPublisher(for: requests, fetch: fetchBanner)
+    ) -> AnyPublisher<MarketingBanners, Never> {
+        makeBannerPublisher(for: requests, fetch: fetchBanners)
+    }
+
+    func bannerPublisher(
+        for requests: AnyPublisher<OnrampMarketingBannerRequest?, Never>
+    ) -> AnyPublisher<MarketingBanners, Never> {
+        makeBannerPublisher(for: requests, fetch: fetchBanners)
     }
 }
 
@@ -38,13 +44,13 @@ extension MarketingBannerService {
 private extension MarketingBannerService {
     func makeBannerPublisher<Request: Equatable>(
         for requests: AnyPublisher<Request?, Never>,
-        fetch: @escaping (Request) async -> MarketingBanner?
-    ) -> AnyPublisher<MarketingBanner?, Never> {
+        fetch: @escaping (Request) async -> MarketingBanners
+    ) -> AnyPublisher<MarketingBanners, Never> {
         requests
             .removeDuplicates()
-            .map { request -> AnyPublisher<MarketingBanner?, Never> in
+            .map { request -> AnyPublisher<MarketingBanners, Never> in
                 guard let request else {
-                    return Just(nil).eraseToAnyPublisher()
+                    return Just(MarketingBanners.empty).eraseToAnyPublisher()
                 }
 
                 return Just(request)
@@ -55,7 +61,7 @@ private extension MarketingBannerService {
             .eraseToAnyPublisher()
     }
 
-    func fetchBanner(for request: SwapMarketingBannerRequest) async -> MarketingBanner? {
+    func fetchBanners(for request: SwapMarketingBannerRequest) async -> MarketingBanners {
         let dtoRequest = MarketingCampaignsDTO.Request.swap(
             .init(
                 fromNetwork: request.source.networkId,
@@ -67,40 +73,50 @@ private extension MarketingBannerService {
         )
 
         guard let campaigns = try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns else {
-            return nil
+            return .empty
         }
 
         let usdAmount = request.sourceAmount.flatMap { amount in
             request.source.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
         }
 
-        return selectBanner(from: campaigns, providerId: request.providerId, usdAmount: usdAmount)
+        return selectBanners(from: campaigns, usdAmount: usdAmount)
     }
 
-    func selectBanner(
+    func fetchBanners(for request: OnrampMarketingBannerRequest) async -> MarketingBanners {
+        let dtoRequest = MarketingCampaignsDTO.Request.onramp(
+            .init(
+                toNetwork: request.destination.networkId,
+                toContractAddress: request.destination.contractAddress,
+                fiatCurrency: request.fiatCurrencyCode,
+                language: language
+            )
+        )
+
+        guard let campaigns = try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns else {
+            return .empty
+        }
+
+        let usdAmount = request.expectedCryptoAmount.flatMap { amount in
+            request.destination.currencyId.flatMap { balanceConverter.convertToUsd(amount, currencyId: $0) }
+        }
+
+        return selectBanners(from: campaigns, usdAmount: usdAmount)
+    }
+
+    func selectBanners(
         from campaigns: [MarketingCampaignsDTO.Campaign],
-        providerId: String?,
         usdAmount: Decimal?
-    ) -> MarketingBanner? {
-        campaigns
-            .filter { matches($0, providerId: providerId) }
+    ) -> MarketingBanners {
+        let eligible = campaigns
             .filter { satisfiesAmount($0, usd: usdAmount) }
             .sorted { $0.priority < $1.priority }
-            .lazy
-            .compactMap { self.makeBanner(from: $0) }
-            .first
-    }
+            .compactMap { makeBanner(from: $0) }
 
-    func matches(_ campaign: MarketingCampaignsDTO.Campaign, providerId: String?) -> Bool {
-        guard let providerIds = campaign.providerIds, !providerIds.isEmpty else {
-            return true
-        }
-
-        guard let providerId else {
-            return false
-        }
-
-        return providerIds.contains(providerId)
+        return MarketingBanners(
+            standalone: eligible.first { $0.isStandalone },
+            linked: eligible.filter { !$0.isStandalone }
+        )
     }
 
     func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
