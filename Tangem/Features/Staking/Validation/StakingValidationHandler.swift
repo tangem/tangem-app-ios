@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemStaking
+import BlockchainSdk
 
 /// Handles validation lifecycle for staking models.
 /// Triggers validation, cancellation, and publishes state.
@@ -53,6 +54,15 @@ final class StakingValidationHandler: StakingValidationStateProvider {
         invalidate()
         validationTask = nil
         stateSubject.send(.idle)
+    }
+
+    /// Returns cached transaction, or `nil` for Solana (blockhash expires quickly).
+    func cachedTransaction(for blockchain: Blockchain) -> StakingTransactionAction? {
+        guard case .solana = blockchain else {
+            return validatedTransaction
+        }
+
+        return nil
     }
 }
 

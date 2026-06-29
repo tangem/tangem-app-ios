@@ -328,7 +328,7 @@ private extension StakingModel {
             )
 
             let transactionInfo: StakingTransactionAction
-            if let cached = validationHandler?.validatedTransaction {
+            if let cached = validationHandler?.cachedTransaction(for: tokenItem.blockchain) {
                 transactionInfo = cached
             } else {
                 transactionInfo = try await stakingManager.transaction(action: action)
