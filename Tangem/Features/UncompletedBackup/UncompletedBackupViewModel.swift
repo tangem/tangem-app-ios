@@ -79,7 +79,7 @@ final class UncompletedBackupViewModel: ObservableObject {
             return
         }
 
-        let backupServiceFactory = GenericBackupServiceFactory(isAccessCodeSet: false)
+        let backupServiceFactory = GenericBackupServiceFactory(isAccessCodeSet: false, defaultBlockchains: [])
 
         let factory = ResumeBackupInputFactory(
             cardId: cardId,
