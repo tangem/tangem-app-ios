@@ -35,6 +35,11 @@ struct TangemApiTarget: TargetType {
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
             // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .subscribeToPriceAlerts, .unsubscribeFromPriceAlerts, .getPriceAlertsSubscriptions:
+            // Spec documents the full path as `/api/v1/price-alerts/subscriptions`. Same `/api`
+            // gateway-segment caveat as notification-preferences above; endpoints are not yet in the
+            // contract registry (OQ-1), so the exact host/segment still needs backend confirmation.
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -127,6 +132,14 @@ struct TangemApiTarget: TargetType {
             // from `apiBaseUrlWithGatewaySegment` (see `baseURL`); only the relative part is set here.
             return "/notification-preferences/\(userWalletId)"
 
+        // MARK: - Price Alerts Subscriptions
+        case .subscribeToPriceAlerts,
+             .unsubscribeFromPriceAlerts,
+             .getPriceAlertsSubscriptions:
+            // `/api/v1` comes from `apiBaseUrlWithGatewaySegment` (see `baseURL`); walletId travels in the
+            // body (POST/DELETE) or as a query param (GET), so the path is identical for all three.
+            return "/price-alerts/subscriptions"
+
         // MARK: - Promo Code
         case .activatePromoCode:
             return "/promo-codes/activate"
@@ -187,6 +200,7 @@ struct TangemApiTarget: TargetType {
              .getUserWallets,
              .getUserWallet,
              .getNotificationPreferences,
+             .getPriceAlertsSubscriptions,
              .newsList,
              .newsDetails,
              .newsCategories,
@@ -203,8 +217,11 @@ struct TangemApiTarget: TargetType {
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
+             .subscribeToPriceAlerts,
              .bindWalletsByCode:
             return .post
+        case .unsubscribeFromPriceAlerts:
+            return .delete
         case .updateUserWalletsApplication, .updateWallet, .hidePromotion:
             return .patch
         }
@@ -293,6 +310,11 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .updateNotificationPreferences(_, let body):
             return .requestJSONEncodable(body)
+        case .subscribeToPriceAlerts(let request),
+             .unsubscribeFromPriceAlerts(let request):
+            return .requestJSONEncodable(request)
+        case .getPriceAlertsSubscriptions(let walletId):
+            return .requestParameters(parameters: ["walletId": walletId], encoding: URLEncoding.default)
         case .updateWallet(_, let context):
             return .requestJSONEncodable(context)
         case .connectUserWallets(_, let requestModel):
@@ -390,6 +412,9 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
+             .subscribeToPriceAlerts,
+             .unsubscribeFromPriceAlerts,
+             .getPriceAlertsSubscriptions,
              .trendingNews,
              .newsList,
              .newsDetails,
@@ -471,6 +496,11 @@ extension TangemApiTarget {
         case getNotificationPreferences(userWalletId: String)
         case updateNotificationPreferences(userWalletId: String, body: NotificationPreferencesDTO.Body)
 
+        // Price Alerts Subscriptions
+        case subscribeToPriceAlerts(request: PriceAlertsSubscriptionsDTO.Request)
+        case unsubscribeFromPriceAlerts(request: PriceAlertsSubscriptionsDTO.Request)
+        case getPriceAlertsSubscriptions(walletId: String)
+
         // Accounts
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
@@ -527,6 +557,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .createWallet,
              .getNotificationPreferences,
              .updateNotificationPreferences,
+             .subscribeToPriceAlerts,
+             .unsubscribeFromPriceAlerts,
+             .getPriceAlertsSubscriptions,
              .newsList,
              .newsCategories,
              .newsDetails,
