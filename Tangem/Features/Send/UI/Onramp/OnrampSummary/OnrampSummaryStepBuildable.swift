@@ -39,6 +39,7 @@ enum OnrampSummaryStepBuilder {
 
     struct Dependencies {
         let notificationManager: any NotificationManager
+        let marketingNotificationManager: any NotificationManager
         let analyticsLogger: any SendOnrampOffersAnalyticsLogger
         let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     }
@@ -66,6 +67,7 @@ enum OnrampSummaryStepBuilder {
             tokenItem: types.tokenItem,
             interactor: interactor,
             notificationManager: dependencies.notificationManager,
+            marketingNotificationManager: dependencies.marketingNotificationManager,
             analyticsLogger: dependencies.analyticsLogger,
             buyActionBuilder: dependencies.buyActionBuilder
         )

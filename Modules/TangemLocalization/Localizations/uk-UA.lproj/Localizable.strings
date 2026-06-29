@@ -95,10 +95,17 @@
 "address_book_enter_address" = "Ввести адресу";
 "address_book_invalid_address_error" = "Недійсна адреса";
 "address_book_keep_editing" = "Продовжити";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "Новий контакт";
 "address_book_no_contacts_description" = "Тут відображатимуться додані вами контакти.";
 "address_book_no_contacts" = "Немає доданих контактів";
 "address_book_remove_address" = "Видалити адресу";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Цей контакт буде прив'язано до цього гаманця в адресній книзі.";
 "address_book_select_network" = "Вибрати мережу";
 "address_book_title" = "Адресна книга";
@@ -278,6 +285,7 @@
 "common_get_token" = "Отримати токен";
 "common_go_to_provider" = "Перейти до провайдера";
 "common_go_to_token" = "Перейти до токену";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "Зrozуміло";
 "common_hide" = "Приховати";
 "common_hold_to" = "Утримуйте, щоб %@";
@@ -602,6 +610,8 @@
 "hardware_wallet_key_feature_title" = "Генерація ключа";
 "hardware_wallet_security_feature_description" = "Операції з криптографією відбуваються всередині захищеного чіпу, стійкого до клонування та фізичному взлому.";
 "hardware_wallet_security_feature_title" = "Безпека на апаратному рівні";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "Купити";
 "home_button_scan" = "Сканувати";
 "hot_crypto_add_token_subtitle" = "в %@";
@@ -1157,6 +1167,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Перевірте підключення до мережі";
 "send_fee_unreachable_error_title" = "Інформація щодо комісії в мережі недоступна";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "Ви надсилаєте";
 "send_from_wallet_name" = "З %@";
 "send_from_wallet" = "Від **%@**";
