@@ -78,6 +78,8 @@ Verify the signature with `git log --show-signature -1` before pushing.
 
 Invoke the `create-pr` skill with `develop` as the target.
 
+**Always request `mkuznetsov_tangem` as a reviewer on the PR**, in addition to whatever reviewers `create-pr` assigns. If he is not among the randomly selected members, add him explicitly via `update_pull_request`.
+
 **The PR description MUST always mention the IT Ops ticket** — after the Jira link, state that an IT Ops (Assist) ticket needs to be created for the admins to install the new Xcode on the CI runners, and that the PR must be merged only after that is done. Include this note even if the ticket already exists (then link it instead).
 
 ### 7. Report Result
