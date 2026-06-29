@@ -11,12 +11,20 @@ import Foundation
 enum MarketingCampaignsDTO {
     enum Request: Equatable {
         case swap(Swap)
+        case onramp(Onramp)
 
         struct Swap: Equatable {
             let fromNetwork: String
             let fromContractAddress: String?
             let toNetwork: String
             let toContractAddress: String?
+            let language: String?
+        }
+
+        struct Onramp: Equatable {
+            let toNetwork: String
+            let toContractAddress: String?
+            let fiatCurrency: String?
             let language: String?
         }
     }
@@ -76,6 +84,16 @@ extension MarketingCampaignsDTO.Request {
             parameters["fromContractAddress"] = swap.fromContractAddress
             parameters["toContractAddress"] = swap.toContractAddress
             parameters["language"] = swap.language
+            return parameters
+
+        case .onramp(let onramp):
+            var parameters: [String: Any] = [
+                "type": "onramp",
+                "toNetwork": onramp.toNetwork,
+            ]
+            parameters["toContractAddress"] = onramp.toContractAddress
+            parameters["fiatCurrency"] = onramp.fiatCurrency
+            parameters["language"] = onramp.language
             return parameters
         }
     }
