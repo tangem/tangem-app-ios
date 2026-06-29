@@ -823,9 +823,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                    let userWalletId = userWalletModel?.userWalletId.stringValue {
                                     AppSettings.shared.userWalletIdsWithRing.insert(userWalletId)
                                 }
-                                
+
                                 backupValidator.onBackupCompleted()
-                                
+
                                 // Wallet 3 can be configured not to reveal the public keys until the backup process is completed.
                                 // In that case, the user wallet will be initialized after the backup.
                                 if userWalletModel == nil {
@@ -834,7 +834,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 }
 
                                 trySaveAccessCodes()
-                                
+
                                 let backupedUserWalletModel: UserWalletModel?
                                 switch userWalletModel {
                                 case .some(let model):

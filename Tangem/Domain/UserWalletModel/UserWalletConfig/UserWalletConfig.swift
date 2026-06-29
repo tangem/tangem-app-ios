@@ -177,7 +177,7 @@ extension UserWalletConfig where Self: CardContainer {
     func makeBackupService() -> BackupService {
         let factory = GenericBackupServiceFactory(isAccessCodeSet: card.isAccessCodeSet, defaultBlockchains: defaultBlockchains)
         return factory.makeBackupService()
-    } 
+    }
 
     func makeMainHeaderProviderFactory() -> MainHeaderProviderFactory {
         return CommonMainHeaderProviderFactory()
