@@ -93,7 +93,6 @@ private extension TangemSnackbar {
         )
         .setStyleType(.secondary)
         .setSize(.x7)
-        .setCornerStyle(.rounded)
     }
 }
 

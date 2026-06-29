@@ -121,7 +121,6 @@ private struct AccountPickerCancelButton: View {
         )
         .setStyleType(.secondary)
         .setSize(.x12)
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .padding(.horizontal, AddTokenRedesignedConstants.horizontalPadding)
         .padding(.bottom, AddTokenRedesignedConstants.accountPickerScrollVerticalPadding)
