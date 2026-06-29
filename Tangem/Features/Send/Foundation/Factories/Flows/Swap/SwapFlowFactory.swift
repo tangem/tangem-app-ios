@@ -101,8 +101,7 @@ extension SwapFlowFactory: SendGenericFlowFactory {
         marketingNotificationManager.setup(
             sourceTokenInput: swapModel,
             sourceTokenAmountInput: swapModel,
-            receiveTokenInput: swapModel,
-            swapProvidersInput: swapModel
+            receiveTokenInput: swapModel
         )
 
         // Logger setup
