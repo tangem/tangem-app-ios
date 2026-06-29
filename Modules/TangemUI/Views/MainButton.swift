@@ -17,6 +17,7 @@ public struct MainButton: View {
     private let style: Style
     private let size: Size
     private let isDisabled: Bool
+    private let isRedesign: Bool
     private let action: () -> Void
     private let handleActionWhenDisabled: Bool
     private let accessibilityIdentifier: String?
@@ -31,6 +32,7 @@ public struct MainButton: View {
         size: Size = .default,
         isLoading: Bool = false,
         isDisabled: Bool = false,
+        isRedesign: Bool = true,
         handleActionWhenDisabled: Bool = false,
         accessibilityIdentifier: String? = nil,
         action: @escaping (() -> Void)
@@ -42,9 +44,14 @@ public struct MainButton: View {
         self.size = size
         self.isLoading = isLoading
         self.isDisabled = isDisabled
+        self.isRedesign = isRedesign
         self.handleActionWhenDisabled = handleActionWhenDisabled
         self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
+    }
+
+    private var cornerRadius: CGFloat {
+        isRedesign ? size.height / 2 : style.cornerRadius(for: size)
     }
 
     public init(settings: Settings) {
@@ -66,14 +73,14 @@ public struct MainButton: View {
             content
                 .frame(maxWidth: .infinity, minHeight: size.height, maxHeight: size.height, alignment: .center)
                 .background(style.background(isDisabled: isDisabled))
-                .cornerRadiusContinuous(style.cornerRadius(for: size))
+                .cornerRadiusContinuous(cornerRadius)
                 .overlay(border)
         }
         .buttonStyle(BorderlessButtonStyle())
         // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
         .background(
             Colors.Background.primary
-                .cornerRadiusContinuous(style.cornerRadius(for: size))
+                .cornerRadiusContinuous(cornerRadius)
         )
         .disabled(isInternalButtonDisabled)
         .accessibilityIdentifier(accessibilityIdentifier)
@@ -148,7 +155,7 @@ public struct MainButton: View {
 
     @ViewBuilder
     private var border: some View {
-        RoundedRectangle(cornerRadius: style.cornerRadius(for: size), style: .continuous)
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
             .stroke(style.border(isDisabled: isDisabled) ?? Color.clear)
     }
 }
