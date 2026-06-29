@@ -24,7 +24,13 @@ protocol AddressBookManager: AnyObject {
 
     func load() async
 
-    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws
+    @discardableResult
+    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID
+
+    /// Re-signs an existing contact into this book under the wallet's key, keeping its `id` — used to move a
+    /// contact in from another wallet's book without minting a new one; the caller removes the original from
+    /// the source book. Fails if the name collides with another contact already in this book.
+    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws
 
     /// Atomically replaces a contact's name, icon color and full entry set in a single signed save. The
     /// new state is exactly `entries`; entries unchanged since load keep their signature, a rename re-signs
