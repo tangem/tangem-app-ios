@@ -161,11 +161,22 @@ final class TronTransactionHistoryMapper {
             let index = transactionIndicesCounter[hash, default: 0]
             transactionIndicesCounter[hash] = index + 1
 
+            // Stake/unstake on Tron are self-transfers (source == destination == own address). The history
+            // amount is computed downstream as "sent − change returned to self", so a non-zero destination
+            // would net the displayed amount to zero — keep the destination address but zero its amount.
+            let destination: TransactionRecord.Destination = {
+                if case .staking(let stakingType, _) = type, stakingType == .stake || stakingType == .unstake {
+                    return TransactionRecord.Destination(address: transactionInfo.destination.address, amount: 0)
+                }
+
+                return transactionInfo.destination
+            }()
+
             return TransactionRecord(
                 hash: hash,
                 index: index,
                 source: .single(transactionInfo.source),
-                destination: .single(transactionInfo.destination),
+                destination: .single(destination),
                 fee: fee,
                 status: status,
                 isOutgoing: transactionInfo.isOutgoing,

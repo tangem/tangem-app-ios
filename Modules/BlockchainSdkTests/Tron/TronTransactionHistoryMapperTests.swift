@@ -168,6 +168,73 @@ struct TronTransactionHistoryMapperTests {
         #expect(try coinTransactionType(chainExtraData: extraData) == .transfer)
     }
 
+    // MARK: - Staking amount: self→self destination zeroed so the app mapper keeps the gross amount ([REDACTED_INFO])
+
+    @Test
+    func freezeKeepsGrossSourceAndZeroesDestinationAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                contractType: nil,
+                chainExtraData: makeChainExtraData(contractType: "FreezeBalanceV2Contract")
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .stake, target: nil))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 1)))
+        #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0)))
+    }
+
+    @Test
+    func unfreezeKeepsGrossSourceAndZeroesDestinationAmount() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                contractType: nil,
+                chainExtraData: makeChainExtraData(contractType: "UnfreezeBalanceV2Contract")
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .unstake, target: nil))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 1)))
+        #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0)))
+    }
+
+    @Test
+    func voteKeepsZeroAmounts() throws {
+        let mapper = TronTransactionHistoryMapper(blockchain: blockchain)
+        let validator = "TKSXDA8HfE9E1y39RczVQ1ZascUEtaSToF"
+        let response = makeResponse(transactions: [
+            .init(
+                fromAddress: walletAddress,
+                toAddress: walletAddress,
+                value: "0",
+                contractType: nil,
+                chainExtraData: makeChainExtraData(
+                    contractType: "VoteWitnessContract",
+                    votes: [.init(address: validator, count: "1")]
+                )
+            ),
+        ])
+
+        let records = try mapper.mapToTransactionRecords(response, walletAddress: walletAddress, amountType: .coin)
+
+        #expect(records.count == 1)
+        #expect(records[0].type == .staking(type: .vote, target: validator))
+        #expect(records[0].source == .single(.init(address: walletAddress, amount: 0)))
+        #expect(records[0].destination == .single(.init(address: .user(walletAddress), amount: 0)))
+    }
+
     // MARK: - Helpers
 
     /// Maps a single coin transaction whose integer `contract_type` is absent (so the type is taken

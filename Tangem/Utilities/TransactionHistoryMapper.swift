@@ -418,6 +418,11 @@ extension TransactionHistoryMapper {
 private extension TransactionHistoryMapper {
     func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> FormattedAmount {
         switch transactionType(from: record) {
+        case .stake, .unstake:
+            return FormattedAmount(
+                legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
+                redesigned: balanceFormatter.formatDecimal(amount)
+            )
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return FormattedAmount(
                 legacy: balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol),
