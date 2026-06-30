@@ -9,7 +9,7 @@
 import Foundation
 import TangemExpress
 
-struct ExchangeTransactionInfo {
+struct ExchangeTransactionInfo: Hashable {
     let transaction: ExchangeTransaction
 
     /// - Note: Nullable since can be fetched asynchronously.
