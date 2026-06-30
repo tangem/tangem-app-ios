@@ -86,6 +86,7 @@
 "address_book_contact_name" = "連絡先名";
 "address_book_contact" = "連絡先";
 "address_book_copy_address" = "アドレスをコピー";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "連絡先を作成できませんでした。しばらくしてからもう一度お試しください。";
 "address_book_delete_contact_description" = "この連絡先は、すべてのアドレス帳から削除されます。";
 "address_book_deleting_error" = "連絡先を削除できませんでした。しばらくしてからもう一度お試しください。";
@@ -107,6 +108,7 @@
 "address_book_remove_address" = "アドレスを削除";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "この連絡先は、このウォレットのアドレス帳に紐付けられます。";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "ネットワークを選択";
 "address_book_title" = "連絡先";
 "address_book_unsaved_changes_description" = "編集内容を破棄してもよろしいですか？";
@@ -283,6 +285,7 @@
 "common_generate_addresses" = "アドレスを同期する";
 "common_get_started" = "はじめる";
 "common_get_token" = "トークンを取得";
+"common_get" = "Get";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
 "common_go_to_verification" = "Go to verification";
@@ -1014,6 +1017,7 @@
 "onramp_min_amount_restriction" = "買付金額は少なくとも%@である必要があります";
 "onramp_native_payment_cumulative_limit_equivalent" = "累計取引額が%1@相当額を超えると、%2@での本人確認が必要になる場合があります。";
 "onramp_native_payment_cumulative_limit" = "累計取引額が%1@を超えると、%2@での本人確認が必要になる場合があります。";
+"onramp_native_payment_identity_verification" = "Apple Payの取引では、%1@による本人確認が必要になる場合があります";
 "onramp_native_payment_legal_notice" = "「支払う」をタップすると、%1@の%2@および%3@に同意したものとみなされます。";
 "onramp_no_available_providers" = "この通貨で利用可能なプロバイダーはありません";
 "onramp_offer_type_fastet" = "最短で処理";
