@@ -5,12 +5,12 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
-//  Animated angular-gradient glow border — SwiftUI port of the web rig (v10).
-//  A centered, anisotropic conic gradient rotates 360° per loop. The border is three
-//  stacked, blurred copies of that gradient (tight core → wide halo), each a centered
-//  stroke on the box edge, blurred, then clipped to the rounded box. The rig's
-//  "breathing" is intentionally not implemented — a uniform scale of an angular
-//  gradient is invisible; only the anisotropy + rotation are rendered.
+//  Animated angular-gradient glow border — SwiftUI port of the web rig (v17).
+//  Three stacked, blurred copies of one conic gradient. The color seam rotates 360° per
+//  loop via the gradient angle, while the horizontal radius "breathes" (rxMorph: wide at
+//  0°/180°, narrow at 90°/270°). Seam rotation and the vertical squish are decoupled — the
+//  squish stays axis-aligned and never rotates with the seam, which is what makes the morph
+//  visible. Each layer is a centered stroke, blurred, then clipped to the rounded box.
 //
 
 import SwiftUI
@@ -20,7 +20,7 @@ struct AngularGlowBorder: View {
 
     /// Margin so the centered stroke's clipped outer half (and the blur falloff feeding
     /// inward) is fully rendered before the rounded-box clip cuts the outer half.
-    private let margin: CGFloat = 128
+    private let margin: CGFloat = 64
 
     var body: some View {
         GeometryReader { proxy in
@@ -39,7 +39,15 @@ struct AngularGlowBorder: View {
             Canvas { context, size in
                 let box = CGRect(x: m, y: m, width: size.width - 2 * m, height: size.height - 2 * m)
                 let gradient = Gradient(stops: config.stops)
-                let anisotropy = config.anisotropy
+
+                // radius morph (v17): horizontal radius breathes with the phase, ry stays fixed.
+                // wide at 0°/180° (rxMax = W/2), narrow at 90°/270° (rxMin = W/8).
+                let hh = box.height / 2
+                let maxRx = box.width / 2
+                let minRx = box.width / 8
+                let mid = (maxRx + minRx) / 2
+                let amp = max(0, (maxRx - minRx) / 2)
+                let rx = mid + amp * CGFloat(cos(2 * phase * .pi / 180))
 
                 // draw bottom → top so layers[0] ends on top
                 for layer in config.layers.reversed() {
@@ -63,13 +71,13 @@ struct AngularGlowBorder: View {
                         )
                         layerContext.clip(to: ring, style: FillStyle(eoFill: true))
 
-                        // anisotropic conic, rotated about the box center
+                        // axis-aligned vertical squish (radius morph); the seam rotates via the
+                        // gradient angle, decoupled from the squish so the morph stays visible
                         layerContext.translateBy(x: box.midX, y: box.midY)
-                        layerContext.rotate(by: .degrees(phase))
-                        layerContext.scaleBy(x: 1, y: anisotropy)
+                        layerContext.scaleBy(x: 1, y: hh / rx)
 
                         let shading = GraphicsContext.Shading.conicGradient(
-                            gradient, center: .zero, angle: .degrees(config.seamOffset)
+                            gradient, center: .zero, angle: .degrees(config.seamOffset + phase)
                         )
                         layerContext.fill(
                             Path(CGRect(x: -4000, y: -4000, width: 8000, height: 8000)),

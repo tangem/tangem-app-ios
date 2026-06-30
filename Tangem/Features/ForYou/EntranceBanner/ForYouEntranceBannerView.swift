@@ -50,17 +50,17 @@ struct ForYouEntranceBannerView: View {
     /// Magic gradient with the exact Figma stop positions (GRADIENT STEPS POSITIONS).
     /// The DS tokens are theme-dynamic, so light/dark is handled automatically.
     private static let magicStops: [Gradient.Stop] = [
-        .init(color: DesignSystem.Color.glowMagicStep1, location: 0.00),
-        .init(color: DesignSystem.Color.glowMagicStep2, location: 0.10),
-        .init(color: DesignSystem.Color.glowMagicStep3, location: 0.25),
-        .init(color: DesignSystem.Color.glowMagicStep4, location: 0.30),
-        .init(color: DesignSystem.Color.glowMagicStep5, location: 0.40),
-        .init(color: DesignSystem.Color.glowMagicStep6, location: 0.50),
-        .init(color: DesignSystem.Color.glowMagicStep7, location: 0.60),
-        .init(color: DesignSystem.Color.glowMagicStep8, location: 0.70),
-        .init(color: DesignSystem.Color.glowMagicStep9, location: 0.85),
-        .init(color: DesignSystem.Color.glowMagicStep10, location: 0.95),
-        .init(color: DesignSystem.Color.glowMagicStep1, location: 1.00), // close the loop at the seam
+        .init(color: DesignSystem.Color.glowMagicBlendStep1, location: 0.00),
+        .init(color: DesignSystem.Color.glowMagicBlendStep2, location: 0.10),
+        .init(color: DesignSystem.Color.glowMagicBlendStep3, location: 0.25),
+        .init(color: DesignSystem.Color.glowMagicBlendStep4, location: 0.30),
+        .init(color: DesignSystem.Color.glowMagicBlendStep5, location: 0.40),
+        .init(color: DesignSystem.Color.glowMagicBlendStep6, location: 0.50),
+        .init(color: DesignSystem.Color.glowMagicBlendStep7, location: 0.60),
+        .init(color: DesignSystem.Color.glowMagicBlendStep8, location: 0.70),
+        .init(color: DesignSystem.Color.glowMagicBlendStep9, location: 0.85),
+        .init(color: DesignSystem.Color.glowMagicBlendStep10, location: 0.95),
+        .init(color: DesignSystem.Color.glowMagicBlendStep1, location: 1.00), // close the loop at the seam
     ]
 }
 
