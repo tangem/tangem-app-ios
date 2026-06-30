@@ -102,7 +102,7 @@ struct TangemPayDisplayDataMapper {
         let name = input.isOutgoing ? Localization.tangemPayWithdrawal : Localization.tangemPayDeposit
         let type: TransactionViewModel.TransactionType = .tangemPay(.transfer(name: name))
 
-        let prefix = input.amount > 0 ? "+" : ""
+        let prefix: String = input.amount > 0 ? .plusSign : .empty
         let formattedAmount = format(amount: input.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix)
 
         return .init(
@@ -170,7 +170,7 @@ struct TangemPayDisplayDataMapper {
     }
 
     private func formatNegated(value: Decimal, currency: String, prefixFor amount: Decimal) -> String {
-        let prefix = amount < 0 ? "+" : ""
+        let prefix: String = amount < 0 ? .plusSign : .empty
         return format(amount: -value, currencyCode: currency, prefix: prefix)
     }
 }
