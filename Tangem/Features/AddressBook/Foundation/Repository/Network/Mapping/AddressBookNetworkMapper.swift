@@ -10,16 +10,27 @@ import Foundation
 import TangemSdk
 import TangemFoundation
 
-/// Maps between the wire DTOs and the domain envelope. It never decrypts — the crypto layer owns the
-/// plaintext. Keeps the wire contract in one place for both the network service and the local cache.
 struct AddressBookNetworkMapper {
-    enum MappingError: Error {
+    enum MappingError: LocalizedError {
         case invalidHex(field: EnvelopeHexField)
         case invalidLength(field: EnvelopeHexField, expected: Int, actual: Int)
         case invalidDate(String)
+        case unparsableUpdatedAt(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidHex(let field):
+                "Address book \(field.rawValue) is not valid hex"
+            case .invalidLength(let field, let expected, let actual):
+                "Address book \(field.rawValue) has wrong length — expected \(expected) bytes, got \(actual)"
+            case .invalidDate(let value):
+                "Address book updatedAt is not a valid ISO-8601 date: \(value)"
+            case .unparsableUpdatedAt(let value):
+                "Address book response has an unparsable updatedAt: \(value)"
+            }
+        }
     }
 
-    /// The hex-encoded binary fields of an envelope, named for diagnostics on malformed input.
     enum EnvelopeHexField: String {
         case walletId
         case nonce
@@ -27,15 +38,12 @@ struct AddressBookNetworkMapper {
         case authTag
     }
 
-    /// AES-256-GCM uses a 12-byte nonce and a 16-byte authentication tag. Enforcing the lengths here
-    /// surfaces a malformed envelope as a precise mapping error instead of a generic authentication
-    /// failure deep in the crypto layer.
     private static let gcmNonceLength = 12
     private static let gcmTagLength = 16
 
     func mapToEnvelope(_ item: AddressBookDTO.Response.Item) throws -> RemoteAddressBook {
         let envelope = try makeEnvelope(
-            version: AddressBookBlobCodec.supportedVersion,
+            version: item.version,
             walletId: item.walletId,
             updatedAt: item.updatedAt,
             nonce: item.nonce,
@@ -77,6 +85,14 @@ struct AddressBookNetworkMapper {
         )
     }
 
+    func mapToSaveResult(_ response: AddressBookDTO.UpdateResponse) throws -> AddressBookSaveResult {
+        guard let updatedAt = AddressBookBlobCodec.date(fromISO8601: response.updatedAt) else {
+            throw MappingError.unparsableUpdatedAt(response.updatedAt)
+        }
+
+        return AddressBookSaveResult(etag: response.etag, updatedAt: updatedAt)
+    }
+
     private func makeEnvelope(
         version: String,
         walletId: String,
@@ -89,30 +105,33 @@ struct AddressBookNetworkMapper {
             throw MappingError.invalidDate(updatedAt)
         }
 
-        let walletIdData = try data(fromHex: walletId, field: .walletId)
-
-        let sealedBox = try AddressBookSealedBox(
-            nonce: data(fromHex: nonce, field: .nonce, expectedLength: Self.gcmNonceLength),
-            ciphertext: data(fromHex: ciphertext, field: .ciphertext),
-            tag: data(fromHex: authTag, field: .authTag, expectedLength: Self.gcmTagLength)
-        )
+        let walletId = try data(fromHex: walletId, field: .walletId)
+        let nonce = try data(fromHex: nonce, field: .nonce, expectedLength: Self.gcmNonceLength)
+        let ciphertext = try data(fromHex: ciphertext, field: .ciphertext)
+        let tag = try data(fromHex: authTag, field: .authTag, expectedLength: Self.gcmTagLength)
 
         return AddressBookEnvelope(
             version: version,
-            walletId: UserWalletId(value: walletIdData),
+            walletId: UserWalletId(value: walletId),
             updatedAt: date,
-            sealedBox: sealedBox
+            sealedBox: AddressBookSealedBox(nonce: nonce, ciphertext: ciphertext, tag: tag)
         )
     }
 
-    private func data(fromHex hex: String, field: EnvelopeHexField, expectedLength: Int? = nil) throws -> Data {
+    private func data(fromHex hex: String, field: EnvelopeHexField) throws -> Data {
         let data = Data(hexString: hex)
 
         guard !data.isEmpty else {
             throw MappingError.invalidHex(field: field)
         }
 
-        if let expectedLength, data.count != expectedLength {
+        return data
+    }
+
+    private func data(fromHex hex: String, field: EnvelopeHexField, expectedLength: Int) throws -> Data {
+        let data = try data(fromHex: hex, field: field)
+
+        guard data.count == expectedLength else {
             throw MappingError.invalidLength(field: field, expected: expectedLength, actual: data.count)
         }
 
