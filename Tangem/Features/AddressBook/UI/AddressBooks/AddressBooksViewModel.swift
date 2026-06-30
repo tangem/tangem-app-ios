@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemUI
 import TangemFoundation
 
@@ -32,7 +33,8 @@ final class AddressBooksViewModel: ObservableObject {
 
     private weak var coordinator: AddressBooksRoutable?
     private let addressBooksProvider: any AddressBooksProvider
-    private let addressBooks: [AddressBookWallet]
+    private let addressBooksSubject: CurrentValueSubject<[AddressBookWallet], Never>
+    private var bag = Set<AnyCancellable>()
 
     init(
         coordinator: AddressBooksRoutable,
@@ -40,10 +42,12 @@ final class AddressBooksViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
         self.addressBooksProvider = addressBooksProvider
-        addressBooks = addressBooksProvider.addressBooks
+        addressBooksSubject = .init(addressBooksProvider.addressBooks)
+        selectedChipId = defaultSelectedChipId
 
-        setupChips()
+        bindAddressBooks()
         bind()
+        bindChips()
     }
 
     func openAddContact() {
@@ -67,33 +71,71 @@ final class AddressBooksViewModel: ObservableObject {
 
 private extension AddressBooksViewModel {
     var selectedAddressBook: AddressBookWallet? {
-        addressBooks.first { $0.wallet.id.stringValue == selectedChipId }
+        addressBooksSubject.value.first { $0.wallet.id.stringValue == selectedChipId }
     }
 
-    func setupChips() {
-        guard addressBooks.count >= 2 else {
-            walletChips = []
-            selectedChipId = addressBooks.first?.wallet.id.stringValue
+    var defaultSelectedChipId: String? {
+        userWalletRepository.selectedModel?.userWalletId.stringValue ?? addressBooksSubject.value.first?.wallet.id.stringValue
+    }
+
+    func bindAddressBooks() {
+        addressBooksProvider.addressBooksPublisher
+            .dropFirst() // the subject is already seeded with the initial set
+            .withWeakCaptureOf(self)
+            .sink { viewModel, addressBooks in
+                viewModel.addressBooksSubject.send(addressBooks)
+            }
+            .store(in: &bag)
+    }
+
+    func bindChips() {
+        addressBooksSubject
+            .flatMapLatest { addressBooks -> AnyPublisher<[String: Bool], Never> in
+                guard addressBooks.isNotEmpty else {
+                    return Just([:]).eraseToAnyPublisher()
+                }
+
+                let nonEmptyFlags = addressBooks.map { addressBook in
+                    addressBook.addressBookPublisher
+                        .map { (id: addressBook.wallet.id.stringValue, hasContacts: $0.isNotEmpty) }
+                        .eraseToAnyPublisher()
+                }
+
+                return nonEmptyFlags
+                    .combineLatest()
+                    .map { flags in Dictionary(uniqueKeysWithValues: flags.map { ($0.id, $0.hasContacts) }) }
+                    .eraseToAnyPublisher()
+            }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, nonEmptyById in
+                viewModel.applyChips(nonEmptyById: nonEmptyById)
+            }
+            .store(in: &bag)
+    }
+
+    func applyChips(nonEmptyById: [String: Bool]) {
+        let nonEmptyBooks = addressBooksSubject.value.filter { nonEmptyById[$0.wallet.id.stringValue] == true }
+        walletChips = nonEmptyBooks.map { Chip(id: $0.wallet.id.stringValue, title: $0.wallet.name) }
+
+        if let selectedChipId, nonEmptyById[selectedChipId] == true {
             return
         }
 
-        walletChips = addressBooks.map { Chip(id: $0.wallet.id.stringValue, title: $0.wallet.name) }
-
-        let chipIds = walletChips.map(\.id)
-        if let currentWalletId = userWalletRepository.selectedModel?.userWalletId.stringValue,
-           chipIds.contains(currentWalletId) {
+        let nonEmptyIds = Set(nonEmptyBooks.map { $0.wallet.id.stringValue })
+        if let currentWalletId = userWalletRepository.selectedModel?.userWalletId.stringValue, nonEmptyIds.contains(currentWalletId) {
             selectedChipId = currentWalletId
+        } else if let firstNonEmptyId = nonEmptyBooks.first?.wallet.id.stringValue {
+            selectedChipId = firstNonEmptyId
         } else {
-            selectedChipId = walletChips.first?.id
+            selectedChipId = defaultSelectedChipId
         }
     }
 
     func bind() {
-        $selectedChipId
-            .withWeakCaptureOf(self)
-            .map { viewModel, selectedChipId -> AddressBookWallet? in
-                viewModel.addressBooks
-                    .first(where: { $0.wallet.id.stringValue == selectedChipId })
+        Publishers.CombineLatest($selectedChipId, addressBooksSubject)
+            .map { selectedChipId, addressBooks -> AddressBookWallet? in
+                addressBooks.first(where: { $0.wallet.id.stringValue == selectedChipId })
             }
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, addressBook -> AnyPublisher<LoadingResult<[AddressBookContactViewModel], Error>, Never> in
@@ -120,7 +162,7 @@ private extension AddressBooksViewModel {
                     }
                     .eraseToAnyPublisher()
             }
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .assign(to: &$contactsViewModels)
     }
 

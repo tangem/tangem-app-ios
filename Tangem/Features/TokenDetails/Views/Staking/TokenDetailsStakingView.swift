@@ -76,7 +76,6 @@ private extension TokenDetailsStakingView {
 
                 TangemButton(content: .text(AttributedString(item.actionTitle)), action: item.action)
                     .setStyleType(.accent)
-                    .setCornerStyle(.rounded)
                     .setSize(.x9)
             }
             .padding(padding)
