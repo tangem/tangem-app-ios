@@ -283,6 +283,7 @@
 "common_generate_addresses" = "Синхронізувати адреси";
 "common_get_started" = "Почати";
 "common_get_token" = "Отримати токен";
+"common_get" = "Get";
 "common_go_to_provider" = "Перейти до провайдера";
 "common_go_to_token" = "Перейти до токену";
 "common_go_to_verification" = "Go to verification";
@@ -1014,7 +1015,7 @@
 "onramp_min_amount_restriction" = "Сума покупки повинна бути не менше %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Загальна сума транзакцій, що перевищує еквівалент %1@, може вимагати верифікації особи через %2@";
 "onramp_native_payment_cumulative_limit" = "Загальна сума транзакцій понад %1@ може вимагати верифікації особи через %2@";
-"onramp_native_payment_identity_verification" = "Apple Pay transactions may require identity verification with %1@";
+"onramp_native_payment_identity_verification" = "Для транзакцій через Apple Pay може знадобитися верифікація особи в %1@";
 "onramp_native_payment_legal_notice" = "Натискаючи «Оплатити», ви погоджуєтеся з %1@'s %2@ і %3@.";
 "onramp_no_available_providers" = "Для данної валюти немає доступних провайдерів";
 "onramp_offer_type_fastet" = "Найшвидший";
