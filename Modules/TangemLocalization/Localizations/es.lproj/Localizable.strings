@@ -283,6 +283,7 @@
 "common_generate_addresses" = "Sincronizar direcciones";
 "common_get_started" = "Comenzar";
 "common_get_token" = "Obtener token";
+"common_get" = "Get";
 "common_go_to_provider" = "Ir al proveedor";
 "common_go_to_token" = "Ir al token";
 "common_go_to_verification" = "Go to verification";
@@ -1014,6 +1015,7 @@
 "onramp_min_amount_restriction" = "La cantidad a comprar debe ser como mínimo %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "El importe acumulado de la transacción superior al equivalente de %1@ puede requerir la verificación de la identidad con %2@";
 "onramp_native_payment_cumulative_limit" = "El importe acumulado de la transacción superior a %1@ puede requerir la verificación de la identidad con %2@";
+"onramp_native_payment_identity_verification" = "Las transacciones de Apple Pay pueden requerir verificación de identidad con %1@";
 "onramp_native_payment_legal_notice" = "Al hacer clic en Pagar, usted acepta %1@'s %2@ y %3@.";
 "onramp_no_available_providers" = "No hay proveedores disponibles para esta moneda";
 "onramp_offer_type_fastet" = "Procesamiento más rápido";

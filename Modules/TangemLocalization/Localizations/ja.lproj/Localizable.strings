@@ -283,6 +283,7 @@
 "common_generate_addresses" = "アドレスを同期する";
 "common_get_started" = "はじめる";
 "common_get_token" = "トークンを取得";
+"common_get" = "Get";
 "common_go_to_provider" = "プロバイダーへ移動";
 "common_go_to_token" = "トークンへ移動";
 "common_go_to_verification" = "Go to verification";
@@ -1014,6 +1015,7 @@
 "onramp_min_amount_restriction" = "買付金額は少なくとも%@である必要があります";
 "onramp_native_payment_cumulative_limit_equivalent" = "累計取引額が%1@相当額を超えると、%2@での本人確認が必要になる場合があります。";
 "onramp_native_payment_cumulative_limit" = "累計取引額が%1@を超えると、%2@での本人確認が必要になる場合があります。";
+"onramp_native_payment_identity_verification" = "Apple Payの取引では、%1@による本人確認が必要になる場合があります";
 "onramp_native_payment_legal_notice" = "「支払う」をタップすると、%1@の%2@および%3@に同意したものとみなされます。";
 "onramp_no_available_providers" = "この通貨で利用可能なプロバイダーはありません";
 "onramp_offer_type_fastet" = "最短で処理";
