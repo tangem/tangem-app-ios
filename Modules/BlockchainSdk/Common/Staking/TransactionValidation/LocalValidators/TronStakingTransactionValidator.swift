@@ -13,10 +13,12 @@ public enum TronStakingTransactionValidator {
     typealias ContractType = Protocol_Transaction.Contract.ContractType
     static let stakingContractTypes: Set<ContractType> = [
         .voteWitnessContract, // 4 - Vote for validator (part of staking flow)
+        .withdrawBalanceContract, // 13 - Claim staking rewards
         .freezeBalanceV2Contract, // 54 - Freeze TRX for energy/bandwidth
         .unfreezeBalanceV2Contract, // 55 - Unfreeze TRX
         .withdrawExpireUnfreezeContract, // 56 - Withdraw expired unfrozen TRX
         .delegateResourceContract, // 57 - Delegate energy/bandwidth
+        .unDelegateResourceContract, // 58 - Undelegate energy/bandwidth
         .cancelAllUnfreezeV2Contract, // 59 - Cancel all pending unfreezes
     ]
 
@@ -59,7 +61,7 @@ private extension Protocol_Transaction.raw {
             guard TronStakingTransactionValidator.stakingContractTypes.contains(item.type) else {
                 throw StakingTransactionValidationError.notAStakingTransaction(
                     network: "Tron",
-                    details: "Contract type '\(item.type)' is not a staking operation"
+                    details: "Contract type '\(item.type)' (rawValue: \(item.type.rawValue)) is not a staking operation"
                 )
             }
         }

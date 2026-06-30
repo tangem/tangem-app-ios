@@ -17,9 +17,9 @@ enum StakingValidationState: Hashable {
 
     var allowsSending: Bool {
         switch self {
-        case .idle, .validated, .warning:
+        case .validated, .warning:
             true
-        case .validating, .blocked:
+        case .idle, .validating, .blocked:
             false
         }
     }

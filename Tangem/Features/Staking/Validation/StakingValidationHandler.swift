@@ -64,7 +64,8 @@ final class StakingValidationHandler: StakingValidationStateProvider {
     }
 
     /// Rebuilds and revalidates transaction. Use when cache is expired.
-    func revalidate(action: StakingAction) async -> StakingTransactionAction? {
+    /// Returns `.validated` if transaction is safe, `.blocked` if malicious, or `nil` if build failed (fail-open).
+    func revalidate(action: StakingAction) async -> RevalidationResult? {
         guard let transaction = await buildTransaction(action: action) else {
             return nil
         }
@@ -73,10 +74,52 @@ final class StakingValidationHandler: StakingValidationStateProvider {
         await handleValidationResult(result)
 
         guard result.state.allowsSending else {
-            return nil
+            return .blocked
         }
 
-        return transaction
+        return .validated(transaction)
+    }
+
+    /// Resolves transaction from cache, revalidation, or builds new one.
+    /// - Returns: Validated transaction ready to send
+    /// - Throws: `StakingModelError.transactionBlocked` if validation failed
+    func resolveTransaction(action: StakingAction, blockchain: Blockchain) async throws -> StakingTransactionAction {
+        if let validated = validatedTransaction(for: blockchain) {
+            return validated
+        }
+
+        switch await revalidate(action: action) {
+        case .validated(let tx):
+            return tx
+        case .blocked:
+            throw StakingModelError.transactionBlocked
+        case .none:
+            return try await stakingManager.transaction(action: action)
+        }
+    }
+}
+
+// MARK: - Optional + StakingValidationHandler
+
+extension Optional where Wrapped == StakingValidationHandler {
+    func resolveTransaction(
+        action: StakingAction,
+        blockchain: Blockchain,
+        stakingManager: StakingManager
+    ) async throws -> StakingTransactionAction {
+        guard let self else {
+            return try await stakingManager.transaction(action: action)
+        }
+        return try await self.resolveTransaction(action: action, blockchain: blockchain)
+    }
+}
+
+// MARK: - RevalidationResult
+
+extension StakingValidationHandler {
+    enum RevalidationResult {
+        case validated(StakingTransactionAction)
+        case blocked
     }
 }
 
@@ -107,7 +150,6 @@ private extension StakingValidationHandler {
         } catch is CancellationError {
             return nil
         } catch {
-            // Network/StakeKit error during build — allow to proceed without validation (fail-open)
             await handleBuildError()
             return nil
         }
@@ -125,8 +167,11 @@ private extension StakingValidationHandler {
     func handleValidationResult(_ result: StakingValidationResult) {
         guard !Task.isCancelled else { return }
 
-        if let transaction = result.transaction {
+        // Only cache transaction if validation allows sending (not blocked/malicious)
+        if let transaction = result.transaction, result.state.allowsSending {
             validatedTransaction = ValidatedTransaction(transaction: transaction, validatedAt: Date())
+        } else {
+            validatedTransaction = nil
         }
         stateSubject.send(result.state)
         validationTask = nil
@@ -150,7 +195,6 @@ private extension StakingValidationHandler {
 // MARK: - Blockchain + Staking Cache
 
 private extension Blockchain {
-    /// Solana blockhash expires in ~60-90 sec, we use 50 sec safety margin.
     var stakingCacheTimeout: TimeInterval? {
         switch self {
         case .solana: return 50

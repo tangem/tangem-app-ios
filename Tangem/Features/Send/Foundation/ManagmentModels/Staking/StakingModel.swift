@@ -228,15 +228,19 @@ private extension StakingModel {
                 type: .stake
             ))
         case .readyToApprove:
-            guard let amount = bsdkAmount?.value, let target = _selectedTarget.value.value else { return }
-            validationHandler?.validate(action: StakingAction(
-                amount: amount,
-                targetType: .target(target),
-                type: .stake
-            ))
+            prefetchStakingValidation()
         default:
             validationHandler?.reset()
         }
+    }
+
+    func prefetchStakingValidation() {
+        guard let amount = bsdkAmount?.value, let target = _selectedTarget.value.value else { return }
+        validationHandler?.validate(action: StakingAction(
+            amount: amount,
+            targetType: .target(target),
+            type: .stake
+        ))
     }
 
     func makeAmount(value: Decimal) -> BSDKAmount {
@@ -327,14 +331,11 @@ private extension StakingModel {
                 type: .stake
             )
 
-            let transactionInfo: StakingTransactionAction
-            if let validated = validationHandler?.validatedTransaction(for: tokenItem.blockchain) {
-                transactionInfo = validated
-            } else if let revalidated = await validationHandler?.revalidate(action: action) {
-                transactionInfo = revalidated
-            } else {
-                transactionInfo = try await stakingManager.transaction(action: action)
-            }
+            let transactionInfo = try await validationHandler.resolveTransaction(
+                action: action,
+                blockchain: tokenItem.blockchain,
+                stakingManager: stakingManager
+            )
             let transactionsFee = transactionInfo.transactions.reduce(Decimal.zero) { $0 + $1.fee }
             if readyToStake.isFeeIncluded,
                transactionsFee > readyToStake.fee,
@@ -698,6 +699,7 @@ enum StakingModelError: String, Hashable, LocalizedError {
     case approveDataNotFound
     case accountIsNotInitialized
     case revokeAndApproveNotSupported
+    case transactionBlocked
 
     var errorDescription: String? { rawValue }
 }

@@ -225,14 +225,11 @@ private extension RestakingModel {
         )
 
         do {
-            let transaction: StakingTransactionAction
-            if let validated = validationHandler?.validatedTransaction(for: tokenItem.blockchain) {
-                transaction = validated
-            } else if let revalidated = await validationHandler?.revalidate(action: action) {
-                transaction = revalidated
-            } else {
-                transaction = try await stakingManager.transaction(action: action)
-            }
+            let transaction = try await validationHandler.resolveTransaction(
+                action: action,
+                blockchain: tokenItem.blockchain,
+                stakingManager: stakingManager
+            )
             let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
             let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
