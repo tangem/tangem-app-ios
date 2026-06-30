@@ -8,10 +8,22 @@
 
 import Foundation
 
-/// Drives sync-related UI (spinner, offline banner, error state) with no logic on the view side.
-enum AddressBookSyncState: Hashable {
+enum AddressBookSyncState {
     case syncing
     case synced
-    case offline
-    case failed
+    case failure(AddressBookSyncError)
+}
+
+enum AddressBookSyncError: LocalizedError {
+    case networkError(String)
+    case decodingError(String)
+    case updateRequired
+
+    var errorDescription: String? {
+        switch self {
+        case .networkError(let description): description
+        case .decodingError(let description): description
+        case .updateRequired: "Address book requires a newer app version"
+        }
+    }
 }
