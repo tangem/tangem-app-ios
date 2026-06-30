@@ -96,7 +96,7 @@
 "address_book_invalid_address_error" = "无效地址";
 "address_book_keep_editing" = "继续编辑";
 "address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
-"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_max_networks_alert_title" = "Can't add new address";
 "address_book_name_empty_error" = "Contact name is required";
 "address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
 "address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
@@ -322,6 +322,7 @@
 "common_passphrase" = "密码短语";
 "common_paste" = "粘贴";
 "common_privacy_policy" = "隐私政策";
+"common_rate" = "Rate";
 "common_read_more" = "阅读更多";
 "common_receive" = "接收";
 "common_received" = "已收到";
@@ -375,6 +376,7 @@
 "common_token_send" = "要发送的代币";
 "common_token" = "代币";
 "common_transaction_failed" = "交易失败";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "交易状态";
 "common_transactions" = "交易";
 "common_transfer" = "转让";
@@ -581,6 +583,8 @@
 "feedback_subject_tx_failed" = "无法发送交易";
 "feedback_subject_tx_push_failed" = "无法推送交易";
 "feedback_token_description_error" = "代币描述错误";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
 "force_update_banner_title" = "需要更新";
@@ -1311,6 +1315,7 @@
 "staking_enabled" = "已启用质押";
 "staking_error_no_validators_message" = "目前没有可用的验证节点。请稍后再试。";
 "staking_error_no_validators_title" = "质押功能不可用";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_error_unavailable_region" = "您所在的地区暂不支持质押功能";
 "staking_give_permission_fee_footer" = "网络将收取代币批准费，以验证您是否授权使用您的代币进行质押。";
 "staking_legal" = "使用质押功能即表示您同意提供商的 %1$@ 和 %2$@";
@@ -1601,6 +1606,10 @@
 "tangempay_change_pin_code" = "更改PIN码";
 "tangempay_come_back_if_forget_pin" = "如果忘记了，请返回应用程序。";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "设置限额从 %@ 到 %@";
 "tangempay_daily_limit_set_button" = "设置限额";
 "tangempay_declined_reason_1" = "余额不足";
@@ -1824,6 +1833,7 @@
 "twins_scan_twin_with_number" = "轻触带有数字 %@ 的第二张卡片，操作结束前请勿移除。";
 "tx_history_onramp_top_up" = "Top up";
 "tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "请稍后再试。如果问题仍然存在，请联系客服。";
 "unexpected_error_title" = "出问题了！";
 "universal_error" = "我们遇到了一个错误。错误代码： %@请联系我们的客服。";
