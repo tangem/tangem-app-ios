@@ -41,6 +41,7 @@ struct TransactionHistoryExpressDataMerger {
     // MARK: - Dependencies
 
     private let currentToken: TokenItem
+    private let ownerAddress: String
     private let isEvm: Bool
     private let isUTXO: Bool
     private let syntheticTransactionFactory: TransactionHistorySyntheticTransactionFactory
@@ -53,6 +54,7 @@ struct TransactionHistoryExpressDataMerger {
         feeTokenItem: TokenItem
     ) {
         self.currentToken = currentToken
+        self.ownerAddress = ownerAddress
         isEvm = currentToken.blockchain.isEvm
         isUTXO = currentToken.blockchain.isUTXO
         syntheticTransactionFactory = TransactionHistorySyntheticTransactionFactory(
@@ -69,6 +71,7 @@ struct TransactionHistoryExpressDataMerger {
         exchangeTransactions: [ExchangeTransaction],
         onrampTransactions: [OnrampTransaction]
     ) -> [TransactionRecord] {
+        // [REDACTED_TODO_COMMENT]
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
         output.reserveCapacity(bsdkTransactions.count + exchangeTransactions.count + onrampTransactions.count)
@@ -211,7 +214,7 @@ struct TransactionHistoryExpressDataMerger {
         }
 
         let amountBound = (isUTXO ? Constants.sendHeuristicAmountUTXOTolerance : Constants.sendHeuristicAmountTolerance) * targetAmount
-        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
+        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? ownerAddress)
 
         return bsdkTransactionsCandidatesByReceiver
             .filter { bsdkTransaction in
@@ -266,8 +269,8 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
-        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? .unknown)
+        let targetDateRange = exchangeTransaction.createdAt ... exchangeTransaction.createdAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let normalizedFromAddress = lowerCasedAddressStringIfNeeded(exchangeTransaction.fromAddress ?? ownerAddress)
         let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
 
         return bsdkTransactions
@@ -356,7 +359,7 @@ struct TransactionHistoryExpressDataMerger {
             return nil
         }
 
-        let targetDateRange = onrampTransaction.createdAt ... onrampTransaction.updatedAt.advanced(by: Constants.receiveHeuristicTimeWindow)
+        let targetDateRange = onrampTransaction.createdAt ... onrampTransaction.createdAt.advanced(by: Constants.receiveHeuristicTimeWindow)
         let amountBound = Constants.receiveHeuristicAmountTolerance * targetAmount
 
         return bsdkTransactions
