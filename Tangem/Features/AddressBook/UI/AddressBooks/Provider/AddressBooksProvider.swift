@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemFoundation
 
 protocol AddressBooksProvider {
     /// Point-in-time read for callers that act immediately (wallet picker, resolving a contact's source book).

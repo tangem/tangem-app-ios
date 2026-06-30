@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 /// Per-wallet facade over the address book. Verifies signatures on load, enforces the uniqueness
 /// invariants, and signs (or re-signs) entries on every mutation that changes the signed tuple.
@@ -17,8 +18,9 @@ import Combine
 /// `(address, networkId)` pair is unique only *within a contact* — the same pair may repeat across
 /// different contacts of the same wallet.
 protocol AddressBookManager: AnyObject {
-    /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped;
-    /// a contact whose every entry is invalid is omitted entirely (spec 2.1.3).
+    /// Verified contacts ready for display and the Send Flow. Invalid-signature entries are dropped; a
+    /// contact whose every entry is invalid is omitted. Combine with `syncStatePublisher` to build the UI
+    /// load state.
     var contactsPublisher: AnyPublisher<[AddressBookContact], Never> { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
