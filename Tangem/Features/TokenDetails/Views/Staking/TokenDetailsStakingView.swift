@@ -170,11 +170,11 @@ private extension TokenDetailsStakingView {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
 
         if let action = item.action {
             Button(action: action) { content }
                 .buttonStyle(.plain)
-                .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
         } else {
             content
         }

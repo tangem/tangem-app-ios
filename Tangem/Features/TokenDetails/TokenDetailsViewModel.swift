@@ -639,7 +639,8 @@ private extension TokenDetailsViewModel {
     private func makeUnavailableStakingState() -> TokenDetailsStakingState {
         let item = TokenDetailsStakingState.UnavailableItem(
             title: Localization.commonStaking,
-            description: Localization.stakingNotificationNetworkErrorText
+            description: Localization.stakingNotificationNetworkErrorText,
+            action: nil
         )
         return .unavailable(item: item)
     }

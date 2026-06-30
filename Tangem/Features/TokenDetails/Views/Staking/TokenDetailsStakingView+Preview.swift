@@ -139,7 +139,8 @@ private enum PreviewStakingState: String, CaseIterable, Identifiable {
         case .unavailable:
             return .unavailable(item: .init(
                 title: "Staking unavailable",
-                description: "Staking is temporarily unavailable for this token. Please try again later."
+                description: "Staking is temporarily unavailable for this token. Please try again later.",
+                action: nil
             ))
 
         case .unavailableInRegion:
