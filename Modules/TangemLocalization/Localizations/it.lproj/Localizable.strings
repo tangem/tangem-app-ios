@@ -283,6 +283,7 @@
 "common_generate_addresses" = "Synchronize addresses";
 "common_get_started" = "Get started";
 "common_get_token" = "Get token";
+"common_get" = "Get";
 "common_go_to_provider" = "Go to provider";
 "common_go_to_token" = "Go to token";
 "common_go_to_verification" = "Go to verification";
