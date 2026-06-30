@@ -86,6 +86,7 @@
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
 "address_book_copy_address" = "复制地址";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "无法创建联系人。请稍后再试。";
 "address_book_delete_contact_description" = "该联系人将从您所有的通讯录中删除";
 "address_book_deleting_error" = "无法删除联系人，请稍后再试。";
@@ -107,6 +108,7 @@
 "address_book_remove_address" = "移除地址";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "该联系人将与该钱包的通讯录关联。";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "选择网络";
 "address_book_title" = "地址簿";
 "address_book_unsaved_changes_description" = "您确定要放弃这些修改吗？";
@@ -283,6 +285,7 @@
 "common_generate_addresses" = "同步地址";
 "common_get_started" = "开始";
 "common_get_token" = "获取代币";
+"common_get" = "Get";
 "common_go_to_provider" = "前往服务提供商";
 "common_go_to_token" = "前往代币";
 "common_go_to_verification" = "Go to verification";
@@ -1014,6 +1017,7 @@
 "onramp_min_amount_restriction" = "购买金额必须至少 %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "累计交易金额超过等值金额 %1@ 可能需要通过 %2@进行身份验证";
 "onramp_native_payment_cumulative_limit" = "累计交易金额超过 %1@ 时，可能需要通过 %2@进行身份验证";
+"onramp_native_payment_identity_verification" = "Apple Pay 交易可能需要通过以下方式进行身份验证： %1@";
 "onramp_native_payment_legal_notice" = "点击“支付”即表示您同意 %1@的 %2@ 和 %3@。";
 "onramp_no_available_providers" = "目前没有提供此货币的供应商";
 "onramp_offer_type_fastet" = "最快处理";
