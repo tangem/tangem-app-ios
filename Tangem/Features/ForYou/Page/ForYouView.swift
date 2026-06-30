@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemLocalization
 
 struct ForYouView: View {
     let onBackButtonAction: () -> Void
@@ -39,7 +40,7 @@ struct ForYouView: View {
 
     private var navigationBar: some View {
         ZStack {
-            Text("For you")
+            Text(Localization.forYouTitle)
                 .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
             HStack {

@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemUIUtils
+import TangemLocalization
 
 struct ForYouEntranceBannerView: View {
     var body: some View {
@@ -21,11 +22,11 @@ struct ForYouEntranceBannerView: View {
                 .foregroundStyle(DesignSystem.Color.iconPrimary)
 
             VStack(alignment: .leading, spacing: .unit(.x1)) {
-                Text("For you")
+                Text(Localization.forYouTitle)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
 
-                Text("Review portfolio and explore earn opportunities")
+                Text(Localization.forYouDescription)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
