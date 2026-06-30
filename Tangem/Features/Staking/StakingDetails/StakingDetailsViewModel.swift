@@ -157,7 +157,6 @@ private extension StakingDetailsViewModel {
         switch state {
         case .loading:
             actionButtonLoading = true
-        // The region-unavailable error is surfaced as a floating sheet over Token Details, so this screen is never reached in that state.
         case .loadingError, .unavailableInRegion, .notEnabled:
             actionButtonLoading = false
             actionButtonType = .none

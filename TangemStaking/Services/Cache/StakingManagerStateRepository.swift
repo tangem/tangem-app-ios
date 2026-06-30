@@ -45,11 +45,6 @@ extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
     }
 
     public func state() -> CachedStakingManagerState? {
-        // [REDACTED_TODO_COMMENT]
-        if stakingWallet.item.network == .ethereum {
-            return CachedStakingManagerState(rewardType: .apy, apy: 5.5, stakeState: .staked(balance: 2), date: Date())
-        }
-
         let currentState = getCurrentState()
 
         return currentState[stakingWallet.cacheId]

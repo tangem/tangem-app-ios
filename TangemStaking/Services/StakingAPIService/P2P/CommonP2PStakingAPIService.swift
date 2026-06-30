@@ -99,9 +99,6 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         _ target: P2PTarget.Target,
         decoder: JSONDecoder? = nil
     ) async throws -> T {
-        // [REDACTED_TODO_COMMENT]
-        throw P2PStakingError.regionUnavailable
-
         let targetType = P2PTarget(
             apiKey: credential.apiKey,
             target: target,

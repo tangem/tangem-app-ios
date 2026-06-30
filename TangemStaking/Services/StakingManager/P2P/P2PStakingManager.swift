@@ -158,10 +158,8 @@ private extension P2PStakingManager {
 
         switch cached?.stakeState {
         case .staked:
-            // Scenarios 2 & 3: show the cached staked balance + region message
             updateState(.unavailableInRegion(cached: cached))
         case .availableToStake, .none:
-            // Scenario 1: nothing staked — hide staking entirely
             updateState(.notEnabled)
         }
     }
