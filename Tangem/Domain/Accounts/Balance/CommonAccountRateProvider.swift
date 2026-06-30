@@ -105,7 +105,7 @@ private extension CommonAccountRateProvider {
             result += weight * priceChange24h
         }
 
-        let fiatChange24h = totalBalance * weighted24h
+        let fiatChange24h = totalBalance * weighted24h / 100
 
         return AccountQuote(priceChange24h: weighted24h, fiatChange24h: fiatChange24h)
     }
