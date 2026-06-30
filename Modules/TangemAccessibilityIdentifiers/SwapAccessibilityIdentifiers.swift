@@ -16,6 +16,7 @@ public enum SwapAccessibilityIdentifiers {
     // Amount input section
     public static let fromAmountTextField = "swapFromAmountTextField"
     public static let toAmountTextField = "swapToAmountTextField"
+    public static let receiveAmountValue = "swapReceiveAmountValue"
     public static let tokenSelector = "swapTokenSelector"
     public static let swapTokensButton = "swapTokensButton"
     public static let currencyToggleButton = "swapCurrencyToggleButton"

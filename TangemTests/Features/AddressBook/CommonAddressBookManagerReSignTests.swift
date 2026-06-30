@@ -155,9 +155,14 @@ private final class FakeRepository: AddressBookRepository {
 
     var contactsPublisher: AnyPublisher<[AddressBookDecodedContact], Never> { contactsSubject.eraseToAnyPublisher() }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { syncStateSubject.eraseToAnyPublisher() }
-    var syncState: AddressBookSyncState { syncStateSubject.value }
 
-    func load() async {}
+    func ensureBookMutable() throws {
+        guard case .synced = syncStateSubject.value else {
+            throw AddressBookRepositoryError.bookUnavailable
+        }
+    }
+
+    func load(silent: Bool) async {}
 
     func save(contacts: [AddressBookDecodedContact]) async throws {
         savedContacts = contacts
