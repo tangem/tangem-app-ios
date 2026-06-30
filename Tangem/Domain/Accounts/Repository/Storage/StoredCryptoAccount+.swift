@@ -84,14 +84,12 @@ extension StoredCryptoAccount.Token {
         )
     }
 
-    /// - Warning: Ignores derivation path; it is the caller's responsibility to guarantee that all comparisons
-    /// are performed within the same user tokens manager (i.e., all derivation paths are the same).
+    /// - Warning: Ignores derivation path from `tokenItem`; it is the caller's responsibility to guarantee that all
+    /// comparisons are performed within the same user tokens manager (i.e., all derivation paths are the same).
     func isEqual(to tokenItem: TokenItem, in network: StoredBlockchainNetwork) -> Bool {
         return blockchainNetwork.knownValue == network && contractAddress == tokenItem.contractAddress
     }
 
-    /// - Warning: Ignores derivation path; it is the caller's responsibility to guarantee that all comparisons
-    /// are performed within the same user tokens manager (i.e., all derivation paths are the same).
     func isEqual(to tokenItem: TokenItem) -> Bool {
         let blockchainNetworkContainer = tokenItem.toStoredToken().blockchainNetwork
 

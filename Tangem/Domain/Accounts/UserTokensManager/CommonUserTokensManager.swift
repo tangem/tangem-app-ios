@@ -319,7 +319,7 @@ extension CommonUserTokensManager: UserTokensManager {
         // Some token items already have `derivationPath` property set and must be used as-is to avoid matching the wrong account.
         // For example, token items from `WalletModel` already have the correct derivation path.
         //
-        // Obviously, token enrichment only make sense for derivation-sensitive checks, otherwise derivation is ignored.
+        // Obviously, token enrichment only makes sense for derivation-sensitive checks, otherwise derivation is ignored.
         let tokenItem = !derivationInsensitive && tokenItem.blockchainNetwork.derivationPath == nil
             ? withBlockchainNetwork(tokenItem)
             : tokenItem
