@@ -1312,6 +1312,7 @@
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
 "staking_error_unavailable_region" = "Staking is unavailable in your region";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
 "staking_legal" = "By using staking functionality, you agree with provider’s %1$@ and %2$@";
 "staking_locked" = "Locked";

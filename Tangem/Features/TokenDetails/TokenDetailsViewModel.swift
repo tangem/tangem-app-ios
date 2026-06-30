@@ -668,9 +668,13 @@ private extension TokenDetailsViewModel {
             message: Localization.stakingErrorUnavailableRegion,
             fiatBalance: attributedFiatBalance,
             cryptoBalance: cryptoBalance,
-            action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
+            action: weakify(self, forFunction: TokenDetailsViewModel.openStakingRegionUnavailableSheet)
         )
         return .unavailableInRegion(item: item)
+    }
+
+    private func openStakingRegionUnavailableSheet() {
+        coordinator?.openStakingRegionUnavailableSheet()
     }
 
     private func makeStakingRewardsState(staked: StakingManagerState.Staked) -> TokenDetailsStakingState.RewardsState {

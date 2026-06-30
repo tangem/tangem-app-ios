@@ -34,10 +34,6 @@ struct StakingDetailsView: View {
                     banner
                 }
 
-                if let regionUnavailableMessage = viewModel.regionUnavailableMessage {
-                    regionUnavailableView(message: regionUnavailableMessage)
-                }
-
                 GroupedSection(viewModel.detailsViewModels) { data in
                     DefaultRowView(viewModel: data)
                 }
@@ -89,16 +85,6 @@ struct StakingDetailsView: View {
                     .padding(.leading, 14)
             }
         }
-    }
-
-    private func regionUnavailableView(message: String) -> some View {
-        Text(message)
-            .font(Fonts.Regular.footnote)
-            .foregroundColor(Colors.Text.tertiary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
-            .background(Colors.Background.primary)
-            .cornerRadiusContinuous(14)
     }
 
     private var whatIsStakingText: some View {
