@@ -86,6 +86,7 @@
 "address_book_contact_name" = "Имя контакта";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Копировать адрес";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Не удалось создать контакт. Пожалуйста, попробуйте позже.";
 "address_book_delete_contact_description" = "Этот контакт будет удален из всех ваших адресных книг";
 "address_book_deleting_error" = "Не удалось удалить контакт. Пожалуйста, попробуйте позже.";
@@ -107,6 +108,7 @@
 "address_book_remove_address" = "Удалить адрес";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Этот контакт будет привязан к этому кошельку в адресной книге.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Выбрать сеть";
 "address_book_title" = "Адресная книга";
 "address_book_unsaved_changes_description" = "Вы уверены, что хотите отменить изменения?";
@@ -283,6 +285,7 @@
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_get_started" = "Начать";
 "common_get_token" = "Получить токен";
+"common_get" = "Get";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
 "common_go_to_verification" = "Go to verification";
@@ -1014,6 +1017,7 @@
 "onramp_min_amount_restriction" = "Сумма покупки должна составлять минимум %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Общая сумма транзакций, превышающая эквивалент %1@, может потребовать верификации личности через %2@";
 "onramp_native_payment_cumulative_limit" = "Общая сумма транзакций свыше %1@ может потребовать верификации личности через %2@";
+"onramp_native_payment_identity_verification" = "Для транзакций через Apple Pay может потребоваться верификация личности в %1@";
 "onramp_native_payment_legal_notice" = "Нажимая «Оплатить», вы соглашаетесь с %1@'s %2@ и %3@.";
 "onramp_no_available_providers" = "Нет доступных провайдеров для выбранной валюты";
 "onramp_offer_type_fastet" = "Самый быстрый";
