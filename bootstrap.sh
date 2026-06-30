@@ -49,6 +49,10 @@ do
     shift
 done
 
+echo "🔄 Initializing git submodules"
+git submodule update --init --recursive
+echo "✅ Git submodules initialized"
+
 echo "🔜 Check & Install dependencies..."
 
 if which -a brew > /dev/null; then
