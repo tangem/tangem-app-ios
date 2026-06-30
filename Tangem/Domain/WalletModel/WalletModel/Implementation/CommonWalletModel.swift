@@ -375,12 +375,12 @@ extension CommonWalletModel: WalletModelUpdater {
         let logger = AppLogger.tag("WalletModelUpdater")
 
         async let balancesUpdate: () = {
-            if features.contains(.balances) {
+            for case .balances(let stakingUpdateSource) in features {
                 if !silent { await updateState(.loading) }
 
                 async let update: () = walletManager.update()
                 async let quotes: () = loadQuotes()
-                async let staking: ()? = _stakingManager?.updateState(loadActions: true)
+                async let staking: ()? = _stakingManager?.updateState(loadActions: true, source: stakingUpdateSource)
 
                 _ = await (update, quotes, staking)
                 await _receiveAddressService.update(with: wallet.addresses)
