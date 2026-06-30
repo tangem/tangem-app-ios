@@ -21,30 +21,8 @@ struct ProductionLogSanitizerPolicyTests {
         #expect(actual == input)
     }
 
-    @Test
-    func shouldPreserveAllValuesInSwapLog() {
-        let input = """
-        "txId": "23b0ba60-8f61-4917-83e7-0464f97f1d55",
-        "providerId": "okx-cross-chain",
-        "fromAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12",
-        "payinAddress": "0x89f423567c2648BB828c3997f60c47b54f57Fa6e",
-        "payoutAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12",
-        "refundAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12",
-        "rateType": "float",
-        "status": "finished",
-        "externalTxStatus": "finished",
-        "txHash": "0x7cebe3ac2dbfc308da75bd0645274972b021edca82f164f69370d21fad17eb0d",
-        "fromContractAddress": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-        "fromNetwork": "polygon-pos",
-        "fromDecimals": 6,
-        "fromAmount": "9000000",
-        "toContractAddress": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
-        "toNetwork": "arbitrum-one",
-        "toDecimals": 8,
-        "toAmount": "14428",
-        "createdAt": "2024-09-19T06:35:22.312Z"
-        """
-
+    @Test(arguments: Self.swapDTOLogPayloads)
+    func shouldPreserveSwapDTOLogPayloads(input: String) {
         let actual = LogSanitizer.sanitize(input, policy: .production)
         #expect(actual == input)
     }
@@ -235,4 +213,60 @@ struct ProductionLogSanitizerPolicyTests {
 extension ProductionLogSanitizerPolicyTests {
     private static let sensitiveKeyRedactPlaceholder = "REDACTED_SENSITIVE_KEY"
     private static let broadHexRedactPlaceholder = "REDACTED_HEX"
+}
+
+extension ProductionLogSanitizerPolicyTests {
+    static let expressDTOSwapExchangeStatusResponse = """
+    Exchange status response payload:
+    "txId": "23b0ba60-8f61-4917-83e7-0464f97f1d55"
+    "providerId": "okx-cross-chain"
+    "fromAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12"
+    "payinAddress": "0x89f423567c2648BB828c3997f60c47b54f57Fa6e"
+    "payinExtraId": "0xabcdef0123456789"
+    "payoutAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12"
+    "refundAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12"
+    "refundExtraId": "0xabcdef0123456789"
+    "rateType": "float"
+    "status": "finished"
+    "externalTxId": "8d58d15b-04f4-4631-9a67-b481e3b7c114"
+    "externalTxUrl": "https://www.okx.com/web3/dex-swap/0x7cebe3ac2dbfc308da75bd0645274972b021edca82f164f69370d21fad17eb0d"
+    "payinHash": "0x7cebe3ac2dbfc308da75bd0645274972b021edca82f164f69370d21fad17eb0d"
+    "payoutHash": "0xa3d53ce7f6f9a884d1b9ed62c1f7b872f7d4b2ac51d4276c908e8bb4ce1d3e9f"
+    "refundNetwork": "polygon-pos"
+    "refundContractAddress": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+    "createdAt": "2024-09-19T06:35:22.312Z"
+    "updatedAt": "2024-09-19T06:45:22.312Z"
+    "payTill": "2024-09-19T07:35:22.312Z"
+    "averageDuration": "900.0"
+    "fromContractAddress": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+    "fromNetwork": "polygon-pos"
+    "fromDecimals": "6"
+    "fromAmount": "9000000"
+    "toContractAddress": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"
+    "toNetwork": "arbitrum-one"
+    "toDecimals": "8"
+    "toAmount": "14428"
+    "toActualAmount": "14420"
+    """
+
+    static let decodedTransactionDetails: String = """
+    Exchange data decoded transaction details payload:
+    "requestId": "23b0ba60-8f61-4917-83e7-0464f97f1d55"
+    "txType": "send"
+    "txFrom": "0x0f0632254b1b45b835e5911E729871667E91BE12"
+    "txTo": "0x89f423567c2648BB828c3997f60c47b54f57Fa6e"
+    "txExtraId": "0xabcdef0123456789"
+    "txValue": "9000000"
+    "otherNativeFee": "nil"
+    "gas": "nil"
+    "externalTxId": "8d58d15b-04f4-4631-9a67-b481e3b7c114"
+    "externalTxUrl": "https://www.okx.com/web3/dex-swap/0x7cebe3ac2dbfc308da75bd0645274972b021edca82f164f69370d21fad17eb0d"
+    "payoutAddress": "0x0f0632254b1b45b835e5911E729871667E91BE12"
+    "payoutExtraId": "0xabcdef0123456789"
+    """
+
+    static let swapDTOLogPayloads = [
+        expressDTOSwapExchangeStatusResponse,
+        decodedTransactionDetails,
+    ]
 }

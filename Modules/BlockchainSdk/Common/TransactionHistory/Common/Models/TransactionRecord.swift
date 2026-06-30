@@ -25,11 +25,9 @@ public struct TransactionRecord: Hashable {
     public let isFromYieldContract: Bool
     /// For EVM only.
     public let nonce: Int?
+    public var extraInfo: ExtraInfo? { _extraInfo?.wrapped }
 
-    // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Implementation details, do not use this property.")
-    @IgnoredEquatable
-    public private(set) var _extraInfo: Any? /* TransactionRecordExtraInfo */
+    private let _extraInfo: AnyExtraInfo?
 
     public func hasDestination(address: String) -> Bool {
         switch destination {
@@ -53,7 +51,7 @@ public struct TransactionRecord: Hashable {
         tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
         nonce: Int?,
-        extraInfo: Any? = nil
+        extraInfo: (ExtraInfo & Hashable)? = nil
     ) {
         self.index = index
         self.hash = hash
@@ -67,7 +65,7 @@ public struct TransactionRecord: Hashable {
         self.tokenTransfers = tokenTransfers
         self.isFromYieldContract = isFromYieldContract
         self.nonce = nonce
-        _extraInfo = extraInfo
+        _extraInfo = extraInfo.map(AnyExtraInfo.init)
     }
 }
 
@@ -219,5 +217,47 @@ public extension TransactionRecord {
         public let symbol: String?
         public let decimals: Int?
         public let contract: String?
+    }
+}
+
+// MARK: - ExtraInfo
+
+public extension TransactionRecord {
+    /// A marker-only protocol used for passing various opaque data between `BSDK` <-> `Express` <-> `App` domains.
+    @_marker
+    protocol ExtraInfo {}
+}
+
+// MARK: - Interoperability for `ExtraInfo` (private implementation)
+
+private extension TransactionRecord {
+    /// This box is needed for three reasons:
+    /// - Marker-only protocols can't have inheritance, for example `Hashable`. So we can't write `protocol ExtraInfo: Hashable {}`
+    /// - Existential types can't conform to protocols, so we can't write `let extraInfo: (ExtraInfo & Hashable)?`
+    /// - Generics also can't be used here, because they would require specifying the type at compile time instead of just passing nil for `T?`
+    struct AnyExtraInfo {
+        let wrapped: ExtraInfo & Hashable
+    }
+}
+
+extension TransactionRecord.AnyExtraInfo: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.wrapped.isEqual(to: rhs.wrapped)
+    }
+}
+
+extension TransactionRecord.AnyExtraInfo: Hashable {
+    func hash(into hasher: inout Hasher) {
+        wrapped.hash(into: &hasher)
+    }
+}
+
+private extension TransactionRecord.ExtraInfo where Self: Equatable {
+    func isEqual(to other: TransactionRecord.ExtraInfo) -> Bool {
+        guard let other = other as? Self else {
+            return false
+        }
+
+        return self == other
     }
 }

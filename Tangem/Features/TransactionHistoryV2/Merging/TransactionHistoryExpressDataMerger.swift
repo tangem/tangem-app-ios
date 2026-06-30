@@ -107,7 +107,7 @@ struct TransactionHistoryExpressDataMerger {
             }
 
             if let matchedBSDKTransactions {
-                output.append(contentsOf: matchedBSDKTransactions.map { $0.withExtraInfo(.exchange(info)) })
+                output.append(contentsOf: matchedBSDKTransactions.map { $0.withExpressExtraInfo(TransactionHistoryExpressExtraInfo.exchange(info)) })
                 // Updating the tombstone set to prevent double-matching of the already consumed BSDK transaction
                 consumedBSDKTransactionsIds.formUnion(matchedBSDKTransactions.map(\.id))
                 didMatch = true
@@ -121,7 +121,7 @@ struct TransactionHistoryExpressDataMerger {
                 from: bsdkTransactions,
                 consumedBSDKTransactionsIds: consumedBSDKTransactionsIds
             ), let refundedBSDKTransactions = bsdkTransactionsGroupedByHash.removeValue(forKey: refundMatch.hash) {
-                output.append(contentsOf: refundedBSDKTransactions.map { $0.withExtraInfo(.exchange(info)) })
+                output.append(contentsOf: refundedBSDKTransactions.map { $0.withExpressExtraInfo(TransactionHistoryExpressExtraInfo.exchange(info)) })
                 // Updating the tombstone set to prevent double-matching of the already consumed BSDK transaction
                 consumedBSDKTransactionsIds.formUnion(refundedBSDKTransactions.map(\.id))
                 didMatch = true
@@ -159,7 +159,7 @@ struct TransactionHistoryExpressDataMerger {
             }
 
             if let matchedBSDKTransactions {
-                output.append(contentsOf: matchedBSDKTransactions.map { $0.withExtraInfo(.onramp(info)) })
+                output.append(contentsOf: matchedBSDKTransactions.map { $0.withExpressExtraInfo(TransactionHistoryExpressExtraInfo.onramp(info)) })
                 // Updating the tombstone set to prevent double-matching of the already consumed BSDK transaction
                 consumedBSDKTransactionsIds.formUnion(matchedBSDKTransactions.map(\.id))
                 didMatch = true
