@@ -73,6 +73,7 @@ struct UserWalletView: View {
                         contentFooterSpacer
                         bottomOverlaySpacer
                     }
+                    .frame(minHeight: rootGeometryProxy.size.height + snapLayout.fullHeaderHeight, alignment: .top)
                     .onGeometryChange(
                         for: CGRect.self,
                         of: { contentGeometryProxy in
