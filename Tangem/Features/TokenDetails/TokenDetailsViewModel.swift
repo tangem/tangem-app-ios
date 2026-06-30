@@ -580,8 +580,8 @@ private extension TokenDetailsViewModel {
             stakingState = makeEnableStakingState(staked: staked)
         case .loadingError, .temporaryUnavailable:
             stakingState = makeUnavailableStakingState()
-        case .unavailableInRegion(.some(let cached)):
-            stakingState = makeRegionUnavailableStakingState(cached: cached)
+        case .unavailableInRegion(.some):
+            stakingState = makeRegionUnavailableStakingState()
         case .unavailableInRegion(.none), .notEnabled:
             stakingState = nil
         }
@@ -644,33 +644,13 @@ private extension TokenDetailsViewModel {
         return .unavailable(item: item)
     }
 
-    private func makeRegionUnavailableStakingState(cached: CachedStakingManagerState) -> TokenDetailsStakingState {
-        let balance = cached.stakeState.balance
-
-        let cryptoBalance = balanceFormatter.formatCryptoBalance(
-            balance,
-            currencyCode: walletModel.tokenItem.currencySymbol
-        )
-
-        let fiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
-            balanceConverter.convertToFiat(balance, currencyId: currencyId)
-        }
-        let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
-        let attributedFiatBalance = TangemTokenRowBalanceFormatter.formatWithDecimalColoring(
-            formattedFiatBalance,
-            font: Font.Tangem.Body16.medium,
-            integerColor: .Tangem.Text.Neutral.primary,
-            decimalColor: .Tangem.Text.Neutral.secondary
-        )
-
-        let item = TokenDetailsStakingState.RegionItem(
+    private func makeRegionUnavailableStakingState() -> TokenDetailsStakingState {
+        let item = TokenDetailsStakingState.UnavailableItem(
             title: Localization.commonStaking,
-            message: Localization.stakingErrorUnavailableRegion,
-            fiatBalance: attributedFiatBalance,
-            cryptoBalance: cryptoBalance,
+            description: Localization.stakingErrorUnavailableRegion,
             action: weakify(self, forFunction: TokenDetailsViewModel.openStakingRegionUnavailableSheet)
         )
-        return .unavailableInRegion(item: item)
+        return .unavailable(item: item)
     }
 
     private func openStakingRegionUnavailableSheet() {

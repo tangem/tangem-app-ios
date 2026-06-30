@@ -41,8 +41,6 @@ struct TokenDetailsStakingView: View {
             enableView(item: item)
         case .unavailable(let item):
             unavailableView(item: item)
-        case .unavailableInRegion(let item):
-            unavailableRegionView(item: item)
         }
     }
 }
@@ -142,49 +140,11 @@ private extension TokenDetailsStakingView {
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
     }
 
-    func unavailableRegionView(item: TokenDetailsStakingState.RegionItem) -> some View {
-        Button(action: item.action) {
-            HStack(spacing: horizontalSpacing) {
-                Assets.stakingFilledMonochrome.image
-                    .renderingMode(.original)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(size: CGSize(bothDimensions: iconDimension))
-
-                VStack(alignment: .leading, spacing: verticalSpacing) {
-                    Text(item.title)
-                        .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.primary)
-                        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
-
-                    Text(item.message)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
-                        .lineLimit(nil)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                VStack(alignment: .trailing, spacing: verticalSpacing) {
-                    SensitiveText(item.fiatBalance)
-
-                    SensitiveText(item.cryptoBalance)
-                        .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
-                }
-                .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)
-            }
-            .padding(padding)
-            .background(Color.Tangem.Surface.level3, in: RoundedRectangle(cornerRadius: cornerRadius))
-            .overlay {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
-            }
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
-    }
-
+    @ViewBuilder
     func unavailableView(item: TokenDetailsStakingState.UnavailableItem) -> some View {
-        HStack(spacing: horizontalSpacing) {
+        let titleColor: Color = item.action == nil ? .Tangem.Text.Neutral.tertiary : .Tangem.Text.Neutral.primary
+
+        let content = HStack(spacing: horizontalSpacing) {
             Assets.stakingFilledMonochrome.image
                 .renderingMode(.original)
                 .resizable()
@@ -193,7 +153,7 @@ private extension TokenDetailsStakingView {
 
             VStack(alignment: .leading, spacing: verticalSpacing) {
                 Text(item.title)
-                    .style(Font.Tangem.Body16.medium, color: .Tangem.Text.Neutral.tertiary)
+                    .style(Font.Tangem.Body16.medium, color: titleColor)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingTitle)
 
                 Text(item.description)
@@ -209,6 +169,14 @@ private extension TokenDetailsStakingView {
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .stroke(Color.Tangem.Border.Neutral.primary, lineWidth: borderWidth)
+        }
+
+        if let action = item.action {
+            Button(action: action) { content }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
+        } else {
+            content
         }
     }
 

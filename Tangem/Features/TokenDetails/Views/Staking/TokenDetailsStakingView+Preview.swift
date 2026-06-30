@@ -143,11 +143,9 @@ private enum PreviewStakingState: String, CaseIterable, Identifiable {
             ))
 
         case .unavailableInRegion:
-            return .unavailableInRegion(item: .init(
+            return .unavailable(item: .init(
                 title: "Staking",
-                message: "Staking is unavailable in your region",
-                fiatBalance: AttributedString("$1,234.56"),
-                cryptoBalance: "0.5 ETH",
+                description: "Staking is unavailable in your region",
                 action: {}
             ))
         }
