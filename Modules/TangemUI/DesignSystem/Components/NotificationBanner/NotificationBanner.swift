@@ -44,12 +44,16 @@ public struct NotificationBanner: View, Setupable {
         }
     }
 
-    private var iconIsLeading: Bool {
+    private func iconIsLeading(for icon: Icon) -> Bool {
+        if let isLeading = icon.isLeading {
+            return isLeading
+        }
+
         switch bannerType {
         case .promo:
-            true
+            return true
         case .status, .critical, .warning, .survey, .informational:
-            false
+            return false
         }
     }
 
@@ -127,11 +131,12 @@ public struct NotificationBanner: View, Setupable {
             textStack(title: textOnly.title, subtitle: textOnly.subtitle)
 
         case .textWithIcon(let data):
+            let isLeading = iconIsLeading(for: data.icon)
             HStack(
                 alignment: data.icon.alignment.verticalAlignment,
-                spacing: iconIsLeading ? SizeUnit.x1.value : SizeUnit.x2.value
+                spacing: isLeading ? SizeUnit.x1.value : SizeUnit.x2.value
             ) {
-                if iconIsLeading {
+                if isLeading {
                     iconImage(for: data.icon)
                     textStack(title: data.text.title, subtitle: data.text.subtitle)
                     Spacer(minLength: 0)
@@ -166,6 +171,7 @@ public struct NotificationBanner: View, Setupable {
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: iconWidth, height: iconHeight)
+            .foregroundColor(icon.color)
     }
 
     private var closeButtonClearance: CGFloat {
