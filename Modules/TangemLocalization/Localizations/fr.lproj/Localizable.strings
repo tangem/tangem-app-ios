@@ -86,6 +86,7 @@
 "address_book_contact_name" = "Nom du contact";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copier l'adresse";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Nous n'avons pas pu créer le contact. Veuillez réessayer plus tard.";
 "address_book_delete_contact_description" = "Ce contact sera supprimé de tous vos carnets d'adresses";
 "address_book_deleting_error" = "Nous n'avons pas pu supprimer le contact. Veuillez réessayer plus tard.";
@@ -107,6 +108,7 @@
 "address_book_remove_address" = "Supprimer l'adresse";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Ce contact va être lié au carnet d'adresses de ce portefeuille.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Sélectionner un réseau";
 "address_book_title" = "Carnet d'adresses";
 "address_book_unsaved_changes_description" = "Êtes-vous certain de vouloir annuler les modifications?";
@@ -283,6 +285,7 @@
 "common_generate_addresses" = "Synchroniser les adresses";
 "common_get_started" = "Commencer";
 "common_get_token" = "Obtenir un token";
+"common_get" = "Get";
 "common_go_to_provider" = "Aller au fournisseur";
 "common_go_to_token" = "Aller au jeton";
 "common_go_to_verification" = "Go to verification";
@@ -1014,6 +1017,7 @@
 "onramp_min_amount_restriction" = "Le montant à acheter doit être au moins %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Si le montant cumulé des transactions dépasse l'équivalent de %1@, une vérification d'identité via %2@ pourrait être requise";
 "onramp_native_payment_cumulative_limit" = "Si le montant cumulé des transactions dépasse %1@, une vérification d'identité via %2@ pourrait être requise";
+"onramp_native_payment_identity_verification" = "Les transactions Apple Pay peuvent nécessiter une vérification d'identité avec %1@";
 "onramp_native_payment_legal_notice" = "En appuyant sur Acheter, vous acceptez %1@ %2@ et %3@.";
 "onramp_no_available_providers" = "Aucun fournisseur disponible pour cette devise";
 "onramp_offer_type_fastet" = "Le plus rapide";
