@@ -153,6 +153,12 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
 
+        // MARK: - Address Book
+        case .syncAddressBooks:
+            return "/address-books/sync"
+        case .updateAddressBook(let walletId, _, _):
+            return "/address-books/\(walletId)"
+
         // MARK: - News
         case .newsList:
             return "/news"
@@ -210,15 +216,17 @@ struct TangemApiTarget: TargetType {
              .saveUserWalletTokensV2,
              .saveUserAccounts,
              .connectUserWallets,
-             .updateNotificationPreferences:
+             .updateNotificationPreferences,
+             .updateAddressBook:
             return .put
         case .participateInReferralProgram,
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
-             .subscribeToPriceAlerts,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .syncAddressBooks,
+             .subscribeToPriceAlerts:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -334,6 +342,12 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts:
             return .requestPlain
 
+        // MARK: - Address Book
+        case .syncAddressBooks(let request):
+            return .requestJSONEncodable(request)
+        case .updateAddressBook(_, _, let body):
+            return .requestJSONEncodable(body)
+
         // MARK: - News
         case .newsList(let requestModel):
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
@@ -371,6 +385,9 @@ struct TangemApiTarget: TargetType {
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
             ]
+        case .updateAddressBook(_, let knownETag, _):
+            // Optimistic locking: send If-Match only when we already hold an etag (the client never mints one).
+            return knownETag.map { [TangemAPIHeaders.ifMatch.rawValue: $0] }
         case .rawData,
              .currencies,
              .coins,
@@ -419,7 +436,8 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .syncAddressBooks:
             return nil
         }
     }
@@ -506,6 +524,10 @@ extension TangemApiTarget {
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
 
+        // Address Book
+        case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
+        case updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest)
+
         // MARK: - News Targets
 
         case trendingNews(limit: Int?, lang: String?)
@@ -583,6 +605,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserAccounts,
              .saveUserAccounts,
              .getArchivedUserAccounts,
+             .syncAddressBooks,
+             .updateAddressBook,
              .activatePromoCode,
              .coinsSettings:
             return true

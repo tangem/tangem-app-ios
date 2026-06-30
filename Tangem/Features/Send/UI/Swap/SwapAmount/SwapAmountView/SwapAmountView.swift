@@ -100,6 +100,7 @@ struct SwapAmountView: View {
                 textColor: Colors.Text.primary1,
                 loaderSize: CGSize(width: 102, height: 24)
             )
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.receiveAmountValue)
         }
         .didTapChangeCurrency(viewModel.userDidTapChangeReceiveTokenButton)
         .didTapNetworkFeeInfoButton { type in
