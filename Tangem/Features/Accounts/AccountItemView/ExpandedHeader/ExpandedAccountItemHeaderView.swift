@@ -31,7 +31,7 @@ struct ExpandedAccountItemHeaderView: View {
     @ScaledMetric private var verticalAlignmentGuideBase: CGFloat = 10
 
     /// Vertical offset to align expanded content with collapsed state position.
-    /// The collapsed view uses TwoLineRowWithIcon which centers content with a 40pt icon,
+    /// The collapsed view uses TwoLineRowWithIcon which centers content with a 40pt icon (redesign; 36pt legacy),
     /// while the expanded view has a simpler layout with a 14pt icon. This offset
     /// compensates for the vertical position difference, ensuring the matchedGeometryEffect
     /// animation moves horizontally rather than diagonally.
