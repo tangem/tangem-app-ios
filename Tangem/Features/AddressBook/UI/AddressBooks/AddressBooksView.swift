@@ -16,9 +16,11 @@ struct AddressBooksView: View {
     @ObservedObject var viewModel: AddressBooksViewModel
 
     var body: some View {
-        content
+        rootContent
             .navigationTitle(Text(Localization.addressBookTitle))
-            // [REDACTED_TODO_COMMENT]
+            .searchable(text: $viewModel.searchText, prompt: Text(Localization.commonSearch))
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
             .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
             .toolbar { trailingToolbarItem }
     }
@@ -38,37 +40,47 @@ struct AddressBooksView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        if case .success(let contactsViewModels) = viewModel.contactsViewModels, contactsViewModels.isEmpty {
+    private var rootContent: some View {
+        switch viewModel.contentState {
+        case .empty:
             AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
                 .infinityFrame()
-        } else {
-            GroupedScrollView(contentType: .lazy(spacing: 8)) {
-                scrollContent
-            }
-            .interContentPadding(12)
+
+        case .failure:
+            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
+                .infinityFrame()
+
+        case .noResults:
+            AddressBooksSearchNoResultsView()
+                .infinityFrame()
+
+        case .loading, .searching, .results:
+            listContent
         }
     }
 
     @ViewBuilder
-    private var scrollContent: some View {
-        chipsView
+    private var listContent: some View {
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
+            chipsView
 
-        switch viewModel.contactsViewModels {
-        case .loading:
-            AddressBooksLoadingView()
+            switch viewModel.contentState {
+            case .loading, .searching:
+                AddressBooksLoadingView()
 
-        case .failure:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
+            case .results(let contactsViewModels):
+                GroupedSection(contactsViewModels, isLazy: true) {
+                    AddressBookContactView(viewModel: $0)
+                }
+                .separatorStyle(.none)
+                .cornerRadius(24)
+                .horizontalPadding(0)
 
-        case .success(let contactsViewModels):
-            GroupedSection(contactsViewModels, isLazy: true) {
-                AddressBookContactView(viewModel: $0)
+            default:
+                EmptyView()
             }
-            .separatorStyle(.none)
-            .cornerRadius(24)
-            .horizontalPadding(0)
         }
+        .interContentPadding(12)
     }
 
     @ViewBuilder
