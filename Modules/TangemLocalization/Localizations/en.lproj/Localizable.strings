@@ -96,7 +96,7 @@
 "address_book_invalid_address_error" = "Invalid address";
 "address_book_keep_editing" = "Keep editing";
 "address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
-"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_max_networks_alert_title" = "Can't add new address";
 "address_book_name_empty_error" = "Contact name is required";
 "address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
 "address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
@@ -322,6 +322,7 @@
 "common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
 "common_privacy_policy" = "Privacy Policy";
+"common_rate" = "Rate";
 "common_read_more" = "Read more";
 "common_receive" = "Receive";
 "common_received" = "Received";
@@ -375,6 +376,7 @@
 "common_token_send" = "Token to send";
 "common_token" = "Token";
 "common_transaction_failed" = "Transaction failed";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
@@ -581,6 +583,8 @@
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "feedback_token_description_error" = "Coin description error";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
 "force_update_banner_title" = "Update needed";
@@ -1311,6 +1315,7 @@
 "staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
 "staking_legal" = "By using staking functionality, you agree with provider’s %1$@ and %2$@";
@@ -1601,6 +1606,10 @@
 "tangempay_change_pin_code" = "Change PIN-code";
 "tangempay_come_back_if_forget_pin" = "Come back to the app if you forget it.";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Set a limit from %@ to %@";
 "tangempay_daily_limit_set_button" = "Set limits";
 "tangempay_declined_reason_1" = "insufficient funds";
@@ -1824,6 +1833,7 @@
 "twins_scan_twin_with_number" = "Tap the twin card with number %@ and do not remove until the end of the operation";
 "tx_history_onramp_top_up" = "Top up";
 "tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
 "unexpected_error_title" = "Something went wrong!";
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
