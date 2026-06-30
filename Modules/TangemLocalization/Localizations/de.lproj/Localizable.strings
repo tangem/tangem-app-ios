@@ -86,6 +86,7 @@
 "address_book_contact_name" = "Name der Kontaktperson";
 "address_book_contact" = "Kontakt";
 "address_book_copy_address" = "Adresse kopieren";
+"address_book_create_success_message" = "Kontakt hinzugefügt";
 "address_book_creating_error" = "Es konnte kein Kontakt hergestellt werden. Bitte versuchen Sie es später erneut.";
 "address_book_delete_contact_description" = "Dieser Kontakt wird aus all Ihren Adressbüchern gelöscht.";
 "address_book_deleting_error" = "Der Kontakt konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.";
@@ -107,6 +108,7 @@
 "address_book_remove_address" = "Adresse entfernen";
 "address_book_save_to_wallet_title" = "In Wallet speichern";
 "address_book_save_wallet_to_description" = "Dieser Kontakt wird mit dem Adressbuch dieser Wallet verknüpft.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Netzwerk auswählen";
 "address_book_title" = "Adressbuch";
 "address_book_unsaved_changes_description" = "Möchten Sie die Änderungen wirklich verwerfen?";
@@ -283,6 +285,7 @@
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_get_started" = "Erste Schritte";
 "common_get_token" = "Token erhalten";
+"common_get" = "Erhalten";
 "common_go_to_provider" = "Zum Anbieter gehen";
 "common_go_to_token" = "Zum Token";
 "common_go_to_verification" = "Zur Verifizierung gehen";
@@ -1014,6 +1017,7 @@
 "onramp_min_amount_restriction" = "Der zu kaufende Betrag muss mindestens %@ betragen";
 "onramp_native_payment_cumulative_limit_equivalent" = "Kumulierte Transaktionsbeträge über dem Gegenwert von %1@ können eine Identitätsprüfung mit %2@";
 "onramp_native_payment_cumulative_limit" = "Kumulierte Transaktionsbeträge über %1@ können eine Identitätsüberprüfung mit %2@";
+"onramp_native_payment_identity_verification" = "Apple Pay-Transaktionen erfordern möglicherweise eine Identitätsprüfung mit %1@";
 "onramp_native_payment_legal_notice" = "Indem du auf \"Bezahlen\" klicken, stimmen Sie %1@'s %2@ und %3@zu.";
 "onramp_no_available_providers" = "Keine verfügbaren Anbieter für diese Währung";
 "onramp_offer_type_fastet" = "Schnellste Bearbeitung";
@@ -1315,7 +1319,7 @@
 "staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
-"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
+"staking_error_unavailable_region_description" = "Staking ist in Ihrer Region derzeit nicht verfügbar. Falls Sie ein VPN aktiviert haben, deaktivieren Sie es bitte.";
 "staking_error_unavailable_region" = "Staking ist in Ihrer Region nicht verfügbar.";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
