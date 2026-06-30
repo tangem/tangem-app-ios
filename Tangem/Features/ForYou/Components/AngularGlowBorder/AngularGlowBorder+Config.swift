@@ -22,10 +22,12 @@ extension AngularGlowBorder {
         var duration: Double = 24
         var clockwise = true
         var seamOffset: Double = 0
-        var stops: [Gradient.Stop] = [
+        var stopsA: [Gradient.Stop] = [
             .init(color: .black, location: 0),
             .init(color: Color(white: 0.4), location: 1),
         ]
+        var stopsB: [Gradient.Stop]?
+        var morphDuration: Double = 12 // seconds; A↔B ping-pong period (independent of rotation)
         var layers: [BorderLayer] = [
             BorderLayer(stroke: 2, blur: 1), // Top — border-width/md (2)
             BorderLayer(stroke: 4, blur: 8), // Mid — border-width/lg (4)

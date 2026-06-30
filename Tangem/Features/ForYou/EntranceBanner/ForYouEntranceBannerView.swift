@@ -34,7 +34,7 @@ struct ForYouEntranceBannerView: View {
         .padding(.unit(.x4))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(background)
-        .overlay(AngularGlowBorder(config: AngularGlowBorder.Config(stops: Self.magicStops)))
+        .overlay(AngularGlowBorder(config: AngularGlowBorder.Config(stopsA: Self.magicStops, stopsB: Self.magicBlendStops)))
         .clipShape(RoundedRectangle(cornerRadius: .unit(.x6), style: .continuous))
     }
 
@@ -47,9 +47,24 @@ struct ForYouEntranceBannerView: View {
             )
     }
 
-    /// Magic gradient with the exact Figma stop positions (GRADIENT STEPS POSITIONS).
-    /// The DS tokens are theme-dynamic, so light/dark is handled automatically.
+    /// The glow morphs between two palettes (magic ⇄ magic-blend, ping-pong) per the v17 rig.
+    /// Both share the exact Figma stop positions; only the colors differ. DS tokens are
+    /// theme-dynamic, so light/dark is handled automatically.
     private static let magicStops: [Gradient.Stop] = [
+        .init(color: DesignSystem.Color.glowMagicStep1, location: 0.00),
+        .init(color: DesignSystem.Color.glowMagicStep2, location: 0.10),
+        .init(color: DesignSystem.Color.glowMagicStep3, location: 0.25),
+        .init(color: DesignSystem.Color.glowMagicStep4, location: 0.30),
+        .init(color: DesignSystem.Color.glowMagicStep5, location: 0.40),
+        .init(color: DesignSystem.Color.glowMagicStep6, location: 0.50),
+        .init(color: DesignSystem.Color.glowMagicStep7, location: 0.60),
+        .init(color: DesignSystem.Color.glowMagicStep8, location: 0.70),
+        .init(color: DesignSystem.Color.glowMagicStep9, location: 0.85),
+        .init(color: DesignSystem.Color.glowMagicStep10, location: 0.95),
+        .init(color: DesignSystem.Color.glowMagicStep1, location: 1.00), // close the loop at the seam
+    ]
+
+    private static let magicBlendStops: [Gradient.Stop] = [
         .init(color: DesignSystem.Color.glowMagicBlendStep1, location: 0.00),
         .init(color: DesignSystem.Color.glowMagicBlendStep2, location: 0.10),
         .init(color: DesignSystem.Color.glowMagicBlendStep3, location: 0.25),

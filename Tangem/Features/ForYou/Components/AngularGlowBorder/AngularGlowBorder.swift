@@ -10,10 +10,12 @@
 //  loop via the gradient angle, while the horizontal radius "breathes" (rxMorph: wide at
 //  0°/180°, narrow at 90°/270°). Seam rotation and the vertical squish are decoupled — the
 //  squish stays axis-aligned and never rotates with the seam, which is what makes the morph
-//  visible. Each layer is a centered stroke, blurred, then clipped to the rounded box.
+//  visible. When a second palette is provided, the colors also ping-pong between the two
+//  sets. Each layer is a centered stroke, blurred, then clipped to the rounded box.
 //
 
 import SwiftUI
+import TangemUI
 
 struct AngularGlowBorder: View {
     var config = Config()
@@ -35,10 +37,11 @@ struct AngularGlowBorder: View {
             let t = timeline.date.timeIntervalSinceReferenceDate
             let f = t.truncatingRemainder(dividingBy: config.duration) / config.duration
             let phase = config.startAngle + (config.clockwise ? 1 : -1) * config.easing.value(f) * 360
+            let mix = morphMix(at: t)
 
             Canvas { context, size in
                 let box = CGRect(x: m, y: m, width: size.width - 2 * m, height: size.height - 2 * m)
-                let gradient = Gradient(stops: config.stops)
+                let gradient = morphedGradient(stopsA: config.stopsA, stopsB: config.stopsB, mix: mix)
 
                 // radius morph (v17): horizontal radius breathes with the phase, ry stays fixed.
                 // wide at 0°/180° (rxMax = W/2), narrow at 90°/270° (rxMin = W/8).
@@ -74,7 +77,7 @@ struct AngularGlowBorder: View {
                         // axis-aligned vertical squish (radius morph); the seam rotates via the
                         // gradient angle, decoupled from the squish so the morph stays visible
                         layerContext.translateBy(x: box.midX, y: box.midY)
-                        layerContext.scaleBy(x: 1, y: hh / rx)
+                        layerContext.scaleBy(x: 1, y: rx > 0 ? hh / rx : 1)
 
                         let shading = GraphicsContext.Shading.conicGradient(
                             gradient, center: .zero, angle: .degrees(config.seamOffset + phase)
@@ -90,6 +93,26 @@ struct AngularGlowBorder: View {
             .frame(width: w, height: h) // layout footprint = the box; canvas overflows centered
             .clipShape(RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)) // clip AFTER blur
         }
+    }
+
+    // MARK: - Gradient palette morph (v17)
+
+    /// Ping-pong 0→1→0 over `morphDuration`; returns 0 (no morph) when there is no B palette.
+    private func morphMix(at time: TimeInterval) -> CGFloat {
+        guard config.stopsB != nil, config.morphDuration > 0 else { return 0 }
+        let progress = time.truncatingRemainder(dividingBy: config.morphDuration) / config.morphDuration
+        return CGFloat(progress < 0.5 ? progress * 2 : 2 - progress * 2)
+    }
+
+    private func morphedGradient(stopsA: [Gradient.Stop], stopsB: [Gradient.Stop]?, mix: CGFloat) -> Gradient {
+        guard let stopsB, stopsB.count == stopsA.count else {
+            return Gradient(stops: stopsA)
+        }
+
+        let stops = zip(stopsA, stopsB).map { from, to in
+            Gradient.Stop(color: .interpolate(from: from.color, to: to.color, value: Double(mix)), location: from.location)
+        }
+        return Gradient(stops: stops)
     }
 }
 
