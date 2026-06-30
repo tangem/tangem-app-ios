@@ -199,16 +199,16 @@ private extension AddressBooksViewModel {
     }
 
     func makeContent(scopeWallets: [WalletState], query: String, isSearching: Bool) -> ContentState {
-        let loaded = scopeWallets.filter { $0.syncState == .synced || $0.syncState == .offline }
+        let ready = scopeWallets.filter(\.isDisplayReady)
 
-        guard loaded.isNotEmpty else {
+        guard ready.isNotEmpty else {
             if scopeWallets.isEmpty {
                 return .empty
             }
-            return scopeWallets.allSatisfy { $0.syncState == .failed } ? .failure : .loading
+            return scopeWallets.allSatisfy(\.isFailed) ? .failure : .loading
         }
 
-        let contacts = loaded.flatMap(\.contacts)
+        let contacts = ready.flatMap(\.contacts)
 
         guard contacts.isNotEmpty else {
             return .empty
@@ -277,5 +277,26 @@ private extension AddressBooksViewModel {
         let name: String
         let contacts: [AddressBookContact]
         let syncState: AddressBookSyncState
+
+        /// Whether this book's contacts can be shown. A network failure still surfaces the cached contacts,
+        /// so it counts as ready only while there is something to show; a decode failure clears the cache and
+        /// contributes nothing, yet is "done" rather than still loading.
+        var isDisplayReady: Bool {
+            switch syncState {
+            case .synced, .failure(.decodingError): true
+            case .failure(.networkError): contacts.isNotEmpty
+            case .syncing, .failure(.updateRequired): false
+            }
+        }
+
+        /// A book that can show nothing and won't recover on its own: an incompatible blob version, or a
+        /// network failure with no cache to fall back on.
+        var isFailed: Bool {
+            switch syncState {
+            case .failure(.updateRequired): true
+            case .failure(.networkError): contacts.isEmpty
+            case .syncing, .synced, .failure(.decodingError): false
+            }
+        }
     }
 }

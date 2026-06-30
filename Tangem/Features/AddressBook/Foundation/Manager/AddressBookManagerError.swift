@@ -8,8 +8,12 @@
 
 import Foundation
 
-enum AddressBookManagerError: Error {
+enum AddressBookManagerError: LocalizedError {
     case contactNotFound
-    /// The cached book could not be loaded, so mutating it would overwrite the still-intact on-disk blob.
-    case bookUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .contactNotFound: "Contact not found"
+        }
+    }
 }
