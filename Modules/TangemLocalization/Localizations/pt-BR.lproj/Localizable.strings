@@ -95,10 +95,17 @@
 "address_book_enter_address" = "Insira o endereço";
 "address_book_invalid_address_error" = "Endereço inválido";
 "address_book_keep_editing" = "Continue editando";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "Novo contato";
 "address_book_no_contacts_description" = "Os contatos que você adicionar aparecerão aqui.";
 "address_book_no_contacts" = "Ainda não há contatos.";
 "address_book_remove_address" = "Remover endereço";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Este contato será vinculado à agenda de endereços desta carteira.";
 "address_book_select_network" = "Selecione a rede";
 "address_book_title" = "Agenda de endereços";
@@ -278,6 +285,7 @@
 "common_get_token" = "Obter token";
 "common_go_to_provider" = "Ir para o provedor";
 "common_go_to_token" = "Ir para o token";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "Entendi";
 "common_hide" = "Esconder";
 "common_hold_to" = "Mantenha-se em %@";
@@ -314,6 +322,7 @@
 "common_passphrase" = "Senha";
 "common_paste" = "Colar";
 "common_privacy_policy" = "política de Privacidade";
+"common_rate" = "Rate";
 "common_read_more" = "Leia mais";
 "common_receive" = "Receber";
 "common_received" = "Recebido";
@@ -367,6 +376,7 @@
 "common_token_send" = "Token a ser enviado";
 "common_token" = "Token";
 "common_transaction_failed" = "Transação falhou";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "Status da transação";
 "common_transactions" = "Transações";
 "common_transfer" = "Transferir";
@@ -573,6 +583,8 @@
 "feedback_subject_tx_failed" = "Não foi possível enviar uma transação.";
 "feedback_subject_tx_push_failed" = "Não é possível enviar uma transação.";
 "feedback_token_description_error" = "Erro na descrição da moeda";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Atualize o aplicativo para a versão mais recente para garantir o funcionamento correto.";
 "force_update_banner_title" = "Atualização necessária";
@@ -602,6 +614,8 @@
 "hardware_wallet_key_feature_title" = "Geração de chaves";
 "hardware_wallet_security_feature_description" = "Todas as operações criptográficas ocorrem dentro do chip de segurança, certificado contra clonagem e adulteração física.";
 "hardware_wallet_security_feature_title" = "Segurança em nível de hardware";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "Encomendar Tangem";
 "home_button_scan" = "Escanear Tangem";
 "hot_crypto_add_token_subtitle" = "para %@";
@@ -1000,6 +1014,7 @@
 "onramp_min_amount_restriction" = "O valor da compra deve ser de pelo menos %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Valor total acumulado das transações acima do equivalente a %1@ pode exigir verificação de identidade com %2@";
 "onramp_native_payment_cumulative_limit" = "Valor total acumulado das transações acima de %1@ pode exigir verificação de identidade com %2@";
+"onramp_native_payment_identity_verification" = "Apple Pay transactions may require identity verification with %1@";
 "onramp_native_payment_legal_notice" = "Ao clicar em Pagar, você concorda com %1@'s %2@ e %3@.";
 "onramp_no_available_providers" = "Não há fornecedores disponíveis para esta moeda.";
 "onramp_offer_type_fastet" = "Processamento mais rápido";
@@ -1157,6 +1172,7 @@
 "send_extras_hint_memo" = "Memorando";
 "send_fee_unreachable_error_text" = "Verifique sua conexão de rede.";
 "send_fee_unreachable_error_title" = "Informações sobre tarifas de rede indisponíveis";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "Você envia";
 "send_from_wallet_name" = "De %@";
 "send_from_wallet" = "De **%@**";
@@ -1300,6 +1316,8 @@
 "staking_enabled" = "Staking ativado";
 "staking_error_no_validators_message" = "Não há validadores disponíveis no momento. Tente novamente mais tarde.";
 "staking_error_no_validators_title" = "Staking indisponível";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
+"staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para staking.";
 "staking_legal" = "Ao utilizar a funcionalidade de staking, você concorda com os termos do provedor. %1$@ e %2$@";
 "staking_locked" = "Trancado";
@@ -1406,6 +1424,8 @@
 "story_web3_title" = "Compatível com Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Uma transação de entrada de pelo menos %1$@ é necessário prosseguir";
 "sui_not_enough_coin_for_fee_title" = "Fundos insuficientes";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "Dados da operação SWAP:\nDe: %1$@ %2$@\nPara: %3$@ %4$@\nPor %5$@ - %6$@";
 "support_selector_view_chat_button" = "Abra o e-mail";
 "support_selector_view_email_button" = "Abra o e-mail";
@@ -1587,6 +1607,10 @@
 "tangempay_change_pin_code" = "Alterar código PIN";
 "tangempay_come_back_if_forget_pin" = "Volte ao aplicativo se você se esquecer.";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Defina um limite a partir de %@ para %@";
 "tangempay_daily_limit_set_button" = "Definir limites";
 "tangempay_declined_reason_1" = "saldo insuficiente";
@@ -1808,6 +1832,9 @@
 "twins_recreate_toolbar" = "Gêmeo Tangem";
 "twins_recreate_warning" = "Essa ação é irreversível. Você não terá mais acesso à sua carteira antiga.";
 "twins_scan_twin_with_number" = "Toque no cartão gêmeo com o número %@ e não remova até o final da operação.";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Por favor, tente novamente mais tarde. Se o problema persistir, entre em contato com o suporte.";
 "unexpected_error_title" = "Algo deu errado!";
 "universal_error" = "Ocorreu um erro. Código do erro: %@Por favor, entre em contato com nosso suporte.";
@@ -1836,6 +1863,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Nome da carteira";
 "user_wallet_list_rename_popup_title" = "Renomear carteira";
 "user_wallet_list_unlock_all_with" = "Desbloqueie tudo com %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "Verificado AML";
 "visa_balance_limits_details_available" = "Disponível";
 "visa_balance_limits_details_blocked" = "Bloqueado";
