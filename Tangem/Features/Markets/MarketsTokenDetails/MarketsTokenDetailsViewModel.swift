@@ -187,7 +187,7 @@ final class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         selectedPriceChangeIntervalType = .day
         tokenSymbol = tokenInfo.symbol
         priceAlertBellViewModel = FeatureProvider.isAvailable(.priceAlertsSubscription)
-            ? PriceAlertBellViewModel(tokenId: tokenInfo.id)
+            ? PriceAlertBellViewModel(tokenId: tokenInfo.id, coordinator: coordinator)
             : nil
 
         // Our view is initially presented when the sheet is expanded, hence the `1.0` initial value.
