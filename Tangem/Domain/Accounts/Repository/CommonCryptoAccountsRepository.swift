@@ -601,7 +601,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             case .remove(let tokenItem):
                 let updatedTokens = cryptoAccount
                     .tokens
-                    .filter { $0 != tokenItem.toStoredToken() }
+                    .filter { $0.isEqual(to: tokenItem) }
                 updatedAccount = cryptoAccount.withTokens(updatedTokens)
             case .update(let request):
                 updatedAccount = cryptoAccount
@@ -609,7 +609,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
                     .withTokens(request.tokens)
             case .updateBlockchainNetwork(let blockchainNetwork, let tokenItem):
                 let updatedTokens = cryptoAccount.tokens.map { storedToken in
-                    guard storedToken == tokenItem.toStoredToken() else {
+                    guard storedToken.isEqual(to: tokenItem) else {
                         return storedToken
                     }
 
