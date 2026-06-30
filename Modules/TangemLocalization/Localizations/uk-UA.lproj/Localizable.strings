@@ -96,7 +96,7 @@
 "address_book_invalid_address_error" = "Недійсна адреса";
 "address_book_keep_editing" = "Продовжити";
 "address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
-"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_max_networks_alert_title" = "Can't add new address";
 "address_book_name_empty_error" = "Contact name is required";
 "address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
 "address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
@@ -322,6 +322,7 @@
 "common_passphrase" = "Парольна фраза";
 "common_paste" = "Вставити";
 "common_privacy_policy" = "Політикою конфіденційності";
+"common_rate" = "Rate";
 "common_read_more" = "Детальніше";
 "common_receive" = "Отримати";
 "common_received" = "Отримано";
@@ -375,6 +376,7 @@
 "common_token_send" = "Токен для надсилання";
 "common_token" = "Токен";
 "common_transaction_failed" = "Помилка транзакції";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "Статус транзакції";
 "common_transactions" = "Транзакції";
 "common_transfer" = "Переказ";
@@ -581,6 +583,8 @@
 "feedback_subject_tx_failed" = "Не вдається відправити транзакцію";
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Для забезпечення коректної роботи оновіть застосунок до останньої версії.";
 "force_update_banner_title" = "Необхідне оновлення";
@@ -1311,6 +1315,7 @@
 "staking_enabled" = "Стейкінг увімкнено";
 "staking_error_no_validators_message" = "Наразі немає вільних валідаторів. Повторіть спробу пізніше.";
 "staking_error_no_validators_title" = "Стейкінг недоступний";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_error_unavailable_region" = "Стейкінг недоступний у вашому регіоні";
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
 "staking_legal" = "Використовуючи функцію стейкінгу, ви погоджуєтесь з %1$@ та %2$@";
@@ -1601,6 +1606,10 @@
 "tangempay_change_pin_code" = "Змінити PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можна подивитися тут, якщо забудете його.";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Встановити ліміт від %@ до %@";
 "tangempay_daily_limit_set_button" = "Встановити";
 "tangempay_declined_reason_1" = "недостатньо коштів";
@@ -1824,6 +1833,7 @@
 "twins_scan_twin_with_number" = "Прикладіть twin-картку з номером %@ та не прибирайте її до завершення операції";
 "tx_history_onramp_top_up" = "Top up";
 "tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Спробуйте ще раз пізніше. Якщо проблема залишиться, зверніться до служби підтримки.";
 "unexpected_error_title" = "Щось пішло не так!";
 "universal_error" = "Виникла помилка. Код помилки: %@. Спробуйте, будь ласка, знову. Якщо проблема знову виникає — зверніться до нашої служби підтримки.";
