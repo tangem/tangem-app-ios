@@ -30,11 +30,9 @@ final class ForceUpdateViewModel {
         case .requiresAppUpdate:
             return Localization.forceUpdateWarningTitle
         case .requiresOSUpdate:
-            // [REDACTED_TODO_COMMENT]
-            return "OS Update Required"
+            return Localization.forceUpdateOsTitle
         case .brick:
-            // [REDACTED_TODO_COMMENT]
-            return "App No Longer Supported"
+            return Localization.forceUpdateBrickTitle
         }
     }
 
@@ -43,11 +41,9 @@ final class ForceUpdateViewModel {
         case .requiresAppUpdate:
             return Localization.forceUpdateWarningMessage
         case .requiresOSUpdate:
-            // [REDACTED_TODO_COMMENT]
-            return "Please update your operating system to continue using the application."
+            return Localization.forceUpdateOsDescription
         case .brick:
-            // [REDACTED_TODO_COMMENT]
-            return "This device can no longer run the application. Please use a supported device."
+            return Localization.forceUpdateBrickDescription
         }
     }
 
