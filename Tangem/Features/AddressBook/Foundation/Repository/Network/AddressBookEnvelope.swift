@@ -10,8 +10,7 @@ import Foundation
 import TangemFoundation
 
 /// The open header plus the encrypted payload of an address book, as stored on the backend.
-/// `version` and `updatedAt` are readable without decryption; `updatedAt` is authored by the client
-/// and echoed back by the backend unchanged.
+/// `version` and `updatedAt` are readable without decryption; `updatedAt` is authored by the server.
 struct AddressBookEnvelope: Hashable {
     let version: String
     let walletId: UserWalletId
