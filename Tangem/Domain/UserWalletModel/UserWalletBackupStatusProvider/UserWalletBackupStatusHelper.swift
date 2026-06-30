@@ -41,8 +41,8 @@ struct UserWalletBackupStatusHelper {
         }
 
         let alert = Alert(
-            title: Text(""),
-            message: Text(Localization.warningBackupErrorsMessage),
+            title: Text(Localization.warningBackupErrorAddFundsTitle),
+            message: Text(Localization.warningBackupErrorAddFundsMessage),
             primaryButton: .default(Text(Localization.commonContactSupport)) {
                 openBackupErrorSupport(userWalletModel: userWalletModel)
             },
