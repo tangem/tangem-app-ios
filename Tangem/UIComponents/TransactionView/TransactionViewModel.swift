@@ -269,6 +269,35 @@ extension TransactionViewModel {
         case gaslessTransfer
 
         case tangemPay(TangemPayTransactionType)
+
+        /// Stable, non-localized key for UI-test accessibility identifiers.
+        var accessibilityIdentifierKey: String {
+            switch self {
+            case .transfer: "transfer"
+            case .swap: "swap"
+            case .stake: "stake"
+            case .approve: "approve"
+            case .unstake: "unstake"
+            case .vote: "vote"
+            case .withdraw: "withdraw"
+            case .claimRewards: "claimRewards"
+            case .restake: "restake"
+            case .unknownOperation: "unknownOperation"
+            case .operation: "operation"
+            case .yieldDeploy: "yieldDeploy"
+            case .yieldEnter: "yieldEnter"
+            case .yieldEnterCoin: "yieldEnterCoin"
+            case .yieldInit: "yieldInit"
+            case .yieldReactivate: "yieldReactivate"
+            case .yieldSend: "yieldSend"
+            case .yieldTopup: "yieldTopup"
+            case .yieldWithdraw: "yieldWithdraw"
+            case .yieldWithdrawCoin: "yieldWithdrawCoin"
+            case .gaslessTransactionFee: "gaslessTransactionFee"
+            case .gaslessTransfer: "gaslessTransfer"
+            case .tangemPay: "tangemPay"
+            }
+        }
     }
 
     enum TangemPayTransactionType: Hashable {

@@ -13,6 +13,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var titleLabel = scrollView(.title)
     private lazy var fromAmountTextField = textField(.fromAmountTextField)
     private lazy var toAmountTextField = otherElement(.toAmountTextField)
+    private lazy var receiveAmountValue = app.staticTexts[SwapAccessibilityIdentifiers.receiveAmountValue].firstMatch
     private lazy var feeBlock = button(.feeBlock)
     private lazy var normalFeeOption = button(.normalFeeOption)
     private lazy var priorityFeeOption = button(.priorityFeeOption)
@@ -627,6 +628,102 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             "Editable from amount field should become hittable"
         )
         return query.allElementsBoundByIndex.first { $0.isHittable } ?? query.firstMatch
+    }
+}
+
+// MARK: - Gasless (fee token selection)
+
+extension SwapScreen {
+    @discardableResult
+    func openFeeSelector() -> SendFeeSelectorScreen {
+        XCTContext.runActivity(named: "Open the 'Network fee' bottom sheet") { _ in
+            waitAndAssertTrue(feeBlock, "Fee block should exist")
+            feeBlock.waitAndTap()
+        }
+        return SendFeeSelectorScreen(app)
+    }
+
+    @discardableResult
+    func switchFeeTokenAndApply(currentFeeToken: String, newFeeToken: String) -> Self {
+        openFeeSelector()
+            .waitForNetworkFeeSheet()
+            .openTokenSelector(fromCoinSymbol: currentFeeToken)
+            .waitForChooseTokenSheet()
+            .selectFeeToken(symbol: newFeeToken)
+            .applyReturningToSwap()
+        return self
+    }
+
+    @discardableResult
+    func assertBestRateDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert 'Best rate' badge is displayed") { _ in
+            let badge = app.descendants(matching: .any)[SendAccessibilityIdentifiers.swapProviderBestRateBadge].firstMatch
+            waitAndAssertTrue(badge, "'Best rate' badge should be displayed on the swap screen")
+        }
+        return self
+    }
+
+    func captureReceiveAmount() -> String {
+        XCTContext.runActivity(named: "Capture the received amount before changing the fee token") { _ in
+            waitAndAssertTrue(receiveAmountValue, "Receive amount should be present to capture")
+            return receiveAmountValue.label
+        }
+    }
+
+    @discardableResult
+    func assertReceiveAmount(equals expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert the received amount equals '\(expected)'") { _ in
+            waitAndAssertTrue(receiveAmountValue, "Receive amount should be present")
+            let isEqual = waitForCondition(timeout: .robustUIUpdate) { self.receiveAmountValue.label == expected }
+            XCTAssertTrue(isEqual, "Receive amount should remain '\(expected)' but was '\(receiveAmountValue.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFeeCurrencySymbol(_ symbol: String) -> Self {
+        XCTContext.runActivity(named: "Assert the network fee is shown in '\(symbol)'") { _ in
+            let badge = app.staticTexts[SendAccessibilityIdentifiers.networkFeeCurrencySymbol].firstMatch
+            waitAndAssertTrue(badge, "Fee currency badge should exist")
+            XCTAssertEqual(badge.label, symbol, "Network fee should be shown in '\(symbol)' but badge was '\(badge.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertFeeAmountContainsFiat(_ fiatSign: String = "$") -> Self {
+        XCTContext.runActivity(named: "Assert the fee amount shows its fiat ('\(fiatSign)') equivalent") { _ in
+            let feeAmount = app.staticTexts[SendAccessibilityIdentifiers.networkFeeAmount].firstMatch
+            waitAndAssertTrue(feeAmount, "Network fee amount element should exist")
+            let containsFiat = waitForCondition(timeout: .robustUIUpdate) { feeAmount.label.contains(fiatSign) }
+            XCTAssertTrue(containsFiat, "Fee amount should contain '\(fiatSign)' but was '\(feeAmount.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertNetworkFeeBlockDisplayed() -> Self {
+        XCTContext.runActivity(named: "Assert the 'Network fee' block is displayed") { _ in
+            waitAndAssertTrue(feeBlock, "Network fee block should be displayed on the swap screen")
+        }
+        return self
+    }
+
+    @discardableResult
+    func assertNoInsufficientFundsError() -> Self {
+        XCTContext.runActivity(named: "Assert no 'Insufficient funds' error is displayed") { _ in
+            XCTAssertTrue(
+                insufficientFundsText.waitForNonExistence(timeout: .robustUIUpdate),
+                "'Insufficient funds' error should not be displayed when the fee is reserved from the amount"
+            )
+        }
+        return self
+    }
+
+    private func waitForCondition(timeout: TimeInterval, _ condition: @escaping () -> Bool) -> Bool {
+        let predicate = NSPredicate { _, _ in condition() }
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }
 
