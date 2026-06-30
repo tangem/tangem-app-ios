@@ -22,12 +22,13 @@ struct ReceiveMainView: View {
                     .transition(.content)
 
             case .qrCode(let viewModel):
-                QRCodeReceiveAssetsView(viewModel: viewModel)
+                qrCodeView(viewModel: viewModel)
                     .transition(.content)
 
             case .tokenAlert(let viewModel):
-                TokenAlertReceiveAssetsView(viewModel: viewModel)
+                tokenAlertView(viewModel: viewModel)
                     .fixedSize(horizontal: false, vertical: true)
+                    .transition(.content)
 
             case .none:
                 EmptyView()
@@ -46,31 +47,47 @@ struct ReceiveMainView: View {
         }
     }
 
+    @ViewBuilder
+    private func tokenAlertView(viewModel: TokenAlertReceiveAssetsViewModel) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            RedesignedTokenAlertReceiveAssetsView(viewModel: viewModel)
+        } else {
+            // [REDACTED_INFO]: drop the legacy token alert view once redesign ships.
+            TokenAlertReceiveAssetsView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    private func qrCodeView(viewModel: QRCodeReceiveAssetsViewModel) -> some View {
+        if FeatureProvider.isAvailable(.redesign) {
+            RedesignedQRCodeReceiveAssetsView(viewModel: viewModel)
+        } else {
+            // [REDACTED_INFO]: drop the legacy QR view once redesign ships.
+            QRCodeReceiveAssetsView(viewModel: viewModel)
+        }
+    }
+
     private func header(from viewState: ReceiveMainViewModel.ViewState) -> some View {
-        var title: String?
-        var backButtonAction: (() -> Void)?
-        var closeButtonAction: (() -> Void)?
+        let title: String?
+        let backButtonAction: (() -> Void)?
 
         switch viewState {
         case .tokenAlert:
             title = nil
             backButtonAction = nil
-            closeButtonAction = viewModel.onCloseTapAction
         case .selector:
             title = Localization.domainReceiveAssetsNavigationTitle
             backButtonAction = nil
-            closeButtonAction = viewModel.onCloseTapAction
         case .qrCode:
             title = nil
             backButtonAction = viewModel.onBackTapAction
-            closeButtonAction = viewModel.onCloseTapAction
         }
 
         return FloatingSheetNavigationBarView(
             title: title,
             backgroundColor: viewState.backgroundColor,
             backButtonAction: backButtonAction,
-            closeButtonAction: closeButtonAction
+            closeButtonAction: viewModel.onCloseTapAction
         )
         .id(viewState.id)
         .transition(.opacity)
@@ -81,12 +98,16 @@ struct ReceiveMainView: View {
 
 private extension ReceiveMainViewModel.ViewState {
     var backgroundColor: Color {
-        switch self {
-        case .selector, .tokenAlert:
-            return Colors.Background.tertiary
-        case .qrCode:
-            return Colors.Background.primary
+        guard FeatureProvider.isAvailable(.redesign) else {
+            // [REDACTED_INFO]: drop the legacy branch once redesign ships.
+            switch self {
+            case .selector, .tokenAlert:
+                return Colors.Background.tertiary
+            case .qrCode:
+                return Colors.Background.primary
+            }
         }
+        return DesignSystem.Color.bgSecondary
     }
 }
 
