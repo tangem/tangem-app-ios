@@ -34,7 +34,7 @@ struct ForYouEntranceBannerView: View {
         .padding(.unit(.x4))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(background)
-        .overlay(AngularGlowBorder(config: AngularGlowBorder.Config(stopsA: Self.magicStops, stopsB: Self.magicBlendStops)))
+        .angularGlowBorder(config: .init(stopsA: Self.magicStops, stopsB: Self.magicBlendStops))
         .clipShape(RoundedRectangle(cornerRadius: .unit(.x6), style: .continuous))
     }
 

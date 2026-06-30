@@ -1,5 +1,5 @@
 //
-//  AngularGlowBorder+Config.swift
+//  AngularGlowBorderModifier+Config.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemUI
 
-extension AngularGlowBorder {
+extension AngularGlowBorderModifier {
     struct Config {
         struct BorderLayer {
             var stroke: CGFloat
