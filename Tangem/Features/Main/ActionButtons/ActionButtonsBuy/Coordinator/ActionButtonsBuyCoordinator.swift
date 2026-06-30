@@ -92,7 +92,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
             let viewModel = AddFundsViewModel(
                 input: .init(
                     mode: .stack,
-                    primaryAction: .goToToken,
+                    primaryAction: .hidden,
                     walletModel: walletModel,
                     userWalletModel: userWalletModel
                 ),

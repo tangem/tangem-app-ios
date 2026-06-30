@@ -45,7 +45,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         userWalletModel = input.userWalletModel
         self.coordinator = coordinator
 
-        title = input.walletModel.tokenItem.name
+        title = Self.makeTitle(tokenItem: input.walletModel.tokenItem)
 
         let tokenIconInfo = TokenIconInfoBuilder().build(from: input.walletModel.tokenItem, isCustom: input.walletModel.isCustom)
         self.tokenIconInfo = tokenIconInfo
@@ -119,6 +119,8 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
             close()
         case .goToToken:
             userDidTapGoToToken()
+        case .hidden:
+            break
         }
     }
 
@@ -163,6 +165,10 @@ private extension AddFundsViewModel {
         .store(in: &bag)
     }
 
+    static func makeTitle(tokenItem: TokenItem) -> String {
+        return Localization.commonGet + " " + tokenItem.name
+    }
+
     static func makeAccountBadge(
         walletModel: any WalletModel,
         userWalletModel: any UserWalletModel
@@ -190,6 +196,18 @@ extension AddFundsViewModel {
         let primaryAction: PrimaryAction
         let walletModel: any WalletModel
         let userWalletModel: any UserWalletModel
+
+        init(
+            mode: Mode,
+            primaryAction: PrimaryAction,
+            walletModel: any WalletModel,
+            userWalletModel: any UserWalletModel
+        ) {
+            self.mode = mode
+            self.primaryAction = primaryAction
+            self.walletModel = walletModel
+            self.userWalletModel = userWalletModel
+        }
     }
 
     enum Mode: Equatable {
@@ -207,5 +225,7 @@ extension AddFundsViewModel {
         case close(title: String)
         /// Push TokenDetails for the same wallet model.
         case goToToken
+        /// Don't show the primary button at all.
+        case hidden
     }
 }
