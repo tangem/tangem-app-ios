@@ -91,15 +91,9 @@ extension StoredCryptoAccount.Token {
     }
 
     func isEqual(to tokenItem: TokenItem) -> Bool {
-        let blockchainNetworkContainer = tokenItem.toStoredToken().blockchainNetwork
+        let storedBlockchainNetwork = StoredEntryConverter.convertToStoredBlockchainNetwork(tokenItem.blockchainNetwork)
 
-        switch blockchainNetworkContainer {
-        case .known(let blockchainNetwork):
-            return isEqual(to: tokenItem, in: blockchainNetwork)
-        case .unknown:
-            AppLogger.error(error: "TokenItem has unknown blockchain network: \(tokenItem.networkId), unable to compare")
-            return false
-        }
+        return isEqual(to: tokenItem, in: storedBlockchainNetwork)
     }
 }
 
