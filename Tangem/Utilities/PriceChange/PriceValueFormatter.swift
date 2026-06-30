@@ -12,38 +12,72 @@ import TangemFoundation
 struct PriceValueFormatter {
     fileprivate typealias CurrencyCode = String
 
-    private static var cachedNumberFormatters: [CurrencyCode: NumberFormatter] = [:]
+    private static let cachedNumberFormatters = NSCacheWrapper<CacheKey, NumberFormatter>()
 
     private let balanceFormatter = BalanceFormatter()
 
     func formatValue(_ value: Decimal) -> Result {
-        let numberFormatter = numberFormatter(currencyCode: AppSettings.shared.selectedCurrencyCode)
-        let formattedText = prefix(value) + balanceFormatter.formatFiatBalance(value, formatter: numberFormatter)
-        return Result(formattedText: formattedText)
+        let currencyCode = AppSettings.shared.selectedCurrencyCode
+        let formattingOptions: BalanceFormattingOptions = .defaultFiatFormattingOptions
+
+        let numberFormatter = numberFormatter(
+            locale: .current,
+            currencyCode: currencyCode,
+            formattingOptions: formattingOptions
+        )
+
+        let formattedFiatBalance = balanceFormatter.formatFiatBalance(
+            value,
+            formattingOptions: formattingOptions,
+            formatter: numberFormatter
+        )
+
+        let formattedPrice = priceSign(value) + formattedFiatBalance
+        return Result(formattedText: formattedPrice)
     }
 }
 
 // MARK: - Helpers
 
 private extension PriceValueFormatter {
-    func numberFormatter(currencyCode: CurrencyCode) -> NumberFormatter {
-        if let cached = Self.cachedNumberFormatters[currencyCode] {
+    func numberFormatter(
+        locale: Locale,
+        currencyCode: CurrencyCode,
+        formattingOptions: BalanceFormattingOptions
+    ) -> NumberFormatter {
+        let cacheKey = CacheKey(
+            localeIdentifier: locale.identifier,
+            currencyCode: currencyCode,
+            formattingOptions: formattingOptions
+        )
+
+        if let cached = Self.cachedNumberFormatters.value(forKey: cacheKey) {
             return cached
         } else {
             let formatter = balanceFormatter.makeDefaultFiatFormatter(
                 forCurrencyCode: currencyCode,
-                formattingOptions: .defaultFiatFormattingOptions
+                formattingOptions: formattingOptions
             )
-            Self.cachedNumberFormatters[currencyCode] = formatter
+            Self.cachedNumberFormatters.setValue(formatter, forKey: cacheKey)
             return formatter
         }
     }
 
-    func prefix(_ value: Decimal) -> String {
+    func priceSign(_ value: Decimal) -> String {
         switch ChangeSignType(from: value) {
         case .positive: .plusSign
         case .negative, .neutral: .empty
         }
+    }
+}
+
+// MARK: - Private types
+
+private extension PriceValueFormatter {
+    struct CacheKey: Hashable {
+        let localeIdentifier: String
+        let currencyCode: String
+        let formattingOptions: BalanceFormattingOptions
     }
 }
 
