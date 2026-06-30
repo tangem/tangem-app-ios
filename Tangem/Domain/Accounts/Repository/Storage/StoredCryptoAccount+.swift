@@ -83,6 +83,26 @@ extension StoredCryptoAccount.Token {
             contractAddress: contractAddress
         )
     }
+
+    /// - Warning: Ignores derivation path; it is the caller's responsibility to guarantee that all comparisons
+    /// are performed within the same user tokens manager (i.e., all derivation paths are the same).
+    func isEqual(to tokenItem: TokenItem, in network: StoredBlockchainNetwork) -> Bool {
+        return blockchainNetwork.knownValue == network && contractAddress == tokenItem.contractAddress
+    }
+
+    /// - Warning: Ignores derivation path; it is the caller's responsibility to guarantee that all comparisons
+    /// are performed within the same user tokens manager (i.e., all derivation paths are the same).
+    func isEqual(to tokenItem: TokenItem) -> Bool {
+        let blockchainNetworkContainer = tokenItem.toStoredToken().blockchainNetwork
+
+        switch blockchainNetworkContainer {
+        case .known(let blockchainNetwork):
+            return isEqual(to: tokenItem, in: blockchainNetwork)
+        case .unknown:
+            AppLogger.error(error: "TokenItem has unknown blockchain network: \(tokenItem.networkId), unable to compare")
+            return false
+        }
+    }
 }
 
 extension StoredCryptoAccount.Token.BlockchainNetworkContainer {
