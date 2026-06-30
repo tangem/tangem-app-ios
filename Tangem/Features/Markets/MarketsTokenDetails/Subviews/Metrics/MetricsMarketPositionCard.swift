@@ -44,7 +44,7 @@ struct MetricsMarketPositionCard: View {
 
                     MetricsInfoLabel(
                         title: Localization.marketsTokenDetailsMarketRating,
-                        color: color,
+                        color: .Tangem.Text.Neutral.secondary,
                         action: action
                     )
                 }
