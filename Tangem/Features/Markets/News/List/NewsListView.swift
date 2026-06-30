@@ -19,18 +19,10 @@ struct NewsListView: View {
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
-        VStack(spacing: 12) {
-            NavigationBar(
-                title: Localization.commonNews,
-                settings: .init(backgroundColor: Color.Tangem.Surface.level2),
-                leftButtons: {
-                    MarketsNavigationBackButton(
-                        presentSource: viewModel.presentSource,
-                        action: { viewModel.handleViewAction(.back) }
-                    )
-                }
-            )
-            .padding(.top, 12)
+        VStack(spacing: .unit(.x6)) {
+            navigationBar
+                .padding(.horizontal, .unit(.x4))
+                .padding(.top, .unit(.x3))
 
             VStack(spacing: 12) {
                 NewsCategoryChipsView(
@@ -99,6 +91,29 @@ struct NewsListView: View {
         }
         .safeAreaInset(edge: .bottom) {
             newsListBottomFadeOverlay
+        }
+    }
+
+    private var navigationBar: some View {
+        NavigationBar(
+            title: Localization.commonNews,
+            settings: .init(backgroundColor: Color.Tangem.Surface.level2),
+            leftButtons: { navigationBarLeadingButton }
+        )
+        .environment(\.isRedesign, FeatureProvider.isAvailable(.redesign))
+    }
+
+    @ViewBuilder
+    private var navigationBarLeadingButton: some View {
+        switch viewModel.presentSource {
+        case .navigation:
+            NavigationBarButton.back(action: {
+                viewModel.handleViewAction(.back)
+            })
+        case .deeplink:
+            NavigationBarButton.close(action: {
+                viewModel.handleViewAction(.back)
+            })
         }
     }
 
