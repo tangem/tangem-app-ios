@@ -29,6 +29,7 @@ class CommonUserWalletModel {
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
+    let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
     let addressBookManager: AddressBookManager
 
@@ -59,6 +60,7 @@ class CommonUserWalletModel {
         keysDerivingInteractor: KeysDeriving,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
+        priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
         addressBookManager: AddressBookManager
     ) {
@@ -71,6 +73,7 @@ class CommonUserWalletModel {
         self.keysDerivingInteractor = keysDerivingInteractor
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
+        self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
         self.addressBookManager = addressBookManager
 
