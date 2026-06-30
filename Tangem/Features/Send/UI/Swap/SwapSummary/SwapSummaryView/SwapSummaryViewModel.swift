@@ -43,6 +43,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
 
     private let interactor: SwapSummaryInteractor
     private let notificationManager: NotificationManager
+    private let marketingNotificationManager: NotificationManager
     private let analyticsLogger: SendSummaryAnalyticsLogger
     private let formVariantResolver: SwapFormVariantResolver
 
@@ -51,6 +52,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     init(
         interactor: SwapSummaryInteractor,
         notificationManager: NotificationManager,
+        marketingNotificationManager: NotificationManager,
         analyticsLogger: SendSummaryAnalyticsLogger,
         swapAmountViewModel: SwapAmountViewModel,
         swapSummaryProviderViewModel: SwapSummaryProviderViewModel,
@@ -60,6 +62,7 @@ final class SwapSummaryViewModel: ObservableObject, Identifiable {
     ) {
         self.interactor = interactor
         self.notificationManager = notificationManager
+        self.marketingNotificationManager = marketingNotificationManager
         self.analyticsLogger = analyticsLogger
         self.swapAmountViewModel = swapAmountViewModel
         self.swapSummaryProviderViewModel = swapSummaryProviderViewModel
@@ -196,10 +199,13 @@ private extension SwapSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$isActionInProcessing)
 
-        notificationManager
-            .notificationPublisher
-            .receiveOnMain()
-            .assign(to: &$notificationInputs)
+        Publishers.CombineLatest(
+            marketingNotificationManager.notificationPublisher,
+            notificationManager.notificationPublisher
+        )
+        .map { $0 + $1 }
+        .receiveOnMain()
+        .assign(to: &$notificationInputs)
     }
 }
 

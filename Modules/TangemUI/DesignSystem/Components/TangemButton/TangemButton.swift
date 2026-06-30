@@ -13,7 +13,7 @@ import TangemAssets
 public struct TangemButton: View, Setupable {
     private var content: Content
     private var horizontalLayout: HorizontalLayout = .intrinsic
-    private var cornerStyle: CornerStyle = .rectangular
+    private var cornerStyle: CornerStyle = .rounded
     private var styleType: StyleType = .primary
     private var buttonState: ButtonState = .normal
     private var fontOverride: TangemFontStyle?

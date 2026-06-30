@@ -69,7 +69,6 @@ private extension MarketsTokenDetailsLinksViewRedesign {
         return TangemButton(content: content, action: item.data.action)
             .setStyleType(.secondary)
             .setSize(.x8)
-            .setCornerStyle(.rounded)
     }
 }
 
