@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutable {
+protocol MarketsTokenDetailsRoutable: AnyObject, MarketsPortfolioContainerRoutable, PriceAlertBellRoutable {
     func openURL(_ url: URL)
     @MainActor
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider)

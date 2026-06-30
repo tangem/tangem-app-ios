@@ -90,7 +90,7 @@ public extension NavigationBarButton {
 
     static func add(action: @escaping () -> Void) -> some View {
         navigationBarButton(for: .add, action: action)
-	}
+    }
 
     static func priceAlert(isActive: Bool, action: @escaping () -> Void) -> some View {
         navigationBarButton(for: .priceAlert(isActive: isActive), action: action)
