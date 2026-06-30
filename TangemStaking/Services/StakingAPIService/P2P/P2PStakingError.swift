@@ -19,6 +19,7 @@ public enum P2PStakingError: Error {
 
 public enum P2PAPIError: Int, Error, CaseIterable {
     case insufficientAccountBalance = 127102
+    case invalidDelegatorAddress = 127108
     case unknown = -1
 
     init(apiError: P2PDTO.APIError) {
