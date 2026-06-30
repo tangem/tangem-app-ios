@@ -107,6 +107,15 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         return NetworkSelectionWarningSheet(app)
     }
 
+    @discardableResult
+    func tapTransferButton() -> Self {
+        XCTContext.runActivity(named: "Tap Transfer action button") { _ in
+            waitAndAssertTrue(transferButton, "Transfer button should be displayed")
+            transferButton.waitAndTap()
+            return self
+        }
+    }
+
     func openStakeDetails() -> StakingDetailsScreen {
         XCTContext.runActivity(named: "Open stake details via native staking block") { _ in
             nativeStakingBlock.waitAndTap()
@@ -275,6 +284,39 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     func waitForNotEnoughFeeForTransactionBanner() -> Self {
         XCTContext.runActivity(named: "Validate 'Not enough fee for transaction' notification banner exists") { _ in
             waitAndAssertTrue(notEnoughFeeForTransactionBanner, "'Not enough fee for transaction' notification banner should be displayed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyInsufficientFeeCurrencyNotification(token: String, feeCurrencyName: String, feeCurrencySymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'insufficient \(feeCurrencyName) to cover fee' notification is displayed") { _ in
+            waitAndAssertTrue(
+                notEnoughFeeForTransactionBanner,
+                "'Not enough fee for transaction' notification banner should be displayed"
+            )
+
+            let expectedTitle = "Insufficient \(feeCurrencyName) to cover network fee"
+            let title = notEnoughFeeForTransactionBanner.staticTexts.element(
+                matching: NSPredicate(
+                    format: "identifier == %@ AND label CONTAINS[c] %@",
+                    CommonUIAccessibilityIdentifiers.notificationTitle,
+                    expectedTitle
+                )
+            ).firstMatch
+            waitAndAssertTrue(title, "Notification title should be: \(expectedTitle)")
+
+            let expectedMessage = "\(token) is an asset in the \(feeCurrencyName) network. To make a \(token) transaction, you must deposit some \(feeCurrencyName) (\(feeCurrencySymbol)) to cover the network fee."
+            let message = notEnoughFeeForTransactionBanner.staticTexts.element(
+                matching: NSPredicate(
+                    format: "identifier == %@ AND label CONTAINS[c] %@",
+                    CommonUIAccessibilityIdentifiers.notificationMessage,
+                    expectedMessage
+                )
+            ).firstMatch
+            waitAndAssertTrue(message, "Notification message should be: \(expectedMessage)")
+
+            waitAndAssertTrue(goToFeeCurrencyButton, "'Go to fee currency' button should be displayed")
             return self
         }
     }
