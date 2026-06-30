@@ -148,8 +148,10 @@ extension SendFeeSelectorViewModel {
             switch self {
             case .fees:
                 return FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle
-            case .summary, .tokens:
-                return nil
+            case .summary:
+                return FeeAccessibilityIdentifiers.feeSelectorNetworkFeeTitle
+            case .tokens:
+                return FeeAccessibilityIdentifiers.feeSelectorChooseTokenTitle
             }
         }
     }
