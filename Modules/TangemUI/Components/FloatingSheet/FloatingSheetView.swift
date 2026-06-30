@@ -88,6 +88,11 @@ public struct FloatingSheetView: View {
         if let renderedViewModel, let sheetContent = registry.view(for: renderedViewModel) {
             FloatingSheetLayout(maxHeight: sheetMaxHeight(proxy)) {
                 sheetContent
+                    // The sheet frame-update animation below is applied via `.transaction`, which would
+                    // otherwise propagate into the content and animate its lazy layout (e.g. LazyVStack
+                    // row materialization, causing rows to "fly" on first scroll). Clear it at the
+                    // content boundary so only the sheet frame animates, not the content.
+                    .disableAnimations()
             }
             .background(sheetContentConfiguration.sheetBackgroundColor)
             .clipShape(roundedRectangle)
