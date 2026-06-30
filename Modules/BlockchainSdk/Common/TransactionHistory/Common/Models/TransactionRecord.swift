@@ -51,7 +51,7 @@ public struct TransactionRecord: Hashable {
         tokenTransfers: [TokenTransfer],
         isFromYieldContract: Bool = false,
         nonce: Int?,
-        extraInfo: (ExtraInfo & Hashable)? = nil
+        extraInfo: (any Hashable & ExtraInfo)? = nil
     ) {
         self.index = index
         self.hash = hash
@@ -231,12 +231,14 @@ public extension TransactionRecord {
 // MARK: - Interoperability for `ExtraInfo` (private implementation)
 
 private extension TransactionRecord {
-    /// This box is needed for three reasons:
-    /// - Marker-only protocols can't have inheritance, for example `Hashable`. So we can't write `protocol ExtraInfo: Hashable {}`
-    /// - Existential types can't conform to protocols, so we can't write `let extraInfo: (ExtraInfo & Hashable)?`
-    /// - Generics also can't be used here, because they would require specifying the type at compile time instead of just passing nil for `T?`
+    /// A type-erasing box around an `ExtraInfo` value. It's needed for three reasons:
+    /// - Marker-only protocols can't inherit from other protocols, so `protocol ExtraInfo: Hashable {}` isn't allowed.
+    /// - Existential types can't conform to protocols, so writing `let extraInfo: (any ExtraInfo & Hashable)?`
+    ///   on `TransactionRecord` prevent compiler from synthesizing `Equatable` and `Hashable` conformances.
+    /// - Generics don't fit either: they'd require fixing the concrete type at compile time, which requires specifying
+    ///   a concrete type for optional extra info values instead of just `nil` for an absent value.
     struct AnyExtraInfo {
-        let wrapped: ExtraInfo & Hashable
+        let wrapped: any Hashable & ExtraInfo
     }
 }
 
