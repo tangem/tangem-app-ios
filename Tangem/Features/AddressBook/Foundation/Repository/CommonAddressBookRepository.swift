@@ -10,54 +10,38 @@ import Foundation
 import Combine
 import CryptoKit
 import TangemFoundation
+import TangemMacro
 
-/// Local-only address book repository: it decrypts/encrypts the blob and persists it in the local
-/// encrypted cache. Backend synchronization (network + ETag) is layered on in the API integration.
 final class CommonAddressBookRepository {
     private let walletId: UserWalletId
+    private let networkService: AddressBookNetworkService
+    private let eTagStorage: ETagStorage
     private let persistentStorage: AddressBookPersistentStorage
     private let encryptionService: AddressBookEncrypting
     private let encryptionKey: SymmetricKey
     private let blobCodec: AddressBookBlobCodec
     private let mapper = AddressBookNetworkMapper()
 
-    private let contactsSubject = CurrentValueSubject<[AddressBookDecodedContact], Never>([])
-    private let syncStateSubject = CurrentValueSubject<AddressBookSyncState, Never>(.syncing)
+    private let syncStateSubject = CurrentValueSubject<SyncState, Never>(.syncing(cached: nil))
 
     init(
         walletId: UserWalletId,
         walletPublicKeySeed: Data,
+        networkService: AddressBookNetworkService,
+        eTagStorage: ETagStorage,
         persistentStorage: AddressBookPersistentStorage,
         encryptionService: AddressBookEncrypting,
         keyProvider: AddressBookEncryptionKeyProviding,
         blobCodec: AddressBookBlobCodec = AddressBookBlobCodec()
     ) {
         self.walletId = walletId
+        self.networkService = networkService
+        self.eTagStorage = eTagStorage
         self.persistentStorage = persistentStorage
         self.encryptionService = encryptionService
         self.blobCodec = blobCodec
+
         encryptionKey = keyProvider.encryptionKey(forWalletPublicKeySeed: walletPublicKeySeed)
-    }
-
-    /// Returns `false` when a cached blob is present but cannot be decoded, so `load()` can surface
-    /// `.failed` instead of an empty-but-healthy book. It deliberately does not reset `contactsSubject`
-    /// on failure: an undecryptable blob must not masquerade as "no contacts", which a later `save`
-    /// would then persist over the still-intact-on-disk blob.
-    private func loadFromCache() -> Bool {
-        guard let dto = persistentStorage.loadEnvelope(for: walletId) else {
-            contactsSubject.send([])
-            return true
-        }
-
-        do {
-            let envelope = try mapper.mapToEnvelope(dto)
-            let plaintext = try encryptionService.open(envelope.sealedBox, using: encryptionKey)
-            contactsSubject.send(try blobCodec.decode(plaintext).contacts)
-            return true
-        } catch {
-            AppLogger.error("Address book: failed to decode the cached blob", error: error)
-            return false
-        }
     }
 }
 
@@ -65,24 +49,113 @@ final class CommonAddressBookRepository {
 
 extension CommonAddressBookRepository: AddressBookRepository {
     var contactsPublisher: AnyPublisher<[AddressBookDecodedContact], Never> {
-        contactsSubject.eraseToAnyPublisher()
+        syncStateSubject.map(\.contacts).removeDuplicates().eraseToAnyPublisher()
     }
 
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
-        syncStateSubject.eraseToAnyPublisher()
+        syncStateSubject.map(\.publicState).eraseToAnyPublisher()
     }
 
-    var syncState: AddressBookSyncState {
-        syncStateSubject.value
+    func ensureBookMutable() throws {
+        guard syncStateSubject.value.isSynced else {
+            throw AddressBookRepositoryError.bookUnavailable
+        }
     }
 
-    func load() async {
-        syncStateSubject.send(.syncing)
-        let didLoad = loadFromCache()
-        syncStateSubject.send(didLoad ? .synced : .failed)
+    func load(silent: Bool) async {
+        await performLoad(silent: silent)
     }
 
     func save(contacts: [AddressBookDecodedContact]) async throws {
+        try await performSave(contacts: contacts)
+    }
+}
+
+// MARK: - Load
+
+private extension CommonAddressBookRepository {
+    /// Trust state of the local cache, distinct from "no contacts": an unreadable blob must not masquerade
+    /// as an empty book, which a later save would then persist over the still-intact on-disk blob.
+    @CaseFlagable
+    enum LocalAddressBook {
+        case absent
+        case readable([AddressBookDecodedContact])
+
+        var contacts: [AddressBookDecodedContact]? {
+            switch self {
+            case .readable(let contacts): contacts
+            case .absent: nil
+            }
+        }
+    }
+
+    func performLoad(silent: Bool) async {
+        if !silent {
+            publish(syncState: .syncing(cached: syncStateSubject.value.contacts))
+        }
+        let localBook = loadLocalAddressBook()
+
+        do {
+            let knownETag = localBook.isReadable ? eTagStorage.loadETag(for: .addressBook(walletId: walletId)) : nil
+
+            let result = try await networkService.loadAddressBook(walletId: walletId, knownETag: knownETag)
+            switch result {
+            case .notModified, .notFound:
+                await apply(local: localBook, syncState: .synced)
+            case .fetched(let remote):
+                await apply(remote: remote, local: localBook)
+            }
+
+        } catch AddressBookNetworkServiceError.malformedResponse(let error) {
+            invalidateCache()
+            publish(syncState: .failure(.decodingError(error.localizedDescription), cached: nil))
+        } catch {
+            await apply(local: localBook, syncState: .failure(.networkError(error.localizedDescription)))
+        }
+    }
+
+    func apply(local: LocalAddressBook, syncState: AddressBookSyncState) async {
+        let cached = local.contacts
+        switch syncState {
+        case .syncing:
+            publish(syncState: .syncing(cached: cached))
+        case .synced:
+            publish(syncState: .synced(cached ?? []))
+        case .failure(let error):
+            publish(syncState: .failure(error, cached: cached))
+        }
+    }
+
+    func apply(remote: RemoteAddressBook, local: LocalAddressBook) async {
+        do {
+            let contacts = try decode(envelope: remote.envelope)
+            save(envelope: remote.envelope, etag: remote.etag)
+            publish(syncState: .synced(contacts))
+        } catch AddressBookRepositoryError.unsupportedBlobVersion {
+            publish(syncState: .failure(.updateRequired, cached: local.contacts))
+        } catch {
+            invalidateCache()
+            publish(syncState: .failure(.decodingError(error.localizedDescription), cached: nil))
+        }
+    }
+
+    func decode(envelope: AddressBookEnvelope) throws -> [AddressBookDecodedContact] {
+        guard envelope.version == AddressBookBlobCodec.supportedVersion else {
+            throw AddressBookRepositoryError.unsupportedBlobVersion(envelope.version)
+        }
+
+        let plaintext = try encryptionService.open(envelope.sealedBox, using: encryptionKey)
+        return try blobCodec.decode(plaintext).contacts
+    }
+}
+
+// MARK: - Save
+
+private extension CommonAddressBookRepository {
+    func performSave(contacts: [AddressBookDecodedContact]) async throws {
+        try ensureBookMutable()
+
+        let knownETag = eTagStorage.loadETag(for: .addressBook(walletId: walletId))
         let plaintext = try blobCodec.encode(AddressBookPlaintext(contacts: contacts))
         let sealedBox = try encryptionService.seal(plaintext, using: encryptionKey)
 
@@ -93,8 +166,97 @@ extension CommonAddressBookRepository: AddressBookRepository {
             sealedBox: sealedBox
         )
 
-        try persistentStorage.saveEnvelope(mapper.mapToDTO(envelope), for: walletId)
-        contactsSubject.send(contacts)
-        syncStateSubject.send(.synced)
+        do {
+            let result = try await networkService.saveAddressBook(envelope, walletId: walletId, knownETag: knownETag)
+
+            let savedEnvelope = AddressBookEnvelope(
+                version: AddressBookBlobCodec.supportedVersion,
+                walletId: walletId,
+                updatedAt: result.updatedAt,
+                sealedBox: sealedBox
+            )
+            save(envelope: savedEnvelope, etag: result.etag)
+
+            publish(syncState: .synced(contacts))
+
+        } catch AddressBookNetworkServiceError.inconsistentState {
+            await performLoad(silent: true)
+            throw AddressBookNetworkServiceError.inconsistentState
+        } catch AddressBookNetworkServiceError.malformedResponse(let error) {
+            await performLoad(silent: true)
+            throw AddressBookNetworkServiceError.malformedResponse(error)
+        }
+    }
+}
+
+// MARK: - Local Storage
+
+private extension CommonAddressBookRepository {
+    func loadLocalAddressBook() -> LocalAddressBook {
+        guard let dto = persistentStorage.loadEnvelope(for: walletId) else {
+            return .absent
+        }
+
+        do {
+            let envelope = try mapper.mapToEnvelope(dto)
+            let contacts = try decode(envelope: envelope)
+            return .readable(contacts)
+        } catch {
+            invalidateCache()
+            return .absent
+        }
+    }
+
+    func save(envelope: AddressBookEnvelope, etag: String) {
+        do {
+            try persistentStorage.saveEnvelope(mapper.mapToDTO(envelope), for: walletId)
+            eTagStorage.saveETag(etag, for: .addressBook(walletId: walletId))
+        } catch {
+            invalidateCache()
+        }
+    }
+
+    func invalidateCache() {
+        persistentStorage.clear(for: walletId)
+        eTagStorage.clearETag(for: .addressBook(walletId: walletId))
+    }
+}
+
+// MARK: - State publishing
+
+private extension CommonAddressBookRepository {
+    func publish(syncState: SyncState) {
+        syncStateSubject.send(syncState)
+    }
+}
+
+// MARK: - SyncState
+
+private extension CommonAddressBookRepository {
+    enum SyncState {
+        case syncing(cached: [AddressBookDecodedContact]?)
+        case synced([AddressBookDecodedContact])
+        case failure(AddressBookSyncError, cached: [AddressBookDecodedContact]?)
+
+        var contacts: [AddressBookDecodedContact] {
+            switch self {
+            case .syncing(let cached): cached ?? []
+            case .synced(let contacts): contacts
+            case .failure(_, let cached): cached ?? []
+            }
+        }
+
+        var publicState: AddressBookSyncState {
+            switch self {
+            case .syncing: .syncing
+            case .synced: .synced
+            case .failure(let error, _): .failure(error)
+            }
+        }
+
+        var isSynced: Bool {
+            if case .synced = self { return true }
+            return false
+        }
     }
 }
