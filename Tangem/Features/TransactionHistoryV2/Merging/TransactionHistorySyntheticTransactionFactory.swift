@@ -41,13 +41,14 @@ struct TransactionHistorySyntheticTransactionFactory {
         if outgoing {
             // Pay-in leg: the wallet sends the `from` asset to the provider deposit address.
             let amount = exchangeTransaction.from.actualAmount ?? exchangeTransaction.from.amount
-            source = .single(.init(address: exchangeTransaction.fromAddress ?? .unknown, amount: amount))
+            source = .single(.init(address: exchangeTransaction.fromAddress ?? ownerAddress, amount: amount))
             destination = .single(.init(address: .user(exchangeTransaction.payIn.address), amount: amount))
             hash = exchangeTransaction.payIn.hash ?? exchangeTransaction.txId
         } else {
             // Pay-out leg: the wallet receives the `to` asset at its payout address.
             let amount = exchangeTransaction.to.actualAmount ?? exchangeTransaction.to.amount
-            source = .single(.init(address: .unknown, amount: amount)) // The source address of the pay-out leg is unknown at this point
+            // The source address of the pay-out leg is unknown at this point because there is no blockchain transaction yet
+            source = .single(.init(address: .unknown, amount: amount))
             destination = .single(.init(address: .user(exchangeTransaction.payOut.address), amount: amount))
             hash = exchangeTransaction.payOut.hash ?? exchangeTransaction.txId
         }
@@ -57,7 +58,7 @@ struct TransactionHistorySyntheticTransactionFactory {
             index: 0, // A single transaction record, therefore index is always 0
             source: source,
             destination: destination,
-            fee: feeTokenItem.zeroFee, // Unknown at this point
+            fee: feeTokenItem.zeroFee, // Unknown at this point because there is no blockchain transaction yet
             status: syntheticTransactionStatus(from: exchangeTransaction.status),
             isOutgoing: outgoing,
             type: .contractMethodName(name: Constants.swapMethodName),
@@ -69,7 +70,7 @@ struct TransactionHistorySyntheticTransactionFactory {
     }
 
     func makeSyntheticTransaction(from onrampTransaction: OnrampTransaction) -> TransactionRecord {
-        // Onramp only has a pay-out leg (fiat -> crypto), so the wallet always receives.
+        // Onramp only has a pay-out leg (fiat -> crypto), so the synthetic transactions for Onramp are always incoming
         let amount = onrampTransaction.to.actualAmount ?? onrampTransaction.to.amount ?? 0
         let info = OnrampTransactionInfo(
             onrampTransaction: onrampTransaction,
@@ -80,9 +81,10 @@ struct TransactionHistorySyntheticTransactionFactory {
         return TransactionRecord(
             hash: onrampTransaction.payOut.hash ?? onrampTransaction.txId,
             index: 0, // A single transaction record, therefore index is always 0
-            source: .single(.init(address: .unknown, amount: amount)), // The source address of the pay-out leg is unknown at this point
+            // The source address of the pay-out leg is unknown at this point because there is no blockchain transaction yet
+            source: .single(.init(address: .unknown, amount: amount)),
             destination: .single(.init(address: .user(onrampTransaction.payOut.address), amount: amount)),
-            fee: feeTokenItem.zeroFee, // Unknown at this point
+            fee: feeTokenItem.zeroFee, // Unknown at this point because there is no blockchain transaction yet
             status: syntheticTransactionStatus(from: onrampTransaction.status),
             isOutgoing: false, // Onramp transactions are always incoming by definition (fiat -> crypto)
             type: .contractMethodName(name: Constants.onrampMethodName),

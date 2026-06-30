@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import BlockchainSdk
+import Foundation
 
 public extension Array where Element == TransactionRecord {
     /// Appends new records, zipping `source`/`destination` of any record that already exists by `hash` + `index`.
