@@ -96,7 +96,7 @@
 "address_book_invalid_address_error" = "Endereço inválido";
 "address_book_keep_editing" = "Continue editando";
 "address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
-"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_max_networks_alert_title" = "Can't add new address";
 "address_book_name_empty_error" = "Contact name is required";
 "address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
 "address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
@@ -322,6 +322,7 @@
 "common_passphrase" = "Senha";
 "common_paste" = "Colar";
 "common_privacy_policy" = "política de Privacidade";
+"common_rate" = "Rate";
 "common_read_more" = "Leia mais";
 "common_receive" = "Receber";
 "common_received" = "Recebido";
@@ -375,6 +376,7 @@
 "common_token_send" = "Token a ser enviado";
 "common_token" = "Token";
 "common_transaction_failed" = "Transação falhou";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "Status da transação";
 "common_transactions" = "Transações";
 "common_transfer" = "Transferir";
@@ -581,6 +583,8 @@
 "feedback_subject_tx_failed" = "Não foi possível enviar uma transação.";
 "feedback_subject_tx_push_failed" = "Não é possível enviar uma transação.";
 "feedback_token_description_error" = "Erro na descrição da moeda";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Atualize o aplicativo para a versão mais recente para garantir o funcionamento correto.";
 "force_update_banner_title" = "Atualização necessária";
@@ -1311,6 +1315,7 @@
 "staking_enabled" = "Staking ativado";
 "staking_error_no_validators_message" = "Não há validadores disponíveis no momento. Tente novamente mais tarde.";
 "staking_error_no_validators_title" = "Staking indisponível";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "A rede cobrará uma taxa de aprovação de token para verificar se você está autorizando o uso do seu token para staking.";
 "staking_legal" = "Ao utilizar a funcionalidade de staking, você concorda com os termos do provedor. %1$@ e %2$@";
@@ -1601,6 +1606,10 @@
 "tangempay_change_pin_code" = "Alterar código PIN";
 "tangempay_come_back_if_forget_pin" = "Volte ao aplicativo se você se esquecer.";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Defina um limite a partir de %@ para %@";
 "tangempay_daily_limit_set_button" = "Definir limites";
 "tangempay_declined_reason_1" = "saldo insuficiente";
@@ -1824,6 +1833,7 @@
 "twins_scan_twin_with_number" = "Toque no cartão gêmeo com o número %@ e não remova até o final da operação.";
 "tx_history_onramp_top_up" = "Top up";
 "tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Por favor, tente novamente mais tarde. Se o problema persistir, entre em contato com o suporte.";
 "unexpected_error_title" = "Algo deu errado!";
 "universal_error" = "Ocorreu um erro. Código do erro: %@Por favor, entre em contato com nosso suporte.";
