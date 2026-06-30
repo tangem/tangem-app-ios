@@ -8,8 +8,10 @@
 
 import Foundation
 
-struct ApplicationVersionsDTO: Decodable {
-    let forceUpdate: Bool
-    let latestVersion: String?
+struct ApplicationVersionsDTO: Codable, Equatable {
+    let criticalVersion: String?
+    let criticalOSVersion: String?
     let minSupportedVersion: String?
+    let minSupportedOSVersion: String?
+    let latestVersion: String?
 }

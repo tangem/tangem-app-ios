@@ -12,7 +12,8 @@ protocol ForceUpdateService: AnyObject {
     var state: ForceUpdateState { get }
     var statePublisher: AnyPublisher<ForceUpdateState, Never> { get }
 
-    func checkForUpdates()
+    func refreshCache()
+    func refreshAndApply()
 }
 
 private struct ForceUpdateServiceKey: InjectionKey {

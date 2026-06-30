@@ -9,70 +9,129 @@ import XCTest
 @testable import Tangem
 
 final class CommonForceUpdateServiceTests: XCTestCase {
-    // MARK: - Force update
+    // MARK: - Critical version
 
-    func testForceUpdateAlwaysWins() {
-        let dto = ApplicationVersionsDTO(forceUpdate: true, latestVersion: "5.40", minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"), .forceUpdate)
-
-        let dtoNoVersion = ApplicationVersionsDTO(forceUpdate: true, latestVersion: nil, minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dtoNoVersion, currentVersion: nil), .forceUpdate)
+    func testBrickWhenAppAtOrBelowCriticalAndOSTooOld() {
+        let dto = makeDTO(criticalVersion: "5.40", criticalOSVersion: "17.0")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "16.5"), .forceUpdate(reason: .brick))
+        XCTAssertEqual(map(dto, currentVersion: "5.30", currentOSVersion: "16.5"), .forceUpdate(reason: .brick))
     }
 
-    // MARK: - Optional update
+    func testForceAppUpdateWhenAppAtOrBelowCriticalAndOSOK() {
+        let dto = makeDTO(criticalVersion: "5.40", criticalOSVersion: "17.0")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .forceUpdate(reason: .requiresAppUpdate))
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "18.1"), .forceUpdate(reason: .requiresAppUpdate))
+    }
 
-    func testOptionalUpdateWhenLatestIsHigher() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "5.41", minSupportedVersion: nil)
-        XCTAssertEqual(
-            CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"),
-            .optionalUpdate(latestVersion: "5.41")
+    func testForceAppUpdateWhenAppAtOrBelowCriticalAndOSCriticalIsNil() {
+        let dto = makeDTO(criticalVersion: "5.40", criticalOSVersion: nil)
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "1.0"), .forceUpdate(reason: .requiresAppUpdate))
+    }
+
+    // MARK: - Min supported version
+
+    func testRequiresOSUpdateWhenAppAtOrBelowMinSupportedAndOSTooOld() {
+        let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: "17.0")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "16.5"), .forceUpdate(reason: .requiresOSUpdate))
+    }
+
+    func testForceAppUpdateWhenAppAtOrBelowMinSupportedAndOSOK() {
+        let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: "17.0")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .forceUpdate(reason: .requiresAppUpdate))
+    }
+
+    func testForceAppUpdateWhenMinSupportedAndOSVersionIsNil() {
+        let dto = makeDTO(minSupportedVersion: "5.40", minSupportedOSVersion: nil)
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "1.0"), .forceUpdate(reason: .requiresAppUpdate))
+    }
+
+    // MARK: - Critical takes precedence
+
+    func testCriticalTakesPrecedence() {
+        let dto = makeDTO(
+            criticalVersion: "5.40",
+            criticalOSVersion: "17.0",
+            minSupportedVersion: "5.40",
+            minSupportedOSVersion: "17.0"
         )
+        // Both critical and minSupported match the app version, but critical wins → brick (since OS too old).
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "16.5"), .forceUpdate(reason: .brick))
+    }
+
+    // MARK: - Optional update (latest)
+
+    func testOptionalUpdateWhenAppBelowLatest() {
+        let dto = makeDTO(latestVersion: "5.41")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .optionalUpdate(latestVersion: "5.41"))
     }
 
     func testOptionalUpdateUsesSemanticComparison() {
         // 5.37 must be greater than 5.9 with .numeric semantic comparison.
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "5.37", minSupportedVersion: nil)
-        XCTAssertEqual(
-            CommonForceUpdateService.mapState(from: dto, currentVersion: "5.9"),
-            .optionalUpdate(latestVersion: "5.37")
-        )
-    }
-
-    func testOptionalUpdateAcrossMajorVersions() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "6.0", minSupportedVersion: nil)
-        XCTAssertEqual(
-            CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"),
-            .optionalUpdate(latestVersion: "6.0")
-        )
+        let dto = makeDTO(latestVersion: "5.37")
+        XCTAssertEqual(map(dto, currentVersion: "5.9", currentOSVersion: "17.0"), .optionalUpdate(latestVersion: "5.37"))
     }
 
     // MARK: - Up to date
 
-    func testUpToDateWhenVersionsEqual() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "5.40", minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"), .upToDate)
+    func testUpToDateWhenAllNil() {
+        XCTAssertEqual(map(makeDTO(), currentVersion: "5.40", currentOSVersion: "17.0"), .upToDate)
     }
 
-    func testUpToDateWhenCurrentIsHigher() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "5.39", minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"), .upToDate)
+    func testUpToDateWhenAppEqualsLatest() {
+        let dto = makeDTO(latestVersion: "5.40")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .upToDate)
+    }
+
+    func testUpToDateWhenAppAboveAllThresholds() {
+        let dto = makeDTO(
+            criticalVersion: "5.30",
+            criticalOSVersion: "17.0",
+            minSupportedVersion: "5.35",
+            minSupportedOSVersion: "17.0",
+            latestVersion: "5.40"
+        )
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .upToDate)
     }
 
     // MARK: - Defensive
 
-    func testUpToDateWhenLatestVersionMissing() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: nil, minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"), .upToDate)
+    func testUpToDateWhenCurrentVersionMissingOrEmpty() {
+        let dto = makeDTO(criticalVersion: "5.40", latestVersion: "99.0")
+        XCTAssertEqual(map(dto, currentVersion: nil, currentOSVersion: "17.0"), .upToDate)
+        XCTAssertEqual(map(dto, currentVersion: "", currentOSVersion: "17.0"), .upToDate)
     }
 
-    func testUpToDateWhenLatestVersionEmpty() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "", minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: "5.40"), .upToDate)
+    func testUpToDateWhenLatestVersionEmptyAndOthersNil() {
+        let dto = makeDTO(latestVersion: "")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .upToDate)
     }
 
-    func testUpToDateWhenCurrentVersionMissing() {
-        let dto = ApplicationVersionsDTO(forceUpdate: false, latestVersion: "99.0", minSupportedVersion: nil)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: nil), .upToDate)
-        XCTAssertEqual(CommonForceUpdateService.mapState(from: dto, currentVersion: ""), .upToDate)
+    func testEmptyCriticalVersionIsIgnored() {
+        let dto = makeDTO(criticalVersion: "", criticalOSVersion: "99.0")
+        XCTAssertEqual(map(dto, currentVersion: "5.40", currentOSVersion: "17.0"), .upToDate)
+    }
+}
+
+// MARK: - Helpers
+
+private extension CommonForceUpdateServiceTests {
+    func map(_ dto: ApplicationVersionsDTO, currentVersion: String?, currentOSVersion: String?) -> ForceUpdateState {
+        CommonForceUpdateService.mapState(from: dto, currentVersion: currentVersion, currentOSVersion: currentOSVersion)
+    }
+
+    func makeDTO(
+        criticalVersion: String? = nil,
+        criticalOSVersion: String? = nil,
+        minSupportedVersion: String? = nil,
+        minSupportedOSVersion: String? = nil,
+        latestVersion: String? = nil
+    ) -> ApplicationVersionsDTO {
+        ApplicationVersionsDTO(
+            criticalVersion: criticalVersion,
+            criticalOSVersion: criticalOSVersion,
+            minSupportedVersion: minSupportedVersion,
+            minSupportedOSVersion: minSupportedOSVersion,
+            latestVersion: latestVersion
+        )
     }
 }

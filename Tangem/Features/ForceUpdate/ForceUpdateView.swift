@@ -42,9 +42,12 @@ struct ForceUpdateView: View {
 
             Spacer()
 
-            MainButton(settings: viewModel.primaryButtonSettings)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 6)
+            if let primaryButtonSettings = viewModel.primaryButtonSettings {
+                MainButton(settings: primaryButtonSettings)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 6)
+            }
         }
+        .onAppear(perform: viewModel.onAppear)
     }
 }

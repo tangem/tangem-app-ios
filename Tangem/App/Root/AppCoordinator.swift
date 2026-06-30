@@ -124,9 +124,18 @@ class AppCoordinator: CoordinatorObject {
         setState(.jailbreakWarning(viewModel))
     }
 
-    private func setupForceUpdate() {
-        if case .forceUpdate = viewState {
+    /// Captures the view state that was active right before the force-update screen took over,
+    /// so we can restore it when the backend says the screen is no longer needed.
+    private var preForceUpdateViewState: ViewState?
+
+    private func setupForceUpdate(reason: ForceUpdateReason) {
+        if case .forceUpdate(let viewModel) = viewState, viewModel.reason == reason {
             return
+        }
+
+        if case .forceUpdate = viewState {
+        } else {
+            preForceUpdateViewState = viewState
         }
 
         mainBottomSheetUIManager.hide(shouldUpdateFooterSnapshot: false)
@@ -135,8 +144,17 @@ class AppCoordinator: CoordinatorObject {
             await coordinator.floatingSheetPresenter.removeAllSheets()
         }
 
-        let viewModel = ForceUpdateViewModel(coordinator: self)
+        let viewModel = ForceUpdateViewModel(reason: reason, coordinator: self)
         setState(.forceUpdate(viewModel))
+    }
+
+    private func dismissForceUpdate() {
+        guard case .forceUpdate = viewState else { return }
+        guard let restored = preForceUpdateViewState else {
+            return
+        }
+        preForceUpdateViewState = nil
+        setState(restored)
     }
 
     private func setupWelcome() {
@@ -276,9 +294,16 @@ class AppCoordinator: CoordinatorObject {
             .withWeakCaptureOf(self)
             .sink { coordinator, params in
                 let (viewState, updateState) = params
-                guard case .forceUpdate = updateState else { return }
-                if case .forceUpdate = viewState { return }
-                coordinator.setupForceUpdate()
+
+                if let reason = updateState.forceUpdateReason {
+                    if case .forceUpdate(let viewModel) = viewState, viewModel.reason == reason { return }
+                    coordinator.setupForceUpdate(reason: reason)
+                    return
+                }
+
+                if case .forceUpdate = viewState {
+                    coordinator.dismissForceUpdate()
+                }
             }
             .store(in: &bag)
     }
@@ -398,6 +423,8 @@ extension AppCoordinator {
         coordinator.start(with: options)
 
         setState(.main(coordinator))
+
+        forceUpdateService.refreshCache()
     }
 }
 
