@@ -8,7 +8,14 @@
 
 import Foundation
 
-enum AddressBookRepositoryError: Error {
-    /// The blob's open `version` is newer than this client supports — prompt the user to update.
+enum AddressBookRepositoryError: LocalizedError {
     case unsupportedBlobVersion(String)
+    case bookUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .unsupportedBlobVersion: "Address book version is not supported"
+        case .bookUnavailable: "Book unavailable"
+        }
+    }
 }
