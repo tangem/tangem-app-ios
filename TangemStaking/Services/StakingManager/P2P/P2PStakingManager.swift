@@ -17,6 +17,7 @@ final class P2PStakingManager {
     private let yieldInfoProvider: StakingYieldInfoProvider
     private let analyticsLogger: StakingAnalyticsLogger
     private let stateRepository: StakingManagerStateRepository
+    private let isRegionUnavailableHandlingEnabled: Bool
 
     private let _state: CurrentValueSubject<StakingManagerState, Never>
     private var previousFee: Decimal?
@@ -27,7 +28,8 @@ final class P2PStakingManager {
         apiProvider: P2PAPIProvider,
         yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
-        analyticsLogger: StakingAnalyticsLogger
+        analyticsLogger: StakingAnalyticsLogger,
+        isRegionUnavailableHandlingEnabled: Bool
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
@@ -35,6 +37,7 @@ final class P2PStakingManager {
         self.yieldInfoProvider = yieldInfoProvider
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
+        self.isRegionUnavailableHandlingEnabled = isRegionUnavailableHandlingEnabled
 
         _state = CurrentValueSubject(.loading(cached: stateRepository.state()))
     }
@@ -63,7 +66,7 @@ extension P2PStakingManager: StakingManager {
                 )
             } catch is CancellationError {
                 return
-            } catch let error where error.isStakingRegionUnavailable {
+            } catch let error where isRegionUnavailableHandlingEnabled && error.isStakingRegionUnavailable {
                 updateRegionUnavailableState()
                 return
             } catch {
@@ -76,7 +79,7 @@ extension P2PStakingManager: StakingManager {
         } catch is CancellationError {
             // Ignored intentionally
             return
-        } catch let error where error.isStakingRegionUnavailable {
+        } catch let error where isRegionUnavailableHandlingEnabled && error.isStakingRegionUnavailable {
             updateRegionUnavailableState()
         } catch let error as StakingAvailabilityError {
             updateUnavailableState(error: error, yieldIsAvailable: false)

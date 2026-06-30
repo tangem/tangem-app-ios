@@ -36,7 +36,8 @@ public struct TangemStakingFactory {
         provider: P2PAPIProvider,
         yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
-        analyticsLogger: StakingAnalyticsLogger
+        analyticsLogger: StakingAnalyticsLogger,
+        isRegionUnavailableHandlingEnabled: Bool
     ) -> StakingManager {
         P2PStakingManager(
             integrationId: integrationId,
@@ -44,7 +45,8 @@ public struct TangemStakingFactory {
             apiProvider: provider,
             yieldInfoProvider: yieldInfoProvider,
             stateRepository: stateRepository,
-            analyticsLogger: analyticsLogger
+            analyticsLogger: analyticsLogger,
+            isRegionUnavailableHandlingEnabled: isRegionUnavailableHandlingEnabled
         )
     }
 
