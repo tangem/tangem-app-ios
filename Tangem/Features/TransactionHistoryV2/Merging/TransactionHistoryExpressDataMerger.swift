@@ -71,6 +71,7 @@ struct TransactionHistoryExpressDataMerger {
         exchangeTransactions: [ExchangeTransaction],
         onrampTransactions: [OnrampTransaction]
     ) -> [TransactionRecord] {
+        // [REDACTED_TODO_COMMENT]
         var bsdkTransactionsGroupedByHash: [String?: [TransactionRecord]] = bsdkTransactions.grouped(by: \.hash)
         var output: [TransactionRecord] = []
         output.reserveCapacity(bsdkTransactions.count + exchangeTransactions.count + onrampTransactions.count)
