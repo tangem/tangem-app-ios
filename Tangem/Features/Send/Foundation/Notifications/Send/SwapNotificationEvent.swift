@@ -81,7 +81,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .notEnoughReceivedAmountForReserve(let amountFormatted):
             return .string(Localization.warningExpressNotificationInvalidReserveAmountTitle(amountFormatted))
         case .incompleteBackup:
-            return .string(Localization.commonAttention)
+            return .string(Localization.onboardingActivationErrorTitle)
         case .withdrawalNotificationEvent(let event):
             return event.title
         case .validationErrorEvent(let event):
@@ -210,9 +210,15 @@ extension SwapNotificationEvent: NotificationEvent {
              .tooBigAmountToSwap,
              .cexOperationFailed,
              .notEnoughReceivedAmountForReserve,
-             .notEnoughBalanceForSwapping,
-             .incompleteBackup:
+             .notEnoughBalanceForSwapping:
             return .init(iconType: .image(Assets.redCircleWarning))
+        case .incompleteBackup:
+            return .init(
+                iconType: .image(Assets.DesignSystem.attention),
+                renderingMode: .template,
+                color: .Tangem.Text.Neutral.primary,
+                size: .init(bothDimensions: 28)
+            )
         case .withdrawalNotificationEvent(let event):
             return event.icon
         case .validationErrorEvent(let event):
