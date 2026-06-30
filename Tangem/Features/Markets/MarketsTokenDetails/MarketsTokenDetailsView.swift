@@ -106,10 +106,20 @@ struct MarketsTokenDetailsView: View {
         NavigationHeader(
             leadingContent: { redesignedBackButton },
             principalContent: { EmptyView() },
-            trailingContent: { redesignedShareButton }
+            trailingContent: { redesignedTrailingButtons }
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)
         .infinityFrame(axis: .vertical, alignment: .top)
+    }
+
+    private var redesignedTrailingButtons: some View {
+        HStack(spacing: 8) {
+            if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
+                PriceAlertBellView(viewModel: priceAlertBellViewModel)
+            }
+
+            redesignedShareButton
+        }
     }
 
     private var redesignedBackButton: some View {
