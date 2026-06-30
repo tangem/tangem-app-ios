@@ -123,14 +123,6 @@ final class CommonAddressBookManager {
 
     // MARK: - Validation helpers
 
-    /// Refuses to mutate when the last load failed: persisting now would overwrite the still-intact
-    /// on-disk blob that merely could not be decoded (e.g. a key mismatch), destroying the user's data.
-    private func ensureBookMutable() throws {
-        if repository.syncState == .failed {
-            throw AddressBookManagerError.bookUnavailable
-        }
-    }
-
     private func ensureNameUnique(_ name: AddressBookContactName, excluding contactId: AddressBookContactID?) throws {
         // Only visible (verified) contacts constrain the name: a fully-unverifiable contact is hidden
         // from the user (spec 2.1.3), so it must not block a name whose owner the user cannot see or delete.
@@ -179,7 +171,7 @@ final class CommonAddressBookManager {
 
     @discardableResult
     private func insert(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
-        try ensureBookMutable()
+        try repository.ensureBookMutable()
 
         let drafts = entries.raw
 
@@ -220,7 +212,7 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func load() async {
-        await repository.load()
+        await repository.load(silent: false)
     }
 
     func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID {
@@ -232,7 +224,8 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func updateContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws {
-        try ensureBookMutable()
+        // Fail fast before the signing card tap; `repository.save` re-checks this authoritatively.
+        try repository.ensureBookMutable()
 
         let drafts = entries.raw
 
@@ -252,7 +245,7 @@ extension CommonAddressBookManager: AddressBookManager {
     }
 
     func deleteContact(id: AddressBookContactID) async throws {
-        try ensureBookMutable()
+        // No signing here, so no need to pre-check; `repository.save` enforces the synced gate.
         try await repository.save(contacts: snapshot.filter { $0.id != id })
     }
 }
