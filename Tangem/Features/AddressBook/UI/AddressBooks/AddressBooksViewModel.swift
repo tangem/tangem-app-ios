@@ -11,20 +11,19 @@ import Combine
 import CombineExt
 import TangemUI
 import TangemFoundation
+import TangemLocalization
 
 final class AddressBooksViewModel: ObservableObject {
     // MARK: - ViewState
 
+    @Published var searchText: String = ""
     @Published var selectedChipId: String?
     @Published private(set) var walletChips: [Chip] = []
-    @Published private(set) var contactsViewModels: LoadingResult<[AddressBookContactViewModel], Error> = .loading
+    @Published private(set) var contentState: ContentState = .loading
 
-    var showsToolbarAddButton: Bool {
-        if case .success(let contacts) = contactsViewModels {
-            return !contacts.isEmpty
-        }
-        return false
-    }
+    @Published private var debouncedQuery: String = ""
+
+    var showsToolbarAddButton: Bool { contentState.hasContacts }
 
     // MARK: - Dependencies
 
@@ -34,6 +33,7 @@ final class AddressBooksViewModel: ObservableObject {
     private weak var coordinator: AddressBooksRoutable?
     private let addressBooksProvider: any AddressBooksProvider
     private let addressBooksSubject: CurrentValueSubject<[AddressBookWallet], Never>
+    private let matcher = AddressBookContactMatcher()
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -43,39 +43,64 @@ final class AddressBooksViewModel: ObservableObject {
         self.coordinator = coordinator
         self.addressBooksProvider = addressBooksProvider
         addressBooksSubject = .init(addressBooksProvider.addressBooks)
-        selectedChipId = defaultSelectedChipId
+        selectedChipId = addressBooksSubject.value.count >= 2 ? Constants.allChipId : addressBooksSubject.value.first?.wallet.id.stringValue
 
         bindAddressBooks()
+        bindSearchDebounce()
         bind()
-        bindChips()
     }
 
     func openAddContact() {
-        guard let selectedAddressBook else {
+        guard let addContactTarget else {
             return
         }
 
-        coordinator?.openAddContact(addressBookWallet: selectedAddressBook)
+        coordinator?.openAddContact(addressBookWallet: addContactTarget)
     }
 
     func retry() {
-        guard let selectedAddressBook else {
-            return
+        let books = isAllScope ? addressBooksSubject.value : addressBooksSubject.value.filter { $0.wallet.id.stringValue == selectedChipId }
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for book in books {
+                    group.addTask {
+                        await book.addressBookManager.load()
+                    }
+                }
+            }
         }
-
-        Task { await selectedAddressBook.addressBookManager.load() }
     }
 }
 
 // MARK: - Private
 
 private extension AddressBooksViewModel {
-    var selectedAddressBook: AddressBookWallet? {
-        addressBooksSubject.value.first { $0.wallet.id.stringValue == selectedChipId }
+    var isAllScope: Bool {
+        selectedChipId == Constants.allChipId
     }
 
-    var defaultSelectedChipId: String? {
-        userWalletRepository.selectedModel?.userWalletId.stringValue ?? addressBooksSubject.value.first?.wallet.id.stringValue
+    var addContactTarget: AddressBookWallet? {
+        if let selected = addressBooksSubject.value.first(where: { $0.wallet.id.stringValue == selectedChipId }) {
+            return selected
+        }
+
+        if let currentId = userWalletRepository.selectedModel?.userWalletId.stringValue,
+           let current = addressBooksSubject.value.first(where: { $0.wallet.id.stringValue == currentId }) {
+            return current
+        }
+
+        return addressBooksSubject.value.first
+    }
+
+    static func effectiveScope(selected: String?, chips: [Chip], walletsWithContacts: [WalletState]) -> String? {
+        if chips.isNotEmpty {
+            if let selected, chips.contains(where: { $0.id == selected }) {
+                return selected
+            }
+            return Constants.allChipId
+        }
+
+        return walletsWithContacts.count == 1 ? walletsWithContacts.first?.id : Constants.allChipId
     }
 
     func bindAddressBooks() {
@@ -88,98 +113,190 @@ private extension AddressBooksViewModel {
             .store(in: &bag)
     }
 
-    func bindChips() {
-        addressBooksSubject
-            .flatMapLatest { addressBooks -> AnyPublisher<[String: Bool], Never> in
-                guard addressBooks.isNotEmpty else {
-                    return Just([:]).eraseToAnyPublisher()
-                }
+    func bindSearchDebounce() {
+        $searchText
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .removeDuplicates()
+            .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
+            .assign(to: &$debouncedQuery)
+    }
 
-                let nonEmptyFlags = addressBooks.map { addressBook in
-                    addressBook.addressBookPublisher
-                        .map { (id: addressBook.wallet.id.stringValue, hasContacts: $0.isNotEmpty) }
-                        .eraseToAnyPublisher()
-                }
+    func bind() {
+        let liveQuery = $searchText
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .removeDuplicates()
 
-                return nonEmptyFlags
-                    .combineLatest()
-                    .map { flags in Dictionary(uniqueKeysWithValues: flags.map { ($0.id, $0.hasContacts) }) }
-                    .eraseToAnyPublisher()
+        Publishers.CombineLatest4(allWalletsPublisher(), $selectedChipId, liveQuery, $debouncedQuery)
+            .withWeakCaptureOf(self)
+            .map { viewModel, input -> ViewState in
+                let (wallets, selected, live, settled) = input
+                return viewModel.makeViewState(wallets: wallets, selected: selected, live: live, settled: settled)
             }
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, nonEmptyById in
-                viewModel.applyChips(nonEmptyById: nonEmptyById)
+            .sink { viewModel, state in
+                viewModel.walletChips = state.chips
+                viewModel.contentState = state.content
+                if viewModel.selectedChipId != state.scope {
+                    viewModel.selectedChipId = state.scope
+                }
             }
             .store(in: &bag)
     }
 
-    func applyChips(nonEmptyById: [String: Bool]) {
-        let nonEmptyBooks = addressBooksSubject.value.filter { nonEmptyById[$0.wallet.id.stringValue] == true }
-        walletChips = nonEmptyBooks.map { Chip(id: $0.wallet.id.stringValue, title: $0.wallet.name) }
-
-        if let selectedChipId, nonEmptyById[selectedChipId] == true {
-            return
-        }
-
-        let nonEmptyIds = Set(nonEmptyBooks.map { $0.wallet.id.stringValue })
-        if let currentWalletId = userWalletRepository.selectedModel?.userWalletId.stringValue, nonEmptyIds.contains(currentWalletId) {
-            selectedChipId = currentWalletId
-        } else if let firstNonEmptyId = nonEmptyBooks.first?.wallet.id.stringValue {
-            selectedChipId = firstNonEmptyId
-        } else {
-            selectedChipId = defaultSelectedChipId
-        }
-    }
-
-    func bind() {
-        Publishers.CombineLatest($selectedChipId, addressBooksSubject)
-            .map { selectedChipId, addressBooks -> AddressBookWallet? in
-                addressBooks.first(where: { $0.wallet.id.stringValue == selectedChipId })
-            }
-            .withWeakCaptureOf(self)
-            .flatMapLatest { viewModel, addressBook -> AnyPublisher<LoadingResult<[AddressBookContactViewModel], Error>, Never> in
-                guard let addressBook else {
-                    return Just(.success([])).eraseToAnyPublisher()
+    func allWalletsPublisher() -> AnyPublisher<[WalletState], Never> {
+        addressBooksSubject
+            .flatMapLatest { addressBooks -> AnyPublisher<[WalletState], Never> in
+                guard addressBooks.isNotEmpty else {
+                    return .just(output: [WalletState]())
                 }
 
-                return Publishers.CombineLatest(addressBook.addressBookPublisher, addressBook.syncStatePublisher)
-                    .withWeakCaptureOf(viewModel)
-                    .map { viewModel, output -> LoadingResult<[AddressBookContactViewModel], Error> in
-                        let (contacts, syncState) = output
-
-                        switch syncState {
-                        case .failed:
-                            return .failure(AddressBooksLoadError.syncFailed)
-                        case .syncing:
-                            return .loading
-                        case .synced, .offline:
-                            return .success(viewModel.mapToAddressBookContactViewModels(
-                                addressBookWallet: addressBook,
-                                contacts: contacts
-                            ))
-                        }
+                return addressBooks
+                    .map { book in
+                        Publishers.CombineLatest(book.addressBookPublisher, book.syncStatePublisher)
+                            .map { contacts, syncState in
+                                WalletState(id: book.wallet.id.stringValue, name: book.wallet.name, contacts: contacts, syncState: syncState)
+                            }
+                            .eraseToAnyPublisher()
                     }
-                    .eraseToAnyPublisher()
+                    .combineLatest()
             }
-            .receiveOnMain()
-            .assign(to: &$contactsViewModels)
+            .eraseToAnyPublisher()
     }
 
-    func mapToAddressBookContactViewModels(
-        addressBookWallet: AddressBookWallet,
-        contacts: [AddressBookContact]
-    ) -> [AddressBookContactViewModel] {
-        contacts.map { contact in
-            AddressBookContactViewModel(contact: contact) { [weak self] in
-                self?.coordinator?.openEditContact(contact: contact, addressBookWallet: addressBookWallet)
+    func makeViewState(wallets: [WalletState], selected: String?, live: String, settled: String) -> ViewState {
+        let walletsWithContacts = wallets.filter { $0.contacts.isNotEmpty }
+        let isMultiWallet = walletsWithContacts.count >= 2
+        let query = live.isEmpty ? "" : settled
+        let isSearching = live.isNotEmpty && live != settled
+
+        let chips = makeChips(wallets: wallets, isMultiWallet: isMultiWallet, query: query)
+        let scope = Self.effectiveScope(selected: selected, chips: chips, walletsWithContacts: walletsWithContacts)
+        let scopeWallets = scope == Constants.allChipId ? wallets : wallets.filter { $0.id == scope }
+        let content = makeContent(scopeWallets: scopeWallets, query: query, isSearching: isSearching)
+
+        return ViewState(chips: chips, content: content, scope: scope)
+    }
+
+    func makeChips(wallets: [WalletState], isMultiWallet: Bool, query: String) -> [Chip] {
+        guard isMultiWallet else {
+            return []
+        }
+
+        let matching = wallets.filter { wallet in
+            guard wallet.contacts.isNotEmpty else {
+                return false
+            }
+            return query.isEmpty || matcher.filter(wallet.contacts, query: query).isNotEmpty
+        }
+
+        guard matching.isNotEmpty else {
+            return []
+        }
+
+        return [Chip(id: Constants.allChipId, title: Localization.commonAll)]
+            + matching.map { Chip(id: $0.id, title: $0.name) }
+    }
+
+    func makeContent(scopeWallets: [WalletState], query: String, isSearching: Bool) -> ContentState {
+        let ready = scopeWallets.filter(\.isDisplayReady)
+
+        guard ready.isNotEmpty else {
+            if scopeWallets.isEmpty {
+                return .empty
+            }
+            return scopeWallets.allSatisfy(\.isFailed) ? .failure : .loading
+        }
+
+        let contacts = ready.flatMap(\.contacts)
+
+        guard contacts.isNotEmpty else {
+            return .empty
+        }
+
+        if isSearching {
+            return .searching
+        }
+
+        guard query.isNotEmpty else {
+            return .results(makeContactViewModels(contacts))
+        }
+
+        let filtered = matcher.filter(contacts, query: query)
+        return filtered.isEmpty ? .noResults : .results(makeContactViewModels(filtered))
+    }
+
+    func makeContactViewModels(_ contacts: [AddressBookContact]) -> [AddressBookContactViewModel] {
+        let showsWalletName = Set(contacts.map { $0.walletId.stringValue }).count > 1
+
+        return contacts.map { contact in
+            let book = addressBooksSubject.value.first { $0.wallet.id.stringValue == contact.walletId.stringValue }
+            let walletName = showsWalletName ? book?.wallet.name : nil
+
+            return AddressBookContactViewModel(contact: contact, walletName: walletName) { [weak self] in
+                guard let book else { return }
+                self?.coordinator?.openEditContact(contact: contact, addressBookWallet: book)
             }
         }
     }
 }
 
-// MARK: - Error
+// MARK: - Types
 
-private enum AddressBooksLoadError: Error {
-    case syncFailed
+extension AddressBooksViewModel {
+    enum ContentState {
+        case loading
+        case failure
+        case empty
+        case searching
+        case results([AddressBookContactViewModel])
+        case noResults
+
+        var hasContacts: Bool {
+            switch self {
+            case .results, .noResults, .searching: true
+            case .loading, .failure, .empty: false
+            }
+        }
+    }
+}
+
+private extension AddressBooksViewModel {
+    enum Constants {
+        static let allChipId = "all"
+    }
+
+    struct ViewState {
+        let chips: [Chip]
+        let content: ContentState
+        let scope: String?
+    }
+
+    struct WalletState {
+        let id: String
+        let name: String
+        let contacts: [AddressBookContact]
+        let syncState: AddressBookSyncState
+
+        /// Whether this book's contacts can be shown. A network failure still surfaces the cached contacts,
+        /// so it counts as ready only while there is something to show; a decode failure clears the cache and
+        /// contributes nothing, yet is "done" rather than still loading.
+        var isDisplayReady: Bool {
+            switch syncState {
+            case .synced, .failure(.decodingError): true
+            case .failure(.networkError): contacts.isNotEmpty
+            case .syncing, .failure(.updateRequired): false
+            }
+        }
+
+        /// A book that can show nothing and won't recover on its own: an incompatible blob version, or a
+        /// network failure with no cache to fall back on.
+        var isFailed: Bool {
+            switch syncState {
+            case .failure(.updateRequired): true
+            case .failure(.networkError): contacts.isEmpty
+            case .syncing, .synced, .failure(.decodingError): false
+            }
+        }
+    }
 }
