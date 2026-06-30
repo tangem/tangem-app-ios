@@ -37,6 +37,7 @@ public enum SendAccessibilityIdentifiers {
     /// SendFeeCompactView
     public static let networkFeeBlock = "sendNetworkFeeBlock"
     public static let networkFeeAmount = "sendNetworkFeeAmount"
+    public static let networkFeeCurrencySymbol = "sendNetworkFeeCurrencySymbol"
     public static let networkFeeUnreachableBanner = "sendNetworkFeeUnreachableBanner"
 
     /// AddressTextView
@@ -74,6 +75,7 @@ public enum SendAccessibilityIdentifiers {
     public static let amountExceedMaximumUTXOBanner = "sendAmountExceedMaximumUTXOBanner"
     public static let customFeeTooLowBanner = "sendCustomFeeTooLowBanner"
     public static let feeWillBeSubtractFromSendingAmountBanner = "sendfeeWillBeSubtractFromSendingAmountBanner"
+    public static let insufficientBalanceForFeeBanner = "sendInsufficientBalanceForFeeBanner"
     public static let customFeeTooHighBanner = "sendCustomFeeTooHighBanner"
     public static let highFeeNotificationBanner = "sendHighFeeNotificationBanner"
     public static let existentialDepositWarningBanner = "sendExistentialDepositWarningBanner"
