@@ -16,7 +16,7 @@ struct ChooseAddressRowView: View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
             .verticalAlignment(.center)
             .start {
-                AddressIconView(viewModel: viewModel.addressIconViewModel)
+                AddressBlockiesIconView(viewData: viewModel.addressIcon)
             }
             .onTap(viewModel.onTap)
     }

@@ -39,6 +39,8 @@ enum Feature: String, Hashable, CaseIterable {
     case hideStoriesInMobileWallet
     case marketingBanners
     case bitcoinDexSwap
+    case highFeeWarning
+    case priceAlertsSubscription
     case backup4cards
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
@@ -75,6 +77,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return "[REDACTED_INFO]_bitcoin_support_for_dex_lifi_swapkit"
         case .hideStoriesInMobileWallet: return "1512_Hide_Stories_In_Mobile_Wallet"
         case .marketingBanners: return "TWI-1522_special_offer_promo_placement_for_onramp_and_swaps"
+        case .highFeeWarning: return "TWI-1367_high_fee_warning"
+        case .priceAlertsSubscription: return "TWI-1603_price_alerts_subscription"
         case .backup4cards: return "[REDACTED_INFO]_backup_4_cards_fw8"
         }
     }
@@ -110,6 +114,8 @@ enum Feature: String, Hashable, CaseIterable {
         case .bitcoinDexSwap: return .unspecified
         case .hideStoriesInMobileWallet: return .version("6.0")
         case .marketingBanners: return .unspecified
+        case .highFeeWarning: return .unspecified
+        case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
         case .redesign: return .version("6.0")
         }

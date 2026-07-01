@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct AddCustomTokenDerivationPathSelectorItemView: View {
     @ObservedObject var viewModel: AddCustomTokenDerivationPathSelectorItemViewModel
@@ -40,6 +41,7 @@ struct AddCustomTokenDerivationPathSelectorItemView: View {
         .onTapGesture {
             viewModel.didTap()
         }
+        .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.derivationOptionRow(viewModel.id))
     }
 }
 
