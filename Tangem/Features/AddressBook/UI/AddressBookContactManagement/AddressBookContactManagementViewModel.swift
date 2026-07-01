@@ -28,7 +28,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     @Published private(set) var isProcessing: Bool = false
 
-    @Published var errorAlert: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     @Published private var entries: AddressBookContactDraftEntries?
@@ -41,14 +41,14 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
         .allCases
         .map { iconColor in
-            GridItemColor(id: iconColor, color: AccountModelUtils.UI.iconColor(from: iconColor))
+            GridItemColor(id: iconColor, color: CompositeIconColorPalette.color(for: iconColor))
         }
 
     @Published private(set) var addressesSection: [AddressRowType] = []
 
     var iconViewData: AccountIconView.ViewData {
         .composite(
-            backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
+            backgroundColor: CompositeIconColorPalette.color(for: selectedColor.id),
             nameMode: nameMode
         )
     }
@@ -79,17 +79,30 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
         title = interactor.title
 
-        let newIcon = AccountModelUtils.UI.newAccountIcon()
+        let newColor = CompositeIconColor.randomElement()
         selectedColor = GridItemColor(
-            id: newIcon.color,
-            color: AccountModelUtils.UI.iconColor(from: newIcon.color)
+            id: newColor,
+            color: CompositeIconColorPalette.color(for: newColor)
         )
 
         bind()
     }
 
     func userDidRequestDismiss() {
-        coordinator?.dismissContactManagement()
+        guard !isProcessing, interactor.hasUnsavedChanges else {
+            coordinator?.dismissContactManagement()
+            return
+        }
+
+        alert = AlertBuilder.makeExitAlert(
+            title: Localization.addressBookUnsavedChanges,
+            message: Localization.addressBookUnsavedChangesDescription,
+            keepEditingButtonText: Localization.addressBookKeepEditing,
+            discardButtonText: Localization.addressBookDiscard,
+            discardAction: { [weak self] in
+                self?.coordinator?.dismissContactManagement()
+            }
+        )
     }
 
     func userDidRequestWalletChange() {
@@ -149,7 +162,7 @@ private extension AddressBookContactManagementViewModel {
 
         interactor.contactColorPublisher
             .removeDuplicates()
-            .map { color in GridItemColor(id: color, color: AccountModelUtils.UI.iconColor(from: color)) }
+            .map { color in GridItemColor(id: color, color: CompositeIconColorPalette.color(for: color)) }
             .receiveOnMain()
             .assign(to: &$selectedColor)
 
@@ -294,7 +307,7 @@ private extension AddressBookContactManagementViewModel {
     }
 
     func presentGenericError(message: String) {
-        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+        alert = AlertBinder(title: Localization.commonError, message: message)
     }
 }
 
