@@ -18,9 +18,6 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
-    @Injected(\.onrampRepository)
-    private var onrampRepository: OnrampRepository
-
     @Published private(set) var onrampAmountViewModel: OnrampAmountViewModel
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
@@ -153,7 +150,7 @@ private extension OnrampSummaryViewModel {
         let isNativeApplePay = suggestedOfferType.isNativeApplePay
         let infoAction: (() -> Void)? = isNativeApplePay ? { [weak self] in self?.openProviderRequirementsSheet() } : nil
         let legalNotice = isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
-        let footnote = isNativeApplePay ? makeCumulativeLimitFootnote(for: provider) : nil
+        let footnote = isNativeApplePay ? makeIdentityVerificationFootnote(for: provider) : nil
 
         let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
             title: title,
@@ -166,19 +163,8 @@ private extension OnrampSummaryViewModel {
         return RecommendedItem(viewModel: viewModel, footnote: footnote)
     }
 
-    func makeCumulativeLimitFootnote(for provider: OnrampProvider) -> String {
-        let preferenceCurrencyCode = onrampRepository.preferenceCurrency?.identity.code.uppercased()
-        let providerName = provider.provider.name
-        let limit = Constants.cumulativeLimitAmount
-
-        switch preferenceCurrencyCode {
-        case AppConstants.usdCurrencyCode:
-            return Localization.onrampNativePaymentCumulativeLimit("\(limit) \(AppConstants.usdCurrencyCode)", providerName)
-        case AppConstants.eurCurrencyCode:
-            return Localization.onrampNativePaymentCumulativeLimit("\(limit) \(AppConstants.eurCurrencyCode)", providerName)
-        default:
-            return Localization.onrampNativePaymentCumulativeLimitEquivalent("\(limit) \(AppConstants.usdCurrencyCode)", providerName)
-        }
+    func makeIdentityVerificationFootnote(for provider: OnrampProvider) -> String {
+        Localization.onrampNativePaymentIdentityVerification(provider.provider.name)
     }
 
     func openProviderRequirementsSheet() {
@@ -210,13 +196,5 @@ extension OnrampSummaryViewModel {
         let footnote: String?
 
         var id: Int { hashValue }
-    }
-}
-
-// MARK: - Constants
-
-private extension OnrampSummaryViewModel {
-    enum Constants {
-        static let cumulativeLimitAmount = 700
     }
 }
