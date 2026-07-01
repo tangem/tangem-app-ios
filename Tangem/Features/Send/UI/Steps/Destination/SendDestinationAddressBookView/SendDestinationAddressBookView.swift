@@ -19,10 +19,11 @@ struct SendDestinationAddressBookView: View {
             AddressBookContactView(viewModel: contact)
         } header: {
             DefaultHeaderView(Localization.addressBookTitle)
+                .infinityFrame(axis: .horizontal)
                 .overlay(alignment: .trailing) {
                     Button(action: viewModel.viewAllAction) {
                         Text(Localization.commonViewAll)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.accent)
+                            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textBrand)
                     }
                 }
                 .padding(.horizontal, 14)

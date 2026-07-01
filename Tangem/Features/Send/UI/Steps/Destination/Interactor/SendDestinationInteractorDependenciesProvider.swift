@@ -41,17 +41,19 @@ class SendDestinationInteractorDependenciesProvider {
                     return .just(output: [])
                 }
 
-                return books
-                    .map { book in
-                        book.addressBookPublisher
-                            .map { contacts in
-                                contacts.map { SendDestinationAddressBookContact(contact: $0, walletName: book.wallet.name) }
-                            }
-                            .eraseToAnyPublisher()
+                return books.map { book in
+                    book.addressBookPublisher.map { contacts in
+                        contacts.map {
+                            SendDestinationAddressBookContact(
+                                contact: $0,
+                                walletName: book.wallet.name
+                            )
+                        }
                     }
-                    .combineLatest()
-                    .map { $0.flatMap { $0 } }
-                    .eraseToAnyPublisher()
+                }
+                .combineLatest()
+                .map { $0.flattened() }
+                .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }

@@ -18,6 +18,7 @@ struct AddressBooksView: View {
     var body: some View {
         rootContent
             .navigationTitle(Text(Localization.addressBookTitle))
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.searchText, prompt: Text(Localization.commonSearch))
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
