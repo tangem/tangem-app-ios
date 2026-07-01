@@ -27,7 +27,13 @@ final class AddressBooksViewModel: ObservableObject {
 
     @Published private var debouncedQuery: String = ""
 
-    var showsToolbarAddButton: Bool { contentState.hasContacts }
+    var trailingToolbarButton: TrailingToolbarButton? {
+        if selectionOutput != nil {
+            return .close
+        }
+
+        return contentState.hasContacts ? .addContact : .none
+    }
 
     // MARK: - Dependencies
 
@@ -55,6 +61,10 @@ final class AddressBooksViewModel: ObservableObject {
         bindAddressBooks()
         bindSearchDebounce()
         bind()
+    }
+
+    func dismiss() {
+        coordinator?.dismiss()
     }
 
     func openAddContact() {
@@ -296,6 +306,11 @@ extension AddressBooksViewModel {
             case .loading, .failure, .empty: false
             }
         }
+    }
+
+    enum TrailingToolbarButton {
+        case close
+        case addContact
     }
 }
 
