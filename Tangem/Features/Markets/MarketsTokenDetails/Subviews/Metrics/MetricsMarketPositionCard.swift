@@ -85,10 +85,10 @@ struct MetricsMarketPositionCard: View {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: trendImageSide, height: trendImageSide)
-                    .foregroundStyle(Color.Tangem.Graphic.Status.positive)
+                    .foregroundStyle(Color.Tangem.Graphic.Status.accent)
 
                 Text("\(value)")
-                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.positive)
+                    .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Status.accent)
             }
         case .down(let value):
             HStack(spacing: .unit(.half)) {
