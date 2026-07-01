@@ -14,21 +14,18 @@ struct AddressBookContactViewModel: Identifiable {
 
     let title: String
     let subtitle: String
-    let letter: String
-    let iconColor: Color
+    let iconViewData: AddressBookContactNameIconViewData
 
     let action: () -> Void
 
     init(contact: AddressBookContact, walletName: String? = nil, action: @escaping () -> Void) {
         let name = contact.name.value
-        let color = AccountModel.CompositeIcon.Color(rawValue: contact.iconColor) ?? .azure
         let addresses = Localization.addressBookAddresses(contact.entries.addressCount)
 
         id = contact.id.stringValue
         title = name
         subtitle = [walletName, addresses].compactMap { $0 }.joined(separator: " \(AppConstants.dotSign) ")
-        letter = "\(name.prefix(1).uppercased())"
-        iconColor = AccountModelUtils.UI.iconColor(from: color)
+        iconViewData = .init(contact: contact)
 
         self.action = action
     }

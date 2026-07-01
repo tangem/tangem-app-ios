@@ -82,10 +82,13 @@
 "address_book_add_address_description" = "Добавить адрес и выбрать сеть";
 "address_book_add_address" = "Добавить адрес";
 "address_book_add_contact" = "Добавить контакт";
+"address_book_address_copied" = "Address copied";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Имя контакта";
 "address_book_contact" = "Контакт";
 "address_book_copy_address" = "Копировать адрес";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Не удалось создать контакт. Пожалуйста, попробуйте позже.";
 "address_book_delete_contact_description" = "Этот контакт будет удален из всех ваших адресных книг";
 "address_book_deleting_error" = "Не удалось удалить контакт. Пожалуйста, попробуйте позже.";
@@ -105,8 +108,10 @@
 "address_book_no_contacts_description" = "Здесь отобразятся добавленные вами контакты.";
 "address_book_no_contacts" = "Нет добавленных контактов";
 "address_book_remove_address" = "Удалить адрес";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Этот контакт будет привязан к этому кошельку в адресной книге.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Выбрать сеть";
 "address_book_title" = "Адресная книга";
 "address_book_unsaved_changes_description" = "Вы уверены, что хотите отменить изменения?";
@@ -283,6 +288,7 @@
 "common_generate_addresses" = "Синхронизировать адреса";
 "common_get_started" = "Начать";
 "common_get_token" = "Получить токен";
+"common_get" = "Get";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
 "common_go_to_verification" = "Go to verification";
@@ -722,6 +728,11 @@
 "manage_tokens_toast_portfolio_updated" = "Ваш портфель был обновлен";
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
+"market_chart_ai_total" = "Al Total:";
+"market_chart_buble_no_data" = "No data";
+"market_chart_buble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@%%";
 "markets_about_coin_header" = "О монете";
 "markets_add_to_my_portfolio_description" = "Чтобы купить, обменять или получить данный токен, вам нужно добавить его к себе в портфель";
 "markets_add_to_my_portfolio_unavailable_description" = "Этот актив в настоящее время не поддерживается в кошельке";
@@ -1014,6 +1025,7 @@
 "onramp_min_amount_restriction" = "Сумма покупки должна составлять минимум %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Общая сумма транзакций, превышающая эквивалент %1@, может потребовать верификации личности через %2@";
 "onramp_native_payment_cumulative_limit" = "Общая сумма транзакций свыше %1@ может потребовать верификации личности через %2@";
+"onramp_native_payment_identity_verification" = "Для транзакций через Apple Pay может потребоваться верификация личности в %1@";
 "onramp_native_payment_legal_notice" = "Нажимая «Оплатить», вы соглашаетесь с %1@'s %2@ и %3@.";
 "onramp_no_available_providers" = "Нет доступных провайдеров для выбранной валюты";
 "onramp_offer_type_fastet" = "Самый быстрый";
