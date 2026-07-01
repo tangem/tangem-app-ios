@@ -308,9 +308,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             return
         }
 
-        router?.openAddressBookChooseAddress(groups: groups) { [weak self] group in
-            self?.applyAddressBookAddress(group)
-        }
+        router?.openAddressBookChooseAddress(groups: groups, output: self)
     }
 
     private func applyAddressBookAddress(_ addressGroup: AddressBookContactAddressGroup) {
@@ -380,6 +378,14 @@ private extension SendDestinationViewModel {
 extension SendDestinationViewModel: AddressBooksSelectionOutput {
     func addressBooksDidSelectContact(_ contact: AddressBookContact) {
         userDidTapAddressBookContact(contact)
+    }
+}
+
+// MARK: - ChooseAddressOutput
+
+extension SendDestinationViewModel: ChooseAddressOutput {
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup) {
+        applyAddressBookAddress(group)
     }
 }
 

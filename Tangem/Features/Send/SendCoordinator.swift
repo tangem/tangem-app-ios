@@ -314,24 +314,8 @@ extension SendCoordinator: SendDestinationRoutable {
         self.qrScanViewCoordinator = qrScanViewCoordinator
     }
 
-    func openAddressBookChooseAddress(
-        groups: [AddressBookContactAddressGroup],
-        onSelect: @escaping (AddressBookContactAddressGroup) -> Void
-    ) {
-        let viewModel = ChooseAddressViewModel(
-            groups: groups,
-            onSelect: { [floatingSheetPresenter] group in
-                Task { @MainActor in
-                    floatingSheetPresenter.removeActiveSheet()
-                }
-                onSelect(group)
-            },
-            onClose: { [floatingSheetPresenter] in
-                Task { @MainActor in
-                    floatingSheetPresenter.removeActiveSheet()
-                }
-            }
-        )
+    func openAddressBookChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: groups, router: self, output: output)
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -345,6 +329,16 @@ extension SendCoordinator: SendDestinationRoutable {
         )
         coordinator.start(with: .init(addressBooksProvider: provider, selectionOutput: output))
         addressBooksCoordinator = coordinator
+    }
+}
+
+// MARK: - ChooseAddressRoutable
+
+extension SendCoordinator: ChooseAddressRoutable {
+    func dismissChooseAddress() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
