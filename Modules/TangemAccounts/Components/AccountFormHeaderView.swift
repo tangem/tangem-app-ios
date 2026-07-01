@@ -96,7 +96,9 @@ public struct AccountFormHeaderView: View {
             // Mikhail Andreev - Needed to be constrained from here coz for some reason it
             // is not possible to do it from ViewModel
             .onChange(of: accountName) { newValue in
-                accountName = String(newValue.prefix(maxCharacters))
+                if style.enforcesMaxLength {
+                    accountName = String(newValue.prefix(maxCharacters))
+                }
             }
             .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountFormNameInput)
     }
@@ -112,9 +114,10 @@ public extension AccountFormHeaderView {
         let titleColor: Color
         let titleBottomPadding: CGFloat
         let isAvatarCircular: Bool
+        let enforcesMaxLength: Bool
 
-        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 34, titleColor: Colors.Text.tertiary, titleBottomPadding: 0, isAvatarCircular: false)
-        public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true)
+        public static let accounts = Style(cornerRadius: 14, contentVerticalPadding: 20, avatarBottomPadding: 34, titleColor: Colors.Text.tertiary, titleBottomPadding: 0, isAvatarCircular: false, enforcesMaxLength: true)
+        public static let addressBook = Style(cornerRadius: 24, contentVerticalPadding: 36, avatarBottomPadding: 28, titleColor: Colors.Text.secondary, titleBottomPadding: 4, isAvatarCircular: true, enforcesMaxLength: false)
     }
 }
 
