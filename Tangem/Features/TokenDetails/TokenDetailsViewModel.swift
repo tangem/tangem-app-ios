@@ -158,7 +158,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         switch action {
         case .empty,
              .unlock,
-             .yieldBoostPromoLater:
+             .yieldBoostPromoLater,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
