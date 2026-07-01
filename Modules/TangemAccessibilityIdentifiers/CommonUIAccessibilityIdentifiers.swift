@@ -15,6 +15,7 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let backButton = "commonUIBackButton"
     public static let addButton = "commonUIAddButton"
     public static let shareButton = "commonUIShareButton"
+    public static let hideKeyboardButton = "hideKeyboard"
 
     /// Entity summary view components
     public static let entityProviderName = "commonUIEntityProviderName"
