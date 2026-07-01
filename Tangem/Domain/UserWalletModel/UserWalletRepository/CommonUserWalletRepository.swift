@@ -182,8 +182,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
             // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
         } else {
-            let models = models
-            let selectedModel = selectedModel
+            let (models, selectedModel) = lock { state -> ([UserWalletModel], UserWalletModel?) in
+                let selectedModel = state.selectedUserWalletId.flatMap { state.models[$0] }
+                return (state.models, selectedModel)
+            }
 
             accessCodeRepository.clear()
             visaRefreshTokenRepository.clearPersistent()
