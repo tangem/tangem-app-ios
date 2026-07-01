@@ -134,7 +134,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     func userDidRequestDelete() {
         confirmationDialog = ConfirmationDialogViewModel(
-            title: nil,
+            title: Localization.addressBookDeleteContact,
             subtitle: Localization.addressBookDeleteContactDescription,
             buttons: [
                 .init(title: Localization.commonDelete, role: .destructive) { [weak self] in
