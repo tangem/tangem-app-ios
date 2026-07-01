@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "Choose wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
 "send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
+"send_recipient_memo_footer_v2" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network.";
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network.\n**Caution: Omitting a memo may lead to misplaced funds**";
 "send_recipient_wallets_title" = "My wallets";
 "send_recipient" = "Recipient";
