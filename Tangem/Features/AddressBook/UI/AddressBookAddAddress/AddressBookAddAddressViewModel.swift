@@ -12,6 +12,7 @@ import Foundation
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var destinationAddressViewModel: SendDestinationAddressViewModel
@@ -19,6 +20,8 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
 
     @Published private(set) var addressNetworksType: AddressNetworksType = .idle
     @Published private(set) var isAddAddressEnabled: Bool = false
+
+    @Published var alert: AlertBinder?
 
     private let interactor: AddressBookAddAddressInteractor
     private weak var coordinator: AddressBookAddAddressRoutable?
@@ -52,7 +55,20 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     }
 
     func userDidRequestDismiss() {
-        coordinator?.dismissAddAddressFlow()
+        guard interactor.hasUnsavedChanges else {
+            coordinator?.dismissAddAddressFlow()
+            return
+        }
+
+        alert = AlertBuilder.makeExitAlert(
+            title: Localization.addressBookUnsavedChanges,
+            message: Localization.addressBookUnsavedChangesDescription,
+            keepEditingButtonText: Localization.addressBookKeepEditing,
+            discardButtonText: Localization.addressBookDiscard,
+            discardAction: { [weak self] in
+                self?.coordinator?.dismissAddAddressFlow()
+            }
+        )
     }
 
     func userDidRequestNetworksChange() {

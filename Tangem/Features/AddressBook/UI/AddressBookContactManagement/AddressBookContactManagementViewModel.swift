@@ -200,14 +200,25 @@ private extension AddressBookContactManagementViewModel {
             .receiveOnMain()
             .assign(to: &$canDeleteContact)
 
+        let nameValidationErrorPublisher = $contactName
+            .map { Self.nameValidationError(for: $0) }
+            .removeDuplicates()
+
         interactor.isMainButtonEnabledPublisher
+            .combineLatest(nameValidationErrorPublisher)
+            .map { isEnabled, nameValidationError in isEnabled && nameValidationError == nil }
             .receiveOnMain()
             .assign(to: &$isMainButtonEnabled)
 
-        interactor.isNameTakenPublisher
-            .combineLatest($isProcessing)
-            .map { isNameTaken, isProcessing in
-                isNameTaken && !isProcessing ? Localization.addressBookNameTakenError : nil
+        Publishers.CombineLatest3(nameValidationErrorPublisher, interactor.isNameTakenPublisher, $isProcessing)
+            .map { nameValidationError, isNameTaken, isProcessing -> String? in
+                guard !isProcessing else { return nil }
+
+                switch nameValidationError {
+                case .nameContainsForbiddenCharacters?: return Localization.addressBookNameInvalidCharsError
+                case .nameTooLong?: return Localization.addressBookNameMaxCharsError
+                default: return isNameTaken ? Localization.addressBookNameTakenError : nil
+                }
             }
             .receiveOnMain()
             .assign(to: &$nameError)
@@ -223,6 +234,17 @@ private extension AddressBookContactManagementViewModel {
             }
             .receiveOnMain()
             .assign(to: &$addressesSection)
+    }
+
+    static func nameValidationError(for name: String) -> AddressBookValidationError? {
+        do {
+            _ = try AddressBookContactNameValidator().validate(name)
+            return nil
+        } catch let error as AddressBookValidationError {
+            return error
+        } catch {
+            return nil
+        }
     }
 
     func makeAddressesSection(entries: AddressBookContactDraftEntries?, canAddNewAddress: Bool) -> [AddressRowType] {
@@ -315,6 +337,8 @@ private extension AddressBookContactManagementViewModel {
             presentGenericError(message: Localization.addressBookAddressTakenError(contactName))
         } catch {
             isProcessing = false
+            guard !error.isCancellationError else { return }
+
             presentGenericError(title: Localization.commonSomethingWentWrong, message: interactor.saveErrorMessage ?? error.localizedDescription)
         }
     }
@@ -330,6 +354,8 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.delete()
             coordinator?.dismissContactManagement()
         } catch {
+            guard !error.isCancellationError else { return }
+
             presentGenericError(title: Localization.commonSomethingWentWrong, message: Localization.addressBookDeletingError)
         }
     }
@@ -342,6 +368,10 @@ private extension AddressBookContactManagementViewModel {
 // MARK: - AddressBookAddAddressOutput
 
 extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
+    var contactHasUnsavedChanges: Bool {
+        interactor.hasUnsavedChanges
+    }
+
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID]) {
         do {
             try interactor.update(entries: entries, replacing: replacing)
@@ -365,7 +395,7 @@ extension AddressBookContactManagementViewModel: AddressActionsOutput {
     func addressActionsDidRequestCopy(_ group: AddressBookContactAddressGroup) {
         UIPasteboard.general.string = group.address
 
-        let snackbar = TangemSnackbar(title: Localization.walletNotificationAddressCopied)
+        let snackbar = TangemSnackbar(title: Localization.addressBookAddressCopied)
             .icon(DesignSystem.Icons.Success.regular20)
             .iconColor(DesignSystem.Color.iconAccentBlue)
         Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())

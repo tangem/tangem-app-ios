@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 struct AddressBookAddAddressView: View {
     @ObservedObject var viewModel: AddressBookAddAddressViewModel
@@ -27,8 +28,7 @@ struct AddressBookAddAddressView: View {
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                // [REDACTED_TODO_COMMENT]
-                DefaultFooterView("Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network.\n**Caution: Missing a memo may lead to fund loss.**")
+                DefaultFooterView(Localization.sendRecipientMemoFooter)
             }
             .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
@@ -54,6 +54,7 @@ struct AddressBookAddAddressView: View {
         .toolbar {
             NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {

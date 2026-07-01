@@ -13,6 +13,7 @@ import TangemLocalization
 import BlockchainSdk
 
 protocol AddressBookAddAddressOutput: AnyObject {
+    var contactHasUnsavedChanges: Bool { get }
     func userDidAddAddress(entries: [AddressBookEntryDraft], replacing: [AddressBookAddressEntryID])
 }
 
@@ -24,6 +25,7 @@ protocol AddressBookAddAddressInteractor {
     var resolvedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> { get }
     var selectedNetworks: AnyPublisher<Set<BSDKBlockchain>, Never> { get }
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> { get }
+    var hasUnsavedChanges: Bool { get }
 
     func update(address: String, source: Analytics.DestinationAddressSource)
     func update(additionalField: String)
@@ -55,6 +57,8 @@ final class CommonAddressBookAddAddressInteractor {
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
     private let _selectedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
 
+    private var initialSnapshot = Snapshot(address: "", networks: [], memo: nil)
+
     init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedAddresses: [AddressBookReservedAddress]) {
         self.userWalletInfo = userWalletInfo
         self.output = output
@@ -76,6 +80,8 @@ final class CommonAddressBookAddAddressInteractor {
                 update(additionalField: memo)
             }
         }
+
+        initialSnapshot = currentSnapshot
     }
 }
 
@@ -110,6 +116,10 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
         Publishers.CombineLatest3(_address, _selectedNetworks, _addressError)
             .map { address, networks, error in !address.isEmpty && !networks.isEmpty && error == nil }
             .eraseToAnyPublisher()
+    }
+
+    var hasUnsavedChanges: Bool {
+        currentSnapshot != initialSnapshot || (output?.contactHasUnsavedChanges ?? false)
     }
 
     func update(address: String, source: Analytics.DestinationAddressSource) {
@@ -222,6 +232,16 @@ private extension CommonAddressBookAddAddressInteractor {
         }
 
         return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.contactName)
+    }
+
+    var currentSnapshot: Snapshot {
+        Snapshot(address: _address.value, networks: _selectedNetworks.value, memo: _additionalField.value.extraId)
+    }
+
+    struct Snapshot: Equatable {
+        let address: String
+        let networks: Set<BSDKBlockchain>
+        let memo: String?
     }
 }
 
