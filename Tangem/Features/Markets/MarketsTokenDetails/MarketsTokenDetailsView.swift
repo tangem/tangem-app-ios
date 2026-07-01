@@ -409,8 +409,9 @@ struct MarketsTokenDetailsView: View {
             )
             .padding(.horizontal, .unit(.x4))
             .padding(.vertical, .unit(.x2))
-            .background {
+            .background(alignment: .bottom) {
                 LinearGradient.Tangem.Common.tokenDetailsMarketPrice
+                    .padding(.top, -Constants.shadowTopExtension)
                     .ignoresSafeArea()
             }
             .transition(.portfolioBlock)
@@ -426,7 +427,7 @@ private extension MarketsTokenDetailsView {
         static let scrollViewContentTopInset = 14.0
         static let scrollViewVerticalPadding = 16.0
         static let priceLabelSizeMeasureText = "1234.0"
-        static let bottomFadeHeight = 100.0
+        static let shadowTopExtension = 60.0
     }
 
     enum CoordinateSpaceName {

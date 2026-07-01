@@ -209,7 +209,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Verify token '\(tokenName)' exists on main screen") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
-            waitAndAssertTrue(token, "Token '\(tokenName)' should exist in the list")
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(tokenName)' should be visible after scrolling")
             return self
         }
     }
@@ -218,6 +218,8 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func verifyCustomTokenIndicatorExists(for tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify custom token indicator exists for '\(tokenName)'") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
+            let token = tokenElement(named: tokenName)
+            XCTAssertTrue(scrollTokensListToVisible(token), "Token '\(tokenName)' should be visible after scrolling")
             let indicator = tokensList.descendants(matching: .any)
                 .matching(identifier: MainAccessibilityIdentifiers.tokenCustomIndicator(for: tokenName))
                 .firstMatch

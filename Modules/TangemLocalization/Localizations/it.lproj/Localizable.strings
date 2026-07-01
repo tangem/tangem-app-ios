@@ -82,12 +82,16 @@
 "address_book_add_address_description" = "Add address and select network";
 "address_book_add_address" = "Add address";
 "address_book_add_contact" = "Add contact";
+"address_book_address_copied" = "Address copied";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Contact name";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copy address";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Couldn't create contact. Please try again later.";
 "address_book_delete_contact_description" = "This contact will be deleted from all your address books";
+"address_book_delete_contact" = "Delete contact";
 "address_book_deleting_error" = "Couldn't delete contact. Please try again later.";
 "address_book_description" = "Manage contacts & addresses";
 "address_book_discard" = "Discard";
@@ -96,7 +100,7 @@
 "address_book_invalid_address_error" = "Invalid address";
 "address_book_keep_editing" = "Keep editing";
 "address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
-"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_max_networks_alert_title" = "Can't add new address";
 "address_book_name_empty_error" = "Contact name is required";
 "address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
 "address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
@@ -105,8 +109,10 @@
 "address_book_no_contacts_description" = "Contacts added will appear here";
 "address_book_no_contacts" = "No contacts yet";
 "address_book_remove_address" = "Remove address";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "This contact will be linked to this wallet’s address book.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Select network";
 "address_book_title" = "Address book";
 "address_book_unsaved_changes_description" = "Are you sure you want to discard edits?";
@@ -283,6 +289,7 @@
 "common_generate_addresses" = "Synchronize addresses";
 "common_get_started" = "Get started";
 "common_get_token" = "Get token";
+"common_get" = "Get";
 "common_go_to_provider" = "Go to provider";
 "common_go_to_token" = "Go to token";
 "common_go_to_verification" = "Go to verification";
@@ -322,6 +329,7 @@
 "common_passphrase" = "Passphrase";
 "common_paste" = "Paste";
 "common_privacy_policy" = "Privacy Policy";
+"common_rate" = "Rate";
 "common_read_more" = "Read more";
 "common_receive" = "Receive";
 "common_received" = "Received";
@@ -375,6 +383,7 @@
 "common_token_send" = "Token to send";
 "common_token" = "Token";
 "common_transaction_failed" = "Transaction failed";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
@@ -581,6 +590,8 @@
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "feedback_token_description_error" = "Coin description error";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Update the app to its latest version to ensure proper functionality";
 "force_update_banner_title" = "Update needed";
@@ -718,6 +729,12 @@
 "manage_tokens_toast_portfolio_updated" = "Your portfolio has been updated";
 "manage_tokens_wallet_selector_title" = "Choose wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "The wallet doesn't support more than one network";
+"market_chart_ai_total" = "AI Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_data" = "No data";
+"market_chart_bubble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "About coin";
 "markets_add_to_my_portfolio_description" = "To buy, exchange, or receive this asset, add it to your portfolio";
 "markets_add_to_my_portfolio_unavailable_description" = "This asset is currently not supported in the wallet";
@@ -1010,6 +1027,7 @@
 "onramp_min_amount_restriction" = "The amount to buy must be at least %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Cumulative transaction amount over equivalent of %1@ may require identity verification with %2@";
 "onramp_native_payment_cumulative_limit" = "Cumulative transaction amount over %1@ may require identity verification with %2@";
+"onramp_native_payment_identity_verification" = "Apple Pay transactions may require identity verification with %1@";
 "onramp_native_payment_legal_notice" = "By clicking Pay, you agree to %1@'s %2@ and %3@.";
 "onramp_no_available_providers" = "No available providers for this currency";
 "onramp_offer_type_fastet" = "Quickest processing";
@@ -1217,6 +1235,7 @@
 "send_recipient_address_error" = "Not a valid address";
 "send_recipient_address_footer" = "Ensure the recipient's address is on **the %@ network** to avoid losing your funds";
 "send_recipient_memo_footer_v2_highlighted" = "Caution: Missing a memo may lead to fund loss.";
+"send_recipient_memo_footer_v2" = "Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network.";
 "send_recipient_memo_footer" = "A Memo/Destination Tag is a unique ID for differentiating transactions sent to the same recipient on the same network.\n**Caution: Omitting a memo may lead to misplaced funds**";
 "send_recipient_wallets_title" = "My wallets";
 "send_recipient" = "Recipient";
@@ -1311,6 +1330,7 @@
 "staking_enabled" = "Staking enabled";
 "staking_error_no_validators_message" = "No available validators at the moment. Please try again later.";
 "staking_error_no_validators_title" = "Staking Unavailable";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_error_unavailable_region" = "Staking is unavailable in your region";
 "staking_give_permission_fee_footer" = "The network will charge a token approval fee to verify that you are authorizing the use of your token for the staking.";
 "staking_legal" = "By using staking functionality, you agree with provider’s %1$@ and %2$@";
@@ -1601,6 +1621,10 @@
 "tangempay_change_pin_code" = "Cambia codice PIN";
 "tangempay_come_back_if_forget_pin" = "Torna all'app se lo dimentichi.";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Imposta un limite da %@ a %@";
 "tangempay_daily_limit_set_button" = "Imposta limiti";
 "tangempay_declined_reason_1" = "fondi insufficienti";
@@ -1708,6 +1732,13 @@
 "tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
+"tangempay_select_plan_btn_cancel" = "Cancel";
+"tangempay_select_plan_btn_downgrade" = "Downgrade plan";
+"tangempay_select_plan_btn_select" = "Select";
+"tangempay_select_plan_btn_upgrade" = "Upgrade plan";
+"tangempay_select_plan_compare" = "Compare plans";
+"tangempay_select_plan_confirm_title" = "Confirm selection";
+"tangempay_select_plan_title" = "Select plan";
 "tangempay_service_unavailable_description" = "Stiamo risolvendo un problema tecnico. Riprova più tardi.";
 "tangempay_service_unavailable_title" = "Servizio temporaneamente non disponibile";
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
@@ -1824,6 +1855,7 @@
 "twins_scan_twin_with_number" = "Tap the twin card with number %@ and do not remove until the end of the operation";
 "tx_history_onramp_top_up" = "Top up";
 "tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Please try again later. If the issue persists, please contact support.";
 "unexpected_error_title" = "Something went wrong!";
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";

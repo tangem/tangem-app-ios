@@ -82,12 +82,16 @@
 "address_book_add_address_description" = "Ajouter une adresse et sélectionner un réseau";
 "address_book_add_address" = "Ajouter une adresse";
 "address_book_add_contact" = "Ajouter le contact";
+"address_book_address_copied" = "Address copied";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nom du contact";
 "address_book_contact" = "Contact";
 "address_book_copy_address" = "Copier l'adresse";
+"address_book_create_success_message" = "Contact added";
 "address_book_creating_error" = "Nous n'avons pas pu créer le contact. Veuillez réessayer plus tard.";
 "address_book_delete_contact_description" = "Ce contact sera supprimé de tous vos carnets d'adresses";
+"address_book_delete_contact" = "Delete contact";
 "address_book_deleting_error" = "Nous n'avons pas pu supprimer le contact. Veuillez réessayer plus tard.";
 "address_book_description" = "Gérer les contacts & adresses";
 "address_book_discard" = "Oui, annuler";
@@ -96,7 +100,7 @@
 "address_book_invalid_address_error" = "Invalid address";
 "address_book_keep_editing" = "Non, continuer";
 "address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
-"address_book_max_networks_alert_title" = "Can't add new address ";
+"address_book_max_networks_alert_title" = "Can't add new address";
 "address_book_name_empty_error" = "Contact name is required";
 "address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
 "address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
@@ -105,8 +109,10 @@
 "address_book_no_contacts_description" = "Les contacts que vous ajouterez vont apparaître ici";
 "address_book_no_contacts" = "Aucun contact pour le moment";
 "address_book_remove_address" = "Supprimer l'adresse";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Ce contact va être lié au carnet d'adresses de ce portefeuille.";
+"address_book_search_no_results" = "No results found.\nTry another name";
 "address_book_select_network" = "Sélectionner un réseau";
 "address_book_title" = "Carnet d'adresses";
 "address_book_unsaved_changes_description" = "Êtes-vous certain de vouloir annuler les modifications?";
@@ -283,6 +289,7 @@
 "common_generate_addresses" = "Synchroniser les adresses";
 "common_get_started" = "Commencer";
 "common_get_token" = "Obtenir un token";
+"common_get" = "Get";
 "common_go_to_provider" = "Aller au fournisseur";
 "common_go_to_token" = "Aller au jeton";
 "common_go_to_verification" = "Go to verification";
@@ -322,6 +329,7 @@
 "common_passphrase" = "Passphrase";
 "common_paste" = "Coller";
 "common_privacy_policy" = "Politique de confidentialité";
+"common_rate" = "Rate";
 "common_read_more" = "En savoir plus";
 "common_receive" = "Recevoir";
 "common_received" = "Received";
@@ -375,6 +383,7 @@
 "common_token_send" = "Token to send";
 "common_token" = "Token";
 "common_transaction_failed" = "La transaction a échoué";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "Statut de la transaction";
 "common_transactions" = "Transactions";
 "common_transfer" = "Fourniture";
@@ -581,6 +590,8 @@
 "feedback_subject_tx_failed" = "Impossible d'effectuer une transaction";
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "Mettez l'application à jour pour assurer son bon fonctionnement";
 "force_update_banner_title" = "Mise à jour nécessaire";
@@ -718,6 +729,12 @@
 "manage_tokens_toast_portfolio_updated" = "Votre portfolio a été mis à jour";
 "manage_tokens_wallet_selector_title" = "Choisissez un portefeuille";
 "manage_tokens_wallet_support_only_one_network_title" = "Le portefeuille ne prend pas en charge plus d'un réseau";
+"market_chart_ai_total" = "AI Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_bubble_no_data" = "No data";
+"market_chart_bubble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@";
 "markets_about_coin_header" = "À propos de la crypto";
 "markets_add_to_my_portfolio_description" = "Pour acheter, échanger ou recevoir cet actif, ajoutez-le à votre portefeuille";
 "markets_add_to_my_portfolio_unavailable_description" = "Cet actif n'est pas pris en charge dans le portefeuille";
@@ -1010,6 +1027,7 @@
 "onramp_min_amount_restriction" = "Le montant à acheter doit être au moins %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "Si le montant cumulé des transactions dépasse l'équivalent de %1@, une vérification d'identité via %2@ pourrait être requise";
 "onramp_native_payment_cumulative_limit" = "Si le montant cumulé des transactions dépasse %1@, une vérification d'identité via %2@ pourrait être requise";
+"onramp_native_payment_identity_verification" = "Les transactions Apple Pay peuvent nécessiter une vérification d'identité avec %1@";
 "onramp_native_payment_legal_notice" = "En appuyant sur Acheter, vous acceptez %1@ %2@ et %3@.";
 "onramp_no_available_providers" = "Aucun fournisseur disponible pour cette devise";
 "onramp_offer_type_fastet" = "Le plus rapide";
@@ -1217,6 +1235,7 @@
 "send_recipient_address_error" = "Adresse non valide";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";
 "send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
+"send_recipient_memo_footer_v2" = "Le Memo / Destination Tag est un code qui distingue les transactions envoyées à un destinataire partagé sur un réseau crypto.";
 "send_recipient_memo_footer" = "Un Memo/Destination Tag est un identifiant unique permettant de différencier les transactions envoyées au même destinataire sur le même réseau.\n**Attention : L'omission d'un mémo peut entraîner des fonds mal placés**";
 "send_recipient_wallets_title" = "Mes portefeuilles";
 "send_recipient" = "Destinataire";
@@ -1311,6 +1330,7 @@
 "staking_enabled" = "Staking activé";
 "staking_error_no_validators_message" = "Aucun validateur disponible pour le moment. Veuillez réessayer plus tard.";
 "staking_error_no_validators_title" = "Staking indisponible";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
 "staking_error_unavailable_region" = "Le staking est indisponible dans votre région";
 "staking_give_permission_fee_footer" = "Le réseau facturera des frais d’approbation de jeton pour vérifier que vous autorisez l’utilisation de votre jeton pour le jalonnement.";
 "staking_legal" = "En utilisant la fonctionnalité de staking, vous acceptez les %1$@ et %2$@ du fournisseur";
@@ -1601,6 +1621,10 @@
 "tangempay_change_pin_code" = "Modifier le code PIN";
 "tangempay_come_back_if_forget_pin" = "Revenez dans l'application si vous l'oubliez.";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "Définir une limite de %@ à %@";
 "tangempay_daily_limit_set_button" = "Définir des limites";
 "tangempay_declined_reason_1" = "fonds insuffisants";
@@ -1708,6 +1732,13 @@
 "tangempay_remove_account_alert_description" = "Tangem Pay will be removed from the main screen and won't appear again, even after reinstalling the app.";
 "tangempay_remove_account_alert_title" = "Remove account?";
 "tangempay_remove_account" = "Remove account";
+"tangempay_select_plan_btn_cancel" = "Cancel";
+"tangempay_select_plan_btn_downgrade" = "Downgrade plan";
+"tangempay_select_plan_btn_select" = "Select";
+"tangempay_select_plan_btn_upgrade" = "Upgrade plan";
+"tangempay_select_plan_compare" = "Compare plans";
+"tangempay_select_plan_confirm_title" = "Confirm selection";
+"tangempay_select_plan_title" = "Select plan";
 "tangempay_service_unavailable_description" = "Nous réparons un problème technique. Veuillez réessayer plus tard.";
 "tangempay_service_unavailable_title" = "Service temporairement indisponible";
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
@@ -1824,6 +1855,7 @@
 "twins_scan_twin_with_number" = "Appuyez sur la carte jumelle avec le numéro %@ et ne la retirez pas jusqu'à la fin de l'opération";
 "tx_history_onramp_top_up" = "Top up";
 "tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "Veuillez réessayer ultérieurement. Si le problème persiste, veuillez contacter le support.";
 "unexpected_error_title" = "Une erreur s'est produite !";
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
