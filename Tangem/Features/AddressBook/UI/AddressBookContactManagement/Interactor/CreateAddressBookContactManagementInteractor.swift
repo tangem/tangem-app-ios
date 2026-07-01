@@ -75,11 +75,11 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     var isNameTakenPublisher: AnyPublisher<Bool, Never> {
-        nameTakenPublisher()
+        nameTakenPublisher
     }
 
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher())
+        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher)
             .map { name, addresses, isNameTaken in
                 !name.trimmed().isEmpty && !addresses.isEmpty && !isNameTaken
             }
@@ -159,7 +159,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
 // MARK: - Private
 
 private extension CreateAddressBookContactManagementInteractor {
-    func nameTakenPublisher() -> AnyPublisher<Bool, Never> {
+    var nameTakenPublisher: AnyPublisher<Bool, Never> {
         walletSubject
             .map { $0.addressBookManager.contactsPublisher }
             .switchToLatest()
