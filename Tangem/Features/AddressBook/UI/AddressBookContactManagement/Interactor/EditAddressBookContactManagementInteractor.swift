@@ -154,7 +154,7 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
             return
         }
 
-        if target.wallet.id == contact.walletId {
+        if target.wallet.id == source.wallet.id {
             try await target.addressBookManager.updateContact(id: contact.id, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
         } else {
             try await move(from: source, to: target, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
