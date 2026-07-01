@@ -153,9 +153,9 @@ private extension P2PStakingManager {
 
         let shouldHide: Bool
         switch cached?.stakeState {
-        case .staked, .none:
+        case .staked:
             shouldHide = false
-        case .availableToStake:
+        case .availableToStake, .none:
             shouldHide = !yieldIsAvailable
         }
 
