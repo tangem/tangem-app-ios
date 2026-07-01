@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemAccessibilityIdentifiers
 
 final class ReferralUITests: BaseTestCase {
     func testReferralProgramFlow_DisplayConditionsAndParticipateButton() {
@@ -77,19 +78,22 @@ final class ReferralUITests: BaseTestCase {
             .verifyTokenVisible(token)
     }
 
-    func testReferral_ReferralUnavailableForNoWalletCards() throws {
+    func testReferral_ReferralUnavailableForNoWalletCards() {
         setAllureId(3629)
-        let card = try CardMockPicker.random(excluding: [
-            .wallet, .wallet2, .shiba, .visa,
-        ])
+        let cardsWithoutReferral: [CardMockAccessibilityIdentifiers] = [
+            .four12, .twin, .nodl, .xrpNote, .xlmBird, .s2c,
+        ]
 
-        launchApp(tangemApiType: .mock)
-
-        CreateWalletSelectorScreen(app)
-            .scanMockWallet(name: card)
-            .openDetails()
-            .openWalletSettings()
-            .verifyReferralUnavailable()
+        for card in cardsWithoutReferral {
+            XCTContext.runActivity(named: "Card \(card.rawValue)") { _ in
+                launchApp(tangemApiType: .mock)
+                CreateWalletSelectorScreen(app)
+                    .scanMockWallet(name: card)
+                    .openDetails()
+                    .openWalletSettings()
+                    .verifyReferralUnavailable()
+            }
+        }
     }
 
     func testReferral_VerifyWalletDerivation() {
