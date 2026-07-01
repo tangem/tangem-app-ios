@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "Выберите кошелек";
 "manage_tokens_wallet_support_only_one_network_title" = "Кошелёк не поддерживает более одной сети";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "Неверный адрес";
 "send_recipient_address_footer" = "Убедитесь, что адрес получателя находится **в сети %@**, чтобы избежать потери отправляемых средств";
 "send_recipient_memo_footer_v2_highlighted" = "Внимание: отсутствие Memo может привести к потере средств.";
+"send_recipient_memo_footer_v2" = "Memo / Destination Tag — это код, разделяющий транзакции, отправляемые одному и тому же получателю в криптовалютной сети.";
 "send_recipient_memo_footer" = "Мемо/ Код назначения - это код, разделяющий транзакции к общему получателю в сети криптовалют.\n**Внимание: отсутствие мемо может привести к потере средств.**";
 "send_recipient_wallets_title" = "Мои кошельки";
 "send_recipient" = "Получатель";
