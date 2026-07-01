@@ -22,22 +22,24 @@ protocol AddressBookManager: AnyObject {
     /// contact whose every entry is invalid is omitted. Combine with `syncStatePublisher` to build the UI
     /// load state.
     var contactsPublisher: AnyPublisher<[AddressBookContact], Never> { get }
+    /// The current verified contacts, read synchronously — the latest value of `contactsPublisher`.
+    var contacts: [AddressBookContact] { get }
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> { get }
 
     func load() async
 
     @discardableResult
-    func createContact(name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID
+    func createContact(name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws -> AddressBookContactID
 
     /// Re-signs an existing contact into this book under the wallet's key, keeping its `id` — used to move a
     /// contact in from another wallet's book without minting a new one; the caller removes the original from
     /// the source book. Fails if the name collides with another contact already in this book.
-    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws
+    func reSignContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws
 
     /// Atomically replaces a contact's name, icon color and full entry set in a single signed save. The
     /// new state is exactly `entries`; entries unchanged since load keep their signature, a rename re-signs
     /// all of them (the name is part of the signed tuple), and dropped entries simply disappear.
-    func updateContact(id: AddressBookContactID, name: AddressBookContactName, iconColor: String, entries: AddressBookContactDraftEntries) async throws
+    func updateContact(id: AddressBookContactID, name: AddressBookContactName, appearance: AddressBookContactAppearance, entries: AddressBookContactDraftEntries) async throws
 
     func deleteContact(id: AddressBookContactID) async throws
 }
