@@ -184,6 +184,6 @@ class BaseTestCase: XCTestCase {
 
 extension XCUIApplication {
     func hideKeyboard() {
-        toolbars.firstMatch.buttons["hideKeyboard"].waitAndTap()
+        toolbars.firstMatch.buttons[CommonUIAccessibilityIdentifiers.hideKeyboardButton].waitAndTap()
     }
 }
