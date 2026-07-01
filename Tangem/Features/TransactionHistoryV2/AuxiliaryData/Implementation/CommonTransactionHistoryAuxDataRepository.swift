@@ -15,11 +15,9 @@ actor CommonTransactionHistoryAuxDataRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private var providers: [ExpressProvider.Id: ExpressProvider] = [:]
-    private var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
-    private var coins: [String: CoinsList.Coin] = [:]
+    private var cache = Cache()
 
-    private nonisolated let syncCache = OSAllocatedUnfairLock(initialState: SyncCache())
+    private nonisolated let syncCache = OSAllocatedUnfairLock(initialState: Cache())
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
 
@@ -33,16 +31,17 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
 
-    private let makeStorage: () async -> TransactionHistoryAuxDataStorage
+    private let makeStorage: () async -> UserDefaultsTransactionHistoryAuxDataStorage
 
     init(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) {
         self.cachingExpressAPIProviderFactory = cachingExpressAPIProviderFactory
+
         makeStorage = { @MainActor in
-            TransactionHistoryAuxDataStorage()
+            UserDefaultsTransactionHistoryAuxDataStorage()
         }
 
         Task { [weak self] in
-            await self?.hydrateFromStorage()
+            await self?.loadFromStorage()
         }
     }
 }
@@ -77,13 +76,13 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     }
 
     func provider(id: ExpressProvider.Id) async -> ExpressProvider? {
-        if let cached = providers[id] {
+        if let cached = cache.providers[id] {
             return cached
         }
 
         await ensureProvidersLoaded()
 
-        return providers[id]
+        return cache.providers[id]
     }
 
     // MARK: Fiat currencies
@@ -101,13 +100,13 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     }
 
     func fiatCurrency(for asset: OnrampHistoryFiatAsset) async -> OnrampFiatCurrency? {
-        if let cached = fiatCurrencies[asset.currencyCode] {
+        if let cached = cache.fiatCurrencies[asset.currencyCode] {
             return cached
         }
 
         await ensureCurrenciesLoaded()
 
-        return fiatCurrencies[asset.currencyCode]
+        return cache.fiatCurrencies[asset.currencyCode]
     }
 
     // MARK: Coins
@@ -128,13 +127,13 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     func coin(for tokenItem: TokenItem) async -> CoinsList.Coin? {
         let key = Self.makeCoinKey(for: tokenItem)
 
-        if let cached = coins[key] {
+        if let cached = cache.coins[key] {
             return cached
         }
 
         await ensureCoinLoaded(tokenItem, key: key, waitForResult: true)
 
-        return coins[key]
+        return cache.coins[key]
     }
 }
 
@@ -181,8 +180,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
             var changed = false
 
             for provider in swap + onramp {
-                if providers[provider.id] != provider {
-                    providers[provider.id] = provider
+                if cache.providers[provider.id] != provider {
+                    cache.providers[provider.id] = provider
                     changed = true
                 }
             }
@@ -226,8 +225,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
             var changed = false
 
             for currency in loaded {
-                if fiatCurrencies[currency.identity.code] != currency {
-                    fiatCurrencies[currency.identity.code] = currency
+                if cache.fiatCurrencies[currency.identity.code] != currency {
+                    cache.fiatCurrencies[currency.identity.code] = currency
                     changed = true
                 }
             }
@@ -249,7 +248,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
 private extension CommonTransactionHistoryAuxDataRepository {
     func ensureCoinLoaded(_ tokenItem: TokenItem, key: String, waitForResult: Bool) async {
-        if coins[key] != nil {
+        if cache.coins[key] != nil {
             return
         }
 
@@ -263,7 +262,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
         }
 
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            if coins[key] != nil {
+            if cache.coins[key] != nil {
                 continuation.resume()
 
                 return
@@ -317,8 +316,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
             var changed = false
 
             for (key, coin) in resolved {
-                if coins[key] == nil {
-                    coins[key] = coin
+                if cache.coins[key] == nil {
+                    cache.coins[key] = coin
                     changed = true
                 }
             }
@@ -351,27 +350,27 @@ private extension CommonTransactionHistoryAuxDataRepository {
 // MARK: - Persistence
 
 private extension CommonTransactionHistoryAuxDataRepository {
-    func hydrateFromStorage() async {
+    func loadFromStorage() async {
         let storage = await makeStorage()
         let storedProviders = storage.providers
         let storedCurrencies = storage.fiatCurrencies
         let storedCoins = storage.coins
 
         for provider in storedProviders {
-            providers[provider.id] = provider
+            cache.providers[provider.id] = provider
         }
 
         for currency in storedCurrencies {
-            fiatCurrencies[currency.identity.code] = currency
+            cache.fiatCurrencies[currency.identity.code] = currency
         }
 
-        coins = storedCoins
+        cache.coins = storedCoins
 
         mirrorToSyncCache()
     }
 
     func persistProviders() async {
-        let snapshot = Array(providers.values)
+        let snapshot = Array(cache.providers.values)
         let storage = await makeStorage()
         await MainActor.run {
             storage.providers = snapshot
@@ -379,7 +378,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 
     func persistCurrencies() async {
-        let snapshot = Array(fiatCurrencies.values)
+        let snapshot = Array(cache.fiatCurrencies.values)
         let storage = await makeStorage()
         await MainActor.run {
             storage.fiatCurrencies = snapshot
@@ -387,7 +386,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 
     func persistCoins() async {
-        let snapshot = coins
+        let snapshot = cache.coins
         let storage = await makeStorage()
         await MainActor.run {
             storage.coins = snapshot
@@ -395,22 +394,16 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 
     func mirrorToSyncCache() {
-        let providersSnapshot = providers
-        let currenciesSnapshot = fiatCurrencies
-        let coinsSnapshot = coins
+        let snapshot = cache
 
-        syncCache { cache in
-            cache.providers = providersSnapshot
-            cache.fiatCurrencies = currenciesSnapshot
-            cache.coins = coinsSnapshot
-        }
+        syncCache { $0 = snapshot }
     }
 }
 
 // MARK: - Helpers
 
 private extension CommonTransactionHistoryAuxDataRepository {
-    struct SyncCache {
+    struct Cache {
         var providers: [ExpressProvider.Id: ExpressProvider] = [:]
         var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
         var coins: [String: CoinsList.Coin] = [:]
