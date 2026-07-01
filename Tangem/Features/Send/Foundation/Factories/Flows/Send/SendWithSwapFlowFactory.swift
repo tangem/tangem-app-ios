@@ -171,6 +171,7 @@ extension SendWithSwapFlowFactory: SendGenericFlowFactory {
         swapNotificationManager.setup(
             sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
+            sendFeeInput: swapModel,
             swapModelStateProvider: swapModel
         )
 
