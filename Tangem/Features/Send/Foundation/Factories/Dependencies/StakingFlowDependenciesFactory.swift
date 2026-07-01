@@ -94,6 +94,12 @@ private extension StakingFlowDependenciesFactory {
         }
 
         let blockchain = tokenItem.blockchain
+
+        // Native ETH staking goes through P2P (not StakeKit) and is out of validation scope.
+        if case .ethereum = blockchain, !tokenItem.isToken {
+            return nil
+        }
+
         let isLocalValidationEnabled = LocalStakingSupportedNetwork(blockchain: blockchain) != nil
         let isRemoteValidationEnabled = RemoteValidationNetwork(blockchain: blockchain) != nil
 

@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemStaking
 import BlockchainSdk
+import TangemFoundation
 
 /// Handles validation lifecycle for staking models.
 /// Triggers validation, cancellation, and publishes state.
@@ -19,9 +20,7 @@ final class StakingValidationHandler: StakingValidationStateProvider {
     private let stakingManager: StakingManager
     private let validationProvider: StakingValidationProvider
     private let stateSubject = CurrentValueSubject<StakingValidationState, Never>(.idle)
-
-    private var validationTask: Task<Void, Never>?
-    private var cachedTransaction: ValidatedTransaction?
+    private let syncState = OSAllocatedUnfairLock(initialState: SyncState())
 
     var validationState: AnyPublisher<StakingValidationState, Never> {
         stateSubject.eraseToAnyPublisher()
@@ -38,7 +37,7 @@ final class StakingValidationHandler: StakingValidationStateProvider {
     }
 
     deinit {
-        validationTask?.cancel()
+        syncState.withLock { $0.validationTask?.cancel() }
     }
 
     // MARK: - Public methods
@@ -46,21 +45,23 @@ final class StakingValidationHandler: StakingValidationStateProvider {
     func validate(action: StakingAction) {
         invalidate()
         stateSubject.send(.validating)
-        validationTask = makeValidationTask(action: action)
+        let task = makeValidationTask(action: action)
+        syncState.withLock { $0.validationTask = task }
     }
 
     func reset() {
         invalidate()
-        validationTask = nil
+        syncState.withLock { $0.validationTask = nil }
         stateSubject.send(.idle)
     }
 
     /// Returns validated transaction if still valid, or `nil` if expired/missing.
     func validatedTransaction(for blockchain: Blockchain) -> StakingTransactionAction? {
-        guard let cachedTransaction, !cachedTransaction.isExpired(for: blockchain) else {
+        let cached = syncState.withLock { $0.cachedTransaction }
+        guard let cached, !cached.isExpired(for: blockchain) else {
             return nil
         }
-        return cachedTransaction.transaction
+        return cached.transaction
     }
 
     /// Rebuilds and revalidates transaction. Use when cache is expired.
@@ -129,8 +130,10 @@ private extension StakingValidationHandler {
     // MARK: - Private logic
 
     func invalidate() {
-        validationTask?.cancel()
-        cachedTransaction = nil
+        syncState.withLock {
+            $0.validationTask?.cancel()
+            $0.cachedTransaction = nil
+        }
     }
 
     func makeValidationTask(action: StakingAction) -> Task<Void, Never> {
@@ -161,22 +164,35 @@ private extension StakingValidationHandler {
     func handleBuildError() {
         guard !Task.isCancelled else { return }
 
+        syncState.withLock { $0.validationTask = nil }
         stateSubject.send(.validated)
-        validationTask = nil
     }
 
     @MainActor
     func handleValidationResult(_ result: StakingValidationResult) {
         guard !Task.isCancelled else { return }
 
-        // Only cache transaction if validation allows sending (not blocked/malicious)
+        let cached: ValidatedTransaction?
         if let transaction = result.transaction, result.state.allowsSending {
-            cachedTransaction = ValidatedTransaction(transaction: transaction, validatedAt: Date())
+            cached = ValidatedTransaction(transaction: transaction, validatedAt: Date())
         } else {
-            cachedTransaction = nil
+            cached = nil
+        }
+
+        syncState.withLock {
+            $0.cachedTransaction = cached
+            $0.validationTask = nil
         }
         stateSubject.send(result.state)
-        validationTask = nil
+    }
+}
+
+// MARK: - Sync state
+
+private extension StakingValidationHandler {
+    struct SyncState {
+        var validationTask: Task<Void, Never>?
+        var cachedTransaction: ValidatedTransaction?
     }
 }
 
