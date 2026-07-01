@@ -18,7 +18,6 @@ private let showcaseStyleTypes: [TangemButtonV2.StyleType] = [
     .material(.glass),
     .outline,
     .ghost,
-    .inverse,
     .positive,
 ]
 
@@ -30,7 +29,6 @@ private func styleTypeLabel(_ style: TangemButtonV2.StyleType) -> String {
     case .material: "material"
     case .outline: "outline"
     case .ghost: "ghost"
-    case .inverse: "inverse"
     case .positive: "positive"
     }
 }

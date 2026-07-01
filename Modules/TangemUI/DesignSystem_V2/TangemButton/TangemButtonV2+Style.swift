@@ -47,7 +47,7 @@ extension TangemButtonV2 {
             case .material(let material):
                 materialVariantBody(configuration: configuration, material: material)
 
-            case .brand, .default, .secondary, .outline, .ghost, .inverse, .positive:
+            case .brand, .default, .secondary, .outline, .ghost, .positive:
                 fixedChromeBody(configuration: configuration)
             }
         }
