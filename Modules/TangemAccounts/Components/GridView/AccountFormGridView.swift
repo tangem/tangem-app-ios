@@ -49,8 +49,8 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
         .roundedBackground(
             with: backgroundColor,
             verticalPadding: 16,
-            horizontalPadding: 20,
-            radius: 14
+            horizontalPadding: 16,
+            radius: 24
         )
     }
 }

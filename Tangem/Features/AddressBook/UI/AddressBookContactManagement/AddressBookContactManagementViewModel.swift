@@ -25,6 +25,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published private(set) var isMainButtonEnabled: Bool = false
     @Published private(set) var mainButtonIcon: MainButton.Icon?
     @Published private(set) var canDeleteContact: Bool = false
+    @Published private(set) var nameError: String?
 
     @Published private(set) var isProcessing: Bool = false
 
@@ -35,6 +36,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     @Published private var canAddNewAddress: Bool = true
 
     let title: String
+    let mainButtonTitle: String
 
     var maxNameLength: Int { AddressBookContactNameValidator.maxLength }
 
@@ -65,7 +67,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
             return .letter(String(firstLetter))
         }
 
-        return .letter("")
+        return .letter("N")
     }
 
     init(
@@ -78,6 +80,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
         self.coordinator = coordinator
 
         title = interactor.title
+        mainButtonTitle = interactor.mainButtonTitle
 
         let newIcon = AccountModelUtils.UI.newAccountIcon()
         selectedColor = GridItemColor(
@@ -188,6 +191,14 @@ private extension AddressBookContactManagementViewModel {
             .receiveOnMain()
             .assign(to: &$isMainButtonEnabled)
 
+        interactor.isNameTakenPublisher
+            .combineLatest($isProcessing)
+            .map { isNameTaken, isProcessing in
+                isNameTaken && !isProcessing ? Localization.addressBookNameTakenError : nil
+            }
+            .receiveOnMain()
+            .assign(to: &$nameError)
+
         interactor.mainButtonIconPublisher
             .receiveOnMain()
             .assign(to: &$mainButtonIcon)
@@ -216,11 +227,15 @@ private extension AddressBookContactManagementViewModel {
             )
         }
 
-        if canAddNewAddress {
-            types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(action: { [weak self] in
-                self?.addNewAddress()
-            })))
-        }
+        types.append(.addNewAddress(AddressBookContactAddNewAddressRowViewModel(isEnabled: canAddNewAddress, action: { [weak self] in
+            guard let self else { return }
+
+            if canAddNewAddress {
+                addNewAddress()
+            } else {
+                showMaxAddressesAlert()
+            }
+        })))
 
         return types
     }
@@ -230,7 +245,14 @@ private extension AddressBookContactManagementViewModel {
             return
         }
 
-        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add)
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add, reservedAddresses: interactor.reservedAddresses)
+    }
+
+    func showMaxAddressesAlert() {
+        errorAlert = AlertBinder(
+            title: Localization.addressBookMaxNetworksAlertTitle,
+            message: Localization.addressBookMaxNetworksAlertDescription
+        )
     }
 
     func editAddress(_ group: AddressBookContactAddressGroup) {
@@ -246,7 +268,8 @@ private extension AddressBookContactManagementViewModel {
                 memo: group.memo,
                 networks: Set(group.networks.map(\.blockchain)),
                 replacing: group.networks.map(\.id)
-            )
+            ),
+            reservedAddresses: interactor.reservedAddresses
         )
     }
 
@@ -268,13 +291,18 @@ private extension AddressBookContactManagementViewModel {
         guard !isProcessing else { return }
 
         isProcessing = true
-        defer { isProcessing = false }
 
         do {
             try await interactor.save()
+            // Stays set on success — the screen is dismissing; keeps post-save publishers (the just-created
+            // contact now matches the name check) from flashing a validation error before dismiss.
             coordinator?.dismissContactManagement()
+        } catch AddressBookValidationError.addressAlreadySaved(let contactName) {
+            isProcessing = false
+            presentGenericError(message: Localization.addressBookAddressTakenError(contactName))
         } catch {
-            presentGenericError(message: error.localizedDescription)
+            isProcessing = false
+            presentGenericError(title: Localization.commonSomethingWentWrong, message: interactor.saveErrorMessage ?? error.localizedDescription)
         }
     }
 
@@ -289,12 +317,12 @@ private extension AddressBookContactManagementViewModel {
             try await interactor.delete()
             coordinator?.dismissContactManagement()
         } catch {
-            presentGenericError(message: error.localizedDescription)
+            presentGenericError(title: Localization.commonSomethingWentWrong, message: Localization.addressBookDeletingError)
         }
     }
 
-    func presentGenericError(message: String) {
-        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+    func presentGenericError(title: String = Localization.commonError, message: String) {
+        errorAlert = AlertBinder(title: title, message: message)
     }
 }
 

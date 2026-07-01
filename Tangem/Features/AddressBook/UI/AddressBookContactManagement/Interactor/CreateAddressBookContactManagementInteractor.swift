@@ -33,7 +33,9 @@ final class CreateAddressBookContactManagementInteractor {
 // MARK: - AddressBookContactManagementInteractor
 
 extension CreateAddressBookContactManagementInteractor: AddressBookContactManagementInteractor {
-    var title: String { Localization.addressBookAddContact }
+    var title: String { Localization.addressBookNewContact }
+    var mainButtonTitle: String { Localization.addressBookAddContact }
+    var saveErrorMessage: String? { Localization.addressBookCreatingError }
 
     var contactNamePublisher: AnyPublisher<String, Never> {
         nameSubject.eraseToAnyPublisher()
@@ -60,10 +62,20 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
+    var reservedAddresses: [AddressBookReservedAddress] {
+        walletSubject.value.addressBookManager.contacts.flatMap { other in
+            other.entries.raw.map { AddressBookReservedAddress(address: $0.address, networkId: $0.networkId, contactName: other.name.value) }
+        }
+    }
+
+    var isNameTakenPublisher: AnyPublisher<Bool, Never> {
+        nameTakenPublisher()
+    }
+
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(nameSubject, addressesSubject)
-            .map { name, addresses in
-                !name.trimmed().isEmpty && !addresses.isEmpty
+        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher())
+            .map { name, addresses, isNameTaken in
+                !name.trimmed().isEmpty && !addresses.isEmpty && !isNameTaken
             }
             .eraseToAnyPublisher()
     }
@@ -111,4 +123,22 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
     }
 
     func delete() async throws {}
+}
+
+// MARK: - Private
+
+private extension CreateAddressBookContactManagementInteractor {
+    func nameTakenPublisher() -> AnyPublisher<Bool, Never> {
+        walletSubject
+            .map { $0.addressBookManager.contactsPublisher }
+            .switchToLatest()
+            .combineLatest(nameSubject)
+            .map { contacts, name in
+                let trimmed = name.trimmed()
+                guard !trimmed.isEmpty else { return false }
+                return contacts.contains { $0.name.value.caseInsensitiveCompare(trimmed) == .orderedSame }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }

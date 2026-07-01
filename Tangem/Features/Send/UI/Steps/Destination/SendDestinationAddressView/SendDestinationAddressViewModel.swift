@@ -8,12 +8,15 @@
 
 import Combine
 import TangemFoundation
+import TangemLocalization
 
 protocol SendDestinationAddressViewRoutable: AnyObject {
     func didTapScanQRButton()
 }
 
 class SendDestinationAddressViewModel: ObservableObject, Identifiable {
+    let title: String
+
     @Published private(set) var textViewModel: SUITextViewModel
     @Published private(set) var address: Address
     @Published private(set) var error: String?
@@ -31,9 +34,10 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 
     weak var router: SendDestinationAddressViewRoutable?
 
-    init(textViewModel: SUITextViewModel, address: Address) {
+    init(textViewModel: SUITextViewModel, address: Address, title: String = Localization.sendRecipient) {
         self.textViewModel = textViewModel
         self.address = address
+        self.title = title
     }
 
     func addressPublisher() -> AnyPublisher<Address, Never> {

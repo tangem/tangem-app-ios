@@ -19,31 +19,41 @@ struct AddressBookAddAddressView: View {
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendDestinationAddressView(viewModel: $0)
             }
-            .interItemSpacing(12)
-            .innerContentPadding(12)
+            .interItemSpacing(0)
+            .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
+            .cornerRadius(24)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                DefaultFooterView(Localization.sendRecipientMemoFooter)
+                // [REDACTED_TODO_COMMENT]
+                DefaultFooterView("Memo / Destination Tag is a code separating transactions to a shared recipient in a crypto network.\n**Caution: Missing a memo may lead to fund loss.**")
             }
-            .innerContentPadding(12)
+            .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
+            .cornerRadius(24)
 
-            GroupedSection(viewModel.addressNetworksType) { networks in
-                TangemRow(title: Localization.commonNetwork)
-                    .verticalAlignment(.center)
-                    .end { makeNetworksValue(networks: networks) }
-                    .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
+            if case .resolved = viewModel.addressNetworksType {
+                GroupedSection(viewModel.addressNetworksType) { networks in
+                    TangemRow(title: Localization.commonNetwork)
+                        .verticalAlignment(.center)
+                        .end { makeNetworksValue(networks: networks) }
+                        .if(networks.isEditable) { $0.onTap(viewModel.userDidRequestNetworksChange) }
+                }
+                .backgroundColor(DesignSystem.Color.bgSecondary)
+                .cornerRadius(20)
+                .horizontalPadding(0)
             }
-            .backgroundColor(DesignSystem.Color.bgSecondary)
-            .horizontalPadding(0)
         }
-        .background(DesignSystem.Color.bgBase.ignoresSafeArea())
+        .padding(.top, 12)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationTitle(Text(Localization.addressBookAddAddress))
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) { bottomButton }
+        .toolbar {
+            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
+        }
     }
 
     private func makeNetworksValue(networks: AddressBookAddAddressViewModel.AddressNetworksType) -> some View {
@@ -64,14 +74,18 @@ struct AddressBookAddAddressView: View {
         switch networks {
         case .idle:
             networksPlaceholder
-        case .resolved(_, let selected) where selected.isEmpty:
+        case .resolved(let resolved) where resolved.icons.isEmpty:
             networksPlaceholder
-        case .resolved(_, let selected):
-            NetworksIconsView(
-                icons: selected
-                    .sorted { $0.networkId < $1.networkId }
-                    .map { .image(NetworkImageProvider().provide(by: $0, filled: true)) }
-            )
+        case .resolved(let resolved):
+            HStack(spacing: 8) {
+                NetworksIconsView(icons: resolved.icons)
+
+                if let name = resolved.name {
+                    Text(name)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+                        .lineLimit(1)
+                }
+            }
         }
     }
 

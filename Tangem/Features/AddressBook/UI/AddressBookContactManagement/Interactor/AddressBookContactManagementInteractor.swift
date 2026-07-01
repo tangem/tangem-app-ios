@@ -13,6 +13,8 @@ import TangemUI
 
 protocol AddressBookContactManagementInteractor {
     var title: String { get }
+    var mainButtonTitle: String { get }
+    var saveErrorMessage: String? { get }
 
     var contactNamePublisher: AnyPublisher<String, Never> { get }
     var contactColorPublisher: AnyPublisher<AccountModel.CompositeIcon.Color, Never> { get }
@@ -24,6 +26,8 @@ protocol AddressBookContactManagementInteractor {
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { get }
 
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> { get }
+    var isNameTakenPublisher: AnyPublisher<Bool, Never> { get }
+    var reservedAddresses: [AddressBookReservedAddress] { get }
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> { get }
 
     func update(name: String)

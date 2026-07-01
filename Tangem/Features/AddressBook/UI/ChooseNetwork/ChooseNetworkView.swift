@@ -21,10 +21,10 @@ struct ChooseNetworkView: View {
                 .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
                 .navigationTitle(Localization.commonChooseNetwork)
                 .navigationBarTitleDisplayMode(.inline)
-                .searchable(
+                .tangemSearchable(
                     text: $viewModel.searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: Text(Localization.commonSearch)
+                    prompt: Localization.commonSearch,
+                    placement: .top
                 )
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -63,7 +63,7 @@ struct ChooseNetworkView: View {
                 }
                 .clipShape(Circle())
 
-            Text(Localization.commonNoResults)
+            Text(Localization.addressBookSearchNoResults)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }

@@ -41,8 +41,10 @@ struct AddressBookContactManagementView: View {
                 placeholderText: Localization.addressBookNewContact,
                 backgroundColor: DesignSystem.Color.bgSecondary,
                 accountIconViewData: viewModel.iconViewData,
+                errorMessage: viewModel.nameError,
                 isFocused: $isNameFocused
             )
+            .style(.addressBook)
 
             AccountFormGridView(
                 selectedItem: $viewModel.selectedColor,
@@ -62,19 +64,24 @@ struct AddressBookContactManagementView: View {
                 }
             }
             .backgroundColor(DesignSystem.Color.bgSecondary)
+            .separatorStyle(.none)
+            .cornerRadius(24)
             .horizontalPadding(0)
 
             GroupedSection(viewModel.selectedWallet) { wallet in
-                TangemRow(title: Localization.wcCommonWallet)
+                TangemRow(title: Localization.addressBookSaveToWalletTitle)
                     .verticalAlignment(.center)
                     .end { makeWalletValue(wallet: wallet) }
                     .if(wallet.isEditable) { $0.onTap(viewModel.userDidRequestWalletChange) }
 
             } footer: {
-                DefaultFooterView(Localization.addressBookSaveWalletToDescription)
+                Text(Localization.addressBookSaveWalletToDescription)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 16)
             }
             .backgroundColor(DesignSystem.Color.bgSecondary)
+            .cornerRadius(20)
             .horizontalPadding(0)
 
             if viewModel.canDeleteContact {
@@ -86,7 +93,7 @@ struct AddressBookContactManagementView: View {
                             .lineLimit(1)
                     }
                     .onTap(viewModel.userDidRequestDelete)
-                    .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0, horizontalPadding: 0)
+                    .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0, horizontalPadding: 0, cornerRadius: 24)
                     .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             }
         }
@@ -96,6 +103,7 @@ struct AddressBookContactManagementView: View {
         Circle()
             .fill(color)
             .overlay(makeItemOverlayView(isSelected: isSelected, strokeColor: color))
+            .frame(width: 40, height: 40)
     }
 
     private func makeItemOverlayView(isSelected: Bool, strokeColor: Color) -> some View {
@@ -139,7 +147,11 @@ struct AddressBookContactManagementView: View {
     }
 
     private var doneButtonContent: TangemButton.Content {
-        let title = AttributedString(Localization.commonDone)
+        let title = AttributedString(viewModel.mainButtonTitle)
+
+        guard viewModel.isMainButtonEnabled else {
+            return .text(title)
+        }
 
         switch viewModel.mainButtonIcon {
         case .leading(let image):
