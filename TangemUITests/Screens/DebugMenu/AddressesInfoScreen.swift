@@ -34,7 +34,7 @@ final class AddressesInfoScreen: ScreenBase<AddressesInfoScreenElement> {
             }
 
             guard let wallet = wallets.first(where: { $0.blockchain == network }) else {
-                XCTFail("No wallet found for networ \(network) in Addresses Info")
+                XCTFail("No wallet found for network \(network) in Addresses Info")
                 return self
             }
 

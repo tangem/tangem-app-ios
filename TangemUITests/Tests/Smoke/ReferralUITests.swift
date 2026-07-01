@@ -77,9 +77,9 @@ final class ReferralUITests: BaseTestCase {
             .verifyTokenVisible(token)
     }
 
-    func testReferral_ReferralUnavailableForNoWalletCards() {
+    func testReferral_ReferralUnavailableForNoWalletCards() throws {
         setAllureId(3629)
-        let card = CardMockPicker.random(excluding: [
+        let card = try CardMockPicker.random(excluding: [
             .wallet, .wallet2, .shiba, .visa,
         ])
 

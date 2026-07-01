@@ -18,13 +18,14 @@ final class ReferralScreen: ScreenBase<ReferralScreenElement> {
     private lazy var promoCodeTitle = staticText(.promoCodeTitle)
     private lazy var promoCodeValue = staticText(.promoCodeValue)
 
-    func verifyReferralScreenDisplayed() {
+    func verifyReferralScreenDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate Referral Screen") { _ in
             XCTAssertTrue(title.waitForExistence(timeout: .robustUIUpdate))
             XCTAssertTrue(currenciesSection.exists, "Currencies section elements should exist")
             XCTAssertTrue(discountSection.exists, "Discount section elements should exist")
             XCTAssertTrue(participateButton.exists, "Participate button should exist")
             XCTAssertTrue(tosButton.exists, "TOS button should exist")
+            return self
         }
     }
 

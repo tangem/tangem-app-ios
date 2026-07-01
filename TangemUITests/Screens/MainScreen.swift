@@ -234,7 +234,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let token = tokenElement(named: tokenName)
             XCTAssertFalse(
-                scrollTokensListToVisible(token, attempts: 2),
+                scrollTokensListToVisible(token),
                 "Token '\(tokenName)' should not be present in the tokens list"
             )
             return self

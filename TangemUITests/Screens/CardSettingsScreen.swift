@@ -112,7 +112,7 @@ final class CardSettingsScreen: ScreenBase<CardSettingsScreenElement> {
     @discardableResult
     func verifyReferralUnavailable() -> Self {
         XCTContext.runActivity(named: "Verify Referral program is unavailable for current wallet") { _ in
-            XCTAssertFalse(referralButton.exists, "Referral program should be unavailable")
+            XCTAssertTrue(referralButton.waitForNonExistence(timeout: .conditional), "Referral program should be unavailable")
             return self
         }
     }
