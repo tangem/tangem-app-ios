@@ -6,10 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
 import Combine
 import Foundation
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 
 final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var destinationAddressViewModel: SendDestinationAddressViewModel
@@ -35,7 +37,8 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
 
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
-            address: .init(string: "", source: .textField)
+            address: .init(string: "", source: .textField),
+            title: Localization.commonAddress
         )
 
         destinationAddressViewModel.router = self
@@ -49,17 +52,17 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
     }
 
     func userDidRequestDismiss() {
-        coordinator?.dismissAddAddress()
+        coordinator?.dismissAddAddressFlow()
     }
 
     func userDidRequestNetworksChange() {
-        guard case .resolved(let resolved, let selected) = addressNetworksType, let coordinator else {
+        guard case .resolved(let value) = addressNetworksType, let coordinator else {
             return
         }
 
         let viewModel = ChooseNetworkViewModel(
-            candidates: resolved,
-            preselected: selected,
+            candidates: value.resolved,
+            preselected: value.selected,
             output: self,
             routable: coordinator
         )
@@ -121,7 +124,11 @@ private extension AddressBookAddAddressViewModel {
             return .idle
         }
 
-        return .resolved(resolved: resolved, selected: selected)
+        let sortedSelected = selected.sorted { $0.networkId < $1.networkId }
+        let icons = sortedSelected.map { NetworkIconItem.image(NetworkImageProvider().provide(by: $0, filled: true)) }
+        let name = sortedSelected.count == 1 ? sortedSelected.first?.displayName : nil
+
+        return .resolved(.init(resolved: resolved, selected: selected, icons: icons, name: name))
     }
 
     func mapToAdditionalFieldViewModel(type: SendDestinationAdditionalFieldType?) -> SendDestinationAdditionalFieldViewModel? {
@@ -181,7 +188,16 @@ extension AddressBookAddAddressViewModel: ChooseNetworkOutput {
 extension AddressBookAddAddressViewModel {
     enum AddressNetworksType: Identifiable {
         case idle
-        case resolved(resolved: Set<BSDKBlockchain>, selected: Set<BSDKBlockchain>)
+        case resolved(Resolved)
+
+        struct Resolved {
+            let resolved: Set<BSDKBlockchain>
+            let selected: Set<BSDKBlockchain>
+            let icons: [NetworkIconItem]
+            let name: String?
+
+            var isEditable: Bool { resolved.count > 1 }
+        }
 
         var id: String {
             switch self {
@@ -193,7 +209,7 @@ extension AddressBookAddAddressViewModel {
         var isEditable: Bool {
             switch self {
             case .idle: false
-            case .resolved(let resolved, _): resolved.count > 1
+            case .resolved(let resolved): resolved.isEditable
             }
         }
     }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 import TangemLocalization
 
 struct AddressBookContactAddressRowViewModel: Identifiable {
@@ -30,10 +31,17 @@ struct AddressBookContactAddressRowView: View {
     let viewModel: AddressBookContactAddressRowViewModel
 
     var body: some View {
-        TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
+        TangemRow(subtitle: viewModel.subtitle)
             .verticalAlignment(.center)
             .start {
                 AddressIconView(viewModel: viewModel.addressIconViewModel)
+            }
+            .titleAccessory {
+                Text(viewModel.title)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .onTap(viewModel.onTap)
     }

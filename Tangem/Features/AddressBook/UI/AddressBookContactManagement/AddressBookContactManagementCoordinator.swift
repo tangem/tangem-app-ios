@@ -65,8 +65,8 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
         dismiss(with: ())
     }
 
-    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
-        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options)
+    func openAddAddress(userWalletInfo: UserWalletInfo, output: any AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedAddresses: [AddressBookReservedAddress]) {
+        let interactor = CommonAddressBookAddAddressInteractor(userWalletInfo: userWalletInfo, output: output, options: options, reservedAddresses: reservedAddresses)
         addAddressViewModel = AddressBookAddAddressViewModel(interactor: interactor, coordinator: self, options: options)
     }
 
@@ -100,6 +100,10 @@ extension AddressBookContactManagementCoordinator: AddressBookContactManagementR
 extension AddressBookContactManagementCoordinator: AddressBookAddAddressRoutable {
     func dismissAddAddress() {
         addAddressViewModel = nil
+    }
+
+    func dismissAddAddressFlow() {
+        dismiss(with: ())
     }
 
     func presentChooseNetwork(_ viewModel: ChooseNetworkViewModel) {

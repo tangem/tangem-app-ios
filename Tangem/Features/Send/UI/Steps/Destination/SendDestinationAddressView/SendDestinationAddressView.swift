@@ -17,7 +17,7 @@ struct SendDestinationAddressView: View {
     @ObservedObject var viewModel: SendDestinationAddressViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 20) {
             title
 
             content
@@ -29,7 +29,7 @@ struct SendDestinationAddressView: View {
         Group {
             switch viewModel.error {
             case .none:
-                Text(Localization.sendRecipient)
+                Text(viewModel.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
             case .some(let string):
                 Text(string)
@@ -41,7 +41,7 @@ struct SendDestinationAddressView: View {
     }
 
     private var content: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center, spacing: 12) {
             addressIconView
 
             SUITextView(viewModel: viewModel.textViewModel, text: viewModel.text.asBinding, font: UIFonts.Regular.subheadline, color: UIColor.textPrimary1)
@@ -82,11 +82,11 @@ struct SendDestinationAddressView: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 20, height: 20)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
                 .padding(8)
                 .background {
                     Circle()
-                        .fill(Colors.Button.secondary)
+                        .fill(DesignSystem.Color.bgOpaquePrimary)
                 }
         }
         .accessibilityIdentifier(SendAccessibilityIdentifiers.scanQRButton)

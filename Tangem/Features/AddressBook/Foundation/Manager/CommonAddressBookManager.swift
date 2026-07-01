@@ -52,7 +52,7 @@ final class CommonAddressBookManager {
 
     private func handle(decoded: [AddressBookDecodedContact]) {
         decodedContacts.withLock { $0 = decoded }
-        contactsSubject.send(decoded.compactMap(verify(_:)))
+        contactsSubject.send(decoded.sorted { $0.createdAt > $1.createdAt }.compactMap(verify(_:)))
     }
 
     private var snapshot: [AddressBookDecodedContact] {
@@ -143,6 +143,22 @@ final class CommonAddressBookManager {
         }
     }
 
+    private func ensureAddressesUniqueInBook(_ drafts: [AddressBookEntryDraft], excluding contactId: AddressBookContactID?) throws {
+        let pairs = Set(drafts.map { pairKey(address: $0.address, networkId: $0.networkId) })
+
+        for existing in contactsSubject.value where existing.id != contactId {
+            let hasConflict = existing.entries.raw.contains { pairs.contains(pairKey(address: $0.address, networkId: $0.networkId)) }
+
+            if hasConflict {
+                throw AddressBookValidationError.addressAlreadySaved(contactName: existing.name.value)
+            }
+        }
+    }
+
+    private func pairKey(address: String, networkId: AddressBookNetworkID) -> String {
+        "\(address)|\(networkId.rawValue)"
+    }
+
     private func contact(with id: AddressBookContactID, in contacts: [AddressBookDecodedContact]) throws -> AddressBookDecodedContact {
         guard let contact = contacts.first(where: { $0.id == id }) else {
             throw AddressBookManagerError.contactNotFound
@@ -178,6 +194,7 @@ final class CommonAddressBookManager {
         try ensureAddressesNonEmpty(drafts)
         try AddressBookContactDraftEntries.validate(adding: drafts, to: [])
         try ensureNameUnique(name, excluding: nil)
+        try ensureAddressesUniqueInBook(drafts, excluding: id)
 
         let signed = try await sign(drafts, contactId: id, name: name)
         let now = Date()
@@ -205,6 +222,10 @@ final class CommonAddressBookManager {
 extension CommonAddressBookManager: AddressBookManager {
     var contactsPublisher: AnyPublisher<[AddressBookContact], Never> {
         contactsSubject.eraseToAnyPublisher()
+    }
+
+    var contacts: [AddressBookContact] {
+        contactsSubject.value
     }
 
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
@@ -235,6 +256,7 @@ extension CommonAddressBookManager: AddressBookManager {
 
         let contact = try contact(with: id, in: snapshot)
         try ensureNameUnique(name, excluding: id)
+        try ensureAddressesUniqueInBook(drafts, excluding: id)
 
         let addresses = try await signedEntries(for: drafts, replacing: contact, name: name)
         let updated = touched(contact, name: name, iconColor: iconColor, addresses: addresses)

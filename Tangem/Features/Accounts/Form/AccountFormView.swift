@@ -37,7 +37,7 @@ struct AccountFormView: View {
             overlayButtonView
         }
         .padding(.horizontal, 16)
-        .background(Colors.Background.tertiary)
+        .background(Colors.Background.primary)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
         .withCloseButton(placement: .topBarTrailing, style: .icon) {
@@ -113,12 +113,13 @@ struct AccountFormView: View {
     }
 
     private var mainContent: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             AccountFormHeaderView(
                 accountName: $viewModel.accountName,
                 title: Localization.accountFormName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
+                backgroundColor: Colors.Background.secondary,
                 accountIconViewData: viewModel.iconViewData,
                 isFocused: $isNameFocused
             )
@@ -139,6 +140,7 @@ struct AccountFormView: View {
                 }
             )
         }
+        .padding(.top, 12)
     }
 
     private func makeColorItem(color: Color, isSelected: Bool) -> some View {

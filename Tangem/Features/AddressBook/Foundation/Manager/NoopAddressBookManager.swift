@@ -17,6 +17,8 @@ final class NoopAddressBookManager: AddressBookManager {
         Just([]).eraseToAnyPublisher()
     }
 
+    var contacts: [AddressBookContact] { [] }
+
     var syncStatePublisher: AnyPublisher<AddressBookSyncState, Never> {
         Just(.synced).eraseToAnyPublisher()
     }

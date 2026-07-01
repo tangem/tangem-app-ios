@@ -155,7 +155,7 @@ private extension AddressBooksViewModel {
                     .map { book in
                         Publishers.CombineLatest(book.addressBookPublisher, book.syncStatePublisher)
                             .map { contacts, syncState in
-                                WalletState(id: book.wallet.id.stringValue, name: book.wallet.name, contacts: contacts, syncState: syncState)
+                                WalletState(id: book.wallet.id.stringValue, name: book.wallet.name, contacts: contacts, syncState: syncState, thumbnailType: book.wallet.config.walletThumbnailType)
                             }
                             .eraseToAnyPublisher()
                     }
@@ -195,7 +195,7 @@ private extension AddressBooksViewModel {
         }
 
         return [Chip(id: Constants.allChipId, title: Localization.commonAll)]
-            + matching.map { Chip(id: $0.id, title: $0.name) }
+            + matching.map { Chip(id: $0.id, title: $0.name, thumbnail: $0.thumbnailType) }
     }
 
     func makeContent(scopeWallets: [WalletState], query: String, isSearching: Bool) -> ContentState {
@@ -277,6 +277,7 @@ private extension AddressBooksViewModel {
         let name: String
         let contacts: [AddressBookContact]
         let syncState: AddressBookSyncState
+        let thumbnailType: ThumbnailWalletViewType?
 
         /// Whether this book's contacts can be shown. A network failure still surfaces the cached contacts,
         /// so it counts as ready only while there is something to show; a decode failure clears the cache and

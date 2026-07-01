@@ -41,6 +41,7 @@ final class CommonAddressBookAddAddressInteractor {
     private let userWalletInfo: UserWalletInfo
     private weak var output: AddressBookAddAddressOutput?
     private let replacing: [AddressBookAddressEntryID]
+    private let reservedAddresses: [AddressBookReservedAddress]
 
     private let addressResolver = AddressBlockchainResolver()
 
@@ -54,9 +55,10 @@ final class CommonAddressBookAddAddressInteractor {
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
     private let _selectedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
 
-    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions) {
+    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedAddresses: [AddressBookReservedAddress]) {
         self.userWalletInfo = userWalletInfo
         self.output = output
+        self.reservedAddresses = reservedAddresses
 
         switch options {
         case .add:
@@ -105,8 +107,8 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     var isAddAddressEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(_address, _selectedNetworks)
-            .map { address, networks in !address.isEmpty && !networks.isEmpty }
+        Publishers.CombineLatest3(_address, _selectedNetworks, _addressError)
+            .map { address, networks, error in !address.isEmpty && !networks.isEmpty && error == nil }
             .eraseToAnyPublisher()
     }
 
@@ -160,6 +162,7 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
 
     func update(selectedNetworks: Set<BSDKBlockchain>) {
         _selectedNetworks.send(selectedNetworks.intersection(_resolvedNetworks.value))
+        _addressError.send(duplicateAddressError(address: _address.value, networks: _selectedNetworks.value))
         applyAdditionalFieldType()
         update(additionalField: _additionalField.value.extraId ?? "")
     }
@@ -189,9 +192,10 @@ private extension CommonAddressBookAddAddressInteractor {
         _resolvedNetworks.send(networks)
         _selectedNetworks.send(networks.count == 1 ? networks : [])
         _addressValid.send(valid)
-        _addressError.send(error)
+        _addressError.send(error ?? duplicateAddressError(address: address, networks: _selectedNetworks.value))
 
         applyAdditionalFieldType()
+        update(additionalField: _additionalField.value.extraId ?? "")
     }
 
     func applyAdditionalFieldType() {
@@ -205,16 +209,34 @@ private extension CommonAddressBookAddAddressInteractor {
             _addressAdditionalFieldError.send(nil)
         }
     }
+
+    func duplicateAddressError(address: String, networks: Set<BSDKBlockchain>) -> Error? {
+        guard !address.isEmpty, !networks.isEmpty else {
+            return nil
+        }
+
+        let networkIds = Set(networks.map(\.networkId))
+
+        guard let conflict = reservedAddresses.first(where: { networkIds.contains($0.networkId.rawValue) && $0.address == address }) else {
+            return nil
+        }
+
+        return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.contactName)
+    }
 }
 
 // MARK: - Error
 
 enum AddressBookAddAddressError: LocalizedError {
     case invalidAddress
+    case addressAlreadySaved(contactName: String)
 
     var errorDescription: String? {
         switch self {
-        case .invalidAddress: Localization.addressBookInvalidAddressError
+        case .invalidAddress:
+            Localization.addressBookInvalidAddressError
+        case .addressAlreadySaved(let contactName):
+            Localization.addressBookAddressTakenError(contactName)
         }
     }
 }

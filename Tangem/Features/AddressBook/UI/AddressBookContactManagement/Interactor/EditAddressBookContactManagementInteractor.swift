@@ -39,6 +39,8 @@ final class EditAddressBookContactManagementInteractor {
 
 extension EditAddressBookContactManagementInteractor: AddressBookContactManagementInteractor {
     var title: String { Localization.addressBookContact }
+    var mainButtonTitle: String { Localization.addressBookSaveContact }
+    var saveErrorMessage: String? { nil }
 
     var contactNamePublisher: AnyPublisher<String, Never> {
         nameSubject.eraseToAnyPublisher()
@@ -67,10 +69,22 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         Just(true).eraseToAnyPublisher()
     }
 
+    var reservedAddresses: [AddressBookReservedAddress] {
+        walletSubject.value.addressBookManager.contacts
+            .filter { $0.id != contact.id }
+            .flatMap { other in
+                other.entries.raw.map { AddressBookReservedAddress(address: $0.address, networkId: $0.networkId, contactName: other.name.value) }
+            }
+    }
+
+    var isNameTakenPublisher: AnyPublisher<Bool, Never> {
+        nameTakenPublisher()
+    }
+
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(nameSubject, addressesSubject)
-            .map { name, addresses in
-                !name.trimmed().isEmpty && !addresses.isEmpty
+        Publishers.CombineLatest3(nameSubject, addressesSubject, nameTakenPublisher())
+            .map { name, addresses, isNameTaken in
+                !name.trimmed().isEmpty && !addresses.isEmpty && !isNameTaken
             }
             .eraseToAnyPublisher()
     }
@@ -132,6 +146,20 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
 // MARK: - Wallet change (move between books)
 
 private extension EditAddressBookContactManagementInteractor {
+    func nameTakenPublisher() -> AnyPublisher<Bool, Never> {
+        walletSubject
+            .map { $0.addressBookManager.contactsPublisher }
+            .switchToLatest()
+            .combineLatest(nameSubject)
+            .map { [contactId = contact.id] contacts, name in
+                let trimmed = name.trimmed()
+                guard !trimmed.isEmpty else { return false }
+                return contacts.contains { $0.id != contactId && $0.name.value.caseInsensitiveCompare(trimmed) == .orderedSame }
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     /// The book the contact currently lives in — resolved from its own `walletId` rather than stored, so it
     /// stays the source even after `walletSubject` is switched to the wallet the user wants to move it to.
     func sourceAddressBookWallet() throws -> AddressBookWallet {

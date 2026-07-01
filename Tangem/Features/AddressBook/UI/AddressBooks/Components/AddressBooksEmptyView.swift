@@ -42,12 +42,11 @@ struct AddressBooksEmptyView: View {
         DesignSystem.Color.bgStatusInfoSubtle
             .frame(width: iconContainerSize, height: iconContainerSize)
             .overlay {
-                // [REDACTED_TODO_COMMENT]
-                DesignSystem.Icons.AddressPolygon.regular20.image
+                DesignSystem.Icons.ContactBook.filled28.image
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: iconSize, height: iconSize)
-                    .foregroundColor(DesignSystem.Color.iconStatusInfo)
+                    .foregroundColor(DesignSystem.Color.iconBrand)
             }
             .clipShape(Circle())
     }
