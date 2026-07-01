@@ -448,7 +448,7 @@ struct TangemPayMainView: View {
                 viewModel.openCardManagement(entry: entry)
             } label: {
                 TangemPaySmallCardViewRedesigned(
-                    state: card.isReissuing
+                    state: card.isReissuing || card.isClosing
                         ? .replacing
                         : .issued(cardNumberEnd: card.cardNumberEnd)
                 )
