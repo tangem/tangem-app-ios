@@ -15,8 +15,6 @@ import BlockchainSdk
 struct AddressActionsView: View {
     let viewModel: AddressActionsViewModel
 
-    @ScaledMetric private var iconSize: CGFloat = 72
-
     var body: some View {
         VStack(spacing: 0) {
             FloatingSheetNavigationBarView(
@@ -39,9 +37,7 @@ struct AddressActionsView: View {
 
     private var details: some View {
         VStack(spacing: 32) {
-            AddressIconView(viewModel: viewModel.addressIconViewModel)
-                .scaleEffect(iconSize / viewModel.addressIconViewModel.size)
-                .frame(width: iconSize, height: iconSize)
+            AddressBlockiesIconView(viewData: viewModel.addressIcon, size: 72)
 
             VStack(spacing: 24) {
                 VStack(spacing: 8) {
