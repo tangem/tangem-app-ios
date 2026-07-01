@@ -88,11 +88,10 @@ public struct FloatingSheetView: View {
         if let renderedViewModel, let sheetContent = registry.view(for: renderedViewModel) {
             FloatingSheetLayout(maxHeight: sheetMaxHeight(proxy)) {
                 sheetContent
-                    // The sheet frame-update animation below is applied via `.transaction`, which would
-                    // otherwise propagate into the content and animate its lazy layout (e.g. LazyVStack
-                    // row materialization, causing rows to "fly" on first scroll). Clear it at the
-                    // content boundary so only the sheet frame animates, not the content.
-                    .disableAnimations()
+                    .transaction { transaction in
+                        guard isSheetFrameUpdateAnimationEnabled else { return }
+                        transaction.animation = nil
+                    }
             }
             .background(sheetContentConfiguration.sheetBackgroundColor)
             .clipShape(roundedRectangle)
@@ -103,9 +102,7 @@ public struct FloatingSheetView: View {
             .offset(y: verticalDragAmount)
             .animation(.keyboard, value: keyboardHeight)
             .animation(.floatingSheet, value: verticalDragAmount)
-            .if(sheetContentConfiguration.isSheetSwipeEnabled) {
-                $0.gesture(verticalSwipeGesture)
-            }
+            .gesture(verticalSwipeGesture, isEnabled: sheetContentConfiguration.isSheetSwipeEnabled)
             .transaction { transaction in
                 guard isSheetFrameUpdateAnimationEnabled else { return }
                 transaction.animation = sheetContentConfiguration.sheetFrameUpdateAnimation
