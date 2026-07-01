@@ -34,8 +34,8 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
     enum Content {
         case send(SendTransactionDetailsViewModel)
         case receive(ReceiveTransactionDetailsViewModel)
-        case swap(SwapTransactionDetailsViewModel)
-        case onramp(OnrampTransactionDetailsViewModel)
+        case swap(SwapTransactionDetailsViewData)
+        case onramp(OnrampTransactionDetailsViewData)
         case blocks([TransactionDetailsBlock])
     }
 }

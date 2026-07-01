@@ -1,24 +1,15 @@
 //
-//  OnrampTransactionDetailsViewModel.swift
+//  OnrampTransactionDetailsViewData.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
-import Combine
-import TangemAccounts
 import TangemLocalization
 import TangemUI
 
-@MainActor
-final class OnrampTransactionDetailsViewModel: ObservableObject {
-    enum Stage: Hashable {
-        case inProgress
-        case finished
-        case unsuccessful
-    }
-
+struct OnrampTransactionDetailsViewData: TransactionDetailsOperationViewData {
     struct PaidLeg {
         let amount: String
         let symbol: String
@@ -27,81 +18,37 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
     }
 
     struct ReceivedLeg {
-        let destinationName: String
-        let accountIcon: AccountIconView.ViewData?
+        let destination: TransactionDetailsActor
         let amount: String
         let symbol: String
         let fiatPrice: String?
         let tokenIconInfo: TokenIconInfo
     }
 
-    let stage: Stage
+    let stage: TransactionDetailsOperationStage
     let paid: PaidLeg
     let received: ReceivedLeg
-
     let isReceivedEstimated: Bool
-
     let statusBanner: TransactionDetailsStatusBannerViewData?
-    let provider: TransactionDetailsProvider?
+    let provider: TransactionDetailsProviderInfo?
     let rate: String?
     /// Footer button ("Go to provider" / "Go to verification"). Shown for verification / paused states
     let action: TransactionDetailsActionButtonViewData?
 
-    init(
-        stage: Stage,
-        paid: PaidLeg,
-        received: ReceivedLeg,
-        isReceivedEstimated: Bool,
-        statusBanner: TransactionDetailsStatusBannerViewData? = nil,
-        provider: TransactionDetailsProvider? = nil,
-        rate: String? = nil,
-        action: TransactionDetailsActionButtonViewData? = nil
-    ) {
-        self.stage = stage
-        self.paid = paid
-        self.received = received
-        self.isReceivedEstimated = isReceivedEstimated
-        self.statusBanner = statusBanner
-        self.provider = provider
-        self.rate = rate
-        self.action = action
-    }
-
-    var blocks: [TransactionDetailsBlock] {
-        var blocks: [TransactionDetailsBlock] = [.tokens(tokensData)]
-
-        if stage != .finished, let statusBanner {
-            blocks.append(.statusBanner(statusBanner))
-        }
-
-        if let infoData {
-            blocks.append(.info(infoData))
-        }
-
-        if let action {
-            blocks.append(.action(action))
-        }
-
-        return blocks
-    }
-
-    private var tokensData: TransactionDetailsTokensViewData {
+    var tokensData: TransactionDetailsTokensViewData {
         let isUnsuccessful = stage == .unsuccessful
 
         return TransactionDetailsTokensViewData(
             from: .init(
                 // [REDACTED_TODO_COMMENT]
-                direction: .init(label: "You paid"),
+                direction: .init(label: "You paid", actor: nil),
                 icon: .image(url: paid.flagIconURL),
                 amountText: paidAmountText,
                 fiatText: paid.fiatPrice,
                 isAmountStrikethrough: false
             ),
             to: .init(
-                direction: .init(
-                    label: Localization.commonTo,
-                    owner: .init(icon: received.accountIcon, name: received.destinationName)
-                ),
+                direction: .init(label: Localization.commonTo, actor: received.destination),
                 icon: .token(received.tokenIconInfo),
                 amountText: receivedAmountText,
                 fiatText: isUnsuccessful ? nil : received.fiatPrice,
@@ -110,7 +57,7 @@ final class OnrampTransactionDetailsViewModel: ObservableObject {
         )
     }
 
-    private var infoData: TransactionDetailsInfoSectionViewData? {
+    var infoData: TransactionDetailsInfoSectionViewData? {
         var rows: [TransactionDetailsInfoSectionViewData.Row] = []
 
         if let provider {

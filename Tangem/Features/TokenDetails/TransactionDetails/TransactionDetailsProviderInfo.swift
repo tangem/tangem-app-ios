@@ -1,5 +1,5 @@
 //
-//  TransactionDetailsProvider.swift
+//  TransactionDetailsProviderInfo.swift
 //  TangemApp
 //
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 import Foundation
 import TangemLocalization
 
-struct TransactionDetailsProvider {
+struct TransactionDetailsProviderInfo {
     let name: String
     let iconURL: URL?
     let onTap: () -> Void

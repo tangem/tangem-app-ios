@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import SwiftUI
 import TangemAccounts
 import TangemAssets
@@ -53,17 +54,7 @@ struct TransactionDetailsTokensViewData: Equatable {
 
         struct Direction: Equatable {
             let label: String
-            let owner: Owner?
-
-            struct Owner: Equatable {
-                let icon: AccountIconView.ViewData?
-                let name: String
-            }
-
-            init(label: String, owner: Owner? = nil) {
-                self.label = label
-                self.owner = owner
-            }
+            let actor: TransactionDetailsActor?
         }
 
         let direction: Direction
@@ -93,6 +84,7 @@ struct TransactionDetailsTokensView: View {
 
     @ScaledMetric private var tokenSide: CGFloat = 72
     @ScaledMetric private var legTokenSide: CGFloat = 40
+    @ScaledMetric private var captionIconSide: CGFloat = 18
 
     var body: some View {
         switch data.content {
@@ -135,7 +127,7 @@ struct TransactionDetailsTokensView: View {
 
             DashedDivider(color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, 16)
-          
+
             legRow(to)
         }
         .padding(.vertical, 4)
@@ -168,7 +160,7 @@ struct TransactionDetailsTokensView: View {
                     }
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .infinityFrame(axis: .horizontal, alignment: .leading)
 
             legIcon(leg.icon)
                 .frame(size: CGSize(bothDimensions: legTokenSide))
@@ -183,15 +175,27 @@ struct TransactionDetailsTokensView: View {
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
 
-            if let owner = direction.owner {
-                if let icon = owner.icon {
-                    AccountIconView(data: icon, settings: .smallSized)
-                }
+            if let actor = direction.actor {
+                actorIcon(actor)
 
-                Text(owner.name)
+                Text(actor.displayName)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func actorIcon(_ actor: TransactionDetailsActor) -> some View {
+        switch actor {
+        case .address(_, let blockiesImage):
+            AddressBlockiesIconView(viewData: blockiesImage, size: captionIconSide)
+        case .contact(_, let icon):
+            AddressBookContactNameIconView(viewData: icon, size: captionIconSide)
+        case .account(_, let icon), .accountInWallet(_, let icon, _):
+            AccountIconView(data: icon, settings: .smallSized)
+        case .wallet:
+            EmptyView()
         }
     }
 
@@ -202,7 +206,7 @@ struct TransactionDetailsTokensView: View {
             TokenIcon(tokenIconInfo: tokenIconInfo, size: CGSize(bothDimensions: legTokenSide))
         case .image(let url):
             IconView(url: url, size: CGSize(bothDimensions: legTokenSide))
-                .clipShape(Circle())
+                .clipShape(.circle)
         }
     }
 
@@ -241,29 +245,14 @@ private struct DashedDivider: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private extension TokenIconInfo {
-    static func preview(_ name: String, color: Color?) -> TokenIconInfo {
-        TokenIconInfo(name: name, blockchainIconAsset: nil, imageURL: nil, isCustom: false, customTokenColor: color)
-    }
-}
-
 #Preview("Tokens") {
     VStack(spacing: 32) {
         // Single (transfer / stake)
-        TransactionDetailsTokensView(data: .init(
-            tokenIconInfo: .preview("Tether", color: .green),
-            amountText: "+350.31 USDT",
-            fiatText: "$350.31"
-        ))
+        TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensSingle())
 
         // Pair (swap / onramp)
-        TransactionDetailsTokensView(data: .init(
-            from: .init(direction: .init(label: "From"), icon: .token(.preview("Tether", color: .green)), amountText: "− 390 USDT", fiatText: "$391.12"),
-            to: .init(direction: .init(label: "To"), icon: .token(.preview("Polygon", color: .purple)), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
-        ))
+        TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensPair())
     }
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG
