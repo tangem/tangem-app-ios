@@ -130,6 +130,8 @@ class CommonWalletModelsManager {
         // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
         let maxConcurrentUpdates = 5
         let count = walletModels.count
+        // Coalesce this whole refresh cycle's P2P staking balances into one batched request.
+        let features: [WalletModelUpdaterFeatureType] = [.balances(stakingUpdateSource: .batch)]
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
@@ -138,7 +140,7 @@ class CommonWalletModelsManager {
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
-                    await walletModels[index].update(silent: silent, features: .balances)
+                    await walletModels[index].update(silent: silent, features: features)
                 }
             }
             await group.waitForAll()
