@@ -24,7 +24,7 @@ final class CreateAddressBookContactManagementInteractor {
         self.addressBooksProvider = addressBooksProvider
 
         nameSubject = .init("")
-        colorSubject = .init(AccountModelUtils.UI.newAccountIcon().color)
+        colorSubject = .init(CompositeIconColor.randomElement())
         addressesSubject = .init([])
         walletSubject = .init(addressBookWallet)
     }
@@ -107,7 +107,7 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
             throw AddressBookValidationError.noEntries
         }
 
-        try await addressBookManager.createContact(name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+        try await addressBookManager.createContact(name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
     }
 
     func delete() async throws {}
