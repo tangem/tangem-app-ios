@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Добавить адрес и выбрать сеть";
 "address_book_add_address" = "Добавить адрес";
 "address_book_add_contact" = "Добавить контакт";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Имя контакта";
 "address_book_contact" = "Контакт";
@@ -106,6 +107,7 @@
 "address_book_no_contacts_description" = "Здесь отобразятся добавленные вами контакты.";
 "address_book_no_contacts" = "Нет добавленных контактов";
 "address_book_remove_address" = "Удалить адрес";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Этот контакт будет привязан к этому кошельку в адресной книге.";
 "address_book_search_no_results" = "No results found.\nTry another name";
