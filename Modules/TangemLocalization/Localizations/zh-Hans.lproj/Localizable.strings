@@ -95,10 +95,17 @@
 "address_book_enter_address" = "输入地址";
 "address_book_invalid_address_error" = "无效地址";
 "address_book_keep_editing" = "继续编辑";
+"address_book_max_networks_alert_description" = "You can not create more than 20 addresses. Delete one to add new.";
+"address_book_max_networks_alert_title" = "Can't add new address";
+"address_book_name_empty_error" = "Contact name is required";
+"address_book_name_invalid_chars_error" = "Contact name contains invalid characters";
+"address_book_name_max_chars_error" = "Contact name must not exceed 50 characters";
+"address_book_name_taken_error" = "That name is already taken on this wallet";
 "address_book_new_contact" = "新联系人";
 "address_book_no_contacts_description" = "添加的联系人将显示在此处";
 "address_book_no_contacts" = "尚无联系人";
 "address_book_remove_address" = "移除地址";
+"address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "该联系人将与该钱包的通讯录关联。";
 "address_book_select_network" = "选择网络";
 "address_book_title" = "地址簿";
@@ -276,8 +283,10 @@
 "common_generate_addresses" = "同步地址";
 "common_get_started" = "开始";
 "common_get_token" = "获取代币";
+"common_get" = "Get";
 "common_go_to_provider" = "前往服务提供商";
 "common_go_to_token" = "前往代币";
+"common_go_to_verification" = "Go to verification";
 "common_got_it" = "知道了";
 "common_hide" = "隐藏";
 "common_hold_to" = "保持到 %@";
@@ -314,6 +323,7 @@
 "common_passphrase" = "密码短语";
 "common_paste" = "粘贴";
 "common_privacy_policy" = "隐私政策";
+"common_rate" = "Rate";
 "common_read_more" = "阅读更多";
 "common_receive" = "接收";
 "common_received" = "已收到";
@@ -367,6 +377,7 @@
 "common_token_send" = "要发送的代币";
 "common_token" = "代币";
 "common_transaction_failed" = "交易失败";
+"common_transaction_id" = "Transaction ID";
 "common_transaction_status" = "交易状态";
 "common_transactions" = "交易";
 "common_transfer" = "转让";
@@ -573,6 +584,8 @@
 "feedback_subject_tx_failed" = "无法发送交易";
 "feedback_subject_tx_push_failed" = "无法推送交易";
 "feedback_token_description_error" = "代币描述错误";
+"for_you_description" = "Review portfolio and explore earn opportunities";
+"for_you_title" = "For You";
 "force_update_action" = "Update now";
 "force_update_banner_message" = "请将应用更新至最新版本，以确保其正常运行";
 "force_update_banner_title" = "需要更新";
@@ -602,6 +615,8 @@
 "hardware_wallet_key_feature_title" = "密钥生成";
 "hardware_wallet_security_feature_description" = "所有加密操作都在安全芯片内部进行，该芯片经过认证，可防止克隆和物理篡改。";
 "hardware_wallet_security_feature_title" = "硬件级安全";
+"high_fee_warning_description" = "Network activity is high. You can continue now or try again later when fees may be lower.";
+"high_fee_warning_title" = "Network fee is higher than usual";
 "home_button_order" = "订购 Tangem";
 "home_button_scan" = "扫描 Tangem";
 "hot_crypto_add_token_subtitle" = "到 %@";
@@ -1000,6 +1015,7 @@
 "onramp_min_amount_restriction" = "购买金额必须至少 %@";
 "onramp_native_payment_cumulative_limit_equivalent" = "累计交易金额超过等值金额 %1@ 可能需要通过 %2@进行身份验证";
 "onramp_native_payment_cumulative_limit" = "累计交易金额超过 %1@ 时，可能需要通过 %2@进行身份验证";
+"onramp_native_payment_identity_verification" = "Apple Pay 交易可能需要通过以下方式进行身份验证： %1@";
 "onramp_native_payment_legal_notice" = "点击“支付”即表示您同意 %1@的 %2@ 和 %3@。";
 "onramp_no_available_providers" = "目前没有提供此货币的供应商";
 "onramp_offer_type_fastet" = "最快处理";
@@ -1157,6 +1173,7 @@
 "send_extras_hint_memo" = "备忘录";
 "send_fee_unreachable_error_text" = "请检查您的网络连接";
 "send_fee_unreachable_error_title" = "网络费用信息无法获取";
+"send_from_account_in_wallet_name" = "from %1$@ in %2$@";
 "send_from_title" = "您发送";
 "send_from_wallet_name" = "从 %@";
 "send_from_wallet" = "从 **%@**";
@@ -1300,6 +1317,8 @@
 "staking_enabled" = "已启用质押";
 "staking_error_no_validators_message" = "目前没有可用的验证节点。请稍后再试。";
 "staking_error_no_validators_title" = "质押功能不可用";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
+"staking_error_unavailable_region" = "您所在的地区暂不支持质押功能";
 "staking_give_permission_fee_footer" = "网络将收取代币批准费，以验证您是否授权使用您的代币进行质押。";
 "staking_legal" = "使用质押功能即表示您同意提供商的 %1$@ 和 %2$@";
 "staking_locked" = "已锁定";
@@ -1406,6 +1425,8 @@
 "story_web3_title" = "兼容 Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "至少需要有 %1$@ 的转入交易才能继续进行";
 "sui_not_enough_coin_for_fee_title" = "资金不足";
+"support_chat_screen_title" = "Support chat";
+"support_chat_share_logs_button" = "Attach app logs";
 "support_chat_swap_prefilled_message" = "兑换操作数据：\n从： %1$@ %2$@\n到： %3$@ %4$@\n由： %5$@ - %6$@";
 "support_selector_view_chat_button" = "打开聊天";
 "support_selector_view_email_button" = "打开邮件";
@@ -1587,6 +1608,10 @@
 "tangempay_change_pin_code" = "更改PIN码";
 "tangempay_come_back_if_forget_pin" = "如果忘记了，请返回应用程序。";
 "tangempay_common_card" = "Card";
+"tangempay_current_plan_change" = "Change plan";
+"tangempay_current_plan_section_card" = "Card related";
+"tangempay_current_plan_section_plan" = "Plan related";
+"tangempay_current_plan_title" = "Current plan";
 "tangempay_daily_limit_hint" = "设置限额从 %@ 到 %@";
 "tangempay_daily_limit_set_button" = "设置限额";
 "tangempay_declined_reason_1" = "余额不足";
@@ -1808,6 +1833,9 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "此操作不可逆。您将无法访问旧钱包。";
 "twins_scan_twin_with_number" = "轻触带有数字 %@ 的第二张卡片，操作结束前请勿移除。";
+"tx_history_onramp_top_up" = "Top up";
+"tx_history_onramp_topped_up" = "Topped up";
+"tx_history_you_paid" = "You paid";
 "unexpected_error_description" = "请稍后再试。如果问题仍然存在，请联系客服。";
 "unexpected_error_title" = "出问题了！";
 "universal_error" = "我们遇到了一个错误。错误代码： %@请联系我们的客服。";
@@ -1836,6 +1864,8 @@
 "user_wallet_list_rename_popup_placeholder" = "钱包名称";
 "user_wallet_list_rename_popup_title" = "重命名钱包";
 "user_wallet_list_unlock_all_with" = "解锁所有 %@";
+"virtual_account_title" = "Virtual account";
+"virtual_account_transactions_empty" = "No transactions yet. Start spending and see history here";
 "visa_balance_limits_details_aml_verified" = "已通过反洗钱（AML）验证";
 "visa_balance_limits_details_available" = "可用";
 "visa_balance_limits_details_blocked" = "已屏蔽";
