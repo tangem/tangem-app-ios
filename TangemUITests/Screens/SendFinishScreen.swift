@@ -27,6 +27,21 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     }
 
     @discardableResult
+    func assertHeaderTitle(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Assert finish header title is '\(expected)'") { _ in
+            waitAndAssertTrue(headerTitle, "Finish header title should be displayed")
+            let predicate = NSPredicate(format: "label == %@", expected)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: headerTitle)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Finish header title should be '\(expected)' but was '\(headerTitle.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapExploreButton() -> Self {
         XCTContext.runActivity(named: "Tap Explore button on Send Finish screen") { _ in
             waitAndAssertTrue(exploreButton, "Explore button should exist")

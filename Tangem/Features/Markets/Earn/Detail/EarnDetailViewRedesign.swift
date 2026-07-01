@@ -16,15 +16,9 @@ struct EarnDetailViewRedesign: View {
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
-    @State private var navigationHeaderHeight: CGFloat = 0
-
     @ScaledMetric private var contentSpacing: CGFloat = .unit(.x4)
     @ScaledMetric private var sectionsSpacing: CGFloat = .unit(.x10)
     @ScaledMetric private var sectionSpacing: CGFloat = .unit(.x3)
-
-    private var scrollContentTopPadding: CGFloat {
-        navigationHeaderHeight + contentSpacing
-    }
 
     var body: some View {
         content
@@ -39,11 +33,11 @@ struct EarnDetailViewRedesign: View {
 
 private extension EarnDetailViewRedesign {
     var content: some View {
-        ZStack(alignment: .top) {
-            scrollContent
-            navigationHeader
-        }
-        .background(Color.Tangem.Surface.level2)
+        scrollContent
+            .background(Color.Tangem.Surface.level2)
+            .safeAreaInset(edge: .top, spacing: contentSpacing) {
+                navigationBar
+            }
     }
 
     var scrollContent: some View {
@@ -52,7 +46,6 @@ private extension EarnDetailViewRedesign {
                 mostlyUsedSection
                 bestOpportunitiesSection
             }
-            .padding(.top, scrollContentTopPadding)
         }
         .opacity(viewModel.overlayContentHidingProgress)
     }
@@ -93,25 +86,28 @@ private extension EarnDetailViewRedesign {
         }
     }
 
-    var navigationHeader: some View {
+    var navigationBar: some View {
         NavigationHeader(
-            leadingContent: { navigationBackButton },
+            leadingContent: { navigationBarLeadingButton },
             principalContent: { navigationTitle },
             trailingContent: { EmptyView() }
         )
-        .readGeometry { geometryInfo in
-            navigationHeaderHeight = geometryInfo.frame.height
-        }
     }
 
-    var navigationBackButton: some View {
-        TangemButton(
-            content: .icon(Assets.Glyphs.chevron20LeftButtonNew),
-            action: { viewModel.handleViewAction(.back) }
-        )
-        .setStyleType(.secondary)
-        .setCornerStyle(.rounded)
-        .setSize(.x11)
+    @ViewBuilder
+    var navigationBarLeadingButton: some View {
+        switch viewModel.presentSource {
+        case .navigation:
+            NavigationBarButton.back(action: {
+                viewModel.handleViewAction(.back)
+            })
+            .redesigned()
+        case .deeplink:
+            NavigationBarButton.close(action: {
+                viewModel.handleViewAction(.back)
+            })
+            .redesigned()
+        }
     }
 
     var navigationTitle: some View {

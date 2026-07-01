@@ -971,7 +971,7 @@ extension SwapModel {
         let expressSentResult = ExpressTransactionSentResult(
             hash: result.hash,
             source: source.tokenItem.expressCurrency,
-            address: source.defaultAddressString,
+            address: data.sourceAddress ?? source.defaultAddressString,
             data: data
         )
 
@@ -1797,7 +1797,9 @@ extension SwapModel: NotificationTapDelegate {
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
              .yieldBoostPromoLater,
-             .addFunds:
+             .addFunds,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             assertionFailure("Notification tap not handled")
         }
     }
