@@ -116,14 +116,14 @@ extension WalletModelUpdater {
     }
 }
 
-enum WalletModelUpdaterFeatureType {
-    case balances
+enum WalletModelUpdaterFeatureType: Equatable {
+    case balances(stakingUpdateSource: StakingUpdateSource)
     case transactionHistory
 }
 
 extension [WalletModelUpdaterFeatureType] {
-    static let balances: [WalletModelUpdaterFeatureType] = [.balances]
-    static let full: [WalletModelUpdaterFeatureType] = [.balances, .transactionHistory]
+    static let balances: [WalletModelUpdaterFeatureType] = [.balances(stakingUpdateSource: .single)]
+    static let full: [WalletModelUpdaterFeatureType] = [.balances(stakingUpdateSource: .single), .transactionHistory]
 }
 
 // MARK: - WalletModelBalancesProvider
