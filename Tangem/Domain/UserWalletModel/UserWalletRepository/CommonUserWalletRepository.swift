@@ -123,7 +123,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         }
 
         let shouldShowInsertedEvent = models.isNotEmpty
-        models.append(userWalletModel)
+        lock { $0.models.append(userWalletModel) }
         if shouldShowInsertedEvent {
             sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
         }
@@ -242,7 +242,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
-        models.removeAll { $0.userWalletId == userWalletId }
+        lock { $0.models.removeAll { $0.userWalletId == userWalletId } }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
@@ -399,7 +399,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.cantUnlockWallet
         }
 
-        models[userWalletId] = unlockedModel
+        lock { $0.models[userWalletId] = unlockedModel }
         await unlockUnprotectedMobileWalletsIfNeeded()
 
         sendEvent(.unlockedWallet(userWalletId: userWalletId))
@@ -436,7 +436,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             let userWalletId = UserWalletId(value: entry.userWalletId)
             if let sensitiveInfo = sensitiveInfos[userWalletId],
                let unlockedModel = CommonUserWalletModelFactory().makeModel(publicData: entry, sensitiveData: sensitiveInfo) {
-                models[userWalletId] = unlockedModel
+                lock { $0.models[userWalletId] = unlockedModel }
             }
         }
     }
@@ -447,8 +447,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func lockInternal() {
+        let updatedModels: [UserWalletModel]
+
         if AppSettings.shared.saveUserWallets {
-            let processedModels = models.compactMap { model -> UserWalletModel? in
+            updatedModels = models.compactMap { model -> UserWalletModel? in
                 if model.isUnprotectedMobileWallet {
                     return model
                 }
@@ -459,13 +461,15 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
                 return nil
             }
-
-            models = processedModels
         } else {
-            models = []
+            updatedModels = []
         }
 
-        lock { $0.locked = true }
+        lock {
+            $0.models = updatedModels
+            $0.locked = true
+        }
+
         sendEvent(.locked)
     }
 
