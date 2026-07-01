@@ -140,8 +140,7 @@ private extension AuthView {
             }
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, alignment: .center)
-            .background(Colors.Button.secondary)
-            .cornerRadius(14, corners: .allCorners)
+            .background(Colors.Button.secondary, in: .capsule)
         }
         .colorScheme(.dark)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
