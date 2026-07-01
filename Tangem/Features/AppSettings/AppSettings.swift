@@ -16,6 +16,11 @@ final class AppSettings {
     @AppStorageCompat(StorageType.priceAlertsOnboardingShown)
     var isPriceAlertsOnboardingShown: Bool = false
 
+    /// Device wallet count for which the user ticked "Don't ask again" in the Choose wallet sheet.
+    /// `0` means not set; the sheet is shown again once the wallet count changes.
+    @AppStorageCompat(StorageType.priceAlertsChooseWalletSkipCount)
+    var priceAlertsChooseWalletSkipCount: Int = 0
+
     @AppStorageCompat(StorageType.numberOfAppLaunches)
     var numberOfLaunches: Int = 0
 
