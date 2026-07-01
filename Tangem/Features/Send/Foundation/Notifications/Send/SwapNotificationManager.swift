@@ -18,14 +18,18 @@ protocol SwapNotificationManager: NotificationManager {
     func setup(
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput,
+        sendFeeInput: SendFeeInput,
         swapModelStateProvider: SwapModelStateProvider,
     )
 }
 
 final class CommonSwapNotificationManager {
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
+
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
 
     private let balanceFormatter = BalanceFormatter()
+    private let highNetworkFeeWarningCalculator = HighNetworkFeeWarningCalculator()
 
     private weak var delegate: NotificationTapDelegate?
     private let analyticsServices: ThreadSafeContainer<[UserWalletId: NotificationsAnalyticsService]> = [:]
@@ -50,16 +54,37 @@ private extension CommonSwapNotificationManager {
     func bind(
         sourceTokenInput: SendSourceTokenInput,
         receiveTokenInput: SendReceiveTokenInput,
+        sendFeeInput: SendFeeInput,
         swapModelStateProvider: SwapModelStateProvider,
     ) {
-        setupCancellable = Publishers.CombineLatest3(
+        let selectedFeePublisher = sendFeeInput.selectedFeePublisher
+            .mapToOptional()
+            .prepend(sendFeeInput.selectedFee)
+            .eraseToAnyPublisher()
+
+        let highNetworkFeePublisher = Publishers.CombineLatest(
+            selectedFeePublisher,
+            quotesRepository.quotesPublisher
+        )
+        .map { selectedFee, quotes -> SwapHighNetworkFeeWarningInput in
+            let currencyId = selectedFee?.tokenItem.currencyId
+            let priceUsd = currencyId.flatMap { quotes[$0]?.priceUsd }
+
+            return SwapHighNetworkFeeWarningInput(selectedFee: selectedFee, priceUsd: priceUsd)
+        }
+        .removeDuplicates()
+        .map(\.selectedFee)
+
+        setupCancellable = Publishers.CombineLatest4(
             sourceTokenInput.sourceTokenPublisher,
             receiveTokenInput.receiveTokenPublisher,
             swapModelStateProvider.statePublisher
-                .filter { $0.filter(loading: [.providers, .rates]) }
+                .filter { $0.filter(loading: [.providers, .rates]) },
+            highNetworkFeePublisher
         )
+        .receive(on: DispatchQueue.main)
         .withWeakCaptureOf(self)
-        .map { $0.mapToNotificationInputs(source: $1.0, receive: $1.1, state: $1.2) }
+        .map { $0.mapToNotificationInputs(source: $1.0, receive: $1.1, state: $1.2, selectedFee: $1.3) }
         .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
 
         analyticsServiceCancellable = Publishers.CombineLatest(
@@ -77,10 +102,11 @@ private extension CommonSwapNotificationManager {
     func mapToNotificationInputs(
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
-        state: SwapModel.ProvidersState
+        state: SwapModel.ProvidersState,
+        selectedFee: TokenFee?
     ) -> [NotificationViewInput] {
         let factory = NotificationsFactory()
-        let events = mapToEvents(source: source, receive: receive, state: state)
+        let events = mapToEvents(source: source, receive: receive, state: state, selectedFee: selectedFee)
         let inputs = events.map { event in
             let input = factory.buildNotificationInput(for: event) { [weak self] id, actionType in
                 self?.delegate?.didTapNotification(with: id, action: actionType)
@@ -95,7 +121,8 @@ private extension CommonSwapNotificationManager {
     func mapToEvents(
         source: LoadingResult<SendSourceToken, any Error>,
         receive: LoadingResult<SendReceiveToken, any Error>,
-        state: SwapModel.ProvidersState
+        state: SwapModel.ProvidersState,
+        selectedFee: TokenFee?
     ) -> [SwapNotificationEvent] {
         switch (source, receive, state) {
         // Expected when couldn't load the providers list
@@ -112,15 +139,24 @@ private extension CommonSwapNotificationManager {
             return [.unsupportedPair(analyticsParams: analyticsParams)]
 
         case (.success(let source), .success(let receive), .loaded(.transfer, let state)):
-            return mapLoadedStateEvents(source: source, receive: receive, provider: nil, state: state)
+            let events = mapLoadedStateEvents(source: source, receive: receive, provider: nil, state: state)
+            return events + mapHighNetworkFeeEvent(selectedFee: selectedFee)
 
         case (.success(let source), .success(let receive), .loaded(.swap(let selected, _), let state)):
             let events = mapLoadedStateEvents(source: source, receive: receive, provider: selected, state: state)
-            return events
+            return events + mapHighNetworkFeeEvent(selectedFee: selectedFee)
 
         default:
             return []
         }
+    }
+
+    func mapHighNetworkFeeEvent(selectedFee: TokenFee?) -> [SwapNotificationEvent] {
+        guard highNetworkFeeWarningCalculator.shouldShowWarning(for: selectedFee) else {
+            return []
+        }
+
+        return [.highNetworkFee]
     }
 
     func mapLoadedStateEvents(
@@ -365,6 +401,11 @@ private extension CommonSwapNotificationManager {
     }
 }
 
+private struct SwapHighNetworkFeeWarningInput: Equatable {
+    let selectedFee: TokenFee?
+    let priceUsd: Decimal?
+}
+
 // MARK: - NotificationManager
 
 extension CommonSwapNotificationManager: SwapNotificationManager {
@@ -383,11 +424,13 @@ extension CommonSwapNotificationManager: SwapNotificationManager {
     func setup(
         sourceTokenInput: any SendSourceTokenInput,
         receiveTokenInput: any SendReceiveTokenInput,
+        sendFeeInput: any SendFeeInput,
         swapModelStateProvider: any SwapModelStateProvider
     ) {
         bind(
             sourceTokenInput: sourceTokenInput,
             receiveTokenInput: receiveTokenInput,
+            sendFeeInput: sendFeeInput,
             swapModelStateProvider: swapModelStateProvider
         )
     }
