@@ -10,10 +10,10 @@ import Foundation
 import TangemSdk
 
 struct AccessCodeSaveUtility {
-    private let primaryCardFirmwareVersion: FirmwareVersion?
+    private let firmwareVersion: FirmwareVersion
 
-    init(primaryCardFirmwareVersion: FirmwareVersion?) {
-        self.primaryCardFirmwareVersion = primaryCardFirmwareVersion
+    init(firmwareVersion: FirmwareVersion) {
+        self.firmwareVersion = firmwareVersion
     }
 
     func trySave(accessCode: String, cardIds: Set<String>) {
@@ -24,15 +24,11 @@ struct AccessCodeSaveUtility {
         let accessCodeData: Data = accessCode.getSHA256()
         let accessCodeRepository = AccessCodeRepository()
 
-        guard let primaryCardFirmwareVersion else {
-            AppLogger.error("Failed to save access code. Primary card firmware version is nil", error: Error.primaryCardFirmwareVersionUnavailable)
-            return
-        }
 
         try? accessCodeRepository.save(
             accessCodeData,
             for: Array(cardIds),
-            firmwareVersion: primaryCardFirmwareVersion
+            firmwareVersion: firmwareVersion
         )
     }
 }

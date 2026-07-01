@@ -37,6 +37,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var accessCode: String?
+    private var firmwareVersion: FirmwareVersion?
     private var cardIds: Set<String>?
     private var stepPublisher: AnyCancellable?
 
@@ -556,7 +557,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func didAskToSaveUserWallets(agreed: Bool) {
         super.didAskToSaveUserWallets(agreed: agreed)
-        trySaveAccessCodes()
+        
+        if let firmwareVersion {
+            trySaveAccessCodes(firmwareVersion: firmwareVersion)
+        }
     }
 
     private func back() {
@@ -816,6 +820,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 alert = makeResetCardSetAlert()
                                 return
                             }
+                            
+                            // Cache the firmware version to be able to save the access codes later
+                            self.firmwareVersion = updatedCard.firmwareVersion
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
@@ -823,6 +830,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                    let userWalletId = userWalletModel?.userWalletId.stringValue {
                                     AppSettings.shared.userWalletIdsWithRing.insert(userWalletId)
                                 }
+                                
+                                trySaveAccessCodes(firmwareVersion: updatedCard.firmwareVersion)
 
                                 backupValidator.onBackupCompleted()
 
@@ -832,8 +841,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                     let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: cardIds ?? [])
                                     initializeUserWallet(from: cardInfo)
                                 }
-
-                                trySaveAccessCodes()
 
                                 let backupedUserWalletModel: UserWalletModel?
                                 switch userWalletModel {
@@ -892,7 +899,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             }
     }
 
-    private func trySaveAccessCodes() {
+    private func trySaveAccessCodes(firmwareVersion: FirmwareVersion) {
         guard
             let accessCode = accessCode,
             let cardIds = cardIds
@@ -900,7 +907,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             return
         }
 
-        AccessCodeSaveUtility(primaryCardFirmwareVersion: backupService.primaryCard?.firmwareVersion)
+        AccessCodeSaveUtility(firmwareVersion: firmwareVersion)
             .trySave(accessCode: accessCode, cardIds: cardIds)
     }
 
