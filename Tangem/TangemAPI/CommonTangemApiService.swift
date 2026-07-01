@@ -372,7 +372,7 @@ extension CommonTangemApiService: TangemApiService {
         let request = PriceAlertsSubscriptionsDTO.Request(walletIds: walletIds, tokenId: tokenId)
         // Decode the `{ "status": ... }` body so a malformed response surfaces as an error; the status
         // string itself carries no client-side meaning beyond the `200`.
-        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await self.request(
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
             for: .subscribeToPriceAlerts(request: request),
             decoder: decoder
         )
