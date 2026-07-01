@@ -59,6 +59,10 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                 if length > 0 {
                     field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: length))
                 }
+                // A swap-state re-render can resign focus between clearing and typing; refocus so typeText won't throw.
+                if !field.hasFocus {
+                    field.tap()
+                }
                 field.typeText(amount)
                 if field.waitForValue(timeout: .quick, where: { $0.filter { $0.isNumber || $0 == "." } == expectedDigits }) {
                     return
@@ -486,12 +490,13 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
             waitAndAssertTrue(receiveTokenSelector, "Receive token selector should exist")
             receiveTokenSelector.waitAndTap()
 
+            // Searching expands all account sections, revealing the identical token regardless of collapse state.
+            let searchField = app.searchFields["Search"].firstMatch
+            waitAndAssertTrue(searchField, "Receive token selector search field should exist")
+            searchField.tap()
+            searchField.typeText(tokenName)
+
             let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
-            if !tokenButton.waitForExistence(timeout: .quick) {
-                let accountCard = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Account")).firstMatch
-                waitAndAssertTrue(accountCard, "An account card should be visible in the receive token selector")
-                accountCard.waitAndTap()
-            }
             waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in receive token selector")
             tokenButton.waitAndTap()
             return self

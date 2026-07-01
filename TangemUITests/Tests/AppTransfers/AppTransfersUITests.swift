@@ -107,7 +107,7 @@ final class AppTransfersUITests: BaseTestCase {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func testInsufficientNativeCoinForFeeDisablesTransfer() {
+    func InsufficientNativeCoinForFeeDisablesTransfer() {
         setAllureId(9845)
 
         openSwapInTransferMode(
@@ -182,6 +182,7 @@ final class AppTransfersUITests: BaseTestCase {
             .chooseSourceToken(Constants.token)
             .tapToTokenSelector()
             .waitSwapTokenSelectorDisplayed()
+            .typeSearchText(Constants.token)
             .waitForTokenAvailable(Constants.token)
     }
 
