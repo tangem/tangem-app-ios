@@ -51,7 +51,7 @@ private extension MarketsPortfolioTokenListRowView {
 
     func noAddressLabel() -> some View {
         Text(viewModel.noAddressText)
-            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.secondary)
+            .style(Font.Tangem.Caption12.semibold, color: .Tangem.Text.Neutral.tertiary)
             .lineLimit(1)
     }
 
