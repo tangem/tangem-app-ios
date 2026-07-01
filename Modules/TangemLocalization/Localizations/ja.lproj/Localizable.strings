@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "アドレスを追加し、ネットワークを選択してください。";
 "address_book_add_address" = "アドレスを追加";
 "address_book_add_contact" = "連絡先を追加";
+"address_book_address_copied" = "Address copied";
 "address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "連絡先名";
@@ -727,6 +728,11 @@
 "manage_tokens_toast_portfolio_updated" = "ポートフォリオが更新されました";
 "manage_tokens_wallet_selector_title" = "ウォレットを選択";
 "manage_tokens_wallet_support_only_one_network_title" = "ウォレットは複数のネットワークをサポートしていません。";
+"market_chart_ai_total" = "Al Total:";
+"market_chart_buble_no_data" = "No data";
+"market_chart_buble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@%%";
 "markets_about_coin_header" = "コインについて";
 "markets_add_to_my_portfolio_description" = "このアセットを購入・交換・受け取るには、ポートフォリオに追加してください。";
 "markets_add_to_my_portfolio_unavailable_description" = "このアセットは現在ウォレットで利用できません";
