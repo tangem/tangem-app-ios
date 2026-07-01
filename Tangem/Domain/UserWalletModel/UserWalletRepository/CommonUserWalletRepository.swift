@@ -23,7 +23,9 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     var shouldLockOnBackground: Bool {
-        if isLocked {
+        let (locked, models) = lock { ($0.locked, $0.models) }
+
+        if locked {
             return false
         }
 
@@ -180,6 +182,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
             // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
         } else {
+            let models = models
             let selectedModel = selectedModel
 
             accessCodeRepository.clear()
@@ -196,10 +199,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
                 Log.error("Failed to delete mobile sdk data: \(error.localizedDescription)")
             }
 
-            let otherUserWallets = models.filter { $0.userWalletId != selectedUserWalletId }
+            let otherUserWallets = models.filter { $0.userWalletId != selectedModel?.userWalletId }
 
             if let selectedModel {
-                models = [selectedModel]
+                self.models = [selectedModel]
             }
 
             sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }, isRepositoryEmpty: false))
@@ -226,6 +229,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
     /// Clean all data for specific user wallet
     func delete(userWalletId: UserWalletId) {
+        let models = models
+
         guard let currentIndex = models.firstIndex(where: { $0.userWalletId == userWalletId }) else {
             return
         }
@@ -242,18 +247,19 @@ final class CommonUserWalletRepository: UserWalletRepository {
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
 
         let removedModels = models.filter { $0.userWalletId == userWalletId }
-        lock { $0.models.removeAll { $0.userWalletId == userWalletId } }
-        userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
+        let remainingModels = models.filter { $0.userWalletId != userWalletId }
+        self.models = remainingModels
+        userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: remainingModels.compactMap { $0.serializePublic() })
 
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
-        sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
+        sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: remainingModels.isEmpty))
 
-        if models.isEmpty {
+        if remainingModels.isEmpty {
             supportChatTokenStorage.clear()
             lockInternal()
         } else {
-            let newModel = models[nextSelectionIndex]
+            let newModel = remainingModels[nextSelectionIndex]
             select(userWalletId: newModel.userWalletId)
         }
 
@@ -261,6 +267,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func reorder(orderedUserWalletIds: [UserWalletId]) {
+        let models = models
         let currentIds = models.map(\.userWalletId)
 
         // Early return if order is unchanged
@@ -283,7 +290,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         let modelsByIds = models.reduce(into: [UserWalletId: UserWalletModel]()) { result, model in
             result[model.userWalletId] = model
         }
-        models = orderedUserWalletIds.compactMap { modelsByIds[$0] }
+        self.models = orderedUserWalletIds.compactMap { modelsByIds[$0] }
 
         savePublicData()
         sendEvent(.reordered(orderedUserWalletIds: orderedUserWalletIds))
@@ -305,6 +312,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         // some wallets may be unprotected and should be ignored during unlock.
         // Otherwise, they would produce non-empty `sensitiveInfos` and prevent
         // the biometrics-changed error from being propagated.
+        let models = models
         let userWalletIds = models.filter(\.isUserWalletLocked).map { $0.userWalletId }
         let encryptionKeys = try userWalletEncryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
@@ -336,7 +344,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         let unlockedUserWalletIds = Set(unlockedModels.map(\.userWalletId))
         let replacedLockedModels = models.filter { $0.isUserWalletLocked && unlockedUserWalletIds.contains($0.userWalletId) }
 
-        models = unlockedModels
+        self.models = unlockedModels
 
         replacedLockedModels.forEach { $0.dispose() }
     }
