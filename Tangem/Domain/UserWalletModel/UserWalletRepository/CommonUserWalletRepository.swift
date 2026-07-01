@@ -32,23 +32,33 @@ final class CommonUserWalletRepository: UserWalletRepository {
         return hasProtected
     }
 
-    var isLocked: Bool { _locked }
+    var isLocked: Bool { lock { $0.locked } }
 
     var selectedModel: UserWalletModel? {
-        if let selectedUserWalletId {
-            return models[selectedUserWalletId]
-        }
+        lock { state in
+            guard let selectedUserWalletId = state.selectedUserWalletId else {
+                return nil
+            }
 
-        return nil
+            return state.models[selectedUserWalletId]
+        }
     }
 
-    var selectedUserWalletId: UserWalletId?
+    var selectedUserWalletId: UserWalletId? {
+        get { lock { $0.selectedUserWalletId } }
+        set { lock { $0.selectedUserWalletId = newValue } }
+    }
 
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
         eventSubject.eraseToAnyPublisher()
     }
 
-    private(set) var models = [UserWalletModel]()
+    private(set) var models: [UserWalletModel] {
+        get { lock { $0.models } }
+        set { lock { $0.models = newValue } }
+    }
+
+    private let lock = OSAllocatedUnfairLock(initialState: State())
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
@@ -56,7 +66,6 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private var bag: Set<AnyCancellable> = .init()
-    private var _locked: Bool = true
 
     deinit {
         AppLogger.debug("CommonUserWalletRepository deinit")
@@ -433,7 +442,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func unlockInternal() {
-        _locked = false
+        lock { $0.locked = false }
         sendEvent(.unlocked)
     }
 
@@ -456,12 +465,20 @@ final class CommonUserWalletRepository: UserWalletRepository {
             models = []
         }
 
-        _locked = true
+        lock { $0.locked = true }
         sendEvent(.locked)
     }
 
     private func sendEvent(_ event: UserWalletRepositoryEvent) {
         eventSubject.send(event)
+    }
+}
+
+private extension CommonUserWalletRepository {
+    struct State {
+        var models: [UserWalletModel] = []
+        var selectedUserWalletId: UserWalletId?
+        var locked = true
     }
 }
 
