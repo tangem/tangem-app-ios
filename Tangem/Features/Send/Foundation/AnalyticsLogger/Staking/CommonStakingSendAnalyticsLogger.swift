@@ -107,7 +107,6 @@ extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
     }
 
     func logNoRawTransactions() {
-        // No raw transaction data available — possible blind signing attempt
         logEvent(blockaidValue: .blockaidNotPerformed, mobileCheckValue: .false)
     }
 
