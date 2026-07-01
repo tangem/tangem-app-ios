@@ -335,7 +335,7 @@ extension TransactionViewModel {
         case wallet(name: String)
         case accountInWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
         /// Pre-rendered blockies are carried alongside the address so the SwiftUI body doesn't
-        /// rebuild `AddressIconViewModel` on every recomputation (long lists scroll-allocate).
+        /// regenerate the blockies image on every recomputation (long lists scroll-allocate).
         case unresolved(short: String, fullAddress: String, blockiesImage: UIImage?)
 
         static func == (lhs: SubtitleOwner, rhs: SubtitleOwner) -> Bool {

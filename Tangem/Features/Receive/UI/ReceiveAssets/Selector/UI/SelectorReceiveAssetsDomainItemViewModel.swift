@@ -14,6 +14,8 @@ class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
         domainName
     }
 
+    let addressIcon: AddressBlockiesIconViewData
+
     // MARK: - Private Properties
 
     private let domainName: String
@@ -33,6 +35,8 @@ class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
         self.addressInfo = addressInfo
         self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
+
+        addressIcon = AddressIconProvider.makeBlockiesIconViewData(address: domainName)
     }
 
     // MARK: - Actions
