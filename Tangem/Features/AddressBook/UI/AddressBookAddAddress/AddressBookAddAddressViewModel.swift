@@ -41,7 +41,8 @@ final class AddressBookAddAddressViewModel: ObservableObject, Identifiable {
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
             address: .init(string: "", source: .textField),
-            title: Localization.commonAddress
+            title: Localization.commonAddress,
+            iconStyle: .blockies
         )
 
         destinationAddressViewModel.router = self

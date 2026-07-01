@@ -23,6 +23,7 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var isValidating: Bool = false
     @Published private(set) var addressIconType: AddressIconProviderViewType?
 
+    private let iconStyle: IconStyle
     private var shouldIgnoreClearButton: Bool = false
 
     var text: BindingValue<String> {
@@ -35,11 +36,12 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 
     weak var router: SendDestinationAddressViewRoutable?
 
-    init(textViewModel: SUITextViewModel, address: Address, title: String = Localization.sendRecipient) {
+    init(textViewModel: SUITextViewModel, address: Address, title: String = Localization.sendRecipient, iconStyle: IconStyle = .automatic) {
         self.textViewModel = textViewModel
         self.address = address
         self.title = title
-        addressIconType = AddressIconProvider.makeViewType(address: address.string)
+        self.iconStyle = iconStyle
+        addressIconType = Self.makeIcon(for: address.string, style: iconStyle)
 
         bind()
     }
@@ -49,12 +51,24 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
         addressPublisher()
             .dropFirst()
             .receiveOnMain()
-            .map { AddressIconProvider.makeViewType(address: $0.string) }
+            .map { [iconStyle] in Self.makeIcon(for: $0.string, style: iconStyle) }
             .assign(to: &$addressIconType)
     }
 
     func addressPublisher() -> AnyPublisher<Address, Never> {
         $address.eraseToAnyPublisher()
+    }
+
+    private static func makeIcon(for address: String, style: IconStyle) -> AddressIconProviderViewType? {
+        switch style {
+        case .automatic: AddressIconProvider.makeViewType(address: address)
+        case .blockies: .blockies(AddressIconProvider.makeBlockiesIconViewData(address: address))
+        }
+    }
+
+    enum IconStyle {
+        case automatic
+        case blockies
     }
 
     func update(error: String?) {
