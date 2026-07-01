@@ -1460,7 +1460,7 @@ extension SwapModel: SendFeeInput {
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughBalanceForSwapping, _)):
             return !selected.getState().isPermissionRequired
         case .loaded(.transfer, .restriction):
-            // Keep the fee row tappable so a too-high custom fee can be lowered; transfers have no approve flow.
+            // Keep the fee row visible so a too-high custom fee can be lowered; transfers have no approve flow.
             return true
         case .loaded(_, .previewCEX(let previewCEX)):
             return !previewCEX.isExemptFee
