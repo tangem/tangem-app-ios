@@ -23,7 +23,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     var shouldLockOnBackground: Bool {
-        let (locked, models) = lock { ($0.locked, $0.models) }
+        let (locked, models) = stateLock { ($0.locked, $0.models) }
 
         if locked {
             return false
@@ -34,10 +34,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
         return hasProtected
     }
 
-    var isLocked: Bool { lock { $0.locked } }
+    var isLocked: Bool { stateLock { $0.locked } }
 
     var selectedModel: UserWalletModel? {
-        lock { state in
+        stateLock { state in
             guard let selectedUserWalletId = state.selectedUserWalletId else {
                 return nil
             }
@@ -47,8 +47,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     var selectedUserWalletId: UserWalletId? {
-        get { lock { $0.selectedUserWalletId } }
-        set { lock { $0.selectedUserWalletId = newValue } }
+        get { stateLock { $0.selectedUserWalletId } }
+        set { stateLock { $0.selectedUserWalletId = newValue } }
     }
 
     var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
@@ -56,11 +56,11 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models: [UserWalletModel] {
-        get { lock { $0.models } }
-        set { lock { $0.models = newValue } }
+        get { stateLock { $0.models } }
+        set { stateLock { $0.models = newValue } }
     }
 
-    private let lock = OSAllocatedUnfairLock(initialState: State())
+    private let stateLock = OSAllocatedUnfairLock(initialState: State())
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
@@ -120,7 +120,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func add(userWalletModel: UserWalletModel) throws {
-        let shouldShowInsertedEvent = try lock { state -> Bool in
+        let shouldShowInsertedEvent = try stateLock { state -> Bool in
             guard !state.models.contains(where: { $0.userWalletId == userWalletModel.userWalletId }) else {
                 throw UserWalletRepositoryError.duplicateWalletAdded
             }
@@ -186,7 +186,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
             // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
         } else {
-            let (models, selectedModel) = lock { state -> ([UserWalletModel], UserWalletModel?) in
+            let (models, selectedModel) = stateLock { state -> ([UserWalletModel], UserWalletModel?) in
                 let selectedModel = state.selectedUserWalletId.flatMap { state.models[$0] }
                 return (state.models, selectedModel)
             }
@@ -358,7 +358,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
         try _handleUnlock(context: context)
 
-        let userWalletIdToSelect = lock { $0.selectedUserWalletId ?? $0.models.first?.userWalletId }
+        let userWalletIdToSelect = stateLock { $0.selectedUserWalletId ?? $0.models.first?.userWalletId }
 
         guard let userWalletIdToSelect else {
             throw UserWalletRepositoryError.cantSelectWallet
@@ -415,7 +415,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.cantUnlockWallet
         }
 
-        lock { $0.models[userWalletId] = unlockedModel }
+        stateLock { $0.models[userWalletId] = unlockedModel }
         await unlockUnprotectedMobileWalletsIfNeeded()
 
         sendEvent(.unlockedWallet(userWalletId: userWalletId))
@@ -455,7 +455,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
                 // Replace only if the wallet is still present: it may have been
                 // removed while awaiting the unlockers above, and the by-id
                 // subscript would otherwise re-insert it.
-                lock { state in
+                stateLock { state in
                     if let index = state.models.firstIndex(where: { $0.userWalletId == userWalletId }) {
                         state.models[index] = unlockedModel
                     }
@@ -465,7 +465,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func unlockInternal() {
-        lock { $0.locked = false }
+        stateLock { $0.locked = false }
         sendEvent(.unlocked)
     }
 
@@ -488,7 +488,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
             updatedModels = []
         }
 
-        lock {
+        stateLock {
             $0.models = updatedModels
             $0.locked = true
         }
