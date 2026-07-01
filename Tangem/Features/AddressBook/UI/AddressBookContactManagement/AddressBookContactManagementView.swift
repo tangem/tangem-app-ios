@@ -99,6 +99,7 @@ struct AddressBookContactManagementView: View {
                     .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             }
         }
+        .padding(.top, 12)
     }
 
     private func makeColorItem(color: Color, isSelected: Bool) -> some View {
