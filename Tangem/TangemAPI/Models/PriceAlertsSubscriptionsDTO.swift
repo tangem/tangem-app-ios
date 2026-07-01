@@ -21,7 +21,7 @@ enum PriceAlertsSubscriptionsDTO {
         let status: String
     }
 
-    /// `GET` returns the list of `tokenId` the wallet is subscribed to.
+    /// `GET` returns the list of `tokenId` values the wallet is subscribed to.
     struct List: Decodable {
         let tokenIds: [String]
     }
