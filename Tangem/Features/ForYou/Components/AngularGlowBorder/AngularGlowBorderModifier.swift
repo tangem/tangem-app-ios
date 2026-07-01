@@ -23,6 +23,7 @@ extension View {
 
 struct AngularGlowBorderModifier: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// Margin so the centered stroke's clipped outer half (and the blur falloff feeding
     /// inward) is fully rendered before the rounded-box clip cuts the outer half.
     private let margin: CGFloat = 64
@@ -45,22 +46,30 @@ struct AngularGlowBorderModifier: ViewModifier {
 // MARK: - Rendering
 
 private extension AngularGlowBorderModifier {
+    @ViewBuilder
     func canvas(width w: CGFloat, height h: CGFloat) -> some View {
+        if reduceMotion {
+            // Reduce Motion: freeze to a static frame — no rotation/breathing/palette morph, and
+            // no per-frame redraw. Phase 0 keeps the shape at its widest (least distortion).
+            canvasContent(width: w, height: h, phase: 0, mix: 0)
+        } else {
+            TimelineView(.animation) { timeline in
+                let t = timeline.date.timeIntervalSinceReferenceDate
+                canvasContent(width: w, height: h, phase: phaseAngle(at: t), mix: morphMix(at: t))
+            }
+        }
+    }
+
+    func canvasContent(width w: CGFloat, height h: CGFloat, phase: Double, mix: CGFloat) -> some View {
         let m = margin
         let scheme = colorScheme
 
-        return TimelineView(.animation) { timeline in
-            let t = timeline.date.timeIntervalSinceReferenceDate
-            let phase = phaseAngle(at: t)
-            let mix = morphMix(at: t)
-
-            Canvas { context, size in
-                draw(into: &context, size: size, phase: phase, mix: mix, scheme: scheme)
-            }
-            .frame(width: w + 2 * m, height: h + 2 * m) // oversized canvas (holds outer half + blur)
-            .frame(width: w, height: h) // layout footprint = the box; canvas overflows centered
-            .clipShape(RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)) // clip AFTER blur
+        return Canvas { context, size in
+            draw(into: &context, size: size, phase: phase, mix: mix, scheme: scheme)
         }
+        .frame(width: w + 2 * m, height: h + 2 * m) // oversized canvas (holds outer half + blur)
+        .frame(width: w, height: h) // layout footprint = the box; canvas overflows centered
+        .clipShape(RoundedRectangle(cornerRadius: config.cornerRadius, style: .continuous)) // clip AFTER blur
     }
 
     func draw(into context: inout GraphicsContext, size: CGSize, phase: Double, mix: CGFloat, scheme: ColorScheme) {
