@@ -26,10 +26,10 @@ actor CommonTransactionHistoryAuxDataRepository {
     private var inFlightProvidersLoadTask: Task<Void, Never>?
     private var inFlightFiatCurrenciesLoadTask: Task<Void, Never>?
 
-    private var pendingCoins: [String: TokenItem] = [:]
-    private var inFlightCoinKeys: Set<String> = []
-    private var coinWaiters: [String: [CheckedContinuation<Void, Never>]] = [:]
-    private var coinsDebounceTask: Task<Void, Never>?
+    private var pendingCryptoCurrencies: [String: ExpressCurrency] = [:]
+    private var inFlightCryptoCurrencyKeys: Set<String> = []
+    private var cryptoCurrencyWaiters: [String: [CheckedContinuation<Void, Never>]] = [:]
+    private var cryptoCurrenciesDebounceTask: Task<Void, Never>?
 
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
     private let storage: UserDefaultsTransactionHistoryAuxDataStorage
@@ -110,31 +110,31 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
         return cache.fiatCurrencies[asset.currencyCode]
     }
 
-    // MARK: Coins
+    // MARK: Crypto currencies
 
-    nonisolated func coin(for tokenItem: TokenItem) -> CoinsList.Coin? {
-        let key = Self.makeCoinKey(for: tokenItem)
-        let cached = syncCache { $0.coins[key] }
+    nonisolated func cryptoCurrency(for currency: ExpressCurrency) -> TokenItem? {
+        let key = Self.makeCryptoCurrencyKey(for: currency)
+        let cached = syncCache { $0.cryptoCurrencies[key] }
 
         if cached == nil {
             Task { [self] in
-                await ensureCoinLoaded(tokenItem, key: key, waitForResult: false)
+                await ensureCryptoCurrencyLoaded(currency, key: key, waitForResult: false)
             }
         }
 
         return cached
     }
 
-    func coin(for tokenItem: TokenItem) async -> CoinsList.Coin? {
-        let key = Self.makeCoinKey(for: tokenItem)
+    func cryptoCurrency(for currency: ExpressCurrency) async -> TokenItem? {
+        let key = Self.makeCryptoCurrencyKey(for: currency)
 
-        if let cached = cache.coins[key] {
+        if let cached = cache.cryptoCurrencies[key] {
             return cached
         }
 
-        await ensureCoinLoaded(tokenItem, key: key, waitForResult: true)
+        await ensureCryptoCurrencyLoaded(currency, key: key, waitForResult: true)
 
-        return cache.coins[key]
+        return cache.cryptoCurrencies[key]
     }
 }
 
@@ -243,17 +243,17 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 }
 
-// MARK: - Coins loading
+// MARK: - Crypto currencies loading
 
 private extension CommonTransactionHistoryAuxDataRepository {
-    func ensureCoinLoaded(_ tokenItem: TokenItem, key: String, waitForResult: Bool) async {
-        if cache.coins[key] != nil {
+    func ensureCryptoCurrencyLoaded(_ currency: ExpressCurrency, key: String, waitForResult: Bool) async {
+        if cache.cryptoCurrencies[key] != nil {
             return
         }
 
-        if !inFlightCoinKeys.contains(key) {
-            pendingCoins[key] = tokenItem
-            armCoinsDebounce()
+        if !inFlightCryptoCurrencyKeys.contains(key) {
+            pendingCryptoCurrencies[key] = currency
+            armCryptoCurrenciesDebounce()
         }
 
         guard waitForResult else {
@@ -261,62 +261,75 @@ private extension CommonTransactionHistoryAuxDataRepository {
         }
 
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            if cache.coins[key] != nil {
+            if cache.cryptoCurrencies[key] != nil {
                 continuation.resume()
 
                 return
             }
 
-            coinWaiters[key, default: []].append(continuation)
+            cryptoCurrencyWaiters[key, default: []].append(continuation)
         }
     }
 
-    func armCoinsDebounce() {
-        coinsDebounceTask?.cancel()
-        coinsDebounceTask = Task { [self] in
+    func armCryptoCurrenciesDebounce() {
+        cryptoCurrenciesDebounceTask?.cancel()
+        cryptoCurrenciesDebounceTask = Task { [self] in
             try? await Task.sleep(for: Constants.debounce)
 
             guard !Task.isCancelled else {
                 return
             }
 
-            await flushPendingCoins()
+            await flushPendingCryptoCurrencies()
         }
     }
 
-    func flushPendingCoins() async {
-        let batch = pendingCoins // claim atomically (no await above → no interleave)
+    func flushPendingCryptoCurrencies() async {
+        let batch = pendingCryptoCurrencies // claim atomically (no await above → no interleave)
 
         guard !batch.isEmpty else {
             return
         }
 
-        pendingCoins.removeAll()
-        inFlightCoinKeys.formUnion(batch.keys)
+        pendingCryptoCurrencies.removeAll()
+        inFlightCryptoCurrencyKeys.formUnion(batch.keys)
 
-        await performCoinsLoad(batch)
+        await performCryptoCurrenciesLoad(batch)
     }
 
-    func performCoinsLoad(_ batch: [String: TokenItem]) async {
+    func performCryptoCurrenciesLoad(_ batch: [String: ExpressCurrency]) async {
         defer {
-            inFlightCoinKeys.subtract(batch.keys)
-            resumeCoinWaiters(for: Set(batch.keys)) // resume on success AND failure so callers never hang
+            inFlightCryptoCurrencyKeys.subtract(batch.keys)
+            resumeCryptoCurrencyWaiters(for: Set(batch.keys)) // resume on success AND failure so callers never hang
         }
 
         do {
-            let tokenItems = Array(batch.values)
+            let currencies = Array(batch.values)
+            let networkIds = Set(currencies.map(\.network))
+            // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, while the actual list
+            // of blockchains is derived from `batch` hence all of them guaranteed to be supported
+            let allSupportedBlockchains = SupportedBlockchains.all
+            let blockchains = Set(networkIds.compactMap { allSupportedBlockchains[$0] })
+            let contractAddresses = currencies
+                .map(\.contractAddress)
+                .filter { $0 != ExpressConstants.coinContractAddress }
+
             let request = CoinsList.Request(
-                supportedBlockchains: Set(tokenItems.map(\.blockchain)),
-                contractAddresses: tokenItems.compactMap(\.contractAddress).nilIfEmpty
+                supportedBlockchains: blockchains,
+                contractAddresses: contractAddresses.nilIfEmpty
             )
             let response = try await tangemApiService.loadCoins(requestModel: request)
-            let resolved = Self.makeResolvedCoins(from: response.coins, requestedKeys: Set(batch.keys))
+            let tokenItems = Self.makeTokenItems(
+                from: response,
+                supportedBlockchains: blockchains,
+                requestedKeys: Set(batch.keys)
+            )
 
             var changed = false
 
-            for (key, coin) in resolved {
-                if cache.coins[key] == nil {
-                    cache.coins[key] = coin
+            for (key, tokenItem) in tokenItems {
+                if cache.cryptoCurrencies[key] == nil {
+                    cache.cryptoCurrencies[key] = tokenItem
                     changed = true
                 }
             }
@@ -326,16 +339,16 @@ private extension CommonTransactionHistoryAuxDataRepository {
             }
 
             mirrorToSyncCache()
-            persistCoins()
+            persistCryptoCurrencies()
             subscribers.yield(())
         } catch {
-            TransactionHistoryLogger.error(self, "Failed to load coins", error: error)
+            TransactionHistoryLogger.error(self, "Failed to load crypto currencies", error: error)
         }
     }
 
-    func resumeCoinWaiters(for keys: Set<String>) {
+    func resumeCryptoCurrencyWaiters(for keys: Set<String>) {
         for key in keys {
-            guard let waiters = coinWaiters.removeValue(forKey: key) else {
+            guard let waiters = cryptoCurrencyWaiters.removeValue(forKey: key) else {
                 continue
             }
 
@@ -357,8 +370,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
         storage.fiatCurrencies = Array(cache.fiatCurrencies.values)
     }
 
-    func persistCoins() {
-        storage.coins = cache.coins
+    func persistCryptoCurrencies() {
+        storage.cryptoCurrencies = cache.cryptoCurrencies
     }
 
     func mirrorToSyncCache() {
@@ -374,7 +387,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
     struct Cache {
         var providers: [ExpressProvider.Id: ExpressProvider] = [:]
         var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
-        var coins: [String: CoinsList.Coin] = [:]
+        var cryptoCurrencies: [String: TokenItem] = [:]
     }
 
     static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
@@ -388,7 +401,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             cache.fiatCurrencies[currency.identity.code] = currency
         }
 
-        cache.coins = storage.coins
+        cache.cryptoCurrencies = storage.cryptoCurrencies
 
         return cache
     }
@@ -397,24 +410,34 @@ private extension CommonTransactionHistoryAuxDataRepository {
         static let debounce: Duration = .milliseconds(300)
     }
 
-    static func makeCoinKey(networkId: String, contractAddress: String?) -> String {
+    static func makeCryptoCurrencyKey(networkId: String, contractAddress: String?) -> String {
         return "\(networkId)_\(contractAddress ?? "")"
     }
 
-    static func makeCoinKey(for tokenItem: TokenItem) -> String {
-        return makeCoinKey(networkId: tokenItem.networkId, contractAddress: tokenItem.contractAddress)
+    static func makeCryptoCurrencyKey(for currency: ExpressCurrency) -> String {
+        // A native coin's contract address is a sentinel, normalized to `nil` to match `TokenItem`.
+        let contractAddress = currency.contractAddress == ExpressConstants.coinContractAddress ? nil : currency.contractAddress
+
+        return makeCryptoCurrencyKey(networkId: currency.network, contractAddress: contractAddress)
     }
 
-    /// A `Coin` carries `networks: [NetworkModel]`, so one `Coin` can satisfy several requested keys.
-    static func makeResolvedCoins(from coins: [CoinsList.Coin], requestedKeys: Set<String>) -> [String: CoinsList.Coin] {
-        var result: [String: CoinsList.Coin] = [:]
+    static func makeTokenItems(
+        from response: CoinsList.Response,
+        supportedBlockchains: Set<Blockchain>,
+        requestedKeys: Set<String>
+    ) -> [String: TokenItem] {
+        let coinModels = CoinsResponseMapper(supportedBlockchains: supportedBlockchains).mapToCoinModels(response)
+        var result: [String: TokenItem] = [:]
 
-        for coin in coins {
-            for network in coin.networks {
-                let key = makeCoinKey(networkId: network.networkId, contractAddress: network.contractAddress)
+        for coinModel in coinModels {
+            for item in coinModel.items {
+                let key = makeCryptoCurrencyKey(
+                    networkId: item.tokenItem.networkId,
+                    contractAddress: item.tokenItem.contractAddress
+                )
 
                 if requestedKeys.contains(key) {
-                    result[key] = coin
+                    result[key] = item.tokenItem
                 }
             }
         }

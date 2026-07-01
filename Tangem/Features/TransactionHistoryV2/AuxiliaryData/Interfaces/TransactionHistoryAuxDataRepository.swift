@@ -31,8 +31,8 @@ protocol TransactionHistoryAuxDataRepository: Sendable {
     // MARK: Crypto currencies
 
     /// - Note: Fires a background load on a cache miss.
-    nonisolated func coin(for tokenItem: TokenItem) -> CoinsList.Coin?
+    nonisolated func cryptoCurrency(for currency: ExpressCurrency) -> TokenItem?
 
     /// - Note: Fires (and awaiting) a load on a cache miss.
-    func coin(for tokenItem: TokenItem) async -> CoinsList.Coin?
+    func cryptoCurrency(for currency: ExpressCurrency) async -> TokenItem?
 }

@@ -43,15 +43,15 @@ struct UserDefaultsTransactionHistoryAuxDataStorage {
         }
     }
 
-    var coins: [String: CoinsList.Coin] {
+    var cryptoCurrencies: [String: TokenItem] {
         get {
-            let coins: [String: CoinsList.Coin]? = dataStorage.get(key: StorageKey.coins.rawValue)
+            let cryptoCurrencies: [String: TokenItem]? = dataStorage.get(key: StorageKey.cryptoCurrencies.rawValue)
 
-            return coins ?? [:]
+            return cryptoCurrencies ?? [:]
         }
         nonmutating set {
             dataStorage.store(
-                key: StorageKey.coins.rawValue,
+                key: StorageKey.cryptoCurrencies.rawValue,
                 value: newValue
             )
         }
@@ -64,7 +64,7 @@ private extension UserDefaultsTransactionHistoryAuxDataStorage {
     enum StorageKey: String {
         case providers = "TxHistoryAuxData_providers_v1"
         case currencies = "TxHistoryAuxData_currencies_v1"
-        case coins = "TxHistoryAuxData_coins_v1"
+        case cryptoCurrencies = "TxHistoryAuxData_cryptoCurrencies_v1"
     }
 }
 
