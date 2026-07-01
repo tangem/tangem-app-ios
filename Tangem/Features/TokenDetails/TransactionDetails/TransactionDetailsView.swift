@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 
 struct TransactionDetailsView: View {
     @ObservedObject var viewModel: TransactionDetailsViewModel
