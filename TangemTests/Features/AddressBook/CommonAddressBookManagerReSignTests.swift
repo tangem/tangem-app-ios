@@ -26,7 +26,7 @@ struct CommonAddressBookManagerReSignTests {
         let manager = makeManager(repository: repository, signer: RecordingSigner())
 
         let movedId = AddressBookContactID()
-        try await manager.reSignContact(id: movedId, name: name("Alice"), iconColor: "MexicanPink", entries: draftEntries())
+        try await manager.reSignContact(id: movedId, name: name("Alice"), appearance: AddressBookContactAppearance(rawColor: "MexicanPink"), entries: draftEntries())
 
         #expect(repository.savedContacts.count == 1)
         #expect(repository.savedContacts.first?.id == movedId)
@@ -38,13 +38,13 @@ struct CommonAddressBookManagerReSignTests {
         let repository = FakeRepository()
         let manager = makeManager(repository: repository, signer: RecordingSigner())
 
-        let createdId = try await manager.createContact(name: name("Bob"), iconColor: "MexicanPink", entries: draftEntries(address: "bc1qbob"))
+        let createdId = try await manager.createContact(name: name("Bob"), appearance: AddressBookContactAppearance(rawColor: "MexicanPink"), entries: draftEntries(address: "bc1qbob"))
         #expect(repository.savedContacts.last?.id == createdId)
 
         let movedId = AddressBookContactID()
         #expect(movedId != createdId)
 
-        try await manager.reSignContact(id: movedId, name: name("Carol"), iconColor: "MexicanPink", entries: draftEntries(address: "bc1qcarol"))
+        try await manager.reSignContact(id: movedId, name: name("Carol"), appearance: AddressBookContactAppearance(rawColor: "MexicanPink"), entries: draftEntries(address: "bc1qcarol"))
         #expect(repository.savedContacts.last?.id == movedId)
     }
 
@@ -54,7 +54,7 @@ struct CommonAddressBookManagerReSignTests {
         let signer = RecordingSigner()
         let manager = makeManager(repository: repository, signer: signer)
 
-        try await manager.reSignContact(id: AddressBookContactID(), name: name("Dave"), iconColor: "MexicanPink", entries: draftEntries(address: "bc1qdave"))
+        try await manager.reSignContact(id: AddressBookContactID(), name: name("Dave"), appearance: AddressBookContactAppearance(rawColor: "MexicanPink"), entries: draftEntries(address: "bc1qdave"))
 
         #expect(signer.signedWalletPublicKeys == [walletPublicKey])
 
@@ -73,7 +73,7 @@ struct CommonAddressBookManagerReSignTests {
         let manager = makeManager(repository: repository, signer: RecordingSigner())
 
         let movedId = AddressBookContactID()
-        try await manager.reSignContact(id: movedId, name: name("Newcomer"), iconColor: "MexicanPink", entries: draftEntries())
+        try await manager.reSignContact(id: movedId, name: name("Newcomer"), appearance: AddressBookContactAppearance(rawColor: "MexicanPink"), entries: draftEntries())
 
         #expect(repository.savedContacts.map(\.id) == [existing.id, movedId])
     }
@@ -87,7 +87,7 @@ struct CommonAddressBookManagerReSignTests {
         let entries = draftEntries()
 
         await #expect(throws: AddressBookValidationError.self) {
-            try await manager.reSignContact(id: AddressBookContactID(), name: duplicateName, iconColor: "MexicanPink", entries: entries)
+            try await manager.reSignContact(id: AddressBookContactID(), name: duplicateName, appearance: AddressBookContactAppearance(rawColor: "MexicanPink"), entries: entries)
         }
         #expect(repository.savedContacts.isEmpty)
     }
