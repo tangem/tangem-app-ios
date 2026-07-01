@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "Elegir wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "La billetera no admite más de una red";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "No es una dirección válida";
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en **la red %@** para evitar perder sus tokens";
 "send_recipient_memo_footer_v2_highlighted" = "Atención: La omisión del campo Memo puede provocar la pérdida de fondos.";
+"send_recipient_memo_footer_v2" = "Memo / Destination Tag es un código que separa las transacciones dirigidas a un destinatario compartido en una red de criptomonedas.";
 "send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red.\n**Precaución: Omitir un memo puede llevar a la pérdida de fondos**";
 "send_recipient_wallets_title" = "Mis billeteras";
 "send_recipient" = "Destinatario";
