@@ -120,12 +120,16 @@ final class CommonUserWalletRepository: UserWalletRepository {
     }
 
     func add(userWalletModel: UserWalletModel) throws {
-        guard !models.contains(where: { $0.userWalletId == userWalletModel.userWalletId }) else {
-            throw UserWalletRepositoryError.duplicateWalletAdded
+        let shouldShowInsertedEvent = try lock { state -> Bool in
+            guard !state.models.contains(where: { $0.userWalletId == userWalletModel.userWalletId }) else {
+                throw UserWalletRepositoryError.duplicateWalletAdded
+            }
+
+            let shouldShowInsertedEvent = state.models.isNotEmpty
+            state.models.append(userWalletModel)
+            return shouldShowInsertedEvent
         }
 
-        let shouldShowInsertedEvent = models.isNotEmpty
-        lock { $0.models.append(userWalletModel) }
         if shouldShowInsertedEvent {
             sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
         }
@@ -354,7 +358,9 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private func handleUnlock(context: LAContext) throws -> UserWalletModel {
         try _handleUnlock(context: context)
 
-        guard let userWalletIdToSelect = selectedUserWalletId ?? models.first.map({ $0.userWalletId }) else {
+        let userWalletIdToSelect = lock { $0.selectedUserWalletId ?? $0.models.first?.userWalletId }
+
+        guard let userWalletIdToSelect else {
             throw UserWalletRepositoryError.cantSelectWallet
         }
 
@@ -446,7 +452,14 @@ final class CommonUserWalletRepository: UserWalletRepository {
             let userWalletId = UserWalletId(value: entry.userWalletId)
             if let sensitiveInfo = sensitiveInfos[userWalletId],
                let unlockedModel = CommonUserWalletModelFactory().makeModel(publicData: entry, sensitiveData: sensitiveInfo) {
-                lock { $0.models[userWalletId] = unlockedModel }
+                // Replace only if the wallet is still present: it may have been
+                // removed while awaiting the unlockers above, and the by-id
+                // subscript would otherwise re-insert it.
+                lock { state in
+                    if let index = state.models.firstIndex(where: { $0.userWalletId == userWalletId }) {
+                        state.models[index] = unlockedModel
+                    }
+                }
             }
         }
     }
