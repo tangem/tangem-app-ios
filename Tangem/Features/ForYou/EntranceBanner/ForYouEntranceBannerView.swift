@@ -23,7 +23,6 @@ struct ForYouEntranceBannerView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(background)
         .angularGlowBorder(config: .magic)
-        .clipShape(RoundedRectangle(cornerRadius: .unit(.x6), style: .continuous))
     }
 }
 
