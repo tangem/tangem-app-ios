@@ -55,7 +55,6 @@ struct SupportChatView: View {
                 ],
                 onMakeWebView: { bridge.webView = $0 }
             )
-            .ignoresSafeArea(.container, edges: .bottom)
 
             switch viewModel.loadState {
             case .loading:
@@ -71,6 +70,7 @@ struct SupportChatView: View {
                 EmptyView()
             }
         }
+        .background(Color.white.ignoresSafeArea(edges: .bottom))
     }
 
     private var navBarMenu: some View {
