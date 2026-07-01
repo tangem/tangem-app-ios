@@ -334,6 +334,17 @@ extension UserWalletView {
                             onNormalizedOffsetYChanged(contentOffsetY + refreshIndicatorHeight, nil)
                         }
                     )
+                    .modifyView { view in
+                        if #unavailable(iOS 17.0) {
+                            view
+                                .clipToBoundsDisableBackport()
+                                .task {
+                                    onNormalizedOffsetYChanged(0, nil)
+                                }
+                        } else {
+                            view
+                        }
+                    }
                 }
                 .scrollDisabled(scrollDisabled)
                 .coordinateSpace(name: RefreshableConstants.coordinateSpaceName)
@@ -380,4 +391,41 @@ extension UserWalletView {
             .accessibilityIdentifier(refreshTask == nil ? MainAccessibilityIdentifiers.refreshStateIdle : MainAccessibilityIdentifiers.refreshStateRefreshing)
         }
     }
+}
+
+// MARK: - iOS 16 ScrollView clip backport
+
+@available(iOS, obsoleted: 17.0, message: "Remove this extension and related types entirely.")
+private extension View {
+    func clipToBoundsDisableBackport() -> some View {
+        background(
+            ClipToBoundsDisabler()
+                .frame(width: .zero, height: .zero)
+                .accessibilityHidden(true)
+        )
+    }
+}
+
+private final class ClipToBoundsDisablerUIView: UIView {
+    override func didMoveToWindow() {
+        // [REDACTED_USERNAME], SwiftUIIntrospect's traversal fails inside UIHostingConfiguration — see MainHorizontalPagingScrollView+Backport.swift.
+        // Waiting for didMoveToWindow guarantees the cell is in the live window hierarchy before walking the superview chain.
+
+        super.didMoveToWindow()
+        guard window != nil else { return }
+
+        var candidate = superview
+        while let view = candidate {
+            if let scrollView = view as? UIScrollView {
+                scrollView.clipsToBounds = false
+                return
+            }
+            candidate = view.superview
+        }
+    }
+}
+
+private struct ClipToBoundsDisabler: UIViewRepresentable {
+    func makeUIView(context: Context) -> ClipToBoundsDisablerUIView { ClipToBoundsDisablerUIView() }
+    func updateUIView(_ uiView: ClipToBoundsDisablerUIView, context: Context) {}
 }

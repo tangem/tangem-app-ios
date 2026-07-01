@@ -971,7 +971,7 @@ extension SwapModel {
         let expressSentResult = ExpressTransactionSentResult(
             hash: result.hash,
             source: source.tokenItem.expressCurrency,
-            address: source.defaultAddressString,
+            address: data.sourceAddress ?? source.defaultAddressString,
             data: data
         )
 
@@ -1661,19 +1661,26 @@ extension SwapModel: SwapSummaryInput, SwapSummaryOutput {
         fee: TokenFee
     ) -> SendSummaryTransactionData? {
         switch providersState {
-        case .loaded(.swap(let selected, _), _):
+        case .loaded(.swap(let selected, _), let loadedState):
             guard let provider = selected,
                   let sourceTokenItem = _sourceToken.value.value?.tokenItem else {
                 return nil
             }
 
-            return .swap(amount: amount, fee: fee, provider: provider.provider, sourceTokenItem: sourceTokenItem)
-        case .loaded(_, .readyToTransfer):
+            // Drop the fee from the displayed amount only when it's drawn from the amount itself
+            // (whole balance sent in the fee currency); otherwise the fee is added on top.
+            let subtractFee: Decimal = switch loadedState {
+            case .previewCEX(let state): state.subtractFee.subtractFee
+            default: .zero
+            }
+            let adjustedAmount = amount.map { $0 - subtractFee }
+            return .swap(amount: adjustedAmount, fee: fee, provider: provider.provider, sourceTokenItem: sourceTokenItem)
+        case .loaded(_, .readyToTransfer(let state)):
             guard let amount else {
                 return nil
             }
 
-            return .send(amount: amount, fee: fee)
+            return .send(amount: amount - state.subtractFee.subtractFee, fee: fee)
         default:
             return .none
         }
@@ -1828,7 +1835,9 @@ extension SwapModel: NotificationTapDelegate {
              .openPushNotificationsSystemSettings,
              .openYieldBoostPromo,
              .yieldBoostPromoLater,
-             .addFunds:
+             .addFunds,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             assertionFailure("Notification tap not handled")
         }
     }

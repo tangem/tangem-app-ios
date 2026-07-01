@@ -21,7 +21,7 @@ protocol AddressActionsRoutable: AnyObject {
 }
 
 final class AddressActionsViewModel: FloatingSheetContentViewModel {
-    let addressIconViewModel: AddressIconViewModel
+    let addressIcon: AddressBlockiesIconViewData
     let address: String
     let networksSubtitle: String
 
@@ -38,7 +38,7 @@ final class AddressActionsViewModel: FloatingSheetContentViewModel {
         self.output = output
         self.routable = routable
 
-        addressIconViewModel = AddressIconViewModel(address: group.address)
+        addressIcon = AddressIconProvider.makeBlockiesIconViewData(address: group.address)
         address = AddressFormatter(address: group.address).truncated(prefixLimit: 12, suffixLimit: 12)
         networksSubtitle = Localization.commonNetworksCount(group.networks.count)
     }
