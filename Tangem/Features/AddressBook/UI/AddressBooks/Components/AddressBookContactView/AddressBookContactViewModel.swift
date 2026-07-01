@@ -14,8 +14,7 @@ struct AddressBookContactViewModel: Identifiable {
 
     let title: String
     let subtitle: String
-    let letter: String
-    let iconColor: Color
+    let iconViewData: AddressBookContactNameIconViewData
 
     let action: () -> Void
 
@@ -26,8 +25,7 @@ struct AddressBookContactViewModel: Identifiable {
         id = contact.id.stringValue
         title = name
         subtitle = [walletName, addresses].compactMap { $0 }.joined(separator: " \(AppConstants.dotSign) ")
-        letter = "\(name.prefix(1).uppercased())"
-        iconColor = CompositeIconColorPalette.color(for: contact.appearance.color)
+        iconViewData = .init(contact: contact)
 
         self.action = action
     }

@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Agregue la dirección y seleccione la red";
 "address_book_add_address" = "Agregar dirección";
 "address_book_add_contact" = "Añadir contacto";
+"address_book_address_copied" = "Address copied";
 "address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nombre de contacto";
@@ -727,6 +728,12 @@
 "manage_tokens_toast_portfolio_updated" = "Su portafolio ha sido actualizada";
 "manage_tokens_wallet_selector_title" = "Elegir wallet";
 "manage_tokens_wallet_support_only_one_network_title" = "La billetera no admite más de una red";
+"market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
+"market_chart_buble_no_data" = "No data";
+"market_chart_buble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@%%";
 "markets_about_coin_header" = "Sobre la moneda";
 "markets_add_to_my_portfolio_description" = "Para comprar, intercambiar o recibir este activo, agréguelo a su portafolio";
 "markets_add_to_my_portfolio_unavailable_description" = "Este activo no está disponible en la billetera";
@@ -1227,6 +1234,7 @@
 "send_recipient_address_error" = "No es una dirección válida";
 "send_recipient_address_footer" = "Asegúrese de que la dirección de la billetera receptora esté en **la red %@** para evitar perder sus tokens";
 "send_recipient_memo_footer_v2_highlighted" = "Atención: La omisión del campo Memo puede provocar la pérdida de fondos.";
+"send_recipient_memo_footer_v2" = "Memo / Destination Tag es un código que separa las transacciones dirigidas a un destinatario compartido en una red de criptomonedas.";
 "send_recipient_memo_footer" = "Un Memo/ID de destino es un ID único para diferenciar transacciones enviadas al mismo destinatario en la misma red.\n**Precaución: Omitir un memo puede llevar a la pérdida de fondos**";
 "send_recipient_wallets_title" = "Mis billeteras";
 "send_recipient" = "Destinatario";
