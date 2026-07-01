@@ -7,56 +7,64 @@
 //
 
 import Foundation
+import BlockchainSdk
 import TangemExpress
 
 // [REDACTED_TODO_COMMENT]
 struct UserDefaultsTransactionHistoryAuxDataStorage {
-    private let suiteName: String?
-    private var userDefaults: UserDefaults { UserDefaults(suiteName: suiteName) ?? .standard }
-
-    init(suiteName: String?) {
-        self.suiteName = suiteName
-    }
+    /// - Note: Despite the name of the type, this inner storage is not limited to BlockchainSDK. It's just a convenient UserDefaults wrapper.
+    private let dataStorage = UserDefaultsBlockchainDataStorage()
 
     var providers: [ExpressProvider] {
-        get { decode([ProviderDTO].self, forKey: .providers)?.map(\.asDomain) ?? [] }
-        nonmutating set { encode(newValue.map(ProviderDTO.init(from:)), forKey: .providers) }
+        get {
+            let dtos: [ProviderDTO]? = dataStorage.get(key: StorageKey.providers.rawValue)
+
+            return dtos?.map(\.asDomainEntity) ?? []
+        }
+        nonmutating set {
+            dataStorage.store(
+                key: StorageKey.providers.rawValue,
+                value: newValue.map(ProviderDTO.init(from:))
+            )
+        }
     }
 
     var fiatCurrencies: [OnrampFiatCurrency] {
-        get { decode([FiatCurrencyDTO].self, forKey: .currencies)?.map(\.asDomain) ?? [] }
-        nonmutating set { encode(newValue.map(FiatCurrencyDTO.init(from:)), forKey: .currencies) }
+        get {
+            let dtos: [FiatCurrencyDTO]? = dataStorage.get(key: StorageKey.currencies.rawValue)
+
+            return dtos?.map(\.asDomainEntity) ?? []
+        }
+        nonmutating set {
+            dataStorage.store(
+                key: StorageKey.currencies.rawValue,
+                value: newValue.map(FiatCurrencyDTO.init(from:))
+            )
+        }
     }
 
     var coins: [String: CoinsList.Coin] {
-        get { decode([String: CoinsList.Coin].self, forKey: .coins) ?? [:] }
-        nonmutating set { encode(newValue, forKey: .coins) }
+        get {
+            let coins: [String: CoinsList.Coin]? = dataStorage.get(key: StorageKey.coins.rawValue)
+
+            return coins ?? [:]
+        }
+        nonmutating set {
+            dataStorage.store(
+                key: StorageKey.coins.rawValue,
+                value: newValue
+            )
+        }
     }
 }
 
-// MARK: - Coding helpers
+// MARK: - Storage keys
 
 private extension UserDefaultsTransactionHistoryAuxDataStorage {
     enum StorageKey: String {
         case providers = "TxHistoryAuxData_providers_v1"
         case currencies = "TxHistoryAuxData_currencies_v1"
         case coins = "TxHistoryAuxData_coins_v1"
-    }
-
-    func decode<T: Decodable>(_ type: T.Type, forKey key: StorageKey) -> T? {
-        guard let data = userDefaults.data(forKey: key.rawValue) else {
-            return nil
-        }
-
-        return try? JSONDecoder().decode(type, from: data)
-    }
-
-    func encode<T: Encodable>(_ value: T, forKey key: StorageKey) {
-        guard let data = try? JSONEncoder().encode(value) else {
-            return
-        }
-
-        userDefaults.set(data, forKey: key.rawValue)
     }
 }
 
@@ -85,7 +93,7 @@ private struct ProviderDTO: Codable {
         slippage = provider.slippage
     }
 
-    var asDomain: ExpressProvider {
+    var asDomainEntity: ExpressProvider {
         return ExpressProvider(
             id: id,
             name: name,
@@ -113,7 +121,7 @@ private struct FiatCurrencyDTO: Codable {
         precision = currency.precision
     }
 
-    var asDomain: OnrampFiatCurrency {
+    var asDomainEntity: OnrampFiatCurrency {
         return OnrampFiatCurrency(
             identity: OnrampIdentity(name: name, code: code, image: image),
             precision: precision
