@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 import TangemAccounts
 import TangemAssets
 import TangemUI
@@ -21,9 +20,9 @@ struct TransactionDetailsAddressViewData: Equatable {
     @IgnoredEquatable var onCopy: (() -> Void)? = nil
 
     enum Actor: Equatable {
-        case address(short: String, blockiesImage: UIImage?)
+        case address(short: String, blockiesImage: AddressBlockiesIconViewData)
         /// Saved address-book contact.
-        case contact(name: String, color: Color)
+        case contact(name: String, AddressBookContactNameIconViewData)
         /// One of the users accounts (same wallet).
         case account(name: String, icon: AccountIconView.ViewData)
         /// An account in another of the users wallets.
@@ -35,8 +34,6 @@ struct TransactionDetailsAddressViewData: Equatable {
 
 struct TransactionDetailsAddressView: View {
     let data: TransactionDetailsAddressViewData
-
-    @ScaledMetric private var iconSide: CGFloat = 40
 
     var body: some View {
         TangemRow(title: title, subtitle: data.label)
@@ -65,28 +62,13 @@ struct TransactionDetailsAddressView: View {
     private var startIcon: some View {
         switch data.actor {
         case .address(_, let blockiesImage):
-            blockies(blockiesImage)
-        case .contact(let name, let color):
-            AddressBookContactNameIconView(letter: String(name.prefix(1)).uppercased(), color: color)
+            AddressBlockiesIconView(viewData: blockiesImage)
+        case .contact(_, let icon):
+            AddressBookContactNameIconView(viewData: icon)
         case .account(_, let icon), .accountInWallet(_, let icon, _):
             AccountIconView(data: icon, settings: .defaultSized)
         case .wallet:
             EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private func blockies(_ image: UIImage?) -> some View {
-        if let image {
-            Image(uiImage: image)
-                .resizable()
-                .interpolation(.none)
-                .frame(size: CGSize(bothDimensions: iconSide))
-                .clipShape(Circle())
-        } else {
-            Circle()
-                .fill(DesignSystem.Color.bgOpaquePrimary)
-                .frame(size: CGSize(bothDimensions: iconSide))
         }
     }
 
@@ -113,13 +95,13 @@ struct TransactionDetailsAddressView: View {
     VStack(spacing: 16) {
         TransactionDetailsAddressView(data: .init(
             label: "From address",
-            actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: nil),
+            actor: .address(short: "33Bd321fS...ga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
             onCopy: {}
         ))
 
         TransactionDetailsAddressView(data: .init(
             label: "Recipient",
-            actor: .contact(name: "Alice", color: .blue),
+            actor: .contact(name: "Alice", AddressBookContactNameIconViewData(letter: "A", color: .blue)),
             onCopy: {}
         ))
 
