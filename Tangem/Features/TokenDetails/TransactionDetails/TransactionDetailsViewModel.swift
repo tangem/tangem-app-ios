@@ -23,15 +23,13 @@ final class TransactionDetailsViewModel: ObservableObject, FloatingSheetContentV
 
     var blocks: [TransactionDetailsBlock] {
         switch content {
-        case .send(let viewModel): viewModel.blocks
-        case .receive(let viewModel): viewModel.blocks
+        case .sendReceive(let data): data.blocks
         case .blocks(let blocks): blocks
         }
     }
 
     enum Content {
-        case send(SendTransactionDetailsViewModel)
-        case receive(ReceiveTransactionDetailsViewModel)
+        case sendReceive(TransactionDetailsSendReceiveViewData)
         case blocks([TransactionDetailsBlock])
     }
 }

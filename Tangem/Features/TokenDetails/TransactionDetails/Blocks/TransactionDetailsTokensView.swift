@@ -138,7 +138,7 @@ struct TransactionDetailsTokensView: View {
             }
             .padding(.vertical, 12)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .infinityFrame(axis: .horizontal, alignment: .leading)
         .padding(.horizontal, 16)
     }
 
@@ -177,29 +177,14 @@ private struct DashedDivider: View {
 
 // MARK: - Previews
 
-#if DEBUG
-private extension TokenIconInfo {
-    static func preview(_ name: String, color: Color?) -> TokenIconInfo {
-        TokenIconInfo(name: name, blockchainIconAsset: nil, imageURL: nil, isCustom: false, customTokenColor: color)
-    }
-}
-
 #Preview("Tokens") {
     VStack(spacing: 32) {
         // Single (transfer / stake)
-        TransactionDetailsTokensView(data: .init(
-            tokenIconInfo: .preview("Tether", color: .green),
-            amountText: "+350.31 USDT",
-            fiatText: "$350.31"
-        ))
+        TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensSingle())
 
         // Pair (swap / onramp)
-        TransactionDetailsTokensView(data: .init(
-            from: .init(direction: "From", tokenIconInfo: .preview("Tether", color: .green), amountText: "− 390 USDT", fiatText: "$391.12"),
-            to: .init(direction: "To", tokenIconInfo: .preview("Polygon", color: .purple), amountText: "~ 1,800.00 POL", fiatText: "$391.12")
-        ))
+        TransactionDetailsTokensView(data: TransactionDetailsPreviewFactory.tokensPair())
     }
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

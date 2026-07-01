@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
 
 struct TransactionDetailsView: View {
@@ -52,42 +51,12 @@ struct TransactionDetailsView: View {
 
 // MARK: - Previews
 
-#if DEBUG
-extension TransactionDetailsViewModel {
-    static func previewReceive() -> TransactionDetailsViewModel {
-        TransactionDetailsViewModel(
-            header: .init(
-                title: "Received",
-                date: "Jan 20 2026, 9:24 PM",
-                operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: false),
-                menuActions: .transactionDetailsPreview,
-                onClose: {}
-            ),
-            content: .receive(.preview())
-        )
-    }
-
-    static func previewSent() -> TransactionDetailsViewModel {
-        TransactionDetailsViewModel(
-            header: .init(
-                title: "Sent",
-                date: "Jan 20 2026, 9:24 PM",
-                operationIcon: .init(type: .transfer, status: .confirmed, isOutgoing: true),
-                menuActions: .transactionDetailsPreview,
-                onClose: {}
-            ),
-            content: .send(.preview())
-        )
-    }
-}
-
 #Preview("Received") {
-    TransactionDetailsView(viewModel: .previewReceive())
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.received())
         .background(DesignSystem.Color.bgPrimary)
 }
 
 #Preview("Sent") {
-    TransactionDetailsView(viewModel: .previewSent())
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.sent())
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
