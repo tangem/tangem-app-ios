@@ -10,12 +10,16 @@ import SwiftUI
 import TangemFoundation
 import TangemUIUtils
 
-/// A horizontal pager with optional endless scrolling.
-///
-/// When `isEndless` is `true` (default) the view uses the boundary-duplicate
-/// technique: the last item is prepended and the first item is appended so
-/// the user can swipe continuously in either direction.
-/// When `isEndless` is `false` the index is clamped at boundaries.
+public enum TangemCarouselDragPriority {
+    /// Runs simultaneously with surrounding gestures; doesn't force-win over child controls.
+    case cooperative
+
+    /// Wins horizontal drags over child controls, but can steal a parent's vertical scroll.
+    case prioritized
+}
+
+/// A horizontal pager. When `isEndless` is set it wraps with boundary duplicates
+/// (`[last, ...data, first]`) for continuous swiping; otherwise the index clamps at the edges.
 public struct TangemCarousel<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Data.Element: Identifiable, Content: View {
     private let data: Data
@@ -25,8 +29,11 @@ public struct TangemCarousel<Data, Content>: View
 
     private var isEndless: Bool = false
     private var interItemSpacing: CGFloat = 0
+    private var paginationSpacing: CGFloat = SizeUnit.x4.value
+    private var paginationVerticalPadding: CGFloat = 0
     private var hidePagination: Bool = false
     private var paginationHasBackground: Bool = false
+    private var dragPriority: TangemCarouselDragPriority = .cooperative
     private var currentIndexHasChanged: ((Int) -> Void)?
     private var onTranslationChanged: ((CGFloat) -> Void)?
 
@@ -50,11 +57,8 @@ public struct TangemCarousel<Data, Content>: View
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: SizeUnit.x4.value) {
-            if containerWidth > 0, !data.isEmpty {
-                scrollableContent
-                    .onChange(of: translation) { onTranslationChanged?($0) }
-            }
+        VStack(spacing: paginationSpacing) {
+            pages
 
             if !hidePagination, data.count > 1 {
                 TangemPagination(
@@ -62,6 +66,7 @@ public struct TangemCarousel<Data, Content>: View
                     currentIndex: externalIndex,
                     hasBackground: paginationHasBackground
                 )
+                .padding(.vertical, paginationVerticalPadding)
             }
         }
         .frame(maxWidth: .infinity, alignment: .top)
@@ -80,6 +85,24 @@ public struct TangemCarousel<Data, Content>: View
 // MARK: - Subviews
 
 private extension TangemCarousel {
+    @ViewBuilder
+    var pages: some View {
+        if containerWidth > 0, data.isNotEmpty {
+            scrollableContent
+                .onChange(of: translation) { onTranslationChanged?($0) }
+        } else if let currentElement {
+            // Real height on the first layout pass, before width is known.
+            content(currentElement)
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    var currentElement: Data.Element? {
+        guard data.isNotEmpty else { return nil }
+        let index = clamp(externalIndex, min: 0, max: data.count - 1)
+        return data[data.index(data.startIndex, offsetBy: index)]
+    }
+
     var scrollableContent: some View {
         let items = displayItems
         let baseIndex = isEndless ? currentIndex + 1 : currentIndex
@@ -88,17 +111,34 @@ private extension TangemCarousel {
             ForEach(items, id: \.id) { item in
                 content(item.element)
                     .frame(width: containerWidth)
-                    // Once a drag passes the gesture's slop, disable the content so an
-                    // in-flight press (e.g. a banner button) is canceled and a swipe started
-                    // on a button never fires it. A pure tap keeps translation at 0.
-                    .disabled(translation != 0)
+                    // Cancels an in-flight child press mid-drag; prioritized already wins the tap.
+                    .disabled(dragPriority == .cooperative && translation != 0)
             }
         }
         .frame(width: containerWidth, alignment: .leading)
         .offset(x: -CGFloat(baseIndex) * pageStep)
         .offset(x: effectiveTranslation)
         .animation(.easeOut(duration: animationDuration), value: translation)
-        .if(data.count > 1) { $0.simultaneousGesture(dragGesture) }
+        .modifier(DragGestureModifier(isActive: data.count > 1, priority: dragPriority, gesture: dragGesture))
+    }
+}
+
+// MARK: - DragGestureModifier
+
+private struct DragGestureModifier<G: Gesture>: ViewModifier {
+    let isActive: Bool
+    let priority: TangemCarouselDragPriority
+    let gesture: G
+
+    func body(content: Content) -> some View {
+        switch (isActive, priority) {
+        case (false, _):
+            content
+        case (true, .cooperative):
+            content.simultaneousGesture(gesture)
+        case (true, .prioritized):
+            content.highPriorityGesture(gesture)
+        }
     }
 }
 
@@ -123,23 +163,26 @@ private extension TangemCarousel {
     }
 
     var dragGesture: some Gesture {
-        // minimumDistance 0 claims the drag on touch-down so an enclosing pager yields instead of stealing the pan.
-        DragGesture(minimumDistance: 0)
+        // Prioritized adds a slop so a stationary tap reaches a child control before the drag wins.
+        DragGesture(minimumDistance: dragPriority == .prioritized ? Constants.prioritizedGestureActivationDistance : 0)
             .updating($translation) { value, state, _ in
                 state = value.translation.width
             }
             .onEnded { value in
                 guard pageStep > 0 else { return }
 
-                let rawOffset = (value.translation.width / pageStep * 1.5).rounded()
+                let translation = value.translation.width
+                let predictedEndTranslation = value.predictedEndTranslation.width
+                let shouldFlip = abs(translation) > pageStep * Constants.minDragPageFractionToFlip
+                    || abs(predictedEndTranslation) > pageStep * Constants.minFlickPageFractionToFlip
+                let offset = shouldFlip ? (translation > 0 ? 1 : -1) : 0
 
                 if isEndless {
-                    let offset = min(max(rawOffset, -1), 1)
-                    let newIndex = currentIndex - Int(offset)
+                    let newIndex = currentIndex - offset
                     currentIndex = newIndex
                     scheduleEndlessBoundaryResetIfNeeded(for: newIndex)
                 } else {
-                    currentIndex = clamp(currentIndex - Int(rawOffset), min: 0, max: data.count - 1)
+                    currentIndex = clamp(currentIndex - offset, min: 0, max: data.count - 1)
                 }
             }
     }
@@ -193,10 +236,19 @@ private extension TangemCarousel {
 
         guard let target = resetTarget else { return }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration + 0.05) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration + Constants.endlessBoundaryResetDelayAfterAnimation) {
             currentIndex = target
         }
     }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static let minDragPageFractionToFlip: CGFloat = 1.0 / 3.0
+    static let minFlickPageFractionToFlip: CGFloat = 1.0 / 2.0
+    static let prioritizedGestureActivationDistance: CGFloat = 10
+    static let endlessBoundaryResetDelayAfterAnimation: TimeInterval = 0.05
 }
 
 // MARK: - IndexedItem
@@ -221,12 +273,24 @@ extension TangemCarousel: Setupable {
         map { $0.interItemSpacing = spacing }
     }
 
+    public func paginationSpacing(_ spacing: CGFloat) -> Self {
+        map { $0.paginationSpacing = spacing }
+    }
+
+    public func paginationVerticalPadding(_ padding: CGFloat) -> Self {
+        map { $0.paginationVerticalPadding = padding }
+    }
+
     public func hidePagination(_ hide: Bool = true) -> Self {
         map { $0.hidePagination = hide }
     }
 
     public func paginationHasBackground(_ background: Bool) -> Self {
         map { $0.paginationHasBackground = background }
+    }
+
+    public func dragPriority(_ priority: TangemCarouselDragPriority) -> Self {
+        map { $0.dragPriority = priority }
     }
 
     public func currentIndexHasChanged(_ changed: ((Int) -> Void)?) -> Self {
