@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "Оберіть гаманець";
 "manage_tokens_wallet_support_only_one_network_title" = "Гаманець не підтримує більше однієї мережі";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "Недійсна адреса";
 "send_recipient_address_footer" = "Переконайтеся, що адреса отримувача знаходиться **в мережі %@**, щоб уникнути втрати ваших коштів.";
 "send_recipient_memo_footer_v2_highlighted" = "Увага: відсутність Memo може призвести до втрати коштів.";
+"send_recipient_memo_footer_v2" = "Мемо / Destination Tag — це код, що розділяє транзакції до спільного одержувача в криптовалютній мережі.";
 "send_recipient_memo_footer" = "Memo/ Тег призначення — це унікальний ідентифікатор для розрізнення транзакцій, надісланих тому самому одержувачу в тій самій мережі.\n**Застереження: відсутність тегу може призвести до втрати коштів.**";
 "send_recipient_wallets_title" = "Мої гаманці";
 "send_recipient" = "Одержувач";
