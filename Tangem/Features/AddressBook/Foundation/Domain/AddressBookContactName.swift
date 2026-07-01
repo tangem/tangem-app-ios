@@ -51,8 +51,6 @@ struct AddressBookContactNameValidator {
         return AddressBookContactName(value: raw.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
-    /// The first product rule the trimmed name breaks, or `nil` when it is valid. Non-throwing so the
-    /// editor can drive live inline validation (Save-gating + error text) without a do/catch.
     func validationError(in raw: String) -> AddressBookValidationError? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
 
