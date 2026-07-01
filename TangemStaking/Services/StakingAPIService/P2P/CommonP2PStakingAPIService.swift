@@ -53,6 +53,17 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         )
     }
 
+    // MARK: - Accounts List
+
+    func getAccountsList(
+        vaultAddress: String,
+        delegatorAddresses: [String]
+    ) async throws -> P2PDTO.AccountsList.AccountsListInfo {
+        try await response(
+            .getAccountsList(vaultAddress: vaultAddress, request: .init(delegatorAddresses: delegatorAddresses))
+        )
+    }
+
     // MARK: - Prepare Deposit Transaction
 
     func prepareDepositTransaction(
