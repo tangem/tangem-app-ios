@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "アドレスを追加し、ネットワークを選択してください。";
 "address_book_add_address" = "アドレスを追加";
 "address_book_add_contact" = "連絡先を追加";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "連絡先名";
 "address_book_contact" = "連絡先";
@@ -106,6 +107,7 @@
 "address_book_no_contacts_description" = "追加した連絡先はここに表示されます。";
 "address_book_no_contacts" = "連絡先はまだありません";
 "address_book_remove_address" = "アドレスを削除";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "この連絡先は、このウォレットのアドレス帳に紐付けられます。";
 "address_book_search_no_results" = "No results found.\nTry another name";
