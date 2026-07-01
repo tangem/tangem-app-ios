@@ -221,7 +221,10 @@ private extension StakingModel {
 
         switch state {
         case .readyToStake(let readyToStake):
-            guard let target = _selectedTarget.value.value else { return }
+            guard let target = _selectedTarget.value.value else {
+                validationHandler?.reset()
+                return
+            }
             validationHandler?.validate(action: StakingAction(
                 amount: readyToStake.amount,
                 targetType: .target(target),

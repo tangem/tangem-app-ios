@@ -7,7 +7,7 @@
 //
 
 /// Error thrown when a staking transaction fails remote validation (BlockAid).
-enum RemoteStakingValidationError: Error {
+enum RemoteStakingValidationError: Error, Equatable {
     /// Transaction flagged as potentially dangerous (warning level).
     case warning(description: String)
 

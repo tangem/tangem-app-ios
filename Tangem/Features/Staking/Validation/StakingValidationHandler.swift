@@ -21,7 +21,7 @@ final class StakingValidationHandler: StakingValidationStateProvider {
     private let stateSubject = CurrentValueSubject<StakingValidationState, Never>(.idle)
 
     private var validationTask: Task<Void, Never>?
-    private var validatedTransaction: ValidatedTransaction?
+    private var cachedTransaction: ValidatedTransaction?
 
     var validationState: AnyPublisher<StakingValidationState, Never> {
         stateSubject.eraseToAnyPublisher()
@@ -57,10 +57,10 @@ final class StakingValidationHandler: StakingValidationStateProvider {
 
     /// Returns validated transaction if still valid, or `nil` if expired/missing.
     func validatedTransaction(for blockchain: Blockchain) -> StakingTransactionAction? {
-        guard let validatedTransaction, !validatedTransaction.isExpired(for: blockchain) else {
+        guard let cachedTransaction, !cachedTransaction.isExpired(for: blockchain) else {
             return nil
         }
-        return validatedTransaction.transaction
+        return cachedTransaction.transaction
     }
 
     /// Rebuilds and revalidates transaction. Use when cache is expired.
@@ -130,7 +130,7 @@ private extension StakingValidationHandler {
 
     func invalidate() {
         validationTask?.cancel()
-        validatedTransaction = nil
+        cachedTransaction = nil
     }
 
     func makeValidationTask(action: StakingAction) -> Task<Void, Never> {
@@ -171,9 +171,9 @@ private extension StakingValidationHandler {
 
         // Only cache transaction if validation allows sending (not blocked/malicious)
         if let transaction = result.transaction, result.state.allowsSending {
-            validatedTransaction = ValidatedTransaction(transaction: transaction, validatedAt: Date())
+            cachedTransaction = ValidatedTransaction(transaction: transaction, validatedAt: Date())
         } else {
-            validatedTransaction = nil
+            cachedTransaction = nil
         }
         stateSubject.send(result.state)
         validationTask = nil

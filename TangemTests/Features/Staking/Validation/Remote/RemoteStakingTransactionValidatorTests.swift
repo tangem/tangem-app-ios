@@ -65,7 +65,7 @@ struct RemoteStakingTransactionValidatorTests {
         let stub = StakingTransactionVerifierErrorStub(error: error)
         let sut = makeSUT(verifier: stub)
 
-        await #expect(throws: RemoteStakingValidationError.self) {
+        await #expect(throws: error) {
             try await sut.validate([sampleTransaction])
         }
     }
