@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Додати адресу та вибрати мережу";
 "address_book_add_address" = "Додати адресу";
 "address_book_add_contact" = "Додати контакт";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Ім'я контакту";
 "address_book_contact" = "Контакт";
@@ -106,6 +107,7 @@
 "address_book_no_contacts_description" = "Тут відображатимуться додані вами контакти.";
 "address_book_no_contacts" = "Немає доданих контактів";
 "address_book_remove_address" = "Видалити адресу";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Цей контакт буде прив'язано до цього гаманця в адресній книзі.";
 "address_book_search_no_results" = "No results found.\nTry another name";
