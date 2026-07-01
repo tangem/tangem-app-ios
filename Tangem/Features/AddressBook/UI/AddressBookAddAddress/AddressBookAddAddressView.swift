@@ -28,7 +28,7 @@ struct AddressBookAddAddressView: View {
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                DefaultFooterView(Localization.sendRecipientMemoFooter)
+                DefaultFooterView("\(Localization.sendRecipientMemoFooterV2)\n**\(Localization.sendRecipientMemoFooterV2Highlighted)**")
             }
             .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
