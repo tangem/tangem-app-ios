@@ -79,6 +79,7 @@ enum TokenFeeLoaderError: LocalizedError {
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
     case notEnoughFeeBalance
+    case noLatestImplementationForUpgrade
     case gaslessExecutionReverted(gaslessMinTokenAmount: Decimal)
     case executionReverted
 
@@ -91,6 +92,7 @@ enum TokenFeeLoaderError: LocalizedError {
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"
         case .notEnoughFeeBalance: "Not enough fee balance"
+        case .noLatestImplementationForUpgrade: "No latest implementation for upgrade"
         case .gaslessExecutionReverted(let gaslessMinTokenAmount): "Gasless fee estimation execution reverted, min token amount: \(gaslessMinTokenAmount)"
         case .executionReverted: "Execution reverted"
         }

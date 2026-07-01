@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemExpress
 import BlockchainSdk
 
@@ -19,13 +20,6 @@ struct CommonGaslessTokenFeeLoader {
     let yieldFeeContext: GaslessYieldFeeContext?
 
     private let balanceConverter = BalanceConverter()
-}
-
-struct GaslessYieldFeeContext {
-    let yieldContractAddress: String
-    let yieldModuleBalance: Decimal
-    let feeTokenBalanceProvider: TokenBalanceProvider
-    let versionChecker: YieldModuleVersionChecker?
 }
 
 // MARK: - TokenFeeLoader
@@ -284,7 +278,11 @@ private extension CommonGaslessTokenFeeLoader {
             throw TokenFeeLoaderError.notEnoughFeeBalance
         case .outdated(canUpgrade: true, let latestImplementation):
             guard let latestImplementation else {
-                throw TokenFeeLoaderError.notEnoughFeeBalance
+                FeeLogger.error(
+                    self,
+                    error: "Yield module upgrade is available, but latest implementation is missing for \(context.yieldContractAddress)"
+                )
+                throw TokenFeeLoaderError.noLatestImplementationForUpgrade
             }
 
             return GaslessYieldFeeOptions(
@@ -313,5 +311,16 @@ private extension CommonGaslessTokenFeeLoader {
 
     func sameFeeTokenSpendAmount(amount: BSDKAmount, feeToken: Token) -> Decimal {
         amount.type.token?.contractAddress.caseInsensitiveEquals(to: feeToken.contractAddress) == true ? amount.value : 0
+    }
+}
+
+extension CommonGaslessTokenFeeLoader: CustomStringConvertible {
+    var description: String {
+        objectDescription("CommonGaslessTokenFeeLoader", userInfo: [
+            "tokenItem": tokenItem.name,
+            "feeToken": feeToken?.name ?? "nil",
+            "gaslessTransactionFeeProvider": String(describing: gaslessTransactionFeeProvider),
+            "yieldFeeContext": yieldFeeContext?.description ?? "nil",
+        ])
     }
 }

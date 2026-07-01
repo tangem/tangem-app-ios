@@ -54,7 +54,11 @@ extension TransferTransactionDispatcher: TransactionDispatcher {
             }
 
             if didUpgradeYieldModule {
-                try? await refreshYieldModuleVersionAfterUpgrade()
+                do {
+                    try await refreshYieldModuleVersionAfterUpgrade()
+                } catch {
+                    AppLogger.error(error: error)
+                }
             }
 
             return result

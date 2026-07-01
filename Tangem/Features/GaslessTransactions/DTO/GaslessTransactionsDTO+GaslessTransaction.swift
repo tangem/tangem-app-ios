@@ -104,7 +104,7 @@ extension GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Tran
         {
           "to": "\(to)",
           "value": "\(value)",
-          "gasLimit": "\(gasLimit ?? "")",
+          "gasLimit": "\(gasLimit ?? "no-limit")",
           "data": "\(data)"
         }
         """
