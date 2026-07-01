@@ -27,7 +27,7 @@ final class EditAddressBookContactManagementInteractor {
         self.addressBooksProvider = addressBooksProvider
 
         nameSubject = .init(contact.name.value)
-        colorSubject = .init(AccountModel.CompositeIcon.Color(rawValue: contact.iconColor) ?? AccountModelUtils.UI.newAccountIcon().color)
+        colorSubject = .init(contact.appearance.color)
         addressesSubject = .init(contact.entries.raw.map {
             AddressBookEntryDraft(id: $0.id, address: $0.address, blockchain: $0.blockchain, memo: $0.memo)
         })
@@ -118,9 +118,9 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         }
 
         if target.wallet.id == contact.walletId {
-            try await target.addressBookManager.updateContact(id: contact.id, name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+            try await target.addressBookManager.updateContact(id: contact.id, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
         } else {
-            try await move(from: source, to: target, name: name, iconColor: colorSubject.value.rawValue, entries: entries)
+            try await move(from: source, to: target, name: name, appearance: AddressBookContactAppearance(color: colorSubject.value), entries: entries)
         }
     }
 
@@ -150,10 +150,10 @@ private extension EditAddressBookContactManagementInteractor {
         from source: AddressBookWallet,
         to target: AddressBookWallet,
         name: AddressBookContactName,
-        iconColor: String,
+        appearance: AddressBookContactAppearance,
         entries: AddressBookContactDraftEntries
     ) async throws {
-        try await target.addressBookManager.reSignContact(id: contact.id, name: name, iconColor: iconColor, entries: entries)
+        try await target.addressBookManager.reSignContact(id: contact.id, name: name, appearance: appearance, entries: entries)
 
         do {
             try await source.addressBookManager.deleteContact(id: contact.id)
