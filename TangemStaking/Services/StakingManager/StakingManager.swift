@@ -21,7 +21,7 @@ public protocol StakingManager {
     var tosURL: URL { get }
     var privacyPolicyURL: URL { get }
 
-    func updateState(loadActions: Bool) async
+    func updateState(loadActions: Bool, source: StakingUpdateSource) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction
 
@@ -30,7 +30,11 @@ public protocol StakingManager {
 
 public extension StakingManager {
     func updateState() async {
-        await updateState(loadActions: false)
+        await updateState(loadActions: false, source: .single)
+    }
+
+    func updateState(loadActions: Bool) async {
+        await updateState(loadActions: loadActions, source: .single)
     }
 
     func waitForLoadingCompletion() async throws {
