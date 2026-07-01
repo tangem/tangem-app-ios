@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "Escolha a carteira";
 "manage_tokens_wallet_support_only_one_network_title" = "A carteira não suporta mais de uma rede.";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "Endereço inválido";
 "send_recipient_address_footer" = "Certifique-se de que o endereço do destinatário esteja no **o %@ rede** para evitar a perda de seus fundos";
 "send_recipient_memo_footer_v2_highlighted" = "Atenção: O não cumprimento de um memorando pode levar à perda de fundos.";
+"send_recipient_memo_footer_v2" = "Memo/Destination Tag é um código que separa as transações destinadas a um destinatário comum em uma rede criptográfica.";
 "send_recipient_memo_footer" = "Uma etiqueta de memorando/destino é um ID exclusivo para diferenciar transações enviadas para o mesmo destinatário na mesma rede. **Atenção: a omissão de um memorando pode levar à extravio de fundos.**";
 "send_recipient_wallets_title" = "Minhas carteiras";
 "send_recipient" = "Destinatário";
