@@ -415,7 +415,13 @@ final class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.cantUnlockWallet
         }
 
-        stateLock { $0.models[userWalletId] = unlockedModel }
+        // Replace only if the wallet is still present, so the by-id subscript
+        // does not re-insert one that was removed after the guard above.
+        stateLock { state in
+            if let index = state.models.firstIndex(where: { $0.userWalletId == userWalletId }) {
+                state.models[index] = unlockedModel
+            }
+        }
         await unlockUnprotectedMobileWalletsIfNeeded()
 
         sendEvent(.unlockedWallet(userWalletId: userWalletId))
