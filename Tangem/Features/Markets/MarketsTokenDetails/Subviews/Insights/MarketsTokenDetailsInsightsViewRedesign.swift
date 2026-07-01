@@ -117,7 +117,7 @@ struct MarketsTokenDetailsInsightsViewRedesign: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: trendImageSide, height: trendImageSide)
-                .foregroundStyle(Color.Tangem.Graphic.Status.positive)
+                .foregroundStyle(Color.Tangem.Graphic.Status.accent)
 
         case .negative:
             // We don't have a separate icon for negative trend, so we reuse the positive one with rotation
