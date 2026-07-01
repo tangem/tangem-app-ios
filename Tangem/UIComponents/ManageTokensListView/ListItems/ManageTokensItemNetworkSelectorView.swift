@@ -46,6 +46,7 @@ struct ManageTokensItemNetworkSelectorView: View {
                             .padding(.leading, 2)
                             .lineLimit(1)
                             .fixedSize()
+                            .accessibilityIdentifier(ManageTokensAccessibilityIdentifiers.networkStandardLabel(viewModel.networkName))
                     }
                 }
 
