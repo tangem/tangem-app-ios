@@ -19,7 +19,7 @@ struct SendDestinationAddressBookView: View {
             AddressBookContactView(viewModel: contact)
         } header: {
             DefaultHeaderView(Localization.addressBookTitle)
-                .infinityFrame(axis: .horizontal)
+                .infinityFrame(axis: .horizontal, alignment: .leading)
                 .overlay(alignment: .trailing) {
                     Button(action: viewModel.viewAllAction) {
                         Text(Localization.commonViewAll)

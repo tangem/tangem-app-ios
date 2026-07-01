@@ -376,8 +376,8 @@ private extension SendDestinationViewModel {
 // MARK: - AddressBooksSelectionOutput
 
 extension SendDestinationViewModel: AddressBooksSelectionOutput {
-    func addressBooksDidSelectContact(_ contact: AddressBookContact) {
-        userDidTapAddressBookContact(contact)
+    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup) {
+        applyAddressBookAddress(group)
     }
 }
 

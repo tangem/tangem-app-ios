@@ -11,6 +11,8 @@ import Combine
 import TangemFoundation
 
 class AddressBooksCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -65,6 +67,24 @@ extension AddressBooksCoordinator: AddressBooksRoutable {
 
     func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
         openContactManagement(options: .edit(contact: contact, addressBookWallet: addressBookWallet))
+    }
+
+    func openChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: groups, router: self, output: output)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - ChooseAddressRoutable
+
+extension AddressBooksCoordinator: ChooseAddressRoutable {
+    func dismissChooseAddress() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 

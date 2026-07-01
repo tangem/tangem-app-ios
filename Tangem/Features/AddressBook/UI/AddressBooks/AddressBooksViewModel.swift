@@ -14,7 +14,7 @@ import TangemFoundation
 import TangemLocalization
 
 protocol AddressBooksSelectionOutput: AnyObject {
-    func addressBooksDidSelectContact(_ contact: AddressBookContact)
+    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup)
 }
 
 final class AddressBooksViewModel: ObservableObject {
@@ -241,11 +241,10 @@ private extension AddressBooksViewModel {
             return AddressBookContactViewModel(contact: contact, walletName: walletName) { [weak self] in
                 guard let self else { return }
 
-                // In selection mode (opened from Send "View All") a tap closes this screen and returns the
-                // contact instead of editing it.
-                if let selectionOutput {
-                    coordinator?.dismiss()
-                    selectionOutput.addressBooksDidSelectContact(contact)
+                // In selection mode (opened from Send "View All") a tap resolves the contact's address and
+                // returns it instead of editing the contact.
+                if selectionOutput != nil {
+                    selectContact(contact)
                     return
                 }
 
@@ -253,6 +252,30 @@ private extension AddressBooksViewModel {
                 coordinator?.openEditContact(contact: contact, addressBookWallet: book)
             }
         }
+    }
+
+    func selectContact(_ contact: AddressBookContact) {
+        let groups = contact.entries.groupedByAddress
+
+        // A single-address contact is applied directly; a multi-address one opens the address picker.
+        if let group = groups.singleElement {
+            finishSelection(with: group)
+        } else {
+            coordinator?.openChooseAddress(groups: groups, output: self)
+        }
+    }
+
+    func finishSelection(with group: AddressBookContactAddressGroup) {
+        coordinator?.dismiss()
+        selectionOutput?.addressBooksDidSelect(group)
+    }
+}
+
+// MARK: - ChooseAddressOutput
+
+extension AddressBooksViewModel: ChooseAddressOutput {
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup) {
+        finishSelection(with: group)
     }
 }
 

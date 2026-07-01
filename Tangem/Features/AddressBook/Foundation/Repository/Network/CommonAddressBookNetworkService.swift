@@ -42,7 +42,7 @@ extension CommonAddressBookNetworkService: AddressBookNetworkService {
         do {
             let response = try await api.updateAddressBook(
                 walletId: walletId.stringValue,
-                knownETag: knownETag,
+                knownETag: nil,
                 body: mapper.mapToUpdateRequest(envelope)
             )
 
