@@ -14,6 +14,8 @@ import Foundation
 struct AddressBookContactName: Hashable {
     let value: String
 
+    var firstLetter: String { "\(value.prefix(1).uppercased())" }
+
     fileprivate init(value: String) {
         self.value = value
     }

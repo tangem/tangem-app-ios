@@ -1,6 +1,6 @@
 //
-//  ChooseAddressRowView.swift
-//  Tangem
+//  AddressBookContactView.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
@@ -9,15 +9,13 @@
 import SwiftUI
 import TangemUI
 
-struct ChooseAddressRowView: View {
-    let viewModel: ChooseAddressRowViewModel
+struct AddressBookContactView: View {
+    let viewModel: AddressBookContactViewModel
 
     var body: some View {
         TangemRow(title: viewModel.title, subtitle: viewModel.subtitle)
             .verticalAlignment(.center)
-            .start {
-                AddressBlockiesIconView(viewData: viewModel.addressIcon)
-            }
-            .onTap(viewModel.onTap)
+            .start { AddressBookContactNameIconView(viewData: viewModel.iconViewData) }
+            .onTap(viewModel.action)
     }
 }
