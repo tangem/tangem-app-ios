@@ -40,54 +40,26 @@ final class PriceAlertBellViewModel: ObservableObject {
     }
 
     func toggleTapped() {
-        // With several wallets the user picks which ones to (un)subscribe via the Price Alerts sheet;
-        // with a single wallet we act on it directly.
-        if userWalletRepository.models.count > 1 {
-            let sheetViewModel = PriceAlertsViewModel(tokenId: tokenId)
-
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: sheetViewModel)
-            }
-
-            return
-        }
-
-        guard
-            let provider,
-            let selectedWalletId = userWalletRepository.selectedModel?.userWalletId.stringValue
-        else {
-            return
-        }
-
         let shouldSubscribe = !isSubscribed
-        // Unsubscribe removes the coin from every wallet on the device
         let deviceWalletIds = userWalletRepository.models.map(\.userWalletId.stringValue)
 
-        // [REDACTED_TODO_COMMENT]
-        // notification-preferences on subscribe. Deferred: the bell only manages the subscription here.
-        runTask(in: self) { viewModel in
-            if shouldSubscribe {
-                let isAuthorized = await viewModel.ensurePushAuthorization()
-                guard isAuthorized else {
-                    // Permission declined/denied — offer to open system Settings (mirrors PushSettings).
-                    await viewModel.presentEnablePushSettingsAlert()
-                    return
-                }
-            }
-
-            do {
-                if shouldSubscribe {
-                    try await provider.subscribe(tokenId: viewModel.tokenId, walletIds: [selectedWalletId])
-                } else {
-                    try await provider.unsubscribe(tokenId: viewModel.tokenId, walletIds: deviceWalletIds)
-                }
-
-                await viewModel.presentConfirmationToast(isSubscribed: shouldSubscribe)
-            } catch {
-                // The provider already rolled the optimistic flip back; just surface the error.
-                await viewModel.presentErrorAlert()
-            }
+        // Unsubscribe always removes the coin from every wallet on the device (spec §5.4) — no wallet choice.
+        guard shouldSubscribe else {
+            performBellSubscription(isSubscribe: false, walletIds: deviceWalletIds)
+            return
         }
+
+        let walletCount = userWalletRepository.models.count
+
+        // Several wallets → the user chooses which to subscribe via the Price Alerts sheet, unless they
+        // opted out ("Don't ask again") for the current wallet count.
+        if walletCount > 1, !isChooseWalletSkipped(forWalletCount: walletCount) {
+            presentPriceAlertsSheet()
+            return
+        }
+
+        // Single wallet, or "Don't ask again": subscribe directly — the selected wallet, or all wallets when opted out.
+        performBellSubscription(isSubscribe: true, walletIds: walletCount > 1 ? deviceWalletIds : currentWalletIds())
     }
 }
 
@@ -123,6 +95,65 @@ private extension PriceAlertBellViewModel {
         runTask(in: self) { viewModel in
             try? await viewModel.provider?.fetch()
         }
+    }
+
+    func presentPriceAlertsSheet() {
+        runTask(in: self) { viewModel in
+            guard await viewModel.ensurePushAuthorization() else {
+                await viewModel.presentEnablePushSettingsAlert()
+                return
+            }
+
+            await viewModel.enqueuePriceAlertsSheet()
+        }
+    }
+
+    @MainActor
+    func enqueuePriceAlertsSheet() {
+        floatingSheetPresenter.enqueue(sheet: PriceAlertsViewModel(tokenId: tokenId))
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    // notification-preferences on subscribe. Deferred: the bell only manages the subscription here.
+    func performBellSubscription(isSubscribe: Bool, walletIds: [String]) {
+        guard let provider else {
+            return
+        }
+
+        runTask(in: self) { viewModel in
+            if isSubscribe {
+                guard await viewModel.ensurePushAuthorization() else {
+                    // Permission declined/denied — offer to open system Settings (mirrors PushSettings).
+                    await viewModel.presentEnablePushSettingsAlert()
+                    return
+                }
+            }
+
+            do {
+                if isSubscribe {
+                    try await provider.subscribe(tokenId: viewModel.tokenId, walletIds: walletIds)
+                } else {
+                    try await provider.unsubscribe(tokenId: viewModel.tokenId, walletIds: walletIds)
+                }
+
+                await viewModel.presentConfirmationToast(isSubscribed: isSubscribe)
+            } catch {
+                // The provider already rolled the optimistic flip back; just surface the error.
+                await viewModel.presentErrorAlert()
+            }
+        }
+    }
+
+    func currentWalletIds() -> [String] {
+        guard let walletId = userWalletRepository.selectedModel?.userWalletId.stringValue else {
+            return []
+        }
+
+        return [walletId]
+    }
+
+    func isChooseWalletSkipped(forWalletCount count: Int) -> Bool {
+        AppSettings.shared.priceAlertsChooseWalletSkipCount == count
     }
 
     /// Returns whether push notifications are authorized. When permission hasn't been determined yet,

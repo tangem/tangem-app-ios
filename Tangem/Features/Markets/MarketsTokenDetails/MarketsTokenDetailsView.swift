@@ -113,10 +113,15 @@ struct MarketsTokenDetailsView: View {
         .infinityFrame(axis: .vertical, alignment: .top)
     }
 
+    @ViewBuilder
     private var redesignedTrailingButtons: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 12) {
             if let priceAlertBellViewModel = viewModel.priceAlertBellViewModel {
                 PriceAlertBellView(viewModel: priceAlertBellViewModel)
+            }
+
+            if viewModel.isMarketsSheetStyle, viewModel.isAddButtonVisible {
+                redesignedAddButton
             }
 
             redesignedShareButton
@@ -126,17 +131,6 @@ struct MarketsTokenDetailsView: View {
     private var redesignedBackButton: some View {
         NavigationBarButton.back(action: viewModel.onBackButtonTap)
             .redesigned()
-    }
-
-    @ViewBuilder
-    private var redesignedTrailingButtons: some View {
-        HStack(spacing: 12) {
-            if viewModel.isMarketsSheetStyle, viewModel.isAddButtonVisible {
-                redesignedAddButton
-            }
-
-            redesignedShareButton
-        }
     }
 
     private var redesignedAddButton: some View {
