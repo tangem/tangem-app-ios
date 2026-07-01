@@ -410,6 +410,16 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     }
 
     @discardableResult
+    func waitForFeeCurrencyNavigationButton(label: String) -> Self {
+        XCTContext.runActivity(named: "Verify fee notification action button '\(label)'") { _ in
+            let button = app.buttons[TokenAccessibilityIdentifiers.feeCurrencyNavigationButton].firstMatch
+            waitAndAssertTrue(button, "Fee currency navigation button should exist in the fee notification")
+            XCTAssertEqual(button.label, label, "Fee notification action button should be '\(label)' but was '\(button.label)'")
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForNotificationMessageContaining(_ substring: String) -> Self {
         XCTContext.runActivity(named: "Wait for notification message containing '\(substring)'") { _ in
             XCTAssertTrue(notificationMessage.waitForExistence(timeout: .robustUIUpdate), "Notification message should exist on swap screen")
