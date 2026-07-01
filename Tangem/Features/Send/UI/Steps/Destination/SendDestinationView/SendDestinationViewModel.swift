@@ -298,7 +298,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             return
         }
 
-        router?.openAddressBookViewAll(provider: addressBooksProvider)
+        router?.openAddressBookViewAll(provider: addressBooksProvider, output: self)
     }
 
     private func userDidTapAddressBookContact(_ contact: AddressBookContact) {
@@ -372,6 +372,15 @@ extension SendDestinationViewModel {
 private extension SendDestinationViewModel {
     enum Constants {
         static let addressBookContactsLimit = 3
+    }
+}
+
+// MARK: - AddressBooksSelectionOutput
+
+extension SendDestinationViewModel: AddressBooksSelectionOutput {
+    func addressBooksDidSelectContact(_ contact: AddressBookContact) {
+        router?.dismissAddressBookViewAll()
+        userDidTapAddressBookContact(contact)
     }
 }
 

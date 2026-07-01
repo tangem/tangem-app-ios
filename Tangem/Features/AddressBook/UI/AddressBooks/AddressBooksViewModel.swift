@@ -13,6 +13,10 @@ import TangemUI
 import TangemFoundation
 import TangemLocalization
 
+protocol AddressBooksSelectionOutput: AnyObject {
+    func addressBooksDidSelectContact(_ contact: AddressBookContact)
+}
+
 final class AddressBooksViewModel: ObservableObject {
     // MARK: - ViewState
 
@@ -31,6 +35,7 @@ final class AddressBooksViewModel: ObservableObject {
     private var userWalletRepository: UserWalletRepository
 
     private weak var coordinator: AddressBooksRoutable?
+    private weak var selectionOutput: AddressBooksSelectionOutput?
     private let addressBooksProvider: any AddressBooksProvider
     private let addressBooksSubject: CurrentValueSubject<[AddressBookWallet], Never>
     private let matcher = AddressBookContactMatcher()
@@ -38,9 +43,11 @@ final class AddressBooksViewModel: ObservableObject {
 
     init(
         coordinator: AddressBooksRoutable,
-        addressBooksProvider: any AddressBooksProvider
+        addressBooksProvider: any AddressBooksProvider,
+        selectionOutput: AddressBooksSelectionOutput? = nil
     ) {
         self.coordinator = coordinator
+        self.selectionOutput = selectionOutput
         self.addressBooksProvider = addressBooksProvider
         addressBooksSubject = .init(addressBooksProvider.addressBooks)
         selectedChipId = addressBooksSubject.value.count >= 2 ? Constants.allChipId : addressBooksSubject.value.first?.wallet.id.stringValue
@@ -232,8 +239,16 @@ private extension AddressBooksViewModel {
             let walletName = showsWalletName ? book?.wallet.name : nil
 
             return AddressBookContactViewModel(contact: contact, walletName: walletName) { [weak self] in
+                guard let self else { return }
+
+                // In selection mode (opened from Send "View All") a tap returns the contact instead of editing it.
+                if let selectionOutput {
+                    selectionOutput.addressBooksDidSelectContact(contact)
+                    return
+                }
+
                 guard let book else { return }
-                self?.coordinator?.openEditContact(contact: contact, addressBookWallet: book)
+                coordinator?.openEditContact(contact: contact, addressBookWallet: book)
             }
         }
     }

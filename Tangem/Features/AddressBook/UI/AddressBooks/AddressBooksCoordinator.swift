@@ -31,7 +31,11 @@ class AddressBooksCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = .init(coordinator: self, addressBooksProvider: options.addressBooksProvider)
+        rootViewModel = .init(
+            coordinator: self,
+            addressBooksProvider: options.addressBooksProvider,
+            selectionOutput: options.selectionOutput
+        )
     }
 }
 
@@ -40,9 +44,14 @@ class AddressBooksCoordinator: CoordinatorObject {
 extension AddressBooksCoordinator {
     struct Options {
         let addressBooksProvider: any AddressBooksProvider
+        let selectionOutput: AddressBooksSelectionOutput?
 
-        init(addressBooksProvider: any AddressBooksProvider) {
+        init(
+            addressBooksProvider: any AddressBooksProvider,
+            selectionOutput: AddressBooksSelectionOutput? = nil
+        ) {
             self.addressBooksProvider = addressBooksProvider
+            self.selectionOutput = selectionOutput
         }
     }
 }

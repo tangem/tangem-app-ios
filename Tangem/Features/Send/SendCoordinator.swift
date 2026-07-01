@@ -338,13 +338,17 @@ extension SendCoordinator: SendDestinationRoutable {
         }
     }
 
-    func openAddressBookViewAll(provider: any AddressBooksProvider) {
+    func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput) {
         let coordinator = AddressBooksCoordinator(
             dismissAction: { [weak self] _ in self?.addressBooksCoordinator = nil },
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .init(addressBooksProvider: provider))
+        coordinator.start(with: .init(addressBooksProvider: provider, selectionOutput: output))
         addressBooksCoordinator = coordinator
+    }
+
+    func dismissAddressBookViewAll() {
+        addressBooksCoordinator = nil
     }
 }
 
