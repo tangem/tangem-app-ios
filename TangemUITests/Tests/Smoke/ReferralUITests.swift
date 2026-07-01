@@ -20,6 +20,94 @@ final class ReferralUITests: BaseTestCase {
             .openDetails()
             .openWalletSettings(for: walletName)
             .openReferralProgram()
-            .validate()
+            .verifyReferralScreenDisplayed()
+    }
+
+    func testReferral_TokenAndBlockchainAddingAfterParticipation() {
+        setAllureId(3630)
+        let walletName = "Wallet"
+        let tokenNetwork = "Tron"
+        let token = "Tether"
+
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .verifyTokenNotVisible(tokenNetwork)
+            .verifyTokenNotVisible(token)
+            .openDetails()
+            .openWalletSettings(for: walletName)
+            .openReferralProgram()
+            .tapParticipateButton()
+            .verifyPersonalCodeTitleDisplayed()
+            .tapBackButton(to: CardSettingsScreen.self)
+            .tapBackButton(to: DetailsScreen.self)
+            .tapBackButton(to: MainScreen.self)
+            .verifyTokenVisible(tokenNetwork)
+            .verifyTokenVisible(token)
+    }
+
+    func testReferral_TokenAddingAfterParticipation() {
+        setAllureId(10098)
+        let walletScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Tron"
+        )
+        let walletName = "Wallet"
+        let token = "Tether"
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [
+                walletScenario,
+            ]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .verifyTokenNotVisible(token)
+            .openDetails()
+            .openWalletSettings(for: walletName)
+            .openReferralProgram()
+            .tapParticipateButton()
+            .verifyPersonalCodeTitleDisplayed()
+            .tapBackButton(to: CardSettingsScreen.self)
+            .tapBackButton(to: DetailsScreen.self)
+            .tapBackButton(to: MainScreen.self)
+            .verifyTokenVisible(token)
+    }
+
+    func testReferral_ReferralUnavailableForNoWalletCards() {
+        setAllureId(3629)
+        let card = CardMockPicker.random(excluding: [
+            .wallet, .wallet2, .shiba, .visa,
+        ])
+
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: card)
+            .openDetails()
+            .openWalletSettings()
+            .verifyReferralUnavailable()
+    }
+
+    func testReferral_VerifyWalletDerivation() {
+        setAllureId(3636)
+        let token = "Tron"
+
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .openDetails()
+            .openWalletSettings()
+            .openReferralProgram()
+            .tapParticipateButton()
+            .tapBackButton(to: CardSettingsScreen.self)
+            .tapBackButton(to: DetailsScreen.self)
+            .openEnvironmentSetup()
+            .openAddressesInfo()
+            .verifyDerivationPath(forNetwork: token, expected: "m/44'/195'/0'/0/0")
     }
 }
