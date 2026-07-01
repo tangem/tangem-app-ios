@@ -369,19 +369,19 @@ extension CommonTangemApiService: TangemApiService {
     // MARK: - Price Alerts Subscriptions
 
     func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
-        let request = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
         // Decode the `{ "status": ... }` body so a malformed response surfaces as an error; the status
         // string itself carries no client-side meaning beyond the `200`.
         let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
-            for: .subscribeToPriceAlerts(request: request),
+            for: .subscribeToPriceAlerts(request: requestModel),
             decoder: decoder
         )
     }
 
     func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
-        let request = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
-        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await self.request(
-            for: .unsubscribeFromPriceAlerts(request: request),
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .unsubscribeFromPriceAlerts(request: requestModel),
             decoder: decoder
         )
     }
