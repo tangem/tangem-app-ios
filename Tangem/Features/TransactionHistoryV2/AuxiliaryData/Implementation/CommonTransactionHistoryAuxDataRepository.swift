@@ -15,8 +15,10 @@ actor CommonTransactionHistoryAuxDataRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    /// Actor-protected cache for isolated access
     private var cache = Cache()
 
+    /// Lock-protected cache for nonisolated access
     private nonisolated let syncCache = OSAllocatedUnfairLock(initialState: Cache())
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
@@ -39,10 +41,9 @@ actor CommonTransactionHistoryAuxDataRepository {
         self.cachingExpressAPIProviderFactory = cachingExpressAPIProviderFactory
         self.storage = storage
 
-        // Seed both caches synchronously so the accessors never race a background storage load.
-        let initialCache = Self.makeCache(from: storage)
-        cache = initialCache
-        syncCache { $0 = initialCache }
+        let cacheFromStorage = Self.makeCache(from: storage)
+        cache = cacheFromStorage
+        syncCache { $0 = cacheFromStorage }
     }
 }
 
@@ -161,8 +162,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
             await performProvidersLoad()
         }
         inFlightProvidersLoadTask = task
+        defer { inFlightProvidersLoadTask = nil }
         await task.value
-        inFlightProvidersLoadTask = nil
     }
 
     func performProvidersLoad() async {
@@ -208,8 +209,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
             await performCurrenciesLoad()
         }
         inFlightFiatCurrenciesLoadTask = task
+        defer { inFlightFiatCurrenciesLoadTask = nil }
         await task.value
-        inFlightFiatCurrenciesLoadTask = nil
     }
 
     func performCurrenciesLoad() async {

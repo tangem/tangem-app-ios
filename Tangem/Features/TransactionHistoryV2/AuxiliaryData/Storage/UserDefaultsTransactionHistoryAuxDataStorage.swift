@@ -10,11 +10,6 @@ import Foundation
 import TangemExpress
 
 // [REDACTED_TODO_COMMENT]
-/// Synchronous `UserDefaults`-backed placeholder persistence for the transaction-history auxiliary data.
-///
-/// Reads and writes are synchronous and thread-safe, so the caches can be seeded on the actor's init without an
-/// asynchronous load. `ExpressProvider` / `OnrampFiatCurrency` aren't `Codable`, so they are persisted via the
-/// DTOs below; `CoinsList.Coin` is `Codable` and stored as-is.
 struct UserDefaultsTransactionHistoryAuxDataStorage {
     private let suiteName: String?
     private var userDefaults: UserDefaults { UserDefaults(suiteName: suiteName) ?? .standard }
