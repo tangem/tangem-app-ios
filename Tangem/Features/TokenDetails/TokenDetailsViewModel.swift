@@ -21,6 +21,7 @@ import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
+    @Injected(\.marketingCampaignsRepository) private var marketingCampaignsRepository: MarketingCampaignsRepository
 
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
@@ -157,7 +158,9 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         switch action {
         case .empty,
              .unlock,
-             .yieldBoostPromoLater:
+             .yieldBoostPromoLater,
+             .openGetTangemPay,
+             .closeGetTangemPay:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
@@ -469,9 +472,12 @@ private extension TokenDetailsViewModel {
         }
 
         let isDynamicAddressesSupported = walletModel.tokenItem.blockchain.isDynamicAddressesSupported
+        // Dynamic addresses derive multiple receive addresses from an XPUB, so they require an HD wallet.
+        // Single-currency cards (Note, Twin, Start2Coin, legacy) lack HD derivation and must not offer it.
+        let isHDWalletsSupported = userWalletInfo.config.hasFeature(.hdWallets)
         let walletModelDynamicAddressesProvider = walletModel as? WalletModelDynamicAddressesProvider
 
-        if let walletModelDynamicAddressesProvider, isDynamicAddressesSupported {
+        if let walletModelDynamicAddressesProvider, isDynamicAddressesSupported, isHDWalletsSupported {
             items.append(DotsMenuItem(type: .dynamicAddresses) { [weak self] in
                 self?.openDynamicAddressesManagementView(
                     walletModelDynamicAddressesProvider: walletModelDynamicAddressesProvider
@@ -546,6 +552,27 @@ private extension TokenDetailsViewModel {
             .sink { [weak self] isZeroBalance in
                 // [REDACTED_TODO_COMMENT]
                 self?.isZeroBalance = isZeroBalance
+            }
+            .store(in: &bag)
+
+        let activeStaking = walletModel.stakingManagerStatePublisher
+            .map(\.isActive)
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.staking }
+            .eraseToAnyPublisher()
+
+        let activeYield = (walletModel.yieldModuleManager?.statePublisher
+            .map { $0?.state.isEffectivelyActive == true }
+            .eraseToAnyPublisher() ?? .just(output: false))
+            .removeDuplicates()
+            .filter { $0 }
+            .map { _ in MarketingCampaignsRepository.Kind.yield }
+            .eraseToAnyPublisher()
+
+        Publishers.Merge(activeStaking, activeYield)
+            .sink { [weak self] kind in
+                self?.marketingCampaignsRepository.loadCampaigns(for: kind)
             }
             .store(in: &bag)
     }

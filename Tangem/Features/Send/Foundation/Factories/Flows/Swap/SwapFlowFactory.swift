@@ -92,17 +92,17 @@ extension SwapFlowFactory: SendGenericFlowFactory {
 
         // Notifications setup
         notificationManager.setupManager(with: swapModel)
-        notificationManager.setup(
-            sourceTokenInput: swapModel,
-            receiveTokenInput: swapModel,
-            swapModelStateProvider: swapModel
-        )
-
         marketingNotificationManager.setup(
             sourceTokenInput: swapModel,
             sourceTokenAmountInput: swapModel,
+            receiveTokenInput: swapModel
+        )
+
+        notificationManager.setup(
+            sourceTokenInput: swapModel,
             receiveTokenInput: swapModel,
-            swapProvidersInput: swapModel
+            sendFeeInput: swapModel,
+            swapModelStateProvider: swapModel
         )
 
         // Logger setup

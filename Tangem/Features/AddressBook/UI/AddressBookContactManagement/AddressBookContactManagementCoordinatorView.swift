@@ -23,8 +23,14 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
             MainQRScanCoordinatorView(coordinator: $0)
                 .ignoresSafeArea()
         }
+        .sheet(item: $coordinator.chooseNetworkViewModel) { viewModel in
+            ChooseNetworkView(viewModel: viewModel)
+        }
         .floatingSheetContent(for: AddressActionsViewModel.self) { viewModel in
             AddressActionsView(viewModel: viewModel)
+        }
+        .floatingSheetContent(for: AddressBookWalletPickerViewModel.self) { viewModel in
+            AddressBookWalletPickerProxyView(viewModel: viewModel)
         }
     }
 

@@ -12,5 +12,4 @@ struct SwapMarketingBannerRequest: Equatable {
     let source: TokenItem
     let destination: TokenItem
     let sourceAmount: Decimal?
-    let providerId: String?
 }
