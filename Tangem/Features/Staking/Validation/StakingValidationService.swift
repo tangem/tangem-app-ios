@@ -9,8 +9,7 @@
 import Foundation
 import TangemStaking
 import BlockchainSdk
-
-// MARK: - Protocol
+import TangemFoundation
 
 protocol StakingValidationProvider {
     func validate(_ transaction: StakingTransactionAction) async -> StakingValidationResult
@@ -43,25 +42,20 @@ struct StakingValidationService: StakingValidationProvider {
         }
 
         guard !rawTransactions.isEmpty else {
-            analyticsLogger.logNoRawTransactions()
-            return StakingValidationResult(state: .blocked, transaction: nil)
+            return handleMissingRawTransactions()
         }
 
         do {
             try await validator.validate(rawTransactions)
-            analyticsLogger.logSuccess()
-            return StakingValidationResult(state: .validated, transaction: transaction)
+            return handleSuccess(transaction: transaction)
         } catch is CancellationError {
-            return StakingValidationResult(state: .idle, transaction: nil)
+            return handleCancellation()
         } catch let error as StakingTransactionValidationError {
-            analyticsLogger.logLocalError(error)
-            return StakingValidationResult(state: .blocked, transaction: nil)
+            return handleLocalError(error)
         } catch let error as RemoteStakingValidationError {
-            analyticsLogger.logRemoteError(error)
-            let state = mapToValidationState(remoteError: error)
-            return StakingValidationResult(state: state, transaction: transaction)
+            return handleRemoteError(error, transaction: transaction)
         } catch {
-            return StakingValidationResult(state: .validated, transaction: transaction)
+            return handleUnexpectedError(error, transaction: transaction)
         }
     }
 }
@@ -69,6 +63,43 @@ struct StakingValidationService: StakingValidationProvider {
 // MARK: - Private
 
 private extension StakingValidationService {
+    /// No raw payload to inspect — treat as a blind-signing attempt and block.
+    func handleMissingRawTransactions() -> StakingValidationResult {
+        analyticsLogger.logNoRawTransactions()
+        return StakingValidationResult(state: .blocked, transaction: nil)
+    }
+
+    /// Both local and remote layers passed — allow the transaction.
+    func handleSuccess(transaction: StakingTransactionAction) -> StakingValidationResult {
+        analyticsLogger.logSuccess()
+        return StakingValidationResult(state: .validated, transaction: transaction)
+    }
+
+    /// Validation was superseded or cancelled — reset to idle without a verdict.
+    func handleCancellation() -> StakingValidationResult {
+        StakingValidationResult(state: .idle, transaction: nil)
+    }
+
+    /// Local validator rejected the payload (not a staking tx / malformed) — block.
+    func handleLocalError(_ error: StakingTransactionValidationError) -> StakingValidationResult {
+        analyticsLogger.logLocalError(error)
+        return StakingValidationResult(state: .blocked, transaction: nil)
+    }
+
+    /// Remote (BlockAid) verdict — map warning/malicious/failed to the matching state.
+    func handleRemoteError(_ error: RemoteStakingValidationError, transaction: StakingTransactionAction) -> StakingValidationResult {
+        analyticsLogger.logRemoteError(error)
+        return StakingValidationResult(state: mapToValidationState(remoteError: error), transaction: transaction)
+    }
+
+    /// Backstop for unexpected errors — log, then fail open (the local layer already vetted the tx).
+    func handleUnexpectedError(_ error: Error, transaction: StakingTransactionAction) -> StakingValidationResult {
+        AppLogger.error("Unexpected staking validation error", error: error)
+        let remoteError = RemoteStakingValidationError.unknown(description: "\(error)")
+        analyticsLogger.logRemoteError(remoteError)
+        return StakingValidationResult(state: mapToValidationState(remoteError: remoteError), transaction: transaction)
+    }
+
     func mapToValidationState(remoteError: RemoteStakingValidationError) -> StakingValidationState {
         switch remoteError {
         case .warning:
@@ -76,6 +107,8 @@ private extension StakingValidationService {
         case .malicious:
             .blocked
         case .validationFailed:
+            .validated
+        case .unknown:
             .validated
         }
     }

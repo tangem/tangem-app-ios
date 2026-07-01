@@ -100,6 +100,8 @@ extension CommonStakingSendAnalyticsLogger: StakingValidationAnalyticsLogger {
             blockaidValue = .blockaidUnsafe
         case .validationFailed:
             blockaidValue = .blockaidFailedToValidate
+        case .unknown:
+            blockaidValue = .blockaidFailedToValidate
         }
         logEvent(blockaidValue: blockaidValue, mobileCheckValue: .true)
     }
