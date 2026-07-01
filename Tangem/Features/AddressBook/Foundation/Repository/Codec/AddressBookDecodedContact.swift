@@ -17,7 +17,7 @@ struct AddressBookDecodedContact: Hashable, Codable {
     let name: AddressBookContactName
     /// Optional custom icon. Left empty for the first iteration (the avatar is derived from `name`).
     let icon: String
-    /// Avatar background color id (e.g. "MexicanPink"), mirroring the account icon palette.
+    /// Avatar background color as the bare color id (e.g. "MexicanPink"), per the cross-platform blob schema.
     let iconColor: String
     let createdAt: Date
     let updatedAt: Date

@@ -30,6 +30,8 @@ protocol AddressBookContactManagementInteractor {
     var reservedAddresses: [AddressBookReservedAddress] { get }
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> { get }
 
+    var hasUnsavedChanges: Bool { get }
+
     func update(name: String)
     func update(color: AccountModel.CompositeIcon.Color)
     func update(addressBookWallet: AddressBookWallet)
