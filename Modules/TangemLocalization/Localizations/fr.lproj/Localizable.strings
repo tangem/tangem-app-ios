@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Ajouter une adresse et sélectionner un réseau";
 "address_book_add_address" = "Ajouter une adresse";
 "address_book_add_contact" = "Ajouter le contact";
+"address_book_address_copied" = "Address copied";
 "address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nom du contact";
@@ -727,6 +728,11 @@
 "manage_tokens_toast_portfolio_updated" = "Votre portfolio a été mis à jour";
 "manage_tokens_wallet_selector_title" = "Choisissez un portefeuille";
 "manage_tokens_wallet_support_only_one_network_title" = "Le portefeuille ne prend pas en charge plus d'un réseau";
+"market_chart_ai_total" = "Al Total:";
+"market_chart_buble_no_data" = "No data";
+"market_chart_buble_total_value" = "Total value";
+"market_chart_can_not_load_data" = "Can’t load data";
+"market_chart_top_holding" = "Top holding %@%%";
 "markets_about_coin_header" = "À propos de la crypto";
 "markets_add_to_my_portfolio_description" = "Pour acheter, échanger ou recevoir cet actif, ajoutez-le à votre portefeuille";
 "markets_add_to_my_portfolio_unavailable_description" = "Cet actif n'est pas pris en charge dans le portefeuille";
