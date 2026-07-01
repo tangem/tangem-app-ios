@@ -22,6 +22,8 @@ struct P2PTarget {
         case getVaultsList
         /// Get account summary for a delegator in a vault
         case getAccountSummary(delegatorAddress: String, vaultAddress: String)
+        /// Get account summaries for multiple delegators in a vault (batch)
+        case getAccountsList(vaultAddress: String, request: P2PDTO.AccountsList.Request)
         /// Prepare deposit transaction
         case prepareDepositTransaction(request: P2PDTO.PrepareTransaction.Request)
         /// Prepare unstake transaction
@@ -44,6 +46,8 @@ extension P2PTarget: TargetType {
             return "vaults"
         case .getAccountSummary(let delegatorAddress, let vaultAddress):
             return "account/\(delegatorAddress)/vault/\(vaultAddress)"
+        case .getAccountsList(let vaultAddress, _):
+            return "vaults/\(vaultAddress)/accounts/list"
         case .prepareDepositTransaction:
             return "staking/deposit"
         case .prepareUnstakeTransaction:
@@ -59,7 +63,7 @@ extension P2PTarget: TargetType {
         switch target {
         case .getVaultsList, .getAccountSummary:
             return .get
-        case .prepareDepositTransaction, .prepareUnstakeTransaction, .prepareWithdrawTransaction, .broadcastTransaction:
+        case .getAccountsList, .prepareDepositTransaction, .prepareUnstakeTransaction, .prepareWithdrawTransaction, .broadcastTransaction:
             return .post
         }
     }
@@ -68,6 +72,8 @@ extension P2PTarget: TargetType {
         switch target {
         case .getVaultsList, .getAccountSummary:
             return .requestPlain
+        case .getAccountsList(_, let request):
+            return .requestJSONEncodable(request)
         case .prepareDepositTransaction(let request):
             return .requestJSONEncodable(request)
         case .prepareUnstakeTransaction(let request):
