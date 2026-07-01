@@ -15,7 +15,6 @@ struct AddressBookContact: Hashable {
     let id: AddressBookContactID
     let walletId: UserWalletId
     let name: AddressBookContactName
-    /// Avatar background color id (e.g. "MexicanPink"); persisted in the blob, not part of the signed tuple.
-    let iconColor: String
+    let appearance: AddressBookContactAppearance
     let entries: AddressBookContactVerifiedEntries
 }
