@@ -149,6 +149,8 @@ extension NotificationView {
         let iconType: LeadingIconType
         var renderingMode: Image.TemplateRenderingMode?
         var color: Color?
+        /// Redesigned banner only: overrides the horizontal icon side (`false` = trailing). Legacy `NotificationView` ignores it.
+        var isLeading: Bool?
         var size: CGSize = .init(bothDimensions: 20)
         var yieldModuleIconSize: CGSize = .init(bothDimensions: 12)
     }

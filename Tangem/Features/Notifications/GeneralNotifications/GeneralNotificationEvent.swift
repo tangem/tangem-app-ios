@@ -45,7 +45,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var bannerKind: NotificationBannerKind? {
         switch self {
-        case .failedToVerifyCard, .demoCard, .devCard, .testnetCard:
+        case .failedToVerifyCard, .demoCard, .devCard, .testnetCard, .legacyDerivation:
             return .status
 
         case .backupErrors, .missingBackup, .lowSignatures, .mobileFinishActivation, .numberOfSignedHashesIncorrect:
@@ -57,10 +57,10 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .rateApp:
             return .survey
 
-        case .pushNotificationsPermissionRequest:
+        case .pushNotificationsPermissionRequest, .systemDeprecationTemporary:
             return .informational()
 
-        case .addFunds:
+        case .mobileUpgrade, .addFunds:
             return .promo(.magic)
 
         case .initialWalletTokenSyncCompleted:
@@ -106,7 +106,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .supportedOnlySingleCurrencyWallet:
             return .string(Localization.manageTokensWalletSupportOnlyOneNetworkTitle)
         case .backupErrors:
-            return .string(Localization.commonAttention)
+            return .string(Localization.onboardingActivationErrorTitle)
         case .mobileFinishActivation(let hasPositiveBalance, _):
             let text = Localization.hwActivationNeedTitle
             if hasPositiveBalance {
@@ -207,7 +207,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .failedToVerifyCard, .devCard, .backupErrors:
+        case .failedToVerifyCard, .devCard:
             return .init(iconType: .image(Assets.redCircleWarning))
         case .numberOfSignedHashesIncorrect,
              .testnetCard,
@@ -218,6 +218,13 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet:
             return .init(iconType: .image(Assets.attention))
+        case .backupErrors:
+            return .init(
+                iconType: .image(Assets.DesignSystem.attention),
+                renderingMode: .template,
+                color: .Tangem.Text.Neutral.primary,
+                size: .init(bothDimensions: 28)
+            )
         case .demoCard, .legacyDerivation, .systemDeprecationTemporary, .missingDerivation:
             return .init(iconType: .image(Assets.blueCircleWarning))
         case .rateApp:
@@ -236,6 +243,9 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .addFunds:
             return .init(
                 iconType: .image(Assets.coinsSwap),
+                renderingMode: .template,
+                color: .Tangem.Text.Neutral.primary,
+                isLeading: false,
                 size: CGSize(width: 24, height: 24)
             )
         }
