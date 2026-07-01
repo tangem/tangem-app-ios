@@ -51,6 +51,7 @@ struct GlowRingModifier: ViewModifier {
                 GeometryReader { proxy in
                     canvas(width: proxy.size.width, height: proxy.size.height)
                 }
+                .allowsHitTesting(false)
             }
             .onAppear { isVisible = true }
             .onDisappear { isVisible = false }
