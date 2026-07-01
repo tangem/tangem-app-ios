@@ -15,6 +15,10 @@ protocol P2PStakingAPIService {
         delegatorAddress: String,
         vaultAddress: String
     ) async throws -> P2PDTO.AccountSummary.AccountSummaryInfo
+    func getAccountsList(
+        vaultAddress: String,
+        delegatorAddresses: [String]
+    ) async throws -> P2PDTO.AccountsList.AccountsListInfo
     func prepareDepositTransaction(
         request: P2PDTO.PrepareTransaction.Request
     ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo
