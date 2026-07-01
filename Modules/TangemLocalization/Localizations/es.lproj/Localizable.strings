@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "Agregue la dirección y seleccione la red";
 "address_book_add_address" = "Agregar dirección";
 "address_book_add_contact" = "Añadir contacto";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "Nombre de contacto";
 "address_book_contact" = "Contacto";
@@ -106,6 +107,7 @@
 "address_book_no_contacts_description" = "Los contactos añadidos aparecerán aquí";
 "address_book_no_contacts" = "Aún no hay contactos";
 "address_book_remove_address" = "Eliminar dirección";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "Este contacto se añadirá a la agenda de esta billetera.";
 "address_book_search_no_results" = "No results found.\nTry another name";

@@ -82,6 +82,7 @@
 "address_book_add_address_description" = "添加地址并选择网络";
 "address_book_add_address" = "添加地址";
 "address_book_add_contact" = "添加联系人";
+"address_book_address_taken_error" = "This address is already saved as %1$@";
 "address_book_choose_address" = "Choose address";
 "address_book_contact_name" = "联系人姓名";
 "address_book_contact" = "联系人";
@@ -106,6 +107,7 @@
 "address_book_no_contacts_description" = "添加的联系人将显示在此处";
 "address_book_no_contacts" = "尚无联系人";
 "address_book_remove_address" = "移除地址";
+"address_book_save_contact" = "Save contact";
 "address_book_save_to_wallet_title" = "Save to Wallet";
 "address_book_save_wallet_to_description" = "该联系人将与该钱包的通讯录关联。";
 "address_book_search_no_results" = "No results found.\nTry another name";
