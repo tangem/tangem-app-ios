@@ -62,6 +62,10 @@ struct AddressBookContactEntries<Entry: AddressBookEntry>: Hashable {
         }
     }
 
+    func caseInsensitiveContains(address: String) -> Bool {
+        raw.contains { $0.address.caseInsensitiveEquals(to: address) }
+    }
+
     /// Strict mutation-time validation, used by the editor before save: the max-count cap and
     /// (address, networkId) uniqueness within the contact. The manager re-validates authoritatively on save.
     static func validate(adding entries: [Entry], to existing: [Entry]) throws {
