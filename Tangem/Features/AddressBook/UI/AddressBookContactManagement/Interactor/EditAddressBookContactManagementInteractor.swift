@@ -22,6 +22,8 @@ final class EditAddressBookContactManagementInteractor {
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
 
+    private let initialSnapshot: AddressBookContactSnapshot
+
     init(contact: AddressBookContact, addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
         self.contact = contact
         self.addressBooksProvider = addressBooksProvider
@@ -32,6 +34,13 @@ final class EditAddressBookContactManagementInteractor {
             AddressBookEntryDraft(id: $0.id, address: $0.address, blockchain: $0.blockchain, memo: $0.memo)
         })
         walletSubject = .init(addressBookWallet)
+
+        initialSnapshot = Self.makeSnapshot(
+            name: nameSubject.value,
+            color: colorSubject.value,
+            wallet: walletSubject.value,
+            addresses: addressesSubject.value
+        )
     }
 }
 
@@ -81,6 +90,31 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
                 CommonTangemIconProvider(config: addressBookWallet.wallet.config).getMainButtonIcon()
             }
             .eraseToAnyPublisher()
+    }
+
+    var hasUnsavedChanges: Bool {
+        Self.makeSnapshot(
+            name: nameSubject.value,
+            color: colorSubject.value,
+            wallet: walletSubject.value,
+            addresses: addressesSubject.value
+        ) != initialSnapshot
+    }
+
+    private static func makeSnapshot(
+        name: String,
+        color: AccountModel.CompositeIcon.Color,
+        wallet: AddressBookWallet,
+        addresses: [AddressBookEntryDraft]
+    ) -> AddressBookContactSnapshot {
+        AddressBookContactSnapshot(
+            name: name.trimmed(),
+            color: color,
+            walletId: wallet.wallet.id.stringValue,
+            entries: Set(addresses.map {
+                AddressBookContactSnapshot.Entry(address: $0.address, networkId: $0.networkId.rawValue, memo: $0.memo ?? "")
+            })
+        )
     }
 
     func update(name: String) {
