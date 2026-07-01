@@ -31,7 +31,7 @@ public struct TangemSnackbar: View, Setupable {
                 .glassEffect(.regular, in: shape)
         } else {
             content
-                .background(Color.Tangem.Controls.backgroundDefault, in: shape)
+                .tangemMaterialSurface(in: shape)
         }
     }
 }
@@ -46,7 +46,7 @@ private extension TangemSnackbar {
         }
     }
 
-    var shape: some Shape {
+    var shape: some InsettableShape {
         RoundedRectangle(cornerRadius: .unit(.x5), style: .continuous)
     }
 
