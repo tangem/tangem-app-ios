@@ -28,3 +28,19 @@ struct AddressIconProviderView: View {
         }
     }
 }
+
+struct AddressIconViewModel {
+    let addressIconType: AddressIconProviderViewType?
+
+    init(address: String) {
+        addressIconType = AddressIconProvider.makeViewType(address: address)
+    }
+}
+
+struct AddressIconView: View {
+    let viewModel: AddressIconViewModel
+
+    var body: some View {
+        AddressIconProviderView(type: viewModel.addressIconType)
+    }
+}
