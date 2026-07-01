@@ -42,9 +42,10 @@ private extension PriceAlertsViewModel {
     }
 
     func makeOnboardingViewModel() -> PriceAlertsOnboardingViewModel {
-        PriceAlertsOnboardingViewModel { [weak self] in
-            self?.handleOnboardingFinished()
-        }
+        PriceAlertsOnboardingViewModel(
+            gotItAction: { [weak self] in self?.handleOnboardingFinished() },
+            closeAction: { [weak self] in self?.handleOnboardingClosed() }
+        )
     }
 
     func makeWalletSelectorViewModel() -> PriceAlertsWalletSelectorViewModel {
@@ -56,6 +57,12 @@ private extension PriceAlertsViewModel {
     func handleOnboardingFinished() {
         AppSettings.shared.isPriceAlertsOnboardingShown = true
         viewState = .walletSelector(viewModel: makeWalletSelectorViewModel())
+    }
+
+    func handleOnboardingClosed() {
+        // The onboarding was displayed; don't show it again even if dismissed without continuing.
+        AppSettings.shared.isPriceAlertsOnboardingShown = true
+        onCloseTapAction()
     }
 }
 
