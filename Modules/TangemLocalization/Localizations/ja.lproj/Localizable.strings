@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "ウォレットを選択";
 "manage_tokens_wallet_support_only_one_network_title" = "ウォレットは複数のネットワークをサポートしていません。";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "有効なアドレスではありません";
 "send_recipient_address_footer" = "トークンの損失を避けるために、受信ウォレットアドレスが**%@ネットワーク**上にあることを確認してください";
 "send_recipient_memo_footer_v2_highlighted" = "注意：メモを忘れると資金が失われる可能性があります。";
+"send_recipient_memo_footer_v2" = "メモ / 宛先タグは、暗号資産ネットワーク内の共有受信者への取引を分離するコードです。";
 "send_recipient_memo_footer" = "メモ / 宛先タグは、同じネットワーク上の同じ受信者に送信される取引を区別するためのユニークなIDです。 \n **注意: メモを省略すると、資金が紛失する可能性があります**";
 "send_recipient_wallets_title" = "マイウォレット";
 "send_recipient" = "受取人";
