@@ -21,8 +21,8 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
 
-    private var providersInFlight: Task<Void, Never>?
-    private var currenciesInFlight: Task<Void, Never>?
+    private var inFlightProvidersLoadTask: Task<Void, Never>?
+    private var inFlightFiatCurrenciesLoadTask: Task<Void, Never>?
 
     private var pendingCoins: [String: TokenItem] = [:]
     private var inFlightCoinKeys: Set<String> = []
@@ -68,7 +68,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
         if cached == nil {
             Task { [self] in
-                await ensureProvidersLoaded()
+                await loadProvidersInfoIfNeeded()
             }
         }
 
@@ -80,7 +80,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
             return cached
         }
 
-        await ensureProvidersLoaded()
+        await loadProvidersInfoIfNeeded()
 
         return cache.providers[id]
     }
@@ -151,20 +151,18 @@ private extension CommonTransactionHistoryAuxDataRepository {
         )
     }
 
-    func ensureProvidersLoaded() async {
-        if let task = providersInFlight {
-            await task.value
-
-            return
+    func loadProvidersInfoIfNeeded() async {
+        if let task = inFlightProvidersLoadTask {
+            return await task.value
         }
 
         let task = Task { [self] in
             try? await Task.sleep(for: Constants.debounce)
             await performProvidersLoad()
         }
-        providersInFlight = task
+        inFlightProvidersLoadTask = task
         await task.value
-        providersInFlight = nil
+        inFlightProvidersLoadTask = nil
     }
 
     func performProvidersLoad() async {
@@ -199,7 +197,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
     }
 
     func ensureCurrenciesLoaded() async {
-        if let task = currenciesInFlight {
+        if let task = inFlightFiatCurrenciesLoadTask {
             await task.value
 
             return
@@ -209,9 +207,9 @@ private extension CommonTransactionHistoryAuxDataRepository {
             try? await Task.sleep(for: Constants.debounce)
             await performCurrenciesLoad()
         }
-        currenciesInFlight = task
+        inFlightFiatCurrenciesLoadTask = task
         await task.value
-        currenciesInFlight = nil
+        inFlightFiatCurrenciesLoadTask = nil
     }
 
     func performCurrenciesLoad() async {

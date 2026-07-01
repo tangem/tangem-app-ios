@@ -10,6 +10,10 @@ import Foundation
 import TangemExpress
 
 // [REDACTED_TODO_COMMENT]
+/// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instances inside
+/// the synchronous and implicitly isolated init of the `CommonTransactionHistoryAuxDataRepository` actor.
+/// Without it, we either would have to make that init async or silence the compiler warning
+/// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
 final class UserDefaultsTransactionHistoryAuxDataStorage {
     @AppStorageCompat<StorageKey, Data?>
     private var providersBlob: Data?
