@@ -32,6 +32,23 @@ struct CommonUserTokensManagerDisposalTests {
         #expect(completion != nil)
     }
 
+    @Test("A subscription created after `dispose()` does not synchronously finish")
+    func subscriptionAfterDisposeDoesNotReplayDisposal() throws {
+        let sut = try makeSUT()
+        var cancellables = Set<AnyCancellable>()
+        var completion: Subscribers.Completion<Never>?
+
+        sut.dispose()
+
+        sut.userTokensPublisher
+            .receiveCompletion { completion = $0 }
+            .store(in: &cancellables)
+
+        // Regression guard ([REDACTED_INFO]): the disposal signal must not replay to a subscription created
+        // after `dispose()` — a synchronous replay here trapped CombineExt's `DemandBuffer`.
+        #expect(completion == nil)
+    }
+
     @Test("`orderedWalletModelIds` finishes after `dispose()`")
     func orderedWalletModelIdsFinishesAfterDispose() throws {
         let sut = try makeSUT()

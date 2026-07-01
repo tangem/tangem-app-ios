@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct AddCustomTokenNetworksListItemView: View {
     @ObservedObject var viewModel: AddCustomTokenNetworksListItemViewModel
@@ -46,6 +47,7 @@ struct AddCustomTokenNetworksListItemView: View {
         .onTapGesture {
             viewModel.didTapWallet()
         }
+        .accessibilityIdentifier(AddCustomTokenAccessibilityIdentifiers.networkRow(viewModel.networkName))
     }
 }
 

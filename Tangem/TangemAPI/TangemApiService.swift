@@ -107,6 +107,10 @@ protocol TangemApiService: AnyObject {
     func loadPromotionCampaigns(userWalletId: String) async throws -> [BannerPromotion.Response.Promotion]
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response
 
+    // MARK: - Marketing
+
+    func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response
+
     // MARK: - Configs
 
     func loadFeatures() async throws -> [String: Bool]
@@ -168,6 +172,15 @@ protocol TangemApiService: AnyObject {
 
     /// - Returns: The list of archived accounts.
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
+
+    // MARK: - Address Book
+
+    /// Fetches the encrypted books of the requested wallets, skipping any whose sent etag still matches.
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response
+
+    /// Replaces a wallet's encrypted book, optimistically locked by `knownETag` (omitted on first write).
+    /// - Returns: The PUT response body — the new etag, used as the next `If-Match`.
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse
 }
 
 private struct TangemApiServiceKey: InjectionKey {

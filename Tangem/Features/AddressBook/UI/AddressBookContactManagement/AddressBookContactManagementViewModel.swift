@@ -28,7 +28,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     @Published private(set) var isProcessing: Bool = false
 
-    @Published var errorAlert: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     @Published private var entries: AddressBookContactDraftEntries?
@@ -41,14 +41,14 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     let colors: [GridItemColor] = AccountModel.CompositeIcon.Color
         .allCases
         .map { iconColor in
-            GridItemColor(id: iconColor, color: AccountModelUtils.UI.iconColor(from: iconColor))
+            GridItemColor(id: iconColor, color: CompositeIconColorPalette.color(for: iconColor))
         }
 
     @Published private(set) var addressesSection: [AddressRowType] = []
 
     var iconViewData: AccountIconView.ViewData {
         .composite(
-            backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
+            backgroundColor: CompositeIconColorPalette.color(for: selectedColor.id),
             nameMode: nameMode
         )
     }
@@ -56,6 +56,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     // MARK: - Dependencies
 
     private let interactor: AddressBookContactManagementInteractor
+    private let addressBooksProvider: any AddressBooksProvider
     private weak var coordinator: AddressBookContactManagementRoutable?
     private var bag = Set<AnyCancellable>()
 
@@ -69,28 +70,59 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     init(
         interactor: AddressBookContactManagementInteractor,
-        coordinator: AddressBookContactManagementRoutable
+        coordinator: AddressBookContactManagementRoutable,
+        addressBooksProvider: any AddressBooksProvider = .common()
     ) {
         self.interactor = interactor
+        self.addressBooksProvider = addressBooksProvider
         self.coordinator = coordinator
 
         title = interactor.title
 
-        let newIcon = AccountModelUtils.UI.newAccountIcon()
+        let newColor = CompositeIconColor.randomElement()
         selectedColor = GridItemColor(
-            id: newIcon.color,
-            color: AccountModelUtils.UI.iconColor(from: newIcon.color)
+            id: newColor,
+            color: CompositeIconColorPalette.color(for: newColor)
         )
 
         bind()
     }
 
     func userDidRequestDismiss() {
-        coordinator?.dismissContactManagement()
+        guard !isProcessing, interactor.hasUnsavedChanges else {
+            coordinator?.dismissContactManagement()
+            return
+        }
+
+        alert = AlertBuilder.makeExitAlert(
+            title: Localization.addressBookUnsavedChanges,
+            message: Localization.addressBookUnsavedChangesDescription,
+            keepEditingButtonText: Localization.addressBookKeepEditing,
+            discardButtonText: Localization.addressBookDiscard,
+            discardAction: { [weak self] in
+                self?.coordinator?.dismissContactManagement()
+            }
+        )
     }
 
     func userDidRequestWalletChange() {
-        // [REDACTED_TODO_COMMENT]
+        guard let selectedWallet, let coordinator else {
+            return
+        }
+
+        let addressBookWallets = addressBooksProvider.addressBooks
+            .filter { $0.wallet.id != selectedWallet.userWalletInfo.id }
+
+        guard addressBookWallets.isNotEmpty else {
+            return
+        }
+
+        let viewModel = AddressBookWalletPickerViewModel(
+            addressBookWallets: addressBookWallets,
+            output: self,
+            routable: coordinator
+        )
+        coordinator.presentWalletPicker(viewModel)
     }
 
     func userDidRequestDone() {
@@ -130,7 +162,7 @@ private extension AddressBookContactManagementViewModel {
 
         interactor.contactColorPublisher
             .removeDuplicates()
-            .map { color in GridItemColor(id: color, color: AccountModelUtils.UI.iconColor(from: color)) }
+            .map { color in GridItemColor(id: color, color: CompositeIconColorPalette.color(for: color)) }
             .receiveOnMain()
             .assign(to: &$selectedColor)
 
@@ -147,6 +179,13 @@ private extension AddressBookContactManagementViewModel {
             .assign(to: &$entries)
 
         interactor.walletPublisher
+            .withWeakCaptureOf(self)
+            .map { viewModel, addressBookWallet -> WalletRowType? in
+                WalletRowType(
+                    userWalletInfo: addressBookWallet.wallet,
+                    isEditable: viewModel.addressBooksProvider.addressBooks.count > 1
+                )
+            }
             .receiveOnMain()
             .assign(to: &$selectedWallet)
 
@@ -215,7 +254,12 @@ private extension AddressBookContactManagementViewModel {
         coordinator?.openAddAddress(
             userWalletInfo: wallet.userWalletInfo,
             output: self,
-            options: .edit(address: group.address, memo: group.memo, replacing: group.networks.map(\.id))
+            options: .edit(
+                address: group.address,
+                memo: group.memo,
+                networks: Set(group.networks.map(\.blockchain)),
+                replacing: group.networks.map(\.id)
+            )
         )
     }
 
@@ -263,7 +307,7 @@ private extension AddressBookContactManagementViewModel {
     }
 
     func presentGenericError(message: String) {
-        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+        alert = AlertBinder(title: Localization.commonError, message: message)
     }
 }
 
@@ -276,6 +320,14 @@ extension AddressBookContactManagementViewModel: AddressBookAddAddressOutput {
         } catch {
             presentGenericError(message: error.localizedDescription)
         }
+    }
+}
+
+// MARK: - AddressBookWalletPickerOutput
+
+extension AddressBookContactManagementViewModel: AddressBookWalletPickerOutput {
+    func walletPickerDidSelect(_ addressBookWallet: AddressBookWallet) {
+        interactor.update(addressBookWallet: addressBookWallet)
     }
 }
 

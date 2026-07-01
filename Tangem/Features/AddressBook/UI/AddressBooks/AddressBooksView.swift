@@ -16,14 +16,13 @@ struct AddressBooksView: View {
     @ObservedObject var viewModel: AddressBooksViewModel
 
     var body: some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8)) {
-            content
-        }
-        .interContentPadding(12)
-        .navigationTitle(Text(Localization.addressBookTitle))
-        // [REDACTED_TODO_COMMENT]
-        .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
-        .toolbar { trailingToolbarItem }
+        rootContent
+            .navigationTitle(Text(Localization.addressBookTitle))
+            .searchable(text: $viewModel.searchText, prompt: Text(Localization.commonSearch))
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+            .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+            .toolbar { trailingToolbarItem }
     }
 
     @ToolbarContentBuilder
@@ -41,27 +40,47 @@ struct AddressBooksView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        chipsView
-
-        switch viewModel.contactsViewModels {
-        case .loading:
-            AddressBooksLoadingView()
+    private var rootContent: some View {
+        switch viewModel.contentState {
+        case .empty:
+            AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
+                .infinityFrame()
 
         case .failure:
             TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
+                .infinityFrame()
 
-        case .success(let contactsViewModels) where contactsViewModels.isEmpty:
-            AddressBooksEmptyView(onAddContactTap: viewModel.openAddContact)
+        case .noResults:
+            AddressBooksSearchNoResultsView()
+                .infinityFrame()
 
-        case .success(let contactsViewModels):
-            GroupedSection(contactsViewModels, isLazy: true) {
-                AddressBookContactView(viewModel: $0)
-            }
-            .separatorStyle(.none)
-            .cornerRadius(24)
-            .horizontalPadding(0)
+        case .loading, .searching, .results:
+            listContent
         }
+    }
+
+    @ViewBuilder
+    private var listContent: some View {
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
+            chipsView
+
+            switch viewModel.contentState {
+            case .loading, .searching:
+                AddressBooksLoadingView()
+
+            case .results(let contactsViewModels):
+                GroupedSection(contactsViewModels, isLazy: true) {
+                    AddressBookContactView(viewModel: $0)
+                }
+                .separatorStyle(.none)
+                .cornerRadius(24)
+                .horizontalPadding(0)
+
+            default:
+                EmptyView()
+            }
+        }
+        .interContentPadding(12)
     }
 
     @ViewBuilder

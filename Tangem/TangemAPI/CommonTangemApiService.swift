@@ -280,6 +280,12 @@ extension CommonTangemApiService: TangemApiService {
         )
     }
 
+    // MARK: - Marketing
+
+    func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
+        try await self.request(for: .marketingCampaigns(parameters: request.parameters), decoder: decoder)
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
@@ -449,6 +455,31 @@ extension CommonTangemApiService: TangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
             return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    // MARK: - Address Book
+
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
+        // The Address Book wire contract is camelCase, so it uses the default decoder rather than the
+        // snake-case `decoder` the rest of this service shares.
+        try await self.request(for: .syncAddressBooks(request))
+    }
+
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse {
+        let target = TangemApiTarget(type: .updateAddressBook(walletId: walletId, knownETag: knownETag, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            // The optimistic-locking conflict is signalled purely by HTTP 412 (If-Match). Map it from the
+            // status before the body-driven error mapper, so a server error body can't mask the conflict.
+            if response.statusCode == TangemAPIError.ErrorCode.optimisticLockingFailed.rawValue {
+                throw TangemAPIError(code: .optimisticLockingFailed)
+            }
+
+            // The new etag comes back in the (camelCase) response body.
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false)
         }
     }
 

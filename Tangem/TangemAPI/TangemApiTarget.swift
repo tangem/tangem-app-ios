@@ -71,6 +71,8 @@ struct TangemApiTarget: TargetType {
             return "/banner/displays"
         case .hidePromotion(let request):
             return "/banner/displays/\(request.displayId)"
+        case .marketingCampaigns:
+            return "/marketing/campaigns"
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -138,6 +140,12 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
 
+        // MARK: - Address Book
+        case .syncAddressBooks:
+            return "/address-books/sync"
+        case .updateAddressBook(let walletId, _, _):
+            return "/address-books/\(walletId)"
+
         // MARK: - News
         case .newsList:
             return "/news"
@@ -166,6 +174,7 @@ struct TangemApiTarget: TargetType {
              .promotion,
              .yieldBoostPromotionStatus,
              .loadPromotions,
+             .marketingCampaigns,
              .apiList,
              .features,
              .coinsList,
@@ -193,14 +202,16 @@ struct TangemApiTarget: TargetType {
              .saveUserWalletTokensV2,
              .saveUserAccounts,
              .connectUserWallets,
-             .updateNotificationPreferences:
+             .updateNotificationPreferences,
+             .updateAddressBook:
             return .put
         case .participateInReferralProgram,
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
              .createWallet,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .syncAddressBooks:
             return .post
         case .updateUserWalletsApplication, .updateWallet, .hidePromotion:
             return .patch
@@ -237,6 +248,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(request)
         case .hidePromotion(let request):
             return .requestJSONEncodable(request)
+        case .marketingCampaigns(let parameters):
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -307,6 +320,12 @@ struct TangemApiTarget: TargetType {
         case .getArchivedUserAccounts:
             return .requestPlain
 
+        // MARK: - Address Book
+        case .syncAddressBooks(let request):
+            return .requestJSONEncodable(request)
+        case .updateAddressBook(_, _, let body):
+            return .requestJSONEncodable(body)
+
         // MARK: - News
         case .newsList(let requestModel):
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
@@ -344,6 +363,9 @@ struct TangemApiTarget: TargetType {
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
             ]
+        case .updateAddressBook(_, let knownETag, _):
+            // Optimistic locking: send If-Match only when we already hold an etag (the client never mints one).
+            return knownETag.map { [TangemAPIHeaders.ifMatch.rawValue: $0] }
         case .rawData,
              .currencies,
              .coins,
@@ -360,6 +382,7 @@ struct TangemApiTarget: TargetType {
              .yieldBoostPromotionStatus,
              .loadPromotions,
              .hidePromotion,
+             .marketingCampaigns,
              .activatePromoCode,
              .story,
              .coinsList,
@@ -388,7 +411,8 @@ struct TangemApiTarget: TargetType {
              .newsList,
              .newsDetails,
              .newsCategories,
-             .bindWalletsByCode:
+             .bindWalletsByCode,
+             .syncAddressBooks:
             return nil
         }
     }
@@ -418,6 +442,8 @@ extension TangemApiTarget {
         // Promotions
         case loadPromotions(request: PromotionsDTO.Load.Request)
         case hidePromotion(request: PromotionsDTO.Hide.Request)
+
+        case marketingCampaigns(parameters: [String: Any])
 
         case story(_ id: String)
 
@@ -467,6 +493,10 @@ extension TangemApiTarget {
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
+
+        // Address Book
+        case syncAddressBooks(_ request: AddressBookDTO.SyncRequest)
+        case updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest)
 
         // MARK: - News Targets
 
@@ -537,10 +567,13 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .promotion,
              .loadPromotions,
              .hidePromotion,
+             .marketingCampaigns,
              .pushNotificationsEligible,
              .getUserAccounts,
              .saveUserAccounts,
              .getArchivedUserAccounts,
+             .syncAddressBooks,
+             .updateAddressBook,
              .activatePromoCode,
              .coinsSettings:
             return true

@@ -29,7 +29,7 @@ struct AddressBookContactManagementView: View {
                 NavigationToolbarButton
                     .close(placement: .topBarTrailing, action: viewModel.userDidRequestDismiss)
             }
-            .alert(item: $viewModel.errorAlert) { $0.alert }
+            .alert(item: $viewModel.alert) { $0.alert }
     }
 
     private var scrollContent: some View {
@@ -127,7 +127,6 @@ struct AddressBookContactManagementView: View {
             content: doneButtonContent,
             action: viewModel.userDidRequestDone
         )
-        .setCornerStyle(.rounded)
         .setHorizontalLayout(.infinity)
         .setSize(.x12)
         .setStyleType(.primary)

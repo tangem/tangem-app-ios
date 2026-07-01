@@ -94,6 +94,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
+        throw "Not implemented"
+    }
+
     func loadStory(storyId: String) async throws -> StoryDTO.Response {
         throw "Not implemented"
     }
@@ -194,6 +198,14 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
+        throw "Not implemented"
+    }
+
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
+        throw "Not implemented"
+    }
+
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse {
         throw "Not implemented"
     }
 
