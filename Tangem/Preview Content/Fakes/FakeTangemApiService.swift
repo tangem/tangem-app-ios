@@ -153,15 +153,15 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func subscribeToPriceAlerts(walletIds: [String], tokenId: String) async throws {
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
         throw "Not implemented"
     }
 
-    func unsubscribeFromPriceAlerts(walletIds: [String], tokenId: String) async throws {
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
         throw "Not implemented"
     }
 
-    func priceAlertsSubscriptions(walletId: String) async throws -> [String] {
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String] {
         throw "Not implemented"
     }
 
