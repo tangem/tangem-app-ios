@@ -79,7 +79,7 @@ extension StakeKitStakingManager: StakingManager {
     var tosURL: URL { URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")! }
     var privacyPolicyURL: URL { URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")! }
 
-    func updateState(loadActions: Bool) async {
+    func updateState(loadActions: Bool, source: StakingUpdateSource) async {
         await updateState(loadActions: loadActions, startUpdateDate: nil)
     }
 
