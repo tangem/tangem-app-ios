@@ -11,24 +11,23 @@ import TangemAssets
 
 public extension NotificationBanner {
     enum BannerType: Equatable, Sendable {
-        case status(Content)
+        case status(Content, BannerAction = .buttons(.none))
         case critical(Content, BannerAction)
         case warning(Content, BannerAction)
-        case promo(Content, BannerAction, CloseAction, Effect, BannerTextAlignment = .center)
-        case survey(TextOnly, BannerAction, CloseAction)
-        case informational(TextOnly, BannerAction, CloseAction, BannerTextAlignment = .center)
+        case promo(Content, BannerAction, CloseAction?, Effect, BannerTextAlignment = .center)
+        case survey(TextOnly, BannerAction, CloseAction?)
+        case informational(TextOnly, BannerAction, CloseAction?, BannerTextAlignment = .center)
 
         var content: Content {
             switch self {
-            case .status(let c), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _, _): c
+            case .status(let c, _), .critical(let c, _), .warning(let c, _), .promo(let c, _, _, _, _): c
             case .survey(let text, _, _), .informational(let text, _, _, _): .text(text)
             }
         }
 
         var bannerAction: BannerAction {
             switch self {
-            case .status: .buttons(.none)
-            case .critical(_, let a), .warning(_, let a),
+            case .status(_, let a), .critical(_, let a), .warning(_, let a),
                  .promo(_, let a, _, _, _), .survey(_, let a, _), .informational(_, let a, _, _): a
             }
         }
@@ -65,7 +64,7 @@ public extension NotificationBanner {
         }
 
         var isClosable: Bool {
-            isStackable
+            closeAction != nil
         }
 
         var isStackable: Bool {
@@ -138,6 +137,9 @@ public extension NotificationBanner {
         public let imageType: ImageType
         public let alignment: Alignment
         public let renderingMode: Image.TemplateRenderingMode?
+        public let color: Color?
+        /// Overrides the horizontal icon side; `nil` keeps the `BannerType` default (leading for promo, trailing otherwise).
+        public let isLeading: Bool?
         public let width: SizeUnit
         public let height: SizeUnit
 
@@ -146,10 +148,14 @@ public extension NotificationBanner {
             alignment: Alignment = .top,
             width: SizeUnit = .x7,
             height: SizeUnit = .x7,
-            renderingMode: Image.TemplateRenderingMode? = nil
+            renderingMode: Image.TemplateRenderingMode? = nil,
+            color: Color? = nil,
+            isLeading: Bool? = nil
         ) {
             self.imageType = imageType
             self.renderingMode = renderingMode
+            self.color = color
+            self.isLeading = isLeading
             self.alignment = alignment
             self.width = width
             self.height = height
