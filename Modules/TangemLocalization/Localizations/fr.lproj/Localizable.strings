@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "Choisissez un portefeuille";
 "manage_tokens_wallet_support_only_one_network_title" = "Le portefeuille ne prend pas en charge plus d'un réseau";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "Adresse non valide";
 "send_recipient_address_footer" = "Assurez-vous que l'adresse du portefeuille de réception est sur **le réseau %@** pour éviter de perdre vos jetons";
 "send_recipient_memo_footer_v2_highlighted" = "Attention : l'absence de Memo peut entraîner une perte de fonds.";
+"send_recipient_memo_footer_v2" = "Le Memo / Destination Tag est un code qui distingue les transactions envoyées à un destinataire partagé sur un réseau crypto.";
 "send_recipient_memo_footer" = "Un Memo/Destination Tag est un identifiant unique permettant de différencier les transactions envoyées au même destinataire sur le même réseau.\n**Attention : L'omission d'un mémo peut entraîner des fonds mal placés**";
 "send_recipient_wallets_title" = "Mes portefeuilles";
 "send_recipient" = "Destinataire";

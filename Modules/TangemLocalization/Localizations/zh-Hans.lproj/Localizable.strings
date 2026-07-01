@@ -729,6 +729,7 @@
 "manage_tokens_wallet_selector_title" = "选择钱包";
 "manage_tokens_wallet_support_only_one_network_title" = "该钱包不支持多个网络";
 "market_chart_ai_total" = "Al Total:";
+"market_chart_ask_for_ai_summary_button" = "Ask for AI summary";
 "market_chart_buble_no_data" = "No data";
 "market_chart_buble_total_value" = "Total value";
 "market_chart_can_not_load_data" = "Can’t load data";
@@ -1233,6 +1234,7 @@
 "send_recipient_address_error" = "无效地址";
 "send_recipient_address_footer" = "确保收件人地址位于 %@ 网络**上，以免丢失资金";
 "send_recipient_memo_footer_v2_highlighted" = "注意：遗失备忘录可能导致资金损失。";
+"send_recipient_memo_footer_v2" = "备注/目的地标签是加密网络中用于分隔发往同一接收方的交易的代码。";
 "send_recipient_memo_footer" = "备忘/目的地址标签是一个独特的 ID，用于区分发送给同一网络中同一收件人的交易：遗漏备忘可能会导致资金丢失**";
 "send_recipient_wallets_title" = "我的钱包";
 "send_recipient" = "收款人";
