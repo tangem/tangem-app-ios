@@ -8,11 +8,12 @@
 
 import Foundation
 
-// Skeleton: the full first-run onboarding content/behavior is [REDACTED_INFO].
 final class PriceAlertsOnboardingViewModel: ObservableObject {
     let gotItAction: () -> Void
+    let closeAction: () -> Void
 
-    init(gotItAction: @escaping () -> Void) {
+    init(gotItAction: @escaping () -> Void, closeAction: @escaping () -> Void) {
         self.gotItAction = gotItAction
+        self.closeAction = closeAction
     }
 }
