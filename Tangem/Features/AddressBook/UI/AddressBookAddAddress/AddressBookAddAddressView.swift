@@ -20,7 +20,7 @@ struct AddressBookAddAddressView: View {
             GroupedSection(viewModel.destinationAddressViewModel) {
                 SendDestinationAddressView(viewModel: $0)
             }
-            .interItemSpacing(0)
+            .interItemSpacing(16)
             .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)
             .cornerRadius(24)
@@ -28,7 +28,12 @@ struct AddressBookAddAddressView: View {
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
             } footer: {
-                DefaultFooterView("\(Localization.sendRecipientMemoFooterV2)\n**\(Localization.sendRecipientMemoFooterV2Highlighted)**")
+                (Text(Localization.sendRecipientMemoFooterV2 + " ")
+                    .foregroundColor(DesignSystem.Color.textSecondary)
+                    + Text(Localization.sendRecipientMemoFooterV2Highlighted)
+                    .foregroundColor(DesignSystem.Color.textPrimary))
+                    .font(token: DesignSystem.Font.captionMediumToken)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .innerContentPadding(16)
             .backgroundColor(DesignSystem.Color.bgSecondary)

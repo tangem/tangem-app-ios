@@ -70,10 +70,8 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
 
     var possibleToDeleteContact: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
-    var reservedAddresses: [AddressBookReservedAddress] {
-        walletSubject.value.addressBookManager.contacts.flatMap { other in
-            other.entries.raw.map { AddressBookReservedAddress(address: $0.address, networkId: $0.networkId, contactName: other.name.value) }
-        }
+    var reservedContacts: [AddressBookContact] {
+        walletSubject.value.addressBookManager.contacts
     }
 
     var isNameTakenPublisher: AnyPublisher<Bool, Never> {

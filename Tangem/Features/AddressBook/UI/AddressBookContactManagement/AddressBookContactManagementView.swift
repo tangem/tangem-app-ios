@@ -50,6 +50,8 @@ struct AddressBookContactManagementView: View {
                 selectedItem: $viewModel.selectedColor,
                 items: viewModel.colors,
                 backgroundColor: DesignSystem.Color.bgSecondary,
+                horizontalPadding: 16,
+                cornerRadius: 24,
                 content: { colorItem, isSelected in
                     makeColorItem(color: colorItem.color, isSelected: isSelected)
                 }

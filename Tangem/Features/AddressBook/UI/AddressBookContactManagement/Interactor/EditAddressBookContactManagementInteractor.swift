@@ -78,12 +78,8 @@ extension EditAddressBookContactManagementInteractor: AddressBookContactManageme
         Just(true).eraseToAnyPublisher()
     }
 
-    var reservedAddresses: [AddressBookReservedAddress] {
-        walletSubject.value.addressBookManager.contacts
-            .filter { $0.id != contact.id }
-            .flatMap { other in
-                other.entries.raw.map { AddressBookReservedAddress(address: $0.address, networkId: $0.networkId, contactName: other.name.value) }
-            }
+    var reservedContacts: [AddressBookContact] {
+        walletSubject.value.addressBookManager.contacts.filter { $0.id != contact.id }
     }
 
     var isNameTakenPublisher: AnyPublisher<Bool, Never> {

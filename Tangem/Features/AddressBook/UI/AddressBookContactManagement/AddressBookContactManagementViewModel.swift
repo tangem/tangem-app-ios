@@ -201,7 +201,7 @@ private extension AddressBookContactManagementViewModel {
             .assign(to: &$canDeleteContact)
 
         let nameValidationErrorPublisher = $contactName
-            .map { Self.nameValidationError(for: $0) }
+            .map { AddressBookContactNameValidator().validationError(in: $0) }
             .removeDuplicates()
 
         interactor.isMainButtonEnabledPublisher
@@ -234,17 +234,6 @@ private extension AddressBookContactManagementViewModel {
             }
             .receiveOnMain()
             .assign(to: &$addressesSection)
-    }
-
-    static func nameValidationError(for name: String) -> AddressBookValidationError? {
-        do {
-            _ = try AddressBookContactNameValidator().validate(name)
-            return nil
-        } catch let error as AddressBookValidationError {
-            return error
-        } catch {
-            return nil
-        }
     }
 
     func makeAddressesSection(entries: AddressBookContactDraftEntries?, canAddNewAddress: Bool) -> [AddressRowType] {
@@ -280,7 +269,7 @@ private extension AddressBookContactManagementViewModel {
             return
         }
 
-        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add, reservedAddresses: interactor.reservedAddresses)
+        coordinator?.openAddAddress(userWalletInfo: wallet.userWalletInfo, output: self, options: .add, reservedContacts: interactor.reservedContacts)
     }
 
     func showMaxAddressesAlert() {
@@ -304,7 +293,7 @@ private extension AddressBookContactManagementViewModel {
                 networks: Set(group.networks.map(\.blockchain)),
                 replacing: group.networks.map(\.id)
             ),
-            reservedAddresses: interactor.reservedAddresses
+            reservedContacts: interactor.reservedContacts
         )
     }
 
@@ -329,8 +318,6 @@ private extension AddressBookContactManagementViewModel {
 
         do {
             try await interactor.save()
-            // Stays set on success — the screen is dismissing; keeps post-save publishers (the just-created
-            // contact now matches the name check) from flashing a validation error before dismiss.
             coordinator?.dismissContactManagement()
         } catch AddressBookValidationError.addressAlreadySaved(let contactName) {
             isProcessing = false

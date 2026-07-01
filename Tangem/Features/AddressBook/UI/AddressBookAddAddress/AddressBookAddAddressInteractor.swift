@@ -43,7 +43,7 @@ final class CommonAddressBookAddAddressInteractor {
     private let userWalletInfo: UserWalletInfo
     private weak var output: AddressBookAddAddressOutput?
     private let replacing: [AddressBookAddressEntryID]
-    private let reservedAddresses: [AddressBookReservedAddress]
+    private let reservedContacts: [AddressBookContact]
 
     private let addressResolver = AddressBlockchainResolver()
 
@@ -57,12 +57,10 @@ final class CommonAddressBookAddAddressInteractor {
     private let _resolvedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
     private let _selectedNetworks = CurrentValueSubject<Set<BSDKBlockchain>, Never>([])
 
-    private var initialSnapshot = Snapshot(address: "", networks: [], memo: nil)
-
-    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedAddresses: [AddressBookReservedAddress]) {
+    init(userWalletInfo: UserWalletInfo, output: AddressBookAddAddressOutput, options: AddressBookAddAddressOptions, reservedContacts: [AddressBookContact]) {
         self.userWalletInfo = userWalletInfo
         self.output = output
-        self.reservedAddresses = reservedAddresses
+        self.reservedContacts = reservedContacts
 
         switch options {
         case .add:
@@ -80,8 +78,6 @@ final class CommonAddressBookAddAddressInteractor {
                 update(additionalField: memo)
             }
         }
-
-        initialSnapshot = currentSnapshot
     }
 }
 
@@ -119,7 +115,7 @@ extension CommonAddressBookAddAddressInteractor: AddressBookAddAddressInteractor
     }
 
     var hasUnsavedChanges: Bool {
-        currentSnapshot != initialSnapshot || (output?.contactHasUnsavedChanges ?? false)
+        output?.contactHasUnsavedChanges ?? false
     }
 
     func update(address: String, source: Analytics.DestinationAddressSource) {
@@ -227,21 +223,13 @@ private extension CommonAddressBookAddAddressInteractor {
 
         let networkIds = Set(networks.map(\.networkId))
 
-        guard let conflict = reservedAddresses.first(where: { networkIds.contains($0.networkId.rawValue) && $0.address == address }) else {
+        guard let conflict = reservedContacts.first(where: { contact in
+            contact.entries.raw.contains { networkIds.contains($0.networkId.rawValue) && $0.address == address }
+        }) else {
             return nil
         }
 
-        return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.contactName)
-    }
-
-    var currentSnapshot: Snapshot {
-        Snapshot(address: _address.value, networks: _selectedNetworks.value, memo: _additionalField.value.extraId)
-    }
-
-    struct Snapshot: Equatable {
-        let address: String
-        let networks: Set<BSDKBlockchain>
-        let memo: String?
+        return AddressBookAddAddressError.addressAlreadySaved(contactName: conflict.name.value)
     }
 }
 

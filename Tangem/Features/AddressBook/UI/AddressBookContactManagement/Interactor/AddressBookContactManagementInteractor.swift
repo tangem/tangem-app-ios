@@ -27,7 +27,7 @@ protocol AddressBookContactManagementInteractor {
 
     var isMainButtonEnabledPublisher: AnyPublisher<Bool, Never> { get }
     var isNameTakenPublisher: AnyPublisher<Bool, Never> { get }
-    var reservedAddresses: [AddressBookReservedAddress] { get }
+    var reservedContacts: [AddressBookContact] { get }
     var mainButtonIconPublisher: AnyPublisher<MainButton.Icon?, Never> { get }
 
     var hasUnsavedChanges: Bool { get }
