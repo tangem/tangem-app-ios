@@ -21,6 +21,8 @@ class SendRoutableMock: SendRoutable {
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
+    func openAddressBookChooseAddress(groups: [AddressBookContactAddressGroup], onSelect: @escaping (AddressBookContactAddressGroup) -> Void) {}
+    func openAddressBookViewAll(provider: any AddressBooksProvider) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
     func openApproveView(flowFactory: ApproveFlowFactory) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}

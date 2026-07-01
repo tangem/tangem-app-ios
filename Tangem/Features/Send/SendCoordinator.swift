@@ -45,6 +45,10 @@ final class SendCoordinator: CoordinatorObject {
         willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
     }
 
+    @Published var addressBooksCoordinator: AddressBooksCoordinator? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
     // MARK: - Child view models
 
     @Published var expressApproveViewModel: ApproveViewModel? {
@@ -308,6 +312,39 @@ extension SendCoordinator: SendDestinationRoutable {
         qrScanViewCoordinator.start(with: options)
 
         self.qrScanViewCoordinator = qrScanViewCoordinator
+    }
+
+    func openAddressBookChooseAddress(
+        groups: [AddressBookContactAddressGroup],
+        onSelect: @escaping (AddressBookContactAddressGroup) -> Void
+    ) {
+        let viewModel = ChooseAddressViewModel(
+            groups: groups,
+            onSelect: { [floatingSheetPresenter] group in
+                Task { @MainActor in
+                    floatingSheetPresenter.removeActiveSheet()
+                }
+                onSelect(group)
+            },
+            onClose: { [floatingSheetPresenter] in
+                Task { @MainActor in
+                    floatingSheetPresenter.removeActiveSheet()
+                }
+            }
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openAddressBookViewAll(provider: any AddressBooksProvider) {
+        let coordinator = AddressBooksCoordinator(
+            dismissAction: { [weak self] _ in self?.addressBooksCoordinator = nil },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(addressBooksProvider: provider))
+        addressBooksCoordinator = coordinator
     }
 }
 

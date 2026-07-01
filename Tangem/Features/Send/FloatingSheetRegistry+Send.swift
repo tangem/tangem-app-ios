@@ -52,5 +52,9 @@ extension FloatingSheetRegistry {
         register(BlockchainAccountInitializationViewModel.self) { viewModel in
             BlockchainAccountInitializationView(viewModel: viewModel)
         }
+
+        register(ChooseAddressViewModel.self) { viewModel in
+            ChooseAddressView(viewModel: viewModel)
+        }
     }
 }
