@@ -82,7 +82,7 @@
 "address_book_add_address_description" = "Adresse hinzufügen und Netzwerk auswählen";
 "address_book_add_address" = "Adresse hinzufügen";
 "address_book_add_contact" = "Kontakt hinzufügen";
-"address_book_choose_address" = "Choose address";
+"address_book_choose_address" = "Adresse auswählen";
 "address_book_contact_name" = "Name der Kontaktperson";
 "address_book_contact" = "Kontakt";
 "address_book_copy_address" = "Adresse kopieren";
@@ -95,10 +95,17 @@
 "address_book_enter_address" = "Adresse eingeben";
 "address_book_invalid_address_error" = "Ungültige Adresse";
 "address_book_keep_editing" = "Weiter bearbeiten";
+"address_book_max_networks_alert_description" = "Sie können maximal 20 Adressen erstellen. Löschen Sie eine, um eine neue hinzuzufügen.";
+"address_book_max_networks_alert_title" = "Neue Adresse kann nicht hinzugefügt werden";
+"address_book_name_empty_error" = "Der Name des Ansprechpartners ist erforderlich";
+"address_book_name_invalid_chars_error" = "Der Name des Ansprechpartners enthält ungültige Zeichen";
+"address_book_name_max_chars_error" = "Der Name des Ansprechpartners darf nicht länger als 50 Zeichen sein";
+"address_book_name_taken_error" = "Dieser Name ist bei dieser Wallet bereits vergeben.";
 "address_book_new_contact" = "Neuer Kontakt";
 "address_book_no_contacts_description" = "Die von Ihnen hinzugefügten Kontakte werden hier angezeigt";
 "address_book_no_contacts" = "Noch keine Kontakte";
 "address_book_remove_address" = "Adresse entfernen";
+"address_book_save_to_wallet_title" = "In Wallet speichern";
 "address_book_save_wallet_to_description" = "Dieser Kontakt wird mit dem Adressbuch dieser Wallet verknüpft.";
 "address_book_select_network" = "Netzwerk auswählen";
 "address_book_title" = "Adressbuch";
@@ -276,8 +283,10 @@
 "common_generate_addresses" = "Adressen synchronisieren";
 "common_get_started" = "Erste Schritte";
 "common_get_token" = "Token erhalten";
+"common_get" = "Get";
 "common_go_to_provider" = "Zum Anbieter gehen";
 "common_go_to_token" = "Zum Token";
+"common_go_to_verification" = "Zur Verifizierung gehen";
 "common_got_it" = "Verstanden";
 "common_hide" = "Ausblenden";
 "common_hold_to" = "Halten bis %@";
@@ -314,6 +323,7 @@
 "common_passphrase" = "Passphrase";
 "common_paste" = "Einfügen";
 "common_privacy_policy" = "Datenschutzrichtlinie";
+"common_rate" = "Zinssatz";
 "common_read_more" = "Weiterlesen";
 "common_receive" = "Empfangen";
 "common_received" = "Erhalten";
@@ -367,6 +377,7 @@
 "common_token_send" = "Zu sendendes Token";
 "common_token" = "Token";
 "common_transaction_failed" = "Transaktion fehlgeschlagen";
+"common_transaction_id" = "Transaktions-ID";
 "common_transaction_status" = "Transaktionsstatus";
 "common_transactions" = "Transaktionen";
 "common_transfer" = "Überweisung";
@@ -450,7 +461,7 @@
 "dynamic_addresses_disable_main_button_title" = "Dynamische Adressen deaktivieren";
 "dynamic_addresses_disable_title" = "Dynamische Adressen deaktivieren";
 "dynamic_addresses_disabled_popup_title" = "Dynamische Adressen deaktiviert";
-"dynamic_addresses_enabled_toast_title" = "Einige Adressen fehlen";
+"dynamic_addresses_enabled_toast_title" = "Dynamische Adressen aktiviert";
 "dynamic_addresses_enter_features_privacy_description" = "Verwenden Sie für jede Transaktion eine neue Adresse, um die Rückverfolgbarkeit zu verringern und den Datenschutz in der Kette zu verbessern.";
 "dynamic_addresses_enter_features_privacy_title" = "Verbesserter Datenschutz";
 "dynamic_addresses_enter_features_receving_description" = "Einfacher Geldempfang in UTXO-basierten Netzwerken mit automatischer Adressgenerierung - keine manuelle Adressverwaltung erforderlich.";
@@ -573,7 +584,9 @@
 "feedback_subject_tx_failed" = "Eine Transaktion kann nicht gesendet werden";
 "feedback_subject_tx_push_failed" = "Transaktion kann nicht gepusht werden";
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
-"force_update_action" = "Update now";
+"for_you_description" = "Portfolio prüfen und Verdienstmöglichkeiten erkunden";
+"for_you_title" = "Für dich";
+"force_update_action" = "Jetzt aktualisieren";
 "force_update_banner_message" = "Aktualisiere die Anwendung auf die neueste Version, um die ordnungsgemäße Funktionalität zu gewährleisten";
 "force_update_banner_title" = "Aktualisierung erforderlich";
 "force_update_brick_description" = "Diese Version der App wird nicht mehr unterstützt und kann auf diesem Gerät nicht aktualisiert werden.";
@@ -602,6 +615,8 @@
 "hardware_wallet_key_feature_title" = "Schlüsselgenerierung";
 "hardware_wallet_security_feature_description" = "Alle kryptografischen Vorgänge finden innerhalb des sicheren Chips statt, der gegen Klonen und physische Manipulation zertifiziert ist.";
 "hardware_wallet_security_feature_title" = "Sicherheit auf Hardwareebene";
+"high_fee_warning_description" = "Das Netzwerk ist derzeit stark ausgelastet. Sie können jetzt fortfahren oder es später erneut versuchen, wenn die Gebühren möglicherweise niedriger sind.";
+"high_fee_warning_title" = "Die Netzwerkgebühr ist höher als üblich";
 "home_button_order" = "Karte oder Ring bestellen";
 "home_button_scan" = "Karte oder Ring scannen";
 "hot_crypto_add_token_subtitle" = "An %@";
@@ -1000,6 +1015,7 @@
 "onramp_min_amount_restriction" = "Der zu kaufende Betrag muss mindestens %@ betragen";
 "onramp_native_payment_cumulative_limit_equivalent" = "Kumulierte Transaktionsbeträge über dem Gegenwert von %1@ können eine Identitätsprüfung mit %2@";
 "onramp_native_payment_cumulative_limit" = "Kumulierte Transaktionsbeträge über %1@ können eine Identitätsüberprüfung mit %2@";
+"onramp_native_payment_identity_verification" = "Apple Pay-Transaktionen erfordern möglicherweise eine Identitätsprüfung mit %1@";
 "onramp_native_payment_legal_notice" = "Indem du auf \"Bezahlen\" klicken, stimmen Sie %1@'s %2@ und %3@zu.";
 "onramp_no_available_providers" = "Keine verfügbaren Anbieter für diese Währung";
 "onramp_offer_type_fastet" = "Schnellste Bearbeitung";
@@ -1157,6 +1173,7 @@
 "send_extras_hint_memo" = "Memo";
 "send_fee_unreachable_error_text" = "Überprüfe deine Netzwerkverbindung";
 "send_fee_unreachable_error_title" = "Informationen zur Netzwerkgebühr nicht erreichbar";
+"send_from_account_in_wallet_name" = "aus „ %1$@ “ in %2$@";
 "send_from_title" = "Sie senden";
 "send_from_wallet_name" = "Von %@";
 "send_from_wallet" = "Von **%@**";
@@ -1300,6 +1317,8 @@
 "staking_enabled" = "Staking aktiviert";
 "staking_error_no_validators_message" = "Zurzeit sind keine Validierer verfügbar. Bitte versuche es später noch einmal.";
 "staking_error_no_validators_title" = "Staking nicht verfügbar";
+"staking_error_unavailable_region_description" = "Staking is currently unavailable in your region. If you have VPN enabled – try disabling it.";
+"staking_error_unavailable_region" = "Staking ist in Ihrer Region nicht verfügbar.";
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "staking_locked" = "Gesperrt";
@@ -1406,6 +1425,8 @@
 "story_web3_title" = "Web 3.0-kompatibel";
 "sui_not_enough_coin_for_fee_description" = "Zum Fortfahren ist eine eingehende Transaktion von mindestens %1$@ erforderlich";
 "sui_not_enough_coin_for_fee_title" = "Unzureichende Mittel";
+"support_chat_screen_title" = "Support-Chat";
+"support_chat_share_logs_button" = "App-Protokolle anhängen";
 "support_chat_swap_prefilled_message" = "SWAP-Operationsdaten:\nAus: %1$@ %2$@\nZu: %3$@ %4$@\nVon %5$@ - %6$@";
 "support_selector_view_chat_button" = "Chat öffnen";
 "support_selector_view_email_button" = "Mail öffnen";
@@ -1475,7 +1496,7 @@
 "tangem_pay_card_details_unable_to_rename_card_title" = "Karte kann nicht umbenannt werden";
 "tangem_pay_card_frozen" = "Karte eingefroren";
 "tangem_pay_card_payment" = "Kartenzahlung";
-"tangem_pay_close_card_disabled_last_card" = "You can’t close the last card";
+"tangem_pay_close_card_disabled_last_card" = "Die letzte Karte kann nicht geschlossen werden.";
 "tangem_pay_close_card_popup_description" = "Es wird aus der App verschwinden";
 "tangem_pay_close_card_popup_primary_button_title" = "Karte schließen";
 "tangem_pay_close_card_popup_secondary_button_title" = "Geh zurück";
@@ -1587,6 +1608,10 @@
 "tangempay_change_pin_code" = "PIN-Code ändern";
 "tangempay_come_back_if_forget_pin" = "Kehren Sie zur App zurück, falls Sie ihn vergessen.";
 "tangempay_common_card" = "Karte";
+"tangempay_current_plan_change" = "Tarif wechseln";
+"tangempay_current_plan_section_card" = "Kartenbezogen";
+"tangempay_current_plan_section_plan" = "Planbezogen";
+"tangempay_current_plan_title" = "Aktueller Plan";
 "tangempay_daily_limit_hint" = "Limit von %@ bis %@ festlegen";
 "tangempay_daily_limit_set_button" = "Limits festlegen";
 "tangempay_declined_reason_1" = "Unzureichendes Guthaben";
@@ -1808,6 +1833,9 @@
 "twins_recreate_toolbar" = "Tangem Twin";
 "twins_recreate_warning" = "Diese Aktion ist unumkehrbar. Du hast keinen Zugriff mehr auf die alte Wallet.";
 "twins_scan_twin_with_number" = "Tippe auf die Doppelkarte oder Ring mit der Nummer %@ und entferne sie erst am Ende des Vorgangs.";
+"tx_history_onramp_top_up" = "Aufladen";
+"tx_history_onramp_topped_up" = "Aufgeladen";
+"tx_history_you_paid" = "Du hast bezahlt";
 "unexpected_error_description" = "Bitte versuche es später noch einmal. Sollte das Problem weiterhin bestehen, wende Dich bitte an den Support.";
 "unexpected_error_title" = "Etwas ist schiefgelaufen!";
 "universal_error" = "Es ist ein Fehler aufgetreten. Fehlercode: %@. Bitte kontaktiere unseren Support.";
@@ -1836,6 +1864,8 @@
 "user_wallet_list_rename_popup_placeholder" = "Wallet-Name";
 "user_wallet_list_rename_popup_title" = "Wallet umbenennen";
 "user_wallet_list_unlock_all_with" = "Alle mit %@ freischalten";
+"virtual_account_title" = "Virtuelles Konto";
+"virtual_account_transactions_empty" = "Noch keine Transaktionen. Beginnen Sie mit dem Einkaufen und sehen Sie sich hier den Verlauf an";
 "visa_balance_limits_details_aml_verified" = "AML-geprüft";
 "visa_balance_limits_details_available" = "Verfügbar";
 "visa_balance_limits_details_blocked" = "Gesperrt";
