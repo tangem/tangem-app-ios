@@ -28,7 +28,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
 
     @Published private(set) var isProcessing: Bool = false
 
-    @Published var errorAlert: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     @Published private var entries: AddressBookContactDraftEntries?
@@ -89,7 +89,20 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     }
 
     func userDidRequestDismiss() {
-        coordinator?.dismissContactManagement()
+        guard !isProcessing, interactor.hasUnsavedChanges else {
+            coordinator?.dismissContactManagement()
+            return
+        }
+
+        alert = AlertBuilder.makeExitAlert(
+            title: Localization.addressBookUnsavedChanges,
+            message: Localization.addressBookUnsavedChangesDescription,
+            keepEditingButtonText: Localization.addressBookKeepEditing,
+            discardButtonText: Localization.addressBookDiscard,
+            discardAction: { [weak self] in
+                self?.coordinator?.dismissContactManagement()
+            }
+        )
     }
 
     func userDidRequestWalletChange() {
@@ -294,7 +307,7 @@ private extension AddressBookContactManagementViewModel {
     }
 
     func presentGenericError(message: String) {
-        errorAlert = AlertBinder(title: Localization.commonError, message: message)
+        alert = AlertBinder(title: Localization.commonError, message: message)
     }
 }
 
