@@ -30,19 +30,19 @@ actor CommonTransactionHistoryAuxDataRepository {
     private var coinsDebounceTask: Task<Void, Never>?
 
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
+    private let storage: UserDefaultsTransactionHistoryAuxDataStorage
 
-    private let makeStorage: () async -> UserDefaultsTransactionHistoryAuxDataStorage
-
-    init(cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory) {
+    init(
+        cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory,
+        storage: UserDefaultsTransactionHistoryAuxDataStorage
+    ) {
         self.cachingExpressAPIProviderFactory = cachingExpressAPIProviderFactory
+        self.storage = storage
 
-        makeStorage = { @MainActor in
-            UserDefaultsTransactionHistoryAuxDataStorage()
-        }
-
-        Task { [weak self] in
-            await self?.loadFromStorage()
-        }
+        // Seed both caches synchronously so the accessors never race a background storage load.
+        let initialCache = Self.makeCache(from: storage)
+        cache = initialCache
+        syncCache { $0 = initialCache }
     }
 }
 
@@ -189,7 +189,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             }
 
             mirrorToSyncCache()
-            await persistProviders()
+            persistProviders()
             subscribers.yield(())
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load Express providers", error: error)
@@ -234,7 +234,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             }
 
             mirrorToSyncCache()
-            await persistCurrencies()
+            persistCurrencies()
             subscribers.yield(())
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load onramp currencies", error: error)
@@ -325,7 +325,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             }
 
             mirrorToSyncCache()
-            await persistCoins()
+            persistCoins()
             subscribers.yield(())
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load coins", error: error)
@@ -348,47 +348,16 @@ private extension CommonTransactionHistoryAuxDataRepository {
 // MARK: - Persistence
 
 private extension CommonTransactionHistoryAuxDataRepository {
-    func loadFromStorage() async {
-        let storage = await makeStorage()
-        let storedProviders = storage.providers
-        let storedCurrencies = storage.fiatCurrencies
-        let storedCoins = storage.coins
-
-        for provider in storedProviders {
-            cache.providers[provider.id] = provider
-        }
-
-        for currency in storedCurrencies {
-            cache.fiatCurrencies[currency.identity.code] = currency
-        }
-
-        cache.coins = storedCoins
-
-        mirrorToSyncCache()
+    func persistProviders() {
+        storage.providers = Array(cache.providers.values)
     }
 
-    func persistProviders() async {
-        let snapshot = Array(cache.providers.values)
-        let storage = await makeStorage()
-        await MainActor.run {
-            storage.providers = snapshot
-        }
+    func persistCurrencies() {
+        storage.fiatCurrencies = Array(cache.fiatCurrencies.values)
     }
 
-    func persistCurrencies() async {
-        let snapshot = Array(cache.fiatCurrencies.values)
-        let storage = await makeStorage()
-        await MainActor.run {
-            storage.fiatCurrencies = snapshot
-        }
-    }
-
-    func persistCoins() async {
-        let snapshot = cache.coins
-        let storage = await makeStorage()
-        await MainActor.run {
-            storage.coins = snapshot
-        }
+    func persistCoins() {
+        storage.coins = cache.coins
     }
 
     func mirrorToSyncCache() {
@@ -405,6 +374,22 @@ private extension CommonTransactionHistoryAuxDataRepository {
         var providers: [ExpressProvider.Id: ExpressProvider] = [:]
         var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
         var coins: [String: CoinsList.Coin] = [:]
+    }
+
+    static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
+        var cache = Cache()
+
+        for provider in storage.providers {
+            cache.providers[provider.id] = provider
+        }
+
+        for currency in storage.fiatCurrencies {
+            cache.fiatCurrencies[currency.identity.code] = currency
+        }
+
+        cache.coins = storage.coins
+
+        return cache
     }
 
     enum Constants {

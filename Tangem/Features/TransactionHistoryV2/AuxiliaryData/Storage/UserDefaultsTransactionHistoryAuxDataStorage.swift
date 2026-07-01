@@ -10,39 +10,32 @@ import Foundation
 import TangemExpress
 
 // [REDACTED_TODO_COMMENT]
-/// A dummy wrapper to allow initialization of a MainActor-isolated `AppStorageCompat` instances inside
-/// the synchronous and implicitly isolated init of the `CommonTransactionHistoryAuxDataRepository` actor.
-/// Without it, we either would have to make that init async or silence the compiler warning
-/// `Call to main actor-isolated initializer 'init...' in a synchronous actor-isolated context`.
-final class UserDefaultsTransactionHistoryAuxDataStorage {
-    @AppStorageCompat<StorageKey, Data?>
-    private var providersBlob: Data?
+/// Synchronous `UserDefaults`-backed placeholder persistence for the transaction-history auxiliary data.
+///
+/// Reads and writes are synchronous and thread-safe, so the caches can be seeded on the actor's init without an
+/// asynchronous load. `ExpressProvider` / `OnrampFiatCurrency` aren't `Codable`, so they are persisted via the
+/// DTOs below; `CoinsList.Coin` is `Codable` and stored as-is.
+struct UserDefaultsTransactionHistoryAuxDataStorage {
+    private let suiteName: String?
+    private var userDefaults: UserDefaults { UserDefaults(suiteName: suiteName) ?? .standard }
 
-    @AppStorageCompat<StorageKey, Data?>
-    private var currenciesBlob: Data?
-
-    @AppStorageCompat<StorageKey, Data?>
-    private var coinsBlob: Data?
-
-    init() {
-        _providersBlob = .init(wrappedValue: nil, .providers)
-        _currenciesBlob = .init(wrappedValue: nil, .currencies)
-        _coinsBlob = .init(wrappedValue: nil, .coins)
+    init(suiteName: String?) {
+        self.suiteName = suiteName
     }
 
     var providers: [ExpressProvider] {
-        get { Self.decode([ProviderDTO].self, from: providersBlob)?.map(\.asDomain) ?? [] }
-        set { providersBlob = Self.encode(newValue.map(ProviderDTO.init(from:))) }
+        get { decode([ProviderDTO].self, forKey: .providers)?.map(\.asDomain) ?? [] }
+        nonmutating set { encode(newValue.map(ProviderDTO.init(from:)), forKey: .providers) }
     }
 
     var fiatCurrencies: [OnrampFiatCurrency] {
-        get { Self.decode([FiatCurrencyDTO].self, from: currenciesBlob)?.map(\.asDomain) ?? [] }
-        set { currenciesBlob = Self.encode(newValue.map(FiatCurrencyDTO.init(from:))) }
+        get { decode([FiatCurrencyDTO].self, forKey: .currencies)?.map(\.asDomain) ?? [] }
+        nonmutating set { encode(newValue.map(FiatCurrencyDTO.init(from:)), forKey: .currencies) }
     }
 
     var coins: [String: CoinsList.Coin] {
-        get { Self.decode([String: CoinsList.Coin].self, from: coinsBlob) ?? [:] }
-        set { coinsBlob = Self.encode(newValue) }
+        get { decode([String: CoinsList.Coin].self, forKey: .coins) ?? [:] }
+        nonmutating set { encode(newValue, forKey: .coins) }
     }
 }
 
@@ -55,12 +48,20 @@ private extension UserDefaultsTransactionHistoryAuxDataStorage {
         case coins = "TxHistoryAuxData_coins_v1"
     }
 
-    static func encode<T: Encodable>(_ value: T) -> Data? {
-        return try? JSONEncoder().encode(value)
+    func decode<T: Decodable>(_ type: T.Type, forKey key: StorageKey) -> T? {
+        guard let data = userDefaults.data(forKey: key.rawValue) else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode(type, from: data)
     }
 
-    static func decode<T: Decodable>(_ type: T.Type, from data: Data?) -> T? {
-        return data.flatMap { try? JSONDecoder().decode(type, from: $0) }
+    func encode<T: Encodable>(_ value: T, forKey key: StorageKey) {
+        guard let data = try? JSONEncoder().encode(value) else {
+            return
+        }
+
+        userDefaults.set(data, forKey: key.rawValue)
     }
 }
 
