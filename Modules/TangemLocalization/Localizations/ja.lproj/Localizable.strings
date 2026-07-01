@@ -92,6 +92,7 @@
 "address_book_creating_error" = "連絡先を作成できませんでした。しばらくしてからもう一度お試しください。";
 "address_book_delete_contact_description" = "この連絡先は、すべてのアドレス帳から削除されます。";
 "address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "連絡先を削除できませんでした。しばらくしてからもう一度お試しください。";
 "address_book_description" = "連絡先とアドレスを管理";
 "address_book_discard" = "破棄";
