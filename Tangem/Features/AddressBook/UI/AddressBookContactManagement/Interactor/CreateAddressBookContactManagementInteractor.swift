@@ -19,6 +19,7 @@ final class CreateAddressBookContactManagementInteractor {
     private let addressesSubject: CurrentValueSubject<[AddressBookEntryDraft], Never>
     private let walletSubject: CurrentValueSubject<AddressBookWallet, Never>
     private let addressBooksProvider: any AddressBooksProvider
+    private let initialSnapshot: AddressBookContactSnapshot
 
     init(addressBookWallet: AddressBookWallet, addressBooksProvider: any AddressBooksProvider = .common()) {
         self.addressBooksProvider = addressBooksProvider
@@ -27,6 +28,13 @@ final class CreateAddressBookContactManagementInteractor {
         colorSubject = .init(CompositeIconColor.randomElement())
         addressesSubject = .init([])
         walletSubject = .init(addressBookWallet)
+
+        initialSnapshot = Self.makeSnapshot(
+            name: nameSubject.value,
+            color: colorSubject.value,
+            wallet: walletSubject.value,
+            addresses: addressesSubject.value
+        )
     }
 }
 
@@ -74,6 +82,31 @@ extension CreateAddressBookContactManagementInteractor: AddressBookContactManage
                 CommonTangemIconProvider(config: addressBookWallet.wallet.config).getMainButtonIcon()
             }
             .eraseToAnyPublisher()
+    }
+
+    var hasUnsavedChanges: Bool {
+        Self.makeSnapshot(
+            name: nameSubject.value,
+            color: colorSubject.value,
+            wallet: walletSubject.value,
+            addresses: addressesSubject.value
+        ) != initialSnapshot
+    }
+
+    private static func makeSnapshot(
+        name: String,
+        color: AccountModel.CompositeIcon.Color,
+        wallet: AddressBookWallet,
+        addresses: [AddressBookEntryDraft]
+    ) -> AddressBookContactSnapshot {
+        AddressBookContactSnapshot(
+            name: name.trimmed(),
+            color: color,
+            walletId: wallet.wallet.id.stringValue,
+            entries: Set(addresses.map {
+                AddressBookContactSnapshot.Entry(address: $0.address, networkId: $0.networkId.rawValue, memo: $0.memo ?? "")
+            })
+        )
     }
 
     func update(name: String) {
