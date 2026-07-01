@@ -379,7 +379,6 @@ private extension SendDestinationViewModel {
 
 extension SendDestinationViewModel: AddressBooksSelectionOutput {
     func addressBooksDidSelectContact(_ contact: AddressBookContact) {
-        router?.dismissAddressBookViewAll()
         userDidTapAddressBookContact(contact)
     }
 }

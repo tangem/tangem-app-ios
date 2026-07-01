@@ -16,7 +16,6 @@ protocol SendDestinationRoutable: AnyObject {
         onSelect: @escaping (AddressBookContactAddressGroup) -> Void
     )
     func openAddressBookViewAll(provider: any AddressBooksProvider, output: AddressBooksSelectionOutput)
-    func dismissAddressBookViewAll()
 }
 
 protocol SendDestinationStepRoutable: AnyObject {

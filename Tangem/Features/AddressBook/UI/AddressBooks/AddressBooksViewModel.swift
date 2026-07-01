@@ -241,8 +241,10 @@ private extension AddressBooksViewModel {
             return AddressBookContactViewModel(contact: contact, walletName: walletName) { [weak self] in
                 guard let self else { return }
 
-                // In selection mode (opened from Send "View All") a tap returns the contact instead of editing it.
+                // In selection mode (opened from Send "View All") a tap closes this screen and returns the
+                // contact instead of editing it.
                 if let selectionOutput {
+                    coordinator?.dismiss()
                     selectionOutput.addressBooksDidSelectContact(contact)
                     return
                 }

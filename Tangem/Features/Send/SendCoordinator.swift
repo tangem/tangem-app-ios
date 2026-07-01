@@ -346,10 +346,6 @@ extension SendCoordinator: SendDestinationRoutable {
         coordinator.start(with: .init(addressBooksProvider: provider, selectionOutput: output))
         addressBooksCoordinator = coordinator
     }
-
-    func dismissAddressBookViewAll() {
-        addressBooksCoordinator = nil
-    }
 }
 
 // MARK: - SwapRoutable

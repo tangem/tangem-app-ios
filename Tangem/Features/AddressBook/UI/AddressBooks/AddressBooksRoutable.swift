@@ -12,4 +12,5 @@ import TangemFoundation
 protocol AddressBooksRoutable: AnyObject {
     func openAddContact(addressBookWallet: AddressBookWallet)
     func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet)
+    func dismiss()
 }
