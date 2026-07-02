@@ -11,25 +11,12 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
-import TangemLocalization
 
 struct TransactionDetailsAddressViewData: Equatable {
     /// Row label (subtitle), e.g. "From address" / "Recipient" / "From" / "To".
     let label: String
-    let actor: Actor
+    let actor: TransactionDetailsActor
     @IgnoredEquatable var onCopy: (() -> Void)? = nil
-
-    enum Actor: Equatable {
-        case address(short: String, blockiesImage: AddressBlockiesIconViewData)
-        /// Saved address-book contact.
-        case contact(name: String, AddressBookContactNameIconViewData)
-        /// One of the users accounts (same wallet).
-        case account(name: String, icon: AccountIconView.ViewData)
-        /// An account in another of the users wallets.
-        case accountInWallet(accountName: String, accountIcon: AccountIconView.ViewData, walletName: String)
-        /// One of the users wallets (accounts not shown).
-        case wallet(name: String)
-    }
 }
 
 struct TransactionDetailsAddressView: View {
@@ -48,14 +35,7 @@ struct TransactionDetailsAddressView: View {
     }
 
     private var title: String {
-        switch data.actor {
-        case .address(let short, _): short
-        case .contact(let name, _): name
-        case .account(let name, _): name
-        // [REDACTED_TODO_COMMENT]
-        case .accountInWallet(let accountName, _, let walletName): "\(accountName) \(Localization.commonIn) \(walletName)"
-        case .wallet(let name): name
-        }
+        data.actor.displayName
     }
 
     @ViewBuilder
