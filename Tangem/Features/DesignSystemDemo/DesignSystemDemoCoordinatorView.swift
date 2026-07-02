@@ -80,6 +80,7 @@ struct DesignSystemDemoCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemShimmerDemoViewModel) {
                 TangemShimmerDemoView(viewModel: $0)
             }
+            .navigation(item: $coordinator.glowRingDemoViewModel, destination: GlowRingDemoView.init)
     }
 }
 
@@ -108,6 +109,10 @@ struct DesignSystemDemoView: View {
 
                     MainButton(title: "TangemShimmer") {
                         viewModel.openTangemShimmerDemo()
+                    }
+
+                    MainButton(title: "GlowRing") {
+                        viewModel.openGlowRingDemo()
                     }
 
                     MainButton(title: "TangemSearch") {
