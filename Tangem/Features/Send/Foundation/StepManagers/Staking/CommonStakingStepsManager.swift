@@ -100,7 +100,11 @@ extension CommonStakingStepsManager: SendStepsManager {
     var initialStep: any SendStep { amountStep }
 
     var shouldShowDismissAlert: Bool {
-        stack.contains(where: { $0.type.isSummary })
+        if currentStep().type.isFinish {
+            return false
+        }
+
+        return stack.contains(where: { $0.type.isSummary })
     }
 
     var navigationBarSettings: SendStepNavigationBarSettings {
