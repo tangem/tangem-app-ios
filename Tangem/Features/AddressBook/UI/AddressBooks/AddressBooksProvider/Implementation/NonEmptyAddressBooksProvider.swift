@@ -10,8 +10,9 @@ import Combine
 import CombineExt
 import TangemFoundation
 
-/// Only wallets whose address book has contacts — used from the wallet settings, where empty books
-/// aren't listed. Emptiness is decided reactively, so a wallet appears as its contacts load.
+/// Used from the wallet settings, where proven-empty books aren't listed: a wallet is dropped only
+/// once its book settles `.synced` with no contacts. Syncing and failed books stay vended, so the
+/// list can show loading/cached state for books that haven't finished their lazy load yet.
 final class NonEmptyAddressBooksProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
@@ -34,8 +35,13 @@ extension NonEmptyAddressBooksProvider: AddressBooksProvider {
 
                 return addressBooks
                     .map { addressBook in
-                        addressBook.addressBookPublisher
-                            .map { $0.isNotEmpty ? addressBook : nil }
+                        Publishers.CombineLatest(addressBook.addressBookPublisher, addressBook.syncStatePublisher)
+                            .map { contacts, syncState -> AddressBookWallet? in
+                                switch syncState {
+                                case .synced: contacts.isNotEmpty ? addressBook : nil
+                                case .syncing, .failure: addressBook
+                                }
+                            }
                             .eraseToAnyPublisher()
                     }
                     .combineLatest()
