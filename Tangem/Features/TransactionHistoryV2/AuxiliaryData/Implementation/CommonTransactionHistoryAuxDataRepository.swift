@@ -15,10 +15,10 @@ actor CommonTransactionHistoryAuxDataRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    /// Actor-protected cache for isolated access
+    /// Actor-protected cache for isolated asynchronous access.
     private var cache = Cache()
 
-    /// Lock-protected cache for nonisolated access
+    /// Lock-protected cache for nonisolated synchronous access.
     private nonisolated let syncCache = OSAllocatedUnfairLock(initialState: Cache())
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
@@ -68,8 +68,8 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
         let cached = syncCache { $0.providers[id] }
 
         if cached == nil {
-            Task { [self] in
-                await loadProvidersInfoIfNeeded()
+            runTask(in: self) { repository in
+                await repository.loadProvidersIfNeeded()
             }
         }
 
@@ -81,7 +81,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
             return cached
         }
 
-        await loadProvidersInfoIfNeeded()
+        await loadProvidersIfNeeded()
 
         return cache.providers[id]
     }
@@ -92,8 +92,8 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
         let cached = syncCache { $0.fiatCurrencies[asset.currencyCode] }
 
         if cached == nil {
-            Task { [self] in
-                await ensureCurrenciesLoaded()
+            runTask(in: self) { repository in
+                await repository.loadFiatCurrenciesIfNeeded()
             }
         }
 
@@ -105,7 +105,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
             return cached
         }
 
-        await ensureCurrenciesLoaded()
+        await loadFiatCurrenciesIfNeeded()
 
         return cache.fiatCurrencies[asset.currencyCode]
     }
@@ -117,8 +117,8 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
         let cached = syncCache { $0.cryptoCurrencies[key] }
 
         if cached == nil {
-            Task { [self] in
-                await ensureCryptoCurrencyLoaded(currency, key: key, waitForResult: false)
+            runTask(in: self) { repository in
+                await repository.loadCryptoCurrenciesIfNeeded(currency, key: key, isFromAsyncContext: false)
             }
         }
 
@@ -132,7 +132,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
             return cached
         }
 
-        await ensureCryptoCurrencyLoaded(currency, key: key, waitForResult: true)
+        await loadCryptoCurrenciesIfNeeded(currency, key: key, isFromAsyncContext: true)
 
         return cache.cryptoCurrencies[key]
     }
@@ -152,7 +152,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
         )
     }
 
-    func loadProvidersInfoIfNeeded() async {
+    func loadProvidersIfNeeded() async {
         if let task = inFlightProvidersLoadTask {
             return await task.value
         }
@@ -197,7 +197,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
         }
     }
 
-    func ensureCurrenciesLoaded() async {
+    func loadFiatCurrenciesIfNeeded() async {
         if let task = inFlightFiatCurrenciesLoadTask {
             await task.value
 
@@ -246,7 +246,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
 // MARK: - Crypto currencies loading
 
 private extension CommonTransactionHistoryAuxDataRepository {
-    func ensureCryptoCurrencyLoaded(_ currency: ExpressCurrency, key: String, waitForResult: Bool) async {
+    func loadCryptoCurrenciesIfNeeded(_ currency: ExpressCurrency, key: String, isFromAsyncContext: Bool) async {
         if cache.cryptoCurrencies[key] != nil {
             return
         }
@@ -256,7 +256,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             armCryptoCurrenciesDebounce()
         }
 
-        guard waitForResult else {
+        guard isFromAsyncContext else {
             return
         }
 
@@ -300,16 +300,16 @@ private extension CommonTransactionHistoryAuxDataRepository {
     func performCryptoCurrenciesLoad(_ batch: [String: ExpressCurrency]) async {
         defer {
             inFlightCryptoCurrencyKeys.subtract(batch.keys)
-            resumeCryptoCurrencyWaiters(for: Set(batch.keys)) // resume on success AND failure so callers never hang
+            resumeCryptoCurrencyWaiters(for: batch.keys.toSet()) // resume on success AND failure so callers never hang
         }
 
         do {
             let currencies = Array(batch.values)
-            let networkIds = Set(currencies.map(\.network))
+            let networkIds = currencies.map(\.network).toSet()
             // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, while the actual list
             // of blockchains is derived from `batch` hence all of them guaranteed to be supported
             let allSupportedBlockchains = SupportedBlockchains.all
-            let blockchains = Set(networkIds.compactMap { allSupportedBlockchains[$0] })
+            let blockchains = networkIds.compactMap { allSupportedBlockchains[$0] }.toSet()
             let contractAddresses = currencies
                 .map(\.contractAddress)
                 .filter { $0 != ExpressConstants.coinContractAddress }
@@ -322,7 +322,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
             let tokenItems = Self.makeTokenItems(
                 from: response,
                 supportedBlockchains: blockchains,
-                requestedKeys: Set(batch.keys)
+                requestedKeys: batch.keys.toSet()
             )
 
             var changed = false
