@@ -196,6 +196,8 @@ Key lanes defined in `fastlane/Fastfile`:
 
 **No redundant comments.** Don't add comments that merely restate what the code or the language already conveys — e.g. annotating a `static let` with "Resolved once" / "Cached / fixed for the process lifetime", or a `private` member with "Used internally". A comment must explain something the reader can't get from the declaration itself: a non-obvious *why*, a constraint, a gotcha, or intent that isn't visible in the code. When in doubt, leave it out — the diff and the type signatures already document the *what*.
 
+**No spec paragraph numbers in comments.** Don't cite spec section/paragraph numbers in code comments (e.g. `(spec 2.1.3)`, `§3.9`). Specs get reorganized and the number rots, leaving the comment pointing at the wrong place. Explain the *why* in plain prose instead; if a pointer is genuinely needed, put it in the PR description or the Jira ticket, not in the code.
+
 **SwiftUI Previews:** Must be wrapped in `#if DEBUG`/`#endif` and marked with `// MARK: - Previews`:
 ```swift
 // MARK: - Previews
