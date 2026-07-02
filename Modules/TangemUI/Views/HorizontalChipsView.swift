@@ -115,7 +115,6 @@ extension HorizontalChipsView {
     }
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview("HorizontalChipsView") {
     @Previewable @State var selectedId: Chip.ID? = nil
@@ -135,4 +134,3 @@ extension HorizontalChipsView {
     )
     .padding()
 }
-#endif

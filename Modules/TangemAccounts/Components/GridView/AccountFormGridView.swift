@@ -59,7 +59,6 @@ public enum AccountFormGridViewConstants {
     public static let backgroundColor: Color = Colors.Background.action
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @State var selectedColor = GridItemColor(
@@ -179,4 +178,3 @@ public enum AccountFormGridViewConstants {
         .padding(.horizontal, 16)
     }
 }
-#endif
