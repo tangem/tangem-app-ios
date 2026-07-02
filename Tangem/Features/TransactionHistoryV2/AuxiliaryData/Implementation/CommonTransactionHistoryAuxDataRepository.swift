@@ -306,19 +306,9 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     private static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
         var cache = Cache()
-
-        for provider in storage.expressProviders {
-            cache.expressProviders[provider.id] = provider
-        }
-
-        for provider in storage.onrampProviders {
-            cache.onrampProviders[provider.id] = provider
-        }
-
-        for currency in storage.fiatCurrencies {
-            cache.fiatCurrencies[currency.identity.code] = currency
-        }
-
+        cache.expressProviders = storage.expressProviders.keyedLast(by: \.id)
+        cache.onrampProviders = storage.onrampProviders.keyedLast(by: \.id)
+        cache.fiatCurrencies = storage.fiatCurrencies.keyedLast(by: \.identity.code)
         cache.cryptoCurrencies = storage.cryptoCurrencies
 
         return cache
