@@ -129,6 +129,13 @@ protocol TangemApiService: AnyObject {
         preferences: NotificationPreferencesDTO.Body
     ) async throws
 
+    // MARK: - Price Alerts Subscriptions
+
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws
+    /// Returns the `tokenId` values the wallet is subscribed to.
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String]
+
     // MARK: - Applications
 
     /// Create application with new uid
