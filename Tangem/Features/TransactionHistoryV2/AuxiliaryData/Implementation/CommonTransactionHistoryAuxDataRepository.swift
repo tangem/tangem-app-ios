@@ -113,7 +113,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     // MARK: Crypto currencies
 
     nonisolated func cryptoCurrency(for currency: ExpressCurrency) -> TokenItem? {
-        let key = Self.makeCryptoCurrencyKey(for: currency)
+        let key = Self.makeCryptoCurrencyCacheKey(for: currency)
         let cached = syncCache { $0.cryptoCurrencies[key] }
 
         if cached == nil {
@@ -126,7 +126,7 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     }
 
     func cryptoCurrency(for currency: ExpressCurrency) async -> TokenItem? {
-        let key = Self.makeCryptoCurrencyKey(for: currency)
+        let key = Self.makeCryptoCurrencyCacheKey(for: currency)
 
         if let cached = cache.cryptoCurrencies[key] {
             return cached
@@ -142,7 +142,9 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
 private extension CommonTransactionHistoryAuxDataRepository {
     func makeExpressAPIProvider() -> ExpressAPIProvider? {
-        guard let model = userWalletRepository.models.first else {
+        // We don't care about using a particular user wallet model here, any will do,
+        // since we just need to create a provider to fetch non-user-specific data (providers, currencies, etc)
+        guard let model = userWalletRepository.selectedModel ?? userWalletRepository.models.first else {
             return nil
         }
 
@@ -157,41 +159,41 @@ private extension CommonTransactionHistoryAuxDataRepository {
             return await task.value
         }
 
-        let task = Task { [self] in
+        let task = Task { [weak self] in
             try? await Task.sleep(for: Constants.debounce)
-            await performProvidersLoad()
+            await self?.performProvidersLoad()
         }
-        inFlightProvidersLoadTask = task
+
         defer { inFlightProvidersLoadTask = nil }
+        inFlightProvidersLoadTask = task
         await task.value
     }
 
     func performProvidersLoad() async {
         guard let expressAPIProvider = makeExpressAPIProvider() else {
+            TransactionHistoryLogger.error(self, error: "Failed to create ExpressAPIProvider for providers load")
             return
         }
 
         do {
-            // The full provider set spans both branches.
             let swap = try await expressAPIProvider.providers(branch: .swap)
             let onramp = try await expressAPIProvider.providers(branch: .onramp)
-
-            var changed = false
+            var hasChanges = false
 
             for provider in swap + onramp {
                 if cache.providers[provider.id] != provider {
                     cache.providers[provider.id] = provider
-                    changed = true
+                    hasChanges = true
                 }
             }
 
-            guard changed else {
-                return // silent when nothing new → no re-query loop
+            guard hasChanges else {
+                return
             }
 
             mirrorToSyncCache()
             persistProviders()
-            subscribers.yield(())
+            subscribers.yield()
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load Express providers", error: error)
         }
@@ -236,7 +238,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
             mirrorToSyncCache()
             persistCurrencies()
-            subscribers.yield(())
+            subscribers.yield()
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load onramp currencies", error: error)
         }
@@ -340,7 +342,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
             mirrorToSyncCache()
             persistCryptoCurrencies()
-            subscribers.yield(())
+            subscribers.yield()
         } catch {
             TransactionHistoryLogger.error(self, "Failed to load crypto currencies", error: error)
         }
@@ -410,15 +412,15 @@ private extension CommonTransactionHistoryAuxDataRepository {
         static let debounce: Duration = .milliseconds(300)
     }
 
-    static func makeCryptoCurrencyKey(networkId: String, contractAddress: String?) -> String {
-        return "\(networkId)_\(contractAddress ?? "")"
+    static func makeCryptoCurrencyCacheKey(networkId: String, contractAddress: String?) -> String {
+        return "\(networkId)_\(contractAddress ?? ExpressConstants.coinContractAddress))"
     }
 
-    static func makeCryptoCurrencyKey(for currency: ExpressCurrency) -> String {
+    static func makeCryptoCurrencyCacheKey(for currency: ExpressCurrency) -> String {
         // A native coin's contract address is a sentinel, normalized to `nil` to match `TokenItem`.
         let contractAddress = currency.contractAddress == ExpressConstants.coinContractAddress ? nil : currency.contractAddress
 
-        return makeCryptoCurrencyKey(networkId: currency.network, contractAddress: contractAddress)
+        return makeCryptoCurrencyCacheKey(networkId: currency.network, contractAddress: contractAddress)
     }
 
     static func makeTokenItems(
@@ -431,7 +433,7 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
         for coinModel in coinModels {
             for item in coinModel.items {
-                let key = makeCryptoCurrencyKey(
+                let key = makeCryptoCurrencyCacheKey(
                     networkId: item.tokenItem.networkId,
                     contractAddress: item.tokenItem.contractAddress
                 )

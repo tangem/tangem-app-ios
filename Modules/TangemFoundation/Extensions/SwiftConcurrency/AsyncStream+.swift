@@ -120,7 +120,7 @@ public extension AsyncStream {
 
 public extension AsyncStream.MulticastSubscribers where Element == Void {
     func yield() {
-        self.yield(())
+        yield(())
     }
 }
 
