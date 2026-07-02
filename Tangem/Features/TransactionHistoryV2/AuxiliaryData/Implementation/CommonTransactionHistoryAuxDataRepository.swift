@@ -27,7 +27,7 @@ actor CommonTransactionHistoryAuxDataRepository {
     private var inFlightFiatCurrenciesLoadTask: Task<Void, Never>?
 
     private var pendingCryptoCurrenciesToLoad: [String: ExpressCurrency] = [:]
-    private var inFlightLoadingCryptoCurrencyKeys: Set<String> = []
+    private var inFlightLoadingCryptoCurrencies: Set<String> = []
     private var pendingCryptoCurrencyContinuations: [String: [CheckedContinuation<Void, Never>]] = [:]
     private var cryptoCurrenciesDebounceTask: Task<Void, Never>?
 
@@ -44,6 +44,316 @@ actor CommonTransactionHistoryAuxDataRepository {
         let cacheFromStorage = Self.makeCache(from: storage)
         cache = cacheFromStorage
         syncCache { $0 = cacheFromStorage }
+    }
+
+    // MARK: - Shared helpers
+
+    private func mirrorToSyncCache() {
+        let cacheSnapshot = cache
+        syncCache { $0 = cacheSnapshot }
+    }
+
+    // MARK: - Persistence
+
+    private func persistProviders() {
+        storage.expressProviders = Array(cache.expressProviders.values)
+        storage.onrampProviders = Array(cache.onrampProviders.values)
+    }
+
+    private func persistFiatCurrencies() {
+        storage.fiatCurrencies = Array(cache.fiatCurrencies.values)
+    }
+
+    private func persistCryptoCurrencies() {
+        storage.cryptoCurrencies = cache.cryptoCurrencies
+    }
+
+    // MARK: - Providers loading
+
+    private func loadProvidersIfNeeded(branch: ExpressBranch) async {
+        if let task = inFlightProviderLoadTasks[branch] {
+            return await task.value
+        }
+
+        let task = runTask(in: self) { repository in
+            await repository.loadProviders(branch: branch)
+        }
+
+        defer { inFlightProviderLoadTasks[branch] = nil }
+        inFlightProviderLoadTasks[branch] = task
+        await task.value
+    }
+
+    private func loadProviders(branch: ExpressBranch) async {
+        guard let expressAPIProvider = makeExpressAPIProvider() else {
+            TransactionHistoryLogger.error(self, error: "Failed to create ExpressAPIProvider for providers load")
+            return
+        }
+
+        do {
+            let providers = try await expressAPIProvider.providers(branch: branch)
+            let hasChanges = switch branch {
+            case .swap:
+                mergeProviders(providers, into: &cache.expressProviders)
+            case .onramp:
+                mergeProviders(providers, into: &cache.onrampProviders)
+            }
+
+            guard hasChanges else {
+                return
+            }
+
+            mirrorToSyncCache()
+            persistProviders()
+            subscribers.yield()
+        } catch {
+            TransactionHistoryLogger.error(self, "Failed to load \(branch.rawValue) providers", error: error)
+        }
+    }
+
+    /// Merges freshly loaded providers into the given cache, returning whether anything changed.
+    private func mergeProviders(_ providers: [ExpressProvider], into cache: inout [ExpressProvider.Id: ExpressProvider]) -> Bool {
+        var hasChanges = false
+
+        for provider in providers {
+            if cache[provider.id] != provider {
+                cache[provider.id] = provider
+                hasChanges = true
+            }
+        }
+
+        return hasChanges
+    }
+
+    // MARK: - Fiat currencies loading
+
+    private func loadFiatCurrenciesIfNeeded() async {
+        if let task = inFlightFiatCurrenciesLoadTask {
+            return await task.value
+        }
+
+        let task = runTask(in: self) { repository in
+            await repository.loadFiatCurrencies()
+        }
+
+        inFlightFiatCurrenciesLoadTask = task
+        defer { inFlightFiatCurrenciesLoadTask = nil }
+        await task.value
+    }
+
+    private func loadFiatCurrencies() async {
+        guard let expressAPIProvider = makeExpressAPIProvider() else {
+            return
+        }
+
+        do {
+            let loaded = try await expressAPIProvider.onrampCurrencies()
+            var hasChanges = false
+            for currency in loaded {
+                if cache.fiatCurrencies[currency.identity.code] != currency {
+                    cache.fiatCurrencies[currency.identity.code] = currency
+                    hasChanges = true
+                }
+            }
+
+            guard hasChanges else {
+                return
+            }
+
+            mirrorToSyncCache()
+            persistFiatCurrencies()
+            subscribers.yield()
+        } catch {
+            TransactionHistoryLogger.error(self, "Failed to load onramp currencies", error: error)
+        }
+    }
+
+    // MARK: - Crypto currencies loading
+
+    private func loadCryptoCurrenciesIfNeeded(_ currency: ExpressCurrency, key: String, isFromAsyncContext: Bool) async {
+        if cache.cryptoCurrencies[key] != nil {
+            return
+        }
+
+        if !inFlightLoadingCryptoCurrencies.contains(key) {
+            // No in-flight load for this currency, start one
+            pendingCryptoCurrenciesToLoad[key] = currency
+            startCryptoCurrenciesLoadingDebounce()
+        }
+
+        guard isFromAsyncContext else {
+            // No need to wait for the result in synchronous context, early exit
+            return
+        }
+
+        await withCheckedContinuation { continuation in
+            guard cache.cryptoCurrencies[key] == nil else {
+                // The currency was loaded while we were waiting for the continuation to be called, early exit
+                continuation.resume()
+                return
+            }
+
+            pendingCryptoCurrencyContinuations[key, default: []].append(continuation)
+        }
+    }
+
+    private func startCryptoCurrenciesLoadingDebounce() {
+        cryptoCurrenciesDebounceTask?.cancel()
+        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the debounce delay
+        cryptoCurrenciesDebounceTask = Task { [weak self] in
+            try? await Task.sleep(for: Constants.debounce)
+
+            guard !Task.isCancelled else {
+                return
+            }
+
+            await self?.fireCryptoCurrenciesLoadingDebounceIfNeeded()
+        }
+    }
+
+    private func fireCryptoCurrenciesLoadingDebounceIfNeeded() async {
+        let batch = pendingCryptoCurrenciesToLoad
+
+        guard batch.isNotEmpty else {
+            return
+        }
+
+        pendingCryptoCurrenciesToLoad.removeAll()
+        inFlightLoadingCryptoCurrencies.formUnion(batch.keys) // Mark the keys from the current batch as being currently handled
+
+        await loadCryptoCurrencies(batch)
+    }
+
+    private func loadCryptoCurrencies(_ batch: [String: ExpressCurrency]) async {
+        defer {
+            inFlightLoadingCryptoCurrencies.subtract(batch.keys) // Mark the keys from the current batch as handled
+            resumePendingCryptoCurrencyContinuations(for: batch.keys.toSet()) // resume on both success and failure so callers never hang
+        }
+
+        do {
+            let currencies = batch.values
+            let networkIds = currencies.uniqueProperties(\.network)
+
+            // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, while the actual list
+            // of blockchains is derived from `batch` hence all of them guaranteed to be supported
+            let allSupportedBlockchains = SupportedBlockchains.all
+
+            let blockchainsToLoad = networkIds
+                .compactMap { allSupportedBlockchains[$0] }
+                .toSet()
+
+            let contractAddressesToLoad = currencies
+                .compactMap { $0.contractAddress == Constants.coinContractAddress ? nil : $0.contractAddress }
+                .nilIfEmpty
+
+            let request = CoinsList.Request(
+                supportedBlockchains: blockchainsToLoad,
+                contractAddresses: contractAddressesToLoad
+            )
+            let response = try await tangemApiService.loadCoins(requestModel: request)
+            let tokenItems = Self.makeTokenItems(
+                from: response,
+                supportedBlockchains: blockchainsToLoad,
+                requestedKeys: batch.keys.toSet()
+            )
+
+            var hasChanges = false
+            for (key, tokenItem) in tokenItems {
+                if cache.cryptoCurrencies[key] == nil {
+                    cache.cryptoCurrencies[key] = tokenItem
+                    hasChanges = true
+                }
+            }
+
+            guard hasChanges else {
+                return
+            }
+
+            mirrorToSyncCache()
+            persistCryptoCurrencies()
+            subscribers.yield()
+        } catch {
+            TransactionHistoryLogger.error(self, "Failed to load crypto currencies", error: error)
+        }
+    }
+
+    private func resumePendingCryptoCurrencyContinuations(for keys: Set<String>) {
+        for key in keys {
+            guard let continuations = pendingCryptoCurrencyContinuations.removeValue(forKey: key) else {
+                continue
+            }
+
+            for continuation in continuations {
+                continuation.resume()
+            }
+        }
+    }
+
+    // MARK: - Factory methods
+
+    private func makeExpressAPIProvider() -> ExpressAPIProvider? {
+        // We don't care about using a particular user wallet model here, any will do,
+        // since we just need to create a provider to fetch non-user-specific data (providers, currencies, etc)
+        guard let model = userWalletRepository.selectedModel ?? userWalletRepository.models.first else {
+            return nil
+        }
+
+        return cachingExpressAPIProviderFactory.provider(
+            for: model.userWalletId.stringValue,
+            refcode: model.refcodeProvider?.getRefcode()
+        )
+    }
+
+    private static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
+        var cache = Cache()
+
+        for provider in storage.expressProviders {
+            cache.expressProviders[provider.id] = provider
+        }
+
+        for provider in storage.onrampProviders {
+            cache.onrampProviders[provider.id] = provider
+        }
+
+        for currency in storage.fiatCurrencies {
+            cache.fiatCurrencies[currency.identity.code] = currency
+        }
+
+        cache.cryptoCurrencies = storage.cryptoCurrencies
+
+        return cache
+    }
+
+    private static func makeCryptoCurrencyCacheKey(networkId: String, contractAddress: String?) -> String {
+        return "\(networkId)_\(contractAddress ?? Constants.coinContractAddress)"
+    }
+
+    private static func makeCryptoCurrencyCacheKey(for currency: ExpressCurrency) -> String {
+        return makeCryptoCurrencyCacheKey(networkId: currency.network, contractAddress: currency.contractAddress)
+    }
+
+    private static func makeTokenItems(
+        from response: CoinsList.Response,
+        supportedBlockchains: Set<Blockchain>,
+        requestedKeys: Set<String>
+    ) -> [String: TokenItem] {
+        let mapper = CoinsResponseMapper(supportedBlockchains: supportedBlockchains)
+
+        return mapper
+            .mapToCoinModels(response)
+            .flatMap(\.items)
+            .reduce(into: [:]) { result, item in
+                let key = Self.makeCryptoCurrencyCacheKey(
+                    networkId: item.tokenItem.networkId,
+                    contractAddress: item.tokenItem.contractAddress
+                )
+
+                guard requestedKeys.contains(key) else {
+                    return
+                }
+
+                result[key] = item.tokenItem
+            }
     }
 }
 
@@ -138,261 +448,11 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
     }
 }
 
-// MARK: - Providers / currencies loading
+// MARK: - TransactionHistoryAuxDataRepository protocol conformance
 
-private extension CommonTransactionHistoryAuxDataRepository {
-    func makeExpressAPIProvider() -> ExpressAPIProvider? {
-        // We don't care about using a particular user wallet model here, any will do,
-        // since we just need to create a provider to fetch non-user-specific data (providers, currencies, etc)
-        guard let model = userWalletRepository.selectedModel ?? userWalletRepository.models.first else {
-            return nil
-        }
-
-        return cachingExpressAPIProviderFactory.provider(
-            for: model.userWalletId.stringValue,
-            refcode: model.refcodeProvider?.getRefcode()
-        )
-    }
-
-    func loadProvidersIfNeeded(branch: ExpressBranch) async {
-        if let task = inFlightProviderLoadTasks[branch] {
-            return await task.value
-        }
-
-        let task = runTask(in: self) { repository in
-            await repository.loadProviders(branch: branch)
-        }
-
-        defer { inFlightProviderLoadTasks[branch] = nil }
-        inFlightProviderLoadTasks[branch] = task
-        await task.value
-    }
-
-    func loadProviders(branch: ExpressBranch) async {
-        guard let expressAPIProvider = makeExpressAPIProvider() else {
-            TransactionHistoryLogger.error(self, error: "Failed to create ExpressAPIProvider for providers load")
-            return
-        }
-
-        do {
-            let providers = try await expressAPIProvider.providers(branch: branch)
-            let hasChanges = switch branch {
-            case .swap:
-                merge(providers, into: &cache.expressProviders)
-            case .onramp:
-                merge(providers, into: &cache.onrampProviders)
-            }
-
-            guard hasChanges else {
-                return
-            }
-
-            mirrorToSyncCache()
-            persistProviders()
-            subscribers.yield()
-        } catch {
-            TransactionHistoryLogger.error(self, "Failed to load \(branch.rawValue) providers", error: error)
-        }
-    }
-
-    /// Merges freshly loaded providers into the given cache, returning whether anything changed.
-    func merge(_ providers: [ExpressProvider], into cache: inout [ExpressProvider.Id: ExpressProvider]) -> Bool {
-        var hasChanges = false
-
-        for provider in providers {
-            if cache[provider.id] != provider {
-                cache[provider.id] = provider
-                hasChanges = true
-            }
-        }
-
-        return hasChanges
-    }
-
-    func loadFiatCurrenciesIfNeeded() async {
-        if let task = inFlightFiatCurrenciesLoadTask {
-            return await task.value
-        }
-
-        let task = runTask(in: self) { repository in
-            await repository.loadFiatCurrencies()
-        }
-
-        inFlightFiatCurrenciesLoadTask = task
-        defer { inFlightFiatCurrenciesLoadTask = nil }
-        await task.value
-    }
-
-    func loadFiatCurrencies() async {
-        guard let expressAPIProvider = makeExpressAPIProvider() else {
-            return
-        }
-
-        do {
-            let loaded = try await expressAPIProvider.onrampCurrencies()
-            var hasChanges = false
-            for currency in loaded {
-                if cache.fiatCurrencies[currency.identity.code] != currency {
-                    cache.fiatCurrencies[currency.identity.code] = currency
-                    hasChanges = true
-                }
-            }
-
-            guard hasChanges else {
-                return
-            }
-
-            mirrorToSyncCache()
-            persistFiatCurrencies()
-            subscribers.yield()
-        } catch {
-            TransactionHistoryLogger.error(self, "Failed to load onramp currencies", error: error)
-        }
-    }
-}
-
-// MARK: - Crypto currencies loading
-
-private extension CommonTransactionHistoryAuxDataRepository {
-    func loadCryptoCurrenciesIfNeeded(_ currency: ExpressCurrency, key: String, isFromAsyncContext: Bool) async {
-        if cache.cryptoCurrencies[key] != nil {
-            return
-        }
-
-        if !inFlightLoadingCryptoCurrencyKeys.contains(key) {
-            // No in-flight load for this currency, start one
-            pendingCryptoCurrenciesToLoad[key] = currency
-            startCryptoCurrenciesLoadingDebounce()
-        }
-
-        guard isFromAsyncContext else {
-            // No need to wait for the result in synchronous context, early exit
-            return
-        }
-
-        await withCheckedContinuation { continuation in
-            guard cache.cryptoCurrencies[key] == nil else {
-                // The currency was loaded while we were waiting for the continuation to be called, early exit
-                continuation.resume()
-                return
-            }
-
-            pendingCryptoCurrencyContinuations[key, default: []].append(continuation)
-        }
-    }
-
-    func startCryptoCurrenciesLoadingDebounce() {
-        cryptoCurrenciesDebounceTask?.cancel()
-        // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the debounce delay
-        cryptoCurrenciesDebounceTask = Task { [weak self] in
-            try? await Task.sleep(for: Constants.debounce)
-
-            guard !Task.isCancelled else {
-                return
-            }
-
-            await self?.prepareToLoadPendingCryptoCurrencies()
-        }
-    }
-
-    func prepareToLoadPendingCryptoCurrencies() async {
-        let batch = pendingCryptoCurrenciesToLoad
-
-        guard batch.isNotEmpty else {
-            return
-        }
-
-        pendingCryptoCurrenciesToLoad.removeAll()
-        inFlightLoadingCryptoCurrencyKeys.formUnion(batch.keys) // Mark the keys from the current batch as being currently handled
-
-        await loadCryptoCurrencies(batch)
-    }
-
-    func loadCryptoCurrencies(_ batch: [String: ExpressCurrency]) async {
-        defer {
-            inFlightLoadingCryptoCurrencyKeys.subtract(batch.keys) // Mark the keys from the current batch as handled
-            resumePendingCryptoCurrencyContinuations(for: batch.keys.toSet()) // resume on both success and failure so callers never hang
-        }
-
-        do {
-            let currencies = batch.values
-            let networkIds = currencies.uniqueProperties(\.network)
-
-            // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, while the actual list
-            // of blockchains is derived from `batch` hence all of them guaranteed to be supported
-            let allSupportedBlockchains = SupportedBlockchains.all
-
-            let blockchainsToLoad = networkIds
-                .compactMap { allSupportedBlockchains[$0] }
-                .toSet()
-
-            let contractAddressesToLoad = currencies
-                .compactMap { $0.contractAddress == Constants.coinContractAddress ? nil : $0.contractAddress }
-                .nilIfEmpty
-
-            let request = CoinsList.Request(
-                supportedBlockchains: blockchainsToLoad,
-                contractAddresses: contractAddressesToLoad
-            )
-            let response = try await tangemApiService.loadCoins(requestModel: request)
-            let tokenItems = Self.makeTokenItems(
-                from: response,
-                supportedBlockchains: blockchainsToLoad,
-                requestedKeys: batch.keys.toSet()
-            )
-
-            var hasChanges = false
-            for (key, tokenItem) in tokenItems {
-                if cache.cryptoCurrencies[key] == nil {
-                    cache.cryptoCurrencies[key] = tokenItem
-                    hasChanges = true
-                }
-            }
-
-            guard hasChanges else {
-                return
-            }
-
-            mirrorToSyncCache()
-            persistCryptoCurrencies()
-            subscribers.yield()
-        } catch {
-            TransactionHistoryLogger.error(self, "Failed to load crypto currencies", error: error)
-        }
-    }
-
-    func resumePendingCryptoCurrencyContinuations(for keys: Set<String>) {
-        for key in keys {
-            guard let continuations = pendingCryptoCurrencyContinuations.removeValue(forKey: key) else {
-                continue
-            }
-
-            for continuation in continuations {
-                continuation.resume()
-            }
-        }
-    }
-}
-
-// MARK: - Persistence
-
-private extension CommonTransactionHistoryAuxDataRepository {
-    func persistProviders() {
-        storage.expressProviders = Array(cache.expressProviders.values)
-        storage.onrampProviders = Array(cache.onrampProviders.values)
-    }
-
-    func persistFiatCurrencies() {
-        storage.fiatCurrencies = Array(cache.fiatCurrencies.values)
-    }
-
-    func persistCryptoCurrencies() {
-        storage.cryptoCurrencies = cache.cryptoCurrencies
-    }
-
-    func mirrorToSyncCache() {
-        let cacheSnapshot = cache
-        syncCache { $0 = cacheSnapshot }
+extension CommonTransactionHistoryAuxDataRepository: CustomStringConvertible {
+    nonisolated var description: String {
+        return "CommonTransactionHistoryAuxDataRepository"
     }
 }
 
@@ -423,69 +483,5 @@ private extension CommonTransactionHistoryAuxDataRepository {
     enum Constants {
         static let debounce: Duration = .milliseconds(300)
         static var coinContractAddress: String { ExpressConstants.coinContractAddress }
-    }
-}
-
-// MARK: - Factory methods
-
-private extension CommonTransactionHistoryAuxDataRepository {
-    static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
-        var cache = Cache()
-
-        for provider in storage.expressProviders {
-            cache.expressProviders[provider.id] = provider
-        }
-
-        for provider in storage.onrampProviders {
-            cache.onrampProviders[provider.id] = provider
-        }
-
-        for currency in storage.fiatCurrencies {
-            cache.fiatCurrencies[currency.identity.code] = currency
-        }
-
-        cache.cryptoCurrencies = storage.cryptoCurrencies
-
-        return cache
-    }
-
-    static func makeCryptoCurrencyCacheKey(networkId: String, contractAddress: String?) -> String {
-        return "\(networkId)_\(contractAddress ?? Constants.coinContractAddress)"
-    }
-
-    static func makeCryptoCurrencyCacheKey(for currency: ExpressCurrency) -> String {
-        return makeCryptoCurrencyCacheKey(networkId: currency.network, contractAddress: currency.contractAddress)
-    }
-
-    static func makeTokenItems(
-        from response: CoinsList.Response,
-        supportedBlockchains: Set<Blockchain>,
-        requestedKeys: Set<String>
-    ) -> [String: TokenItem] {
-        let mapper = CoinsResponseMapper(supportedBlockchains: supportedBlockchains)
-
-        return mapper
-            .mapToCoinModels(response)
-            .flatMap(\.items)
-            .reduce(into: [:]) { result, item in
-                let key = makeCryptoCurrencyCacheKey(
-                    networkId: item.tokenItem.networkId,
-                    contractAddress: item.tokenItem.contractAddress
-                )
-
-                guard requestedKeys.contains(key) else {
-                    return
-                }
-
-                result[key] = item.tokenItem
-            }
-    }
-}
-
-// MARK: - TransactionHistoryAuxDataRepository protocol conformance
-
-extension CommonTransactionHistoryAuxDataRepository: CustomStringConvertible {
-    nonisolated var description: String {
-        return "CommonTransactionHistoryAuxDataRepository"
     }
 }
