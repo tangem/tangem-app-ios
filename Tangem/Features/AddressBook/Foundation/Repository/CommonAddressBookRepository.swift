@@ -57,6 +57,8 @@ extension CommonAddressBookRepository: AddressBookRepository {
     }
 
     func ensureBookMutable() throws {
+        // [REDACTED_TODO_COMMENT]
+        // every mutation is blocked. Decide whether editing a cached-but-unsynced book should be allowed.
         guard syncStateSubject.value.isSynced else {
             throw AddressBookRepositoryError.bookUnavailable
         }
@@ -107,8 +109,10 @@ private extension CommonAddressBookRepository {
             }
 
         } catch AddressBookNetworkServiceError.malformedResponse(let error) {
-            invalidateCache()
-            publish(syncState: .failure(.decodingError(error.localizedDescription), cached: nil))
+            // A malformed/undecodable server response is an upstream fault, not a problem with the local blob
+            // (loadLocalAddressBook validated that independently). Keep the cached copy rather than wiping the
+            // user's offline data over a transient backend defect.
+            await apply(local: localBook, syncState: .failure(.decodingError(error.localizedDescription)))
         } catch {
             await apply(local: localBook, syncState: .failure(.networkError(error.localizedDescription)))
         }
@@ -134,8 +138,9 @@ private extension CommonAddressBookRepository {
         } catch AddressBookRepositoryError.unsupportedBlobVersion {
             publish(syncState: .failure(.updateRequired, cached: local.contacts))
         } catch {
-            invalidateCache()
-            publish(syncState: .failure(.decodingError(error.localizedDescription), cached: nil))
+            // The fetched remote blob failed to decrypt/decode; the separately-loaded local cache is still
+            // good, so fall back to it instead of erasing it over a remote-side fault.
+            publish(syncState: .failure(.decodingError(error.localizedDescription), cached: local.contacts))
         }
     }
 
@@ -212,6 +217,9 @@ private extension CommonAddressBookRepository {
             try persistentStorage.saveEnvelope(mapper.mapToDTO(envelope), for: walletId)
             eTagStorage.saveETag(etag, for: .addressBook(walletId: walletId))
         } catch {
+            // The etag must never outlive its blob: a stored etag with no local copy makes the next load echo
+            // that etag in the sync request, get back "not modified" (empty items), and have nothing to show.
+            // So a failed blob write clears both.
             invalidateCache()
         }
     }
