@@ -11,7 +11,7 @@ import Foundation
 enum AddressBookNetworkServiceError: LocalizedError {
     case underlyingError(Error)
     case inconsistentState
-    case malformedResponse(AddressBookNetworkMapper.MappingError)
+    case malformedResponse(Error)
 
     var errorDescription: String? {
         switch self {
