@@ -98,10 +98,8 @@ struct TangemPayCurrentPlanView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     NavigationStack {
         TangemPayCurrentPlanView(viewModel: TangemPayCurrentPlanViewModel())
     }
 }
-#endif // DEBUG

@@ -75,7 +75,6 @@ private extension TangemPayBalanceView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 24) {
         TangemPayBalanceView(state: .loaded(text: "$18.97"))
@@ -85,4 +84,3 @@ private extension TangemPayBalanceView {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

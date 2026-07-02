@@ -60,14 +60,12 @@ private extension StoriesBottomButtons {
     }
 }
 
-struct StoriesBottomButtons_Previews: PreviewProvider {
-    static var previews: some View {
-        StoriesBottomButtons(
-            isScanning: false,
-            createWallet: {},
-            scanCard: {},
-            orderCard: {},
-            scanTroubleShootingDialog: .constant(nil)
-        )
-    }
+#Preview {
+    StoriesBottomButtons(
+        isScanning: false,
+        createWallet: {},
+        scanCard: {},
+        orderCard: {},
+        scanTroubleShootingDialog: .constant(nil)
+    )
 }

@@ -223,7 +223,6 @@ extension MainUserWalletHeader {
 
 // MARK: - Previews
 
-#if DEBUG
 @available(iOS 17, *)
 #Preview {
     @Previewable @State var provider = FakeCardHeaderPreviewProvider()
@@ -243,4 +242,3 @@ extension MainUserWalletHeader {
     }
     .padding()
 }
-#endif // DEBUG

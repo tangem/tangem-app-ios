@@ -48,7 +48,6 @@ struct TransactionDetailsOperationIconView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Operation icon") {
     let types: [(String, TransactionViewModel.TransactionType, Bool)] = [
         ("Send", .transfer, true),
@@ -87,4 +86,3 @@ struct TransactionDetailsOperationIconView: View {
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG

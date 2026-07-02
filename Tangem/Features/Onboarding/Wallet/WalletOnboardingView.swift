@@ -247,13 +247,21 @@ struct WalletOnboardingView: View {
     }
 }
 
-#if DEBUG
 #Preview {
     NavigationStack {
-        WalletOnboardingView(viewModel: .init(
-            input: PreviewData.previewWalletOnboardingInput,
-            coordinator: OnboardingCoordinator()
-        ))
+        WalletOnboardingView(
+            viewModel: .init(
+                input: OnboardingInput(
+                    backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
+                    primaryCardId: "",
+                    cardInitializer: nil,
+                    pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
+                    steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
+                    cardInput: .cardInfo(PreviewCard.tangemWalletEmpty.cardInfo),
+                    twinData: nil
+                ),
+                coordinator: OnboardingCoordinator()
+            )
+        )
     }
 }
-#endif

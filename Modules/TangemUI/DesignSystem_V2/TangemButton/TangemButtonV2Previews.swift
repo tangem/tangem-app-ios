@@ -287,8 +287,6 @@ public struct TangemButtonV2Showcase: View {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("Showcase") {
     TangemButtonV2Showcase()
 }
@@ -382,5 +380,3 @@ public struct TangemButtonV2Showcase: View {
         )
     )
 }
-
-#endif // DEBUG
