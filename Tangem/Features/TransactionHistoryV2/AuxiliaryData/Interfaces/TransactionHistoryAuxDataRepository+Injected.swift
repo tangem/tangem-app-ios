@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemFoundation
 
 extension InjectedValues {
     var transactionHistoryAuxDataRepository: TransactionHistoryAuxDataRepository {
@@ -23,6 +22,8 @@ private struct TransactionHistoryAuxDataRepositoryKey: InjectionKey {
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory { userWalletId, refcode in
             ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
         },
-        storage: UserDefaultsTransactionHistoryAuxDataStorage(suiteName: AppEnvironment.current.suiteName)
+        storage: UserDefaultsTransactionHistoryAuxDataStorage(
+            dataStorage: UserDefaultsBlockchainDataStorage()
+        )
     )
 }

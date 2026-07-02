@@ -13,7 +13,7 @@ import TangemExpress
 // [REDACTED_TODO_COMMENT]
 struct UserDefaultsTransactionHistoryAuxDataStorage {
     /// - Note: Despite the name of the type, this inner storage is not limited to BlockchainSDK. It's just a convenient UserDefaults wrapper.
-    private let dataStorage = UserDefaultsBlockchainDataStorage()
+    private let dataStorage: BlockchainDataStorage
 
     var expressProviders: [ExpressProvider] {
         get {
@@ -69,6 +69,10 @@ struct UserDefaultsTransactionHistoryAuxDataStorage {
                 value: newValue
             )
         }
+    }
+
+    init(dataStorage: BlockchainDataStorage) {
+        self.dataStorage = dataStorage
     }
 }
 
