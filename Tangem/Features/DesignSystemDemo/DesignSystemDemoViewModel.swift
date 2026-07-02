@@ -90,4 +90,8 @@ final class DesignSystemDemoViewModel: ObservableObject {
     func openTangemShimmerDemo() {
         coordinator?.openTangemShimmerDemo()
     }
+
+    func openGlowRingDemo() {
+        coordinator?.openGlowRingDemo()
+    }
 }
