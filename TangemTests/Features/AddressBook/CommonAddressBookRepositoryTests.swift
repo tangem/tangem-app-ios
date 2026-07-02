@@ -255,7 +255,7 @@ struct CommonAddressBookRepositoryTests {
     }
 
     private var addressBookETagKey: String {
-        ETagStorageKey.addressBook(walletId: walletId).storageKey
+        ETagStorageKey.addressBook(walletId: walletId).testKey
     }
 
     private func zeros(_ count: Int) -> Data { Data(repeating: 0, count: count) }
@@ -408,17 +408,17 @@ private final class SpyETagStorage: ETagStorage {
     func initialize() {}
 
     func loadETag(for key: ETagStorageKey) -> String? {
-        etags[key.storageKey]
+        etags[key.testKey]
     }
 
     func saveETag(_ eTag: String, for key: ETagStorageKey) {
         savedETags.append(eTag)
-        etags[key.storageKey] = eTag
+        etags[key.testKey] = eTag
     }
 
     func clearETag(for key: ETagStorageKey) {
-        clearedKeys.append(key.storageKey)
-        etags[key.storageKey] = nil
+        clearedKeys.append(key.testKey)
+        etags[key.testKey] = nil
     }
 }
 
@@ -439,3 +439,12 @@ private struct StubKeyProvider: AddressBookEncryptionKeyProviding {
 }
 
 private struct TestError: Error {}
+
+private extension ETagStorageKey {
+    var testKey: String {
+        switch self {
+        case .accounts(let walletId): "accounts_\(walletId.stringValue)"
+        case .addressBook(let walletId): "addressBook_\(walletId.stringValue)"
+        }
+    }
+}
