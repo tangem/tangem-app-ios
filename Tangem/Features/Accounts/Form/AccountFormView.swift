@@ -114,7 +114,7 @@ struct AccountFormView: View {
 
     private var mainContent: some View {
         VStack(spacing: 12) {
-            AccountFormHeaderView(
+            FormHeaderView(
                 accountName: $viewModel.accountName,
                 title: Localization.accountFormName,
                 maxCharacters: viewModel.maxNameLength,
