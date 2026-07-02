@@ -183,11 +183,25 @@ struct TwinsOnboardingView: View {
     }
 }
 
-#if DEBUG
 #Preview {
-    TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(
-        input: PreviewData.previewTwinOnboardingInput,
-        coordinator: OnboardingCoordinator()
-    ))
+    TwinsOnboardingView(
+        viewModel: TwinsOnboardingViewModel(
+            input: OnboardingInput(
+                backupService: .init(sdk: .init(), networkService: .init(session: .shared, additionalHeaders: [:])),
+                primaryCardId: "",
+                cardInitializer: nil,
+                pushNotificationsPermissionManager: PushNotificationsPermissionManagerStub(),
+                steps: .twins([
+                    .intro(pairNumber: "0128"),
+                    .first,
+                    .second,
+                    .third,
+                    .done,
+                ]),
+                cardInput: .cardInfo(PreviewCard.twin.cardInfo),
+                twinData: .init(series: TwinCardSeries.cb61)
+            ),
+            coordinator: OnboardingCoordinator()
+        )
+    )
 }
-#endif
