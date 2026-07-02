@@ -68,3 +68,12 @@ extension CommonETagStorage: ETagStorage {
         innerStorage.store(key: key.storageKey, value: value)
     }
 }
+
+private extension ETagStorageKey {
+    var storageKey: String {
+        switch self {
+        case .accounts(let walletId): "CryptoAccountsETagStorage_\(walletId.stringValue)"
+        case .addressBook(let walletId): "AddressBookETagStorage_\(walletId.stringValue)"
+        }
+    }
+}

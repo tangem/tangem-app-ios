@@ -18,13 +18,6 @@ protocol ETagStorage: Initializable {
 enum ETagStorageKey {
     case accounts(walletId: UserWalletId)
     case addressBook(walletId: UserWalletId)
-
-    var storageKey: String {
-        switch self {
-        case .accounts(let walletId): "CryptoAccountsETagStorage_\(walletId.stringValue)"
-        case .addressBook(let walletId): "AddressBookETagStorage_\(walletId.stringValue)"
-        }
-    }
 }
 
 extension InjectedValues {
