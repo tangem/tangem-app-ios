@@ -54,6 +54,8 @@ struct TransactionDetailsInfoSectionView: View {
         switch row.content {
         case .text(let value):
             TangemRow(title: row.title, value: value)
+                .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+                .valueLineLimit(1)
                 .showDivider(showsDivider)
         case .link(let link):
             TangemRow(title: row.title)
