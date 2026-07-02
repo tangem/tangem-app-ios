@@ -198,7 +198,6 @@ extension AccountFormView {
     }
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
@@ -214,4 +213,3 @@ extension AccountFormView {
             }
         }
 }
-#endif

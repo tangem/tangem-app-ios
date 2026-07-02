@@ -43,8 +43,6 @@ extension IconWithBackground {
     }
 }
 
-struct ReferralPointIcon_Previews: PreviewProvider {
-    static var previews: some View {
-        IconWithBackground(icon: Assets.discount)
-    }
+#Preview {
+    IconWithBackground(icon: Assets.discount)
 }
