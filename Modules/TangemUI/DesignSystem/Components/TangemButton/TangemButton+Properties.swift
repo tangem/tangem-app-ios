@@ -22,7 +22,7 @@ public extension TangemButton {
             content: Content,
             size: Size = .x10,
             styleType: StyleType = .primary,
-            cornerStyle: CornerStyle = .rectangular,
+            cornerStyle: CornerStyle = .rounded,
             horizontalLayout: HorizontalLayout = .infinity,
             action: @Sendable @escaping () -> Void
         ) {
