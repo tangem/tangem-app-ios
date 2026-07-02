@@ -18,4 +18,5 @@ enum AddressBookValidationError: Error, Hashable {
     case tooManyAddresses
     case addressEmpty
     case duplicateAddressNetworkPair
+    case addressAlreadySaved(contactName: String)
 }
