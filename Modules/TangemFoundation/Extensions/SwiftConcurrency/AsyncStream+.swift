@@ -116,6 +116,14 @@ public extension AsyncStream {
     }
 }
 
+// MARK: - Convenience extensions
+
+public extension AsyncStream.MulticastSubscribers where Element == Void {
+    func yield() {
+        self.yield(())
+    }
+}
+
 // MARK: - Auxiliary types
 
 private extension AsyncStream.MulticastSubscribers {
