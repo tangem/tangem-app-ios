@@ -64,7 +64,7 @@ private extension ChooseNetworkViewModel {
             .removeDuplicates()
             .debounce(for: 0.3, scheduler: DispatchQueue.main, if: { !$0.isEmpty })
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in viewModel.rebuildRows() }
+            .sink { viewModel, query in viewModel.rebuildRows(query: query) }
             .store(in: &bag)
     }
 
@@ -78,8 +78,8 @@ private extension ChooseNetworkViewModel {
         rebuildRows()
     }
 
-    func rebuildRows() {
-        let query = searchText.trimmed()
+    func rebuildRows(query overrideQuery: String? = nil) {
+        let query = (overrideQuery ?? searchText).trimmed()
 
         let filtered = query.isEmpty ? candidates : candidates.filter { blockchain in
             blockchain.displayName.caseInsensitiveContains(query)
