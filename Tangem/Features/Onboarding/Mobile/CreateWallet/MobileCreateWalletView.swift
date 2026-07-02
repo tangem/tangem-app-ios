@@ -30,18 +30,10 @@ struct MobileCreateWalletView: View {
 
 private extension MobileCreateWalletView {
     var navigationBar: some View {
-        NavigationBar(
-            title: .empty,
-            settings: .init(backgroundColor: .clear),
-            leftButtons: {
-                BackButton(
-                    height: viewModel.navBarHeight,
-                    isVisible: true,
-                    isEnabled: true,
-                    action: viewModel.onBackTap
-                )
-            }
-        )
+        NavigationBarButton.back(action: viewModel.onBackTap)
+            .padding(.leading, .unit(.x4))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .redesigned()
     }
 
     var content: some View {
