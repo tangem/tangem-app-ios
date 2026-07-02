@@ -71,7 +71,7 @@ final class AddressBookContactManagementViewModel: ObservableObject, Identifiabl
     init(
         interactor: AddressBookContactManagementInteractor,
         coordinator: AddressBookContactManagementRoutable,
-        addressBooksProvider: any AddressBooksProvider = .common()
+        addressBooksProvider: any AddressBooksProvider
     ) {
         self.interactor = interactor
         self.addressBooksProvider = addressBooksProvider
