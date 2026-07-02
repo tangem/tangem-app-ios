@@ -24,6 +24,8 @@ public struct StepsFlowView: View {
     public var body: some View {
         VStack(spacing: 0) {
             flowBar
+                .padding(.horizontal, .unit(.x4))
+
             stepsContent
         }
         .overlay(StepsFlowLoading(isLoading: viewModel.currentIsLoading))
