@@ -557,7 +557,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     override func didAskToSaveUserWallets(agreed: Bool) {
         super.didAskToSaveUserWallets(agreed: agreed)
-        
+
         if let firmwareVersion {
             trySaveAccessCodes(firmwareVersion: firmwareVersion)
         }
@@ -820,9 +820,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                 alert = makeResetCardSetAlert()
                                 return
                             }
-                            
+
                             // Cache the firmware version to be able to save the access codes later
-                            self.firmwareVersion = updatedCard.firmwareVersion
+                            firmwareVersion = updatedCard.firmwareVersion
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
@@ -830,7 +830,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
                                    let userWalletId = userWalletModel?.userWalletId.stringValue {
                                     AppSettings.shared.userWalletIdsWithRing.insert(userWalletId)
                                 }
-                                
+
                                 trySaveAccessCodes(firmwareVersion: updatedCard.firmwareVersion)
 
                                 backupValidator.onBackupCompleted()
