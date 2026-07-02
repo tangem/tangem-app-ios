@@ -61,3 +61,33 @@ struct TransactionDetailsView: View {
     TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.sent())
         .background(DesignSystem.Color.bgPrimary)
 }
+
+#Preview("Swap in progress") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.swapInProgress())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Swap finished") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.swapFinished())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Swap failed") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.swapFailed())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Onramp in progress") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.onrampInProgress())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Onramp finished") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.onrampFinished())
+        .background(DesignSystem.Color.bgPrimary)
+}
+
+#Preview("Onramp failed") {
+    TransactionDetailsView(viewModel: TransactionDetailsPreviewFactory.onrampFailed())
+        .background(DesignSystem.Color.bgPrimary)
+}
