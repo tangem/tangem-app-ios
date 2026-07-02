@@ -1177,6 +1177,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "ID de destination";
 "send_dismiss_message" = "Êtes-vous sûr de vouloir fermer l'écran d'envoi ?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "Nom ENS ou adresse";
 "send_enter_address_field" = "Entrez l'adresse";
 "send_error_address_same_as_wallet" = "L'adresse est la même que celle de votre portefeuille";
@@ -1439,8 +1440,8 @@
 "story_web3_title" = "Compatible avec Web 3.0";
 "sui_not_enough_coin_for_fee_description" = "Une transaction entrante d'au moins de %1$@ est requise pour continuer";
 "sui_not_enough_coin_for_fee_title" = "Fonds insuffisants";
-"support_chat_screen_title" = "Discussion avec le support";
-"support_chat_share_logs_button" = "Joindre les logs de l'application";
+"support_chat_screen_title" = "Support via chat";
+"support_chat_share_logs_button" = "Joindre les logs de l'app";
 "support_chat_swap_prefilled_message" = "Données du SWAP :\nDepuis :%1$@%2$@\nVers :%3$@%4$@\nPar :%5$@-%6$@";
 "support_selector_view_chat_button" = "Accéder au chat";
 "support_selector_view_email_button" = "Ouvrir un email";
@@ -1546,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Des frais sont prélevés conformément aux tarifs de service";
 "tangem_pay_transaction_reversed_notification_text" = "La transaction a été partiellement ou totalement annulée par le commerçant";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Continuez à utiliser votre argent. Vous pouvez le geler à tout moment.";
 "tangem_pay_unfreeze_card_alert_title" = "Dégeler votre carte ?";
 "tangem_pay_unfreeze_card_failed" = "Échec du dégel de la carte. Réessayez plus tard.";
@@ -2083,6 +2086,7 @@
 "warning_matic_migration_message" = "MATIC est en cours de migration vers POL. Cependant, aucune date limite n'a été fixée et MATIC n'est pas encore obsolète. Vous pouvez continuer à utiliser le jeton MATIC en toute sécurité ou l'échanger contre POL.";
 "warning_matic_migration_title" = "Migration de MATIC vers POL";
 "warning_missing_derivation_title" = "Certaines adresses sont manquantes";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "Le réseau est actuellement inaccessible. Veuillez réessayer plus tard.";
 "warning_network_unreachable_title" = "Le réseau est inaccessible";
 "warning_no_account_title" = "Renflouez votre portefeuille";
