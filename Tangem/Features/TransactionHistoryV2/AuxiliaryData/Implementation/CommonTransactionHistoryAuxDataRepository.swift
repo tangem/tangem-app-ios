@@ -26,9 +26,9 @@ actor CommonTransactionHistoryAuxDataRepository {
     private var inFlightProviderLoadTasks: [ExpressBranch: Task<Void, Never>] = [:]
     private var inFlightFiatCurrenciesLoadTask: Task<Void, Never>?
 
-    private var pendingCryptoCurrencies: [String: ExpressCurrency] = [:]
-    private var inFlightCryptoCurrencyKeys: Set<String> = []
-    private var cryptoCurrencyWaiters: [String: [CheckedContinuation<Void, Never>]] = [:]
+    private var pendingCryptoCurrenciesToLoad: [String: ExpressCurrency] = [:]
+    private var inFlightLoadingCryptoCurrencyKeys: Set<String> = []
+    private var pendingCryptoCurrencyContinuations: [String: [CheckedContinuation<Void, Never>]] = [:]
     private var cryptoCurrenciesDebounceTask: Task<Void, Never>?
 
     private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
@@ -259,27 +259,29 @@ private extension CommonTransactionHistoryAuxDataRepository {
             return
         }
 
-        if !inFlightCryptoCurrencyKeys.contains(key) {
-            pendingCryptoCurrencies[key] = currency
-            armCryptoCurrenciesDebounce()
+        if !inFlightLoadingCryptoCurrencyKeys.contains(key) {
+            // No in-flight load for this currency, start one
+            pendingCryptoCurrenciesToLoad[key] = currency
+            startCryptoCurrenciesLoadingDebounce()
         }
 
         guard isFromAsyncContext else {
+            // No need to wait for the result in synchronous context, early exit
             return
         }
 
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            if cache.cryptoCurrencies[key] != nil {
+        await withCheckedContinuation { continuation in
+            guard cache.cryptoCurrencies[key] == nil else {
+                // The currency was loaded while we were waiting for the continuation to be called, early exit
                 continuation.resume()
-
                 return
             }
 
-            cryptoCurrencyWaiters[key, default: []].append(continuation)
+            pendingCryptoCurrencyContinuations[key, default: []].append(continuation)
         }
     }
 
-    func armCryptoCurrenciesDebounce() {
+    func startCryptoCurrenciesLoadingDebounce() {
         cryptoCurrenciesDebounceTask?.cancel()
         // Bare `Task` is used here intentionally to avoid capturing `self` for the duration of the debounce delay
         cryptoCurrenciesDebounceTask = Task { [weak self] in
@@ -289,53 +291,57 @@ private extension CommonTransactionHistoryAuxDataRepository {
                 return
             }
 
-            await self?.flushPendingCryptoCurrencies()
+            await self?.prepareToLoadPendingCryptoCurrencies()
         }
     }
 
-    func flushPendingCryptoCurrencies() async {
-        let batch = pendingCryptoCurrencies // claim atomically (no await above → no interleave)
+    func prepareToLoadPendingCryptoCurrencies() async {
+        let batch = pendingCryptoCurrenciesToLoad
 
-        guard !batch.isEmpty else {
+        guard batch.isNotEmpty else {
             return
         }
 
-        pendingCryptoCurrencies.removeAll()
-        inFlightCryptoCurrencyKeys.formUnion(batch.keys)
+        pendingCryptoCurrenciesToLoad.removeAll()
+        inFlightLoadingCryptoCurrencyKeys.formUnion(batch.keys) // Mark the keys from the current batch as being currently handled
 
-        await performCryptoCurrenciesLoad(batch)
+        await loadCryptoCurrencies(batch)
     }
 
-    func performCryptoCurrenciesLoad(_ batch: [String: ExpressCurrency]) async {
+    func loadCryptoCurrencies(_ batch: [String: ExpressCurrency]) async {
         defer {
-            inFlightCryptoCurrencyKeys.subtract(batch.keys)
-            resumeCryptoCurrencyWaiters(for: batch.keys.toSet()) // resume on success AND failure so callers never hang
+            inFlightLoadingCryptoCurrencyKeys.subtract(batch.keys) // Mark the keys from the current batch as handled
+            resumePendingCryptoCurrencyContinuations(for: batch.keys.toSet()) // resume on both success and failure so callers never hang
         }
 
         do {
             let currencies = batch.values
             let networkIds = currencies.uniqueProperties(\.network)
+
             // Using `SupportedBlockchains.all` here is safe because it is just a static lookup table, while the actual list
             // of blockchains is derived from `batch` hence all of them guaranteed to be supported
             let allSupportedBlockchains = SupportedBlockchains.all
-            let blockchains = networkIds.compactMap { allSupportedBlockchains[$0] }.toSet()
-            let contractAddresses = currencies
-                .map(\.contractAddress)
-                .filter { $0 != ExpressConstants.coinContractAddress }
+
+            let blockchainsToLoad = networkIds
+                .compactMap { allSupportedBlockchains[$0] }
+                .toSet()
+
+            let contractAddressesToLoad = currencies
+                .compactMap { $0.contractAddress == ExpressConstants.coinContractAddress ? nil : $0.contractAddress }
+                .nilIfEmpty
 
             let request = CoinsList.Request(
-                supportedBlockchains: blockchains,
-                contractAddresses: contractAddresses.nilIfEmpty
+                supportedBlockchains: blockchainsToLoad,
+                contractAddresses: contractAddressesToLoad
             )
             let response = try await tangemApiService.loadCoins(requestModel: request)
             let tokenItems = Self.makeTokenItems(
                 from: response,
-                supportedBlockchains: blockchains,
+                supportedBlockchains: blockchainsToLoad,
                 requestedKeys: batch.keys.toSet()
             )
 
             var hasChanges = false
-
             for (key, tokenItem) in tokenItems {
                 if cache.cryptoCurrencies[key] == nil {
                     cache.cryptoCurrencies[key] = tokenItem
@@ -355,14 +361,14 @@ private extension CommonTransactionHistoryAuxDataRepository {
         }
     }
 
-    func resumeCryptoCurrencyWaiters(for keys: Set<String>) {
+    func resumePendingCryptoCurrencyContinuations(for keys: Set<String>) {
         for key in keys {
-            guard let waiters = cryptoCurrencyWaiters.removeValue(forKey: key) else {
+            guard let continuations = pendingCryptoCurrencyContinuations.removeValue(forKey: key) else {
                 continue
             }
 
-            for waiter in waiters {
-                waiter.resume()
+            for continuation in continuations {
+                continuation.resume()
             }
         }
     }
