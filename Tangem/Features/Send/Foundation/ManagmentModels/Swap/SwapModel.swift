@@ -1472,7 +1472,7 @@ extension SwapModel: SendFeeInput {
         case .loaded(.swap(.some(let selected), _), _):
             return try? selected.getTokenFeeProvidersManager().selectedFeeProvider.selectedTokenFee
 
-        case .loaded(_, .readyToTransfer):
+        case .loaded(.transfer, _):
             return tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
 
         default:
@@ -1490,6 +1490,9 @@ extension SwapModel: SendFeeInput {
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughAmountForTxValue, _)),
              .loaded(.swap(.some(let selected), _), .restriction(.notEnoughBalanceForSwapping, _)):
             return !selected.getState().isPermissionRequired
+        case .loaded(.transfer, .restriction):
+            // Keep the fee row visible so a too-high custom fee can be lowered; transfers have no approve flow.
+            return true
         case .loaded(_, .previewCEX(let previewCEX)):
             return !previewCEX.isExemptFee
         case .loading(.rates):
