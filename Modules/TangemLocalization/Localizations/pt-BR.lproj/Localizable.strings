@@ -92,6 +92,7 @@
 "address_book_creating_error" = "Não foi possível estabelecer contato. Tente novamente mais tarde.";
 "address_book_delete_contact_description" = "Este contato será excluído de toda a sua agenda de contatos.";
 "address_book_delete_contact" = "Delete contact";
+"address_book_delete_last_address" = "\"%1$@\" has only one address. Deleting it will also delete the contact. Continue?";
 "address_book_deleting_error" = "Não foi possível excluir o contato. Tente novamente mais tarde.";
 "address_book_description" = "Gerenciar contatos e endereços";
 "address_book_discard" = "Descartar";

@@ -577,6 +577,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.backupState
     }
 
+    var addressBookManager: AddressBookManager {
+        userWalletModel.addressBookManager
+    }
+
     func update(type: UpdateRequest) {
         userWalletModel.update(type: type)
     }

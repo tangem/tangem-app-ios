@@ -22,11 +22,11 @@ struct TangemPayIssuingCardBannerRedesigned: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localization.tangempayIssuingNewDigitalCardTitle)
-                    .font(DesignSystem.Font.bodyMediumToken)
+                    .font(token: DesignSystem.Font.bodyMediumToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayReissueCardInProgressDescription)
-                    .font(DesignSystem.Font.captionMediumToken)
+                    .font(token: DesignSystem.Font.captionMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
             }
 

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class AddressBooksCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -30,27 +31,31 @@ class AddressBooksCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = .init(coordinator: self)
+        rootViewModel = .init(coordinator: self, addressBooksProvider: options.addressBooksProvider)
     }
 }
 
 // MARK: - Options
 
 extension AddressBooksCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let addressBooksProvider: any AddressBooksProvider
+
+        init(addressBooksProvider: any AddressBooksProvider) {
+            self.addressBooksProvider = addressBooksProvider
+        }
     }
 }
 
 // MARK: - AddressBooksRoutable
 
 extension AddressBooksCoordinator: AddressBooksRoutable {
-    func openAddContact() {
-        openContactManagement(options: .add)
+    func openAddContact(addressBookWallet: AddressBookWallet) {
+        openContactManagement(options: .add(addressBookWallet: addressBookWallet))
     }
 
-    func openEditContact(contact: AddressBookContact) {
-        openContactManagement(options: .edit(contact: contact))
+    func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
+        openContactManagement(options: .edit(contact: contact, addressBookWallet: addressBookWallet))
     }
 }
 

@@ -90,6 +90,10 @@ final class LockedUserWalletModel: UserWalletModel {
         DummyCommonAccountModelsManager()
     }
 
+    var addressBookManager: AddressBookManager {
+        NoopAddressBookManager()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }

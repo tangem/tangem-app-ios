@@ -59,11 +59,11 @@ private extension TangemPayBalanceView {
             formattingOptions: .init(
                 integerPartFont: TangemFontStyle(
                     font: DesignSystem.Font.displayMediumToken.font,
-                    tracking: DesignSystem.Font.displayMediumToken.letterSpacing
+                    tracking: DesignSystem.Font.displayMediumToken.tracking
                 ),
                 fractionalPartFont: TangemFontStyle(
                     font: DesignSystem.Font.headingMediumToken.font,
-                    tracking: DesignSystem.Font.headingMediumToken.letterSpacing
+                    tracking: DesignSystem.Font.headingMediumToken.tracking
                 ),
                 integerPartColor: DesignSystem.Color.textPrimary,
                 fractionalPartColor: DesignSystem.Color.textPrimary,

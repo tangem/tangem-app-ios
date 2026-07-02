@@ -17,6 +17,7 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
     @Published var address: String = ""
     @Published var resolved: String?
     @Published var additionalField: String?
+    @Published var addressIconType: AddressIconProviderViewType?
 
     private var inputSubscription: AnyCancellable?
 
@@ -38,6 +39,7 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
 
     private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {
         self.address = address?.value.typedAddress ?? ""
+        addressIconType = AddressIconProvider.makeViewType(address: self.address)
         resolved = address?.value.showableResolved
 
         switch additionalField {
