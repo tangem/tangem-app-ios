@@ -38,4 +38,13 @@ public enum SupportedProvidersFilter {
 
     case byTypes([ExpressProviderType])
     case byDifferentAddressExchangeSupport
+
+    public func isSupported(provider: ExpressProvider) -> Bool {
+        switch self {
+        case .byTypes(let types):
+            return types.contains(provider.type)
+        case .byDifferentAddressExchangeSupport:
+            return !provider.exchangeOnlyWithinSingleAddress
+        }
+    }
 }
