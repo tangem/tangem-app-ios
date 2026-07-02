@@ -44,6 +44,13 @@ struct SendDestinationView: View {
             .innerContentPadding(12)
             .backgroundColor(Colors.Background.action)
 
+            if let addressBookViewModel = viewModel.addressBookViewModel {
+                if viewModel.shouldShowSuggestedDestination {
+                    SendDestinationAddressBookView(viewModel: addressBookViewModel)
+                        .transition(.opacity.animation(SendTransitions.animation))
+                }
+            }
+
             if let suggestedDestinationViewModel = viewModel.suggestedDestinationViewModel {
                 if viewModel.shouldShowSuggestedDestination {
                     SendDestinationSuggestedView(viewModel: suggestedDestinationViewModel)
