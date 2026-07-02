@@ -131,10 +131,10 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Price Alerts Subscriptions
 
-    func subscribeToPriceAlerts(walletIds: [String], tokenId: String) async throws
-    func unsubscribeFromPriceAlerts(walletIds: [String], tokenId: String) async throws
-    /// Returns the `tokenId`s the wallet is subscribed to.
-    func priceAlertsSubscriptions(walletId: String) async throws -> [String]
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws
+    /// Returns the `tokenId` values the wallet is subscribed to.
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String]
 
     // MARK: - Applications
 

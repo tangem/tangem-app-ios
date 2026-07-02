@@ -321,8 +321,9 @@ struct TangemApiTarget: TargetType {
         case .subscribeToPriceAlerts(let request),
              .unsubscribeFromPriceAlerts(let request):
             return .requestJSONEncodable(request)
-        case .getPriceAlertsSubscriptions(let walletId):
-            return .requestParameters(parameters: ["walletId": walletId], encoding: URLEncoding.default)
+        case .getPriceAlertsSubscriptions(let userWalletId):
+            // Wire query key stays `walletId` (backend contract); the value is a UserWalletId.
+            return .requestParameters(parameters: ["walletId": userWalletId], encoding: URLEncoding.default)
         case .updateWallet(_, let context):
             return .requestJSONEncodable(context)
         case .connectUserWallets(_, let requestModel):
@@ -517,7 +518,7 @@ extension TangemApiTarget {
         // Price Alerts Subscriptions
         case subscribeToPriceAlerts(request: PriceAlertsSubscriptionsDTO.Request)
         case unsubscribeFromPriceAlerts(request: PriceAlertsSubscriptionsDTO.Request)
-        case getPriceAlertsSubscriptions(walletId: String)
+        case getPriceAlertsSubscriptions(userWalletId: String)
 
         // Accounts
         case getUserAccounts(userWalletId: String)
@@ -541,7 +542,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .marketingCampaigns:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
