@@ -1177,6 +1177,7 @@
 "send_date_format" = "%1$@ 、 %2$@";
 "send_destination_tag_field" = "宛先タグ";
 "send_dismiss_message" = "送金画面を閉じてもよろしいですか?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS名またはアドレス";
 "send_enter_address_field" = "アドレスを入力";
 "send_error_address_same_as_wallet" = "アドレスはウォレットアドレスと同じです";
@@ -1546,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "サービス料金に基づき、手数料が発生します";
 "tangem_pay_transaction_reversed_notification_text" = "この取引は加盟店により一部または全額取り消されました";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "資金は引き続き使用できます。いつでも一時停止できます。";
 "tangem_pay_unfreeze_card_alert_title" = "カードの一時停止を解除しますか?";
 "tangem_pay_unfreeze_card_failed" = "カードの凍結解除に失敗しました。しばらくしてからもう一度お試しください。";
@@ -2083,6 +2086,7 @@
 "warning_matic_migration_message" = "MATICはPOLに移行中です。ただし、期限は設定されておらず、MATICはまだ廃止されていません。MATICトークンを引き続き安全に使用することも、POLに交換することもできます。";
 "warning_matic_migration_title" = "MATICからPOLへの移行";
 "warning_missing_derivation_title" = "一部のアドレスが見つかりません";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "現在、ネットワークにアクセスできません。しばらくしてからもう一度お試しください。";
 "warning_network_unreachable_title" = "ネットワークにアクセスできません";
 "warning_no_account_title" = "ウォレットに入金";

@@ -66,7 +66,7 @@
 "action_buttons_you_want_to_swap" = "Выберите токен для обмена";
 "actionbutton_addfunds_title" = "Пополнить";
 "actionbutton_swap_title" = "Обмен";
-"actionbutton_transfer_title" = "Перевод";
+"actionbutton_transfer_title" = "Перевести";
 "add_and_manage_sheet_manage_subtitle" = "Добавить в портфель";
 "add_and_manage_sheet_manage_title" = "Добавить токены";
 "add_and_manage_sheet_organize_subtitle" = "Сортировка и группировка";
@@ -1177,6 +1177,7 @@
 "send_date_format" = "%1$@, %2$@";
 "send_destination_tag_field" = "Код назначения";
 "send_dismiss_message" = "Вы действительно хотите закрыть экран отправки транзакции?";
+"send_enter_address_field_ens_name" = "Address, ENS or name";
 "send_enter_address_field_ens" = "ENS домен или адрес";
 "send_enter_address_field" = "Введите адрес";
 "send_error_address_same_as_wallet" = "Адрес совпадает с адресом кошелька";
@@ -1546,6 +1547,8 @@
 "tangem_pay_transaction_details_mcc" = "MCC";
 "tangem_pay_transaction_fee_notification_text" = "Комиссия в соответствии с тарифами обслуживания";
 "tangem_pay_transaction_reversed_notification_text" = "Транзакция частично или полностью возвращена продавцом";
+"tangem_pay_unavailable_region_description" = "We are rolling it out gradually and let you know when Tangem Pay will be available here";
+"tangem_pay_unavailable_region_title" = "Tangem Pay is unavailable in your region";
 "tangem_pay_unfreeze_card_alert_body" = "Продолжайте пользоваться картой, заморозить всегда успеете";
 "tangem_pay_unfreeze_card_alert_title" = "Разморозить карту?";
 "tangem_pay_unfreeze_card_failed" = "Не удалось разморозить карту, попробуйте еще раз";
@@ -2083,6 +2086,7 @@
 "warning_matic_migration_message" = "Токен MATIC мигрирует на POL. Однако крайний срок не установлен, и MATIC пока не устарел. Вы можете спокойно продолжать использовать токен MATIC или обменять его на POL.";
 "warning_matic_migration_title" = "Миграция MATIC в POL";
 "warning_missing_derivation_title" = "Некоторые адреса отсутствуют";
+"warning_mobile_access_denied_message" = "Use %@ or access code to unlock access to your wallet";
 "warning_network_unreachable_message" = "В данный момент сеть недоступна. Пожалуйста, попробуйте позже.";
 "warning_network_unreachable_title" = "Сеть недоступна";
 "warning_no_account_title" = "Пополните ваш кошелек";
