@@ -31,6 +31,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     @Published var shouldShowSuggestedDestination: Bool = true
     @Published var suggestedDestinationViewModel: SendDestinationSuggestedViewModel?
+    @Published var addressBookViewModel: SendDestinationAddressBookViewModel?
 
     @Published var networkName: String = ""
 
@@ -162,6 +163,14 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
+        interactor.addressBookContactsPublisher
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, contacts in
+                viewModel.setupAddressBookContacts(contacts)
+            }
+            .store(in: &bag)
+
         interactor.destinationValid
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
@@ -266,6 +275,60 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         }
     }
 
+    private func setupAddressBookContacts(_ contacts: [SendDestinationAddressBookContact]) {
+        guard !contacts.isEmpty else {
+            addressBookViewModel = nil
+            return
+        }
+
+        addressBookViewModel = SendDestinationAddressBookViewModel(
+            contacts: contacts,
+            limit: Constants.addressBookContactsLimit,
+            tapAction: { [weak self] contact in
+                self?.userDidTapAddressBookContact(contact)
+            },
+            viewAllAction: { [weak self] in
+                self?.openAddressBookViewAll()
+            }
+        )
+    }
+
+    private func openAddressBookViewAll() {
+        guard let addressBooksProvider = interactor.addressBooksProvider else {
+            return
+        }
+
+        router?.openAddressBookViewAll(provider: addressBooksProvider, output: self)
+    }
+
+    private func userDidTapAddressBookContact(_ contact: AddressBookContact) {
+        let groups = contact.entries.groupedByAddress
+        if let single = groups.singleElement {
+            applyAddressBookAddress(single)
+            return
+        }
+
+        router?.openAddressBookChooseAddress(groups: groups, output: self)
+    }
+
+    private func applyAddressBookAddress(_ addressGroup: AddressBookContactAddressGroup) {
+        FeedbackGenerator.success()
+
+        let destination = SendDestinationAddressViewModel.Address(
+            string: addressGroup.address,
+            source: .addressBook
+        )
+
+        destinationAddressViewModel.update(address: destination)
+        additionalFieldViewModel?.update(text: addressGroup.memo ?? "")
+
+        // Waiting when updatingTask is finished
+        Task {
+            try await addressDidChanged(destination: destination).value
+            await MainActor.run { stepRouter?.destinationStepFulfilled() }
+        }
+    }
+
     @discardableResult
     func addressDidChanged(destination: SendDestinationAddressViewModel.Address) -> Task<Void, Error> {
         let hasValue = !destination.string.isEmpty
@@ -278,7 +341,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
                 try Task.checkCancellation()
             }
 
-            await self?.interactor.update(destination: destination.string, source: destination.source)
+            try await self?.interactor.update(destination: destination.string, source: destination.source)
         }
 
         updatingTask?.cancel()
@@ -303,6 +366,28 @@ extension SendDestinationViewModel {
 }
 
 // MARK: - SendDestinationAddressViewRoutable
+
+private extension SendDestinationViewModel {
+    enum Constants {
+        static let addressBookContactsLimit = 3
+    }
+}
+
+// MARK: - AddressBooksSelectionOutput
+
+extension SendDestinationViewModel: AddressBooksSelectionOutput {
+    func addressBooksDidSelect(_ group: AddressBookContactAddressGroup) {
+        applyAddressBookAddress(group)
+    }
+}
+
+// MARK: - ChooseAddressOutput
+
+extension SendDestinationViewModel: ChooseAddressOutput {
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup) {
+        applyAddressBookAddress(group)
+    }
+}
 
 extension SendDestinationViewModel: SendDestinationAddressViewRoutable {
     func didTapScanQRButton() {

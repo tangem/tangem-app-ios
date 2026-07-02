@@ -29,6 +29,8 @@ struct CommonAddressBookEncryptionServiceTests {
     /// `UserWalletEncryptionKey(userWalletIdSeed:)` applied to the seed above.
     private static let expectedKeyHex = "59b85ce53fac0a8493d9d8d9c0d32adb5f586741dd8bbfd9348a3212e493730d"
 
+    private static let sampleWalletPublicKeySeedHex = "021111111111111111111111111111111111111111111111111111111111111111"
+
     private static let nonceHex = "000102030405060708090a0b"
     private static let ciphertextHex = "f4ee0f404e747b5b5cca730c44baf86ca3d8f6fbdf66ff2fe98d3b8f88cb23df7ff55b52205f32c8ab"
     private static let tagHex = "6c4b71b27958f43afc6633850369a17a"
@@ -37,6 +39,7 @@ struct CommonAddressBookEncryptionServiceTests {
     private let service = CommonAddressBookEncryptionService()
 
     private let seed = Data(hexString: Self.walletPublicKeySeedHex)
+    private let sampleSeed = Data(hexString: Self.sampleWalletPublicKeySeedHex)
     private let vectorKey = SymmetricKey(data: Data(hexString: Self.expectedKeyHex))
     private let vectorSealedBox = AddressBookSealedBox(
         nonce: Data(hexString: Self.nonceHex),
@@ -50,6 +53,25 @@ struct CommonAddressBookEncryptionServiceTests {
     func derivesSymmetricKeyFromPublicWalletSeed() {
         let key = CommonAddressBookEncryptionKeyProvider().encryptionKey(forWalletPublicKeySeed: seed)
         #expect(key == vectorKey)
+    }
+
+    @Test
+    func derivesDistinctKeysForDistinctSeeds() {
+        let provider = CommonAddressBookEncryptionKeyProvider()
+        #expect(
+            provider.encryptionKey(forWalletPublicKeySeed: seed)
+                != provider.encryptionKey(forWalletPublicKeySeed: sampleSeed)
+        )
+    }
+
+    @Test
+    func derivesKeyMatchingTheDocumentedHmacDerivation() {
+        let hmacKey = SymmetricKey(data: Data(SHA256.hash(data: sampleSeed)))
+        let message = Data("TokensSymmetricKey".utf8)
+        let expected = SymmetricKey(data: Data(HMAC<SHA256>.authenticationCode(for: message, using: hmacKey)))
+
+        let derived = CommonAddressBookEncryptionKeyProvider().encryptionKey(forWalletPublicKeySeed: sampleSeed)
+        #expect(derived == expected)
     }
 
     // MARK: - Decryption (known answer)
@@ -68,6 +90,29 @@ struct CommonAddressBookEncryptionServiceTests {
         let sealed = try service.seal(plaintext, using: vectorKey)
         let opened = try service.open(sealed, using: vectorKey)
         #expect(opened == plaintext)
+    }
+
+    @Test
+    func roundTripsThroughTheProviderDerivedKey() throws {
+        let key = CommonAddressBookEncryptionKeyProvider().encryptionKey(forWalletPublicKeySeed: seed)
+        let plaintext = Data(Self.expectedPlaintext.utf8)
+        let sealed = try service.seal(plaintext, using: key)
+        #expect(try service.open(sealed, using: key) == plaintext)
+    }
+
+    @Test
+    func roundTripsEmptyPlaintext() throws {
+        let sealed = try service.seal(Data(), using: vectorKey)
+        #expect(sealed.ciphertext.isEmpty)
+        #expect(sealed.tag.count == 16)
+        #expect(try service.open(sealed, using: vectorKey).isEmpty)
+    }
+
+    @Test
+    func roundTripsArbitraryBinaryPlaintext() throws {
+        let plaintext = Data((0 ... 255).map { UInt8($0) })
+        let sealed = try service.seal(plaintext, using: vectorKey)
+        #expect(try service.open(sealed, using: vectorKey) == plaintext)
     }
 
     @Test

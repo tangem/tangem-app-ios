@@ -11,6 +11,8 @@ import Combine
 import TangemFoundation
 
 class AddressBooksCoordinator: CoordinatorObject {
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -31,7 +33,11 @@ class AddressBooksCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = .init(coordinator: self, addressBooksProvider: options.addressBooksProvider)
+        rootViewModel = .init(
+            coordinator: self,
+            addressBooksProvider: options.addressBooksProvider,
+            selectionOutput: options.selectionOutput
+        )
     }
 }
 
@@ -40,9 +46,14 @@ class AddressBooksCoordinator: CoordinatorObject {
 extension AddressBooksCoordinator {
     struct Options {
         let addressBooksProvider: any AddressBooksProvider
+        let selectionOutput: AddressBooksSelectionOutput?
 
-        init(addressBooksProvider: any AddressBooksProvider) {
+        init(
+            addressBooksProvider: any AddressBooksProvider,
+            selectionOutput: AddressBooksSelectionOutput? = nil
+        ) {
             self.addressBooksProvider = addressBooksProvider
+            self.selectionOutput = selectionOutput
         }
     }
 }
@@ -56,6 +67,24 @@ extension AddressBooksCoordinator: AddressBooksRoutable {
 
     func openEditContact(contact: AddressBookContact, addressBookWallet: AddressBookWallet) {
         openContactManagement(options: .edit(contact: contact, addressBookWallet: addressBookWallet))
+    }
+
+    func openChooseAddress(groups: [AddressBookContactAddressGroup], output: ChooseAddressOutput) {
+        let viewModel = ChooseAddressViewModel(groups: groups, router: self, output: output)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - ChooseAddressRoutable
+
+extension AddressBooksCoordinator: ChooseAddressRoutable {
+    func dismissChooseAddress() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
