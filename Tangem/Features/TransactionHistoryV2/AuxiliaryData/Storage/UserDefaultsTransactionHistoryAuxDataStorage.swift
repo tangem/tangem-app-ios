@@ -15,15 +15,29 @@ struct UserDefaultsTransactionHistoryAuxDataStorage {
     /// - Note: Despite the name of the type, this inner storage is not limited to BlockchainSDK. It's just a convenient UserDefaults wrapper.
     private let dataStorage = UserDefaultsBlockchainDataStorage()
 
-    var providers: [ExpressProvider] {
+    var expressProviders: [ExpressProvider] {
         get {
-            let dtos: [ProviderDTO]? = dataStorage.get(key: StorageKey.providers.rawValue)
+            let dtos: [ProviderDTO]? = dataStorage.get(key: StorageKey.expressProviders.rawValue)
 
             return dtos?.map(\.asDomainEntity) ?? []
         }
         nonmutating set {
             dataStorage.store(
-                key: StorageKey.providers.rawValue,
+                key: StorageKey.expressProviders.rawValue,
+                value: newValue.map(ProviderDTO.init(from:))
+            )
+        }
+    }
+
+    var onrampProviders: [ExpressProvider] {
+        get {
+            let dtos: [ProviderDTO]? = dataStorage.get(key: StorageKey.onrampProviders.rawValue)
+
+            return dtos?.map(\.asDomainEntity) ?? []
+        }
+        nonmutating set {
+            dataStorage.store(
+                key: StorageKey.onrampProviders.rawValue,
                 value: newValue.map(ProviderDTO.init(from:))
             )
         }
@@ -62,7 +76,8 @@ struct UserDefaultsTransactionHistoryAuxDataStorage {
 
 private extension UserDefaultsTransactionHistoryAuxDataStorage {
     enum StorageKey: String {
-        case providers = "TxHistoryAuxData_providers_v1"
+        case expressProviders = "TxHistoryAuxData_expressProviders_v1"
+        case onrampProviders = "TxHistoryAuxData_onrampProviders_v1"
         case currencies = "TxHistoryAuxData_currencies_v1"
         case cryptoCurrencies = "TxHistoryAuxData_cryptoCurrencies_v1"
     }

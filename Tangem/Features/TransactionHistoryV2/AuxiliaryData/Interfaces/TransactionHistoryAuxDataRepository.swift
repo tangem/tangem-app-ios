@@ -15,10 +15,10 @@ protocol TransactionHistoryAuxDataRepository: Sendable {
     // MARK: Providers
 
     /// - Note: Fires a background load on a cache miss.
-    nonisolated func provider(id: ExpressProvider.Id) -> ExpressProvider?
+    nonisolated func provider(id: ExpressProvider.Id, branch: ExpressBranch) -> ExpressProvider?
 
     /// - Note: Fires (and awaiting) a load on a cache miss.
-    func provider(id: ExpressProvider.Id) async -> ExpressProvider?
+    func provider(id: ExpressProvider.Id, branch: ExpressBranch) async -> ExpressProvider?
 
     // MARK: Fiat currencies
 

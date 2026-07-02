@@ -23,7 +23,7 @@ actor CommonTransactionHistoryAuxDataRepository {
 
     private var subscribers = AsyncStream<Void>.MulticastSubscribers<UUID>()
 
-    private var inFlightProvidersLoadTask: Task<Void, Never>?
+    private var inFlightProviderLoadTasks: [ExpressBranch: Task<Void, Never>] = [:]
     private var inFlightFiatCurrenciesLoadTask: Task<Void, Never>?
 
     private var pendingCryptoCurrencies: [String: ExpressCurrency] = [:]
@@ -64,26 +64,26 @@ extension CommonTransactionHistoryAuxDataRepository: TransactionHistoryAuxDataRe
 
     // MARK: Providers
 
-    nonisolated func provider(id: ExpressProvider.Id) -> ExpressProvider? {
-        let cached = syncCache { $0.providers[id] }
+    nonisolated func provider(id: ExpressProvider.Id, branch: ExpressBranch) -> ExpressProvider? {
+        let cached = syncCache { $0.providers(for: branch)[id] }
 
         if cached == nil {
             runTask(in: self) { repository in
-                await repository.loadProvidersIfNeeded()
+                await repository.loadProvidersIfNeeded(branch: branch)
             }
         }
 
         return cached
     }
 
-    func provider(id: ExpressProvider.Id) async -> ExpressProvider? {
-        if let cached = cache.providers[id] {
+    func provider(id: ExpressProvider.Id, branch: ExpressBranch) async -> ExpressProvider? {
+        if let cached = cache.providers(for: branch)[id] {
             return cached
         }
 
-        await loadProvidersIfNeeded()
+        await loadProvidersIfNeeded(branch: branch)
 
-        return cache.providers[id]
+        return cache.providers(for: branch)[id]
     }
 
     // MARK: Fiat currencies
@@ -154,37 +154,37 @@ private extension CommonTransactionHistoryAuxDataRepository {
         )
     }
 
-    func loadProvidersIfNeeded() async {
-        if let task = inFlightProvidersLoadTask {
+    func loadProvidersIfNeeded(branch: ExpressBranch) async {
+        if let task = inFlightProviderLoadTasks[branch] {
             return await task.value
         }
 
         let task = Task { [weak self] in
             try? await Task.sleep(for: Constants.debounce)
-            await self?.performProvidersLoad()
+            await self?.loadProviders(branch: branch)
         }
 
-        defer { inFlightProvidersLoadTask = nil }
-        inFlightProvidersLoadTask = task
+        defer { inFlightProviderLoadTasks[branch] = nil }
+        inFlightProviderLoadTasks[branch] = task
         await task.value
     }
 
-    func performProvidersLoad() async {
+    func loadProviders(branch: ExpressBranch) async {
         guard let expressAPIProvider = makeExpressAPIProvider() else {
             TransactionHistoryLogger.error(self, error: "Failed to create ExpressAPIProvider for providers load")
             return
         }
 
         do {
-            let swap = try await expressAPIProvider.providers(branch: .swap)
-            let onramp = try await expressAPIProvider.providers(branch: .onramp)
-            var hasChanges = false
+            let providers = try await expressAPIProvider.providers(branch: branch)
 
-            for provider in swap + onramp {
-                if cache.providers[provider.id] != provider {
-                    cache.providers[provider.id] = provider
-                    hasChanges = true
-                }
+            // Swap and onramp providers are stored separately since they can share the same id
+            var hasChanges = false
+            switch branch {
+            case .swap:
+                hasChanges = merge(providers, into: &cache.expressProviders)
+            case .onramp:
+                hasChanges = merge(providers, into: &cache.onrampProviders)
             }
 
             guard hasChanges else {
@@ -195,8 +195,22 @@ private extension CommonTransactionHistoryAuxDataRepository {
             persistProviders()
             subscribers.yield()
         } catch {
-            TransactionHistoryLogger.error(self, "Failed to load Express providers", error: error)
+            TransactionHistoryLogger.error(self, "Failed to load \(branch.rawValue) providers", error: error)
         }
+    }
+
+    /// Merges freshly loaded providers into the given cache, returning whether anything changed.
+    func merge(_ providers: [ExpressProvider], into cache: inout [ExpressProvider.Id: ExpressProvider]) -> Bool {
+        var hasChanges = false
+
+        for provider in providers {
+            if cache[provider.id] != provider {
+                cache[provider.id] = provider
+                hasChanges = true
+            }
+        }
+
+        return hasChanges
     }
 
     func loadFiatCurrenciesIfNeeded() async {
@@ -365,7 +379,8 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
 private extension CommonTransactionHistoryAuxDataRepository {
     func persistProviders() {
-        storage.providers = Array(cache.providers.values)
+        storage.expressProviders = Array(cache.expressProviders.values)
+        storage.onrampProviders = Array(cache.onrampProviders.values)
     }
 
     func persistCurrencies() {
@@ -387,16 +402,30 @@ private extension CommonTransactionHistoryAuxDataRepository {
 
 private extension CommonTransactionHistoryAuxDataRepository {
     struct Cache {
-        var providers: [ExpressProvider.Id: ExpressProvider] = [:]
+        var expressProviders: [ExpressProvider.Id: ExpressProvider] = [:]
+        var onrampProviders: [ExpressProvider.Id: ExpressProvider] = [:]
         var fiatCurrencies: [String: OnrampFiatCurrency] = [:]
         var cryptoCurrencies: [String: TokenItem] = [:]
+
+        func providers(for branch: ExpressBranch) -> [ExpressProvider.Id: ExpressProvider] {
+            switch branch {
+            case .swap:
+                expressProviders
+            case .onramp:
+                onrampProviders
+            }
+        }
     }
 
     static func makeCache(from storage: UserDefaultsTransactionHistoryAuxDataStorage) -> Cache {
         var cache = Cache()
 
-        for provider in storage.providers {
-            cache.providers[provider.id] = provider
+        for provider in storage.expressProviders {
+            cache.expressProviders[provider.id] = provider
+        }
+
+        for provider in storage.onrampProviders {
+            cache.onrampProviders[provider.id] = provider
         }
 
         for currency in storage.fiatCurrencies {
