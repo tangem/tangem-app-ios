@@ -182,8 +182,6 @@ private extension TransactionViewRedesigned {
 
 // MARK: - Previews
 
-#if DEBUG
-
 #Preview("States") {
     VStack(spacing: 16) {
         TransactionViewRedesigned(
@@ -269,5 +267,3 @@ private extension TransactionViewRedesigned {
     .padding()
     .background(Colors.Background.secondary)
 }
-
-#endif // DEBUG

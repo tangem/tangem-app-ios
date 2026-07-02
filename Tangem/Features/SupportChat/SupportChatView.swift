@@ -114,18 +114,14 @@ private enum UsedeskWebViewConstants {
 
 // MARK: - Previews
 
-#if DEBUG
-struct SupportChatView_Previews: PreviewProvider {
-    static var previews: some View {
-        SupportChatView(
-            viewModel: SupportChatViewModel(
-                input: SupportChatInputModel(
-                    logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
-                    userIdentifier: nil,
-                    source: .settings
-                )
+#Preview {
+    SupportChatView(
+        viewModel: SupportChatViewModel(
+            input: SupportChatInputModel(
+                logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+                userIdentifier: nil,
+                source: .settings
             )
         )
-    }
+    )
 }
-#endif // DEBUG

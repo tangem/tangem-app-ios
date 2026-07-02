@@ -36,10 +36,8 @@ struct TangemPayCardClosingMessageView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     TangemPayCardClosingMessageView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG
