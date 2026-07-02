@@ -6,11 +6,11 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+#if DEBUG
+
 import SwiftUI
 
 // MARK: - Previews
-
-#if DEBUG
 
 private typealias _Dot = TangemDot
 

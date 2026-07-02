@@ -88,7 +88,6 @@ public struct AccountFormHeaderView: View {
     }
 }
 
-#if DEBUG
 @available(iOS 17.0, *)
 #Preview {
     @Previewable @State var accountName = ""
@@ -124,4 +123,3 @@ public struct AccountFormHeaderView: View {
         .padding(.horizontal, 16)
     }
 }
-#endif

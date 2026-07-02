@@ -67,7 +67,6 @@ private extension TangemPayCardActionButtonsView {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     VStack(spacing: 32) {
         TangemPayCardActionButtonsView(
@@ -98,4 +97,3 @@ private extension TangemPayCardActionButtonsView {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(DesignSystem.Color.bgPrimary)
 }
-#endif // DEBUG

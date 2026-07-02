@@ -262,10 +262,8 @@ extension ExpressCurrencyView: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview {
     ChooseTokenPillView(action: {})
         .padding()
         .background(Colors.Background.action)
 }
-#endif // DEBUG
