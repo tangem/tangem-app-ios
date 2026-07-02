@@ -39,7 +39,7 @@ extension CommonPriceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvid
 
     func fetch() async throws {
         do {
-            let tokenIds = try await tangemApiService.priceAlertsSubscriptions(walletId: walletId)
+            let tokenIds = try await tangemApiService.priceAlertsSubscriptions(userWalletId: walletId)
 
             try Task.checkCancellation()
 
@@ -84,9 +84,9 @@ private extension CommonPriceAlertsSubscriptionsProvider {
 
         do {
             if isSubscribe {
-                try await tangemApiService.subscribeToPriceAlerts(walletIds: walletIds, tokenId: tokenId)
+                try await tangemApiService.subscribeToPriceAlerts(userWalletIds: walletIds, tokenId: tokenId)
             } else {
-                try await tangemApiService.unsubscribeFromPriceAlerts(walletIds: walletIds, tokenId: tokenId)
+                try await tangemApiService.unsubscribeFromPriceAlerts(userWalletIds: walletIds, tokenId: tokenId)
             }
 
             try Task.checkCancellation()

@@ -38,7 +38,7 @@ final class AddressBooksViewModel: ObservableObject {
 
     init(
         coordinator: AddressBooksRoutable,
-        addressBooksProvider: any AddressBooksProvider = .common()
+        addressBooksProvider: any AddressBooksProvider
     ) {
         self.coordinator = coordinator
         self.addressBooksProvider = addressBooksProvider
@@ -92,7 +92,7 @@ private extension AddressBooksViewModel {
         return addressBooksSubject.value.first
     }
 
-    static func effectiveScope(selected: String?, chips: [Chip], walletsWithContacts: [WalletState]) -> String? {
+    static func effectiveScope(selected: String?, chips: [Chip], wallets: [WalletState]) -> String? {
         if chips.isNotEmpty {
             if let selected, chips.contains(where: { $0.id == selected }) {
                 return selected
@@ -100,7 +100,7 @@ private extension AddressBooksViewModel {
             return Constants.allChipId
         }
 
-        return walletsWithContacts.count == 1 ? walletsWithContacts.first?.id : Constants.allChipId
+        return wallets.count == 1 ? wallets.first?.id : Constants.allChipId
     }
 
     func bindAddressBooks() {
@@ -165,13 +165,14 @@ private extension AddressBooksViewModel {
     }
 
     func makeViewState(wallets: [WalletState], selected: String?, live: String, settled: String) -> ViewState {
-        let walletsWithContacts = wallets.filter { $0.contacts.isNotEmpty }
-        let isMultiWallet = walletsWithContacts.count >= 2
+        // The provider only vends wallets with contacts (network-scoped for Send, non-empty for Settings),
+        // so there's no empty-wallet filtering here.
+        let isMultiWallet = wallets.count >= 2
         let query = live.isEmpty ? "" : settled
         let isSearching = live.isNotEmpty && live != settled
 
         let chips = makeChips(wallets: wallets, isMultiWallet: isMultiWallet, query: query)
-        let scope = Self.effectiveScope(selected: selected, chips: chips, walletsWithContacts: walletsWithContacts)
+        let scope = Self.effectiveScope(selected: selected, chips: chips, wallets: wallets)
         let scopeWallets = scope == Constants.allChipId ? wallets : wallets.filter { $0.id == scope }
         let content = makeContent(scopeWallets: scopeWallets, query: query, isSearching: isSearching)
 
@@ -184,10 +185,7 @@ private extension AddressBooksViewModel {
         }
 
         let matching = wallets.filter { wallet in
-            guard wallet.contacts.isNotEmpty else {
-                return false
-            }
-            return query.isEmpty || matcher.filter(wallet.contacts, query: query).isNotEmpty
+            query.isEmpty || matcher.filter(wallet.contacts, query: query).isNotEmpty
         }
 
         guard matching.isNotEmpty else {

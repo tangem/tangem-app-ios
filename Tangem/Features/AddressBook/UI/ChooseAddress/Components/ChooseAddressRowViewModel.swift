@@ -12,14 +12,14 @@ struct ChooseAddressRowViewModel: Identifiable {
     let id: String
     let title: String
     let subtitle: String
-    let addressIconViewModel: AddressIconViewModel
+    let addressIcon: AddressBlockiesIconViewData
     let onTap: () -> Void
 
     init(group: AddressBookContactAddressGroup, subtitle: String, onTap: @escaping () -> Void) {
         id = group.id
         title = AddressFormatter(address: group.address).truncated(prefixLimit: 12, suffixLimit: 12)
         self.subtitle = subtitle
-        addressIconViewModel = AddressIconViewModel(address: group.address)
+        addressIcon = AddressIconProvider.makeBlockiesIconViewData(address: group.address)
         self.onTap = onTap
     }
 }

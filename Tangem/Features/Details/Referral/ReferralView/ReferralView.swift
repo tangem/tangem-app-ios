@@ -181,6 +181,7 @@ struct ReferralView: View {
                         Fonts.Bold.footnote,
                         color: Colors.Text.tertiary
                     )
+                    .accessibilityIdentifier(ReferralAccessibilityIdentifiers.promoCodeTitle)
 
                 Text(viewModel.promoCode)
                     .style(
@@ -188,6 +189,7 @@ struct ReferralView: View {
                         color: Colors.Text.primary1
                     )
                     .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(ReferralAccessibilityIdentifiers.promoCodeValue)
 
                 if let accountData {
                     Divider()

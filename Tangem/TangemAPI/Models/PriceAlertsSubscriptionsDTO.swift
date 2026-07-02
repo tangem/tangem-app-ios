@@ -9,10 +9,17 @@
 import Foundation
 
 enum PriceAlertsSubscriptionsDTO {
-    /// Shared body for `POST` (subscribe) and `DELETE` (unsubscribe): the wallets to (un)subscribe and the coin.
+    /// Shared body for `POST` (subscribe) and `DELETE` (unsubscribe): the user wallets to (un)subscribe and the coin.
     struct Request: Encodable {
-        let walletIds: [String]
+        let userWalletIds: [String]
         let tokenId: String
+
+        private enum CodingKeys: String, CodingKey {
+            // Values are UserWalletIds (SHA-256 hex, lowercase). The wire key stays `walletIds` to match the
+            // backend contract, mirroring notification-preferences (Swift `userWalletId`, wire `walletId`).
+            case userWalletIds = "walletIds"
+            case tokenId
+        }
     }
 
     /// `POST` returns `{ "status": "subscribed" }`, `DELETE` returns `{ "status": "removed" }`.
@@ -21,7 +28,7 @@ enum PriceAlertsSubscriptionsDTO {
         let status: String
     }
 
-    /// `GET` returns the list of `tokenId` the wallet is subscribed to.
+    /// `GET` returns the list of `tokenId` values the wallet is subscribed to.
     struct List: Decodable {
         let tokenIds: [String]
     }
