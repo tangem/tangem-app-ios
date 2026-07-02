@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Moya
 import TangemFoundation
 
 final class CommonAddressBookNetworkService {
@@ -33,6 +34,10 @@ extension CommonAddressBookNetworkService: AddressBookNetworkService {
             return try .fetched(mapper.mapToEnvelope(item))
         } catch let error as AddressBookNetworkMapper.MappingError {
             throw AddressBookNetworkServiceError.malformedResponse(error)
+        } catch MoyaError.objectMapping(let error, _) {
+            throw AddressBookNetworkServiceError.malformedResponse(error)
+        } catch let error as DecodingError {
+            throw AddressBookNetworkServiceError.malformedResponse(error)
         } catch {
             throw AddressBookNetworkServiceError.underlyingError(error)
         }
@@ -50,6 +55,10 @@ extension CommonAddressBookNetworkService: AddressBookNetworkService {
         } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
             throw AddressBookNetworkServiceError.inconsistentState
         } catch let error as AddressBookNetworkMapper.MappingError {
+            throw AddressBookNetworkServiceError.malformedResponse(error)
+        } catch MoyaError.objectMapping(let error, _) {
+            throw AddressBookNetworkServiceError.malformedResponse(error)
+        } catch let error as DecodingError {
             throw AddressBookNetworkServiceError.malformedResponse(error)
         } catch {
             throw AddressBookNetworkServiceError.underlyingError(error)
