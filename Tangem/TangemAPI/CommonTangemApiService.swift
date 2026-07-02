@@ -280,6 +280,12 @@ extension CommonTangemApiService: TangemApiService {
         )
     }
 
+    // MARK: - Marketing
+
+    func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
+        try await self.request(for: .marketingCampaigns(parameters: request.parameters), decoder: decoder)
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
@@ -358,6 +364,34 @@ extension CommonTangemApiService: TangemApiService {
         // PUT echoes the applied state (contract v1.3, Q1). Decode the body so the request fails loudly
         // on a malformed echo; reconciliation against it is handled by the provider's follow-up fetch.
         let _: NotificationPreferencesDTO.Body = try await request(for: target, decoder: decoder)
+    }
+
+    // MARK: - Price Alerts Subscriptions
+
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        // Decode the `{ "status": ... }` body so a malformed response surfaces as an error; the status
+        // string itself carries no client-side meaning beyond the `200`.
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .subscribeToPriceAlerts(request: requestModel),
+            decoder: decoder
+        )
+    }
+
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws {
+        let requestModel = PriceAlertsSubscriptionsDTO.Request(userWalletIds: userWalletIds, tokenId: tokenId)
+        let _: PriceAlertsSubscriptionsDTO.StatusResponse = try await request(
+            for: .unsubscribeFromPriceAlerts(request: requestModel),
+            decoder: decoder
+        )
+    }
+
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String] {
+        let list: PriceAlertsSubscriptionsDTO.List = try await request(
+            for: .getPriceAlertsSubscriptions(userWalletId: userWalletId),
+            decoder: decoder
+        )
+        return list.tokenIds
     }
 
     // MARK: - Applications
@@ -449,6 +483,31 @@ extension CommonTangemApiService: TangemApiService {
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
             return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    // MARK: - Address Book
+
+    func syncAddressBooks(_ request: AddressBookDTO.SyncRequest) async throws -> AddressBookDTO.Response {
+        // The Address Book wire contract is camelCase, so it uses the default decoder rather than the
+        // snake-case `decoder` the rest of this service shares.
+        try await self.request(for: .syncAddressBooks(request))
+    }
+
+    func updateAddressBook(walletId: String, knownETag: String?, body: AddressBookDTO.UpdateRequest) async throws -> AddressBookDTO.UpdateResponse {
+        let target = TangemApiTarget(type: .updateAddressBook(walletId: walletId, knownETag: knownETag, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+
+            // The optimistic-locking conflict is signalled purely by HTTP 412 (If-Match). Map it from the
+            // status before the body-driven error mapper, so a server error body can't mask the conflict.
+            if response.statusCode == TangemAPIError.ErrorCode.optimisticLockingFailed.rawValue {
+                throw TangemAPIError(code: .optimisticLockingFailed)
+            }
+
+            // The new etag comes back in the (camelCase) response body.
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false)
         }
     }
 
