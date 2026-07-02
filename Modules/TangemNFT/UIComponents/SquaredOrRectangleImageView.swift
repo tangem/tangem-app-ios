@@ -121,7 +121,6 @@ extension SquaredOrRectangleImageView: Setupable {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Gif") {
     SquaredOrRectangleImageView(
         media: .init(
@@ -139,4 +138,3 @@ extension SquaredOrRectangleImageView: Setupable {
         )
     )
 }
-#endif

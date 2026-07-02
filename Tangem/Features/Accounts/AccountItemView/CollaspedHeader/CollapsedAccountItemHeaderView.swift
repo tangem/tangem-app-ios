@@ -79,33 +79,26 @@ struct CollapsedAccountItemHeaderView: View {
     }
 }
 
-#if DEBUG
-private struct CollapsedAccountItemHeaderViewPreview: View {
-    @Namespace private var namespace
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @Namespace var namespace
 
-    var body: some View {
+    ZStack {
         let effects = AccountGeometryEffects(namespace: namespace)
 
-        ZStack {
-            Color.gray
+        Color.gray
 
-            CollapsedAccountItemHeaderView(
-                name: "Test",
-                iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
-                tokensCount: "5 Tokens",
-                totalFiatBalance: .loaded(text: "$1234.56"),
-                priceChange: .loaded(changeType: .positive, text: "+5.67%"),
-                iconGeometryEffect: effects.icon,
-                iconBackgroundGeometryEffect: effects.iconBackground,
-                nameGeometryEffect: effects.name,
-                tokensCountGeometryEffect: effects.tokensCount,
-                balanceGeometryEffect: effects.balance
-            )
-        }
+        CollapsedAccountItemHeaderView(
+            name: "Test",
+            iconData: .composite(backgroundColor: .red, nameMode: .letter("A")),
+            tokensCount: "5 Tokens",
+            totalFiatBalance: .loaded(text: "$1234.56"),
+            priceChange: .loaded(changeType: .positive, text: "+5.67%"),
+            iconGeometryEffect: effects.icon,
+            iconBackgroundGeometryEffect: effects.iconBackground,
+            nameGeometryEffect: effects.name,
+            tokensCountGeometryEffect: effects.tokensCount,
+            balanceGeometryEffect: effects.balance
+        )
     }
 }
-
-#Preview {
-    CollapsedAccountItemHeaderViewPreview()
-}
-#endif

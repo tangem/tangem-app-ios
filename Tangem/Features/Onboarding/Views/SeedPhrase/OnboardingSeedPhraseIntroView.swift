@@ -98,12 +98,10 @@ struct OnboardingSeedPhraseIntroView: View {
     }
 }
 
-struct OnboardingSeedPhrasePreview: PreviewProvider {
-    static var previews: some View {
-        OnboardingSeedPhraseIntroView(
-            readMoreAction: {},
-            generateSeedAction: {},
-            importWalletAction: {}
-        )
-    }
+#Preview {
+    OnboardingSeedPhraseIntroView(
+        readMoreAction: {},
+        generateSeedAction: {},
+        importWalletAction: {}
+    )
 }

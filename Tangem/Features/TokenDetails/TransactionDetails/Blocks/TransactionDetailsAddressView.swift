@@ -90,7 +90,6 @@ struct TransactionDetailsAddressView: View {
 
 // MARK: - Previews
 
-#if DEBUG
 #Preview("Counterparty actors") {
     VStack(spacing: 16) {
         TransactionDetailsAddressView(data: .init(
@@ -123,4 +122,3 @@ struct TransactionDetailsAddressView: View {
     .padding(16)
     .background(DesignSystem.Color.bgSecondary)
 }
-#endif // DEBUG
