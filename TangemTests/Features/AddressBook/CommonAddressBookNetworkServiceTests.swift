@@ -110,7 +110,7 @@ struct CommonAddressBookNetworkServiceTests {
             _ = try await service.loadAddressBook(walletId: walletId, knownETag: nil)
             Issue.record("Expected .malformedResponse to be thrown")
         } catch AddressBookNetworkServiceError.malformedResponse(let mappingError) {
-            guard case .invalidLength(field: .nonce, expected: _, actual: _) = mappingError else {
+            guard case .invalidLength(field: .nonce, expected: _, actual: _)? = mappingError as? AddressBookNetworkMapper.MappingError else {
                 Issue.record("Expected .invalidLength(.nonce), got \(mappingError)")
                 return
             }
@@ -219,6 +219,9 @@ private final class MockTangemApiService: TangemApiService {
     // MARK: Unused endpoints — not reachable from the unit under test.
 
     func getRawData(fromURL url: URL) async throws -> Data { fatalError("unused") }
+    func subscribeToPriceAlerts(userWalletIds: [String], tokenId: String) async throws { fatalError("unused") }
+    func unsubscribeFromPriceAlerts(userWalletIds: [String], tokenId: String) async throws { fatalError("unused") }
+    func priceAlertsSubscriptions(userWalletId: String) async throws -> [String] { fatalError("unused") }
     func loadGeo() -> AnyPublisher<String, Error> { fatalError("unused") }
     func loadCoins(requestModel: CoinsList.Request) -> AnyPublisher<[CoinModel], Error> { fatalError("unused") }
     func loadQuotes(requestModel: QuotesDTO.Request) -> AnyPublisher<[Quote], Error> { fatalError("unused") }
