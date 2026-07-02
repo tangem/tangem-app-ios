@@ -12,17 +12,27 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 
+protocol ChooseAddressRoutable: AnyObject {
+    func dismissChooseAddress()
+}
+
+protocol ChooseAddressOutput: AnyObject {
+    func chooseAddressDidSelect(_ group: AddressBookContactAddressGroup)
+}
+
 final class ChooseAddressViewModel: FloatingSheetContentViewModel {
     let rows: [ChooseAddressRowViewModel]
 
-    private let onClose: () -> Void
+    private weak var router: ChooseAddressRoutable?
+    private weak var output: ChooseAddressOutput?
 
     init(
         groups: [AddressBookContactAddressGroup],
-        onSelect: @escaping (AddressBookContactAddressGroup) -> Void,
-        onClose: @escaping () -> Void
+        router: ChooseAddressRoutable?,
+        output: ChooseAddressOutput?
     ) {
-        self.onClose = onClose
+        self.router = router
+        self.output = output
 
         rows = groups.map { group in
             let subtitle: String
@@ -32,11 +42,14 @@ final class ChooseAddressViewModel: FloatingSheetContentViewModel {
                 subtitle = Localization.commonNetworksCount(group.networks.count)
             }
 
-            return ChooseAddressRowViewModel(group: group, subtitle: subtitle, onTap: { onSelect(group) })
+            return ChooseAddressRowViewModel(group: group, subtitle: subtitle) { [weak router, weak output] in
+                router?.dismissChooseAddress()
+                output?.chooseAddressDidSelect(group)
+            }
         }
     }
 
     func close() {
-        onClose()
+        router?.dismissChooseAddress()
     }
 }
