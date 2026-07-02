@@ -121,8 +121,8 @@ struct CommonAddressBookRepositoryTests {
         #expect(persistentStorage.clearCallCount == 0)
     }
 
-    @Test(.disabled("Corrupt-blob cache invalidation ships with [REDACTED_INFO]; on develop the repository intentionally falls back to the cached book"))
-    func loadWithCorruptBlobInvalidatesCacheAndReportsDecodingError() async throws {
+    @Test
+    func loadWithCorruptRemoteBlobFallsBackToCachedBook() async throws {
         let cached = try makeContact()
         let corrupt = AddressBookEnvelope(
             version: AddressBookBlobCodec.supportedVersion,
@@ -139,10 +139,10 @@ struct CommonAddressBookRepositoryTests {
         await repository.load(silent: false)
 
         #expect(isDecodingError(currentSyncState(repository)))
-        #expect(currentContacts(repository).isEmpty)
-        #expect(persistentStorage.clearCallCount >= 1)
-        #expect(persistentStorage.stored == nil)
-        #expect(eTagStorage.clearedKeys.contains(addressBookETagKey))
+        #expect(currentContacts(repository).map(\.id) == [cached.id])
+        #expect(persistentStorage.clearCallCount == 0)
+        #expect(persistentStorage.stored != nil)
+        #expect(eTagStorage.clearedKeys.isEmpty)
     }
 
     // MARK: - Save
