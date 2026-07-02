@@ -42,10 +42,15 @@ class AddressBookContactManagementCoordinator: CoordinatorObject {
         case .add(let addressBookWallet):
             CreateAddressBookContactManagementInteractor(addressBookWallet: addressBookWallet)
         case .edit(let contact, let addressBookWallet):
-            EditAddressBookContactManagementInteractor(contact: contact, addressBookWallet: addressBookWallet)
+            EditAddressBookContactManagementInteractor(contact: contact, initialAddressBookWallet: addressBookWallet)
         }
 
-        rootViewModel = AddressBookContactManagementViewModel(interactor: interactor, coordinator: self)
+        let addressBooksProvider: any AddressBooksProvider = AllWalletsAddressBooksProvider()
+        rootViewModel = AddressBookContactManagementViewModel(
+            interactor: interactor,
+            coordinator: self,
+            addressBooksProvider: addressBooksProvider
+        )
     }
 }
 

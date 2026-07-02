@@ -31,15 +31,19 @@ class AddressBooksCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = .init(coordinator: self)
+        rootViewModel = .init(coordinator: self, addressBooksProvider: options.addressBooksProvider)
     }
 }
 
 // MARK: - Options
 
 extension AddressBooksCoordinator {
-    enum Options {
-        case `default`
+    struct Options {
+        let addressBooksProvider: any AddressBooksProvider
+
+        init(addressBooksProvider: any AddressBooksProvider) {
+            self.addressBooksProvider = addressBooksProvider
+        }
     }
 }
 
